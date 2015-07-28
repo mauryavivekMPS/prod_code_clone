@@ -1,0 +1,23 @@
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
+
+
+class Article_Citations(Model):
+
+    publisher_id = columns.Text(primary_key=True)
+    article_doi = columns.Text(primary_key=True)
+    citation_doi = columns.Text(primary_key=True)
+    citation_date = columns.DateTime()
+    citation_first_author = columns.Text()
+    citation_issue = columns.Text()
+    citation_journal_issn = columns.Text()
+    citation_journal_title = columns.Text()
+    citation_pages = columns.Text()
+    citation_scopus_id = columns.Text()
+    citation_source = columns.Text()
+    citation_title = columns.Text()
+    citation_volume = columns.Text()
+    citation_count = columns.Integer()
+    created = columns.DateTime()
+    updated = columns.DateTime()
+

@@ -1,0 +1,67 @@
+from __future__ import absolute_import
+
+from time import time
+from datetime import datetime
+from os import makedirs
+
+from cassandra.cqlengine import connection
+
+from ivetl.common import common
+from ivetl.celery import app
+from ivetl.common.BaseTask import BaseTask
+from ivetl.common.PublishedArticle import Published_Article
+from ivetl.common.ArticleCitations import Article_Citations
+
+
+@app.task
+class InsertArticleCitationPlaceholderTask(BaseTask):
+
+    taskname = "InsertArticleCitationPlaceholder"
+    vizor = common.AC
+
+    QUERY_LIMIT = 500000
+
+    def run(self, publisher):
+
+        today = datetime.today()
+        updated = today
+
+        workfolder = common.BASE_WORK_DIR + today.strftime('%Y%m%d') + "/" + publisher + "/" + self.vizor + "/" + today.strftime('%Y%m%d') + "_" + today.strftime('%H%M%S%f')
+
+        path = workfolder + "/" + self.taskname
+        makedirs(path, exist_ok=True)
+
+        tlogger = self.getTaskLogger(path, self.taskname)
+
+        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
+
+        t0 = time()
+        count = 0
+
+        articles = Published_Article.objects.filter(publisher_id=publisher).limit(self.QUERY_LIMIT)
+
+        for article in articles:
+
+            count += 1
+
+            # Add placeholder record for each year of citation
+            for yr in range(2010, today.year + 1):
+
+                if article.date_of_publication.year >= yr:
+                    plac = Article_Citations()
+                    plac['publisher_id'] = publisher
+                    plac['article_doi'] = article.article_doi
+                    plac['citation_doi'] = str(yr)
+                    plac['updated'] = updated
+                    plac['created'] = updated
+                    plac['citation_date'] = datetime(yr, 1, 1)
+                    plac['citation_count'] = 0
+                    plac.save()
+
+            tlogger.info("---")
+            tlogger.info(str(count-1) + ". " + publisher + " / " + article.article_doi + ": Inserted placeholder citations.")
+
+        t1 = time()
+        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+
+        return
