@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+import datetime
+import sendgrid
+
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',
@@ -34,13 +37,35 @@ BASE_WORK_DIR = "/iv/working/"
 BASE_ARCHIVE_DIR = "/iv/archive/"
 
 RAT = "rejected_article_tracker"
+
 PA = "published_articles"
+PA_PUB_START_DATE = datetime.date(2010, 1, 1)
+PA_PUB_OVERLAP_MONTHS = 2
+
 AC = "article_citations"
 
 EMAIL = "nmehta@highwire.org"
 FROM = "impactvizor@highwire.org"
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
+
+
+def sendEmail(subject, body):
+
+        try:
+            sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
+
+            message = sendgrid.Mail()
+            message.add_to(EMAIL)
+            message.set_subject(subject)
+            message.set_html(body)
+            message.set_from(FROM)
+
+            sg.send(message)
+
+        except Exception:
+            # do nothing
+            print("sending of email failed")
 
 
 

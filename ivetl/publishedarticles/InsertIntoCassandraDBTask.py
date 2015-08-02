@@ -1,22 +1,16 @@
 from __future__ import absolute_import
-
 import csv
 import codecs
-from time import time
 import json
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from os import makedirs
-
-from cassandra.cqlengine import connection
 
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.common.PublishedArticle import Published_Article
-from ivetl.common.PublisherVizorUpdates import Publisher_Vizor_Updates
-from ivetl.common.Metadata import Metadata
-from ivetl.common.ArticleCitations import Article_Citations
+from ivetl.models.PublishedArticle import Published_Article
+from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
+from ivetl.models.Metadata import Metadata
+from ivetl.models.ArticleCitations import Article_Citations
 
 
 @app.task
@@ -27,18 +21,14 @@ class InsertIntoCassandraDBTask(BaseTask):
 
     def run(self, args):
 
-        file = args[0]
-        publisher = args[1]
-        workfolder = args[3]
+        publisher = args[BaseTask.PUBLISHER_ID]
+        workfolder = args[BaseTask.WORK_FOLDER]
+        job_id = args[BaseTask.JOB_ID]
+        file = args[BaseTask.INPUT_FILE]
 
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
+        task_workfolder, tlogger = self.setupTask(workfolder)
 
-        tlogger = self.getTaskLogger(path, self.taskname)
-
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
-
-        t0 = time()
+        t0 = self.taskStarted(publisher, job_id)
         count = 0
 
         today = datetime.today()
@@ -55,7 +45,6 @@ class InsertIntoCassandraDBTask(BaseTask):
                 publisher = line[0]
                 doi = line[1]
                 data = json.loads(line[2])
-
 
                 pa = Published_Article()
 
@@ -133,7 +122,9 @@ class InsertIntoCassandraDBTask(BaseTask):
                 if 'editor' in data and (data['editor'] != ''):
                     pa['editor'] = data['editor']
 
-                if pa['scopus_citation_count'] is None:
+                if 'scopus_citation_count' in data and (data['scopus_citation_count'] != ''):
+                    pa['scopus_citation_count'] = data['scopus_citation_count']
+                else:
                     pa['scopus_citation_count'] = 0
 
                 if pa.hw_metadata_retrieved is None:
@@ -142,13 +133,13 @@ class InsertIntoCassandraDBTask(BaseTask):
                 pa.save()
 
                 # Add Placeholder Citations
-                for yr in range(2010, today.year + 1):
+                for yr in range(common.PA_PUB_START_DATE.year, today.year + 1):
 
                     if pa.date_of_publication.year >= yr:
                         plac = Article_Citations()
                         plac['publisher_id'] = publisher
                         plac['article_doi'] = doi
-                        plac['citation_doi'] = str(yr)
+                        plac['citation_doi'] = str(yr) + "-placeholder"
                         plac['updated'] = updated
                         plac['created'] = updated
                         plac['citation_date'] = datetime(yr, 1, 1)
@@ -167,14 +158,17 @@ class InsertIntoCassandraDBTask(BaseTask):
             pu.save()
 
             m = Metadata.filter(publisher_id=publisher).first()
-            m.last_updated_date = updated - relativedelta(months=2)
+            m.last_updated_date = updated
             m.save()
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count - 1))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
-        return
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = workfolder
+        args[BaseTask.JOB_ID] = job_id
+
+        return args
 
 
 def toDateTime(month, day, year):

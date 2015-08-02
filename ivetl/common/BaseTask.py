@@ -3,17 +3,47 @@ from __future__ import absolute_import
 from celery import Task
 import logging
 from os import makedirs
-import sendgrid
 import datetime
+from time import time
 
 from ivetl.common import common
 
 
 class BaseTask(Task):
+
     abstract = True
     taskname = ''
     vizor = ''
 
+    PUBLISHER_ID = 'BaseTask.PublisherId'
+    INPUT_FILE = 'BaseTask.InputFile'
+    WORK_FOLDER = 'BaseTask.WorkFolder'
+    JOB_ID = 'BaseTask.JobId'
+
+    def getWorkFolder(self, day, publisher, job_id):
+        return common.BASE_WORK_DIR + day + "/" + publisher + "/" + self.vizor + "/" + job_id
+
+    def setupTask(self, workfolder):
+
+        task_workfolder = workfolder + "/" + self.taskname
+        makedirs(task_workfolder, exist_ok=True)
+        tlogger = self.getTaskLogger(task_workfolder, self.taskname)
+
+        return task_workfolder, tlogger
+
+    def taskStarted(self, publisher, job_id):
+
+        # Update Task Status In DB
+        # To Do
+        return time()
+
+    def taskEnded(self, publisher, job_id, start_time, tlogger, count=None):
+
+        t1 = time()
+        if count is not None:
+            tlogger.info("Rows Processed: " + str(count))
+
+        tlogger.info("Time Taken: " + format(t1-start_time, '.2f') + " seconds / " + format((t1-start_time)/60, '.2f') + " minutes")
 
     def getTaskLogger(self, path, taskname):
 
@@ -27,23 +57,6 @@ class BaseTask(Task):
         ti_logger.addHandler(fh)
 
         return ti_logger
-
-    def sendEmail(self, subject, body):
-
-        try:
-            sg = sendgrid.SendGridClient(common.SG_USERNAME, common.SG_PWD)
-
-            message = sendgrid.Mail()
-            message.add_to(common.EMAIL)
-            message.set_subject(subject)
-            message.set_html(body)
-            message.set_from(common.FROM)
-
-            sg.send(message)
-
-        except Exception:
-            # do nothing
-            print("sending of email failed")
 
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
@@ -69,7 +82,8 @@ class BaseTask(Task):
         body += "<br><br><b>Command To Rerun Task:</b> <br>"
         body += self.__class__.__name__ + ".s" + str(args) + ".delay()"
 
-        self.sendEmail(subject, body)
+        common.sendEmail(subject, body)
+
 
     def on_success(self, retval, task_id, args, kwargs):
 
@@ -88,7 +102,7 @@ class BaseTask(Task):
         body += "<br><br><b>Return Value:</b> <br>"
         body += str(retval)
 
-        self.sendEmail(subject, body)
+        common.sendEmail(subject, body)
 
 
 

@@ -1,6 +1,10 @@
 from __future__ import absolute_import
 
 from celery import Celery
+from celery.signals import worker_process_init, worker_process_shutdown
+
+from ivetl.common import common
+from cassandra.cqlengine import connection
 
 app = Celery('ivetl',
              include=['ivetl.rat.ValidateInputFileTask',
@@ -27,6 +31,16 @@ app = Celery('ivetl',
 
 # Optional configuration, see the application user guide.
 app.config_from_object('ivetl.celeryconfig')
+
+
+# Initialize Database Pool
+@worker_process_init.connect
+def init_worker(**kwargs):
+    connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
+
+@worker_process_shutdown.connect
+def shutdown_worker(pid, exitcode, **kwargs):
+    connection.get_cluster().shutdown()
 
 
 if __name__ == '__main__':

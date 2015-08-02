@@ -1,18 +1,18 @@
 from __future__ import absolute_import
-
 import csv
 import codecs
 from time import time
 import json
-import requests
 from datetime import timedelta
 import re
 from datetime import date
-from cassandra.cqlengine import connection
 from os import makedirs
 
+import requests
+from cassandra.cqlengine import connection
+
 from ivetl.rat.CRArticle import CRArticle
-from ivetl.common.IssnJournal import Issn_Journal
+from ivetl.models.IssnJournal import Issn_Journal
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask

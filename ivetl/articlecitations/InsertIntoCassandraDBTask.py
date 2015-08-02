@@ -6,17 +6,13 @@ import codecs
 from time import time
 import json
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from os import makedirs
-
-from cassandra.cqlengine import connection
 
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.common.PublishedArticle import Published_Article
-from ivetl.common.ArticleCitations import Article_Citations
-from ivetl.common.PublisherVizorUpdates import Publisher_Vizor_Updates
+from ivetl.models.PublishedArticle import Published_Article
+from ivetl.models.ArticleCitations import Article_Citations
+from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 
 
 @app.task
@@ -29,16 +25,12 @@ class InsertIntoCassandraDBTask(BaseTask):
 
     def run(self, args):
 
-        file = args[0]
-        publisher = args[1]
-        workfolder = args[3]
+        publisher = args[BaseTask.PUBLISHER_ID]
+        workfolder = args[BaseTask.WORK_FOLDER]
+        job_id = args[BaseTask.JOB_ID]
+        file = args[BaseTask.INPUT_FILE]
 
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
-
-        tlogger = self.getTaskLogger(path, self.taskname)
-
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
+        task_workfolder, tlogger = self.setupTask(workfolder)
 
         t0 = time()
         count = 0
@@ -132,11 +124,14 @@ class InsertIntoCassandraDBTask(BaseTask):
             pu['updated'] = updated
             pu.save()
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count - 1))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
-        return
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = workfolder
+        args[BaseTask.JOB_ID] = job_id
+
+        return args
 
 
 def toDateTime(month, day, year):

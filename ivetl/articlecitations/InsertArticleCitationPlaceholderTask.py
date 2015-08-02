@@ -9,8 +9,8 @@ from cassandra.cqlengine import connection
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.common.PublishedArticle import Published_Article
-from ivetl.common.ArticleCitations import Article_Citations
+from ivetl.models.PublishedArticle import Published_Article
+from ivetl.models.ArticleCitations import Article_Citations
 
 
 @app.task
@@ -32,8 +32,6 @@ class InsertArticleCitationPlaceholderTask(BaseTask):
         makedirs(path, exist_ok=True)
 
         tlogger = self.getTaskLogger(path, self.taskname)
-
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
 
         t0 = time()
         count = 0

@@ -22,25 +22,24 @@ class ScopusIdLookupTask(BaseTask):
     taskname = "ScopusIdLookup"
     vizor = common.PA
 
+    BASE_SCOPUS_URL = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey=14edf00bcb425d2e3c40d1c1629f80f9&'
+
     def run(self, args):
 
-        file = args[0]
-        publisher = args[1]
-        day = args[2]
-        workfolder = args[3]
+        publisher = args[BaseTask.PUBLISHER_ID]
+        workfolder = args[BaseTask.WORK_FOLDER]
+        job_id = args[BaseTask.JOB_ID]
+        file = args[BaseTask.INPUT_FILE]
 
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
+        task_workfolder, tlogger = self.setupTask(workfolder)
 
-        tlogger = self.getTaskLogger(path, self.taskname)
-
-        target_file_name = path + "/" + publisher + "_" + day + "_" + "scopuscitationlookup" + "_" + "target.tab"
+        target_file_name = task_workfolder + "/" + publisher + "_" + "scopuscitationlookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
 
-        t0 = time()
+        t0 = self.taskStarted(publisher, job_id)
         count = 0
 
         with codecs.open(file, encoding="utf-16") as tsv:
@@ -55,19 +54,42 @@ class ScopusIdLookupTask(BaseTask):
                 doi = line[1]
                 data = json.loads(line[2])
 
-                tlogger.info("\n" + str(count-1) + ". Retrieving Scopus Id for: " + doi)
+                tlogger.info("---")
+                tlogger.info(str(count-1) + ". Retrieving Scopus Id for: " + doi)
 
-                tlogger.info('http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey=14edf00bcb425d2e3c40d1c1629f80f9&' + urllib.parse.urlencode({'query': 'doi(' + doi + ')'}))
+                tlogger.info(self.BASE_SCOPUS_URL + urllib.parse.urlencode({'query': 'doi(' + doi + ')'}))
 
                 attempt = 0
                 max_attempts = 3
-                while attempt < max_attempts:
+                success = False
+
+                while not success and attempt < max_attempts:
                     try:
-                        r = requests.get('http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey=14edf00bcb425d2e3c40d1c1629f80f9&' + urllib.parse.urlencode({'query': 'doi(' + doi + ')'}), timeout=30)
+                        r = requests.get(self.BASE_SCOPUS_URL + urllib.parse.urlencode({'query': 'doi(' + doi + ')'}), timeout=30)
                         #sleep(2)
 
                         root = etree.fromstring(r.content, etree.HTMLParser())
                         n = root.xpath('//entry/eid', namespaces=common.ns)
+
+                        if len(n) == 0 and 'ISSN' in data and 'volume' in data and 'issue' in data and 'page' in data:
+
+                            tlogger.info("Looking up using volume/issue/page")
+
+                            query = ''
+                            for i in range(len(data['ISSN'])):
+                                query += 'ISSN(' + data['ISSN'][i] + ')'
+                                if i != len(data['ISSN']) - 1:
+                                    query += " OR "
+
+                            query += " AND VOLUME(" + data['volume'] + ")"
+                            query += " AND issue(" + data['issue'] + ")"
+                            query += " AND pages(" + data['page'] + ")"
+
+                            tlogger.info(self.BASE_SCOPUS_URL + urllib.parse.urlencode({'query': query}))
+
+                            r = requests.get(self.BASE_SCOPUS_URL + urllib.parse.urlencode({'query': query}), timeout=30)
+                            root = etree.fromstring(r.content, etree.HTMLParser())
+                            n = root.xpath('//entry/eid', namespaces=common.ns)
 
                         if len(n) != 0:
                             scopus_id = n[0].text
@@ -75,17 +97,21 @@ class ScopusIdLookupTask(BaseTask):
                             data['scopus_id_status'] = "DOI in Scopus"
                             data['scopus_id'] = scopus_id
 
+                            c =root.xpath('//entry/citedby-count', namespaces=common.ns)
+
+                            if len(c) != 0:
+                                data['scopus_citation_count'] = c[0].text
+
                         else:
                             scopus_id = ''
                             tlogger.info("No Scopus Id found for DOI: " + doi)
                             data['scopus_id_status'] = "No DOI in Scopus"
                             data['scopus_id'] = ''
 
-                        break
+                        success = True
 
                     except Exception:
                         tlogger.info("Scopus API failed. Trying Again")
-                        print(doi)
                         traceback.print_exc()
                         data['scopus_id'] = ''
                         data['scopus_id_status'] = "Scopus API failed"
@@ -103,11 +129,16 @@ class ScopusIdLookupTask(BaseTask):
 
         target_file.close()
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count - 1))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
-        return target_file_name, publisher, day, workfolder
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = workfolder
+        args[BaseTask.JOB_ID] = job_id
+        args[BaseTask.INPUT_FILE] = target_file_name
+
+        return args
+
 
 
 

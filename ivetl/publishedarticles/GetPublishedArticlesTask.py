@@ -1,10 +1,8 @@
 from __future__ import absolute_import
 
 import codecs
-from time import time
 import json
 import requests
-from os import makedirs
 
 from ivetl.common import common
 from ivetl.celery import app
@@ -16,24 +14,35 @@ class GetPublishedArticlesTask(BaseTask):
 
     taskname = "GetPublishedArticles"
     vizor = common.PA
-    ITEMS_PER_PAGE = 1000
+    #ITEMS_PER_PAGE = 1000
+    ITEMS_PER_PAGE = 10
 
-    def run(self, publisher, issns, start_publication_date, day, workfolder):
+    ISSNS = 'GetPublishedArticlesTask.PublisherId'
+    START_PUB_DATE = 'GetPublishedArticlesTask.InputFile'
+    WORK_FOLDER = 'GetPublishedArticlesTask.WorkFolder'
 
+
+    def run(self, args):
+
+        publisher = args[BaseTask.PUBLISHER_ID]
+        workfolder = args[BaseTask.WORK_FOLDER]
+        job_id = args[BaseTask.JOB_ID]
+
+        issns = args[GetPublishedArticlesTask.ISSNS]
+        start_publication_date = args[GetPublishedArticlesTask.START_PUB_DATE]
         from_pub_date_str = start_publication_date.strftime('%Y-%m-%d')
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
 
-        tlogger = self.getTaskLogger(path, self.taskname)
+        task_workfolder, tlogger = self.setupTask(workfolder)
 
-        target_file_name = path + "/" + publisher + "_" + day + "_" + "xrefpublishedarticles" + "_" + "target.tab"
+        target_file_name = task_workfolder + "/" + publisher + "_" + "xrefpublishedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
-        t0 = time()
 
         count = 0
+
+        t0 = self.taskStarted(publisher, job_id)
 
         for issn in issns:
 
@@ -46,8 +55,8 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                #if count >= 10:
-                #    break
+                if count >= 10:
+                    break
 
                 while not success and attempt < max_attempts:
                     try:
@@ -88,15 +97,17 @@ class GetPublishedArticlesTask(BaseTask):
                 else:
                     offset = -1
 
-
-
         target_file.close()
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
-        return target_file_name, publisher, day, workfolder
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = workfolder
+        args[BaseTask.JOB_ID] = job_id
+        args[BaseTask.INPUT_FILE] = target_file_name
+
+        return args
 
 
 

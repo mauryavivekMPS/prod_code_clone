@@ -9,4 +9,23 @@ CELERY_ACKS_LATE = False
 CELERYD_PREFETCH_MULTIPLIER = 1
 
 
+# Enables error emails.
+CELERY_SEND_TASK_ERROR_EMAILS = True
+
+# Name and email addresses of recipients
+ADMINS = (
+    ('Neil Mehta', 'nmehta@highwire.org'),
+)
+
+# Email address used as sender (From field).
+SERVER_EMAIL = 'impactvizor@highwire.org'
+
+# Mailserver configuration
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'estacks'
+EMAIL_HOST_PASSWORD = 'Hello123!'
+
+
+
 

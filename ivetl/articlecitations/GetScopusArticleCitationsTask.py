@@ -1,18 +1,14 @@
 from __future__ import absolute_import
-
 import codecs
-from time import time
 import json
-import requests
-from os import makedirs
 import datetime
 
-from cassandra.cqlengine import connection
+import requests
 
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.common.PublishedArticle import Published_Article
+from ivetl.models.PublishedArticle import Published_Article
 
 
 @app.task
@@ -21,26 +17,31 @@ class GetScopusArticleCitationsTask(BaseTask):
     taskname = "GetScopusArticleCitations"
     vizor = common.AC
 
+    REPROCESS_ALL = 'GetScopusArticleCitations.ReprocessAll'
+    REPROCESS_ERRORS = 'GetScopusArticleCitations.ReprocessErrors'
+
     ITEMS_PER_PAGE = 25
     QUERY_LIMIT = 500000
     SCOPUS_BASE_URL = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey=14edf00bcb425d2e3c40d1c1629f80f9&'
 
-    def run(self, publisher, day, workfolder, reprocessall, reprocesserrorsonly):
 
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
+    def run(self, args):
 
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
+        publisher = args[BaseTask.PUBLISHER_ID]
+        workfolder = args[BaseTask.WORK_FOLDER]
+        job_id = args[BaseTask.JOB_ID]
+        reprocessall = args[GetScopusArticleCitationsTask.REPROCESS_ALL]
+        reprocesserrorsonly = args[GetScopusArticleCitationsTask.REPROCESS_ERRORS]
 
-        tlogger = self.getTaskLogger(path, self.taskname)
+        task_workfolder, tlogger = self.setupTask(workfolder)
 
-        target_file_name = path + "/" + publisher + "_" + day + "_" + "articlecitations" + "_" + "target.tab"
+        target_file_name = task_workfolder + "/" + publisher + "_" + "articlecitations" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
-        t0 = time()
 
+        t0 = self.taskStarted(publisher, job_id)
         count = 0
         errors = False
 
@@ -151,15 +152,20 @@ class GetScopusArticleCitationsTask(BaseTask):
         target_file.close()
 
         if errors:
-            subject = "!!" + publisher + " / Article Citations - " + day + " - Errors !!"
+            subject = "!!" + publisher + " / Article Citations - Errors !!"
             text = "Errors getting citations. Manual with reprocess errors to true."
-            self.sendEmail(subject, text)
+            text += "\n\nWork Folder: " + workfolder
+            common.sendEmail(subject, text)
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
-        return target_file_name, publisher, day, workfolder
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = workfolder
+        args[BaseTask.JOB_ID] = job_id
+        args[BaseTask.INPUT_FILE] = target_file_name
+
+        return args
 
 
 

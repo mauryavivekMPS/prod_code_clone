@@ -1,12 +1,10 @@
 from __future__ import absolute_import
 
 import datetime
-
 from celery import chain
 
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common.Metadata import Metadata
 from ivetl.common.BaseTask import BaseTask
 from ivetl.articlecitations.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
 from ivetl.articlecitations.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
@@ -23,10 +21,16 @@ class ManualUpdateArticleCitationsTask(BaseTask):
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
         time = d.strftime('%H%M%S%f')
+        job_id = today + "_" + time
 
-        workfolder = common.BASE_WORK_DIR + today + "/" + publisher + "/" + self.vizor + "/" + today + "_" + time
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = self.getWorkFolder(today, publisher, job_id)
+        args[BaseTask.JOB_ID] = job_id
+        args[GetScopusArticleCitationsTask.REPROCESS_ALL] = reprocessall
+        args[GetScopusArticleCitationsTask.REPROCESS_ERRORS] = reprocesserrorsonly
 
-        chain(GetScopusArticleCitationsTask.s(publisher, today, workfolder, reprocessall, reprocesserrorsonly) |
+        chain(GetScopusArticleCitationsTask.s(args) |
               InsertIntoCassandraDBTask.s()).delay()
 
 

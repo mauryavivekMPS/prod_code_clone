@@ -1,24 +1,18 @@
 from __future__ import absolute_import
-
 import csv
 import codecs
-from time import time
 import json
 import urllib.parse
 import urllib.request
+import traceback
+import re
 import requests
 from lxml import etree
-import traceback
-from os import makedirs
-import re
-
-from cassandra.cqlengine import connection
 
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.common.Metadata import Metadata
-from ivetl.common.IssnJournal import Issn_Journal
+from ivetl.models.Metadata import Metadata
 
 
 @app.task
@@ -35,38 +29,25 @@ class HWMetadataLookupTask(BaseTask):
 
     ISSN_JNL_QUERY_LIMIT = 1000000
 
-
     def run(self, args):
 
-        file = args[0]
-        publisher = args[1]
-        day = args[2]
-        workfolder = args[3]
+        publisher = args[BaseTask.PUBLISHER_ID]
+        workfolder = args[BaseTask.WORK_FOLDER]
+        job_id = args[BaseTask.JOB_ID]
+        file = args[BaseTask.INPUT_FILE]
 
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
-
-        tlogger = self.getTaskLogger(path, self.taskname)
-
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
+        task_workfolder, tlogger = self.setupTask(workfolder)
 
         m = Metadata.filter(publisher_id=publisher).first()
-        hw_metadata_available = m.hw_addl_metadata_source
         issn_to_hw_journal_code = m.issn_to_hw_journal_code
 
-        if hw_metadata_available is False:
-            tlogger.info("HighWire Metadata not available for " + publisher)
-            tlogger.info("Skipping to next task")
-
-            return file, publisher, day, workfolder
-
-        target_file_name = path + "/" + publisher + "_" + day + "_" + "hwmetadatalookup" + "_" + "target.tab"
+        target_file_name = task_workfolder + "/" + publisher + "_" + "hwmetadatalookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
 
-        t0 = time()
+        t0 = self.taskStarted(publisher, job_id)
         count = 0
 
         with codecs.open(file, encoding="utf-16") as tsv:
@@ -183,11 +164,15 @@ class HWMetadataLookupTask(BaseTask):
 
         target_file.close()
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count - 1))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
+        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
-        return target_file_name, publisher, day, workfolder
+        args = {}
+        args[BaseTask.PUBLISHER_ID] = publisher
+        args[BaseTask.WORK_FOLDER] = workfolder
+        args[BaseTask.JOB_ID] = job_id
+        args[BaseTask.INPUT_FILE] = target_file_name
+
+        return args
 
 
 

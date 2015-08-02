@@ -1,14 +1,12 @@
 from __future__ import absolute_import
-
-
 from time import time
-import requests
 import datetime
 
+import requests
 from cassandra.cqlengine import connection
 from cassandra.cqlengine.query import BatchQuery
 
-from ivetl.common.IssnJournal import Issn_Journal
+from ivetl.models.IssnJournal import Issn_Journal
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
