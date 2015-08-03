@@ -17,7 +17,6 @@ class GetScopusArticleCitationsTask(BaseTask):
     taskname = "GetScopusArticleCitations"
     vizor = common.AC
 
-    REPROCESS_ALL = 'GetScopusArticleCitations.ReprocessAll'
     REPROCESS_ERRORS = 'GetScopusArticleCitations.ReprocessErrors'
 
     ITEMS_PER_PAGE = 25
@@ -30,7 +29,6 @@ class GetScopusArticleCitationsTask(BaseTask):
         publisher = args[BaseTask.PUBLISHER_ID]
         workfolder = args[BaseTask.WORK_FOLDER]
         job_id = args[BaseTask.JOB_ID]
-        reprocessall = args[GetScopusArticleCitationsTask.REPROCESS_ALL]
         reprocesserrorsonly = args[GetScopusArticleCitationsTask.REPROCESS_ERRORS]
 
         task_workfolder, tlogger = self.setupTask(workfolder)
@@ -58,11 +56,6 @@ class GetScopusArticleCitationsTask(BaseTask):
                 tlogger.info("Skipping - No Scopus Id")
                 continue
 
-            if not reprocessall and article.citations_updated_on is not None:
-                if (article.date_of_publication.year + 2) < datetime.datetime.today().year:
-                    tlogger.info("Skipping - Citations are already up to date")
-                    continue
-
             if reprocesserrorsonly:
                 if article.citations_lookup_error is not True:
                     tlogger.info("Skipping - Only processing Articles with error in looking up citations")
@@ -86,8 +79,8 @@ class GetScopusArticleCitationsTask(BaseTask):
                     try:
 
                         query = 'query=refeid(' + article.article_scopus_id + ')'
-                        query += '+AND+pubyear>' + str(article.date_of_publication.year - 1)
-                        query += '+AND+pubyear<' + str(article.date_of_publication.year + 3)
+                        #query += '+AND+pubyear>' + str(article.date_of_publication.year - 1)
+                        #query += '+AND+pubyear<' + str(article.date_of_publication.year + 3)
 
                         url = self.SCOPUS_BASE_URL + query
                         url += '&count=' + str(self.ITEMS_PER_PAGE)
@@ -115,10 +108,8 @@ class GetScopusArticleCitationsTask(BaseTask):
                         else:
 
                             for i in scopusdata['search-results']['entry']:
-
-                                if 'prism:doi' in i and (i['prism:doi'] != ''):
-                                    citations.append(i)
-                                    num_citations += 1
+                                citations.append(i)
+                                num_citations += 1
 
                             total_results = int(scopusdata['search-results']['opensearch:totalResults'])
                             if self.ITEMS_PER_PAGE + offset < total_results:

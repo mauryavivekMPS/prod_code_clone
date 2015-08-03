@@ -54,14 +54,14 @@ class InsertIntoCassandraDBTask(BaseTask):
 
                 for data in citations:
 
-                    if 'prism:doi' not in data or (data['prism:doi'] == ''):
-                        continue
+                    #if 'prism:doi' not in data or (data['prism:doi'] == ''):
+                    #    continue
 
-                    if 'prism:coverDate' in data and (data['prism:coverDate'] != ''):
-                        dop = datetime.strptime(data['prism:coverDate'], '%Y-%m-%d')
+                    #if 'prism:coverDate' in data and (data['prism:coverDate'] != ''):
+                    #    dop = datetime.strptime(data['prism:coverDate'], '%Y-%m-%d')
 
-                        if dop > today:
-                            continue
+                        #if dop > today:
+                        #    continue
 
                     ac = Article_Citations()
 
@@ -72,6 +72,11 @@ class InsertIntoCassandraDBTask(BaseTask):
 
                     if 'prism:doi' in data and (data['prism:doi'] != ''):
                         ac['citation_doi'] = data['prism:doi']
+                    else:
+                        ac['citation_doi'] = data['eid']
+
+                    if 'eid' in data and (data['eid'] != 0):
+                        ac['citation_scopus_id'] = data['eid']
 
                     if 'prism:coverDate' in data and (data['prism:coverDate'] != ''):
                         ac['citation_date'] = datetime.strptime(data['prism:coverDate'], '%Y-%m-%d')
@@ -91,9 +96,6 @@ class InsertIntoCassandraDBTask(BaseTask):
                     if 'prism:pageRange' in data and (data['prism:pageRange'] != 0):
                         ac['citation_pages'] = data['prism:pageRange']
 
-                    if 'eid' in data and (data['eid'] != 0):
-                        ac['citation_scopus_id'] = data['eid']
-
                     ac['citation_source'] = self.CITATION_SOURCE
 
                     if 'dc:title' in data and (data['dc:title'] != 0):
@@ -109,7 +111,7 @@ class InsertIntoCassandraDBTask(BaseTask):
                 pa = Published_Article()
                 pa['publisher_id'] = publisher
                 pa['article_doi'] = doi
-                pa['scopus_citation_count'] = len(citations)
+                #pa['scopus_citation_count'] = len(citations)
                 pa['citations_updated_on'] = updated
                 pa.update()
 

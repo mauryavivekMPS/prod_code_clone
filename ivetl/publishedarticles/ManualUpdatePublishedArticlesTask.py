@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.common.BaseTask import BaseTask
-from ivetl.models.Metadata import Metadata
+from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.publishedarticles.GetPublishedArticlesTask import GetPublishedArticlesTask
 from ivetl.publishedarticles.ScopusIdLookupTask import ScopusIdLookupTask
 from ivetl.publishedarticles.HWMetadataLookupTask import HWMetadataLookupTask
@@ -27,14 +27,14 @@ class ManualUpdatePublishedArticlesTask(BaseTask):
         time = d.strftime('%H%M%S%f')
         job_id = today + "_" + time
 
-        pm = Metadata.objects.filter(publisher_id=publisher).first()
+        pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
 
-        issns = pm.issn.split(",")
+        issns = pm.published_articles_issns_to_lookup
 
         if reprocessall:
             start_publication_date = common.PA_PUB_START_DATE
         else:
-            start_publication_date = pm.last_updated_date - relativedelta(months=common.PA_PUB_OVERLAP_MONTHS)
+            start_publication_date = pm.published_articles_last_updated - relativedelta(months=common.PA_PUB_OVERLAP_MONTHS)
 
         args = {}
         args[BaseTask.PUBLISHER_ID] = publisher
@@ -43,7 +43,7 @@ class ManualUpdatePublishedArticlesTask(BaseTask):
         args[GetPublishedArticlesTask.ISSNS] = issns
         args[GetPublishedArticlesTask.START_PUB_DATE] = start_publication_date
 
-        if pm.hw_addl_metadata_source:
+        if pm.hw_addl_metadata_available:
 
             chain(GetPublishedArticlesTask.s(args) |
                   ScopusIdLookupTask.s() |

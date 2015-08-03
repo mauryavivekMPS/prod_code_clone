@@ -1,21 +1,22 @@
 USE impactvizor;
 
-CREATE TABLE publisher_metadata (
+CREATE TABLE pipeline_status (
   publisher_id text,
-  hw_addl_metadata_available boolean,
-  issn_to_hw_journal_code map<text, text>,
-  published_articles_last_updated timestamp,
-  published_articles_issns_to_lookup list<text>,
-  scopus_api_key text,
-  PRIMARY KEY ((publisher_id))
+  job_id text,
+  status text,
+  job_start,
+  job_end,
+  current_task text,
+  updated timestamp,
+  PRIMARY KEY ((publisher_id), vizor_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
   comment='' AND
-  dclocal_read_repair_chance=0.100000 AND
+  dclocal_read_repair_chance=0.000000 AND
   gc_grace_seconds=864000 AND
   index_interval=128 AND
-  read_repair_chance=0.000000 AND
+  read_repair_chance=0.100000 AND
   replicate_on_write='true' AND
   populate_io_cache_on_flush='false' AND
   default_time_to_live=0 AND

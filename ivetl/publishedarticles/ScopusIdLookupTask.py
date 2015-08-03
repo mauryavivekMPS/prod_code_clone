@@ -2,14 +2,12 @@ from __future__ import absolute_import
 
 import csv
 import codecs
-from time import time
 import json
 import urllib.parse
 import urllib.request
 import requests
 from lxml import etree
 import traceback
-from os import makedirs
 
 from ivetl.common import common
 from ivetl.celery import app

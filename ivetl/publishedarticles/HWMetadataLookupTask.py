@@ -12,7 +12,7 @@ from lxml import etree
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.models.Metadata import Metadata
+from ivetl.models.PublisherMetadata import PublisherMetadata
 
 
 @app.task
@@ -38,8 +38,8 @@ class HWMetadataLookupTask(BaseTask):
 
         task_workfolder, tlogger = self.setupTask(workfolder)
 
-        m = Metadata.filter(publisher_id=publisher).first()
-        issn_to_hw_journal_code = m.issn_to_hw_journal_code
+        pm = PublisherMetadata.filter(publisher_id=publisher).first()
+        issn_to_hw_journal_code = pm.issn_to_hw_journal_code
 
         target_file_name = task_workfolder + "/" + publisher + "_" + "hwmetadatalookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')

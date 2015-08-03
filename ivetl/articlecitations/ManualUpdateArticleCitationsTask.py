@@ -16,7 +16,7 @@ class ManualUpdateArticleCitationsTask(BaseTask):
     taskname = "ManualUpdateArticleCitations"
     vizor = common.AC
 
-    def run(self, publisher, reprocessall, reprocesserrorsonly):
+    def run(self, publisher, reprocesserrorsonly):
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
@@ -27,7 +27,6 @@ class ManualUpdateArticleCitationsTask(BaseTask):
         args[BaseTask.PUBLISHER_ID] = publisher
         args[BaseTask.WORK_FOLDER] = self.getWorkFolder(today, publisher, job_id)
         args[BaseTask.JOB_ID] = job_id
-        args[GetScopusArticleCitationsTask.REPROCESS_ALL] = reprocessall
         args[GetScopusArticleCitationsTask.REPROCESS_ERRORS] = reprocesserrorsonly
 
         chain(GetScopusArticleCitationsTask.s(args) |

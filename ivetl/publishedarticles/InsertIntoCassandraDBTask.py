@@ -9,7 +9,7 @@ from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
 from ivetl.models.PublishedArticle import Published_Article
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
-from ivetl.models.Metadata import Metadata
+from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.models.ArticleCitations import Article_Citations
 
 
@@ -133,18 +133,17 @@ class InsertIntoCassandraDBTask(BaseTask):
                 pa.save()
 
                 # Add Placeholder Citations
-                for yr in range(common.PA_PUB_START_DATE.year, today.year + 1):
+                for yr in range(pa.date_of_publication.year, today.year + 1):
 
-                    if pa.date_of_publication.year >= yr:
-                        plac = Article_Citations()
-                        plac['publisher_id'] = publisher
-                        plac['article_doi'] = doi
-                        plac['citation_doi'] = str(yr) + "-placeholder"
-                        plac['updated'] = updated
-                        plac['created'] = updated
-                        plac['citation_date'] = datetime(yr, 1, 1)
-                        plac['citation_count'] = 0
-                        plac.save()
+                    plac = Article_Citations()
+                    plac['publisher_id'] = publisher
+                    plac['article_doi'] = pa.article_doi
+                    plac['citation_doi'] = str(yr) + "-placeholder"
+                    plac['updated'] = updated
+                    plac['created'] = updated
+                    plac['citation_date'] = datetime(yr, 1, 1)
+                    plac['citation_count'] = 0
+                    plac.save()
 
                 tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher + " / " + doi)
 
@@ -157,8 +156,8 @@ class InsertIntoCassandraDBTask(BaseTask):
             pu['updated'] = updated
             pu.save()
 
-            m = Metadata.filter(publisher_id=publisher).first()
-            m.last_updated_date = updated
+            m = PublisherMetadata.filter(publisher_id=publisher).first()
+            m.published_articles_last_updated = updated
             m.save()
 
         self.taskEnded(publisher, job_id, t0, tlogger, count)

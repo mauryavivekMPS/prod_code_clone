@@ -1,0 +1,13 @@
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
+
+
+class PublisherMetadata(Model):
+
+    publisher_id = columns.Text(primary_key=True)
+    hw_addl_metadata_available = columns.Boolean()
+    issn_to_hw_journal_code = columns.Map(columns.Text(), columns.Text())
+    published_articles_issns_to_lookup = columns.List(columns.Text())
+    published_articles_last_updated = columns.DateTime()
+    scopus_api_key = columns.Text()
+

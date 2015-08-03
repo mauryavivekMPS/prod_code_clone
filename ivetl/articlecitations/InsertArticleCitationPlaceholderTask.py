@@ -43,13 +43,12 @@ class InsertArticleCitationPlaceholderTask(BaseTask):
             count += 1
 
             # Add placeholder record for each year of citation
-            for yr in range(2010, today.year + 1):
+            for yr in range(article.date_of_publication.year, today.year + 1):
 
-                if article.date_of_publication.year >= yr:
                     plac = Article_Citations()
                     plac['publisher_id'] = publisher
                     plac['article_doi'] = article.article_doi
-                    plac['citation_doi'] = str(yr)
+                    plac['citation_doi'] = str(yr) + "-placeholder"
                     plac['updated'] = updated
                     plac['created'] = updated
                     plac['citation_date'] = datetime(yr, 1, 1)
