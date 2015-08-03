@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 import codecs
 import json
-import datetime
-
-import requests
 
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
 from ivetl.models.PublishedArticle import Published_Article
+from ivetl.connectors.ScopusConnector import ScopusConnector
+from ivetl.common.MaxTriesAPIError import MaxTriesAPIError
+from ivetl.models.PublisherMetadata import PublisherMetadata
 
 
 @app.task
@@ -18,11 +18,8 @@ class GetScopusArticleCitationsTask(BaseTask):
     vizor = common.AC
 
     REPROCESS_ERRORS = 'GetScopusArticleCitations.ReprocessErrors'
-
-    ITEMS_PER_PAGE = 25
     QUERY_LIMIT = 500000
-    SCOPUS_BASE_URL = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey=14edf00bcb425d2e3c40d1c1629f80f9&'
-
+    MAX_ERROR_COUNT = 100
 
     def run(self, args):
 
@@ -41,7 +38,10 @@ class GetScopusArticleCitationsTask(BaseTask):
 
         t0 = self.taskStarted(publisher, job_id)
         count = 0
-        errors = False
+        error_count = 0
+
+        pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
+        connector = ScopusConnector(pm.scopus_api_key)
 
         articles = Published_Article.objects.filter(publisher_id=publisher).limit(self.QUERY_LIMIT)
         total_articles = len(articles)
@@ -52,6 +52,7 @@ class GetScopusArticleCitationsTask(BaseTask):
 
             tlogger.info("---")
             tlogger.info(str(count) + " of " + str(total_articles) + ". Looking Up Citations for " + publisher + " / " + article.article_doi)
+
             if article.article_scopus_id is None or article.article_scopus_id == '':
                 tlogger.info("Skipping - No Scopus Id")
                 continue
@@ -61,74 +62,23 @@ class GetScopusArticleCitationsTask(BaseTask):
                     tlogger.info("Skipping - Only processing Articles with error in looking up citations")
                     continue
 
-            offset = 0
-            num_citations = 0
             citations = []
+            try:
 
-            while offset != -1:
+                citations = connector.getScopusCitations(article.article_scopus_id, tlogger)
 
-                attempt = 0
-                max_attempts = 5
-                r = None
-                success = False
+            except MaxTriesAPIError:
+                tlogger.info("Scopus API failed for " + article.article_scopus_id)
+                error_count += 1
 
-                #if count >= 10:
-                #    break
+                pa = Published_Article()
+                pa['publisher_id'] = publisher
+                pa['article_doi'] = article.article_doi
+                pa['citations_lookup_error'] = True
+                pa.update()
 
-                while not success and attempt < max_attempts:
-                    try:
-
-                        query = 'query=refeid(' + article.article_scopus_id + ')'
-                        #query += '+AND+pubyear>' + str(article.date_of_publication.year - 1)
-                        #query += '+AND+pubyear<' + str(article.date_of_publication.year + 3)
-
-                        url = self.SCOPUS_BASE_URL + query
-                        url += '&count=' + str(self.ITEMS_PER_PAGE)
-                        url += '&start=' + str(offset)
-
-                        tlogger.info("Searching Scopus: " + url)
-                        r = requests.get(url, timeout=30)
-
-                        success = True
-
-                    except Exception:
-                        attempt += 1
-                        tlogger.warning("Error connecting to Scopus API.  Trying again.")
-
-                if success:
-                    scopusdata = r.json()
-
-                    if 'search-results' not in scopusdata:
-                        offset = -1
-
-                    elif 'entry' in scopusdata['search-results'] and len(scopusdata['search-results']['entry']) > 0:
-
-                        if 'error' in scopusdata['search-results']['entry'][0]:
-                            offset = -1
-                        else:
-
-                            for i in scopusdata['search-results']['entry']:
-                                citations.append(i)
-                                num_citations += 1
-
-                            total_results = int(scopusdata['search-results']['opensearch:totalResults'])
-                            if self.ITEMS_PER_PAGE + offset < total_results:
-                                offset += self.ITEMS_PER_PAGE
-                            else:
-                                offset = -1
-
-                    else:
-                        offset = -1
-                else:
-                    pa = Published_Article()
-                    pa['publisher_id'] = publisher
-                    pa['article_doi'] = article.article_doi
-                    pa['citations_lookup_error'] = True
-                    pa.update()
-
-                    errors = True
-
-                    tlogger("!!ERROR getting citations.")
+            if error_count >= self.MAX_ERROR_COUNT:
+                    raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
 
             row = """%s\t%s\t%s\n""" % (
                                 publisher,
@@ -138,16 +88,9 @@ class GetScopusArticleCitationsTask(BaseTask):
             target_file.write(row)
             target_file.flush()
 
-            tlogger.info(str(num_citations) + " citations retrieved.")
+            tlogger.info(str(len(citations)) + " citations retrieved.")
 
         target_file.close()
-
-        if errors:
-            subject = "!!" + publisher + " / Article Citations - Errors !!"
-            text = "Errors getting citations. Manual with reprocess errors to true."
-            text += "\n\nWork Folder: " + workfolder
-            common.sendEmail(subject, text)
-
         self.taskEnded(publisher, job_id, t0, tlogger, count)
 
         args = {}
