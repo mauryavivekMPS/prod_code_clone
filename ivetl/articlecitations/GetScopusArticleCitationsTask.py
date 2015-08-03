@@ -5,9 +5,9 @@ import json
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
+from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.models.PublishedArticle import Published_Article
 from ivetl.connectors.ScopusConnector import ScopusConnector
-from ivetl.common.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.models.PublisherMetadata import PublisherMetadata
 
 

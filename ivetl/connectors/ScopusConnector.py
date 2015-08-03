@@ -1,18 +1,15 @@
 from __future__ import absolute_import
-
-import csv
-import codecs
-import json
 import urllib.parse
 import urllib.request
+import traceback
+
 import requests
 from requests import HTTPError
 from lxml import etree
-import traceback
 
 from ivetl.common import common
-from ivetl.common.AuthorizationAPIError import AuthorizationAPIError
-from ivetl.common.MaxTriesAPIError import MaxTriesAPIError
+from ivetl.connectors import AuthorizationAPIError
+from ivetl.connectors import MaxTriesAPIError
 
 
 class ScopusConnector():

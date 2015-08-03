@@ -3,19 +3,13 @@ from __future__ import absolute_import
 import csv
 import codecs
 import json
-import urllib.parse
-import urllib.request
-import requests
-from lxml import etree
-import traceback
 
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
+from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.connectors.ScopusConnector import ScopusConnector
 from ivetl.models.PublisherMetadata import PublisherMetadata
-from ivetl.common.AuthorizationAPIError import AuthorizationAPIError
-from ivetl.common.MaxTriesAPIError import MaxTriesAPIError
 
 
 @app.task
