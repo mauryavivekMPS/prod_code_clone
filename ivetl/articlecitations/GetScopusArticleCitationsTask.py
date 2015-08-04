@@ -21,22 +21,16 @@ class GetScopusArticleCitationsTask(BaseTask):
     QUERY_LIMIT = 500000
     MAX_ERROR_COUNT = 100
 
-    def run(self, args):
+    def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
-        publisher = args[BaseTask.PUBLISHER_ID]
-        workfolder = args[BaseTask.WORK_FOLDER]
-        job_id = args[BaseTask.JOB_ID]
         reprocesserrorsonly = args[GetScopusArticleCitationsTask.REPROCESS_ERRORS]
 
-        task_workfolder, tlogger = self.setupTask(workfolder)
-
-        target_file_name = task_workfolder + "/" + publisher + "_" + "articlecitations" + "_" + "target.tab"
+        target_file_name = workfolder + "/" + publisher + "_" + "articlecitations" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
 
-        t0 = self.taskStarted(publisher, job_id)
         count = 0
         error_count = 0
 
@@ -91,13 +85,13 @@ class GetScopusArticleCitationsTask(BaseTask):
             tlogger.info(str(len(citations)) + " citations retrieved.")
 
         target_file.close()
-        self.taskEnded(publisher, job_id, t0, tlogger, count)
 
         args = {}
         args[BaseTask.PUBLISHER_ID] = publisher
         args[BaseTask.WORK_FOLDER] = workfolder
         args[BaseTask.JOB_ID] = job_id
         args[BaseTask.INPUT_FILE] = target_file_name
+        args[BaseTask.COUNT] = count
 
         return args
 

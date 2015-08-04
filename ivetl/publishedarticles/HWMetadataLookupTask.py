@@ -29,25 +29,19 @@ class HWMetadataLookupTask(BaseTask):
 
     ISSN_JNL_QUERY_LIMIT = 1000000
 
-    def run(self, args):
+    def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
-        publisher = args[BaseTask.PUBLISHER_ID]
-        workfolder = args[BaseTask.WORK_FOLDER]
-        job_id = args[BaseTask.JOB_ID]
         file = args[BaseTask.INPUT_FILE]
-
-        task_workfolder, tlogger = self.setupTask(workfolder)
 
         pm = PublisherMetadata.filter(publisher_id=publisher).first()
         issn_to_hw_journal_code = pm.issn_to_hw_journal_code
 
-        target_file_name = task_workfolder + "/" + publisher + "_" + "hwmetadatalookup" + "_" + "target.tab"
+        target_file_name = workfolder + "/" + publisher + "_" + "hwmetadatalookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
 
-        t0 = self.taskStarted(publisher, job_id)
         count = 0
 
         with codecs.open(file, encoding="utf-16") as tsv:
@@ -164,13 +158,12 @@ class HWMetadataLookupTask(BaseTask):
 
         target_file.close()
 
-        self.taskEnded(publisher, job_id, t0, tlogger, count)
-
         args = {}
         args[BaseTask.PUBLISHER_ID] = publisher
         args[BaseTask.WORK_FOLDER] = workfolder
         args[BaseTask.JOB_ID] = job_id
         args[BaseTask.INPUT_FILE] = target_file_name
+        args[BaseTask.COUNT] = count
 
         return args
 

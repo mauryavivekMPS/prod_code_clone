@@ -28,7 +28,6 @@ class ManualUpdatePublishedArticlesTask(BaseTask):
         job_id = today + "_" + time
 
         pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
-
         issns = pm.published_articles_issns_to_lookup
 
         if reprocessall:
@@ -36,12 +35,16 @@ class ManualUpdatePublishedArticlesTask(BaseTask):
         else:
             start_publication_date = pm.published_articles_last_updated - relativedelta(months=common.PA_PUB_OVERLAP_MONTHS)
 
+        wf = self.getWorkFolder(today, publisher, job_id)
+
         args = {}
         args[BaseTask.PUBLISHER_ID] = publisher
-        args[BaseTask.WORK_FOLDER] = self.getWorkFolder(today, publisher, job_id)
+        args[BaseTask.WORK_FOLDER] = wf
         args[BaseTask.JOB_ID] = job_id
         args[GetPublishedArticlesTask.ISSNS] = issns
         args[GetPublishedArticlesTask.START_PUB_DATE] = start_publication_date
+
+        self.pipelineStarted(publisher, self.vizor, job_id, wf)
 
         if pm.hw_addl_metadata_available:
 

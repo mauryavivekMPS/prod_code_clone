@@ -14,36 +14,28 @@ class GetPublishedArticlesTask(BaseTask):
 
     taskname = "GetPublishedArticles"
     vizor = common.PA
-    ITEMS_PER_PAGE = 1000
-    #ITEMS_PER_PAGE = 50
+    #ITEMS_PER_PAGE = 1000
+    ITEMS_PER_PAGE = 10
 
     ISSNS = 'GetPublishedArticlesTask.PublisherId'
     START_PUB_DATE = 'GetPublishedArticlesTask.InputFile'
     WORK_FOLDER = 'GetPublishedArticlesTask.WorkFolder'
 
 
-    def run(self, args):
-
-        publisher = args[BaseTask.PUBLISHER_ID]
-        workfolder = args[BaseTask.WORK_FOLDER]
-        job_id = args[BaseTask.JOB_ID]
+    def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
         issns = args[GetPublishedArticlesTask.ISSNS]
         start_publication_date = args[GetPublishedArticlesTask.START_PUB_DATE]
         from_pub_date_str = start_publication_date.strftime('%Y-%m-%d')
 
-        task_workfolder, tlogger = self.setupTask(workfolder)
-
-        target_file_name = task_workfolder + "/" + publisher + "_" + "xrefpublishedarticles" + "_" + "target.tab"
+        target_file_name = workfolder + "/" + publisher + "_" + "xrefpublishedarticles" + "_" + "target.tab"
+        print("XXX=" + target_file_name)
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
 
         count = 0
-
-        t0 = self.taskStarted(publisher, job_id)
-
         for issn in issns:
 
             offset = 0
@@ -55,8 +47,8 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                #if count >= 50:
-                #    break
+                if count >= 10:
+                    break
 
                 while not success and attempt < max_attempts:
                     try:
@@ -99,13 +91,12 @@ class GetPublishedArticlesTask(BaseTask):
 
         target_file.close()
 
-        self.taskEnded(publisher, job_id, t0, tlogger, count)
-
         args = {}
         args[BaseTask.PUBLISHER_ID] = publisher
         args[BaseTask.WORK_FOLDER] = workfolder
         args[BaseTask.JOB_ID] = job_id
         args[BaseTask.INPUT_FILE] = target_file_name
+        args[BaseTask.COUNT] = count
 
         return args
 

@@ -23,18 +23,11 @@ class InsertIntoCassandraDBTask(BaseTask):
 
     CITATION_SOURCE = "Scopus"
 
-    def run(self, args):
+    def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
-        publisher = args[BaseTask.PUBLISHER_ID]
-        workfolder = args[BaseTask.WORK_FOLDER]
-        job_id = args[BaseTask.JOB_ID]
         file = args[BaseTask.INPUT_FILE]
 
-        task_workfolder, tlogger = self.setupTask(workfolder)
-
-        t0 = time()
         count = 0
-
         today = datetime.today()
         updated = today
 
@@ -126,12 +119,13 @@ class InsertIntoCassandraDBTask(BaseTask):
             pu['updated'] = updated
             pu.save()
 
-        self.taskEnded(publisher, job_id, t0, tlogger, count)
+        self.pipelineCompleted(publisher, self.vizor, job_id)
 
         args = {}
         args[BaseTask.PUBLISHER_ID] = publisher
         args[BaseTask.WORK_FOLDER] = workfolder
         args[BaseTask.JOB_ID] = job_id
+        args[BaseTask.COUNT] = count
 
         return args
 

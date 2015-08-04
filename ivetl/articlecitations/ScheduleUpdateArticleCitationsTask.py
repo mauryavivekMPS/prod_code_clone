@@ -30,11 +30,15 @@ class ScheduleUpdateArticleCitationsTask(BaseTask):
 
             publisher_id = pm.publisher_id
 
+            wf = self.getWorkFolder(today, publisher_id, job_id)
+
             args = {}
             args[BaseTask.PUBLISHER_ID] = publisher_id
-            args[BaseTask.WORK_FOLDER] = self.getWorkFolder(today, publisher_id, job_id)
+            args[BaseTask.WORK_FOLDER] = wf
             args[BaseTask.JOB_ID] = job_id
             args[GetScopusArticleCitationsTask.REPROCESS_ERRORS] = False
+
+            self.pipelineStarted(publisher_id, self.vizor, job_id, wf)
 
             chain(GetScopusArticleCitationsTask.s(args) |
                   InsertIntoCassandraDBTask.s()).delay()
