@@ -14,11 +14,11 @@ class GetPublishedArticlesTask(BaseTask):
 
     taskname = "GetPublishedArticles"
     vizor = common.PA
-    #ITEMS_PER_PAGE = 1000
-    ITEMS_PER_PAGE = 10
+    ITEMS_PER_PAGE = 1000
+    #ITEMS_PER_PAGE = 10
 
-    ISSNS = 'GetPublishedArticlesTask.PublisherId'
-    START_PUB_DATE = 'GetPublishedArticlesTask.InputFile'
+    ISSNS = 'GetPublishedArticlesTask.ISSNs'
+    START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
     WORK_FOLDER = 'GetPublishedArticlesTask.WorkFolder'
 
 
@@ -29,7 +29,6 @@ class GetPublishedArticlesTask(BaseTask):
         from_pub_date_str = start_publication_date.strftime('%Y-%m-%d')
 
         target_file_name = workfolder + "/" + publisher + "_" + "xrefpublishedarticles" + "_" + "target.tab"
-        print("XXX=" + target_file_name)
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
@@ -47,8 +46,8 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                if count >= 10:
-                    break
+                #if count >= 10:
+                #    break
 
                 while not success and attempt < max_attempts:
                     try:
@@ -91,10 +90,6 @@ class GetPublishedArticlesTask(BaseTask):
 
         target_file.close()
 
-        args = {}
-        args[BaseTask.PUBLISHER_ID] = publisher
-        args[BaseTask.WORK_FOLDER] = workfolder
-        args[BaseTask.JOB_ID] = job_id
         args[BaseTask.INPUT_FILE] = target_file_name
         args[BaseTask.COUNT] = count
 

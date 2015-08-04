@@ -122,9 +122,6 @@ class InsertIntoCassandraDBTask(BaseTask):
         self.pipelineCompleted(publisher, self.vizor, job_id)
 
         args = {}
-        args[BaseTask.PUBLISHER_ID] = publisher
-        args[BaseTask.WORK_FOLDER] = workfolder
-        args[BaseTask.JOB_ID] = job_id
         args[BaseTask.COUNT] = count
 
         return args

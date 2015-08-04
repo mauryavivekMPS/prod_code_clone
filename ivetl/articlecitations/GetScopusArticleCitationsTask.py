@@ -86,10 +86,6 @@ class GetScopusArticleCitationsTask(BaseTask):
 
         target_file.close()
 
-        args = {}
-        args[BaseTask.PUBLISHER_ID] = publisher
-        args[BaseTask.WORK_FOLDER] = workfolder
-        args[BaseTask.JOB_ID] = job_id
         args[BaseTask.INPUT_FILE] = target_file_name
         args[BaseTask.COUNT] = count
 
