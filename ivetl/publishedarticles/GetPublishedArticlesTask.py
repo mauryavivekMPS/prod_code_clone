@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import codecs
 import json
 import requests
+from requests import HTTPError
 
 from ivetl.common import common
 from ivetl.celery import app
@@ -58,9 +59,12 @@ class GetPublishedArticlesTask(BaseTask):
 
                         tlogger.info("Searching CrossRef for: " + url)
                         r = requests.get(url, timeout=30)
+                        r.raise_for_status()
 
                         success = True
 
+                    except HTTPError:
+                        raise
                     except Exception:
                         attempt += 1
                         tlogger.warning("Error connecting to Crossref API.  Trying again.")

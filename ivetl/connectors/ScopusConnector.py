@@ -8,8 +8,8 @@ from requests import HTTPError
 from lxml import etree
 
 from ivetl.common import common
-from ivetl.connectors import AuthorizationAPIError
-from ivetl.connectors import MaxTriesAPIError
+from ivetl.connectors.AuthorizationAPIError import AuthorizationAPIError
+from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 
 
 class ScopusConnector():
@@ -44,6 +44,7 @@ class ScopusConnector():
                 tlogger.info(url)
 
                 r = requests.get(url, timeout=30)
+                r.raise_for_status()
                 #sleep(2)
 
                 root = etree.fromstring(r.content, etree.HTMLParser())
@@ -68,6 +69,7 @@ class ScopusConnector():
                     tlogger.info(url)
 
                     r = requests.get(url, timeout=30)
+                    r.raise_for_status()
 
                     root = etree.fromstring(r.content, etree.HTMLParser())
                     self.checkForAuthorizationErrorXML(root)
@@ -86,7 +88,8 @@ class ScopusConnector():
 
             except AuthorizationAPIError:
                 raise
-
+            except HTTPError:
+                raise
             except Exception:
 
                 tlogger.info("Scopus API failed. Trying Again")

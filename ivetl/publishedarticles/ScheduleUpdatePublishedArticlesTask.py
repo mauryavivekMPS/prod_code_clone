@@ -47,23 +47,22 @@ class ScheduleUpdatePublishedArticlesTask(BaseTask):
 
             if pm.hw_addl_metadata_available:
 
-                #chain(GetPublishedArticlesTask.s(args) |
-                #      ScopusIdLookupTask.s() |
-                #      HWMetadataLookupTask.s() |
-                #      InsertIntoCassandraDBTask.s()).delay()
-
                 chain(GetPublishedArticlesTask.s(args) |
                       ScopusIdLookupTask.s() |
-                      HWMetadataLookupTask.s()).delay()
+                      HWMetadataLookupTask.s() |
+                      InsertIntoCassandraDBTask.s()).delay()
+
+                #chain(GetPublishedArticlesTask.s(args) |
+                #      HWMetadataLookupTask.s()).delay()
 
             else:
 
-                #chain(GetPublishedArticlesTask.s(args) |
-                #      ScopusIdLookupTask.s() |
-                #      InsertIntoCassandraDBTask.s()).delay()
-
                 chain(GetPublishedArticlesTask.s(args) |
-                      ScopusIdLookupTask.s()).delay()
+                      ScopusIdLookupTask.s() |
+                      InsertIntoCassandraDBTask.s()).delay()
+
+                #chain(GetPublishedArticlesTask.s(args) |
+                #      ScopusIdLookupTask.s()).delay()
 
 
 

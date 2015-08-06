@@ -7,6 +7,8 @@ import urllib.request
 import traceback
 import re
 import requests
+from requests import HTTPError
+from time import sleep
 from lxml import etree
 
 from ivetl.common import common
@@ -72,6 +74,8 @@ class HWMetadataLookupTask(BaseTask):
                 max_attempts = 3
                 while attempt < max_attempts:
                     try:
+
+                        sleep(1)
                         r = requests.get(url, timeout=30)
 
                         root = etree.fromstring(r.content)
@@ -86,6 +90,8 @@ class HWMetadataLookupTask(BaseTask):
                             tlogger.info(url)
 
                             r = requests.get(url, timeout=30)
+                            r.raise_for_status()
+
                             root = etree.fromstring(r.content)
 
                             # Article Type
@@ -110,11 +116,11 @@ class HWMetadataLookupTask(BaseTask):
                                 article_type = article_type.replace('\r', ' ')
                                 article_type = article_type.title()
 
-                            if article_type is None:
+                            if article_type is None or article_type == '':
                                 article_type = "None"
 
                             data['article_type'] = article_type
-                            print(article_type)
+                            #print(article_type)
 
                             subject_category = None
                             sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
@@ -128,17 +134,19 @@ class HWMetadataLookupTask(BaseTask):
                                 subject_category = subject_category.replace('\r', ' ')
                                 subject_category = subject_category.title()
 
-                            if subject_category is None:
+                            if subject_category is None or subject_category == '':
                                 subject_category = "None"
 
                             data['subject_category'] = subject_category
-                            print(subject_category)
+                            #print(subject_category)
 
                         else:
                             tlogger.info("No SASS HREF found for DOI: " + doi)
 
                         break
 
+                    except HTTPError:
+                        raise
                     except Exception:
                         tlogger.info("SASSFS or SASS API failed. Trying Again")
                         print(doi)

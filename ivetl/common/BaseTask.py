@@ -158,13 +158,12 @@ class BaseTask(Task):
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
 
-        t1 = time()
-        end_date = datetime.datetime.fromtimestamp(t1)
+        end_date = datetime.datetime.today()
 
         pts = Pipeline_Task_Status()
-        pts.publisher_id = args[BaseTask.PUBLISHER_ID]
+        pts.publisher_id = args[0][BaseTask.PUBLISHER_ID]
         pts.pipeline_id = self.vizor
-        pts.job_id = args[BaseTask.JOB_ID]
+        pts.job_id = args[0][BaseTask.JOB_ID]
         pts.task_id = self.taskname
         pts.end_time = end_date
         pts.status = self.PL_ERROR
@@ -172,13 +171,13 @@ class BaseTask(Task):
         pts.updated = end_date
         pts.update()
 
-        ps = Pipeline_Status().objects.filter(publisher_id=args[BaseTask.PUBLISHER_ID],
+        ps = Pipeline_Status().objects.filter(publisher_id=args[0][BaseTask.PUBLISHER_ID],
                                               pipeline_id=self.vizor,
-                                              job_id=args[BaseTask.JOB_ID]).first()
+                                              job_id=args[0][BaseTask.JOB_ID]).first()
 
         if ps is not None:
             ps.end_time = end_date
-            ps.duration_seconds = t1 - ps.start_time
+            ps.duration_seconds = (end_date - ps.start_time).total_seconds()
             ps.status = self.PL_ERROR
             ps.error_details = str(exc)
             ps.updated = end_date
