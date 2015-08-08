@@ -15,6 +15,7 @@ from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
 from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.publishedarticles.HWMetadataLookupTransform import HWMetadataLookupTransform
 
 
 @app.task
@@ -44,6 +45,8 @@ class HWMetadataLookupTask(BaseTask):
                           'DOI\t'
                           'DATA\n')
 
+        hw_xform = HWMetadataLookupTransform()
+
         count = 0
 
         with codecs.open(file, encoding="utf-16") as tsv:
@@ -64,7 +67,7 @@ class HWMetadataLookupTask(BaseTask):
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
                     hw_journal_code = "/" + issn_to_hw_journal_code[data['ISSN'][0]]
 
-                value = urllib.parse.urlencode({'value': doi})
+                value = urllib.parse.urlencode({'value': hw_xform.xform_doi(publisher, doi)})
                 url = self.SASSFS_BASE_URL + 'under=' + hw_journal_code + '&' + value
 
                 tlogger.info("Looking up HREF on SASSFS:")
@@ -93,6 +96,16 @@ class HWMetadataLookupTask(BaseTask):
                             r.raise_for_status()
 
                             root = etree.fromstring(r.content)
+
+                            # is open access
+                            oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
+                            if len(oa) > 0:
+                                oa = 'Yes'
+                            else:
+                                oa = 'No'
+
+                            data['is_open_access'] = oa
+                            print(oa)
 
                             # Article Type
                             article_type = None

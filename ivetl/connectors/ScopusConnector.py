@@ -22,8 +22,9 @@ class ScopusConnector():
     REQUEST_TIMEOUT_SECS = 30
     ITEMS_PER_PAGE = 25
 
-    def __init__(self, apikey):
-        self.apikey = apikey
+    def __init__(self, apikeys):
+        self.apikeys = apikeys
+        self.count = 0
 
     def getScopusEntry(self, doi, issns, volume, issue, page, tlogger):
 
@@ -33,7 +34,8 @@ class ScopusConnector():
         attempt = 0
         success = False
 
-        url_api = self.BASE_SCOPUS_URL_XML + self.apikey + '&'
+        self.count += 1
+        url_api = self.BASE_SCOPUS_URL_XML + self.apikeys[self.count % len(self.apikeys)] + '&'
 
         while not success and attempt < self.MAX_ATTEMPTS:
             try:
@@ -109,7 +111,9 @@ class ScopusConnector():
         num_citations = 0
         citations = []
 
-        url_api = self.BASE_SCOPUS_URL_JSON + self.apikey + '&'
+        self.count += 1
+
+        url_api = self.BASE_SCOPUS_URL_JSON + self.apikeys[self.count % len(self.apikeys)] + '&'
 
         while offset != -1:
 

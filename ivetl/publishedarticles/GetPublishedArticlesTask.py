@@ -15,8 +15,8 @@ class GetPublishedArticlesTask(BaseTask):
 
     taskname = "GetPublishedArticles"
     vizor = common.PA
-    ITEMS_PER_PAGE = 1000
-    #ITEMS_PER_PAGE = 10
+    #ITEMS_PER_PAGE = 1000
+    ITEMS_PER_PAGE = 25
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'
     START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
@@ -47,8 +47,8 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                #if count >= 10:
-                #    break
+                if count >= 25:
+                    break
 
                 while not success and attempt < max_attempts:
                     try:

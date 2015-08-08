@@ -6,7 +6,7 @@ CREATE TABLE publisher_metadata (
   issn_to_hw_journal_code map<text, text>,
   published_articles_last_updated timestamp,
   published_articles_issns_to_lookup list<text>,
-  scopus_api_key text,
+  scopus_api_keys list<text>,
   PRIMARY KEY ((publisher_id))
 ) WITH
   bloom_filter_fp_chance=0.010000 AND

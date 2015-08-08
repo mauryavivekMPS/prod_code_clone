@@ -78,15 +78,23 @@ class InsertIntoCassandraDBTask(BaseTask):
                 if 'author' in data and (len(data['author']) > 0):
 
                     fa_last_name = data['author'][0]['family']
-                    fa_first_name = data['author'][0]['given']
+
+                    fa_first_name = ''
+                    if 'given' in data['author'][0]:
+                        fa_first_name = data['author'][0]['given']
 
                     pa['first_author'] = fa_last_name + ',' + fa_first_name
 
-                    if (len(data['author']) > 1):
-
+                    if len(data['author']) > 1:
                         co_authors = ''
                         for a in data['author'][1:]:
-                            co_authors += a['family'] + ',' + a['given'] + "; "
+
+                            co_authors += a['family']
+
+                            if 'given' in a:
+                                co_authors += ',' + a['given'] + "; "
+                            else:
+                                co_authors += "; "
 
                         pa['co_authors'] = co_authors
 
@@ -103,17 +111,33 @@ class InsertIntoCassandraDBTask(BaseTask):
 
                     pa['date_of_publication'] = toDateTime(month, day, year)
 
+                if 'is_open_access' in data and (data['is_open_access'] != ''):
+                    pa['is_open_access'] = data['is_open_access']
+                else:
+                    pa['is_open_access'] = 'No'
+
                 if 'article_type' in data and (data['article_type'] != ''):
                     pa['article_type'] = data['article_type']
+                else:
+                    pa['article_type'] = 'None'
 
                 if 'subject_category' in data and (data['subject_category'] != ''):
                     pa['subject_category'] = data['subject_category']
+                else:
+                    pa['subject_category'] = 'None'
 
                 if 'custom' in data and (data['custom'] != ''):
                     pa['custom'] = data['custom']
 
                 if 'editor' in data and (data['editor'] != ''):
-                    pa['editor'] = data['editor']
+
+                    ed_last_name = data['author'][0]['family']
+
+                    ed_first_name = ''
+                    if 'given' in data['author'][0]:
+                        ed_first_name = data['author'][0]['given']
+
+                    pa['editor'] = ed_last_name + ',' + ed_first_name
 
                 if 'scopus_citation_count' in data and (data['scopus_citation_count'] != ''):
                     pa['scopus_citation_count'] = data['scopus_citation_count']

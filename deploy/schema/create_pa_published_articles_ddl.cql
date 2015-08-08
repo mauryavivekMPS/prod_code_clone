@@ -40,3 +40,6 @@ CREATE TABLE published_article (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+
+
+  ALTER TABLE impactvizor.published_article ADD is_open_access text;

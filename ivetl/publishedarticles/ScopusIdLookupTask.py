@@ -31,7 +31,7 @@ class ScopusIdLookupTask(BaseTask):
                           'DATA\n')
 
         pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
-        connector = ScopusConnector(pm.scopus_api_key)
+        connector = ScopusConnector(pm.scopus_api_keys)
 
         count = 0
         error_count = 0

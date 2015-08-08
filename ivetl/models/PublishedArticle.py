@@ -28,4 +28,5 @@ class Published_Article(Model):
     custom = columns.Text()
     editor = columns.Text()
     citations_lookup_error = columns.Boolean()
+    is_open_access = columns.Text()
 

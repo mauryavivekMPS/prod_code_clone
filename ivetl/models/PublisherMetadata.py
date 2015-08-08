@@ -9,5 +9,5 @@ class PublisherMetadata(Model):
     issn_to_hw_journal_code = columns.Map(columns.Text(), columns.Text())
     published_articles_issns_to_lookup = columns.List(columns.Text())
     published_articles_last_updated = columns.DateTime()
-    scopus_api_key = columns.Text()
+    scopus_api_keys = columns.List(columns.Text())
 
