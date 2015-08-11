@@ -1,9 +1,7 @@
 from __future__ import absolute_import
 
 import csv
-import sys
 import codecs
-from time import time
 import json
 from datetime import datetime
 
@@ -30,8 +28,6 @@ class InsertIntoCassandraDBTask(BaseTask):
         count = 0
         today = datetime.today()
         updated = today
-
-        csv.field_size_limit(sys.maxsize)
 
         with codecs.open(file, encoding="utf-16") as tsv:
 

@@ -15,8 +15,8 @@ class GetPublishedArticlesTask(BaseTask):
 
     taskname = "GetPublishedArticles"
     vizor = common.PA
-    #ITEMS_PER_PAGE = 1000
-    ITEMS_PER_PAGE = 25
+    ITEMS_PER_PAGE = 1000
+    #ITEMS_PER_PAGE = 25
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'
     START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
@@ -47,8 +47,8 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                if count >= 25:
-                    break
+                #if count >= 25:
+                #    break
 
                 while not success and attempt < max_attempts:
                     try:
@@ -63,11 +63,19 @@ class GetPublishedArticlesTask(BaseTask):
 
                         success = True
 
-                    except HTTPError:
-                        raise
+                    except HTTPError as he:
+                        if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                            tlogger.info("HTTP 401/408 - Scopus API failed. Trying Again")
+                            attempt += 1
+
+                            if attempt >= max_attempts:
+                                raise
+                        else:
+                            raise
                     except Exception:
+                        tlogger.info("General Exception - Scopus API failed. Trying Again")
+
                         attempt += 1
-                        tlogger.warning("Error connecting to Crossref API.  Trying again.")
                         if attempt >= max_attempts:
                             raise
 

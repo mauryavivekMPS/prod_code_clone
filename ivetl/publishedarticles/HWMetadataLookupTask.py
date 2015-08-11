@@ -158,14 +158,14 @@ class HWMetadataLookupTask(BaseTask):
 
                         break
 
-                    except HTTPError:
-                        raise
+                    except HTTPError as he:
+                        if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                            tlogger.info("HTTP 401/408 - HW API failed. Trying Again")
+                            attempt += 1
+                        else:
+                            raise
                     except Exception:
-                        tlogger.info("SASSFS or SASS API failed. Trying Again")
-                        print(doi)
-                        print(url)
-                        traceback.print_exc()
-
+                        tlogger.info("General Exception - HW API failed. Trying Again")
                         attempt += 1
 
                 row = """%s\t%s\t%s\n""" % (publisher,

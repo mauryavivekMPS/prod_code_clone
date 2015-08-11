@@ -13,7 +13,7 @@ INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_avail
   VALUES ('rup', true, {'0021-9525':'jcb', '1540-8140':'jcb', '0022-1007':'jem', '1540-9538':'jem', '0022-1295':'jgp', '1540-7748':'jgp'}, ['0021-9525', '0022-1007', '0022-1295'], '2010-01-01 00:00:00', ['a1a9a253d7ca5a4bf4d38e3ac0d211ad', '6d122794a1f086dbec46368829bee0c9']);
 
 INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
-  VALUES ('aan', true, {'0028-3878':'neurology', '1526-632X':'neurology', '2163-0402':'neurclinpract', '2163-0933':'neurclinpract', '2332-7812':'nnn'}, ['0028-3878', '2163-0402', '2332-7812'], '2010-01-01 00:00:00', ['d8d7734d85f882727ccb7ab9c6db2c9e', 'e40619fb45a51ddf36334f928623f171']);
+  VALUES ('aan', true, {'0028-3878':'neurology', '1526-632X':'neurology', '2163-0402':'neurclinpract', '2163-0933':'neurclinpract', '2332-7812':'nnn'}, ['0028-3878', '2163-0402', '2332-7812'], '2010-01-01 00:00:00', ['db07abbc8f1770ba09387cf2ea5bf3fa', 'e40619fb45a51ddf36334f928623f171']);
 
 INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
   VALUES ('asbmb', true, {'0021-9258':'jbc', '1083-351X':'jbc', '0022-2275':'jlr', '1539-7262':'jlr', '1535-9476':'mcprot', '1535-9484':'mcprot'}, ['0021-9258', '0022-2275', '1535-9476'], '2010-01-01 00:00:00', ['ea644670597406ffb98d1678a0083640', '35b4fae6b56419f992b3da3379d9b2c0', 'bf0b25b42fe41668b284b77139c0a61c', 'cf524832bc343e5703ea9e43619689da']);
@@ -51,6 +51,10 @@ INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_avail
   VALUES ('test', true, {'1528-0020':'bloodjournal', '0006-4971':'bloodjournal'}, ['1528-0020'], '2010-01-01 00:00:00', ['f5bb1dbcd2f625d729836dfcaf5eb5f1', 'f5bb1dbcd2f625d729836dfcaf5eb5f1']);
 
 
+INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
+  VALUES ('aaas', true, {'0036-8075':'sci', '1095-9203':'sci', '2375-2548':'advances'}, ['0036-8075', '2375-2548'], '2010-01-01 00:00:00', ['1909c7bd8937a0bdc4c7b298b2941284', 'ccdce910ee2248a800d73cb487847c48', '3fed90a3d3e9807cc43179c3cf94a8a8', 'b87d6249c2028249def7c580fb2698be']);
 
+INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
+  VALUES ('asbmb', true, {'0021-9258':'jbc', '1083-351X':'jbc', '0022-2275':'jlr', '1539-7262':'jlr', '1535-9476':'mcprot', '1535-9484':'mcprot'}, ['0021-9258', '0022-2275', '1535-9476'], '2010-01-01 00:00:00', ['6930be2049863cf37079dd02a5522e3a', '9abbef1491f184b0ecc74492152bd485', '55866e6325c069376f9d8995bd9e084b', 'f14ad622b64dcc01daf62d42dcbd8d6d']);
 
 

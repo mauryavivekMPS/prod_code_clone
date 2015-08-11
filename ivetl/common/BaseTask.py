@@ -5,6 +5,8 @@ import logging
 from os import makedirs
 import datetime
 from time import time
+import csv
+import sys
 
 from ivetl.common import common
 from ivetl.models.PipelineStatus import Pipeline_Status
@@ -36,11 +38,13 @@ class BaseTask(Task):
         job_id = args[BaseTask.JOB_ID]
 
         task_workfolder, tlogger = self.setupTask(workfolder)
+        csv.field_size_limit(sys.maxsize)
 
         t0 = time()
-
         self.taskStarted(publisher, job_id, task_workfolder, tlogger)
+
         return_args = self.run_task(publisher, job_id, task_workfolder, tlogger, args)
+
         self.taskEnded(publisher, job_id, t0, tlogger, return_args.get(BaseTask.COUNT))
 
         return return_args
