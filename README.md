@@ -20,7 +20,21 @@ Assumes the availability of the following services:
 * Cassandra
 * RabbitMQ
 
-Python 
+Python dependencies are managed via pip and the `requirements.txt` file.
+
+Environment variables
+---------------------
+
+The following environment variables are supported:
+
+* `IVETL_CASSANDRA_IP` – The IP address of Cassandra, defaults to `127.0.0.1`
+* `IVETL_CASSANDRA_KEYSPACE` - The Cassandra keyspace, defaults to `impactvizor`
+* `IVETL_WORKING_DIR` – Main working directory for all pipelines, default to `/iv`
+* `IVETL_EMAIL_TO_ADDRESS` – Email address where activity is reported, no default
+* `IVETL_EMAIL_FROM_ADDRESS` – The from address for all system emails, default to `impactvizor@highwire.org`
+
+The defaults are a good starting place for local development, however `IVETL_EMAIL_TO_ADDRESS` has no default and must
+be set.
 
 Getting started
 ---------------

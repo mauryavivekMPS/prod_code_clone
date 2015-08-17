@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import datetime
+import os
 import sendgrid
 
 
@@ -29,12 +30,14 @@ ns = {'dc': 'http://purl.org/dc/elements/1.1/',
 
 sass_url = "http://sass.highwire.org"
 
-CASSANDRA_IP = '10.0.1.12'
-CASSANDRA_KEYSPACE_IV = 'impactvizor'
+# CASSANDRA_IP = '10.0.1.12'
+CASSANDRA_IP = os.environ.get('IVETL_CASSANDRA_IP', '127.0.0.1')
+CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor')
 
-BASE_INCOMING_DIR = "/iv/incoming/"
-BASE_WORK_DIR = "/iv/working/"
-BASE_ARCHIVE_DIR = "/iv/archive/"
+BASE_WORKING_DIR = os.environ.get('IVETL_WORKING_DIR', '/iv')
+BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
+BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
+BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
 RAT = "rejected_article_tracker"
 
@@ -44,8 +47,8 @@ PA_PUB_OVERLAP_MONTHS = 2
 
 AC = "article_citations"
 
-EMAIL = "nmehta@highwire.org"
-FROM = "impactvizor@highwire.org"
+EMAIL = os.environ.get('IVETL_EMAIL_TO_ADDRESS')
+FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
