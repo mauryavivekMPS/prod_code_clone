@@ -56,3 +56,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# local virtual env
+env
+impactvisor-pipeline-env
+
+# PyCharm
+.idea
