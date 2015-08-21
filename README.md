@@ -14,13 +14,39 @@ pipelines, as well as an internal-facing web-based monitoring tool and an extern
 Prerequisites
 -------------
 
-Assumes the availability of the following services:
+Assumes the availability of the following:
 
-* Python 3 (with pip and virtualenv)
-* Cassandra
-* RabbitMQ
+* Python 3 (with [virtualenv](https://virtualenv.pypa.io) and [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org))
+* Cassandra (running on default ports on localhost)
+* RabbitMQ (running on default ports on localhost)
 
 Python dependencies are managed via pip and the `requirements.txt` file.
+
+Getting started
+---------------
+
+Assuming you have Python 3, virtualenv, and virtualenvwrapper installed, and the impactvizor-pipeline source cloned,
+create a Python 3 virtualenv and install dependencies:
+
+	mkvirtualenv -p /usr/local/bin/python3 impactvizor-pipeline	
+    cd <source_root>
+	pip install -r requirements.txt
+
+Create working directories and make them writeable:
+
+    mkdir /iv
+    mkdir /iv/incoming
+    mkdir /iv/working
+
+(This assumes a working directory in the root directory, which is the default, however this location can be changed with
+the `IVETL_WORKING_DIR` environment variable.)
+
+You'll also need to set the permissions of those directories to be writable by your user account, or the account that
+you will run the app with.
+
+Add tables to Cassandra:
+
+    ...
 
 Environment variables
 ---------------------
@@ -35,26 +61,6 @@ The following environment variables are supported:
 
 The defaults are a good starting place for local development, however `IVETL_EMAIL_TO_ADDRESS` has no default and must
 be set.
-
-Getting started
----------------
-
-Create working directories and make them writeable:
-
-    mkdir /<something>
-    chgrp staff /<something>
-    chmod 775 /<something>
-
-Create a Python 3 virtualenv and install python dependencies:
-
-	virtualenv -p /usr/local/bin/python3 <venv_directory>/impactvizor-pipeline
-	source <venv_directory>/meerkat/bin/activate
-    cd <project_root>
-	pip install -r requirements.txt
-
-Add tables to Cassandra:
-
-    ...
 
 Running tests
 -------------
