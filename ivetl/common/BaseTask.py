@@ -1,3 +1,5 @@
+__author__ = 'nmehta'
+
 from __future__ import absolute_import
 
 from celery import Task
@@ -30,7 +32,6 @@ class BaseTask(Task):
     PL_COMPLETED = "completed"
     PL_ERROR = "error"
 
-
     def run(self, args):
 
         publisher = args[BaseTask.PUBLISHER_ID]
@@ -49,13 +50,11 @@ class BaseTask(Task):
 
         return return_args
 
-
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
         print("To override this task")
 
     def getWorkFolder(self, day, publisher, job_id):
         return common.BASE_WORK_DIR + day + "/" + publisher + "/" + self.vizor + "/" + job_id
-
 
     def setupTask(self, workfolder):
 
@@ -64,7 +63,6 @@ class BaseTask(Task):
         tlogger = self.getTaskLogger(task_workfolder, self.taskname)
 
         return task_workfolder, tlogger
-
 
     def getTaskLogger(self, path, taskname):
 
@@ -79,7 +77,6 @@ class BaseTask(Task):
 
         return ti_logger
 
-
     def pipelineStarted(self, publisher_id, pipeline_id, job_id, workfolder):
 
         start_date = datetime.datetime.today()
@@ -93,7 +90,6 @@ class BaseTask(Task):
         p.workfolder = workfolder
         p.updated = start_date
         p.save()
-
 
     def taskStarted(self, publisher, job_id, workfolder, tlogger):
 
@@ -121,7 +117,6 @@ class BaseTask(Task):
 
         return time()
 
-
     def taskEnded(self, publisher, job_id, start_time, tlogger, count=None):
 
         t1 = time()
@@ -145,7 +140,6 @@ class BaseTask(Task):
         tlogger.info("Time Taken: " + format(duration_seconds, '.2f') + " seconds / " + format((duration_seconds)/60, '.2f') + " minutes")
 
         return t1
-
 
     def pipelineCompleted(self, publisher_id, pipeline_id, job_id):
 
@@ -208,8 +202,7 @@ class BaseTask(Task):
         body += "<br><br><b>Command To Rerun Task:</b> <br>"
         body += self.__class__.__name__ + ".s" + str(args) + ".delay()"
 
-        common.sendEmail(subject, body)
-
+        common.send_email(subject, body)
 
     def on_success(self, retval, task_id, args, kwargs):
 
@@ -228,7 +221,7 @@ class BaseTask(Task):
         body += "<br><br><b>Return Value:</b> <br>"
         body += str(retval)
 
-        common.sendEmail(subject, body)
+        common.send_email(subject, body)
 
 
 

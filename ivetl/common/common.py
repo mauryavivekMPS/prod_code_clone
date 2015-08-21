@@ -1,6 +1,8 @@
+__author__ = 'nmehta, johnm'
+
 from __future__ import absolute_import
-import datetime
 import os
+import datetime
 import sendgrid
 
 
@@ -30,7 +32,6 @@ ns = {'dc': 'http://purl.org/dc/elements/1.1/',
 
 sass_url = "http://sass.highwire.org"
 
-# CASSANDRA_IP = '10.0.1.12'
 CASSANDRA_IP = os.environ.get('IVETL_CASSANDRA_IP', '127.0.0.1')
 CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor')
 
@@ -47,26 +48,24 @@ PA_PUB_OVERLAP_MONTHS = 2
 
 AC = "article_citations"
 
-EMAIL = os.environ.get('IVETL_EMAIL_TO_ADDRESS')
-FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
+EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
+EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
 
-def sendEmail(subject, body):
+def send_email(subject, body):
 
         try:
             sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
-
             message = sendgrid.Mail()
-            message.add_to(EMAIL)
+            message.add_to(EMAIL_TO)
             message.set_subject(subject)
             message.set_html(body)
-            message.set_from(FROM)
-
+            message.set_from(EMAIL_FROM)
             sg.send(message)
 
-        except Exception:
+        except:
             # do nothing
             print("sending of email failed")
 

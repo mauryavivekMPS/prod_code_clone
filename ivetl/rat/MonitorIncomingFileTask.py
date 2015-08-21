@@ -44,7 +44,7 @@ class MonitorIncomingFileTask(BaseTask):
 
                     subject = "Rejected Article Tracker - " + today + " - Processing started for " + publisher_dir
                     text = "Processing files for " + publisher_dir
-                    common.sendEmail(subject, text)
+                    common.send_email(subject, text)
 
                     workfolder = common.BASE_WORK_DIR + today + "/" + publisher_dir + "/" + self.vizor + "/" + today + "_" + time
                     dstworkpath = workfolder + "/" + self.taskname
