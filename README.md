@@ -68,33 +68,3 @@ Running tests
 Etc etc
 
     ...
-
-Administering with Fabric
--------------------------
-
-We have a fabfile that can do a bunch of deployment, testing, and interrogation tasks.
-
-    $ fab -l
-    Available commands:
-
-        git_pull
-        git_status
-        ivetl_conf
-        restart_celery
-        restart_ivetl
-        restart_rabbitmq
-        start_celery
-        start_rabbitmq
-        stop_celery
-        stop_rabbitmq
-        update_ivetl
-        update_pip
-
-The most common one will be to roll out a new version of meerkat:
-
-    fab -H impactvizor_prod01 update_ivetl
-
-(This assumes that you have `impactvizor_prod01` set up in your `.ssh/config` file, obviously.)
-
-This will call several other tasks to pull the latest from git, update the local environment, and then
-restart RabbitMQ and Celery.
