@@ -44,9 +44,17 @@ the `IVETL_WORKING_DIR` environment variable.)
 You'll also need to set the permissions of those directories to be writable by your user account, or the account that
 you will run the app with.
 
-Add tables to Cassandra:
+Initialize the Cassandra database:
 
-    ...
+    cd <source_root>
+    ./init_db.sh
+    
+(Note that this will drop any existing keyspace with the same name.)
+
+There are various datasets avaialble in the `<source_root>/deploy/data` directory:
+
+* `all_publishers_dml_cql` – All existing live publishers.
+* `test_publisher_n_dml.cql` – Various test publishers for general testing and unit tests.
 
 Environment variables
 ---------------------
@@ -61,10 +69,3 @@ The following environment variables are supported:
 
 The defaults are a good starting place for local development, however `IVETL_EMAIL_TO_ADDRESS` has no default and must
 be set.
-
-Running tests
--------------
-
-Etc etc
-
-    ...
