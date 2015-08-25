@@ -1,6 +1,5 @@
 __author__ = 'nmehta, johnm'
 
-from __future__ import absolute_import
 import os
 import datetime
 import sendgrid

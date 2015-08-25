@@ -1,7 +1,5 @@
 __author__ = 'nmehta'
 
-from __future__ import absolute_import
-
 from celery import Task
 import logging
 from os import makedirs

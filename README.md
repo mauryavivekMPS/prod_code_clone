@@ -28,15 +28,15 @@ Getting started
 Assuming you have Python 3, virtualenv, and virtualenvwrapper installed, and the impactvizor-pipeline source cloned,
 create a Python 3 virtualenv and install dependencies:
 
-	mkvirtualenv -p /usr/local/bin/python3 impactvizor-pipeline	
-    cd <source_root>
-	pip install -r requirements.txt
+	$ mkvirtualenv -p /usr/local/bin/python3 impactvizor-pipeline	
+    $ cd <source_root>
+	$ pip install -r requirements.txt
 
 Create working directories and make them writeable:
 
-    mkdir /iv
-    mkdir /iv/incoming
-    mkdir /iv/working
+    $ mkdir /iv
+    $ mkdir /iv/incoming
+    $ mkdir /iv/working
 
 (This assumes a working directory in the root directory, which is the default, however this location can be changed with
 the `IVETL_WORKING_DIR` environment variable.)
@@ -46,8 +46,8 @@ you will run the app with.
 
 Initialize the Cassandra database:
 
-    cd <source_root>
-    ./init_db.sh
+    $ cd <source_root>
+    $ ./init_db.sh
     
 (Note that this will drop any existing keyspace with the same name.)
 
@@ -69,3 +69,47 @@ The following environment variables are supported:
 
 The defaults are a good starting place for local development, however `IVETL_EMAIL_TO_ADDRESS` has no default and must
 be set.
+
+Running the pipeline
+--------------------
+
+The Celery worker can be started as follows:
+
+    $ celery -A ivetl worker --loglevel=info
+    
+And then you can start Flower at [http://127.0.0.1:5555](http://127.0.0.1:5555) with:
+
+    $ celery flower -A ivetl --address=127.0.0.1 --port=5555
+ 
+If you have test_publisher_1 in the database, you can kick off an example by opening executing the following code:
+ 
+    from ivetl.publishedarticles.ManualUpdatePublishedArticlesTask import ManualUpdatePublishedArticlesTask
+    ManualUpdatePublishedArticlesTask.s('test', False).delay()
+
+Tips for required services
+--------------------------
+
+### RabbitMQ
+
+This project makes very simple and light usage of RabbitMQ. A default installation should suffice. If you're on Linux or
+Mac just use your package manager (`apt-get` or `brew`) to install.
+
+Once installed, start RabbitMQ using:
+
+    $ rabbitmq-server &
+
+And interrogate it using:
+
+    $ rabbitmqctl status
+    $ rabbitmqctl list_queues
+
+### Cassandra
+
+For now, we're using the Datastax version of Cassandra. It's available from the
+[DataStax website](https://academy.datastax.com/downloads). After installing you can manually start it up using:
+
+    $ <install_directory>/bin/dse cassandra
+
+And the standard Cassandra shell can also be found there:
+
+    $ <install_directory>/bin/cqlsh

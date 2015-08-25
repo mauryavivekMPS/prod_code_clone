@@ -1,12 +1,9 @@
 __author__ = 'nmehta'
 
-from __future__ import absolute_import
-
 from celery import Celery
 from celery.signals import worker_process_init, worker_process_shutdown
-
-from ivetl.common import common
 from cassandra.cqlengine import connection
+from ivetl.common import common
 
 
 app = Celery('ivetl',
