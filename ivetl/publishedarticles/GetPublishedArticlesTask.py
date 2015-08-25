@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+__author__ = 'nmehta, johnm'
 
 import codecs
 import json
@@ -15,13 +15,12 @@ class GetPublishedArticlesTask(BaseTask):
 
     taskname = "GetPublishedArticles"
     vizor = common.PA
-    ITEMS_PER_PAGE = 1000
-    #ITEMS_PER_PAGE = 25
+    # ITEMS_PER_PAGE = 1000
+    ITEMS_PER_PAGE = 25
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'
     START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
     WORK_FOLDER = 'GetPublishedArticlesTask.WorkFolder'
-
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
@@ -47,8 +46,8 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                #if count >= 25:
-                #    break
+                if count >= 25:
+                   break
 
                 while not success and attempt < max_attempts:
                     try:

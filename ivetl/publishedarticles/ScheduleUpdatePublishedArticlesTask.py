@@ -20,7 +20,7 @@ class ScheduleUpdatePublishedArticlesTask(BaseTask):
     taskname = "ScheduleUpdatePublishedArticles"
     vizor = common.PA
 
-    def run(self, reprocessall):
+    def run(self, reprocess_all, articles_per_page=1000, max_articles_to_process=None):
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
@@ -34,7 +34,7 @@ class ScheduleUpdatePublishedArticlesTask(BaseTask):
             publisher_id = pm.publisher_id
             issns = pm.published_articles_issns_to_lookup
 
-            if reprocessall:
+            if reprocess_all:
                 start_publication_date = common.PA_PUB_START_DATE
             else:
                 start_publication_date = pm.published_articles_last_updated - relativedelta(months=common.PA_PUB_OVERLAP_MONTHS)
