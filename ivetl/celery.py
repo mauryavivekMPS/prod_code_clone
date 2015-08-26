@@ -41,8 +41,7 @@ def init_worker(**kwargs):
         connection.setup(
             [common.CASSANDRA_IP],
             common.CASSANDRA_KEYSPACE_IV,
-            protocol_version=3,
-            load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='local')
+            protocol_version=3
         )
     else:
         connection.setup(
