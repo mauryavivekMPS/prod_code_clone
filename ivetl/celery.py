@@ -2,6 +2,7 @@ __author__ = 'nmehta'
 
 from celery import Celery
 from celery.signals import worker_process_init, worker_process_shutdown
+from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.cqlengine import connection
 from ivetl.common import common
 
@@ -36,7 +37,18 @@ app.config_from_object('ivetl.celeryconfig')
 # Initialize Database Pool
 @worker_process_init.connect
 def init_worker(**kwargs):
-    connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
+    if common.IS_LOCAL:
+        connection.setup(
+            [common.CASSANDRA_IP],
+            common.CASSANDRA_KEYSPACE_IV,
+            protocol_version=3,
+            load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='local')
+        )
+    else:
+        connection.setup(
+            [common.CASSANDRA_IP],
+            common.CASSANDRA_KEYSPACE_IV
+        )
 
 
 @worker_process_shutdown.connect

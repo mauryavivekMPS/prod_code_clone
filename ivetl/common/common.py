@@ -31,6 +31,10 @@ ns = {'dc': 'http://purl.org/dc/elements/1.1/',
 
 sass_url = "http://sass.highwire.org"
 
+IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
+IS_QA = os.environ.get('IVETL_QA', '0') == '1'
+IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
+
 CASSANDRA_IP = os.environ.get('IVETL_CASSANDRA_IP', '127.0.0.1')
 CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor')
 
