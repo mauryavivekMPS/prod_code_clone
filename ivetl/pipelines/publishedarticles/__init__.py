@@ -1,4 +1,3 @@
 __author__ = 'john'
 
 from ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline import UpdatePublishedArticlesPipeline
-from ivetl.pipelines.publishedarticles.AddUserSuppliedArticleDataPipeline import AddUserSuppliedArticleDataPipeline

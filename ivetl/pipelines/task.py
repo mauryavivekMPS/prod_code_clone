@@ -10,7 +10,7 @@ from ivetl.models.PipelineStatus import Pipeline_Status
 from ivetl.models.PipelineTaskStatus import Pipeline_Task_Status
 
 
-class ChainedTask(BaseTask):
+class Task(BaseTask):
     abstract = True
 
     def run(self, args):

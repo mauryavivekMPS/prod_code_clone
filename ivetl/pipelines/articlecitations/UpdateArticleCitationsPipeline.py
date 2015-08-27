@@ -1,19 +1,17 @@
-from __future__ import absolute_import
+__author__ = 'nmehta'
 
 import datetime
 from celery import chain
-
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common.BaseTask import BaseTask
 from ivetl.articlecitations.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
-from ivetl.articlecitations.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
+from ivetl.pipelines.articlecitations.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
 from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.pipelines.pipeline import Pipeline
 
 
 @app.task
-class ScheduleUpdateArticleCitationsTask(BaseTask):
-
+class UpdateArticleCitationsPipeline(Pipeline):
     taskname = "ScheduleUpdateArticleCitations"
     vizor = common.AC
 

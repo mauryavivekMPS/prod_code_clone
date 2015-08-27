@@ -20,12 +20,10 @@ app = Celery('ivetl',
                       # new style imports, pipelines and then tasks, all from the same namespace
                       'ivetl.pipelines.publishedarticles',
                       'ivetl.pipelines.publishedarticles.tasks',
-
-                      'ivetl.articlecitations.ScheduleUpdateArticleCitationsTask',
-                      'ivetl.articlecitations.ManualUpdateArticleCitationsTask',
-                      'ivetl.articlecitations.GetScopusArticleCitationsTask',
-                      'ivetl.articlecitations.InsertIntoCassandraDBTask',
-                      'ivetl.articlecitations.InsertArticleCitationPlaceholderTask']
+                      'ivetl.pipelines.customarticledata',
+                      'ivetl.pipelines.customarticledata.tasks',
+                      'ivetl.pipelines.articlecitations',
+                      'ivetl.pipelines.articlecitations.tasks']
             )
 
 # Optional configuration, see the application user guide.

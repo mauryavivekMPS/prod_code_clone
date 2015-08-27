@@ -1,19 +1,18 @@
-from __future__ import absolute_import
+__author__ = 'nmehta'
+
 import codecs
 import json
-
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.models.PublishedArticle import Published_Article
 from ivetl.connectors.ScopusConnector import ScopusConnector
 from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.pipelines.task import Task
 
 
 @app.task
-class GetScopusArticleCitationsTask(BaseTask):
-
+class GetScopusArticleCitationsTask(Task):
     taskname = "GetScopusArticleCitations"
     vizor = common.AC
 

@@ -10,7 +10,7 @@ from ivetl.models.PublisherMetadata import PublisherMetadata
 
 
 @app.task
-class AddUserSuppliedArticleDataPipeline(Pipeline):
+class CustomArticleDataPipeline(Pipeline):
     vizor = "published_articles"
 
     def run(self, publishers=[]):

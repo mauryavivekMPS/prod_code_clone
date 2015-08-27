@@ -1,11 +1,11 @@
 __author__ = 'johnm'
 
 from ivetl.celery import app
-from ivetl.pipelines.chained_task import ChainedTask
+from ivetl.pipelines.task import Task
 
 
 @app.task
-class InsertUserSuppliedArticleDataIntoCassandra(ChainedTask):
+class InsertCustomArticleDataIntoCassandra(Task):
     vizor = "published_articles"
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
