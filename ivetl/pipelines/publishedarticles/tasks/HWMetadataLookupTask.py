@@ -176,7 +176,7 @@ class HWMetadataLookupTask(IvetlChainedTask):
 
         target_file.close()
 
-        self.pipelineCompleted(publisher, self.vizor, job_id)
+        # self.pipelineCompleted(publisher, self.vizor, job_id)
 
         args[self.INPUT_FILE] = target_file_name
         args[self.COUNT] = count

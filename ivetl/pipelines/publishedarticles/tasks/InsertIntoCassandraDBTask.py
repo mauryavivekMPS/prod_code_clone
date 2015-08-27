@@ -107,7 +107,7 @@ class InsertIntoCassandraDBTask(IvetlChainedTask):
                     if len(data['issued']['date-parts'][0]) >= 3:
                         day = data['issued']['date-parts'][0][2]
 
-                    pa['date_of_publication'] = toDateTime(month, day, year)
+                    pa['date_of_publication'] = to_date_time(month, day, year)
 
                 if 'is_open_access' in data and (data['is_open_access'] != ''):
                     pa['is_open_access'] = data['is_open_access']
@@ -182,7 +182,7 @@ class InsertIntoCassandraDBTask(IvetlChainedTask):
         return args
 
 
-def toDateTime(month, day, year):
+def to_date_time(month, day, year):
 
     if year < 99:
         year += 2000
