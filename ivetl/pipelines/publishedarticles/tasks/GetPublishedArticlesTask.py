@@ -7,13 +7,10 @@ from requests import HTTPError
 
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
-
+from ivetl.pipelines.base import IvetlChainedTask
 
 @app.task
-class GetPublishedArticlesTask(BaseTask):
-
-    taskname = "GetPublishedArticles"
+class GetPublishedArticlesTask(IvetlChainedTask):
     vizor = common.PA
     # ITEMS_PER_PAGE = 1000
     ITEMS_PER_PAGE = 25
@@ -101,8 +98,8 @@ class GetPublishedArticlesTask(BaseTask):
 
         target_file.close()
 
-        args[BaseTask.INPUT_FILE] = target_file_name
-        args[BaseTask.COUNT] = count
+        args[self.INPUT_FILE] = target_file_name
+        args[self.COUNT] = count
 
         return args
 

@@ -11,12 +11,11 @@ from ivetl.models.PublishedArticle import Published_Article
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.models.ArticleCitations import Article_Citations
+from ivetl.pipelines.base import IvetlChainedTask
 
 
 @app.task
-class InsertIntoCassandraDBTask(BaseTask):
-
-    taskname = "InsertIntoCassandraDB"
+class InsertIntoCassandraDBTask(IvetlChainedTask):
     vizor = common.PA
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
@@ -52,7 +51,6 @@ class InsertIntoCassandraDBTask(BaseTask):
 
                 if pa['created'] is None or pa['created'] == '':
                     pa['created'] = updated
-
 
                 if 'issue' in data and (data['issue'] != ''):
                     pa['article_issue'] = data['issue']
@@ -177,9 +175,9 @@ class InsertIntoCassandraDBTask(BaseTask):
             m.published_articles_last_updated = updated
             m.save()
 
-        self.pipelineCompleted(publisher, self.vizor, job_id)
+        self.pipeline_ended(publisher, self.vizor, job_id)
 
-        args[BaseTask.COUNT] = count
+        args[self.COUNT] = count
 
         return args
 

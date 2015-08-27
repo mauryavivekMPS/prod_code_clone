@@ -6,23 +6,21 @@ import json
 
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.connectors.ScopusConnector import ScopusConnector
 from ivetl.models.PublisherMetadata import PublisherMetadata
-
+from ivetl.pipelines.base import IvetlChainedTask
 
 @app.task
-class ScopusIdLookupTask(BaseTask):
+class ScopusIdLookupTask(IvetlChainedTask):
 
-    taskname = "ScopusIdLookup"
     vizor = common.PA
 
     MAX_ERROR_COUNT = 100
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
-        file = args[BaseTask.INPUT_FILE]
+        file = args[self.INPUT_FILE]
 
         target_file_name = workfolder + "/" + publisher + "_" + "scopuscitationlookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -90,8 +88,8 @@ class ScopusIdLookupTask(BaseTask):
 
         target_file.close()
 
-        args[BaseTask.INPUT_FILE] = target_file_name
-        args[BaseTask.COUNT] = count
+        args[self.INPUT_FILE] = target_file_name
+        args[self.COUNT] = count
 
         return args
 

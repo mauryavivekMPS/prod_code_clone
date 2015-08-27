@@ -1,27 +1,24 @@
-from __future__ import absolute_import
 import csv
 import codecs
 import json
 import urllib.parse
 import urllib.request
-import traceback
 import re
+from time import sleep
+
 import requests
 from requests import HTTPError
-from time import sleep
 from lxml import etree
 
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
 from ivetl.models.PublisherMetadata import PublisherMetadata
-from ivetl.publishedarticles.HWMetadataLookupTransform import HWMetadataLookupTransform
+from ivetl.pipelines.base import IvetlChainedTask
+from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HWMetadataLookupTransform
 
 
 @app.task
-class HWMetadataLookupTask(BaseTask):
-
-    taskname = "HWMetadataLookup"
+class HWMetadataLookupTask(IvetlChainedTask):
     vizor = common.PA
 
     SASSFS_BASE_URL = 'http://sassfs-index.highwire.org/nlm-pubid/doi?' \
@@ -34,7 +31,7 @@ class HWMetadataLookupTask(BaseTask):
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
 
-        file = args[BaseTask.INPUT_FILE]
+        file = args[self.INPUT_FILE]
 
         pm = PublisherMetadata.filter(publisher_id=publisher).first()
         issn_to_hw_journal_code = pm.issn_to_hw_journal_code
@@ -181,8 +178,8 @@ class HWMetadataLookupTask(BaseTask):
 
         self.pipelineCompleted(publisher, self.vizor, job_id)
 
-        args[BaseTask.INPUT_FILE] = target_file_name
-        args[BaseTask.COUNT] = count
+        args[self.INPUT_FILE] = target_file_name
+        args[self.COUNT] = count
 
         return args
 

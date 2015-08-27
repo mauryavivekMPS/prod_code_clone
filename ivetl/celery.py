@@ -2,7 +2,6 @@ __author__ = 'nmehta'
 
 from celery import Celery
 from celery.signals import worker_process_init, worker_process_shutdown
-from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.cqlengine import connection
 from ivetl.common import common
 
@@ -17,12 +16,11 @@ app = Celery('ivetl',
                       'ivetl.rat.PrepareForDBInsertTask',
                       'ivetl.rat.InsertIntoCassandraDBTask',
                       'ivetl.rat.XREFJournalCatalogTask',
-                      'ivetl.publishedarticles.ScheduleUpdatePublishedArticlesTask',
-                      'ivetl.publishedarticles.ManualUpdatePublishedArticlesTask',
-                      'ivetl.publishedarticles.GetPublishedArticlesTask',
-                      'ivetl.publishedarticles.ScopusIdLookupTask',
-                      'ivetl.publishedarticles.HWMetadataLookupTask',
-                      'ivetl.publishedarticles.InsertIntoCassandraDBTask',
+                      'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
+                      'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
+                      'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
+                      'ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask',
+                      'ivetl.pipelines.publishedarticles.tasks.InsertIntoCassandraDBTask',
                       'ivetl.articlecitations.ScheduleUpdateArticleCitationsTask',
                       'ivetl.articlecitations.ManualUpdateArticleCitationsTask',
                       'ivetl.articlecitations.GetScopusArticleCitationsTask',

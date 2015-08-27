@@ -83,8 +83,8 @@ And then you can start Flower at [http://127.0.0.1:5555](http://127.0.0.1:5555) 
  
 If you have test_publisher_1 in the database, you can kick off an example by opening executing the following code:
  
-    from ivetl.publishedarticles.ManualUpdatePublishedArticlesTask import ManualUpdatePublishedArticlesTask
-    ManualUpdatePublishedArticlesTask.s('test', False).delay()
+    from ivetl.publishedarticles.UpdatePublishedArticlesPipeline import UpdatePublishedArticlesPipeline
+    UpdatePublishedArticlesPipeline.s('test', False).delay()
 
 Tips for required services
 --------------------------
