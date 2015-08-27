@@ -1,20 +1,18 @@
-from __future__ import absolute_import
+__author__ = 'nmehta, johnm'
 
 import csv
 import codecs
 import json
-
-from ivetl.common import common
 from ivetl.celery import app
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.connectors.ScopusConnector import ScopusConnector
 from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.pipelines.base import IvetlChainedTask
 
+
 @app.task
 class ScopusIdLookupTask(IvetlChainedTask):
-
-    vizor = common.PA
+    vizor = "published_articles"
 
     MAX_ERROR_COUNT = 100
 

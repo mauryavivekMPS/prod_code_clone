@@ -19,7 +19,7 @@ from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HW
 
 @app.task
 class HWMetadataLookupTask(IvetlChainedTask):
-    vizor = common.PA
+    vizor = "published_articles"
 
     SASSFS_BASE_URL = 'http://sassfs-index.highwire.org/nlm-pubid/doi?' \
                       'scheme=http%3A%2F%2Fschema.highwire.org%2FPublishing%23role&' \

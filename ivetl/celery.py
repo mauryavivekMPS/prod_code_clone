@@ -16,8 +16,11 @@ app = Celery('ivetl',
                       'ivetl.rat.PrepareForDBInsertTask',
                       'ivetl.rat.InsertIntoCassandraDBTask',
                       'ivetl.rat.XREFJournalCatalogTask',
+
+                      # new style imports, pipelines and then tasks, all from the same namespace
                       'ivetl.pipelines.publishedarticles',
                       'ivetl.pipelines.publishedarticles.tasks',
+
                       'ivetl.articlecitations.ScheduleUpdateArticleCitationsTask',
                       'ivetl.articlecitations.ManualUpdateArticleCitationsTask',
                       'ivetl.articlecitations.GetScopusArticleCitationsTask',

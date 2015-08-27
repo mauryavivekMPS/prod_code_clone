@@ -1,10 +1,8 @@
-from __future__ import absolute_import
+__author__ = 'nmehta, johnm'
 
 import datetime
-
-from celery import chain
 from dateutil.relativedelta import relativedelta
-
+from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.base import IvetlPipeline
@@ -12,12 +10,14 @@ from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask import GetPublishedArticlesTask
 from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
 from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask import HWMetadataLookupTask
-from ivetl.pipelines.publishedarticles.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
+from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra import InsertPublishedArticlesIntoCassandra
 
 
 @app.task
 class UpdatePublishedArticlesPipeline(IvetlPipeline):
-    vizor = common.PA
+    vizor = "published_articles"
+    PUB_START_DATE = datetime.date(2010, 1, 1)
+    PUB_OVERLAP_MONTHS = 2
 
     def run(self, publishers=[], reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
 
@@ -37,18 +37,21 @@ class UpdatePublishedArticlesPipeline(IvetlPipeline):
             issns = pm.published_articles_issns_to_lookup
 
             if reprocess_all:
-                start_publication_date = common.PA_PUB_START_DATE
+                start_publication_date = self.PUB_START_DATE
             else:
-                start_publication_date = pm.published_articles_last_updated - relativedelta(months=common.PA_PUB_OVERLAP_MONTHS)
+                start_publication_date = pm.published_articles_last_updated - relativedelta(months=self.PUB_OVERLAP_MONTHS)
 
             wf = self.get_work_folder(today, publisher_id, job_id)
 
-            args = {}
-            args[self.PUBLISHER_ID] = publisher_id
-            args[self.WORK_FOLDER] = wf
-            args[self.JOB_ID] = job_id
-            args[GetPublishedArticlesTask.ISSNS] = issns
-            args[GetPublishedArticlesTask.START_PUB_DATE] = start_publication_date
+            args = {
+                self.PUBLISHER_ID: publisher_id,
+                self.WORK_FOLDER: wf,
+                self.JOB_ID: job_id,
+                GetPublishedArticlesTask.ISSNS: issns,
+                GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
+                'articles_per_page': articles_per_page,
+                'max_articles_to_process': max_articles_to_process,
+            }
 
             self.pipeline_started(publisher_id, self.vizor, job_id, wf)
 
@@ -56,8 +59,8 @@ class UpdatePublishedArticlesPipeline(IvetlPipeline):
                 chain(GetPublishedArticlesTask.s(args) |
                       ScopusIdLookupTask.s() |
                       HWMetadataLookupTask.s() |
-                      InsertIntoCassandraDBTask.s()).delay()
+                      InsertPublishedArticlesIntoCassandra.s()).delay()
             else:
                 chain(GetPublishedArticlesTask.s(args) |
                       ScopusIdLookupTask.s() |
-                      InsertIntoCassandraDBTask.s()).delay()
+                      InsertPublishedArticlesIntoCassandra.s()).delay()

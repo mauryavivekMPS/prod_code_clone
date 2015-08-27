@@ -4,16 +4,13 @@ import codecs
 import json
 import requests
 from requests import HTTPError
-
-from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.base import IvetlChainedTask
 
+
 @app.task
 class GetPublishedArticlesTask(IvetlChainedTask):
-    vizor = common.PA
-    # ITEMS_PER_PAGE = 1000
-    ITEMS_PER_PAGE = 25
+    vizor = "published_articles"
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'
     START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
@@ -43,13 +40,13 @@ class GetPublishedArticlesTask(IvetlChainedTask):
                 r = None
                 success = False
 
-                if count >= 25:
-                   break
+                if 'max_articles_to_process' in args and count >= args['max_articles_to_process']:
+                    break
 
                 while not success and attempt < max_attempts:
                     try:
                         url = 'http://api.crossref.org/journals/' + issn + '/works'
-                        url += '?rows=' + str(self.ITEMS_PER_PAGE)
+                        url += '?rows=' + str(args['articles_per_page'])
                         url += '&offset=' + str(offset)
                         url += '&filter=type:journal-article,from-pub-date:' + from_pub_date_str
 
@@ -91,7 +88,7 @@ class GetPublishedArticlesTask(IvetlChainedTask):
 
                         count += 1
 
-                    offset += self.ITEMS_PER_PAGE
+                    offset += args['articles_per_page']
 
                 else:
                     offset = -1

@@ -1,10 +1,9 @@
-from __future__ import absolute_import
+__author__ = 'nmehta, johnm'
+
 import csv
 import codecs
 import json
 from datetime import datetime
-
-from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
 from ivetl.models.PublishedArticle import Published_Article
@@ -15,8 +14,8 @@ from ivetl.pipelines.base import IvetlChainedTask
 
 
 @app.task
-class InsertIntoCassandraDBTask(IvetlChainedTask):
-    vizor = common.PA
+class InsertPublishedArticlesIntoCassandra(IvetlChainedTask):
+    vizor = "published_articles"
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
 

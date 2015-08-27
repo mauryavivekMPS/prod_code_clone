@@ -43,12 +43,8 @@ BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
+# these will move to the refactored pipelines soon...
 RAT = "rejected_article_tracker"
-
-PA = "published_articles"
-PA_PUB_START_DATE = datetime.date(2010, 1, 1)
-PA_PUB_OVERLAP_MONTHS = 2
-
 AC = "article_citations"
 
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")

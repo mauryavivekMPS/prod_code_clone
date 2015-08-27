@@ -2,5 +2,8 @@ __author__ = 'john'
 
 from ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask import GetPublishedArticlesTask
 from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask import HWMetadataLookupTask
-from ivetl.pipelines.publishedarticles.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
+from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra import InsertPublishedArticlesIntoCassandra
 from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
+from ivetl.pipelines.publishedarticles.tasks.ValidateArticleDataFile import ValidateArticleDataFile
+from ivetl.pipelines.publishedarticles.tasks.InsertUserSuppliedArticleDataIntoCassandra import InsertUserSuppliedArticleDataIntoCassandra
+
