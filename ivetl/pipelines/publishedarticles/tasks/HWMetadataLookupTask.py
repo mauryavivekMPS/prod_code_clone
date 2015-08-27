@@ -1,3 +1,5 @@
+__author__ = 'nmehta, johnm'
+
 import csv
 import codecs
 import json
@@ -5,20 +7,18 @@ import urllib.parse
 import urllib.request
 import re
 from time import sleep
-
 import requests
 from requests import HTTPError
 from lxml import etree
-
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.models.PublisherMetadata import PublisherMetadata
-from ivetl.pipelines.base import IvetlChainedTask
+from ivetl.pipelines.chained_task import ChainedTask
 from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HWMetadataLookupTransform
 
 
 @app.task
-class HWMetadataLookupTask(IvetlChainedTask):
+class HWMetadataLookupTask(ChainedTask):
     vizor = "published_articles"
 
     SASSFS_BASE_URL = 'http://sassfs-index.highwire.org/nlm-pubid/doi?' \

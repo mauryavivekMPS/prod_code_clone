@@ -7,11 +7,11 @@ from ivetl.celery import app
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.connectors.ScopusConnector import ScopusConnector
 from ivetl.models.PublisherMetadata import PublisherMetadata
-from ivetl.pipelines.base import IvetlChainedTask
+from ivetl.pipelines.chained_task import ChainedTask
 
 
 @app.task
-class ScopusIdLookupTask(IvetlChainedTask):
+class ScopusIdLookupTask(ChainedTask):
     vizor = "published_articles"
 
     MAX_ERROR_COUNT = 100

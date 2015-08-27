@@ -4,8 +4,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from celery import chain
 from ivetl.celery import app
-from ivetl.common import common
-from ivetl.pipelines.base import IvetlPipeline
+from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask import GetPublishedArticlesTask
 from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
@@ -14,7 +13,7 @@ from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandr
 
 
 @app.task
-class UpdatePublishedArticlesPipeline(IvetlPipeline):
+class UpdatePublishedArticlesPipeline(Pipeline):
     vizor = "published_articles"
     PUB_START_DATE = datetime.date(2010, 1, 1)
     PUB_OVERLAP_MONTHS = 2

@@ -5,12 +5,12 @@ from dateutil.relativedelta import relativedelta
 from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.pipelines.base import IvetlPipeline
+from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models.PublisherMetadata import PublisherMetadata
 
 
 @app.task
-class AddUserSuppliedArticleDataPipeline(IvetlPipeline):
+class AddUserSuppliedArticleDataPipeline(Pipeline):
     vizor = "published_articles"
 
     def run(self, publishers=[]):

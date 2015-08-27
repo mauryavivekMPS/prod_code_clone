@@ -8,7 +8,7 @@ class Published_Article(Model):
     article_doi = columns.Text(primary_key=True)
     article_issue = columns.Text()
     article_journal = columns.Text()
-    article_journal_issn =columns.Text()
+    article_journal_issn = columns.Text()
     article_pages = columns.Text()
     article_publisher = columns.Text()
     article_scopus_id = columns.Text()
@@ -29,4 +29,3 @@ class Published_Article(Model):
     editor = columns.Text()
     citations_lookup_error = columns.Boolean()
     is_open_access = columns.Text()
-

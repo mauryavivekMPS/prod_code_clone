@@ -5,11 +5,11 @@ import json
 import requests
 from requests import HTTPError
 from ivetl.celery import app
-from ivetl.pipelines.base import IvetlChainedTask
+from ivetl.pipelines.chained_task import ChainedTask
 
 
 @app.task
-class GetPublishedArticlesTask(IvetlChainedTask):
+class GetPublishedArticlesTask(ChainedTask):
     vizor = "published_articles"
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'

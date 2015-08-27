@@ -10,11 +10,11 @@ from ivetl.models.PublishedArticle import Published_Article
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.models.ArticleCitations import Article_Citations
-from ivetl.pipelines.base import IvetlChainedTask
+from ivetl.pipelines.chained_task import ChainedTask
 
 
 @app.task
-class InsertPublishedArticlesIntoCassandra(IvetlChainedTask):
+class InsertPublishedArticlesIntoCassandra(ChainedTask):
     vizor = "published_articles"
 
     def run_task(self, publisher, job_id, workfolder, tlogger, args):

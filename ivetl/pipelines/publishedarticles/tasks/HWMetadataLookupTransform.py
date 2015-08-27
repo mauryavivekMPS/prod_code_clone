@@ -1,5 +1,7 @@
-class HWMetadataLookupTransform:
+__author__ = 'nmehta, johnm'
 
+
+class HWMetadataLookupTransform:
 
     def asm_xform_doi(input_doi):
 
@@ -56,8 +58,3 @@ class HWMetadataLookupTransform:
             return HWMetadataLookupTransform.xform_doi_dict[publisher_id](doi)
         else:
             return doi
-
-
-
-
-
