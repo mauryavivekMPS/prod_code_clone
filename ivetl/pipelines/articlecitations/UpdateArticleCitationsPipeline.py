@@ -4,7 +4,7 @@ import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.articlecitations.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
+from ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
 from ivetl.pipelines.articlecitations.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
 from ivetl.models.PublisherMetadata import PublisherMetadata
 from ivetl.pipelines.pipeline import Pipeline
