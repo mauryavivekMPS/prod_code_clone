@@ -6,9 +6,7 @@ import json
 from datetime import datetime
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.models.PublishedArticle import Published_Article
-from ivetl.models.ArticleCitations import Article_Citations
-from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
+from ivetl.models import Published_Article, Article_Citations, Publisher_Vizor_Updates
 from ivetl.pipelines.task import Task
 
 

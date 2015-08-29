@@ -7,7 +7,7 @@ from ivetl.celery import app
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.models.PublishedArticle import Published_Article
 from ivetl.connectors.ScopusConnector import ScopusConnector
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models.PublisherMetadata import Publisher_Metadata
 from ivetl.pipelines.task import Task
 
 
@@ -33,7 +33,7 @@ class GetScopusArticleCitationsTask(Task):
         count = 0
         error_count = 0
 
-        pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
+        pm = Publisher_Metadata.objects.filter(publisher_id=publisher).first()
         connector = ScopusConnector(pm.scopus_api_key)
 
         articles = Published_Article.objects.filter(publisher_id=publisher).limit(self.QUERY_LIMIT)

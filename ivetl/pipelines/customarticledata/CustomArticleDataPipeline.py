@@ -6,7 +6,7 @@ from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models.PublisherMetadata import Publisher_Metadata
 
 
 @app.task
@@ -20,7 +20,7 @@ class CustomArticleDataPipeline(Pipeline):
         time = d.strftime('%H%M%S%f')
         job_id = today + "_" + time
 
-        publishers_metadata = PublisherMetadata.objects.all()
+        publishers_metadata = Publisher_Metadata.objects.all()
 
         if publishers:
             publishers_metadata = publishers_metadata.filter(publisher_id__in=publishers)

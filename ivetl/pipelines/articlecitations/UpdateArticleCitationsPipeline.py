@@ -6,7 +6,7 @@ from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
 from ivetl.pipelines.articlecitations.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.pipeline import Pipeline
 
 
@@ -22,7 +22,7 @@ class UpdateArticleCitationsPipeline(Pipeline):
         time = d.strftime('%H%M%S%f')
         job_id = today + "_" + time
 
-        publishers_metadata = PublisherMetadata.objects.all()
+        publishers_metadata = Publisher_Metadata.objects.all()
 
         for pm in publishers_metadata:
 

@@ -6,7 +6,7 @@ import json
 from ivetl.celery import app
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.connectors.ScopusConnector import ScopusConnector
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.task import Task
 
 
@@ -26,7 +26,7 @@ class ScopusIdLookupTask(Task):
                           'DOI\t'
                           'DATA\n')
 
-        pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
+        pm = Publisher_Metadata.objects.filter(publisher_id=publisher).first()
         connector = ScopusConnector(pm.scopus_api_keys)
 
         count = 0

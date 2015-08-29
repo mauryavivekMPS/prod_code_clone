@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask import GetPublishedArticlesTask
 from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
 from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask import HWMetadataLookupTask
@@ -25,7 +25,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
         time = d.strftime('%H%M%S%f')
         job_id = today + "_" + time
 
-        publishers_metadata = PublisherMetadata.objects.all()
+        publishers_metadata = Publisher_Metadata.objects.all()
 
         if publishers:
             publishers_metadata = publishers_metadata.filter(publisher_id__in=publishers)

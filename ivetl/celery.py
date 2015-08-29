@@ -2,7 +2,7 @@ __author__ = 'nmehta'
 
 from celery import Celery
 from celery.signals import worker_process_init, worker_process_shutdown
-from cassandra.cqlengine import connection
+from cqlengine import connection
 from ivetl.common import common
 
 
@@ -52,7 +52,6 @@ def close_cassandra_connection():
 @worker_process_init.connect
 def init_worker(**kwargs):
     open_cassandra_connection()
-
 
 
 @worker_process_shutdown.connect

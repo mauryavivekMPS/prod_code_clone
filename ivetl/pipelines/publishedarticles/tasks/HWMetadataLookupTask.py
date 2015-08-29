@@ -12,7 +12,7 @@ from requests import HTTPError
 from lxml import etree
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HWMetadataLookupTransform
 
@@ -33,7 +33,7 @@ class HWMetadataLookupTask(Task):
 
         file = args[self.INPUT_FILE]
 
-        pm = PublisherMetadata.filter(publisher_id=publisher).first()
+        pm = Publisher_Metadata.filter(publisher_id=publisher).first()
         issn_to_hw_journal_code = pm.issn_to_hw_journal_code
 
         target_file_name = workfolder + "/" + publisher + "_" + "hwmetadatalookup" + "_" + "target.tab"

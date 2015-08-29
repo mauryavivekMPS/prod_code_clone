@@ -6,8 +6,7 @@ import csv
 import sys
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
-from ivetl.models.PipelineStatus import Pipeline_Status
-from ivetl.models.PipelineTaskStatus import Pipeline_Task_Status
+from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 
 
 class Task(BaseTask):

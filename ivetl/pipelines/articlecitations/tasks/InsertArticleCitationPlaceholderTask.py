@@ -5,8 +5,7 @@ from datetime import datetime
 from os import makedirs
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.models.PublishedArticle import Published_Article
-from ivetl.models.ArticleCitations import Article_Citations
+from ivetl.models import Published_Article, Article_Citations
 from ivetl.pipelines.task import Task
 
 

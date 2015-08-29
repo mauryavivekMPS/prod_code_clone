@@ -6,10 +6,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.models.PublishedArticle import Published_Article
-from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
-from ivetl.models.PublisherMetadata import PublisherMetadata
-from ivetl.models.ArticleCitations import Article_Citations
+from ivetl.models import Published_Article, PublisherMetadata, PublisherVizorUpdates, Article_Citations
 from ivetl.pipelines.task import Task
 
 
@@ -170,7 +167,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
             pu['updated'] = updated
             pu.save()
 
-            m = PublisherMetadata.filter(publisher_id=publisher).first()
+            m = Publisher_Metadata.filter(publisher_id=publisher).first()
             m.published_articles_last_updated = updated
             m.save()
 
