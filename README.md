@@ -44,9 +44,13 @@ the `IVETL_WORKING_DIR` environment variable.)
 You'll also need to set the permissions of those directories to be writable by your user account, or the account that
 you will run the app with.
 
-Initialize the Cassandra database:
+Then, as at the start of all development sessions, you'll set your shell up using the `local.sh` file:
 
     $ cd <source_root>
+    $ source conf/local.sh
+
+Initialize the Cassandra database:
+
     $ ./init_db.sh
     
 (Note that this will drop any existing keyspace with the same name.)
