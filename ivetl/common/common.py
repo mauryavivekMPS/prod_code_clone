@@ -1,7 +1,6 @@
 __author__ = 'nmehta, johnm'
 
 import os
-import datetime
 import sendgrid
 
 
@@ -54,7 +53,6 @@ SG_PWD = "Hello123!"
 
 
 def send_email(subject, body):
-
         try:
             sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
             message = sendgrid.Mail()
@@ -63,10 +61,6 @@ def send_email(subject, body):
             message.set_html(body)
             message.set_from(EMAIL_FROM)
             sg.send(message)
-
         except:
             # do nothing
             print("sending of email failed")
-
-
-

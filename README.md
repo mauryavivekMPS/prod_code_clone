@@ -49,7 +49,7 @@ Then, as at the start of all development sessions, you'll set your shell up usin
     $ cd <source_root>
     $ source conf/local.sh
 
-Initialize the Cassandra database:
+Initialize the Cassandra database schema:
 
     $ ./init_db.sh
     
@@ -117,3 +117,15 @@ For now, we're using the Datastax version of Cassandra. It's available from the
 And the standard Cassandra shell can also be found there:
 
     $ <install_directory>/bin/cqlsh
+
+Interacting with Cassandra from Python
+--------------------------------------
+
+Before you do `cqlengine` type things from the Python command line, you'll need to initialize the connection:
+
+    from ivetl.celery import open_cassandra_connection
+    open_cassandra_connection()
+
+And if you're polite, you'll close it down when you're done:
+
+    close_cassandra_connection()
