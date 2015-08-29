@@ -13,7 +13,8 @@ echo "Dropped and recreated database"
 $CQLSH -f deploy/schema/create_metadata_ddl.cql
 $CQLSH -f deploy/schema/create_ac_article_citations_ddl.cql
 $CQLSH -f deploy/schema/create_issn_journal_ddl.cql
-$CQLSH -f deploy/schema/create_pa_published_articles_ddl.cql
+$CQLSH -f deploy/schema/create_pa_published_article_ddl.cql
+$CQLSH -f deploy/schema/create_pa_published_article_values_ddl.cql
 $CQLSH -f deploy/schema/create_pipeline_status_ddl.cql
 $CQLSH -f deploy/schema/create_publisher_vizor_updates_ddl.cql
 $CQLSH -f deploy/schema/create_rat_rejected_articles_ddl.cql

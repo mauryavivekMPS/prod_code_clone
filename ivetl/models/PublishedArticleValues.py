@@ -1,5 +1,5 @@
-from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
+from cqlengine import columns
+from cqlengine.models import Model
 
 
 class Published_Article_Values(Model):
@@ -8,4 +8,4 @@ class Published_Article_Values(Model):
     article_doi = columns.Text(primary_key=True)
     source = columns.Text(index=True)
     name = columns.Text(index=True)
-    value = columns.Text()
+    value_text = columns.Text()
