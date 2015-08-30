@@ -98,11 +98,3 @@ class PrepareInputFileTask(BaseTask):
         tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
 
         return target_file_name, publisher, day, workfolder
-
-
-
-
-
-
-
-

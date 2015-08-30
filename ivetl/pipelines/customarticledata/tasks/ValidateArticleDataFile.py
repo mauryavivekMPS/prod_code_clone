@@ -6,7 +6,8 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class ValidateArticleDataFile(Task):
-    vizor = "published_articles"
+    pipeline_name = "custom_article_data"
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
-        pass
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+        print("Running validate for %s" % publisher_id)
+        return {}

@@ -6,7 +6,9 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class InsertCustomArticleDataIntoCassandra(Task):
-    vizor = "published_articles"
+    pipeline_name = "custom_article_data"
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
-        self.pipeline_ended(publisher, self.vizor, job_id)
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+        print("Running insert for %s" % publisher_id)
+        self.pipeline_ended(publisher_id, self.pipeline_name, job_id)
+        return {}

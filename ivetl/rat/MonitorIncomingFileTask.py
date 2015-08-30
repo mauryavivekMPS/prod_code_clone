@@ -34,7 +34,6 @@ class MonitorIncomingFileTask(BaseTask):
         time = d.strftime('%H%M%S%f')
 
         for publisher_dir in os.listdir(common.BASE_INCOMING_DIR):
-
             if os.path.isdir(os.path.join(common.BASE_INCOMING_DIR, publisher_dir)):
 
                 srcpath = common.BASE_INCOMING_DIR + publisher_dir + "/" + common.RAT_DIR

@@ -12,25 +12,31 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 class Task(BaseTask):
     abstract = True
 
-    def run(self, args):
+    def run(self, task_args):
 
-        publisher = args[self.PUBLISHER_ID]
-        workfolder = args[BaseTask.WORK_FOLDER]
-        job_id = args[self.JOB_ID]
+        # pull the standard args out of task args
+        publisher_id = task_args.pop('publisher_id')
+        work_folder = task_args.pop('work_folder')
+        job_id = task_args.pop('job_id')
 
-        task_workfolder, tlogger = self.setup_task(workfolder)
+        # set up the directory for this task
+        task_work_folder, tlogger = self.setup_task(work_folder)
         csv.field_size_limit(sys.maxsize)
 
+        # run the task
         t0 = time()
-        self.task_started(publisher, job_id, task_workfolder, tlogger)
+        self.task_started(publisher_id, job_id, task_work_folder, tlogger)
+        task_result = self.run_task(publisher_id, job_id, task_work_folder, tlogger, task_args)
+        self.task_ended(publisher_id, job_id, t0, tlogger, task_result.get(self.COUNT))
 
-        return_args = self.run_task(publisher, job_id, task_workfolder, tlogger, args)
+        # construct a new task args with the result
+        task_result['publisher_id'] = publisher_id
+        task_result['work_folder'] = work_folder
+        task_result['job_id'] = job_id
 
-        self.task_ended(publisher, job_id, t0, tlogger, return_args.get(self.COUNT))
+        return task_result
 
-        return return_args
-
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
 
     def task_started(self, publisher, job_id, workfolder, tlogger):
