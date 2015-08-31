@@ -183,10 +183,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
             m.save()
 
         modified_articles_file.close()
-
-        task_args[self.COUNT] = count
-        task_args['modified_articles_file'] = modified_articles_file_name
-        return task_args
+        return {self.COUNT: count, 'modified_articles_file': modified_articles_file_name}
 
 
 def to_date_time(month, day, year):

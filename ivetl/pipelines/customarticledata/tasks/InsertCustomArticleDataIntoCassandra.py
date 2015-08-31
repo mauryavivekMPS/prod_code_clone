@@ -1,6 +1,8 @@
 __author__ = 'johnm'
 
+import os
 import csv
+import codecs
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.customarticledata import utils
@@ -13,6 +15,10 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']
+
+        modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
+        modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
+        modified_articles_file.write('PUBLISHER_ID\tDOI\n')  # ..and here? we're already in a pub folder
 
         for f in files:
             with open(f, encoding='utf-8') as tsv:  # TODO: perhaps should be codecs.open(f, encoding="utf-16") ??
@@ -34,8 +40,11 @@ class InsertCustomArticleDataIntoCassandra(Task):
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='editor').update(value_text=d['editor'])
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom').update(value_text=d['custom'])
 
+                    # add a record of modified files for next task
+                    modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
+                    modified_articles_file.flush()  # why is this needed?
+
                 tsv.close()
 
-        self.pipeline_ended(publisher_id, self.pipeline_name, job_id)
-
-        return {'input_files': files}
+        modified_articles_file.close()
+        return {self.COUNT: count, 'modified_articles_file': modified_articles_file_name}

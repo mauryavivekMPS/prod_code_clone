@@ -7,6 +7,7 @@ from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.customarticledata import tasks
+from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata
 
 
@@ -68,5 +69,6 @@ class CustomArticleDataPipeline(Pipeline):
                     chain(
                         tasks.GetArticleDataFiles.s(task_args) |
                         tasks.ValidateArticleDataFiles.s() |
-                        tasks.InsertCustomArticleDataIntoCassandra.s()
+                        tasks.InsertCustomArticleDataIntoCassandra.s() |
+                        published_articles_tasks.ResolvePublishedArticlesData.s()
                     ).delay()

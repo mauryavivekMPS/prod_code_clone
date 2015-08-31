@@ -57,10 +57,12 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                     tasks.ScopusIdLookupTask.s() |
                     tasks.HWMetadataLookupTask.s() |
                     tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.ResolvePublishedArticlesData.s()).delay()
+                    tasks.ResolvePublishedArticlesData.s()
+                ).delay()
             else:
                 chain(
                     tasks.GetPublishedArticlesTask.s(task_args) |
                     tasks.ScopusIdLookupTask.s() |
                     tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.ResolvePublishedArticlesData.s()).delay()
+                    tasks.ResolvePublishedArticlesData.s()
+                ).delay()
