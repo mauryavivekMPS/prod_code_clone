@@ -28,13 +28,11 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
                     doi = d['doi']
 
-                    # first add/update the values table
+                    # data is added only to the values table and we let the resolver figure out the rest
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='article_type').update(value_text=d['toc_section'])
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='subject_category').update(value_text=d['collection'])
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='editor').update(value_text=d['editor'])
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom').update(value_text=d['custom'])
-
-                    article = Published_Article.get(publisher_id=publisher_id, article_doi=d['doi'])
 
                 tsv.close()
 

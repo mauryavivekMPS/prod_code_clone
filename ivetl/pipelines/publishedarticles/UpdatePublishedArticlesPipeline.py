@@ -6,10 +6,7 @@ from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
-from ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask import GetPublishedArticlesTask
-from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
-from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask import HWMetadataLookupTask
-from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra import InsertPublishedArticlesIntoCassandra
+from ivetl.pipelines.publishedarticles import tasks
 
 
 @app.task
@@ -46,8 +43,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'publisher_id': publisher_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                GetPublishedArticlesTask.ISSNS: issns,
-                GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
+                tasks.GetPublishedArticlesTask.ISSNS: issns,
+                tasks.GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
             }
@@ -55,11 +52,15 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             self.pipeline_started(publisher_id, self.pipeline_name, job_id, work_folder)
 
             if pm.hw_addl_metadata_available:
-                chain(GetPublishedArticlesTask.s(task_args) |
-                      ScopusIdLookupTask.s() |
-                      HWMetadataLookupTask.s() |
-                      InsertPublishedArticlesIntoCassandra.s()).delay()
+                chain(
+                    tasks.GetPublishedArticlesTask.s(task_args) |
+                    tasks.ScopusIdLookupTask.s() |
+                    tasks.HWMetadataLookupTask.s() |
+                    tasks.InsertPublishedArticlesIntoCassandra.s() |
+                    tasks.ResolvePublishedArticlesData.s()).delay()
             else:
-                chain(GetPublishedArticlesTask.s(task_args) |
-                      ScopusIdLookupTask.s() |
-                      InsertPublishedArticlesIntoCassandra.s()).delay()
+                chain(
+                    tasks.GetPublishedArticlesTask.s(task_args) |
+                    tasks.ScopusIdLookupTask.s() |
+                    tasks.InsertPublishedArticlesIntoCassandra.s() |
+                    tasks.ResolvePublishedArticlesData.s()).delay()

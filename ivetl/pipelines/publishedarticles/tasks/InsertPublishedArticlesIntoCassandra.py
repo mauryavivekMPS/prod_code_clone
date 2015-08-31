@@ -1,12 +1,13 @@
 __author__ = 'nmehta, johnm'
 
+import os
 import csv
 import codecs
 import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations
+from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values
 from ivetl.pipelines.task import Task
 
 
@@ -17,6 +18,10 @@ class InsertPublishedArticlesIntoCassandra(Task):
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
         file = task_args[BaseTask.INPUT_FILE]
+
+        output_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
+        output_file = codecs.open(output_file_name, 'w', 'utf-8')
+        output_file.write('PUBLISHER_ID\tDOI')  # ..and here? we're already in a pub folder
 
         count = 0
         today = datetime.today()
@@ -30,19 +35,19 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if count == 1:
                     continue
 
-                publisher_id = line[0]
                 doi = line[1]
                 data = json.loads(line[2])
 
+                # first, add the non-overlapping values straight to the published article table
                 pa = Published_Article()
-
                 existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
                 if existing_record:
                     pa = existing_record
+                else:
+                    pa['publisher_id'] = publisher_id
+                    pa['article_doi'] = doi
 
-                pa['publisher_id'] = publisher_id
-                pa['article_doi'] = doi
                 pa['updated'] = updated
 
                 if pa['created'] is None or pa['created'] == '':
@@ -110,29 +115,6 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 else:
                     pa['is_open_access'] = 'No'
 
-                if 'article_type' in data and (data['article_type'] != ''):
-                    pa['article_type'] = data['article_type']
-                else:
-                    pa['article_type'] = 'None'
-
-                if 'subject_category' in data and (data['subject_category'] != ''):
-                    pa['subject_category'] = data['subject_category']
-                else:
-                    pa['subject_category'] = 'None'
-
-                if 'custom' in data and (data['custom'] != ''):
-                    pa['custom'] = data['custom']
-
-                if 'editor' in data and (data['editor'] != ''):
-
-                    ed_last_name = data['author'][0]['family']
-
-                    ed_first_name = ''
-                    if 'given' in data['author'][0]:
-                        ed_first_name = data['author'][0]['given']
-
-                    pa['editor'] = ed_last_name + ',' + ed_first_name
-
                 if 'scopus_citation_count' in data and (data['scopus_citation_count'] != ''):
                     pa['scopus_citation_count'] = data['scopus_citation_count']
                 else:
@@ -143,7 +125,33 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
                 pa.save()
 
-                # Add Placeholder Citations
+                # now add overlapping values to the values table, and leave the rest to the resolver
+                article_type = 'None'
+                if 'article_type' in data and (data['article_type'] != ''):
+                    article_type = data['article_type']
+
+                subject_category = 'None'
+                if 'subject_category' in data and (data['subject_category'] != ''):
+                    subject_category = data['subject_category']
+
+                custom = None
+                if 'custom' in data and (data['custom'] != ''):
+                    custom = data['custom']
+
+                editor = None
+                if 'editor' in data and (data['editor'] != ''):
+                    ed_last_name = data['author'][0]['family']
+                    ed_first_name = ''
+                    if 'given' in data['author'][0]:
+                        ed_first_name = data['author'][0]['given']
+                    editor = '%s, %s' % (ed_last_name, ed_first_name)
+
+                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
+                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='subject_category').update(value_text=subject_category)
+                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='editor').update(value_text=editor)
+                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
+
+                # finally, add placeholder citations
                 for yr in range(pa.date_of_publication.year, today.year + 1):
 
                     plac = Article_Citations()
@@ -158,6 +166,9 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
                 tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
 
+                # add a record of modified files for next task
+                output_file.write("%s\t%s\n" % (publisher_id, doi))
+                output_file.flush()  # why is this needed?
 
             tsv.close()
 
@@ -171,10 +182,10 @@ class InsertPublishedArticlesIntoCassandra(Task):
             m.published_articles_last_updated = updated
             m.save()
 
-        self.pipeline_ended(publisher_id, self.vizor, job_id)
+        output_file.close()
 
         task_args[self.COUNT] = count
-
+        task_args['modified_articles_file'] = output_file_name
         return task_args
 
 
