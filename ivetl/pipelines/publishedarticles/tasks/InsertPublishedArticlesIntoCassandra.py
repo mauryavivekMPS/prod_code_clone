@@ -19,9 +19,9 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
         file = task_args[BaseTask.INPUT_FILE]
 
-        output_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
-        output_file = codecs.open(output_file_name, 'w', 'utf-8')
-        output_file.write('PUBLISHER_ID\tDOI')  # ..and here? we're already in a pub folder
+        modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
+        modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
+        modified_articles_file.write('PUBLISHER_ID\tDOI\n')  # ..and here? we're already in a pub folder
 
         count = 0
         today = datetime.today()
@@ -167,8 +167,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
 
                 # add a record of modified files for next task
-                output_file.write("%s\t%s\n" % (publisher_id, doi))
-                output_file.flush()  # why is this needed?
+                modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
+                modified_articles_file.flush()  # why is this needed?
 
             tsv.close()
 
@@ -182,10 +182,10 @@ class InsertPublishedArticlesIntoCassandra(Task):
             m.published_articles_last_updated = updated
             m.save()
 
-        output_file.close()
+        modified_articles_file.close()
 
         task_args[self.COUNT] = count
-        task_args['modified_articles_file'] = output_file_name
+        task_args['modified_articles_file'] = modified_articles_file_name
         return task_args
 
 
