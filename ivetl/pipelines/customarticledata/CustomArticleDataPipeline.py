@@ -35,7 +35,13 @@ class CustomArticleDataPipeline(Pipeline):
         for publisher in publishers:
             publisher_dir = os.path.join(common.BASE_INCOMING_DIR, publisher.publisher_id, self.pipeline_name)
             if os.path.isdir(publisher_dir):
+
+                # grab all files from the directory
                 files = [f for f in os.listdir(publisher_dir) if os.path.isfile(os.path.join(publisher_dir, f))]
+
+                # then filter for files with the right name
+                files = [f for f in files if f.startswith('vizor_pat_details_') and f.endswith('.tab')]
+
                 if files:
 
                     # create work folder, signal the start of the pipeline

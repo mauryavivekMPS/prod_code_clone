@@ -15,7 +15,7 @@ CELERY_SEND_TASK_ERROR_EMAILS = True
 
 # Name and email addresses of recipients
 ADMINS = (
-    ('Neil Mehta', 'nmehta@highwire.org'),
+    # ('Neil Mehta', 'nmehta@highwire.org'),
 )
 
 # Email address used as sender (From field).

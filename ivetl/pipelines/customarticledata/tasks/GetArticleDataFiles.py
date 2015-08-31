@@ -22,6 +22,8 @@ class GetArticleDataFiles(Task):
             else:
                 shutil.move(source_file, work_folder)
 
+            print('moving %s to %s' % (source_file, work_folder))
+
             # compile a list of files for the next task
             files.append(os.path.join(work_folder, os.path.basename(source_file)))
 
