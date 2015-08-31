@@ -8,6 +8,7 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 
 class Pipeline(BaseTask):
     abstract = True
+    pipeline_name = ''
 
     def pipeline_started(self, publisher_id, pipeline_id, job_id, workfolder):
 

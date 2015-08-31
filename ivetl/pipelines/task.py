@@ -14,6 +14,8 @@ class Task(BaseTask):
 
     def run(self, task_args):
 
+        print("task args are: %s" % task_args)
+
         # pull the standard args out of task args
         publisher_id = task_args.pop('publisher_id')
         work_folder = task_args.pop('work_folder')

@@ -1,14 +1,15 @@
 __author__ = 'nmehta, johnm'
 
-from celery import Task
+import os
 import logging
-from os import makedirs
+from celery import Task
 from ivetl.common import common
 
 
 class BaseTask(Task):
     abstract = True
-    vizor = ''
+    pipeline_name = ''
+    vizor = ''  # TODO: deprecated!!
 
     PUBLISHER_ID = 'BaseTask.PublisherId'
     INPUT_FILE = 'BaseTask.InputFile'
@@ -25,14 +26,14 @@ class BaseTask(Task):
     def short_name(self):
         return self.name[self.name.rfind('.') + 1:]
 
-    def get_work_folder(self, day, publisher, job_id):
-        return common.BASE_WORK_DIR + day + "/" + publisher + "/" + self.vizor + "/" + job_id
+    def get_work_folder(self, day, publisher_id, job_id):
+        return os.path.join(common.BASE_WORK_DIR, publisher_id, self.pipeline_name, job_id)
 
-    def setup_task(self, workfolder):
-        task_workfolder = workfolder + "/" + self.short_name
-        makedirs(task_workfolder, exist_ok=True)
-        tlogger = self.get_task_logger(task_workfolder)
-        return task_workfolder, tlogger
+    def setup_task(self, work_folder):
+        task_work_folder = os.path.join(work_folder, self.short_name)
+        os.makedirs(task_work_folder, exist_ok=True)
+        tlogger = self.get_task_logger(task_work_folder)
+        return task_work_folder, tlogger
 
     def get_task_logger(self, path):
         ti_logger = logging.getLogger(path)

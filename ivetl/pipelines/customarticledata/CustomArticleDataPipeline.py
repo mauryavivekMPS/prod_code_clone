@@ -2,12 +2,11 @@ __author__ = 'johnm'
 
 import os
 import datetime
-from dateutil.relativedelta import relativedelta
 from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.customarticledata.tasks import ValidateArticleDataFile, InsertCustomArticleDataIntoCassandra
+from ivetl.pipelines.customarticledata import tasks
 from ivetl.models import Publisher_Metadata
 
 
@@ -43,26 +42,26 @@ class CustomArticleDataPipeline(Pipeline):
                     work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
                     self.pipeline_started(publisher.publisher_id, self.pipeline_name, job_id, work_folder)
 
+                    print('pipeline work folder is: %s' % work_folder)
+
                     # send alert email that we're processing for this publisher
                     subject = "%s - %s - Processing started for: %s" % (self.pipeline_name, today_label, publisher_dir)
                     text = "Processing files for " + publisher_dir
                     common.send_email(subject, text)
 
-                    # move the files across for processing by the first task
-                    for f in files:
-                        pass
-
-                    # construct the first task args with all of the standard bits
+                    # construct the first task args with all of the standard bits + the list of files
                     task_args = {
                         'publisher_id': publisher.publisher_id,
                         'work_folder': work_folder,
                         'job_id': job_id,
+                        'uploaded_files': [os.path.join(publisher_dir, f) for f in files]
                     }
 
                     # and run the pipeline!
                     chain(
-                        ValidateArticleDataFile.s(task_args) |
-                        InsertCustomArticleDataIntoCassandra.s()
+                        tasks.GetArticleDataFiles.s(task_args) |
+                        tasks.ValidateArticleDataFiles.s() |
+                        tasks.InsertCustomArticleDataIntoCassandra.s()
                     ).delay()
 
         #
