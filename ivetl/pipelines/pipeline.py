@@ -10,12 +10,12 @@ class Pipeline(BaseTask):
     abstract = True
     pipeline_name = ''
 
-    def pipeline_started(self, publisher_id, pipeline_id, job_id, work_folder):
+    def on_pipeline_started(self, publisher_id, job_id, work_folder):
         start_date = datetime.datetime.today()
 
         p = Pipeline_Status()
         p.publisher_id = publisher_id
-        p.pipeline_id = pipeline_id
+        p.pipeline_id = self.pipeline_name
         p.job_id = job_id
         p.start_time = start_date
         p.workfolder = work_folder
@@ -28,7 +28,6 @@ class Pipeline(BaseTask):
         # sometimes a pipeline will fail before there are a full set of task args
         publisher_id = ''
         job_id = ''
-
         if args and type(args[0]) == dict:
             task_args = args[0]
             publisher_id = task_args.get('publisher_id', '')
@@ -45,17 +44,18 @@ class Pipeline(BaseTask):
         pts.updated = end_date
         pts.update()
 
-        ps = Pipeline_Status().objects.filter(publisher_id=publisher_id,
-                                              pipeline_id=self.pipeline_name,
-                                              job_id=job_id).first()
-
-        if ps is not None:
-            ps.end_time = end_date
-            ps.duration_seconds = (end_date - ps.start_time).total_seconds()
-            ps.status = self.PL_ERROR
-            ps.error_details = str(exc)
-            ps.updated = end_date
-            ps.update()
+        try:
+            ps = Pipeline_Status.objects.filter(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)
+            ps.update(
+                end_time=end_date,
+                duration_seconds=(end_date - ps.start_time).total_seconds(),
+                status=self.PL_ERROR,
+                error_details=str(exc),
+                updated=end_date
+            )
+        except Pipeline_Status.DoesNotExist:
+            # do nothing
+            pass
 
         day = end_date.strftime('%Y.%m.%d')
         subject = "ERROR! " + day + " - " + self.pipeline_name + " - " + self.short_name

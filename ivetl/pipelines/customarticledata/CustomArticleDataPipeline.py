@@ -13,7 +13,7 @@ from ivetl.models import Publisher_Metadata
 
 @app.task
 class CustomArticleDataPipeline(Pipeline):
-    pipeline_name = 'custom_article_data'  # TODO: not sure what to do with this yet
+    pipeline_name = 'custom_article_data'
 
     # 1. Pipeline - setup job and iterate over pubs that have non-empty directories.
     # 2. GetIncomingFiles - move the files across into work folder.
@@ -47,23 +47,22 @@ class CustomArticleDataPipeline(Pipeline):
 
                     # create work folder, signal the start of the pipeline
                     work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
-                    self.pipeline_started(publisher.publisher_id, self.pipeline_name, job_id, work_folder)
-
-                    print('pipeline work folder is: %s' % work_folder)
-
-                    # send alert email that we're processing for this publisher
-                    subject = "%s - %s - Processing started for: %s" % (self.pipeline_name, today_label, publisher_dir)
-                    text = "Processing files for " + publisher_dir
-                    common.send_email(subject, text)
+                    self.on_pipeline_started(publisher.publisher_id, job_id, work_folder)
 
                     # construct the first task args with all of the standard bits + the list of files
                     task_args = {
+                        'pipeline_name': self.pipeline_name,
                         'publisher_id': publisher.publisher_id,
                         'work_folder': work_folder,
                         'job_id': job_id,
                         'uploaded_files': [os.path.join(publisher_dir, f) for f in files],
                         'preserve_incoming_files': preserve_incoming_files
                     }
+
+                    # send alert email that we're processing for this publisher
+                    subject = "%s - %s - Processing started for: %s" % (self.pipeline_name, today_label, publisher_dir)
+                    text = "Processing files for " + publisher_dir
+                    common.send_email(subject, text)
 
                     # and run the pipeline!
                     chain(

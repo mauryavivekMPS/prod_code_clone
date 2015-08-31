@@ -37,9 +37,12 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             else:
                 start_publication_date = pm.published_articles_last_updated - relativedelta(months=self.PUB_OVERLAP_MONTHS)
 
+            # pipelines are per publisher, so now that we have data, we start the pipeline work
+            self.on_pipeline_started(publisher_id, job_id, work_folder)
             work_folder = self.get_work_folder(today, publisher_id, job_id)
 
             task_args = {
+                'pipeline_name': self.pipeline_name,
                 'publisher_id': publisher_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
@@ -48,8 +51,6 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
             }
-
-            self.pipeline_started(publisher_id, self.pipeline_name, job_id, work_folder)
 
             if pm.hw_addl_metadata_available:
                 chain(
