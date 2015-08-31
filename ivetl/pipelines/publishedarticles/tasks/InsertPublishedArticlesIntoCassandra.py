@@ -6,17 +6,17 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.models import Published_Article, PublisherMetadata, PublisherVizorUpdates, Article_Citations
+from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations
 from ivetl.pipelines.task import Task
 
 
 @app.task
 class InsertPublishedArticlesIntoCassandra(Task):
-    vizor = "published_articles"
+    pipeline_name = "published_articles"
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
-        file = args[BaseTask.INPUT_FILE]
+        file = task_args[BaseTask.INPUT_FILE]
 
         count = 0
         today = datetime.today()
@@ -30,18 +30,18 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if count == 1:
                     continue
 
-                publisher = line[0]
+                publisher_id = line[0]
                 doi = line[1]
                 data = json.loads(line[2])
 
                 pa = Published_Article()
 
-                existing_record = Published_Article.objects.filter(publisher_id=publisher, article_doi=doi).first()
+                existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
                 if existing_record:
                     pa = existing_record
 
-                pa['publisher_id'] = publisher
+                pa['publisher_id'] = publisher_id
                 pa['article_doi'] = doi
                 pa['updated'] = updated
 
@@ -147,7 +147,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 for yr in range(pa.date_of_publication.year, today.year + 1):
 
                     plac = Article_Citations()
-                    plac['publisher_id'] = publisher
+                    plac['publisher_id'] = publisher_id
                     plac['article_doi'] = pa.article_doi
                     plac['citation_doi'] = str(yr) + "-placeholder"
                     plac['updated'] = updated
@@ -156,26 +156,26 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     plac['citation_count'] = 0
                     plac.save()
 
-                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher + " / " + doi)
+                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
 
 
             tsv.close()
 
             pu = Publisher_Vizor_Updates()
-            pu['publisher_id'] = publisher
+            pu['publisher_id'] = publisher_id
             pu['vizor_id'] = 'published_articles'
             pu['updated'] = updated
             pu.save()
 
-            m = Publisher_Metadata.filter(publisher_id=publisher).first()
+            m = Publisher_Metadata.filter(publisher_id=publisher_id).first()
             m.published_articles_last_updated = updated
             m.save()
 
-        self.pipeline_ended(publisher, self.vizor, job_id)
+        self.pipeline_ended(publisher_id, self.vizor, job_id)
 
-        args[self.COUNT] = count
+        task_args[self.COUNT] = count
 
-        return args
+        return task_args
 
 
 def to_date_time(month, day, year):

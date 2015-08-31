@@ -20,7 +20,7 @@ class CustomArticleDataPipeline(Pipeline):
     # 4. InsertArticleData - insert non-overlapping data into pub_articles and overlapping into _values.
     # 5. ResolveArticleData - decide which data to promote from _values into pub_articles, and do the insert.
 
-    def run(self, publisher_id_list=[]):
+    def run(self, publisher_id_list=[], preserve_incoming_files=False):
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
         job_id = now.strftime('%Y%m%d_%H%M%S%f')
@@ -54,7 +54,8 @@ class CustomArticleDataPipeline(Pipeline):
                         'publisher_id': publisher.publisher_id,
                         'work_folder': work_folder,
                         'job_id': job_id,
-                        'uploaded_files': [os.path.join(publisher_dir, f) for f in files]
+                        'uploaded_files': [os.path.join(publisher_dir, f) for f in files],
+                        'preserve_incoming_files': preserve_incoming_files
                     }
 
                     # and run the pipeline!
@@ -63,95 +64,3 @@ class CustomArticleDataPipeline(Pipeline):
                         tasks.ValidateArticleDataFiles.s() |
                         tasks.InsertCustomArticleDataIntoCassandra.s()
                     ).delay()
-
-        #
-        #
-        #
-        # for publisher_dir in os.listdir(common.BASE_INCOMING_DIR):
-        #     if os.path.isdir(os.path.join(common.BASE_INCOMING_DIR, publisher_dir)):
-        #
-        #         srcpath = common.BASE_INCOMING_DIR + publisher_dir + "/" + common.RAT_DIR
-        #         files = [f for f in os.listdir(srcpath) if os.path.isfile(os.path.join(srcpath, f))]
-        #
-        #         if len(files) > 0:
-        #
-        #
-        # publishers_metadata = Publisher_Metadata.objects.all()
-        #
-        # if publishers:
-        #     publishers_metadata = publishers_metadata.filter(publisher_id__in=publishers)
-        #
-        # for pm in publishers_metadata:
-        #
-        #     publisher_id = pm.publisher_id
-        #     issns = pm.published_articles_issns_to_lookup
-        #
-        #     if reprocess_all:
-        #         start_publication_date = common.PA_PUB_START_DATE
-        #     else:
-        #         start_publication_date = pm.published_articles_last_updated - relativedelta(months=common.PA_PUB_OVERLAP_MONTHS)
-        #
-        #     wf = self.get_work_folder(today, publisher_id, job_id)
-        #
-        #     args = {}
-        #     args[self.PUBLISHER_ID] = publisher_id
-        #     args[self.WORK_FOLDER] = wf
-        #     args[self.JOB_ID] = job_id
-        #     args[GetPublishedArticlesTask.ISSNS] = issns
-        #     args[GetPublishedArticlesTask.START_PUB_DATE] = start_publication_date
-        #
-        #     self.pipeline_started(publisher_id, self.vizor, job_id, wf)
-        #
-        #     if pm.hw_addl_metadata_available:
-        #         chain(GetPublishedArticlesTask.s(args) |
-        #               ScopusIdLookupTask.s() |
-        #               HWMetadataLookupTask.s() |
-        #               InsertIntoCassandraDBTask.s()).delay()
-        #     else:
-        #         chain(GetPublishedArticlesTask.s(args) |
-        #               ScopusIdLookupTask.s() |
-        #               InsertIntoCassandraDBTask.s()).delay()
-        #
-        #
-        # for publisher_dir in os.listdir(common.BASE_INCOMING_DIR):
-        #
-        #     if os.path.isdir(os.path.join(common.BASE_INCOMING_DIR, publisher_dir)):
-        #
-        #         srcpath = common.BASE_INCOMING_DIR + publisher_dir + "/" + common.RAT_DIR
-        #         files = [f for f in os.listdir(srcpath) if os.path.isfile(os.path.join(srcpath, f))]
-        #
-        #         if len(files) > 0:
-        #
-                    # subject = "Rejected Article Tracker - " + today + " - Processing started for " + publisher_dir
-                    # text = "Processing files for " + publisher_dir
-                    # common.send_email(subject, text)
-        #
-        #             workfolder = common.BASE_WORK_DIR + today + "/" + publisher_dir + "/" + self.vizor + "/" + today + "_" + time
-        #             dstworkpath = workfolder + "/" + self.taskname
-        #             makedirs(dstworkpath, exist_ok=True)
-        #
-        #             tlogger = self.getTaskLogger(dstworkpath, self.taskname)
-        #
-        #             dstfiles = []
-        #             for file in files:
-        #
-        #                 dstfile = dstworkpath + "/" + file
-        #                 if os.path.exists(dstfile):
-        #                     os.remove(dstfile)
-        #
-        #                 shutil.move(srcpath + "/" + file, dstfile)
-        #                 dstfiles.append(dstfile)
-        #
-        #                 tlogger.info("Copied File:             " + file)
-        #
-        #             chain(ValidateInputFileTask.s(dstfiles, publisher_dir, today, workfolder) |
-        #                   PrepareInputFileTask.s() |
-        #                   XREFPublishedArticleSearchTask.s() |
-        #                   SelectPublishedArticleTask.s() |
-        #                   ScopusCitationLookupTask.s() |
-        #                   PrepareForDBInsertTask.s() |
-        #                   InsertIntoCassandraDBTask.s()).delay()
-        #
-        #
-
-

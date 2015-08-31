@@ -14,7 +14,7 @@ from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandr
 
 @app.task
 class UpdatePublishedArticlesPipeline(Pipeline):
-    vizor = "published_articles"
+    pipeline_name = "published_articles"
     PUB_START_DATE = datetime.date(2010, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
@@ -40,26 +40,26 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             else:
                 start_publication_date = pm.published_articles_last_updated - relativedelta(months=self.PUB_OVERLAP_MONTHS)
 
-            wf = self.get_work_folder(today, publisher_id, job_id)
+            work_folder = self.get_work_folder(today, publisher_id, job_id)
 
-            args = {
-                self.PUBLISHER_ID: publisher_id,
-                self.WORK_FOLDER: wf,
-                self.JOB_ID: job_id,
+            task_args = {
+                'publisher_id': publisher_id,
+                'work_folder': work_folder,
+                'job_id': job_id,
                 GetPublishedArticlesTask.ISSNS: issns,
                 GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
             }
 
-            self.pipeline_started(publisher_id, self.vizor, job_id, wf)
+            self.pipeline_started(publisher_id, self.pipeline_name, job_id, work_folder)
 
             if pm.hw_addl_metadata_available:
-                chain(GetPublishedArticlesTask.s(args) |
+                chain(GetPublishedArticlesTask.s(task_args) |
                       ScopusIdLookupTask.s() |
                       HWMetadataLookupTask.s() |
                       InsertPublishedArticlesIntoCassandra.s()).delay()
             else:
-                chain(GetPublishedArticlesTask.s(args) |
+                chain(GetPublishedArticlesTask.s(task_args) |
                       ScopusIdLookupTask.s() |
                       InsertPublishedArticlesIntoCassandra.s()).delay()

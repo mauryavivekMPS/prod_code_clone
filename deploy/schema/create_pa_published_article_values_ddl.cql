@@ -1,13 +1,13 @@
 USE impactvizor;
 
-CREATE TABLE published_article_values (
+CREATE TABLE impactvizor.published_article_values (
     publisher_id text,
     article_doi text,
-    name text,
     source text,
+    name text,
     value_text text,
-    PRIMARY KEY (publisher_id, article_doi)
-) WITH CLUSTERING ORDER BY (article_doi ASC)
+    PRIMARY KEY (publisher_id, article_doi, source, name)
+) WITH CLUSTERING ORDER BY (article_doi ASC, source ASC, name ASC)
     AND bloom_filter_fp_chance = 0.01
     AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
     AND comment = ''
@@ -21,5 +21,3 @@ CREATE TABLE published_article_values (
     AND min_index_interval = 128
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
-CREATE INDEX index_published_article_values_name ON impactvizor.published_article_values (name);
-CREATE INDEX index_published_article_values_source ON impactvizor.published_article_values (source);

@@ -11,7 +11,7 @@ class GetArticleDataFiles(Task):
     pipeline_name = "custom_article_data"
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
-        preserve_incoming_files = task_args.get('preserve_incoming_files', True)
+        preserve_incoming_files = task_args.get('preserve_incoming_files', False)
 
         files = []
         for source_file in task_args['uploaded_files']:

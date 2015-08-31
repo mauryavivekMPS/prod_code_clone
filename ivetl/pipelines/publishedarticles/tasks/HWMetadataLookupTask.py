@@ -19,7 +19,7 @@ from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HW
 
 @app.task
 class HWMetadataLookupTask(Task):
-    vizor = "published_articles"
+    pipeline_name = "published_articles"
 
     SASSFS_BASE_URL = 'http://sassfs-index.highwire.org/nlm-pubid/doi?' \
                       'scheme=http%3A%2F%2Fschema.highwire.org%2FPublishing%23role&' \
@@ -29,14 +29,14 @@ class HWMetadataLookupTask(Task):
 
     ISSN_JNL_QUERY_LIMIT = 1000000
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
-        file = args[self.INPUT_FILE]
+        file = task_args[self.INPUT_FILE]
 
-        pm = Publisher_Metadata.filter(publisher_id=publisher).first()
+        pm = Publisher_Metadata.filter(publisher_id=publisher_id).first()
         issn_to_hw_journal_code = pm.issn_to_hw_journal_code
 
-        target_file_name = workfolder + "/" + publisher + "_" + "hwmetadatalookup" + "_" + "target.tab"
+        target_file_name = work_folder + "/" + publisher_id + "_" + "hwmetadatalookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
@@ -54,7 +54,7 @@ class HWMetadataLookupTask(Task):
                 if count == 1:
                     continue
 
-                publisher = line[0]
+                publisher_id = line[0]
                 doi = line[1]
                 data = json.loads(line[2])
 
@@ -64,7 +64,7 @@ class HWMetadataLookupTask(Task):
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
                     hw_journal_code = "/" + issn_to_hw_journal_code[data['ISSN'][0]]
 
-                value = urllib.parse.urlencode({'value': hw_xform.xform_doi(publisher, doi)})
+                value = urllib.parse.urlencode({'value': hw_xform.xform_doi(publisher_id, doi)})
                 url = self.SASSFS_BASE_URL + 'under=' + hw_journal_code + '&' + value
 
                 tlogger.info("Looking up HREF on SASSFS:")
@@ -165,7 +165,7 @@ class HWMetadataLookupTask(Task):
                         tlogger.info("General Exception - HW API failed. Trying Again")
                         attempt += 1
 
-                row = """%s\t%s\t%s\n""" % (publisher,
+                row = """%s\t%s\t%s\n""" % (publisher_id,
                                             doi,
                                             json.dumps(data))
 
@@ -178,10 +178,10 @@ class HWMetadataLookupTask(Task):
 
         # self.pipelineCompleted(publisher, self.vizor, job_id)
 
-        args[self.INPUT_FILE] = target_file_name
-        args[self.COUNT] = count
+        task_args[self.INPUT_FILE] = target_file_name
+        task_args[self.COUNT] = count
 
-        return args
+        return task_args
 
 
 
