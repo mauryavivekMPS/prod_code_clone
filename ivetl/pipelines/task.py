@@ -11,6 +11,7 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 
 class Task(BaseTask):
     abstract = True
+    pipeline_name = ''
 
     def run(self, task_args):
         new_task_args = task_args.copy()
@@ -40,48 +41,48 @@ class Task(BaseTask):
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
 
-    def task_started(self, publisher, job_id, workfolder, tlogger):
+    def task_started(self, publisher_id, job_id, work_folder, tlogger):
         start_date = datetime.datetime.today()
 
         pts = Pipeline_Task_Status()
-        pts.publisher_id = publisher
-        pts.pipeline_id = self.vizor
+        pts.publisher_id = publisher_id
+        pts.pipeline_id = self.pipeline_name
         pts.job_id = job_id
-        pts.task_id = self.name
+        pts.task_id = self.short_name
         pts.start_time = start_date
         pts.status = self.PL_INPROGRESS
         pts.updated = start_date
-        pts.workfolder = workfolder
+        pts.workfolder = work_folder
         pts.save()
 
-        ps = Pipeline_Status().objects.filter(publisher_id=publisher, pipeline_id=self.vizor, job_id=job_id).first()
+        ps = Pipeline_Status().objects.filter(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id).first()
         if ps is not None:
             ps.current_task = self.name
             ps.status = self.PL_INPROGRESS
             ps.updated = start_date
             ps.update()
 
-        tlogger.info("Task " + self.name + " started for publisher " + publisher + " on " + str(start_date))
+        tlogger.info("Task %s started for publisher %s on %s" % (self.short_name, publisher_id, start_date)
         return time()
 
-    def task_ended(self, publisher, job_id, start_time, tlogger, count=None):
+    def task_ended(self, publisher_id, job_id, start_time, tlogger, count=None):
         t1 = time()
         end_date = datetime.datetime.fromtimestamp(t1)
         duration_seconds = t1 - start_time
 
         pts = Pipeline_Task_Status()
-        pts.publisher_id = publisher
-        pts.pipeline_id = self.vizor
+        pts.publisher_id = publisher_id
+        pts.pipeline_id = self.pipeline_name
         pts.job_id = job_id
-        pts.task_id = self.name
+        pts.task_id = self.short_name
         pts.end_time = end_date
         pts.status = self.PL_COMPLETED
         pts.updated = end_date
         pts.duration_seconds = duration_seconds
         pts.update()
 
-        if count is not None:
-            tlogger.info("Rows Processed: " + str(count))
+        if count:
+            tlogger.info("Rows Processed: %s" % count)
 
         tlogger.info("Time Taken: " + format(duration_seconds, '.2f') + " seconds / " + format(duration_seconds/60, '.2f') + " minutes")
         return t1
@@ -92,7 +93,7 @@ class Task(BaseTask):
 
         pts = Pipeline_Task_Status()
         pts.publisher_id = task_args['publisher_id']
-        pts.pipeline_id = self.vizor
+        pts.pipeline_id = self.pipeline_name
         pts.job_id = task_args['job_id']
         pts.task_id = self.short_name
         pts.end_time = end_date
@@ -143,6 +144,8 @@ class Task(BaseTask):
         body += str(retval)
         common.send_email(subject, body)
 
+
+    # !! TODO: this needs to be moved!
     def pipeline_ended(self, publisher_id, pipeline_id, job_id):
         end_date = datetime.datetime.today()
         p = Pipeline_Status().objects.filter(publisher_id=publisher_id, pipeline_id=pipeline_id, job_id=job_id).first()
