@@ -35,15 +35,18 @@ class ResolvePublishedArticlesData(Task):
                         v = Published_Article_Values.objects.get(article_doi=doi, publisher_id=publisher_id, source='custom', name=field)
                         new_value = v.value_text
                     except Published_Article_Values.DoesNotExist:
+                        pass
+
+                    if not new_value:
                         try:
                             v = Published_Article_Values.objects.get(article_doi=doi, publisher_id=publisher_id, source='pa', name=field)
                             new_value = v.value_text
                         except Published_Article_Values.DoesNotExist:
-                            # swallow the exception, it just means we don't have any values
                             pass
 
-                    # update the canonical
-                    setattr(article, field, new_value)
+                    # update the canonical if there is any non Null/None value (note that "None" is a value)
+                    if new_value:
+                        setattr(article, field, new_value)
 
                 article.updated = now
                 article.save()

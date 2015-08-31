@@ -6,7 +6,7 @@ import codecs
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.customarticledata import utils
-from ivetl.models import Published_Article, Published_Article_Values
+from ivetl.models import Published_Article_Values
 
 
 @app.task
@@ -21,7 +21,7 @@ class InsertCustomArticleDataIntoCassandra(Task):
         modified_articles_file.write('PUBLISHER_ID\tDOI\n')  # ..and here? we're already in a pub folder
 
         for f in files:
-            with open(f, encoding='utf-8') as tsv:  # TODO: perhaps should be codecs.open(f, encoding="utf-16") ??
+            with open(f, encoding='utf-8') as tsv:
                 count = 0
                 for line in csv.reader(tsv, delimiter='\t'):
                     count += 1
