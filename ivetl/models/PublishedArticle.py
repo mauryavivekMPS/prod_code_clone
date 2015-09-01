@@ -25,6 +25,8 @@ class Published_Article(Model):
     article_type = columns.Text()
     subject_category = columns.Text()
     custom = columns.Text()
+    custom_2 = columns.Text()
+    custom_3 = columns.Text()
     editor = columns.Text()
     citations_lookup_error = columns.Boolean()
     is_open_access = columns.Text()

@@ -29,7 +29,7 @@ class ResolvePublishedArticlesData(Task):
                 article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
 
                 # resolve policy: if a value from source=custom is present it always wins
-                for field in ['article_type', 'subject_category', 'editor', 'custom']:
+                for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:
                     new_value = None
                     try:
                         v = Published_Article_Values.objects.get(article_doi=doi, publisher_id=publisher_id, source='custom', name=field)

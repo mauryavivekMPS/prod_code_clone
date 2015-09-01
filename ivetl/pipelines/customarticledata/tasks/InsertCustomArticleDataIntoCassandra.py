@@ -39,6 +39,8 @@ class InsertCustomArticleDataIntoCassandra(Task):
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='subject_category').update(value_text=d['collection'])
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='editor').update(value_text=d['editor'])
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom').update(value_text=d['custom'])
+                    Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom_2').update(value_text=d['custom_2'])
+                    Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom_3').update(value_text=d['custom_3'])
 
                     # add a record of modified files for next task
                     modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
