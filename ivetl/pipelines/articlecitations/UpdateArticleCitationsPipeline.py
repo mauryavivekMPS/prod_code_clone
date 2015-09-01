@@ -3,43 +3,47 @@ __author__ = 'nmehta'
 import datetime
 from celery import chain
 from ivetl.celery import app
-from ivetl.common import common
-from ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
-from ivetl.pipelines.articlecitations.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
-from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.pipeline import Pipeline
+from ivetl.pipelines.articlecitations import tasks
+from ivetl.models import Publisher_Metadata
 
 
 @app.task
 class UpdateArticleCitationsPipeline(Pipeline):
-    taskname = "ScheduleUpdateArticleCitations"
-    vizor = common.AC
+    pipeline_name = "article_citations"
 
-    def run(self):
+    def run(self, publisher_id_list=[]):
 
-        d = datetime.datetime.today()
-        today = d.strftime('%Y%m%d')
-        time = d.strftime('%H%M%S%f')
-        job_id = today + "_" + time
+        now = datetime.datetime.now()
+        today_label = now.strftime('%Y%m%d')
+        job_id = now.strftime('%Y%m%d_%H%M%S%f')
 
-        publishers_metadata = Publisher_Metadata.objects.all()
+        # get the set of publishers to work on
+        if publisher_id_list:
+            publishers = Publisher_Metadata.filter(publisher_id__in=publisher_id_list)
+        else:
+            publishers = Publisher_Metadata.objects.all()
 
-        for pm in publishers_metadata:
+        # figure out which publisher has a non-empty incoming dir
+        for publisher in publishers:
 
-            publisher_id = pm.publisher_id
+            # create work folder, signal the start of the pipeline
+            work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
+            self.on_pipeline_started(publisher.publisher_id, job_id, work_folder)
 
-            wf = self.getWorkFolder(today, publisher_id, job_id)
+            # construct the first task args with all of the standard bits + the list of files
+            task_args = {
+                'pipeline_name': self.pipeline_name,
+                'publisher_id': publisher.publisher_id,
+                'work_folder': work_folder,
+                'job_id': job_id,
+                tasks.GetScopusArticleCitationsTask.REPROCESS_ERRORS: False
+            }
 
-            args = {}
-            args[BaseTask.PUBLISHER_ID] = publisher_id
-            args[BaseTask.WORK_FOLDER] = wf
-            args[BaseTask.JOB_ID] = job_id
-            args[GetScopusArticleCitationsTask.REPROCESS_ERRORS] = False
-
-            self.pipelineStarted(publisher_id, self.vizor, job_id, wf)
-
-            chain(GetScopusArticleCitationsTask.s(args) |
-                  InsertIntoCassandraDBTask.s()).delay()
+            chain(
+                tasks.GetScopusArticleCitationsTask.s(task_args) |
+                tasks.InsertIntoCassandraDBTask.s()
+            ).delay()
 
 
 

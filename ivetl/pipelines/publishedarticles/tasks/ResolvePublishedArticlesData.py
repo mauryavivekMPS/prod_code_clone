@@ -14,7 +14,7 @@ class ResolvePublishedArticlesData(Task):
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         file_name = task_args['modified_articles_file']
         now = datetime.datetime.now()
-        with open(file_name, encoding='utf-8') as tsv:  # TODO: perhaps should be codecs.open(f, encoding="utf-16") ??
+        with open(file_name, encoding='utf-8') as tsv:
             count = 0
             for line in csv.reader(tsv, delimiter='\t'):
                 count += 1

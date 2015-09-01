@@ -21,7 +21,7 @@ class ValidateArticleDataFiles(Task):
         found_error = False
 
         for f in files:
-            with codecs.open(f, encoding='utf-8') as tsv:  # TODO: perhaps should be codecs.open(f, encoding="utf-16") ??
+            with codecs.open(f, encoding='utf-8') as tsv:
                 count = 0
                 for line in csv.reader(tsv, delimiter='\t'):
                     if line:

@@ -58,7 +58,7 @@ class HWMetadataLookupTask(Task):
                 doi = line[1]
                 data = json.loads(line[2])
 
-                tlogger.info("\n" + str(count-1) + ". Retrieving HW Metadata for: " + doi)
+                tlogger.info(str(count-1) + ". Retrieving HW Metadata for: " + doi)
 
                 hw_journal_code = '/'
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:

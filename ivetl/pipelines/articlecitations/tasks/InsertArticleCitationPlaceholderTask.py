@@ -11,9 +11,6 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class InsertArticleCitationPlaceholderTask(Task):
-    taskname = "InsertArticleCitationPlaceholder"
-    vizor = common.AC
-
     QUERY_LIMIT = 500000
 
     def run(self, publisher):

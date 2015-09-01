@@ -164,7 +164,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     plac['citation_count'] = 0
                     plac.save()
 
-                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
+                tlogger.info(str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
 
                 # add a record of modified files for next task
                 modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))

@@ -4,7 +4,6 @@ import csv
 import codecs
 import json
 from datetime import datetime
-from ivetl.common import common
 from ivetl.celery import app
 from ivetl.models import Published_Article, Article_Citations, Publisher_Vizor_Updates
 from ivetl.pipelines.task import Task
@@ -12,14 +11,11 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class InsertIntoCassandraDBTask(Task):
-    taskname = "InsertIntoCassandraDB"
-    vizor = common.AC
-
     CITATION_SOURCE = "Scopus"
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
-        file = args[BaseTask.INPUT_FILE]
+        file = task_args[self.INPUT_FILE]
 
         count = 0
         today = datetime.today()
@@ -33,7 +29,7 @@ class InsertIntoCassandraDBTask(Task):
                 if count == 1:
                     continue
 
-                publisher = line[0]
+                publisher_id = line[0]
                 doi = line[1]
                 citations = json.loads(line[2])
 
@@ -50,7 +46,7 @@ class InsertIntoCassandraDBTask(Task):
 
                     ac = Article_Citations()
 
-                    ac['publisher_id'] = publisher
+                    ac['publisher_id'] = publisher_id
                     ac['article_doi'] = doi
                     ac['updated'] = updated
                     ac['created'] = updated
@@ -94,29 +90,25 @@ class InsertIntoCassandraDBTask(Task):
                     ac.save()
 
                 pa = Published_Article()
-                pa['publisher_id'] = publisher
+                pa['publisher_id'] = publisher_id
                 pa['article_doi'] = doi
                 #pa['scopus_citation_count'] = len(citations)
                 pa['citations_updated_on'] = updated
                 pa.update()
 
                 tlogger.info("---")
-                tlogger.info(str(count-1) + ". " + publisher + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")
+                tlogger.info(str(count-1) + ". " + publisher_id + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")
 
             tsv.close()
 
             pu = Publisher_Vizor_Updates()
-            pu['publisher_id'] = publisher
+            pu['publisher_id'] = publisher_id
             pu['vizor_id'] = 'article_citations'
             pu['updated'] = updated
             pu.save()
 
-        self.pipelineCompleted(publisher, self.vizor, job_id)
-
-        args = {}
-        args[BaseTask.COUNT] = count
-
-        return args
+        self.pipeline_ended(publisher_id, self.pipeline_name, job_id)
+        return {self.COUNT: count}
 
 
 def toDateTime(month, day, year):
