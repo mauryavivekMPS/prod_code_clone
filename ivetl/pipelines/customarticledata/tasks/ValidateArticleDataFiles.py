@@ -20,8 +20,6 @@ class ValidateArticleDataFiles(Task):
         total_count = 0
         found_error = False
 
-        print('files at validate are: %s' % files)
-
         for f in files:
             with codecs.open(f, encoding='utf-8') as tsv:  # TODO: perhaps should be codecs.open(f, encoding="utf-16") ??
                 count = 0

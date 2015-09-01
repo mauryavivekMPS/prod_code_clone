@@ -6,8 +6,8 @@ import json
 import urllib.parse
 import urllib.request
 import re
-from time import sleep
 import requests
+from time import sleep
 from requests import HTTPError
 from lxml import etree
 from ivetl.common import common
@@ -130,7 +130,6 @@ class HWMetadataLookupTask(Task):
                                 article_type = "None"
 
                             data['article_type'] = article_type
-                            #print(article_type)
 
                             subject_category = None
                             sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
@@ -148,7 +147,6 @@ class HWMetadataLookupTask(Task):
                                 subject_category = "None"
 
                             data['subject_category'] = subject_category
-                            #print(subject_category)
 
                         else:
                             tlogger.info("No SASS HREF found for DOI: " + doi)
@@ -161,13 +159,12 @@ class HWMetadataLookupTask(Task):
                             attempt += 1
                         else:
                             raise
+
                     except Exception:
                         tlogger.info("General Exception - HW API failed. Trying Again")
                         attempt += 1
 
-                row = """%s\t%s\t%s\n""" % (publisher_id,
-                                            doi,
-                                            json.dumps(data))
+                row = """%s\t%s\t%s\n""" % (publisher_id, doi, json.dumps(data))
 
                 target_file.write(row)
                 target_file.flush()
@@ -175,13 +172,7 @@ class HWMetadataLookupTask(Task):
             tsv.close()
 
         target_file.close()
-
-        # self.pipelineCompleted(publisher, self.vizor, job_id)
-
-        task_args[self.INPUT_FILE] = target_file_name
-        task_args[self.COUNT] = count
-
-        return task_args
+        return {self.INPUT_FILE: target_file_name, self.COUNT: count}
 
 
 
