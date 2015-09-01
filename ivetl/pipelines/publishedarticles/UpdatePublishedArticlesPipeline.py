@@ -38,8 +38,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 start_publication_date = pm.published_articles_last_updated - relativedelta(months=self.PUB_OVERLAP_MONTHS)
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
-            self.on_pipeline_started(publisher_id, job_id, work_folder)
             work_folder = self.get_work_folder(today, publisher_id, job_id)
+            self.on_pipeline_started(publisher_id, job_id, work_folder)
 
             task_args = {
                 'pipeline_name': self.pipeline_name,
