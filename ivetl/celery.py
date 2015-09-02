@@ -6,25 +6,7 @@ from cqlengine import connection
 from ivetl.common import common
 
 
-app = Celery('ivetl',
-             include=['ivetl.rat.ValidateInputFileTask',
-                      'ivetl.rat.MonitorIncomingFileTask',
-                      'ivetl.rat.PrepareInputFileTask',
-                      'ivetl.rat.XREFPublishedArticleSearchTask',
-                      'ivetl.rat.SelectPublishedArticleTask',
-                      'ivetl.rat.ScopusCitationLookupTask',
-                      'ivetl.rat.PrepareForDBInsertTask',
-                      'ivetl.rat.InsertIntoCassandraDBTask',
-                      'ivetl.rat.XREFJournalCatalogTask',
-
-                      # new style imports, pipelines and then tasks, all from the same namespace
-                      'ivetl.pipelines.publishedarticles',
-                      'ivetl.pipelines.publishedarticles.tasks',
-                      'ivetl.pipelines.customarticledata',
-                      'ivetl.pipelines.customarticledata.tasks',
-                      'ivetl.pipelines.articlecitations',
-                      'ivetl.pipelines.articlecitations.tasks']
-            )
+app = Celery('ivetl')
 
 # Optional configuration, see the application user guide.
 app.config_from_object('ivetl.celeryconfig')
