@@ -1,36 +1,32 @@
-from __future__ import absolute_import
+__author__ = 'nmehta, johnm'
 
 import csv
 import codecs
 import json
-
-from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
 from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
 from ivetl.connectors.ScopusConnector import ScopusConnector
-from ivetl.models.PublisherMetadata import PublisherMetadata
+from ivetl.models import Publisher_Metadata
+from ivetl.pipelines.task import Task
 
 
 @app.task
-class ScopusIdLookupTask(BaseTask):
-
-    taskname = "ScopusIdLookup"
-    vizor = common.PA
+class ScopusIdLookupTask(Task):
+    pipeline_name = "published_articles"
 
     MAX_ERROR_COUNT = 100
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
-        file = args[BaseTask.INPUT_FILE]
+        file = task_args[self.INPUT_FILE]
 
-        target_file_name = workfolder + "/" + publisher + "_" + "scopuscitationlookup" + "_" + "target.tab"
+        target_file_name = work_folder + "/" + publisher_id + "_" + "scopuscitationlookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
                           'DATA\n')
 
-        pm = PublisherMetadata.objects.filter(publisher_id=publisher).first()
+        pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
         connector = ScopusConnector(pm.scopus_api_keys)
 
         count = 0
@@ -44,7 +40,7 @@ class ScopusIdLookupTask(BaseTask):
                 if count == 1:
                     continue
 
-                publisher = line[0]
+                publisher_id = line[0]
                 doi = line[1]
                 data = json.loads(line[2])
 
@@ -76,7 +72,7 @@ class ScopusIdLookupTask(BaseTask):
                     data['scopus_id_status'] = "Scopus API failed"
                     error_count += 1
 
-                row = """%s\t%s\t%s\n""" % (publisher,
+                row = """%s\t%s\t%s\n""" % (publisher_id,
                                             doi,
                                             json.dumps(data))
 
@@ -90,10 +86,10 @@ class ScopusIdLookupTask(BaseTask):
 
         target_file.close()
 
-        args[BaseTask.INPUT_FILE] = target_file_name
-        args[BaseTask.COUNT] = count
+        task_args[self.INPUT_FILE] = target_file_name
+        task_args[self.COUNT] = count
 
-        return args
+        return task_args
 
 
 

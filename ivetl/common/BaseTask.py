@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+__author__ = 'nmehta'
 
 from celery import Task
 import logging
@@ -16,7 +16,6 @@ from ivetl.models.PipelineTaskStatus import Pipeline_Task_Status
 class BaseTask(Task):
 
     abstract = True
-    taskname = ''
     vizor = ''
 
     PUBLISHER_ID = 'BaseTask.PublisherId'
@@ -29,7 +28,6 @@ class BaseTask(Task):
     PL_INPROGRESS = "in-progress"
     PL_COMPLETED = "completed"
     PL_ERROR = "error"
-
 
     def run(self, args):
 
@@ -49,22 +47,19 @@ class BaseTask(Task):
 
         return return_args
 
-
     def run_task(self, publisher, job_id, workfolder, tlogger, args):
-        print("To override this task")
+        raise NotImplementedError
 
     def getWorkFolder(self, day, publisher, job_id):
-        return common.BASE_WORK_DIR + day + "/" + publisher + "/" + self.vizor + "/" + job_id
-
+        return common.BASE_WORK_DIR + '/' + day + "/" + publisher + "/" + self.vizor + "/" + job_id
 
     def setupTask(self, workfolder):
 
-        task_workfolder = workfolder + "/" + self.taskname
+        task_workfolder = workfolder + "/" + self.name
         makedirs(task_workfolder, exist_ok=True)
-        tlogger = self.getTaskLogger(task_workfolder, self.taskname)
+        tlogger = self.getTaskLogger(task_workfolder, self.name)
 
         return task_workfolder, tlogger
-
 
     def getTaskLogger(self, path, taskname):
 
@@ -78,7 +73,6 @@ class BaseTask(Task):
         ti_logger.addHandler(fh)
 
         return ti_logger
-
 
     def pipelineStarted(self, publisher_id, pipeline_id, job_id, workfolder):
 
@@ -94,7 +88,6 @@ class BaseTask(Task):
         p.updated = start_date
         p.save()
 
-
     def taskStarted(self, publisher, job_id, workfolder, tlogger):
 
         start_date = datetime.datetime.today()
@@ -103,7 +96,7 @@ class BaseTask(Task):
         pts.publisher_id = publisher
         pts.pipeline_id = self.vizor
         pts.job_id = job_id
-        pts.task_id = self.taskname
+        pts.task_id = self.name
         pts.start_time = start_date
         pts.status = self.PL_INPROGRESS
         pts.updated = start_date
@@ -112,15 +105,14 @@ class BaseTask(Task):
 
         ps = Pipeline_Status().objects.filter(publisher_id=publisher, pipeline_id=self.vizor, job_id=job_id).first()
         if ps is not None:
-            ps.current_task = self.taskname
+            ps.current_task = self.name
             ps.status = self.PL_INPROGRESS
             ps.updated = start_date
             ps.update()
 
-        tlogger.info("Task " + self.taskname + " started for publisher " + publisher + " on " + str(start_date))
+        tlogger.info("Task " + self.name + " started for publisher " + publisher + " on " + str(start_date))
 
         return time()
-
 
     def taskEnded(self, publisher, job_id, start_time, tlogger, count=None):
 
@@ -132,7 +124,7 @@ class BaseTask(Task):
         pts.publisher_id = publisher
         pts.pipeline_id = self.vizor
         pts.job_id = job_id
-        pts.task_id = self.taskname
+        pts.task_id = self.name
         pts.end_time = end_date
         pts.status = self.PL_COMPLETED
         pts.updated = end_date
@@ -145,7 +137,6 @@ class BaseTask(Task):
         tlogger.info("Time Taken: " + format(duration_seconds, '.2f') + " seconds / " + format((duration_seconds)/60, '.2f') + " minutes")
 
         return t1
-
 
     def pipelineCompleted(self, publisher_id, pipeline_id, job_id):
 
@@ -168,7 +159,7 @@ class BaseTask(Task):
         pts.publisher_id = args[0][BaseTask.PUBLISHER_ID]
         pts.pipeline_id = self.vizor
         pts.job_id = args[0][BaseTask.JOB_ID]
-        pts.task_id = self.taskname
+        pts.task_id = self.name
         pts.end_time = end_date
         pts.status = self.PL_ERROR
         pts.error_details = str(exc)
@@ -188,13 +179,13 @@ class BaseTask(Task):
             ps.update()
 
         day = end_date.strftime('%Y.%m.%d')
-        subject = "ERROR! " + day + " - " + self.vizor + " - " + self.taskname
+        subject = "ERROR! " + day + " - " + self.vizor + " - " + self.name
 
         body = "<b>Vizor:</b> <br>"
         body += self.vizor
 
         body += "<br><br><b>Task:</b> <br>"
-        body += self.taskname
+        body += self.name
 
         body += "<br><br><b>Arguments:</b> <br>"
         body += str(args)
@@ -208,19 +199,18 @@ class BaseTask(Task):
         body += "<br><br><b>Command To Rerun Task:</b> <br>"
         body += self.__class__.__name__ + ".s" + str(args) + ".delay()"
 
-        common.sendEmail(subject, body)
-
+        common.send_email(subject, body)
 
     def on_success(self, retval, task_id, args, kwargs):
 
         day = datetime.datetime.today().strftime('%Y.%m.%d')
-        subject = "SUCCESS: " + day + " - " + self.vizor + " - " + self.taskname
+        subject = "SUCCESS: " + day + " - " + self.vizor + " - " + self.name
 
         body = "<b>Vizor:</b> <br>"
         body += self.vizor
 
         body += "<br><br><b>Task:</b> <br>"
-        body += self.taskname
+        body += self.name
 
         body += "<br><br><b>Arguments:</b> <br>"
         body += str(args)
@@ -228,7 +218,7 @@ class BaseTask(Task):
         body += "<br><br><b>Return Value:</b> <br>"
         body += str(retval)
 
-        common.sendEmail(subject, body)
+        common.send_email(subject, body)
 
 
 

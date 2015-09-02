@@ -1,0 +1,9 @@
+celery>=3.1.18
+cqlengine>=0.21.0
+flower>=0.8.3
+fuzzywuzzy>=0.6.1
+ipython>=3.2.1
+lxml>=3.4.4
+python-dateutil>=2.4.2
+requests>=2.7.0
+sendgrid>=1.4.0

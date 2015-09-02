@@ -1,24 +1,16 @@
-from __future__ import absolute_import
+__author__ = 'nmehta'
 
 from time import time
 from datetime import datetime
 from os import makedirs
-
-from cassandra.cqlengine import connection
-
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
-from ivetl.models.PublishedArticle import Published_Article
-from ivetl.models.ArticleCitations import Article_Citations
+from ivetl.models import Published_Article, Article_Citations
+from ivetl.pipelines.task import Task
 
 
 @app.task
-class InsertArticleCitationPlaceholderTask(BaseTask):
-
-    taskname = "InsertArticleCitationPlaceholder"
-    vizor = common.AC
-
+class InsertArticleCitationPlaceholderTask(Task):
     QUERY_LIMIT = 500000
 
     def run(self, publisher):

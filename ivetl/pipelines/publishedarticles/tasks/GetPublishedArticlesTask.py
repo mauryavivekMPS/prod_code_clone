@@ -1,35 +1,28 @@
-from __future__ import absolute_import
+__author__ = 'nmehta, johnm'
 
 import codecs
 import json
 import requests
 from requests import HTTPError
-
-from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
+from ivetl.pipelines.task import Task
 
 
 @app.task
-class GetPublishedArticlesTask(BaseTask):
-
-    taskname = "GetPublishedArticles"
-    vizor = common.PA
-    ITEMS_PER_PAGE = 1000
-    #ITEMS_PER_PAGE = 25
+class GetPublishedArticlesTask(Task):
+    pipeline_name = "published_articles"
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'
     START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
     WORK_FOLDER = 'GetPublishedArticlesTask.WorkFolder'
 
+    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
-    def run_task(self, publisher, job_id, workfolder, tlogger, args):
-
-        issns = args[GetPublishedArticlesTask.ISSNS]
-        start_publication_date = args[GetPublishedArticlesTask.START_PUB_DATE]
+        issns = task_args[GetPublishedArticlesTask.ISSNS]
+        start_publication_date = task_args[GetPublishedArticlesTask.START_PUB_DATE]
         from_pub_date_str = start_publication_date.strftime('%Y-%m-%d')
 
-        target_file_name = workfolder + "/" + publisher + "_" + "xrefpublishedarticles" + "_" + "target.tab"
+        target_file_name = work_folder + "/" + publisher_id + "_" + "xrefpublishedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
@@ -47,13 +40,13 @@ class GetPublishedArticlesTask(BaseTask):
                 r = None
                 success = False
 
-                #if count >= 25:
-                #    break
+                if 'max_articles_to_process' in task_args and count >= task_args['max_articles_to_process']:
+                    break
 
                 while not success and attempt < max_attempts:
                     try:
                         url = 'http://api.crossref.org/journals/' + issn + '/works'
-                        url += '?rows=' + str(self.ITEMS_PER_PAGE)
+                        url += '?rows=' + str(task_args['articles_per_page'])
                         url += '&offset=' + str(offset)
                         url += '&filter=type:journal-article,from-pub-date:' + from_pub_date_str
 
@@ -86,7 +79,7 @@ class GetPublishedArticlesTask(BaseTask):
                     for i in xrefdata['message']['items']:
 
                         row = """%s\t%s\t%s\n""" % (
-                            publisher,
+                            publisher_id,
                             i['DOI'],
                             json.dumps(i))
 
@@ -95,17 +88,17 @@ class GetPublishedArticlesTask(BaseTask):
 
                         count += 1
 
-                    offset += self.ITEMS_PER_PAGE
+                    offset += task_args['articles_per_page']
 
                 else:
                     offset = -1
 
         target_file.close()
 
-        args[BaseTask.INPUT_FILE] = target_file_name
-        args[BaseTask.COUNT] = count
+        task_args[self.INPUT_FILE] = target_file_name
+        task_args[self.COUNT] = count
 
-        return args
+        return task_args
 
 
 

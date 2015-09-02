@@ -1,9 +1,8 @@
-from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
+from cqlengine import columns
+from cqlengine.models import Model
 
 
-class PublisherMetadata(Model):
-
+class Publisher_Metadata(Model):
     publisher_id = columns.Text(primary_key=True)
     hw_addl_metadata_available = columns.Boolean()
     issn_to_hw_journal_code = columns.Map(columns.Text(), columns.Text())

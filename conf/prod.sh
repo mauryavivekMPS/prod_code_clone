@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+IVETL_PROD=1
+export IVETL_PROD
+
+unset IVETL_LOCAL
+unset IVETL_QA
+
+IVETL_CASSANDRA_IP=10.0.1.12
+export IVETL_CASSANDRA_IP

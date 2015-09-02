@@ -44,17 +44,3 @@ INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_avail
 
 INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
   VALUES ('portland', true, {'0264-6021':'ppbiochemj', '11470-8728':'ppbiochemj', '0143-5221':'ppclinsci', '1470-8736':'ppclinsci'}, ['0264-6021', '1470-8736'], '2010-01-01 00:00:00', ['22c5991e02943d30acf4aa83de67f304']);
-
-
-## For Testing
-INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
-  VALUES ('test', true, {'1528-0020':'bloodjournal', '0006-4971':'bloodjournal'}, ['1528-0020'], '2010-01-01 00:00:00', ['f5bb1dbcd2f625d729836dfcaf5eb5f1', 'f5bb1dbcd2f625d729836dfcaf5eb5f1']);
-
-
-INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
-  VALUES ('aaas', true, {'0036-8075':'sci', '1095-9203':'sci', '2375-2548':'advances'}, ['0036-8075', '2375-2548'], '2010-01-01 00:00:00', ['1909c7bd8937a0bdc4c7b298b2941284', 'ccdce910ee2248a800d73cb487847c48', '3fed90a3d3e9807cc43179c3cf94a8a8', 'b87d6249c2028249def7c580fb2698be']);
-
-INSERT INTO impactvizor.publisher_metadata (publisher_id, hw_addl_metadata_available, issn_to_hw_journal_code, published_articles_issns_to_lookup, published_articles_last_updated, scopus_api_keys)
-  VALUES ('asbmb', true, {'0021-9258':'jbc', '1083-351X':'jbc', '0022-2275':'jlr', '1539-7262':'jlr', '1535-9476':'mcprot', '1535-9484':'mcprot'}, ['0021-9258', '0022-2275', '1535-9476'], '2010-01-01 00:00:00', ['6930be2049863cf37079dd02a5522e3a', '9abbef1491f184b0ecc74492152bd485', '55866e6325c069376f9d8995bd9e084b', 'f14ad622b64dcc01daf62d42dcbd8d6d']);
-
-

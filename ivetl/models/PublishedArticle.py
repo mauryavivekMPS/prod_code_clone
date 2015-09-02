@@ -1,14 +1,13 @@
-from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
+from cqlengine import columns
+from cqlengine.models import Model
 
 
 class Published_Article(Model):
-
     publisher_id = columns.Text(primary_key=True)
     article_doi = columns.Text(primary_key=True)
     article_issue = columns.Text()
     article_journal = columns.Text()
-    article_journal_issn =columns.Text()
+    article_journal_issn = columns.Text()
     article_pages = columns.Text()
     article_publisher = columns.Text()
     article_scopus_id = columns.Text()
@@ -26,7 +25,8 @@ class Published_Article(Model):
     article_type = columns.Text()
     subject_category = columns.Text()
     custom = columns.Text()
+    custom_2 = columns.Text()
+    custom_3 = columns.Text()
     editor = columns.Text()
     citations_lookup_error = columns.Boolean()
     is_open_access = columns.Text()
-
