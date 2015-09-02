@@ -51,7 +51,7 @@ class BaseTask(Task):
         raise NotImplementedError
 
     def getWorkFolder(self, day, publisher, job_id):
-        return common.BASE_WORK_DIR + day + "/" + publisher + "/" + self.vizor + "/" + job_id
+        return common.BASE_WORK_DIR + '/' + day + "/" + publisher + "/" + self.vizor + "/" + job_id
 
     def setupTask(self, workfolder):
 
