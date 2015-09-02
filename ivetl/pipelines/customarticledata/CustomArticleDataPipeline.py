@@ -40,8 +40,7 @@ class CustomArticleDataPipeline(Pipeline):
                 # grab all files from the directory
                 files = [f for f in os.listdir(publisher_dir) if os.path.isfile(os.path.join(publisher_dir, f))]
 
-                # then filter for files with the right name
-                files = [f for f in files if f.startswith('vizor_pat_details_') and f.endswith('.tab')]
+                # TODO: add a warning for developers for strange files, e.g. .DS_whatever
 
                 if files:
 
