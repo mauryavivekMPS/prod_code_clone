@@ -43,7 +43,7 @@ BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
 # these will move to the refactored pipelines soon...
-RAT = "rejected_article_tracker"
+RAT = RAT_DIR = "rejected_article_tracker"
 AC = "article_citations"
 
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
