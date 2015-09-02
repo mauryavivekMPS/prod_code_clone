@@ -45,7 +45,7 @@ class MonitorIncomingFileTask(BaseTask):
                     text = "Processing files for " + publisher_dir
                     common.send_email(subject, text)
 
-                    workfolder = common.BASE_WORK_DIR + today + "/" + publisher_dir + "/" + self.vizor + "/" + today + "_" + time
+                    workfolder = common.BASE_WORK_DIR + "/" + publisher_dir + "/" + self.vizor + "/" + today + "_" + time
                     dstworkpath = workfolder + "/" + self.taskname
                     makedirs(dstworkpath, exist_ok=True)
 
