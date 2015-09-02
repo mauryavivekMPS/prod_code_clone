@@ -36,7 +36,7 @@ class MonitorIncomingFileTask(BaseTask):
         for publisher_dir in os.listdir(common.BASE_INCOMING_DIR):
             if os.path.isdir(os.path.join(common.BASE_INCOMING_DIR, publisher_dir)):
 
-                srcpath = common.BASE_INCOMING_DIR + publisher_dir + "/" + common.RAT_DIR
+                srcpath = common.BASE_INCOMING_DIR + '/' + publisher_dir + "/" + common.RAT_DIR
                 files = [f for f in os.listdir(srcpath) if os.path.isfile(os.path.join(srcpath, f))]
 
                 if len(files) > 0:

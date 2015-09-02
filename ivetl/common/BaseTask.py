@@ -61,11 +61,11 @@ class BaseTask(Task):
 
         return task_workfolder, tlogger
 
-    def getTaskLogger(self, path):
+    def getTaskLogger(self, path, taskname):
 
         ti_logger = logging.getLogger(path)
 
-        fh = logging.FileHandler(path + "/" + self.name + ".log", mode='w', encoding='utf-8')
+        fh = logging.FileHandler(path + "/" + taskname + ".log", mode='w', encoding='utf-8')
         fh.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
