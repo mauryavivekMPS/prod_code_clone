@@ -27,7 +27,7 @@ class BaseTask(Task):
         return self.name[self.name.rfind('.') + 1:]
 
     def get_work_folder(self, day, publisher_id, job_id):
-        return os.path.join(common.BASE_WORK_DIR, publisher_id, self.pipeline_name, job_id)
+        return os.path.join(common.BASE_WORK_DIR, day, publisher_id, self.pipeline_name, job_id)
 
     def setup_task(self, work_folder):
         task_work_folder = os.path.join(work_folder, self.short_name)
