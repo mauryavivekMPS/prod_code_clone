@@ -147,7 +147,6 @@ class Task(BaseTask):
         body += str(retval)
         common.send_email(subject, body)
 
-
     # !! TODO: this needs to be moved!
     def pipeline_ended(self, publisher_id, pipeline_id, job_id):
         end_date = datetime.datetime.today()

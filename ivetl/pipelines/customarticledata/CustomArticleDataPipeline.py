@@ -40,7 +40,8 @@ class CustomArticleDataPipeline(Pipeline):
                 # grab all files from the directory
                 files = [f for f in os.listdir(publisher_dir) if os.path.isfile(os.path.join(publisher_dir, f))]
 
-                # TODO: add a warning for developers for strange files, e.g. .DS_whatever
+                # remove any hidden files, in particular .DS_Store
+                files = [f for f in files if not f.startswith('.')]
 
                 if files:
 

@@ -39,6 +39,9 @@ class MonitorIncomingFileTask(BaseTask):
                 srcpath = common.BASE_INCOMING_DIR + '/' + publisher_dir + "/" + common.RAT_DIR
                 files = [f for f in os.listdir(srcpath) if os.path.isfile(os.path.join(srcpath, f))]
 
+                # remove any hidden files, in particular .DS_Store
+                files = [f for f in files if not f.startswith('.')]
+
                 if len(files) > 0:
 
                     subject = "Rejected Article Tracker - " + today + " - Processing started for " + publisher_dir
