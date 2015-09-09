@@ -1,3 +1,4 @@
+import time
 import unittest
 import datetime
 from ivetl.models import (Publisher_Metadata, Pipeline_Status, Published_Article, Article_Citations,
@@ -14,6 +15,27 @@ class PipelineTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         close_cassandra_connection()
+
+    def poll_and_timeout(self, publisher_id, pipeline_name, pipeline_function, timeout=120, poll_time=2):
+
+        pipeline_function()
+
+        timeout_in_seconds = timeout
+        start_time = datetime.datetime.now()
+
+        got_complete_status = False
+        while (datetime.datetime.now() - start_time).seconds < timeout_in_seconds:
+
+            # look for a single "completed" status line
+            for s in Pipeline_Status.objects.filter(publisher_id=publisher_id, pipeline_id=pipeline_name):
+                if s.status == 'completed':
+                    got_complete_status = True
+                    break
+
+            # wait 10 seconds for next poll
+            time.sleep(poll_time)
+
+        self.assertTrue(got_complete_status, "The pipeline didn't complete after 5 minutes - no status message found.")
 
     def add_test_publisher(self):
         Publisher_Metadata.objects.create(

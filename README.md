@@ -129,3 +129,15 @@ Before you do `cqlengine` type things from the Python command line, you'll need 
 And if you're polite, you'll close it down when you're done:
 
     close_cassandra_connection()
+
+Running tests
+-------------
+
+The tests are built on top of the standart `unittest` framework, so running them is as simple as:
+
+    python -m unittest
+    
+Some notes:
+
+* The tests all use a publisher ID of `test`, so any records associated with that publisher will be lost.
+* The smoke tests assume that a Celery worker is running.
