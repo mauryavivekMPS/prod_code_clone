@@ -11,7 +11,6 @@ from ivetl.models import Published_Article_Values
 
 @app.task
 class InsertCustomArticleDataIntoCassandra(Task):
-    pipeline_name = "custom_article_data"
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']

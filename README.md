@@ -65,14 +65,15 @@ Environment variables
 
 The following environment variables are supported:
 
+* `IVETL_ROOT` – The location of the source code.
 * `IVETL_CASSANDRA_IP` – The IP address of Cassandra, defaults to `127.0.0.1`
 * `IVETL_CASSANDRA_KEYSPACE` - The Cassandra keyspace, defaults to `impactvizor`
 * `IVETL_WORKING_DIR` – Main working directory for all pipelines, default to `/iv`
 * `IVETL_EMAIL_TO_ADDRESS` – Email address where activity is reported, no default
 * `IVETL_EMAIL_FROM_ADDRESS` – The from address for all system emails, default to `impactvizor@highwire.org`
 
-The defaults are a good starting place for local development, however `IVETL_EMAIL_TO_ADDRESS` has no default and must
-be set.
+The defaults are a good starting place for local development, however `IVETL_ROOT` and `IVETL_EMAIL_TO_ADDRESS` have no
+defaults and must be set.
 
 Running the pipeline
 --------------------
@@ -130,14 +131,39 @@ And if you're polite, you'll close it down when you're done:
 
     close_cassandra_connection()
 
-Running tests
--------------
+Automated tests
+---------------
+
+### Running the test suite
 
 The tests are built on top of the standart `unittest` framework, so running them is as simple as:
 
     python -m unittest
     
+You can also run particular test suites or or particular tests, for example:
+    
+    python -m unittest ivetl.pipelines.customarticledata.test_customarticledata
+
 Some notes:
 
 * The tests all use a publisher ID of `test`, so any records associated with that publisher will be lost.
 * The smoke tests assume that a Celery worker is running.
+
+### A complete example session
+
+Given the setup mentioned above, with source checked out, env vars set, and services up and running, here are complete
+instructions on running tests:
+
+In one terminal, we'll start the Celery worker:
+
+    cd $IVETL_ROOT 
+    workon impactvizor-pipeline
+    source conf/local.sh 
+    celery -A ivetl worker --loglevel=info
+
+In another terminal, we'll run the tests:
+
+    cd $IVETL_ROOT 
+    workon impactvizor-pipeline
+    source conf/local.sh 
+    python -m unittest

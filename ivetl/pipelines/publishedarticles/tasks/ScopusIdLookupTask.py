@@ -12,7 +12,6 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class ScopusIdLookupTask(Task):
-    pipeline_name = "published_articles"
 
     MAX_ERROR_COUNT = 100
 
