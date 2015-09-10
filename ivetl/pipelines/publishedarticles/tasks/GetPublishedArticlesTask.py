@@ -1,5 +1,3 @@
-__author__ = 'nmehta, johnm'
-
 import codecs
 import json
 import requests

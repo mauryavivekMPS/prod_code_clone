@@ -1,5 +1,3 @@
-__author__ = 'nmehta, johnm'
-
 import datetime
 from dateutil.relativedelta import relativedelta
 from celery import chain

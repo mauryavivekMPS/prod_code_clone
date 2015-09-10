@@ -22,4 +22,4 @@ class PublishedArticlesTestCase(PipelineTestCase):
             ).delay()
 
         # run the pipeline, check for a completed status
-        self.poll_and_timeout('test', 'published_articles', run_pipeline)
+        self.poll_and_timeout('test', UpdatePublishedArticlesPipeline.pipeline_name, run_pipeline)

@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import csv
 import datetime
 from ivetl.celery import app

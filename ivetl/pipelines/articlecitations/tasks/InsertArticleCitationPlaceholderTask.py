@@ -1,5 +1,3 @@
-__author__ = 'nmehta'
-
 from time import time
 from datetime import datetime
 from os import makedirs

@@ -138,11 +138,11 @@ Automated tests
 
 The tests are built on top of the standart `unittest` framework, so running them is as simple as:
 
-    python -m unittest
+    $ python -m unittest
     
 You can also run particular test suites or or particular tests, for example:
     
-    python -m unittest ivetl.pipelines.customarticledata.test_customarticledata
+    $ python -m unittest ivetl.pipelines.customarticledata.test_customarticledata
 
 Some notes:
 
@@ -156,14 +156,23 @@ instructions on running tests:
 
 In one terminal, we'll start the Celery worker:
 
-    cd $IVETL_ROOT 
-    workon impactvizor-pipeline
-    source conf/local.sh 
-    celery -A ivetl worker --loglevel=info
+    $ cd $IVETL_ROOT 
+    $ workon impactvizor-pipeline
+    $ source conf/local.sh 
+    $ celery -A ivetl worker --loglevel=info
 
 In another terminal, we'll run the tests:
 
-    cd $IVETL_ROOT 
-    workon impactvizor-pipeline
-    source conf/local.sh 
-    python -m unittest
+    $ cd $IVETL_ROOT 
+    $ workon impactvizor-pipeline
+    $ source conf/local.sh 
+    $ python -m unittest
+
+A successful run will take just shy of a minute (at present with 3 pipelines) and should report the following:
+
+    $ python -m unittest
+    ...
+    ----------------------------------------------------------------------
+    Ran 3 tests in 50.540s
+    
+    OK

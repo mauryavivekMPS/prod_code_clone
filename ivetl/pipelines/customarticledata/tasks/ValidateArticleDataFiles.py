@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import csv
 import codecs
 from time import time

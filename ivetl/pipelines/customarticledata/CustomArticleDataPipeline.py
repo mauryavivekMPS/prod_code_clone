@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import os
 import datetime
 from celery import chain

@@ -1,5 +1,3 @@
-__author__ = 'nmehta'
-
 import codecs
 import json
 from ivetl.celery import app

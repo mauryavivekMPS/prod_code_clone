@@ -1,5 +1,3 @@
-__author__ = 'nmehta'
-
 import csv
 import codecs
 import json
@@ -107,7 +105,7 @@ class InsertIntoCassandraDBTask(Task):
             pu['updated'] = updated
             pu.save()
 
-        self.pipeline_ended(publisher_id, self.pipeline_name, job_id)
+        self.pipeline_ended(publisher_id, job_id)
         return {self.COUNT: count}
 
 

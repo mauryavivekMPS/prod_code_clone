@@ -1,6 +1,3 @@
-__author__ = 'john'
-
-
 def parse_custom_data_line(line):
     return {
         'doi': line[0].strip(),

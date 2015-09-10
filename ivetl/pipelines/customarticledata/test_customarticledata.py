@@ -25,7 +25,7 @@ class CustomArticleDataTestCase(PipelineTestCase):
             ).delay()
 
         # run the pipeline, check for a completed status
-        self.poll_and_timeout('test', 'custom_article_data', run_pipeline)
+        self.poll_and_timeout('test', CustomArticleDataPipeline.pipeline_name, run_pipeline)
 
         # pull the articles and check for the overridden values
         article1 = Published_Article.objects.get(publisher_id='test', article_doi='10.1182/blood-2012-11-427765')
