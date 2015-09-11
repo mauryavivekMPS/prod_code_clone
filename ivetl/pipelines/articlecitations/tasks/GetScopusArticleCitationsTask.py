@@ -1,10 +1,8 @@
-import codecs
 import json
+import codecs
 from ivetl.celery import app
-from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
-from ivetl.models.PublishedArticle import Published_Article
-from ivetl.connectors.ScopusConnector import ScopusConnector
-from ivetl.models.PublisherMetadata import Publisher_Metadata
+from ivetl.connectors import ScopusConnector, MaxTriesAPIError
+from ivetl.models import Publisher_Metadata, Published_Article
 from ivetl.pipelines.task import Task
 
 

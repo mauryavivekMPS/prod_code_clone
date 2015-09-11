@@ -2,8 +2,8 @@ import csv
 import codecs
 import json
 from ivetl.celery import app
-from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
-from ivetl.connectors.ScopusConnector import ScopusConnector
+from ivetl.connectors.base import MaxTriesAPIError
+from ivetl.connectors.scopus import ScopusConnector
 from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.task import Task
 

@@ -1,20 +1,13 @@
-from __future__ import absolute_import
+import requests
 import urllib.parse
 import urllib.request
-import traceback
-
-import requests
 from requests import HTTPError
 from lxml import etree
-
 from ivetl.common import common
-from ivetl.connectors.AuthorizationAPIError import AuthorizationAPIError
-from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
+from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTriesAPIError
 
 
-class ScopusConnector():
-
-
+class ScopusConnector(BaseConnector):
     BASE_SCOPUS_URL_XML = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey='
     BASE_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey='
 
