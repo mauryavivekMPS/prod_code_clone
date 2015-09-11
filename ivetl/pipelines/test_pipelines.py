@@ -48,6 +48,8 @@ class PipelineTestCase(unittest.TestCase):
             published_articles_issns_to_lookup=['1528-0020'],
             published_articles_last_updated=datetime.datetime(2010, 1, 1),
             scopus_api_keys=['f5bb1dbcd2f625d729836dfcaf5eb5f1', 'f5bb1dbcd2f625d729836dfcaf5eb5f1'],
+            crossref_username='amersochem',
+            crossref_password='crpw966',
         )
 
     def remove_all_test_publisher_data(self):
