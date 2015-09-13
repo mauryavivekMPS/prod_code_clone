@@ -46,7 +46,7 @@ class ScopusIdLookupTask(Task):
 
                 try:
 
-                    scopus_id, scopus_cited_by = connector.getScopusEntry(doi, data.get('ISSN'),
+                    scopus_id, scopus_cited_by = connector.get_entry(doi, data.get('ISSN'),
                                                                           data.get('volume'),
                                                                           data.get('issue'),
                                                                           data.get('page'),

@@ -1,7 +1,6 @@
 import requests
-import datetime
 from bs4 import BeautifulSoup
-from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTriesAPIError
+from ivetl.connectors.base import BaseConnector
 
 
 class CrossrefConnector(BaseConnector):
@@ -21,42 +20,54 @@ class CrossrefConnector(BaseConnector):
     def get_article(self, doi):
         url = '%s%s' % (self.BASE_CITATION_URL, doi)
         r = requests.get(url)
-        article_json = r.json()['message']
 
-        # date
-        date_parts = article_json['issued']['date-parts'][0]
-        citation_date = datetime.date(*date_parts)
+        try:
+            article_json = r.json()
+        except ValueError:
+            article_json = None
 
-        # author
-        author_parts = article_json['author'][0]
-        author = '%s,%s' % (author_parts['family'], author_parts['given'])
+        article = None
 
-        # issue
-        issue = article_json['issue']
+        if article_json:
+            article_json = article_json['message']
 
-        # journal ISSN
-        journal_issn = article_json['ISSN'][0]
+            # date
+            date_parts = article_json['issued']['date-parts'][0]
+            citation_date = '%s-%s-%s' % date_parts
 
-        # journal title
-        journal_title = article_json['title'][0]
+            # author
+            author_parts = article_json['author'][0]
+            author = '%s,%s' % (author_parts['family'], author_parts['given'])
 
-        # pages
-        pages = article_json['page']
+            # issue
+            issue = article_json['issue']
 
-        # title
-        title = article_json['container-title']
+            # journal ISSN
+            journal_issn = article_json['ISSN'][0]
 
-        # volume
-        volume = article_json['volume']
+            # journal title
+            journal_title = article_json['title'][0]
 
-        return {
-            'doi': doi,
-            'date': citation_date,
-            'first_author': author,
-            'issue': issue,
-            'journal_issn': journal_issn,
-            'journal_title': journal_title,
-            'pages': pages,
-            'title': title,
-            'volume': volume,
-        }
+            # pages
+            pages = article_json['page']
+
+            # title
+            title = article_json['container-title']
+
+            # volume
+            volume = article_json['volume']
+
+            article = {
+                'doi': doi,
+                'date': citation_date,
+                'first_author': author,
+                'issue': issue,
+                'journal_issn': journal_issn,
+                'journal_title': journal_title,
+                'pages': pages,
+                'title': title,
+                'volume': volume,
+                'source': 'Crossref',
+            }
+
+        return article

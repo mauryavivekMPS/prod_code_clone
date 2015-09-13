@@ -11,8 +11,7 @@ class CustomArticleDataTestCase(PipelineTestCase):
         self.add_published_articles_data()
 
     def tearDown(self):
-        # self.remove_all_test_publisher_data()
-        pass
+        self.remove_all_test_publisher_data()
 
     def test_pipeline_with_poll_and_timeout(self):
 
@@ -34,3 +33,13 @@ class CustomArticleDataTestCase(PipelineTestCase):
         # check a couple of basic stats
         self.assertEqual(citation1.citation_journal_title, 'American Journal of Hematology')
         self.assertEqual(citation1.citation_scopus_id, '2-s2.0-84893910207')
+
+        # check for a citation from both scopus and crossref
+        citation2 = Article_Citations.objects.get(
+            publisher_id='test',
+            article_doi='10.1182/blood-2012-11-464685',
+            citation_doi='10.3389/fimmu.2015.00015'
+        )
+
+        # check that both items are there
+        self.assertEqual(citation1.citation_sources, ['Scopus', 'Crossref'])
