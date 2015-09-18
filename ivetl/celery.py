@@ -1,5 +1,3 @@
-__author__ = 'nmehta'
-
 from celery import Celery
 from celery.signals import worker_process_init, worker_process_shutdown
 from cqlengine import connection

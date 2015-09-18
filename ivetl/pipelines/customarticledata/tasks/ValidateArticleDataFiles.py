@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import csv
 import codecs
 from time import time
@@ -11,7 +9,6 @@ from ivetl.models import Published_Article
 
 @app.task
 class ValidateArticleDataFiles(Task):
-    pipeline_name = "custom_article_data"
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']

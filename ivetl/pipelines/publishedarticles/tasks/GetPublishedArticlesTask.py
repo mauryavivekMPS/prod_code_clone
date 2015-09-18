@@ -1,5 +1,3 @@
-__author__ = 'nmehta, johnm'
-
 import codecs
 import json
 import requests
@@ -10,7 +8,6 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class GetPublishedArticlesTask(Task):
-    pipeline_name = "published_articles"
 
     ISSNS = 'GetPublishedArticlesTask.ISSNs'
     START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'

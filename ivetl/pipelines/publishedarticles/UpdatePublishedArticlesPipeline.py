@@ -1,5 +1,3 @@
-__author__ = 'nmehta, johnm'
-
 import datetime
 from dateutil.relativedelta import relativedelta
 from celery import chain
@@ -15,7 +13,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
     PUB_START_DATE = datetime.date(2010, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publishers=[], reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
+    def run(self, publisher_id_list=[], reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
@@ -24,8 +22,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
         publishers_metadata = Publisher_Metadata.objects.all()
 
-        if publishers:
-            publishers_metadata = publishers_metadata.filter(publisher_id__in=publishers)
+        if publisher_id_list:
+            publishers_metadata = publishers_metadata.filter(publisher_id__in=publisher_id_list)
 
         for pm in publishers_metadata:
 

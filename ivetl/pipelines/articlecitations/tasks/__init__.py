@@ -1,5 +1,3 @@
-__author__ = 'john'
-
-from ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitationsTask import GetScopusArticleCitationsTask
-from ivetl.pipelines.articlecitations.tasks.InsertArticleCitationPlaceholderTask import InsertArticleCitationPlaceholderTask
-from ivetl.pipelines.articlecitations.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
+from ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations import GetScopusArticleCitations
+from ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra import InsertScopusIntoCassandra
+from ivetl.pipelines.articlecitations.tasks.UpdateArticleCitationsWithCrossref import UpdateArticleCitationsWithCrossref

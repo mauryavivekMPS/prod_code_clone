@@ -1,5 +1,3 @@
-__author__ = 'john'
-
 from ivetl.pipelines.customarticledata.tasks.GetArticleDataFiles import GetArticleDataFiles
 from ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles import ValidateArticleDataFiles
 from ivetl.pipelines.customarticledata.tasks.InsertCustomArticleDataIntoCassandra import InsertCustomArticleDataIntoCassandra

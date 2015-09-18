@@ -1,5 +1,3 @@
-__author__ = 'nmehta'
-
 import datetime
 from celery import chain
 from ivetl.celery import app
@@ -37,17 +35,11 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'publisher_id': publisher.publisher_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                tasks.GetScopusArticleCitationsTask.REPROCESS_ERRORS: False
+                tasks.GetScopusArticleCitations.REPROCESS_ERRORS: False
             }
 
             chain(
-                tasks.GetScopusArticleCitationsTask.s(task_args) |
-                tasks.InsertIntoCassandraDBTask.s()
+                tasks.GetScopusArticleCitations.s(task_args) |
+                tasks.InsertScopusIntoCassandra.s() |
+                tasks.UpdateArticleCitationsWithCrossref.s()
             ).delay()
-
-
-
-
-
-
-

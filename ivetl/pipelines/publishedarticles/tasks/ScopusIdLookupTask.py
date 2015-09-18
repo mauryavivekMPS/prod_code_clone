@@ -1,18 +1,15 @@
-__author__ = 'nmehta, johnm'
-
 import csv
 import codecs
 import json
 from ivetl.celery import app
-from ivetl.connectors.MaxTriesAPIError import MaxTriesAPIError
-from ivetl.connectors.ScopusConnector import ScopusConnector
+from ivetl.connectors.base import MaxTriesAPIError
+from ivetl.connectors.scopus import ScopusConnector
 from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.task import Task
 
 
 @app.task
 class ScopusIdLookupTask(Task):
-    pipeline_name = "published_articles"
 
     MAX_ERROR_COUNT = 100
 
@@ -49,7 +46,7 @@ class ScopusIdLookupTask(Task):
 
                 try:
 
-                    scopus_id, scopus_cited_by = connector.getScopusEntry(doi, data.get('ISSN'),
+                    scopus_id, scopus_cited_by = connector.get_entry(doi, data.get('ISSN'),
                                                                           data.get('volume'),
                                                                           data.get('issue'),
                                                                           data.get('page'),

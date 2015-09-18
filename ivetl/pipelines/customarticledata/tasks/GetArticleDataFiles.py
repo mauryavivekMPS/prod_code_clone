@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import os
 import shutil
 from ivetl.celery import app
@@ -8,7 +6,6 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class GetArticleDataFiles(Task):
-    pipeline_name = "custom_article_data"
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         preserve_incoming_files = task_args.get('preserve_incoming_files', False)

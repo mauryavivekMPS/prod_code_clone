@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import csv
 import datetime
 from ivetl.celery import app
@@ -9,7 +7,6 @@ from ivetl.models import Published_Article, Published_Article_Values
 
 @app.task
 class ResolvePublishedArticlesData(Task):
-    pipeline_name = "published_articles"
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         file_name = task_args['modified_articles_file']
@@ -53,5 +50,5 @@ class ResolvePublishedArticlesData(Task):
 
             tsv.close()
 
-        self.pipeline_ended(publisher_id, self.pipeline_name, job_id)
+        self.pipeline_ended(publisher_id, job_id)
         return {self.COUNT: count}

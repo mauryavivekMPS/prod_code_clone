@@ -9,4 +9,5 @@ class Publisher_Metadata(Model):
     published_articles_issns_to_lookup = columns.List(columns.Text())
     published_articles_last_updated = columns.DateTime()
     scopus_api_keys = columns.List(columns.Text())
-
+    crossref_username = columns.Text()
+    crossref_password = columns.Text()

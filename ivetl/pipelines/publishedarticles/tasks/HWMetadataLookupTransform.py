@@ -1,6 +1,3 @@
-__author__ = 'nmehta, johnm'
-
-
 class HWMetadataLookupTransform:
 
     def asm_xform_doi(input_doi):

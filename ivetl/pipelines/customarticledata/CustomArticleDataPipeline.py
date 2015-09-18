@@ -1,5 +1,3 @@
-__author__ = 'johnm'
-
 import os
 import datetime
 from celery import chain
@@ -21,7 +19,7 @@ class CustomArticleDataPipeline(Pipeline):
     # 4. InsertArticleData - insert non-overlapping data into pub_articles and overlapping into _values.
     # 5. ResolveArticleData - decide which data to promote from _values into pub_articles, and do the insert.
 
-    def run(self, publisher_id_list=[], preserve_incoming_files=False):
+    def run(self, publisher_id_list=[], preserve_incoming_files=False, alt_incoming_dir=None):
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
         job_id = now.strftime('%Y%m%d_%H%M%S%f')
@@ -32,15 +30,21 @@ class CustomArticleDataPipeline(Pipeline):
         else:
             publishers = Publisher_Metadata.objects.all()
 
+        if alt_incoming_dir:
+            base_incoming_dir = alt_incoming_dir
+        else:
+            base_incoming_dir = common.BASE_INCOMING_DIR
+
         # figure out which publisher has a non-empty incoming dir
         for publisher in publishers:
-            publisher_dir = os.path.join(common.BASE_INCOMING_DIR, publisher.publisher_id, self.pipeline_name)
+            publisher_dir = os.path.join(base_incoming_dir, publisher.publisher_id, self.pipeline_name)
             if os.path.isdir(publisher_dir):
 
                 # grab all files from the directory
                 files = [f for f in os.listdir(publisher_dir) if os.path.isfile(os.path.join(publisher_dir, f))]
 
-                # TODO: add a warning for developers for strange files, e.g. .DS_whatever
+                # remove any hidden files, in particular .DS_Store
+                files = [f for f in files if not f.startswith('.')]
 
                 if files:
 

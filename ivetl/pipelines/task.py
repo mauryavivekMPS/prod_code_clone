@@ -11,6 +11,7 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 
 class Task(BaseTask):
     abstract = True
+    pipeline_name = ''
 
     def run(self, task_args):
         new_task_args = task_args.copy()
@@ -20,6 +21,9 @@ class Task(BaseTask):
         work_folder = new_task_args.pop('work_folder')
         job_id = new_task_args.pop('job_id')
         pipeline_name = new_task_args.pop('pipeline_name')
+
+        # save the pipeline name
+        self.pipeline_name = pipeline_name
 
         # set up the directory for this task
         task_work_folder, tlogger = self.setup_task(work_folder)
@@ -147,11 +151,10 @@ class Task(BaseTask):
         body += str(retval)
         common.send_email(subject, body)
 
-
     # !! TODO: this needs to be moved!
-    def pipeline_ended(self, publisher_id, pipeline_id, job_id):
+    def pipeline_ended(self, publisher_id, job_id):
         end_date = datetime.datetime.today()
-        p = Pipeline_Status().objects.filter(publisher_id=publisher_id, pipeline_id=pipeline_id, job_id=job_id).first()
+        p = Pipeline_Status().objects.filter(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id).first()
         if p is not None:
             p.end_time = end_date
             p.duration_seconds = (end_date - p.start_time).total_seconds()
