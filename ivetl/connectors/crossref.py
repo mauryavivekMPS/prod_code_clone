@@ -55,13 +55,19 @@ class CrossrefConnector(BaseConnector):
                 journal_issn = None
 
             # journal title
-            journal_title = article_json['title'][0]
+            if 'container-title' in article_json and type(article_json['container-title']) is list and article_json['container-title']:
+                journal_title = article_json['container-title'][0]
+            else:
+                journal_title = None
 
             # pages
             pages = article_json['page']
 
             # title
-            title = article_json['container-title']
+            if 'title' in article_json and type(article_json['title']) is list and article_json['title']:
+                title = article_json['title'][0]
+            else:
+                title = None
 
             # volume
             volume = article_json.get('volume', None)
