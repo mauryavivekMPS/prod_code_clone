@@ -1,5 +1,3 @@
-__author__ = 'nmehta'
-
 from ivetl.models.PublishedArticle import Published_Article
 from ivetl.models.PublishedArticleValues import Published_Article_Values
 from ivetl.models.PublisherMetadata import Publisher_Metadata
