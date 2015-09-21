@@ -1,7 +1,7 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.connectors import CrossrefConnector
+from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
 from ivetl.models import Publisher_Metadata, Published_Article, Article_Citations
 
 
@@ -11,19 +11,26 @@ class UpdateArticleCitationsWithCrossref(Task):
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-        crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password)
+        crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
         articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(self.QUERY_LIMIT)
         updated_date = datetime.datetime.today()
 
         count = 0
+        error_count = 0
 
         for article in articles:
             count += 1
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
+            citations = []
 
-            for citation_doi in crossref.get_citations(article.article_doi):
+            try:
+                citations = crossref.get_citations(article.article_doi)
+            except MaxTriesAPIError:
+                tlogger.info("Crossref API failed for %s" % article.article_doi)
+                error_count += 1
 
+            for citation_doi in citations:
                 try:
                     existing_citation = Article_Citations.objects.get(
                         publisher_id=publisher_id,
@@ -45,7 +52,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                             publisher_id=publisher_id,
                             article_doi=article.article_doi,
                             citation_doi=data['doi'],
-                            citation_scopus_id=data['scopus_id'],
+                            citation_scopus_id=data.get('scopus_id', None),
                             citation_date=datetime.datetime.strptime(data['date'], '%Y-%m-%d'),
                             citation_first_author=data['first_author'],
                             citation_issue=data['issue'],
@@ -53,7 +60,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                             citation_journal_title=data['journal_title'],
                             citation_pages=data['pages'],
                             citation_sources=[data['source']],
-                            citation_title=data['title'],
+                            citation_title=data['title'][0],
                             citation_volume=data['volume'],
                             citation_count=1,
                             updated=updated_date,

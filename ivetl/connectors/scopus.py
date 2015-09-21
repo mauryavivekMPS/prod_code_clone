@@ -10,7 +10,6 @@ from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTries
 class ScopusConnector(BaseConnector):
     BASE_SCOPUS_URL_XML = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey='
     BASE_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey='
-
     MAX_ATTEMPTS = 3
     REQUEST_TIMEOUT_SECS = 30
     ITEMS_PER_PAGE = 25
@@ -40,7 +39,7 @@ class ScopusConnector(BaseConnector):
                 r.raise_for_status()
 
                 root = etree.fromstring(r.content, etree.HTMLParser())
-                self.check_for_auth_error_xml(root)
+                self.check_for_auth_error(root)
 
                 n = root.xpath('//entry/eid', namespaces=common.ns)
                 if len(n) == 0 and issns is not None and volume is not None and issue is not None and page is not None:
@@ -64,7 +63,7 @@ class ScopusConnector(BaseConnector):
                     r.raise_for_status()
 
                     root = etree.fromstring(r.content, etree.HTMLParser())
-                    self.check_for_auth_error_xml(root)
+                    self.check_for_auth_error(root)
 
                     n = root.xpath('//entry/eid', namespaces=common.ns)
 
@@ -80,14 +79,15 @@ class ScopusConnector(BaseConnector):
 
             except AuthorizationAPIError:
                 raise
-            except HTTPError as he:
 
+            except HTTPError as he:
                 if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
-                    tlogger.info("Scopus API failed. Trying Again")
+                    tlogger.info("Scopus API failed. Trying again...")
                     attempt += 1
                 else:
                     raise
-            except Exception:
+
+            except:
                 tlogger.info("Scopus API failed. Trying Again")
                 attempt += 1
 
@@ -132,6 +132,7 @@ class ScopusConnector(BaseConnector):
                         attempt += 1
                     else:
                         raise
+
                 except Exception:
                     tlogger.info("General Exception - Scopus API failed. Trying Again")
                     attempt += 1
@@ -218,8 +219,8 @@ class ScopusConnector(BaseConnector):
 
         return citations
 
-    @ staticmethod
-    def check_for_auth_error_xml(root):
+    @staticmethod
+    def check_for_auth_error(root):
         n = root.xpath('//service-error', namespaces=common.ns)
         if len(n) > 0:
             raise AuthorizationAPIError(etree.tostring(root))

@@ -3,8 +3,8 @@
 import os
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
-from cqlengine import columns
-from cqlengine.models import Model
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
