@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+IVETL_ROOT=/iv/
+export IVETL_ROOT
+
 IVETL_PROD=1
 export IVETL_PROD
 
