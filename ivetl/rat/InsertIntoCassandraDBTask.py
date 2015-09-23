@@ -140,14 +140,7 @@ class InsertIntoCassandraDBTask(BaseTask):
                     ra['published_title'] = data['xref_title']
 
                 if 'reject_reason' in data and (data['reject_reason'] != ''):
-
                     ra['reject_reason'] = data['reject_reason']
-
-                    if publisher == 'aaas':
-                        if data['reject_reason'] == 'TRUE':
-                            ra['reject_reason'] = 'Reviewed'
-                        else:
-                            ra['reject_reason'] = 'Not Reviewed'
 
                 if 'scopus_doi_status' in data and (data['scopus_doi_status'] != ''):
                     ra['scopus_doi_status'] = data['scopus_doi_status']

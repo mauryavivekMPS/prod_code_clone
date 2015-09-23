@@ -81,7 +81,7 @@ class ScopusConnector(BaseConnector):
                 raise
 
             except HTTPError as he:
-                if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                if he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
                     tlogger.info("Scopus API failed. Trying again...")
                     attempt += 1
                 else:
@@ -127,7 +127,7 @@ class ScopusConnector(BaseConnector):
                     success = True
 
                 except HTTPError as he:
-                    if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                    if he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
                         tlogger.info("HTTP 401/408 - Scopus API failed. Trying Again")
                         attempt += 1
                     else:
