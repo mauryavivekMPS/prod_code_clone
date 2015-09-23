@@ -35,7 +35,7 @@ if 'IVETL_ROOT' not in os.environ:
     print("You must set the IVETL_ROOT env var!")
     exit(1)
 
-IVETL_ROOT = os.environ['IVETL_ROOT']
+IVETL_ROOT = os.environ.get('IVETL_ROOT', '/iv')
 IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
 IS_QA = os.environ.get('IVETL_QA', '0') == '1'
 IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
