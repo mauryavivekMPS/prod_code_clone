@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" class="{{ html_class }}">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}{{ constants.APP_LABEL }}{% endblock %}</title>
+        <meta name="description" content="Impact Vizor">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+        <script src="//use.typekit.net/rll0ypr.js"></script>
+        <script>try{Typekit.load();}catch(e){}</script>
+
+        <!-- Compiled custom + bootstrap less -->
+        <link rel="stylesheet" type="text/css" href="/static/dist/everything.css"/>
+        <link rel="stylesheet" type="text/css" href="/static/dist/hyperlinearicons.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+        <script type="text/javascript" src="/static/dist/html5shiv.js"></script>
+        <script type="text/javascript" src="/static/dist/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="/static/dist/jquery.min.js"></script>
+        <script src="/static/dist/jquery-ui.min.js"></script>
+        <script src="/static/dist/jquery.pjax.js"></script>
+        <script src="/static/dist/jquery.number.min.js"></script>
+    </head>
+
+    <body class="meerkat {{ body_class }}">
+        {% block body %}<p>Empty.</p>{% endblock %}
+
+        <script type="text/javascript" src="/static/dist/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/static/dist/moment.min.js"></script>
+        <script type="text/javascript" src="/static/dist/common.js"></script>
+
+        {% block page_scripts %}{% endblock %}
+
+        <script>
+            $(function() {
+//                Meerkat.initPjax();
+//                Meerkat.initTooltips();
+//                Meerkat.setInitialPageClasses('{{ html_class }}', '{{ body_class }}');
+            });
+        </script>
+
+        {% block pjax_scripts %}{% endblock %}
+    </body>
+</html>

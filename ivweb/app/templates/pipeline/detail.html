@@ -1,0 +1,58 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% block title %}{{ pipeline_id|pipeline_name }}{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>{{ pipeline_id|pipeline_name }}</h1>
+            <ul class="list-tabs">
+                <li><a href="#" class="active">All</a></li>
+                <li><a href="#">Running</a></li>
+                <li><a href="#">Completed</a></li>
+                <li><a href="#">Failed</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row all-campaign-list-content">
+        <div class="col-md-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="icon-col"><span class="lnr lnr-square checkbox-icon"></span></th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th class="status-col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for publisher in publishers %}
+                        <tr>
+                            <td class="icon-col"><span class="lnr lnr-square checkbox-icon"></span></td>
+                            <td>
+                                <a href="#">
+                                    {{ publisher.display_name }}
+                                </a>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="status-col"></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            // nothing
+        });
+    </script>
+{% endblock %}

@@ -63,3 +63,8 @@ impactvisor-pipeline-env
 
 # PyCharm
 .idea
+
+# bower and node
+bower_components
+node_modules
+ivweb/app/static/dist

@@ -1,0 +1,11 @@
+<title>{% block title %}{{ constants.APP_LABEL }}{% endblock %}</title>
+
+{#{{ render_messages(messages) }}#}
+
+{% block content %}<p>Empty PJAX content.</p>{% endblock %}
+
+{% block page_scripts %}{% endblock %}
+
+<script>
+    IvetlWeb.setPageClasses('{% block html_class %}{% endblock %}', '{% block body_class %}{% endblock %}');
+</script>
