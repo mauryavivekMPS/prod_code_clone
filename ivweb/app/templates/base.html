@@ -25,7 +25,7 @@
         <script src="/static/dist/jquery.number.min.js"></script>
     </head>
 
-    <body class="meerkat {{ body_class }}">
+    <body class="ivweb  {% block body_class %}{% endblock %}">
         {% block body %}<p>Empty.</p>{% endblock %}
 
         <script type="text/javascript" src="/static/dist/bootstrap.min.js"></script>

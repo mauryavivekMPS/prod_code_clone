@@ -64,7 +64,7 @@
         <nav>
             <ul>
                 {% for pipeline_id, pipeline_name in constants.PIPELINES %}
-                    <li class="{{ pipeline_id }}-menu-item">
+                    <li class="{{ pipeline_id }}_menu_item">
                         <a href="{% url 'pipeline.detail' pipeline_id %}">{{ pipeline_name }}</a>
                     </li>
                 {% endfor %}
