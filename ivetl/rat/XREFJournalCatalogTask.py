@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from time import time
 import datetime
+from os import makedirs
 
 import requests
 from cassandra.cqlengine import connection
@@ -27,6 +28,7 @@ class XREFJournalCatalogTask(BaseTask):
         day = datetime.datetime.today().strftime('%Y%m%d')
 
         path = common.BASE_WORK_DIR + "/" + day + "/" + self.taskname
+        makedirs(path, exist_ok=True)
         tlogger = self.getTaskLogger(path, self.taskname)
 
         t0 = time()
