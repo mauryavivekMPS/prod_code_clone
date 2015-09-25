@@ -43,6 +43,7 @@ class PipelineTestCase(unittest.TestCase):
     def add_test_publisher(self):
         Publisher_Metadata.objects.create(
             publisher_id='test',
+            name='Test Publisher',
             hw_addl_metadata_available=True,
             issn_to_hw_journal_code={'1528-0020': 'bloodjournal', '0006-4971': 'bloodjournal'},
             published_articles_issns_to_lookup=['1528-0020'],
@@ -50,6 +51,12 @@ class PipelineTestCase(unittest.TestCase):
             scopus_api_keys=['f5bb1dbcd2f625d729836dfcaf5eb5f1', 'f5bb1dbcd2f625d729836dfcaf5eb5f1'],
             crossref_username='amersochem',
             crossref_password='crpw966',
+            supported_pipelines=[
+                'published_articles',
+                'custom_article_data',
+                'article_citations',
+                'rejected_article_tracker'
+            ],
         )
 
     def remove_all_test_publisher_data(self):
@@ -217,4 +224,9 @@ class PipelineTestCase(unittest.TestCase):
             citation_date=parser.parse('2012-12-31 16:00:00-0800'),
             created=parser.parse('2015-09-07 13:04:46-0700'),
             updated=parser.parse('2015-09-07 13:04:46-0700'),
+        )
+
+    def add_misc_pipeline_status(self):
+        Pipeline_Status.create(
+
         )

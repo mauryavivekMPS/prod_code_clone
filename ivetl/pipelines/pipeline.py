@@ -33,6 +33,8 @@ class Pipeline(BaseTask):
             publisher_id = task_args.get('publisher_id', '')
             job_id = task_args.get('job_id', '')
 
+        print('args = %s' % args)
+
         pts = Pipeline_Task_Status()
         pts.publisher_id = publisher_id
         pts.pipeline_id = self.pipeline_name
@@ -44,8 +46,10 @@ class Pipeline(BaseTask):
         pts.updated = end_date
         pts.update()
 
+        print('%s, %s, %s' % (publisher_id, self.pipeline_name, job_id))
+
         try:
-            ps = Pipeline_Status.objects.filter(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)
+            ps = Pipeline_Status.objects.get(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)
             ps.update(
                 end_time=end_date,
                 duration_seconds=(end_date - ps.start_time).total_seconds(),

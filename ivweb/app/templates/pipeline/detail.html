@@ -15,33 +15,42 @@
         </div>
     </div>
 
-    <div class="row all-campaign-list-content">
+    <div class="row">
         <div class="col-md-12">
             <table class="table table-hover">
                 <thead>
                     <tr>
                         <th class="icon-col"><span class="lnr lnr-square checkbox-icon"></span></th>
                         <th>Name</th>
-                        <th>Status</th>
                         <th>Start Time</th>
                         <th>End Time</th>
                         <th class="status-col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for publisher in publishers %}
+                    {% for publisher_status in status_by_publisher %}
                         <tr>
                             <td class="icon-col"><span class="lnr lnr-square checkbox-icon"></span></td>
                             <td>
                                 <a href="#">
-                                    {{ publisher.display_name }}
+                                    {{ publisher_status.publisher.display_name }}
                                 </a>
                             </td>
                             <td></td>
                             <td></td>
-                            <td></td>
                             <td class="status-col"></td>
                         </tr>
+
+                        {% for status_item in publisher_status.status_items %}
+                            <tr>
+                                <td class="icon-col"></td>
+                                <td>{{ status_item.job_id }}</td>
+                                <td>{{ status_item.start_time }}</td>
+                                <td>{{ status_item.end_time }}</td>
+                                <td class="status-col"></td>
+                            </tr>
+                        {% endfor %}
+
                     {% endfor %}
                 </tbody>
             </table>
