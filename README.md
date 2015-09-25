@@ -176,3 +176,26 @@ A successful run will take just shy of a minute (at present with 3 pipelines) an
     Ran 3 tests in 50.540s
     
     OK
+
+Using the UI tools for web app development
+------------------------------------------
+
+We require node, bower, grunt, and less to be installed locally. If you have node and npm, you can simply:
+
+    npm install -g bower
+    npm install -g grunt-cli
+    npm install -g less
+
+Now, install front-end dependencies with bower:
+
+    bower install
+
+To build the first time, or after editing less files or adding/modifying assets:
+
+    grunt build
+
+... or simply leave grunt open and watching for changes with:
+
+    grunt watch
+
+Note that built assets end up in the `/ivweb/app/static/dist` directory but are not added to the git repository.
