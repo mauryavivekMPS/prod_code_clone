@@ -227,6 +227,81 @@ class PipelineTestCase(unittest.TestCase):
         )
 
     def add_misc_pipeline_status(self):
-        Pipeline_Status.create(
 
+        #
+        # add a number of test publishers
+        #
+
+        Publisher_Metadata.objects.create(
+            publisher_id='blood',
+            name='Blood',
+            supported_pipelines=[
+                'published_articles',
+                'custom_article_data',
+                'article_citations',
+                'rejected_article_tracker'
+            ],
+        )
+
+        Publisher_Metadata.objects.create(
+            publisher_id='theoncologist',
+            name='The Oncologist',
+            supported_pipelines=[
+                'published_articles',
+                'custom_article_data',
+                'rejected_article_tracker'
+            ],
+        )
+
+        Publisher_Metadata.objects.create(
+            publisher_id='neuro',
+            name='Journal of Neuroscience',
+            supported_pipelines=[
+                'published_articles',
+                'custom_article_data',
+                'article_citations',
+            ],
+        )
+
+        Publisher_Metadata.objects.create(
+            publisher_id='sagan',
+            name='Cosmology Journal',
+            supported_pipelines=[
+                'published_articles',
+                'custom_article_data',
+                'article_citations',
+                'rejected_article_tracker'
+            ],
+        )
+
+        #
+        # add some pipeline status
+        #
+
+        Pipeline_Status.objects.create(
+            publisher_id='blood',
+            pipeline_id='published_articles',
+            job_id='20150824_161812054742',
+            current_task='ResolvePublishedArticlesData',
+            start_time=datetime.datetime(2015, 8, 24, 9, 18, 12),
+            end_time=datetime.datetime(2015, 8, 24, 9, 18, 30),
+            updated=datetime.datetime(2015, 8, 24, 9, 18, 30),
+            duration_seconds=18,
+            error_details=None,
+            status='completed',
+            workfolder='/iv/working/20150824/test/published_articles/20150824_161812054742',
+        )
+
+        Pipeline_Status.objects.create(
+            publisher_id='blood',
+            pipeline_id='published_articles',
+            job_id='20150825_161812054742',
+            current_task='ResolvePublishedArticlesData',
+            start_time=datetime.datetime(2015, 8, 25, 12, 11, 12),
+            end_time=datetime.datetime(2015, 8, 25, 12, 11, 51),
+            updated=datetime.datetime(2015, 8, 25, 12, 11, 51),
+            duration_seconds=39,
+            error_details=None,
+            status='completed',
+            workfolder='/iv/working/20150825/test/published_articles/20150825_161812054742',
         )
