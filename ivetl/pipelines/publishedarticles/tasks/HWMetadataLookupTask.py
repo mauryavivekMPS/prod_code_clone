@@ -111,7 +111,7 @@ class HWMetadataLookupTask(Task):
                                 at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
 
                             if publisher_id == 'pnas' and len(at) != 0:
-                                pnas_sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject/nlm:subj-group/nlm:subject', namespaces=common.ns)
+                                pnas_sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group/nlm:subject', namespaces=common.ns)
                                 if len(pnas_sub_at) != 0:
                                     pnas_sub_article_type = pnas_sub_at[0].text
                                     pnas_sub_article_type = re.sub("<.*?>", "", pnas_sub_article_type)
@@ -138,6 +138,7 @@ class HWMetadataLookupTask(Task):
 
                             if article_type is not None and article_type != '' and pnas_sub_article_type is not None and pnas_sub_article_type != '':
                                 article_type += article_type + ": " + pnas_sub_article_type
+                                tlogger.info("PNAS Article Type with Sub Type: " + article_type)
 
                             if article_type is None or article_type == '':
                                 article_type = "None"
