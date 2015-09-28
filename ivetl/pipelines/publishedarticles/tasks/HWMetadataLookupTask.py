@@ -137,7 +137,7 @@ class HWMetadataLookupTask(Task):
                                 article_type = article_type.title()
 
                             if article_type is not None and article_type != '' and pnas_sub_article_type is not None and pnas_sub_article_type != '':
-                                article_type += article_type + ": " + pnas_sub_article_type
+                                article_type += ": " + pnas_sub_article_type
                                 tlogger.info("PNAS Article Type with Sub Type: " + article_type)
 
                             if article_type is None or article_type == '':
