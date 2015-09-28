@@ -103,10 +103,23 @@ class HWMetadataLookupTask(Task):
 
                             # Article Type
                             article_type = None
+                            pnas_sub_article_type = None
+
                             at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="leader"]/nlm:subject', namespaces=common.ns)
 
                             if len(at) == 0:
                                 at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
+
+                            if publisher_id == 'pnas' and len(at) != 0:
+                                pnas_sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject/nlm:subj-group/nlm:subject', namespaces=common.ns)
+                                if len(pnas_sub_at) != 0:
+                                    pnas_sub_article_type = pnas_sub_at[0].text
+                                    pnas_sub_article_type = re.sub("<.*?>", "", pnas_sub_article_type)
+                                    pnas_sub_article_type = pnas_sub_article_type.strip(' \t\r\n')
+                                    pnas_sub_article_type = pnas_sub_article_type.replace('\n', ' ')
+                                    pnas_sub_article_type = pnas_sub_article_type.replace('\t', ' ')
+                                    pnas_sub_article_type = pnas_sub_article_type.replace('\r', ' ')
+                                    pnas_sub_article_type = pnas_sub_article_type.title()
 
                             if len(at) == 0:
                                 at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
@@ -122,6 +135,9 @@ class HWMetadataLookupTask(Task):
                                 article_type = article_type.replace('\t', ' ')
                                 article_type = article_type.replace('\r', ' ')
                                 article_type = article_type.title()
+
+                            if article_type is not None and article_type != '' and pnas_sub_article_type is not None and pnas_sub_article_type != '':
+                                article_type += article_type + ": " + pnas_sub_article_type
 
                             if article_type is None or article_type == '':
                                 article_type = "None"
