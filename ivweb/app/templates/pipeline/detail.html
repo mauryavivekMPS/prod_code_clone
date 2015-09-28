@@ -1,5 +1,6 @@
 {% extends "base_standard.html" %}
 {% load filters %}
+{% load tags %}
 {% block title %}{{ pipeline_id|pipeline_name }}{% endblock %}
 {% block body_class %}{{ pipeline_id }}_pipeline{% endblock %}
 
@@ -29,27 +30,40 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for publisher_status in status_by_publisher %}
+                    {% for publisher_runs in runs_by_publisher %}
                         <tr>
                             <td class="opener-col"><span class="lnr lnr-chevron-down opener-icon"></span></td>
                             <td>
                                 <a href="#">
-                                    {{ publisher_status.publisher.display_name }}
+                                    {{ publisher_runs.publisher.display_name }}
                                 </a>
                             </td>
                             <td></td>
                             <td></td>
                             <td class="status-col"></td>
                         </tr>
-                        {% if publisher_status.status_items %}
-                            {% for status_item in publisher_status.status_items %}
+                        {% if publisher_runs.runs %}
+                            {% for run_item in publisher_runs.runs %}
                                 <tr>
                                     <td class="opener-col"></td>
-                                    <td class="run-col">{{ status_item.job_id }}</td>
-                                    <td>{{ status_item.start_time }}</td>
-                                    <td>{{ status_item.end_time }}</td>
-                                    <td class="status-col"></td>
+                                    <td class="run-col">{{ run_item.run.job_id }}</td>
+                                    <td>{{ run_item.run.start_time }}</td>
+                                    <td>{{ run_item.run.end_time }}</td>
+                                    <td class="status-col">
+                                        {% status_icon run_item.run %}
+                                    </td>
                                 </tr>
+                                {% for task in run_item.tasks %}
+                                    <tr>
+                                        <td class="opener-col"></td>
+                                        <td class="task-col">{{ task.task_id }}</td>
+                                        <td>{{ task.start_time }}</td>
+                                        <td>{{ task.end_time }}</td>
+                                        <td class="status-col">
+                                            {% status_icon task %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             {% endfor %}
                         {% else %}
                             <tr>
@@ -60,7 +74,7 @@
                                 <td class="status-col"></td>
                             </tr>
                         {% endif %}
-                        {% endfor %}
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

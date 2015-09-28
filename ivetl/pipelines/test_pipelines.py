@@ -3,7 +3,7 @@ import unittest
 import datetime
 from dateutil import parser
 from ivetl.models import (Publisher_Metadata, Pipeline_Status, Published_Article, Article_Citations,
-                          Publisher_Vizor_Updates, Published_Article_Values)
+                          Publisher_Vizor_Updates, Published_Article_Values, Pipeline_Task_Status)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
@@ -304,4 +304,60 @@ class PipelineTestCase(unittest.TestCase):
             error_details=None,
             status='completed',
             workfolder='/iv/working/20150825/test/published_articles/20150825_161812054742',
+        )
+
+        Pipeline_Status.objects.create(
+            publisher_id='blood',
+            pipeline_id='article_citations',
+            job_id='20150825_161812054752',
+            current_task='UpdateArticleCitationsWithCrossref',
+            start_time=datetime.datetime(2015, 8, 25, 12, 11, 12),
+            end_time=datetime.datetime(2015, 8, 25, 12, 11, 51),
+            updated=datetime.datetime(2015, 8, 25, 12, 11, 51),
+            duration_seconds=39,
+            error_details=None,
+            status='completed',
+            workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895',
+        )
+
+        Pipeline_Task_Status.objects.create(
+            publisher_id='blood',
+            pipeline_id='article_citations',
+            job_id='20150825_161812054752',
+            task_id='GetScopusArticleCitations',
+            start_time=datetime.datetime(2015, 8, 25, 12, 11, 12),
+            end_time=datetime.datetime(2015, 8, 25, 12, 11, 21),
+            duration_seconds=9,
+            error_details=None,
+            status='completed',
+            updated=datetime.datetime(2015, 8, 25, 12, 11, 21),
+            workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895/GetScopusArticleCitations',
+        )
+
+        Pipeline_Task_Status.objects.create(
+            publisher_id='blood',
+            pipeline_id='article_citations',
+            job_id='20150825_161812054752',
+            task_id='InsertScopusIntoCassandra',
+            start_time=datetime.datetime(2015, 8, 25, 12, 11, 22),
+            end_time=datetime.datetime(2015, 8, 25, 12, 11, 23),
+            duration_seconds=1,
+            error_details=None,
+            status='completed',
+            updated=datetime.datetime(2015, 8, 25, 12, 11, 23),
+            workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895/InsertScopusIntoCassandra',
+        )
+
+        Pipeline_Task_Status.objects.create(
+            publisher_id='blood',
+            pipeline_id='article_citations',
+            job_id='20150825_161812054752',
+            task_id='UpdateArticleCitationsWithCrossref',
+            start_time=datetime.datetime(2015, 8, 25, 12, 11, 24),
+            end_time=datetime.datetime(2015, 8, 25, 12, 11, 35),
+            duration_seconds=11,
+            error_details=None,
+            status='completed',
+            updated=datetime.datetime(2015, 8, 25, 12, 11, 35),
+            workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895/UpdateArticleCitationsWithCrossref',
         )
