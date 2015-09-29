@@ -14,7 +14,7 @@ class CheckRejectedManuscriptTask(Task):
         if 'max_articles_to_process' in task_args and task_args['max_articles_to_process']:
             article_limit = task_args['max_articles_to_process']
 
-        articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(article_limit)
+        articles = Published_Article.objects.filter(publisher_id=publisher_id + "_cohort").limit(article_limit)
         rm_map = {}
 
         rms = Rejected_Articles.objects.filter(publisher_id=publisher_id).limit(1000000)
@@ -28,13 +28,14 @@ class CheckRejectedManuscriptTask(Task):
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up rejected manuscript for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
 
-            rm = rm_map[article.article_doi]
+            rm = rm_map.get(article.article_doi)
             if rm:
                 article.from_rejected_manuscript = True
                 article.rejected_manuscript_id = rm.manuscript_id
                 article.rejected_manuscript_editor = rm.editor
                 article.date_of_rejection = rm.date_of_rejection
                 article.update()
+                tlogger.info("Article sourced from rejected manuscript.")
 
         self.pipeline_ended(publisher_id, job_id)
         return {self.COUNT: count}
