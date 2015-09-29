@@ -52,6 +52,8 @@ class ScopusIdLookupTask(Task):
                     data['scopus_id'] = existing_record.article_scopus_id
                     data['scopus_citation_count'] = existing_record.scopus_citation_count
 
+                    tlogger.info("Scopus Id already retrieved in previous run")
+
                 else:
                     try:
                         scopus_id, scopus_cited_by = connector.get_entry(doi, data.get('ISSN'),
