@@ -1,6 +1,8 @@
 import traceback
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
+
 from ivetl.connectors.base import BaseConnector, MaxTriesAPIError, AuthorizationAPIError
 
 
@@ -39,11 +41,15 @@ class CrossrefConnector(BaseConnector):
             article_json = article_json['message']
 
             # date
-            citation_date = self.date_string_from_parts(article_json['issued']['date-parts'])
+            if 'issued' in article_json:
+                citation_date = self.datetime_from_parts(article_json['issued']['date-parts'][0])
+            else:
+                citation_date = None
 
             # author
-            author_parts = article_json['author'][0]
-            author = '%s,%s' % (author_parts['family'], author_parts['given'])
+            if 'author' in article_json:
+                author_parts = article_json['author'][0]
+                author = '%s,%s' % (author_parts['family'], author_parts.get('given', ''))
 
             # issue
             issue = article_json.get('issue', None)
@@ -61,7 +67,7 @@ class CrossrefConnector(BaseConnector):
                 journal_title = None
 
             # pages
-            pages = article_json['page']
+            pages = article_json.get('page', None)
 
             # title
             if 'title' in article_json and type(article_json['title']) is list and article_json['title']:
@@ -126,6 +132,20 @@ class CrossrefConnector(BaseConnector):
             return '%s-%s-%s' % tuple(parts)
 
         return None
+
+    def datetime_from_parts(self, date_parts):
+
+        year = date_parts[0]
+
+        month = 1
+        if len(date_parts) >= 2:
+            month = date_parts[1]
+
+        day = 1
+        if len(date_parts) >= 3:
+            day = date_parts[2]
+
+        return datetime(month, day, year)
 
     def check_for_auth_error(self, r):
         if 'Incorrect password for username' in r.text:

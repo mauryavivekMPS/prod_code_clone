@@ -4,7 +4,7 @@ import json
 from ivetl.celery import app
 from ivetl.connectors.base import MaxTriesAPIError
 from ivetl.connectors.scopus import ScopusConnector
-from ivetl.models import Publisher_Metadata
+from ivetl.models import Publisher_Metadata, Published_Article
 from ivetl.pipelines.task import Task
 
 
@@ -44,30 +44,38 @@ class ScopusIdLookupTask(Task):
                 tlogger.info("---")
                 tlogger.info(str(count-1) + ". Retrieving Scopus Id for: " + doi)
 
-                try:
+                # If its already in the database, we don't have to check with scopus
+                existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
-                    scopus_id, scopus_cited_by = connector.get_entry(doi, data.get('ISSN'),
-                                                                          data.get('volume'),
-                                                                          data.get('issue'),
-                                                                          data.get('page'),
-                                                                          tlogger)
+                if existing_record:
+                    data['scopus_id_status'] = "DOI in Scopus"
+                    data['scopus_id'] = existing_record.article_scopus_id
+                    data['scopus_citation_count'] = existing_record.scopus_citation_count
 
-                    if scopus_id is not None and scopus_cited_by is not None:
+                else:
+                    try:
+                        scopus_id, scopus_cited_by = connector.get_entry(doi, data.get('ISSN'),
+                                                                              data.get('volume'),
+                                                                              data.get('issue'),
+                                                                              data.get('page'),
+                                                                              tlogger)
 
-                        data['scopus_id_status'] = "DOI in Scopus"
-                        data['scopus_id'] = scopus_id
-                        data['scopus_citation_count'] = scopus_cited_by
-                    else:
+                        if scopus_id is not None and scopus_cited_by is not None:
 
-                        tlogger.info("No Scopus Id found for DOI: " + doi)
-                        data['scopus_id_status'] = "No DOI in Scopus"
+                            data['scopus_id_status'] = "DOI in Scopus"
+                            data['scopus_id'] = scopus_id
+                            data['scopus_citation_count'] = scopus_cited_by
+                        else:
+
+                            tlogger.info("No Scopus Id found for DOI: " + doi)
+                            data['scopus_id_status'] = "No DOI in Scopus"
+                            data['scopus_id'] = ''
+
+                    except MaxTriesAPIError:
+                        tlogger.info("Scopus API failed.")
                         data['scopus_id'] = ''
-
-                except MaxTriesAPIError:
-                    tlogger.info("Scopus API failed.")
-                    data['scopus_id'] = ''
-                    data['scopus_id_status'] = "Scopus API failed"
-                    error_count += 1
+                        data['scopus_id_status'] = "Scopus API failed"
+                        error_count += 1
 
                 row = """%s\t%s\t%s\n""" % (publisher_id,
                                             doi,
