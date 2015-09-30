@@ -31,6 +31,9 @@ class UpdateArticleCitationsWithCrossref(Task):
                 error_count += 1
 
             for citation_doi in citations:
+
+                add_citation = False
+
                 try:
                     existing_citation = Article_Citations.objects.get(
                         publisher_id=publisher_id,
@@ -38,14 +41,21 @@ class UpdateArticleCitationsWithCrossref(Task):
                         citation_doi=citation_doi
                     )
 
-                    tlogger.info("Found existing citation %s in crossref, appending to sources" % citation_doi)
+                    if len(existing_citation.citation_sources) == 1 and 'Crossref' in existing_citation.citation_sources:
+                        add_citation = True
 
-                    existing_citation.citation_sources.append('Crossref')
-                    existing_citation.save()
+                    else:
+                        tlogger.info("Found existing citation %s in crossref, appending to sources" % citation_doi)
+
+                        if 'Crossref' not in existing_citation.citation_sources:
+                            existing_citation.citation_sources.append('Crossref')
+                            existing_citation.save()
 
                 except Article_Citations.DoesNotExist:
                     tlogger.info("Found new citation %s in crossref, adding record" % citation_doi)
+                    add_citation = True
 
+                if add_citation:
                     data = crossref.get_article(citation_doi)
                     if data:
                         Article_Citations.create(
