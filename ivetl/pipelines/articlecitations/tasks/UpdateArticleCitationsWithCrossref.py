@@ -60,7 +60,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                             citation_journal_title=data['journal_title'],
                             citation_pages=data['pages'],
                             citation_sources=[data['source']],
-                            citation_title=data['title'][0],
+                            citation_title=data['title'],
                             citation_volume=data['volume'],
                             citation_count=1,
                             updated=updated_date,
