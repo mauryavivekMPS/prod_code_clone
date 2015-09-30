@@ -41,7 +41,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                         citation_doi=citation_doi
                     )
 
-                    if len(existing_citation.citation_sources) == 1 and 'Crossref' in existing_citation.citation_sources:
+                    if 'Scopus' not in existing_citation.citation_sources and 'Crossref' in existing_citation.citation_sources:
                         add_citation = True
 
                     else:
