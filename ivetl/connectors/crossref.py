@@ -104,6 +104,8 @@ class CrossrefConnector(BaseConnector):
                 self.check_for_auth_error(r)
                 success = True
             except requests.HTTPError as http_error:
+                if http_error.response.status_code == requests.codes.NOT_FOUND:
+                    return r
                 if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT:
                     self.tlogger.info("Crossref API timed out. Trying again...")
                     attempt += 1
@@ -145,7 +147,7 @@ class CrossrefConnector(BaseConnector):
         if len(date_parts) >= 3:
             day = date_parts[2]
 
-        return datetime(month, day, year)
+        return datetime(year, month, day)
 
     def check_for_auth_error(self, r):
         if 'Incorrect password for username' in r.text:

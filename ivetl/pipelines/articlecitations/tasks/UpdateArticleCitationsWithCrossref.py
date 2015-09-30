@@ -53,7 +53,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                             article_doi=article.article_doi,
                             citation_doi=data['doi'],
                             citation_scopus_id=data.get('scopus_id', None),
-                            citation_date=datetime.datetime.strptime(data['date'], '%Y-%m-%d'),
+                            citation_date=data['date'],
                             citation_first_author=data['first_author'],
                             citation_issue=data['issue'],
                             citation_journal_issn=data['journal_issn'],
