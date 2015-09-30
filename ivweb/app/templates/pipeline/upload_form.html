@@ -1,0 +1,29 @@
+<form class="form-horizontal upload-form inline-form" method="post">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="form-group row no-row-padding ">
+        <div class="col-sm-10">
+            <select name="publisher" class="form-control">
+                {% for publisher in publishers %}
+                    <option value="{{ publisher.publisher_id }}">{{ publisher.name }}</option>
+                {% endfor %}
+            </select>
+            <input name="file" type="file" class="form-control" id="exampleInputFile">
+            <button class="btn btn-primary upload-submit-button" type="submit">
+                Upload
+            </button>
+        </div>
+        <div class="col-sm-1 col-sm-offset-1">
+            <a href="#" class="close-upload cancel"><span class="lnr lnr-cross"></span></a>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(function() {
+        UploadForm.init({
+            pipelineId: '{{ pipeline_id }}',
+            uploadFormUrl: '{% url 'pipeline.upload' pipeline_id %}',
+            csrfToken: '{{ csrf_token }}'
+        });
+    });
+</script>

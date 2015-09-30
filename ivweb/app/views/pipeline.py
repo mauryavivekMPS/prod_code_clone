@@ -28,3 +28,14 @@ def detail(request, pipeline_id):
             })
 
     return render(request, 'pipeline/detail.html', {'pipeline_id': pipeline_id, 'runs_by_publisher': runs_by_publisher})
+
+
+def upload(request, pipeline_id):
+    if request.method == 'GET':
+        publishers = []
+        for publisher in Publisher_Metadata.objects.all():
+            if pipeline_id in publisher.supported_pipelines:
+                publishers.append(publisher)
+        return render(request, 'pipeline/upload_form.html', {'pipeline_id': pipeline_id, 'publishers': publishers})
+    else:
+        return render(request, 'pipeline/upload_results.html', {'pipeline_id': pipeline_id})

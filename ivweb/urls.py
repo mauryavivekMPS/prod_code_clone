@@ -11,4 +11,7 @@ urlpatterns = patterns(
     # published articles
     url(r'^pipelines/(?P<pipeline_id>[\w]+)/$', 'pipeline.detail', name='pipeline.detail'),
 
+    # published articles
+    url(r'^pipelines/(?P<pipeline_id>[\w]+)/upload/$', 'pipeline.upload', name='pipeline.upload'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

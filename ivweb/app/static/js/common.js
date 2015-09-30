@@ -152,3 +152,90 @@ var DashboardPage = (function() {
     };
 
 })();
+
+
+//
+// Pipeline detail page
+//
+
+var PipelineDetailPage = (function() {
+    var pipelineId = '';
+
+    var init = function(options) {
+        options = $.extend({
+            pipelineId: '',
+            hasUpload: false,
+            uploadFormUrl: '',
+            csrfToken: ''
+        }, options);
+
+        pipelineId = options.pipelineId;
+
+        // wire up add line item button
+        $('.upload-button').click(function() {
+            IvetlWeb.showLoading();
+            $.get(options.uploadFormUrl)
+                .done(function(html) {
+                    $('#upload-form-container').empty().html(html).fadeIn(300);
+                })
+                .always(IvetlWeb.hideLoading());
+
+            return false;
+        });
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// Upload form
+//
+
+var UploadForm = (function() {
+    var f;
+    var pipelineId = '';
+
+    var init = function(options) {
+        options = $.extend({
+            pipelineId: '',
+            uploadFormUrl: '',
+            csrfToken: ''
+        }, options);
+
+        f = $('form.upload-form');
+        pipelineId = options.pipelineId;
+
+        f.find('.close-upload').click(function() {
+            $('#upload-form-container').fadeOut(300, function() {
+                $(this).empty();
+            });
+        });
+
+        f.submit(function(event) {
+            f.find('.upload-button').addClass('disabled');
+            event.preventDefault();
+
+            var data = {};
+            $(this).serializeArray().map(function(x) { data[x.name] = x.value; });
+            console.log(data);
+
+            IvetlWeb.showLoading();
+            $.post(options.uploadFormUrl, data)
+                .done(function(html) {
+                    $('#upload-form-container').empty().html(html);
+                })
+                .always(function() {
+                    IvetlWeb.hideLoading();
+                });
+        });
+    };
+
+    return {
+        init: init
+    };
+
+})();

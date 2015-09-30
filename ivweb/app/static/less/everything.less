@@ -384,7 +384,7 @@ body {
             }
         }
 
-        .new-item-button {
+        .upload-button {
             margin-top: 17px;
             margin-left: 20px;
             float: left;
@@ -811,7 +811,11 @@ body {
     }
 
     .run-col {
-        padding-left: 20px;
+        padding-left: 30px;
+    }
+
+    .task-col {
+        padding-left: 50px;
     }
 
     .line-graph-col {
@@ -877,6 +881,21 @@ body {
         .category-pair {
             font-size: 12px;
         }
+    }
+    
+    .null-value {
+        color: #ccc;
+        font-weight: 200;
+    }
+
+    .order {
+        display: inline-block;
+        text-align: right;
+        width: 10px;
+        font-size: 10px;
+        color: #666;
+        font-weight: 200;
+        margin-right: 4px;
     }
 }
 
@@ -1084,4 +1103,71 @@ hr {
 
 .checkbox-icon {
     color: #bbb;
+}
+
+
+// Upload form
+// -------------------------
+
+.upload-form {
+    background: url(/static/dist/diagonal-noise-light.png) repeat center center fixed;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+
+    label {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    input[type="file"] {
+        display: inline-block;
+        width: 400px;
+        font-size: 12px;
+        vertical-align: 1px;
+        border-color: #eee;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    select {
+        display: inline-block;
+        width: auto;
+    }
+    
+    button {
+        vertical-align: inherit;
+    }
+
+    a.cancel {
+        float: right;
+        text-decoration: none;
+        color: @brand-danger;
+        margin-right: 4px;
+        margin-top: 6px;
+        padding: 3px 4px 0;
+        border-radius: 12px;
+        border: 1px solid transparent;
+
+        &:focus {
+            outline: none;
+        }
+
+        &:hover {
+            background-color: white;
+            border: 1px solid #F9F9F9;
+        }
+    }
+
+
+    // old stuff...
+
+    .row:first-of-type {
+        border-top: none;
+    }
+
+    .form-group.row:last-of-type {
+        padding-bottom: 15px;
+        margin-bottom: 0;
+    }
 }
