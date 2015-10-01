@@ -151,6 +151,9 @@ class ScopusConnector(BaseConnector):
 
                         for scopus_citation in scopus_data['search-results']['entry']:
 
+                            if 'eid' not in scopus_citation or scopus_citation['eid'].strip() == '':
+                                continue
+
                             if 'prism:doi' in scopus_citation and (scopus_citation['prism:doi'] != ''):
                                 doi = scopus_citation['prism:doi']
                             else:

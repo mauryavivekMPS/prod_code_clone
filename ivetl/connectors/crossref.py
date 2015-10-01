@@ -11,7 +11,7 @@ class CrossrefConnector(BaseConnector):
     BASE_ARTICLE_URL = 'http://api.crossref.org/works/'
 
     connector_name = 'Crossref'
-    max_attempts = 3
+    max_attempts = 5
     request_timeout = 30
 
     def __init__(self, username, password, tlogger):
@@ -113,6 +113,9 @@ class CrossrefConnector(BaseConnector):
                     attempt += 1
                 else:
                     raise http_error
+            except Exception:
+                    self.tlogger.info("General Exception - CrossRef API failed. Trying Again")
+                    attempt += 1
 
         if not success:
             raise MaxTriesAPIError(self.max_attempts)
