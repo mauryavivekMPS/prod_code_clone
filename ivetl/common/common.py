@@ -1,8 +1,54 @@
-__author__ = 'nmehta, johnm'
-
 import os
 import sendgrid
 
+
+PIPELINES = [
+    {
+        'name': 'Published Articles',
+        'id': 'published_articles',
+        'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
+        'has_file_input': False,
+        'tasks': (
+            'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
+            'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
+            'ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask',
+            'ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra',
+            'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
+        )
+    },
+    {
+        'name': 'Custom Article Data',
+        'id': 'custom_article_data',
+        'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
+        'has_file_input': True,
+        'tasks': (
+            'ivetl.pipelines.customarticledata.tasks.GetArticleDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.InsertCustomArticleDataIntoCassandra',
+            'ivetl.pipelines.customarticledata.tasks.ResolvePublishedArticlesData',
+        )
+    },
+    {
+        'name': 'Article Citations',
+        'id': 'article_citations',
+        'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
+        'has_file_input': False,
+        'tasks': (
+            'ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations',
+            'ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra',
+            'ivetl.pipelines.articlecitations.tasks.UpdateArticleCitationsWithCrossref',
+        )
+    },
+    {
+        'name': 'Rejected Articles',
+        'id': 'rejected_article_tracker',
+        'class': 'ivetl.rat.MonitorIncomingFileTask',
+        'has_file_input': True,
+        'tasks': ()
+    },
+]
+PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
+PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',

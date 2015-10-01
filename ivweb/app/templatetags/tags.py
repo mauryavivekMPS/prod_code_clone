@@ -15,3 +15,11 @@ def status_icon(status_item):
         return '<span class="status-icon status-danger"></span>'
     else:
         return '<span class="status-icon status-empty"></span>'
+
+
+@register.simple_tag
+def checkmark(thing):
+    if thing:
+        return '<span class="lnr lnr-check checkmark"></span>'
+    else:
+        return ''

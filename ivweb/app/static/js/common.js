@@ -170,18 +170,6 @@ var PipelineDetailPage = (function() {
         }, options);
 
         pipelineId = options.pipelineId;
-
-        // wire up add line item button
-        $('.upload-button').click(function() {
-            IvetlWeb.showLoading();
-            $.get(options.uploadFormUrl)
-                .done(function(html) {
-                    $('#upload-form-container').empty().html(html).fadeIn(300);
-                })
-                .always(IvetlWeb.hideLoading());
-
-            return false;
-        });
     };
 
     return {
@@ -192,45 +180,54 @@ var PipelineDetailPage = (function() {
 
 
 //
-// Upload form
+// Upload page
 //
 
-var UploadForm = (function() {
+var UploadPage = (function() {
     var f;
     var pipelineId = '';
+
+    var checkForm = function() {
+        var publisherId = f.find("#id_publisher option:selected").val();
+        var file = f.find("#id_file").val();
+
+        if (publisherId && file) {
+            f.find('.submit-button').removeClass('disabled');
+        }
+        else {
+            f.find('.submit-button').addClass('disabled');
+        }
+    };
 
     var init = function(options) {
         options = $.extend({
             pipelineId: '',
-            uploadFormUrl: '',
-            csrfToken: ''
+            selectedPublisher: null
         }, options);
 
-        f = $('form.upload-form');
+        f = $('#upload-form');
         pipelineId = options.pipelineId;
 
-        f.find('.close-upload').click(function() {
-            $('#upload-form-container').fadeOut(300, function() {
-                $(this).empty();
-            });
+        var publisherMenu = f.find('#id_publisher');
+        var nullPublisherItem = publisherMenu.find('option:first-child');
+        nullPublisherItem.attr('disabled', 'disabled');
+        if (!options.selectedPublisher) {
+            publisherMenu.addClass('placeholder');
+            nullPublisherItem.attr('selected', 'selected');
+        }
+
+        publisherMenu.on('change', function() {
+            var selectedOption = publisherMenu.find("option:selected");
+            if (!selectedOption.attr('disabled')) {
+                publisherMenu.removeClass('placeholder');
+            }
+            checkForm();
         });
 
-        f.submit(function(event) {
-            f.find('.upload-button').addClass('disabled');
-            event.preventDefault();
+        f.find('#id_file').on('change', checkForm);
 
-            var data = {};
-            $(this).serializeArray().map(function(x) { data[x.name] = x.value; });
-            console.log(data);
-
+        f.submit(function() {
             IvetlWeb.showLoading();
-            $.post(options.uploadFormUrl, data)
-                .done(function(html) {
-                    $('#upload-form-container').empty().html(html);
-                })
-                .always(function() {
-                    IvetlWeb.hideLoading();
-                });
         });
     };
 

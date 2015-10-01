@@ -1,5 +1,4 @@
-__author__ = 'nmehta, johnm'
-
+import os
 import datetime
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
@@ -9,6 +8,10 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 class Pipeline(BaseTask):
     abstract = True
     pipeline_name = ''
+
+    @classmethod
+    def get_incoming_dir_for_publisher(cls, base_incoming_dir, publisher_id):
+        return os.path.join(base_incoming_dir, publisher_id, cls.pipeline_name)
 
     def on_pipeline_started(self, publisher_id, job_id, work_folder):
         start_date = datetime.datetime.today()

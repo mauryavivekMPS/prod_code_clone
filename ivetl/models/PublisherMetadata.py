@@ -17,3 +17,11 @@ class Publisher_Metadata(Model):
     @property
     def display_name(self):
         return self.name or self.publisher_id
+
+    @property
+    def supports_scopus(self):
+        return True if self.scopus_api_keys else False
+
+    @property
+    def supports_crossref(self):
+        return True if self.crossref_username and self.crossref_password else False

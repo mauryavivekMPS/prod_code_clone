@@ -1,30 +1,16 @@
 {% extends "base_standard.html" %}
-
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <div class="row header-row with-breadcrumb campaign-edit-header-row">
+    <div class="row header-row">
         <div class="col-md-8">
-            <ol class="breadcrumb">
-                <li><a href="">Pipelines</a></li>
-                <li></li>
-            </ol>
-            <h1>Published Articles</h1>
+            <h1>Dashboard</h1>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <p>The selcted publisher is "{{ publisher.publisher_id }}" with crossref username "{{ publisher.crossref_username }}".</p>
-            <div style="width: 500px; height: 300px; background-color: #eee; border: 1px dotted #333"></div>
+            <p>Welcome to IVWEB.</p>
         </div>
     </div>
-{% endblock %}
-
-{% block page_scripts %}
-    <script>
-        $(function() {
-            // nothing
-        });
-    </script>
 {% endblock %}

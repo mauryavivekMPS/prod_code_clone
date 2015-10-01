@@ -8,10 +8,16 @@ urlpatterns = patterns(
     # homepage
     url(r'^$', 'home.home', name='home'),
 
-    # published articles
-    url(r'^pipelines/(?P<pipeline_id>[\w]+)/$', 'pipeline.detail', name='pipeline.detail'),
+    # users
+    url(r'^users/$', 'users.list_users', name='users.list'),
+
+    # publishers
+    url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),
 
     # published articles
-    url(r'^pipelines/(?P<pipeline_id>[\w]+)/upload/$', 'pipeline.upload', name='pipeline.upload'),
+    url(r'^pipelines/(?P<pipeline_id>[\w]+)/$', 'pipelines.list_pipelines', name='pipelines.list'),
+
+    # published articles
+    url(r'^pipelines/(?P<pipeline_id>[\w]+)/upload/$', 'pipelines.upload', name='pipelines.upload'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

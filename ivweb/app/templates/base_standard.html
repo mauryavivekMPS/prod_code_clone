@@ -63,9 +63,21 @@
     <div id="left-menu">
         <nav>
             <ul>
-                {% for pipeline_id, pipeline_name in constants.PIPELINES %}
+                <li>
+                    <a href="{% url 'home' %}">Dashboard</a>
+                </li>
+                <li>
+                    <a href="{% url 'publishers.list' %}">Publishers</a>
+                </li>
+                <li>
+                    <a href="{% url 'users.list' %}">Users</a>
+                </li>
+            </ul>
+            <div class="list-title">Pipelines</div>
+            <ul>
+                {% for pipeline_id, pipeline_name in common.PIPELINE_CHOICES %}
                     <li class="{{ pipeline_id }}_menu_item">
-                        <a href="{% url 'pipeline.detail' pipeline_id %}">{{ pipeline_name }}</a>
+                        <a href="{% url 'pipelines.list' pipeline_id %}">{{ pipeline_name }}</a>
                     </li>
                 {% endfor %}
             </ul>

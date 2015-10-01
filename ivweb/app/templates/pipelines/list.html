@@ -1,19 +1,19 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{{ pipeline_id|pipeline_name }}{% endblock %}
-{% block body_class %}{{ pipeline_id }}_pipeline{% endblock %}
+{% block title %}{{ pipeline.name }}{% endblock %}
+{% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
-    <div class="row header-row">
-        <div class="col-md-8">
-            <h1>{{ pipeline_id|pipeline_name }}</h1>
-            {% if pipeline_id == 'custom_article_data' %}
-                <a class="btn btn-default small upload-button">+ Upload article data</a>
-{#                <a class="btn btn-default small" data-toggle="modal" data-target="#myModal">+ Upload article data</a>#}
-            {% endif %}
-            {% if pipeline_id == 'rejected_article_tracker' %}
-                <a class="btn btn-default small upload-button">+ Upload rejected articles</a>
+    <div class="row header-row with-breadcrumb">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li><a href="#">Pipelines</a></li>
+                <li></li>
+            </ol>
+            <h1>{{ pipeline.name }}</h1>
+            {% if pipeline.has_file_input %}
+                <a class="btn btn-default small upload-button" href="upload/">+ Upload</a>
             {% endif %}
             <ul class="list-tabs">
                 <li><a href="#" class="active">All</a></li>
@@ -23,8 +23,6 @@
             </ul>
         </div>
     </div>
-
-    <div id="upload-form-container" style="display: none"></div>
 
     <div class="row">
         <div class="col-md-12">
@@ -97,35 +95,15 @@
             </table>
         </div>
     </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-          </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
 {% endblock %}
 
 {% block page_scripts %}
     <script>
         $(function() {
             PipelineDetailPage.init({
-                piplineId: '{{ pipeline_id }}',
+                piplineId: '{{ pipeline.id }}',
                 hasUpload: true,
-                uploadFormUrl: '{% url 'pipeline.upload' pipeline_id %}',
+                uploadFormUrl: '{% url 'pipelines.upload' pipeline.id %}',
                 csrfToken: '{{ csrf_token }}'
             });
         });

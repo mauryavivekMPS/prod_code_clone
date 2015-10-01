@@ -260,7 +260,7 @@ body {
 // Left menu
 // -------------------------
 
-@left-menu-width: 200px;
+@left-menu-width: 174px;
 
 #left-menu {
     padding-left: 30px;
@@ -404,12 +404,12 @@ body {
                 margin-top: 12px;
             }
 
-            .new-item-button {
+            .upload-button {
                 margin-top: 9px;
             }
 
             ul.list-tabs {
-                margin-top: 16px;
+                margin-top: 14px;
 
                 &.major-tab-buttons {
                     margin-top: 56px;
@@ -525,6 +525,12 @@ body {
 
     select.form-control.placeholder {
         color: #9b9b9b;
+    }
+
+    input[type="file"] {
+        border: none;
+        padding-left: 0;
+        font-size: 12px;
     }
 
     .submit-row {
@@ -789,7 +795,6 @@ body {
             padding-top: 11px;
             padding-bottom: 6px;
         }
-
     }
 
     > thead > tr > th, > tbody > tr > td {
@@ -896,6 +901,10 @@ body {
         color: #666;
         font-weight: 200;
         margin-right: 4px;
+    }
+
+    .checkmark {
+        font-size: 12px;
     }
 }
 
@@ -1106,68 +1115,23 @@ hr {
 }
 
 
-// Upload form
-// -------------------------
+// Upload page
+// --------------
 
-.upload-form {
-    background: url(/static/dist/diagonal-noise-light.png) repeat center center fixed;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #eee;
+.uploaded-file {
+    border-top: 1px dotted #ccc;
+    border-bottom: 1px dotted #ccc;
+    padding-top: 15px;
+    padding-bottom: 15px;
     margin-bottom: 20px;
 
-    label {
-        margin-top: 0;
-        margin-bottom: 0;
+    .uploaded-file-icon {
+        font-size: 20px;
     }
 
-    input[type="file"] {
-        display: inline-block;
-        width: 400px;
-        font-size: 12px;
-        vertical-align: 1px;
-        border-color: #eee;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    select {
-        display: inline-block;
-        width: auto;
-    }
-    
-    button {
-        vertical-align: inherit;
-    }
-
-    a.cancel {
-        float: right;
-        text-decoration: none;
-        color: @brand-danger;
-        margin-right: 4px;
-        margin-top: 6px;
-        padding: 3px 4px 0;
-        border-radius: 12px;
-        border: 1px solid transparent;
-
-        &:focus {
-            outline: none;
-        }
-
-        &:hover {
-            background-color: white;
-            border: 1px solid #F9F9F9;
-        }
-    }
-
-
-    // old stuff...
-
-    .row:first-of-type {
-        border-top: none;
-    }
-
-    .form-group.row:last-of-type {
-        padding-bottom: 15px;
-        margin-bottom: 0;
+    .uploaded-file-name {
+        font-size: 16px;
+        //vertical-align: 2px;
+        //padding-left: 6px;
     }
 }
