@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import importlib
 import humanize
+import subprocess
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
@@ -133,4 +134,17 @@ def run(request, pipeline_id):
     return render(request, 'pipelines/run.html', {
         'pipeline': pipeline,
         'form': form
+    })
+
+
+def tail(request, pipeline_id):
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
+    publisher_id = request.REQUEST['publisher_id']
+    job_id = request.REQUEST['job_id']
+    task_id = request.REQUEST['task_id']
+    log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
+    content = subprocess.check_output('tail %s' % log_file, shell=True).strip()
+    return render(request, 'pipelines/include/tail.html', {
+        'pipeline': pipeline,
+        'content': content,
     })

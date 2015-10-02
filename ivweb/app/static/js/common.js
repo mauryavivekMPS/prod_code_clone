@@ -147,7 +147,7 @@ var PipelineListPage = (function() {
     var init = function(options) {
         options = $.extend({
             pipelineId: '',
-            runUrl: '',
+            tailUrl: '',
             csrfToken: ''
         }, options);
 
@@ -156,6 +156,61 @@ var PipelineListPage = (function() {
         $('.run-button').click(function() {
             $('#run-pipeline-form').submit();
             return false;
+        });
+
+        $('.publisher-link').each(function() {
+            var link = $(this);
+            link.click(function() {
+                var publisherId = link.attr('publisher_id');
+                var openerIcon = $('.' + publisherId + '_opener');
+                var closerIcon = $('.' + publisherId + '_closer');
+
+                // use the icon to figure out if open or closed
+                if (openerIcon.is(':visible')) {
+                    $('.' + publisherId + '_row').fadeOut(100);
+                    openerIcon.hide();
+                    closerIcon.show();
+                }
+                else {
+                    $('.' + publisherId + '_row:not(.tail-row)').fadeIn(200);
+                    closerIcon.hide();
+                    openerIcon.show();
+                }
+                return false;
+            });
+        });
+
+        $('.task-link').each(function() {
+            var link = $(this);
+            link.click(function() {
+                var publisherId = link.attr('publisher_id');
+                var jobId = link.attr('job_id');
+                var taskId = link.attr('task_id');
+                var tailRow = $('.' + publisherId + '_' + jobId + '_' + taskId + '_row');
+                if (tailRow.is(':visible')) {
+                    tailRow.fadeOut(100);
+                }
+                else {
+                    var data = [
+                        {name: 'csrfmiddlewaretoken', value: options.csrfToken},
+                        {name: 'publisher_id', value: publisherId},
+                        {name: 'job_id', value: jobId},
+                        {name: 'task_id', value: taskId}
+                    ];
+
+                    $.get(options.tailUrl, data)
+                        .done(function(html) {
+                            var output = tailRow.find('.tail-output');
+                            output.html(html);
+                        })
+                        .always(function() {
+                            tailRow.fadeIn(200);
+                            var output = tailRow.find('.tail-output');
+                            output.scrollTop(output[0].scrollHeight);
+                        });
+                }
+                return false;
+            });
         });
     };
 

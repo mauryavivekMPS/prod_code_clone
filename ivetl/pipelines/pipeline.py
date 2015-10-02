@@ -38,7 +38,7 @@ class Pipeline(BaseTask):
             publisher_id = task_args.get('publisher_id', '')
             job_id = task_args.get('job_id', '')
 
-            print('args = %s' % args)
+            # TODO: Not sure what to do here if there are no args yet!?!
 
             pts = Pipeline_Task_Status()
             pts.publisher_id = publisher_id
@@ -50,8 +50,6 @@ class Pipeline(BaseTask):
             pts.error_details = str(exc)
             pts.updated = end_date
             pts.update()
-
-            print('%s, %s, %s' % (publisher_id, self.pipeline_name, job_id))
 
             try:
                 ps = Pipeline_Status.objects.get(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)

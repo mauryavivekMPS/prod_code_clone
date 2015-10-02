@@ -786,9 +786,10 @@ body {
             margin-right: 0;
         }
 
-        .opener-icon {
-            font-size: 11px;
+        .opener-icon, .closer-icon {
+            font-size: 7px;
             cursor: pointer;
+            vertical-align: 1px;
         }
 
         &.status-col {
@@ -807,12 +808,19 @@ body {
     }
 
     .opener-col {
-        width: 20px;
+        width: 16px;
         padding-right: 0;
     }
 
     .stat-col {
         width: 110px;
+    }
+
+    .number-of-runs {
+        font-size: 10px;
+        color: #999;
+        font-weight: 200;
+        margin-left: 3px;
     }
 
     .run-col {
@@ -821,6 +829,42 @@ body {
 
     .task-col {
         padding-left: 50px;
+    }
+
+    .tail-col {
+        padding-left: 68px;
+    }
+
+    .tail-row {
+        td {
+            border-top: none;
+
+            &.tail-col {
+                padding-left: 50px;
+                padding-top: 2px;
+
+                .tail-output {
+                    border-left: 1px dotted #ccc;
+                    margin-left: 19px;
+                    margin-bottom: 8px;
+                    padding-left: 6px;
+                    max-height: 233px;
+                    overflow: scroll;
+
+                    pre {
+                        font-size: 10px;
+                        background-color: #fbfbfb;
+                        border: none;
+                        border-radius: 0;
+                        padding-top: 3px;
+                        padding-bottom: 3px;
+                        padding-left: 12px;
+                        margin-top: 0;
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
     }
 
     .line-graph-col {

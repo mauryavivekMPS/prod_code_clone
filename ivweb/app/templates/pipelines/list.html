@@ -31,7 +31,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <table class="table table-hover">
+            <table class="table">
                 <thead>
                     <tr>
                         <th colspan="2">Publisher</th>
@@ -45,11 +45,15 @@
                 <tbody>
                     {% for publisher_runs in runs_by_publisher %}
                         <tr>
-                            <td class="opener-col"><span class="lnr lnr-chevron-down opener-icon"></span></td>
+                            <td class="opener-col">
+                                <span class="lnr lnr-chevron-down opener-icon {{ publisher_runs.publisher.publisher_id }}_opener" {% if not publisher_runs.runs %}style="display:none"{% endif %}></span>
+                                <span class="lnr lnr-chevron-up closer-icon {{ publisher_runs.publisher.publisher_id }}_closer" {% if publisher_runs.runs %}style="display:none"{% endif %}></span>
+                            </td>
                             <td>
-                                <a href="#">
+                                <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">
                                     {{ publisher_runs.publisher.display_name }}
                                 </a>
+                                <span class="number-of-runs">({{ publisher_runs.runs|length }} run{{ publisher_runs.runs|pluralize }})</span>
                             </td>
                             <td></td>
                             <td></td>
@@ -59,7 +63,7 @@
                         </tr>
                         {% if publisher_runs.runs %}
                             {% for run_item in publisher_runs.runs %}
-                                <tr>
+                                <tr class="{{ run_item.run.publisher_id }}_row">
                                     <td class="opener-col"></td>
                                     <td class="run-col">{{ run_item.run.display_name }}</td>
                                     <td>{{ run_item.run.start_time|date:"Y-m-d"|nullable }}</td>
@@ -71,9 +75,12 @@
                                     </td>
                                 </tr>
                                 {% for task in run_item.tasks %}
-                                    <tr>
+                                    <tr class="{{ task.publisher_id }}_row">
                                         <td class="opener-col"></td>
-                                        <td class="task-col"><span class="order">{{ forloop.counter }}.</span> {{ task.task_id }}</td>
+                                        <td class="task-col">
+                                            <span class="order">{{ forloop.counter }}.</span>
+                                            <a href="#" class="task-link" publisher_id="{{ task.publisher_id }}" job_id="{{ task.job_id }}" task_id="{{ task.task_id }}">{{ task.task_id }}</a>
+                                        </td>
                                         <td></td>
                                         <td>{{ task.start_time|date:"H:i:s"|nullable }}</td>
                                         <td>{{ task.end_time|date:"H:i:s"|nullable }}</td>
@@ -82,10 +89,16 @@
                                             {% status_icon task %}
                                         </td>
                                     </tr>
+                                    <tr class="{{ task.publisher_id }}_row {{ task.publisher_id }}_{{ task.job_id }}_{{ task.task_id }}_row tail-row" style="display:none">
+                                        <td class="opener-col"></td>
+                                        <td class="tail-col" colspan="6">
+                                            <div class="tail-output"></div>
+                                        </td>
+                                    </tr>
                                 {% endfor %}
                             {% endfor %}
                         {% else %}
-                            <tr>
+                            <tr class="{{ publisher_runs.publisher.publisher_id }}_row" style="display:none">
                                 <td class="opener-col"></td>
                                 <td class="run-col">No recent runs</td>
                                 <td>{{ 0|nullable }}</td>
@@ -107,6 +120,7 @@
         $(function() {
             PipelineListPage.init({
                 piplineId: '{{ pipeline.id }}',
+                tailUrl: '{% url 'pipelines.tail' pipeline.id %}',
                 csrfToken: '{{ csrf_token }}'
             });
         });

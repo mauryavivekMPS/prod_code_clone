@@ -23,4 +23,7 @@ urlpatterns = patterns(
     # run a pipeline
     url(r'^pipelines/(?P<pipeline_id>[\w]+)/run/$', 'pipelines.run', name='pipelines.run'),
 
+    # tail a task
+    url(r'^pipelines/(?P<pipeline_id>[\w]+)/task/$', 'pipelines.tail', name='pipelines.tail'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
