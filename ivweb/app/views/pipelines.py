@@ -113,13 +113,17 @@ def run(request, pipeline_id):
         form = RunForm(request.POST)
         if form.is_valid():
             publisher_id = form.cleaned_data['publisher']
+            if publisher_id:
+                publisher_id_list = [publisher_id]
+            else:
+                publisher_id_list = []
 
             # get the pipeline class
             module_name, class_name = pipeline['class'].rsplit('.', 1)
             pipeline_class = getattr(importlib.import_module(module_name), class_name)
 
             # kick the pipeline off
-            pipeline_class.s(publisher_id_list=[publisher_id]).delay()
+            pipeline_class.s(publisher_id_list=publisher_id_list).delay()
 
             return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id}))
 

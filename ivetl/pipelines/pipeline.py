@@ -38,33 +38,33 @@ class Pipeline(BaseTask):
             publisher_id = task_args.get('publisher_id', '')
             job_id = task_args.get('job_id', '')
 
-        print('args = %s' % args)
+            print('args = %s' % args)
 
-        pts = Pipeline_Task_Status()
-        pts.publisher_id = publisher_id
-        pts.pipeline_id = self.pipeline_name
-        pts.job_id = job_id
-        pts.task_id = self.short_name
-        pts.end_time = end_date
-        pts.status = self.PL_ERROR
-        pts.error_details = str(exc)
-        pts.updated = end_date
-        pts.update()
+            pts = Pipeline_Task_Status()
+            pts.publisher_id = publisher_id
+            pts.pipeline_id = self.pipeline_name
+            pts.job_id = job_id
+            pts.task_id = self.short_name
+            pts.end_time = end_date
+            pts.status = self.PL_ERROR
+            pts.error_details = str(exc)
+            pts.updated = end_date
+            pts.update()
 
-        print('%s, %s, %s' % (publisher_id, self.pipeline_name, job_id))
+            print('%s, %s, %s' % (publisher_id, self.pipeline_name, job_id))
 
-        try:
-            ps = Pipeline_Status.objects.get(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)
-            ps.update(
-                end_time=end_date,
-                duration_seconds=(end_date - ps.start_time).total_seconds(),
-                status=self.PL_ERROR,
-                error_details=str(exc),
-                updated=end_date
-            )
-        except Pipeline_Status.DoesNotExist:
-            # do nothing
-            pass
+            try:
+                ps = Pipeline_Status.objects.get(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)
+                ps.update(
+                    end_time=end_date,
+                    duration_seconds=(end_date - ps.start_time).total_seconds(),
+                    status=self.PL_ERROR,
+                    error_details=str(exc),
+                    updated=end_date
+                )
+            except Pipeline_Status.DoesNotExist:
+                # do nothing
+                pass
 
         day = end_date.strftime('%Y.%m.%d')
         subject = "ERROR! " + day + " - " + self.pipeline_name + " - " + self.short_name

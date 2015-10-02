@@ -138,38 +138,25 @@ var IvetlWeb = (function() {
 
 
 //
-// Dashboard page
-//
-
-var DashboardPage = (function() {
-
-    var init = function() {
-        // nothing yet
-    };
-
-    return {
-        init: init
-    };
-
-})();
-
-
-//
 // Pipeline detail page
 //
 
-var PipelineDetailPage = (function() {
+var PipelineListPage = (function() {
     var pipelineId = '';
 
     var init = function(options) {
         options = $.extend({
             pipelineId: '',
-            hasUpload: false,
-            uploadFormUrl: '',
+            runUrl: '',
             csrfToken: ''
         }, options);
 
         pipelineId = options.pipelineId;
+
+        $('.run-button').click(function() {
+            $('#run-pipeline-form').submit();
+            return false;
+        });
     };
 
     return {
