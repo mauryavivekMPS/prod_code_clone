@@ -31,23 +31,17 @@
                     </div>
                 </div>
                 <div>
-                    <button type="submit" class="btn btn-primary submit-button">
-                        Run Pipeline Now
-                    </button>
-                    <a href="." class="btn btn-default upload-another-button">+ Upload Another</a>
-                    <span class="cancel"> or <a href="../">I'm done</a></span>
+                    <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="../run/">
+                        {% csrf_token %}
+                        <input type="hidden" name="publisher" value="{{ publisher_id }}">
+                        <button type="submit" class="btn btn-primary submit-button">
+                            Run Pipeline For This Publisher Now
+                        </button>
+                        <a href="." class="btn btn-default upload-another-button">+ Upload Another File</a>
+                        <span class="cancel"> or <a href="../">I'm done</a></span>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block page_scripts %}
-    <script>
-        $(function() {
-            UploadPage.init({
-                pipelineId: '{{ pipeline.id }}',
-            });
-        });
-    </script>
 {% endblock %}

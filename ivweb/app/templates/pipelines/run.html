@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}Upload {{ pipeline.name }}{% endblock %}
+{% block title %}Run {{ pipeline.name }}{% endblock %}
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
@@ -12,14 +12,14 @@
                 <li><a href="{% url 'pipelines.list' pipeline.id %}">{{ pipeline.name }}</a></li>
                 <li></li>
             </ol>
-            <h1>Upload {{ pipeline.name }}</h1>
+            <h1>Run {{ pipeline.name }}</h1>
         </div>
     </div>
 
     <div>
         <div class="row">
             <div class="col-md-12 upload-form-container">
-                <form id="upload-form" class="form-horizontal" method="post" enctype="multipart/form-data">
+                <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post">
                     {% csrf_token %}
 
                     <div class="form-group row">
@@ -29,16 +29,9 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
-                        <label for="file" class="col-sm-2">File</label>
-                        <div class="col-sm-6">
-                            {{ form.file }}
-                        </div>
-                    </div>
-
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button disabled">
-                            Upload
+                            Run Pipeline
                         </button>
                         <span class="cancel">or <a href="../">Cancel</a></span>
                     </div>
@@ -51,7 +44,7 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            UploadPage.init({
+            RunPage.init({
                 pipelineId: '{{ pipeline.id }}'
             });
         });

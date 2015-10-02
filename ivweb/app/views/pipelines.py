@@ -4,7 +4,8 @@ import tempfile
 import importlib
 import humanize
 from django import forms
-from django.shortcuts import render
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, HttpResponseRedirect
 from ivetl.common import common
 from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status
 
@@ -80,6 +81,7 @@ def upload(request, pipeline_id):
             if not validation_errors:
                 return render(request, 'pipelines/upload_success.html', {
                     'pipeline': pipeline,
+                    'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
                     'file_size': uploaded_file_size,
                     'line_count': line_count,
@@ -92,4 +94,39 @@ def upload(request, pipeline_id):
         'pipeline': pipeline,
         'form': form,
         'validation_errors': validation_errors
+    })
+
+
+class RunForm(forms.Form):
+    publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(RunForm, self).__init__(*args, **kwargs)
+        all_choices = list(Publisher_Metadata.objects.values_list('publisher_id', 'name'))
+        self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
+
+
+def run(request, pipeline_id):
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
+
+    if request.method == 'POST':
+        form = RunForm(request.POST)
+        if form.is_valid():
+            publisher_id = form.cleaned_data['publisher']
+
+            # get the pipeline class
+            module_name, class_name = pipeline['class'].rsplit('.', 1)
+            pipeline_class = getattr(importlib.import_module(module_name), class_name)
+
+            # kick the pipeline off
+            pipeline_class.s(publisher_id_list=[publisher_id]).delay()
+
+            return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id}))
+
+    else:
+        form = RunForm()
+
+    return render(request, 'pipelines/run.html', {
+        'pipeline': pipeline,
+        'form': form
     })

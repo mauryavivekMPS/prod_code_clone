@@ -14,10 +14,13 @@ urlpatterns = patterns(
     # publishers
     url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),
 
-    # published articles
+    # pipeline details
     url(r'^pipelines/(?P<pipeline_id>[\w]+)/$', 'pipelines.list_pipelines', name='pipelines.list'),
 
-    # published articles
+    # upload files for a pipeline
     url(r'^pipelines/(?P<pipeline_id>[\w]+)/upload/$', 'pipelines.upload', name='pipelines.upload'),
+
+    # run a pipeline
+    url(r'^pipelines/(?P<pipeline_id>[\w]+)/run/$', 'pipelines.run', name='pipelines.run'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
