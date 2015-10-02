@@ -23,7 +23,7 @@ class CrossrefConnector(BaseConnector):
         url = '%s?usr=%s&pwd=%s&doi=%s&format=unixsd' % (self.BASE_CITATION_URL, self.username, self.password, doi)
         r = self.get_with_retry(url)
         soup = BeautifulSoup(r.content, 'xml')
-        citations = [e.text for e in soup.find_all('doi')]
+        citations = [e.text for e in soup.find_all('doi', type="journal_article")]
         return citations
 
     def get_article(self, doi):
