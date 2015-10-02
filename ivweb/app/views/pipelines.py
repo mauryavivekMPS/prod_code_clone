@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import importlib
+import humanize
 from django import forms
 from django.shortcuts import render
 from ivetl.common import common
@@ -62,6 +63,7 @@ def upload(request, pipeline_id):
             temp_file = tempfile.NamedTemporaryFile(delete=False)
             for chunk in uploaded_file.chunks():
                 temp_file.write(chunk)
+            uploaded_file_size = humanize.naturalsize(os.stat(temp_file.name).st_size)
 
             # get the pipeline class
             module_name, class_name = pipeline['class'].rsplit('.', 1)
@@ -69,11 +71,10 @@ def upload(request, pipeline_id):
 
             # run validation
             validation_errors = []
-            uploaded_file_size = '1.2 MB'
             line_count = 1203
 
             # if it passes, move to the pipeline inbox
-            incoming_dir = pipeline_class.get_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id)
+            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id)
             shutil.move(temp_file.name, os.path.join(incoming_dir, uploaded_file_name))
 
             if not validation_errors:

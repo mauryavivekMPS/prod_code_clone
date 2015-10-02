@@ -1118,20 +1118,34 @@ hr {
 // Upload page
 // --------------
 
+.uploaded-file-message {
+    margin-bottom: 25px;
+}
+
 .uploaded-file {
     border-top: 1px dotted #ccc;
     border-bottom: 1px dotted #ccc;
     padding-top: 15px;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 30px;
 
     .uploaded-file-icon {
-        font-size: 20px;
+        font-size: 48px;
+        float: left;
     }
 
-    .uploaded-file-name {
-        font-size: 16px;
-        //vertical-align: 2px;
-        //padding-left: 6px;
+    .uploaded-file-attributes {
+        padding-left: 0px;
+
+        ul {
+            list-style: none;
+            padding-left: 58px;
+            font-size: 12px;
+        }
     }
+}
+
+.upload-another-button {
+    margin-left: 4px;
+    margin-right: 2px;
 }

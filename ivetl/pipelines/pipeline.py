@@ -10,8 +10,10 @@ class Pipeline(BaseTask):
     pipeline_name = ''
 
     @classmethod
-    def get_incoming_dir_for_publisher(cls, base_incoming_dir, publisher_id):
-        return os.path.join(base_incoming_dir, publisher_id, cls.pipeline_name)
+    def get_or_create_incoming_dir_for_publisher(cls, base_incoming_dir, publisher_id):
+        pipeline_incoming_dir = os.path.join(base_incoming_dir, publisher_id, cls.pipeline_name)
+        os.makedirs(pipeline_incoming_dir, exist_ok=True)
+        return pipeline_incoming_dir
 
     def on_pipeline_started(self, publisher_id, job_id, work_folder):
         start_date = datetime.datetime.today()

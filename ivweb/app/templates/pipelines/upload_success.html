@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}Upload {{ pipeline.name }}{% endblock %}
+{% block title %}Uploaded{% endblock %}
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
@@ -12,13 +12,14 @@
                 <li><a href="{% url 'pipelines.list' pipeline.id %}">{{ pipeline.name }}</a></li>
                 <li></li>
             </ol>
-            <h1>Upload {{ pipeline.name }}</h1>
+            <h1>Uploaded</h1>
         </div>
     </div>
 
     <div>
         <div class="row">
             <div class="col-md-12">
+                <p class="uploaded-file-message">Your file was uploaded and validated.</p>
                 <div class="uploaded-file">
                     <div class="lnr lnr-file-spreadsheet uploaded-file-icon"></div>
                     <div class="uploaded-file-attributes">
@@ -29,7 +30,13 @@
                         </ul>
                     </div>
                 </div>
-                <p>Your file was uploaded and validated.</p>
+                <div>
+                    <button type="submit" class="btn btn-primary submit-button">
+                        Run Pipeline Now
+                    </button>
+                    <a href="." class="btn btn-default upload-another-button">+ Upload Another</a>
+                    <span class="cancel"> or <a href="../">I'm done</a></span>
+                </div>
             </div>
         </div>
     </div>
