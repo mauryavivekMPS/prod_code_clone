@@ -57,7 +57,13 @@ class UpdateArticleCitationsWithCrossref(Task):
 
                 if add_citation:
                     data = crossref.get_article(citation_doi)
+
                     if data:
+
+                        if data['date'] is None:
+                            tlogger.info("No citation date available for citation %s, skipping" % citation_doi)
+                            continue
+
                         Article_Citations.create(
                             publisher_id=publisher_id,
                             article_doi=article.article_doi,

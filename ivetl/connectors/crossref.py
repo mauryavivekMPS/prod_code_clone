@@ -144,6 +144,9 @@ class CrossrefConnector(BaseConnector):
 
         year = date_parts[0]
 
+        if year is None:
+            return None
+
         month = 1
         if len(date_parts) >= 2:
             month = date_parts[1]
