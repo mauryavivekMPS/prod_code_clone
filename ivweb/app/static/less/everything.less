@@ -851,6 +851,10 @@ body {
                     max-height: 233px;
                     overflow: scroll;
 
+                    &.live {
+                        border-left-color: @brand-danger;
+                    }
+
                     pre {
                         font-size: 10px;
                         background-color: #fbfbfb;
@@ -861,6 +865,25 @@ body {
                         padding-left: 12px;
                         margin-top: 0;
                         margin-bottom: 0;
+                    }
+                }
+
+                .auto-refresh {
+                    font-size: 10px;
+                    background-color: #fbfbfb;
+                    padding: 3px 7px;
+                    border-radius: 4px;
+                    margin-left: 26px;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #eee;
+                    }
+
+                    .auto-refresh-state {
+                        &.live {
+                            color: @brand-danger;
+                        }
                     }
                 }
             }

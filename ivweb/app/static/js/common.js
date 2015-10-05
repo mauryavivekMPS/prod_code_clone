@@ -143,6 +143,7 @@ var IvetlWeb = (function() {
 
 var PipelineListPage = (function() {
     var pipelineId = '';
+    refreshIntervalIds = {};
 
     var init = function(options) {
         options = $.extend({
@@ -199,9 +200,9 @@ var PipelineListPage = (function() {
                     ];
 
                     $.get(options.tailUrl, data)
-                        .done(function(html) {
-                            var output = tailRow.find('.tail-output');
-                            output.html(html);
+                        .done(function(text) {
+                            var pre = tailRow.find('.tail-output pre');
+                            pre.empty().text(text);
                         })
                         .always(function() {
                             tailRow.fadeIn(200);
@@ -211,6 +212,56 @@ var PipelineListPage = (function() {
                 }
                 return false;
             });
+        });
+
+        $('.auto-refresh').each(function() {
+            var link = $(this);
+            link.click(function() {
+                var publisherId = link.attr('publisher_id');
+                var jobId = link.attr('job_id');
+                var taskId = link.attr('task_id');
+                var key = publisherId + '_' + jobId + '_' + taskId
+                var tailRow = $('.' + key + '_row');
+                var output = tailRow.find('.tail-output');
+                var state = link.find('.auto-refresh-state');
+
+                if (state.text() == 'OFF') {
+                    state.text('ON').addClass('live');
+                    output.addClass('live');
+                    var pre = output.find('pre');
+                    var autoRefreshInterval = setInterval(function() {
+
+                        var existingLog = pre.text().trimRight();
+                        var lastLine = '';
+                        if (existingLog != '') {
+                            lastLine = existingLog.slice(existingLog.lastIndexOf('\n') + 1);
+                        }
+
+                        var data = [
+                            {name: 'csrfmiddlewaretoken', value: options.csrfToken},
+                            {name: 'publisher_id', value: publisherId},
+                            {name: 'job_id', value: jobId},
+                            {name: 'task_id', value: taskId},
+                            {name: 'last_line', value: lastLine}
+                        ];
+
+                        $.get(options.tailUrl, data)
+                            .done(function(text) {
+                                pre.append(text);
+                            })
+                            .always(function() {
+                                output.scrollTop(output[0].scrollHeight);
+                            });
+
+                    }, 1000);
+                    refreshIntervalIds[key] = autoRefreshInterval;
+                }
+                else {
+                    clearInterval(refreshIntervalIds[key]);
+                    state.text('OFF').removeClass('live');
+                    output.removeClass('live');
+                }
+            })
         });
     };
 

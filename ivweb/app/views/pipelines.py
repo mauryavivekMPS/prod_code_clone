@@ -143,7 +143,19 @@ def tail(request, pipeline_id):
     job_id = request.REQUEST['job_id']
     task_id = request.REQUEST['task_id']
     log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
-    content = subprocess.check_output('tail %s' % log_file, shell=True).strip()
+    content = subprocess.check_output('tail -n 20 %s' % log_file, shell=True).decode('utf-8')
+
+    # strip up to a previously loaded line if provided
+    if 'last_line' in request.REQUEST:
+        last_line = request.REQUEST['last_line']
+        if last_line and last_line in content:
+            content = content[content.index(last_line) + len(last_line):]
+
+    # get rid of leading and trailing whitespace, and add just a single trailing newline
+    content = content.strip()
+    if content:
+        content += '\n'  # just want a single newline
+
     return render(request, 'pipelines/include/tail.html', {
         'pipeline': pipeline,
         'content': content,

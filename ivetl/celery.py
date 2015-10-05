@@ -15,7 +15,7 @@ def open_cassandra_connection():
         connection.setup(
             [common.CASSANDRA_IP],
             common.CASSANDRA_KEYSPACE_IV,
-            protocol_version=3
+            # protocol_version=3
         )
     else:
         connection.setup(
