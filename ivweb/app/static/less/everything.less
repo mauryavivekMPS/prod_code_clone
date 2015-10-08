@@ -544,7 +544,6 @@ body {
             margin-top: 7px;
             margin-left: 6px;
             a {
-                color: @brand-danger;
                 margin-left: 2px;
             }
         }
@@ -569,6 +568,12 @@ body {
 
 .input-group-addon {
     background-color: #f6f6f6;
+}
+
+.cancel {
+    a {
+        color: @brand-danger;
+    }
 }
 
 
@@ -854,31 +859,6 @@ body {
             &.tail-col {
                 padding-left: 50px;
                 padding-top: 2px;
-
-                .tail-output {
-                    border-left: 1px dotted #ccc;
-                    margin-left: 19px;
-                    margin-bottom: 8px;
-                    padding-left: 6px;
-                    max-height: 233px;
-                    overflow: scroll;
-
-                    &.live {
-                        border-left-color: @brand-danger;
-                    }
-
-                    pre {
-                        font-size: 10px;
-                        background-color: #fbfbfb;
-                        border: none;
-                        border-radius: 0;
-                        padding-top: 3px;
-                        padding-bottom: 3px;
-                        padding-left: 12px;
-                        margin-top: 0;
-                        margin-bottom: 0;
-                    }
-                }
 
                 .auto-refresh {
                     font-size: 10px;
@@ -1198,16 +1178,41 @@ hr {
     margin-right: 2px;
 }
 
+
+// Error/log listing
+// -
+
+.log-output {
+    border-left: 1px dotted #ccc;
+    margin-left: 19px;
+    margin-bottom: 8px;
+    padding-left: 6px;
+    max-height: 233px;
+    overflow: scroll;
+
+    &.live {
+        border-left-color: @brand-danger;
+    }
+
+    pre {
+        font-size: 12px;
+        font-weight: 200;
+        font-family: proxima-nova;
+        line-height: 1.8;
+        background-color: #fbfbfb;
+        border: none;
+        border-radius: 0;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-left: 12px;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+
 // List pipeline page
 // -------------------------
-
-.recent-run {
-    color: #666;
-}
-
-.previous-run {
-    color: #999;
-}
 
 .run-name {
     background-color: #f3f3f3;
@@ -1216,6 +1221,20 @@ hr {
     font-size: 12px;
     text-transform: uppercase;
 }
+
+.recent-run {
+    color: #666;
+}
+
+.previous-run {
+    color: #999;
+
+    .run-name {
+        background-color: #f3f3f3;
+        color: #666;
+    }
+}
+
 
 // Upload page
 // -------------------------
@@ -1245,9 +1264,30 @@ hr {
             font-size: 12px;
         }
     }
+
+    .validation-output {
+        margin-left: 8px;
+        margin-top: 14px;
+        margin-bottom: 20px;
+    }
 }
 
 .upload-another-button {
     margin-left: 4px;
     margin-right: 2px;
+}
+
+.validation-errors {
+    margin-bottom: 15px;
+
+    .uploaded-file-icon {
+        font-size: 17px;
+    }
+
+    .uploaded-file-attributes {
+        ul {
+            padding-left: 26px;
+            padding-top: 1px;
+        }
+    }
 }

@@ -112,7 +112,7 @@
                                     <tr class="{{ task.publisher_id }}_row {{ task.publisher_id }}_{{ task.job_id }}_{{ task.task_id }}_row tail-row" style="display:none">
                                         <td class="opener-col"></td>
                                         <td class="tail-col" colspan="6">
-                                            <div class="tail-output"><pre></pre></div>
+                                            <div class="tail-output log-output"><pre></pre></div>
                                             {% if not task.end_time %}
                                                 <span class="auto-refresh" publisher_id="{{ task.publisher_id }}" job_id="{{ task.job_id }}" task_id="{{ task.task_id }}">Auto Refresh: <span class="auto-refresh-state">OFF</span></span>
                                             {% endif %}

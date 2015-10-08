@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import tempfile
 import importlib
@@ -86,20 +87,54 @@ def upload(request, pipeline_id):
             for chunk in uploaded_file.chunks():
                 temp_file.write(chunk)
             uploaded_file_size = humanize.naturalsize(os.stat(temp_file.name).st_size)
+            temp_file.close()
 
             # get the pipeline class
-            module_name, class_name = pipeline['class'].rsplit('.', 1)
-            pipeline_class = getattr(importlib.import_module(module_name), class_name)
+            pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
+            pipeline_class = getattr(importlib.import_module(pipeline_module_name), class_name)
 
-            # run validation
-            validation_errors = []
-            line_count = 1203
+            # get the validator class, if any, and run validation
+            if pipeline['validator_class']:
+                validator_module_name, class_name = pipeline['validator_class'].rsplit('.', 1)
+                validator_class = getattr(importlib.import_module(validator_module_name), class_name)
+                validator = validator_class()
+                line_count, raw_errors = validator.validate_files([temp_file.name], publisher_id)
+
+                # parse errors into line number and message
+                validation_errors = []
+                error_regex = re.compile('^\w+ : (\d+) - (.*)$')
+                # %s : %s - Incorrect
+                for error in raw_errors:
+                    m = error_regex.match(error)
+                    if m:
+                        line_number, message = m.groups()
+                        # validation_errors.append({'line_number': line_number, 'message': message})
+                        validation_errors.append('%s. %s\n' % (line_number, message))
+
+            else:
+                validation_errors = []
+
+                # just count the lines
+                with open(temp_file.name) as f:
+                    for i, l in enumerate(f):
+                        pass
+                    line_count = i + 1
 
             # if it passes, move to the pipeline inbox
             incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id)
             shutil.move(temp_file.name, os.path.join(incoming_dir, uploaded_file_name))
 
-            if not validation_errors:
+            if validation_errors:
+                return render(request, 'pipelines/upload_error.html', {
+                    'pipeline': pipeline,
+                    'publisher_id': publisher_id,
+                    'file_name': uploaded_file_name,
+                    'file_size': uploaded_file_size,
+                    'line_count': line_count,
+                    'validation_errors': validation_errors,
+                })
+
+            else:
                 return render(request, 'pipelines/upload_success.html', {
                     'pipeline': pipeline,
                     'publisher_id': publisher_id,

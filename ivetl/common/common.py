@@ -8,6 +8,7 @@ PIPELINES = [
         'id': 'published_articles',
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
+        'validator_class': None,
         'tasks': (
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
@@ -21,6 +22,7 @@ PIPELINES = [
         'id': 'custom_article_data',
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
+        'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'tasks': (
             'ivetl.pipelines.customarticledata.tasks.GetArticleDataFiles',
             'ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles',
@@ -33,6 +35,7 @@ PIPELINES = [
         'id': 'article_citations',
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
+        'validator_class': None,
         'tasks': (
             'ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations',
             'ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra',
@@ -43,7 +46,8 @@ PIPELINES = [
         'name': 'Rejected Articles',
         'id': 'rejected_article_tracker',
         'class': 'ivetl.rat.MonitorIncomingFileTask',
-        'has_file_input': True,
+        'has_file_input': False,
+        'validator_class': None,
         'tasks': ()
     },
 ]
