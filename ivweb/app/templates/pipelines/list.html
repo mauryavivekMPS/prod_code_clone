@@ -10,7 +10,7 @@
     </form>
 
     <div class="row header-row with-breadcrumb">
-        <form class="col-md-12">
+        <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="#">Pipelines</a></li>
                 <li></li>
@@ -20,12 +20,12 @@
             {% if pipeline.has_file_input %}
                 <a class="btn btn-default small upload-button" href="upload/">+ Upload</a>
             {% endif %}
-            <ul class="list-tabs">
-                <li><a href="#" class="active">All</a></li>
-                <li><a href="#">Running</a></li>
-                <li><a href="#">Completed</a></li>
-                <li><a href="#">Failed</a></li>
-            </ul>
+{#            <ul class="list-tabs">#}
+{#                <li><a href="#" class="active">All</a></li>#}
+{#                <li><a href="#">Running</a></li>#}
+{#                <li><a href="#">Completed</a></li>#}
+{#                <li><a href="#">Failed</a></li>#}
+{#            </ul>#}
         </div>
     </div>
 

@@ -39,20 +39,23 @@
                                 </li>
                             {% endif %}
                         {% endif %}
-                        <li class="dropdown user-dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                staff@highwire.org
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href=""><span class="lnr lnr-user"></span> User Settings</a></li>
-                                {% if request.account %}
-                                    <li><a href=""><span class="lnr lnr-cog"></span> Account Settings</a></li>
-                                {% endif %}
-                                <li class="divider"></li>
-                                <li><a href=""><span class="lnr lnr-exit"></span> Log Out</a></li>
-                            </ul>
+                        <li class="navbar-text">
+                            staff@highwire.org
                         </li>
+{#                        <li class="dropdown user-dropdown">#}
+{#                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">#}
+{#                                staff@highwire.org#}
+{#                                <span class="caret"></span>#}
+{#                            </a>#}
+{#                            <ul class="dropdown-menu">#}
+{#                                <li><a href=""><span class="lnr lnr-user"></span> User Settings</a></li>#}
+{#                                {% if request.account %}#}
+{#                                    <li><a href=""><span class="lnr lnr-cog"></span> Account Settings</a></li>#}
+{#                                {% endif %}#}
+{#                                <li class="divider"></li>#}
+{#                                <li><a href=""><span class="lnr lnr-exit"></span> Log Out</a></li>#}
+{#                            </ul>#}
+{#                        </li>#}
                     </ul>
                 </div>
                 <!-- /.navbar-collapse -->
