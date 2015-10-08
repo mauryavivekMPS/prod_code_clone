@@ -1,5 +1,11 @@
+#!/usr/bin/env python
+
+import os
+os.sys.path.append(os.environ['IVETL_ROOT'])
+
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
+from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
 class Article_Citations(Model):
@@ -22,3 +28,17 @@ class Article_Citations(Model):
     created = columns.DateTime()
     updated = columns.DateTime()
 
+
+if __name__ == "__main__":
+    open_cassandra_connection()
+
+    for citation in Article_Citations.objects.limit(5000000):
+        if citation.citation_sources:
+            if 'Scopus' in citation.citation_sources:
+                citation.citation_source_scopus = True
+
+            if 'Crossref' in citation.citation_sources:
+                citation.citation_source_xref = True
+
+            citation.save()
+    close_cassandra_connection()
