@@ -32,7 +32,12 @@ class Article_Citations(Model):
 if __name__ == "__main__":
     open_cassandra_connection()
 
+    ctr = 0
     for citation in Article_Citations.objects.limit(5000000):
+
+        ctr += 1
+        print("Updating #" + ctr)
+        
         if citation.citation_sources:
             if 'Scopus' in citation.citation_sources:
                 citation.citation_source_scopus = True
