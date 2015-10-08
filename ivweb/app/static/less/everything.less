@@ -384,7 +384,7 @@ body {
             }
         }
 
-        .upload-button, .run-button {
+        .upload-button, .run-button, .add-publisher-button {
             margin-top: 17px;
             margin-left: 20px;
             float: left;
@@ -404,7 +404,7 @@ body {
                 margin-top: 12px;
             }
 
-            .upload-button, .run-button {
+            .upload-button, .run-button, .add-publisher-button {
                 margin-top: 9px;
             }
 
@@ -835,6 +835,18 @@ body {
         padding-left: 68px;
     }
 
+    .date-col {
+        width: 120px;
+    }
+
+    .time-col {
+        width: 100px;
+    }
+
+    .duration-col {
+        width: 80px;
+    }
+
     .tail-row {
         td {
             border-top: none;
@@ -1181,9 +1193,32 @@ hr {
     color: #bbb;
 }
 
+.lt {
+    font-size: 12px;
+    margin-right: 2px;
+}
+
+// List pipeline page
+// -------------------------
+
+.recent-run {
+    color: #666;
+}
+
+.previous-run {
+    color: #999;
+}
+
+.run-name {
+    background-color: #f3f3f3;
+    color: #333;
+    padding: 2px 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
 
 // Upload page
-// --------------
+// -------------------------
 
 .uploaded-file-message {
     margin-bottom: 25px;

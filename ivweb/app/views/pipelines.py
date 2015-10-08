@@ -13,31 +13,51 @@ from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_
 
 def list_pipelines(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
-    runs_by_publisher = []
+    all_runs_by_publisher = []
 
     # get all publishers that support this pipeline
     for publisher in Publisher_Metadata.objects.all():
         if pipeline_id in publisher.supported_pipelines:
-            tasks_by_run = []
 
             # get all the runs
-            runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id)
+            all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id)
 
-            # now get all the tasks for each run
-            for run in runs:
-                tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id, job_id=run.job_id)
-
-                tasks_by_run.append({
-                    'run': run,
-                    'tasks': tasks,
-                })
-
-            runs_by_publisher.append({
+            all_runs_by_publisher.append({
                 'publisher': publisher,
-                'runs': tasks_by_run,
+                'all_runs': all_runs,
             })
 
-    return render(request, 'pipelines/list.html', {'pipeline': pipeline, 'runs_by_publisher': runs_by_publisher})
+    recent_runs_by_publisher = []
+    for publisher in all_runs_by_publisher:
+        tasks_by_run = []
+
+        # sort the runs by date, most recent at top, take only the top 4
+        recent_runs = sorted(publisher['all_runs'], key=lambda r: r.start_time, reverse=True)[:4]
+
+        # now get all the tasks for each run
+        for run in recent_runs:
+            tasks = Pipeline_Task_Status.objects(publisher_id=publisher['publisher'].publisher_id, pipeline_id=pipeline_id, job_id=run.job_id)
+
+            tasks_by_run.append({
+                'run': run,
+                'tasks': tasks,
+            })
+
+        recent_runs_by_publisher.append({
+            'publisher': publisher['publisher'],
+            'runs': tasks_by_run,
+            'additional_previous_runs': len(publisher['all_runs']) - len(tasks_by_run)
+        })
+
+    # bubble up task info for most recent run, with extra info for running or error items
+    for publisher in recent_runs_by_publisher:
+        if publisher['runs']:
+            recent_run = publisher['runs'][0]
+            if recent_run['run'].status == 'error' and recent_run['tasks']:
+                publisher['error_task_id'] = recent_run['tasks'][len(recent_run['tasks']) - 1].task_id
+            publisher['recent_run'] = recent_run['run']
+
+    return render(request, 'pipelines/list.html', {'pipeline': pipeline, 'runs_by_publisher': recent_runs_by_publisher})
 
 
 class UploadForm(forms.Form):

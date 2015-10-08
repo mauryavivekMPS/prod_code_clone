@@ -143,7 +143,7 @@ var IvetlWeb = (function() {
 
 var PipelineListPage = (function() {
     var pipelineId = '';
-    refreshIntervalIds = {};
+    var refreshIntervalIds = {};
 
     var init = function(options) {
         options = $.extend({
@@ -169,11 +169,13 @@ var PipelineListPage = (function() {
                 // use the icon to figure out if open or closed
                 if (openerIcon.is(':visible')) {
                     $('.' + publisherId + '_row').fadeOut(100);
+                    $('.' + publisherId + '_summary_row .summary-value').fadeIn(100);
                     openerIcon.hide();
                     closerIcon.show();
                 }
                 else {
                     $('.' + publisherId + '_row:not(.tail-row)').fadeIn(200);
+                    $('.' + publisherId + '_summary_row .summary-value').fadeOut(100);
                     closerIcon.hide();
                     openerIcon.show();
                 }
