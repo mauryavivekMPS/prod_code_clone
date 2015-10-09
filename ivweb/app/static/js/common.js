@@ -143,23 +143,41 @@ var IvetlWeb = (function() {
 
 var PipelineListPage = (function() {
     var pipelineId = '';
+    var csrfToken = '';
+    var updatePublisherUrl = '';
+    var tailUrl = '';
     var refreshIntervalIds = {};
 
-    var init = function(options) {
-        options = $.extend({
-            pipelineId: '',
-            tailUrl: '',
-            csrfToken: ''
-        }, options);
+    var updatePublisher = function(publisherId) {
+        console.log('updating ' + publisherId);
+        var summaryRow = $('.' + publisherId + '_summary_row');
 
-        pipelineId = options.pipelineId;
+        var data = [
+            {name: 'csrfmiddlewaretoken', value: csrfToken},
+            {name: 'publisher_id', value: publisherId},
+            {name: 'current_job_id', value: summaryRow.attr('current_job_id')},
+            {name: 'current_task_id', value: summaryRow.attr('current_task_id')},
+            {name: 'current_task_status', value: summaryRow.attr('current_task_status')}
+        ];
 
-        $('.run-button').click(function() {
-            $('#run-pipeline-form').submit();
-            return false;
-        });
+        $.get(updatePublisherUrl, data)
+            .done(function(html) {
+                if (html != 'No updates') {
+                    $('.' + publisherId + '_row').remove();
+                    $('.' + publisherId + '_summary_row').replaceWith(html);
+                    wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
+                    wireTaskLinks('.' + publisherId + '_row .task-link');
+                }
+            });
 
-        $('.publisher-link').each(function() {
+        // start again...
+        setTimeout(function() {
+            updatePublisher(publisherId);
+        }, 3000);
+    };
+
+    var wirePublisherLinks = function(selector) {
+        $(selector).each(function() {
             var link = $(this);
             link.click(function() {
                 var publisherId = link.attr('publisher_id');
@@ -182,8 +200,10 @@ var PipelineListPage = (function() {
                 return false;
             });
         });
+    };
 
-        $('.task-link').each(function() {
+    var wireTaskLinks = function(selector) {
+        $(selector).each(function() {
             var link = $(this);
             link.click(function() {
                 var publisherId = link.attr('publisher_id');
@@ -195,13 +215,13 @@ var PipelineListPage = (function() {
                 }
                 else {
                     var data = [
-                        {name: 'csrfmiddlewaretoken', value: options.csrfToken},
+                        {name: 'csrfmiddlewaretoken', value: csrfToken},
                         {name: 'publisher_id', value: publisherId},
                         {name: 'job_id', value: jobId},
                         {name: 'task_id', value: taskId}
                     ];
 
-                    $.get(options.tailUrl, data)
+                    $.get(tailUrl, data)
                         .done(function(text) {
                             var pre = tailRow.find('.tail-output pre');
                             pre.empty().text(text);
@@ -214,6 +234,35 @@ var PipelineListPage = (function() {
                 }
                 return false;
             });
+        });
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            pipelineId: '',
+            publishers: [],
+            tailUrl: '',
+            updatePublisherUrl: '',
+            csrfToken: ''
+        }, options);
+
+        pipelineId = options.pipelineId;
+        csrfToken = options.csrfToken;
+        updatePublisherUrl = options.updatePublisherUrl;
+        tailUrl = options.tailUrl;
+
+        $('.run-button').click(function() {
+            $('#run-pipeline-form').submit();
+            return false;
+        });
+
+        wirePublisherLinks('.publisher-link');
+        wireTaskLinks('.task-link');
+
+        $.each(options.publishers, function(index, publisherId) {
+            setTimeout(function() {
+                updatePublisher(publisherId);
+            }, 3000);
         });
 
         $('.auto-refresh').each(function() {
