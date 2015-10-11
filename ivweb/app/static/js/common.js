@@ -146,18 +146,24 @@ var PipelineListPage = (function() {
     var csrfToken = '';
     var updatePublisherUrl = '';
     var tailUrl = '';
+    var runForPublisherUrl = '';
+    var runForAllUrl = '';
     var refreshIntervalIds = {};
+    var tailIntervalIds = {};
 
     var updatePublisher = function(publisherId) {
-        console.log('updating ' + publisherId);
         var summaryRow = $('.' + publisherId + '_summary_row');
-
+        var opened = 0;
+        if ($('.' + publisherId + '_opener').is(':visible')) {
+            opened = 1;
+        }
         var data = [
             {name: 'csrfmiddlewaretoken', value: csrfToken},
             {name: 'publisher_id', value: publisherId},
             {name: 'current_job_id', value: summaryRow.attr('current_job_id')},
             {name: 'current_task_id', value: summaryRow.attr('current_task_id')},
-            {name: 'current_task_status', value: summaryRow.attr('current_task_status')}
+            {name: 'current_task_status', value: summaryRow.attr('current_task_status')},
+            {name: 'opened', value: opened}
         ];
 
         $.get(updatePublisherUrl, data)
@@ -166,6 +172,7 @@ var PipelineListPage = (function() {
                     $('.' + publisherId + '_row').remove();
                     $('.' + publisherId + '_summary_row').replaceWith(html);
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
+                    wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
                 }
             });
@@ -202,6 +209,15 @@ var PipelineListPage = (function() {
         });
     };
 
+    var wireRunForPublisherForms = function(selector) {
+        $(selector).submit(function(event) {
+            var form = $(this);
+            $.post(runForPublisherUrl, form.serialize());
+            event.preventDefault();
+            return false;
+        });
+    };
+
     var wireTaskLinks = function(selector) {
         $(selector).each(function() {
             var link = $(this);
@@ -228,13 +244,60 @@ var PipelineListPage = (function() {
                         })
                         .always(function() {
                             tailRow.fadeIn(200);
-                            var output = tailRow.find('.tail-output');
-                            output.scrollTop(output[0].scrollHeight);
+                            var pre = tailRow.find('.tail-output pre');
+                            pre.scrollTop(pre[0].scrollHeight);
                         });
                 }
                 return false;
             });
         });
+    };
+
+    var startTailForPublisher = function(publisherId) {
+        var summaryRow = $('.' + publisherId + '_summary_row');
+        var jobId = summaryRow.attr('current_job_id');
+        var taskId = summaryRow.attr('current_task_id');
+        var key = publisherId + '_' + jobId + '_' + taskId;
+        var tailRow = $('.' + key + '_row');
+        var output = tailRow.find('.tail-output');
+
+        output.addClass('live');
+        var pre = output.find('pre');
+        var tailInterval = setInterval(function() {
+
+            var existingLog = pre.text().trimRight();
+            var lastLine = '';
+            if (existingLog != '') {
+                lastLine = existingLog.slice(existingLog.lastIndexOf('\n') + 1);
+            }
+
+            var data = [
+                {name: 'csrfmiddlewaretoken', value: csrfToken},
+                {name: 'publisher_id', value: publisherId},
+                {name: 'job_id', value: jobId},
+                {name: 'task_id', value: taskId},
+                {name: 'last_line', value: lastLine}
+            ];
+
+            $.get(tailUrl, data)
+                .done(function(text) {
+                    pre.append(text);
+                })
+                .always(function() {
+                    pre.scrollTop(pre[0].scrollHeight);
+                });
+
+        }, 1000);
+        tailIntervalIds[publisherId] = tailInterval;
+    };
+
+    var cancelTailForPublisher = function(publisherId) {
+        clearInterval(tailIntervalIds[publisherId]);
+        var summaryRow = $('.' + publisherId + '_summary_row');
+        var jobId = summaryRow.attr('current_job_id');
+        var taskId = summaryRow.attr('current_task_id');
+        var key = publisherId + '_' + jobId + '_' + taskId;
+        $('.' + key + '_row .tail-output').removeClass('live');
     };
 
     var init = function(options) {
@@ -243,12 +306,16 @@ var PipelineListPage = (function() {
             publishers: [],
             tailUrl: '',
             updatePublisherUrl: '',
+            runForPublisherUrl: '',
+            runForAllUrl: '',
             csrfToken: ''
         }, options);
 
         pipelineId = options.pipelineId;
         csrfToken = options.csrfToken;
         updatePublisherUrl = options.updatePublisherUrl;
+        runForPublisherUrl = options.runForPublisherUrl;
+        runForAllUrl = options.runForAllUrl;
         tailUrl = options.tailUrl;
 
         $('.run-button').click(function() {
@@ -257,6 +324,7 @@ var PipelineListPage = (function() {
         });
 
         wirePublisherLinks('.publisher-link');
+        wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
         wireTaskLinks('.task-link');
 
         $.each(options.publishers, function(index, publisherId) {
@@ -264,60 +332,12 @@ var PipelineListPage = (function() {
                 updatePublisher(publisherId);
             }, 3000);
         });
-
-        $('.auto-refresh').each(function() {
-            var link = $(this);
-            link.click(function() {
-                var publisherId = link.attr('publisher_id');
-                var jobId = link.attr('job_id');
-                var taskId = link.attr('task_id');
-                var key = publisherId + '_' + jobId + '_' + taskId
-                var tailRow = $('.' + key + '_row');
-                var output = tailRow.find('.tail-output');
-                var state = link.find('.auto-refresh-state');
-
-                if (state.text() == 'OFF') {
-                    state.text('ON').addClass('live');
-                    output.addClass('live');
-                    var pre = output.find('pre');
-                    var autoRefreshInterval = setInterval(function() {
-
-                        var existingLog = pre.text().trimRight();
-                        var lastLine = '';
-                        if (existingLog != '') {
-                            lastLine = existingLog.slice(existingLog.lastIndexOf('\n') + 1);
-                        }
-
-                        var data = [
-                            {name: 'csrfmiddlewaretoken', value: options.csrfToken},
-                            {name: 'publisher_id', value: publisherId},
-                            {name: 'job_id', value: jobId},
-                            {name: 'task_id', value: taskId},
-                            {name: 'last_line', value: lastLine}
-                        ];
-
-                        $.get(options.tailUrl, data)
-                            .done(function(text) {
-                                pre.append(text);
-                            })
-                            .always(function() {
-                                output.scrollTop(output[0].scrollHeight);
-                            });
-
-                    }, 1000);
-                    refreshIntervalIds[key] = autoRefreshInterval;
-                }
-                else {
-                    clearInterval(refreshIntervalIds[key]);
-                    state.text('OFF').removeClass('live');
-                    output.removeClass('live');
-                }
-            })
-        });
     };
 
     return {
-        init: init
+        init: init,
+        startTailForPublisher: startTailForPublisher,
+        cancelTailForPublisher: cancelTailForPublisher
     };
 
 })();

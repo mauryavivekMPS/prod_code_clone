@@ -58,6 +58,8 @@
                 publishers: {{ publisher_id_list_as_json|safe }},
                 tailUrl: '{% url 'pipelines.tail' pipeline.id %}',
                 updatePublisherUrl: '{% url 'pipelines.include_updated_publisher_runs' pipeline.id %}',
+                runForPublisherUrl: '{% url 'pipelines.run' pipeline.id %}',
+                runForAllUrl: '{% url 'pipelines.run' pipeline.id %}',
                 csrfToken: '{{ csrf_token }}'
             });
         });

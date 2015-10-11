@@ -6,11 +6,14 @@ import importlib
 import humanize
 import subprocess
 import json
+import logging
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from ivetl.common import common
 from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status
+
+log = logging.getLogger(__name__)
 
 
 def get_recent_runs_for_publisher(pipeline_id, publisher):
@@ -64,6 +67,7 @@ def list_pipelines(request, pipeline_id):
         'pipeline': pipeline,
         'runs_by_publisher': recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
+        'opened': False,
     })
 
 
@@ -72,9 +76,12 @@ def include_updated_publisher_runs(request, pipeline_id):
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
     current_task_status_on_client = request.GET.get('current_task_status')
+    opened = True if request.GET.get('opened') == '1' else False
 
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
     publisher_runs = get_recent_runs_for_publisher(pipeline_id, publisher)
+
+    has_updates = True
 
     # get the current run and task
     if publisher_runs['runs']:
@@ -83,11 +90,16 @@ def include_updated_publisher_runs(request, pipeline_id):
             current_task = current_run['tasks'][len(current_run['tasks']) - 1]
             if current_run['run'].job_id == current_job_id_on_client and current_task.task_id == current_task_id_on_client and current_task.status == current_task_status_on_client:
                 # there are no updates, bail
-                return HttpResponse('No updates')  # TODO: this should probably be done with status code
+                has_updates = False
+    else:
+        has_updates = False
+
+    if not has_updates:
+        return HttpResponse('No updates')  # TODO: this should probably be done with status code
 
     return render(request, 'pipelines/include/publisher_details.html', {
         'publisher_runs': publisher_runs,
-        'updated': True,
+        'opened': opened,
     })
 
 

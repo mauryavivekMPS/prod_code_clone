@@ -9,7 +9,7 @@ def status_icon(status_item=None):
         if status_item.status == 'started':
             return '<span class="status-icon status-empty"></span>'
         elif status_item.status == 'in-progress':
-            return '<span class="status-icon status-warning"></span>'
+            return '<span class="status-icon status-warning status-pulse"></span>'
         elif status_item.status == 'completed':
             return '<span class="status-icon status-success"></span>'
         elif status_item.status == 'error':
