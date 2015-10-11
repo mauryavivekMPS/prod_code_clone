@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
-from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values
+from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
 from ivetl.pipelines.task import Task
 
 
@@ -23,6 +23,11 @@ class InsertPublishedArticlesIntoCassandra(Task):
         count = 0
         today = datetime.today()
         updated = today
+
+        # Build Issn Journal List
+        issn_journals = {}
+        for ij in Issn_Journal.objects.limit(100000):
+            issn_journals[ij.issn] = (ij.journal, ij.publisher)
 
         with codecs.open(file, encoding="utf-16") as tsv:
 
@@ -57,7 +62,12 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     pa['article_journal'] = data['container-title'][0]
 
                 if 'ISSN' in data and (len(data['ISSN']) > 0):
-                    pa['article_journal_issn'] = data['ISSN'][0]
+                    issn = data['ISSN'][0]
+
+                    pa['article_journal_issn'] = issn
+
+                    if issn in issn_journals:
+                        pa['article_journal'] = issn_journals[issn][0]
 
                 if 'page' in data and (data['page'] != ''):
                     pa['article_pages'] = data['page']

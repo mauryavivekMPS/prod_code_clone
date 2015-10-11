@@ -37,7 +37,7 @@ class GetPublishedArticlesTask(Task):
                 r = None
                 success = False
 
-                if 'max_articles_to_process' in task_args and count >= task_args['max_articles_to_process']:
+                if 'max_articles_to_process' in task_args and task_args['max_articles_to_process'] and count >= task_args['max_articles_to_process']:
                     break
 
                 while not success and attempt < max_attempts:

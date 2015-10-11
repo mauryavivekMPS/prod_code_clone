@@ -81,7 +81,7 @@ class ScopusConnector(BaseConnector):
                 raise
 
             except HTTPError as he:
-                if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                if he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
                     tlogger.info("Scopus API failed. Trying again...")
                     attempt += 1
                 else:
@@ -127,7 +127,7 @@ class ScopusConnector(BaseConnector):
                     success = True
 
                 except HTTPError as he:
-                    if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                    if he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
                         tlogger.info("HTTP 401/408 - Scopus API failed. Trying Again")
                         attempt += 1
                     else:
@@ -150,6 +150,9 @@ class ScopusConnector(BaseConnector):
                     else:
 
                         for scopus_citation in scopus_data['search-results']['entry']:
+
+                            if 'eid' not in scopus_citation or scopus_citation['eid'].strip() == '':
+                                continue
 
                             if 'prism:doi' in scopus_citation and (scopus_citation['prism:doi'] != ''):
                                 doi = scopus_citation['prism:doi']

@@ -3,4 +3,5 @@ from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask import HWMetad
 from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra import InsertPublishedArticlesIntoCassandra
 from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
 from ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData import ResolvePublishedArticlesData
+from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
 

@@ -42,6 +42,8 @@ class BaseTask(Task):
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
         ti_logger.addHandler(fh)
+        ti_logger.propagate = False
+        
         return ti_logger
 
 

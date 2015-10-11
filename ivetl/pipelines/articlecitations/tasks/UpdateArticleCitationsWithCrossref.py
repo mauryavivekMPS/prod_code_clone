@@ -31,6 +31,9 @@ class UpdateArticleCitationsWithCrossref(Task):
                 error_count += 1
 
             for citation_doi in citations:
+
+                add_citation = False
+
                 try:
                     existing_citation = Article_Citations.objects.get(
                         publisher_id=publisher_id,
@@ -38,14 +41,21 @@ class UpdateArticleCitationsWithCrossref(Task):
                         citation_doi=citation_doi
                     )
 
-                    tlogger.info("Found existing citation %s in crossref, appending to sources" % citation_doi)
+                    if 'Scopus' not in existing_citation.citation_sources and 'Crossref' in existing_citation.citation_sources:
+                        add_citation = True
 
-                    existing_citation.citation_sources.append('Crossref')
-                    existing_citation.save()
+                    else:
+                        tlogger.info("Found existing citation %s in crossref, appending to sources" % citation_doi)
+
+                        if 'Crossref' not in existing_citation.citation_sources:
+                            existing_citation.citation_sources.append('Crossref')
+                            existing_citation.save()
 
                 except Article_Citations.DoesNotExist:
                     tlogger.info("Found new citation %s in crossref, adding record" % citation_doi)
+                    add_citation = True
 
+                if add_citation:
                     data = crossref.get_article(citation_doi)
                     if data:
                         Article_Citations.create(
@@ -53,14 +63,14 @@ class UpdateArticleCitationsWithCrossref(Task):
                             article_doi=article.article_doi,
                             citation_doi=data['doi'],
                             citation_scopus_id=data.get('scopus_id', None),
-                            citation_date=datetime.datetime.strptime(data['date'], '%Y-%m-%d'),
+                            citation_date=data['date'],
                             citation_first_author=data['first_author'],
                             citation_issue=data['issue'],
                             citation_journal_issn=data['journal_issn'],
                             citation_journal_title=data['journal_title'],
                             citation_pages=data['pages'],
                             citation_sources=[data['source']],
-                            citation_title=data['title'][0],
+                            citation_title=data['title'],
                             citation_volume=data['volume'],
                             citation_count=1,
                             updated=updated_date,

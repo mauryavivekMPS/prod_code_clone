@@ -30,3 +30,7 @@ class Published_Article(Model):
     editor = columns.Text()
     citations_lookup_error = columns.Boolean()
     is_open_access = columns.Text()
+    from_rejected_manuscript = columns.Boolean()
+    rejected_manuscript_id = columns.Text()
+    rejected_manuscript_editor = columns.Text()
+    date_of_rejection = columns.DateTime()
