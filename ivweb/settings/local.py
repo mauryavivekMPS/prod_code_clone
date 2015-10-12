@@ -1,6 +1,5 @@
 from ivweb.settings.base import *
 
-
 LOCAL = True
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = True
