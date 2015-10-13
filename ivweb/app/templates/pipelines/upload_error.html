@@ -1,0 +1,41 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Upload Failed{% endblock %}
+{% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
+
+{% block content %}
+    <div class="row header-row with-breadcrumb">
+        <div class="col-md-8">
+            <ol class="breadcrumb">
+                <li><a href="#">Pipelines</a></li>
+                <li><a href="{% url 'pipelines.list' pipeline.id %}">{{ pipeline.name }}</a></li>
+                <li></li>
+            </ol>
+            <h1>Upload Failed</h1>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="uploaded-file-message">There were validation errors in your file, see below.</p>
+                <div class="uploaded-file validation-errors">
+                    <div class="lnr lnr-file-spreadsheet uploaded-file-icon"></div>
+                    <div class="uploaded-file-attributes">
+                        <ul>
+                            <li class="uploaded-file-name">{{ file_name }}</li>
+                        </ul>
+                    </div>
+                    <div class="validation-output log-output">
+                        <pre>{% for error in validation_errors %}{{ error }}{% endfor %}</pre>
+                    </div>
+                </div>
+                <div>
+                    <a href="." class="btn btn-default try-upload-again-button">Try Another Upload</a>
+                    <span class="cancel"> or <a href="../">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,10 +1,18 @@
+# basic ivetl dependencies
 celery>=3.1.18
 cassandra-driver>=2.5.1
 flower>=0.8.3
 fuzzywuzzy>=0.6.1
-ipython>=3.2.1
+ipython
 lxml>=3.4.4
 python-dateutil>=2.4.2
 requests>=2.7.0
 sendgrid>=1.4.0
 beautifulsoup4>=4.4.0
+
+# web app dependencies
+django>=1.8
+humanize==0.5.1
+git+https://github.com/mitsuhiko/jinja2.git#egg=Jinja2
+django-easy-pjax>=1.2.0
+django-cassandra-engine>=0.5.2

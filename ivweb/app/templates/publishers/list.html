@@ -1,0 +1,43 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Publishers{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Publishers</h1>
+{#            <a class="btn btn-default small add-publisher-button" href="#">+ Add Publisher</a>#}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Publisher ID</th>
+                        <th class="text-center">Pipelines</th>
+                        <th class="text-center">Scopus</th>
+                        <th class="text-center">Crossref</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for publisher in publishers %}
+                        <tr>
+                            <td>
+                                <a href="#">
+                                    {{ publisher.name }}
+                                </a>
+                            </td>
+                            <td>{{ publisher.publisher_id }}</td>
+                            <td class="text-center">{{ publisher.supported_pipelines|length }}</td>
+                            <td class="text-center">{% checkmark publisher.supports_scopus %}</td>
+                            <td class="text-center">{% checkmark publisher.supports_crossref %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

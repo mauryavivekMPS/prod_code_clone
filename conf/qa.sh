@@ -6,6 +6,9 @@ export IVETL_QA
 unset IVETL_LOCAL
 unset IVETL_PROD
 
+IVETL_ROOT=/iv/impactvizor-pipeline
+export IVETL_ROOT
+
 IVETL_CASSANDRA_IP=10.0.0.115
 export IVETL_CASSANDRA_IP
 

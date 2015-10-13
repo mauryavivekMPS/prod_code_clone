@@ -30,7 +30,8 @@ class Article_Citations(Model):
 
 if __name__ == "__main__":
     open_cassandra_connection()
-
+    print('foo!')
+    exit(0)
     for citation in Article_Citations.objects.all():
         if citation.citation_source:
             citation.citation_sources = [citation.citation_source]

@@ -17,7 +17,7 @@ class UpdateArticleCitationsPipeline(Pipeline):
         job_id = now.strftime('%Y%m%d_%H%M%S%f')
 
         # get the set of publishers to work on
-        if publisher_id_list:
+        if publisher_id_list and len(publisher_id_list):
             publishers = Publisher_Metadata.filter(publisher_id__in=publisher_id_list)
         else:
             publishers = Publisher_Metadata.objects.all()

@@ -1,0 +1,117 @@
+{% load filters %}
+{% load tags %}
+<tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ publisher_runs.recent_run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ publisher_runs.recent_task.status }}">
+    <td class="opener-col">
+        <span class="lnr lnr-chevron-down opener-icon {{ publisher_runs.publisher.publisher_id }}_closer" {% if opened %}style="display:none"{% endif %}></span>
+        <span class="lnr lnr-chevron-up closer-icon {{ publisher_runs.publisher.publisher_id }}_opener" {% if not opened %}style="display:none"{% endif %}></span>
+    </td>
+    <td>
+        <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.publisher.display_name }}</a>
+        {% if publisher_runs.runs %}
+            <span class="recent-run summary-value" {% if opened %}style="display:none"{% endif %}> &ndash;
+                {% if publisher_runs.recent_run.status == 'started' %}
+                    Started
+                {% elif publisher_runs.recent_run.status == 'in-progress' %}
+                    Running
+                {% elif publisher_runs.recent_run.status == 'completed' %}
+                    Completed
+                {% elif publisher_runs.recent_run.status == 'error' %}
+                    Failed
+                {% endif %}
+                <span class="run-name">{{ publisher_runs.recent_run.display_name }}</span>
+                {% if publisher_runs.recent_run.status == 'error' %}
+                    / {{ publisher_runs.recent_task.task_id }}
+                {% endif %}
+            </span>
+        {% endif %}
+        <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/">
+            {% csrf_token %}
+            <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
+            <button type="submit" class="btn btn-default submit-button run-pipeline-for-publisher-button">
+                Run
+            </button>
+        </form>
+    </td>
+    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d"|nullable_date }}</span></td>
+    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"H:i:s"|nullable_date }}</span></td>
+    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.end_time|date:"H:i:s"|nullable_date }}</span></td>
+    <td class="text-right"><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.duration_seconds|nullable_duration }}</span></td>
+    <td class="status-col">
+        {% if publisher_runs.runs %}
+            <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                {% status_icon publisher_runs.recent_run %}
+            </span>
+        {% endif %}
+    </td>
+</tr>
+{% if publisher_runs.runs %}
+    {% for run_item in publisher_runs.runs %}
+        <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>
+            <td class="opener-col"></td>
+            <td class="run-col"><span class="run-name">{{ run_item.run.display_name }}</span></td>
+            <td>{{ run_item.run.start_time|date:"Y-m-d"|nullable_date }}</td>
+            <td>{{ run_item.run.start_time|date:"H:i:s"|nullable_date }}</td>
+            <td>{{ run_item.run.end_time|date:"H:i:s"|nullable_date }}</td>
+            <td class="text-right">{{ run_item.run.duration_seconds|nullable_duration }}</td>
+            <td class="status-col">
+                {% status_icon run_item.run %}
+            </td>
+        </tr>
+        {% if forloop.first %}
+            {% for task in run_item.tasks %}
+                <tr class="{{ task.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
+                    <td class="opener-col"></td>
+                    <td class="task-col">
+                        <span class="order">{{ forloop.counter }}.</span>
+                        <a href="#" class="task-link" publisher_id="{{ task.publisher_id }}" job_id="{{ task.job_id }}" task_id="{{ task.task_id }}">{{ task.task_id }}</a>
+                    </td>
+                    <td>{{ task.start_time|date:"Y-m-d"|nullable_date }}</td>
+                    <td>{{ task.start_time|date:"H:i:s"|nullable_date }}</td>
+                    <td>{{ task.end_time|date:"H:i:s"|nullable_date }}</td>
+                    <td class="text-right">{{ task.duration_seconds|nullable_duration }}</td>
+                    <td class="status-col">
+                        {% status_icon task %}
+                    </td>
+                </tr>
+                <tr class="{{ task.publisher_id }}_row {{ task.publisher_id }}_{{ task.job_id }}_{{ task.task_id }}_row tail-row" {% if task.status != 'in-progress' or not opened %}style="display:none"{% endif %}>
+                    <td class="opener-col"></td>
+                    <td class="tail-col" colspan="6">
+                        <div class="tail-output log-output"><pre></pre></div>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        {% if forloop.last and publisher_runs.additional_previous_runs %}
+            <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>
+                <td class="opener-col"></td>
+                <td class="run-col additional-previous-runs">{{ publisher_runs.additional_previous_runs }} previous run{{ publisher_runs.additional_previous_runs|pluralize }}...</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="text-right"></td>
+                <td class="status-col"></td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <tr class="{{ publisher_runs.publisher.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
+        <td class="opener-col"></td>
+        <td class="run-col">No recent runs</td>
+        <td><span class="null-value">&ndash;</span></td>
+        <td><span class="null-value">&ndash;</span></td>
+        <td><span class="null-value">&ndash;</span></td>
+        <td class="text-right"><span class="null-value">&ndash;</span></td>
+        <td class="status-col"></td>
+    </tr>
+{% endif %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            PipelineListPage.cancelTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
+            {% if publisher_runs.recent_task.status == 'in-progress' %}
+                PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}')
+            {% endif %}
+        });
+    </script>
+{% endblock %}

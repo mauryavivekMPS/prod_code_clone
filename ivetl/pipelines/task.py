@@ -1,5 +1,3 @@
-__author__ = 'nmehta, johnm'
-
 import datetime
 from time import time
 import csv
@@ -61,7 +59,7 @@ class Task(BaseTask):
         pts.save()
 
         Pipeline_Status.objects(publisher_id=publisher_id, pipeline_id=pipeline_name, job_id=job_id).update(
-            current_task=self.name,
+            current_task=self.short_name,
             status=self.PL_INPROGRESS,
             updated=start_date
         )

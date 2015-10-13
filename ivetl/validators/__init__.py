@@ -1,0 +1,1 @@
+from ivetl.validators.customarticledata import CustomArticleDataValidator
