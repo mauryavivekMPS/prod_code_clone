@@ -108,7 +108,7 @@ class CrossrefConnector(BaseConnector):
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == requests.codes.NOT_FOUND:
                     return r
-                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
                     self.tlogger.info("Crossref API timed out. Trying again...")
                     attempt += 1
                 else:
@@ -143,6 +143,9 @@ class CrossrefConnector(BaseConnector):
     def datetime_from_parts(self, date_parts):
 
         year = date_parts[0]
+
+        if year is None:
+            return None
 
         month = 1
         if len(date_parts) >= 2:

@@ -1,5 +1,6 @@
 # basic ivetl dependencies
 celery>=3.1.18
+cassandra-driver>=2.5.1
 flower>=0.8.3
 fuzzywuzzy>=0.6.1
 ipython

@@ -14,6 +14,8 @@ class Article_Citations(Model):
     citation_pages = columns.Text()
     citation_scopus_id = columns.Text()
     citation_sources = columns.List(columns.Text())
+    citation_source_scopus = columns.Boolean()
+    citation_source_xref = columns.Boolean()
     citation_title = columns.Text()
     citation_volume = columns.Text()
     citation_count = columns.Integer()
