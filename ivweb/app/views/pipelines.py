@@ -27,10 +27,11 @@ def get_recent_runs_for_publisher(pipeline_id, publisher):
     tasks_by_run = []
     for run in recent_runs:
         tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id, job_id=run.job_id)
+        sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
 
         tasks_by_run.append({
             'run': run,
-            'tasks': tasks,
+            'tasks': sorted_tasks,
         })
 
     # bubble up task info for most recent run, with extra info for running or error items
