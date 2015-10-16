@@ -4,12 +4,16 @@ from django.contrib.auth.hashers import make_password as django_make_password
 from django.contrib.auth.hashers import check_password as django_check_password
 
 
-def make_password(password):
-    return django_make_password(password)
+class AnonymousUser(object):
+    email = ''
+    staff = False
+    superuser = False
 
+    def is_anonymous(self):
+        return True
 
-def check_password(password, encoded):
-    return django_check_password(password, encoded)
+    def is_authenticated(self):
+        return False
 
 
 class User(Model):
@@ -32,9 +36,23 @@ class User(Model):
         return self.email.replace('@', '-at-')
 
     def set_password(self, password):
-        self.password = make_password(password)
+        self.password = self.make_password(password)
         self.save()
+
+    def check_password(self, password):
+        return django_check_password(password, self.password)
+
+    @staticmethod
+    def make_password(password):
+        return django_make_password(password)
 
     @staticmethod
     def slug_to_email(slug):
         return slug.replace('-at-', '@')
+
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
+

@@ -10,6 +10,7 @@ import logging
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
+from django.contrib.auth.decorators import login_required
 from ivetl.common import common
 from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status
 
@@ -51,6 +52,7 @@ def get_recent_runs_for_publisher(pipeline_id, publisher):
     }
 
 
+@login_required
 def list_pipelines(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
@@ -72,6 +74,7 @@ def list_pipelines(request, pipeline_id):
     })
 
 
+@login_required
 def include_updated_publisher_runs(request, pipeline_id):
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
@@ -114,6 +117,7 @@ class UploadForm(forms.Form):
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
+@login_required
 def upload(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
@@ -205,6 +209,7 @@ class RunForm(forms.Form):
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
+@login_required
 def run(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
@@ -235,6 +240,7 @@ def run(request, pipeline_id):
     })
 
 
+@login_required
 def tail(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']

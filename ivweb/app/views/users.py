@@ -9,7 +9,7 @@ def list_users(request):
     return render(request, 'users/list.html', {'users': users})
 
 
-class UserForm(forms.Form):
+class AdminUserForm(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'user@domain.com'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
@@ -23,7 +23,7 @@ class UserForm(forms.Form):
             initial = dict(instance)
             initial.pop('password')  # clear out the encoded password
 
-        super(UserForm, self).__init__(initial=initial, *args, **kwargs)
+        super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
         if instance:
             self.fields['password'].widget.attrs['style'] = 'display:none'
@@ -52,11 +52,11 @@ def edit(request, slug=None):
         user = User.objects.get(email=email)
 
     if request.method == 'POST':
-        form = UserForm(request.POST, instance=user)
+        form = AdminUserForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('users.list'))
     else:
-        form = UserForm(instance=user)
+        form = AdminUserForm(instance=user)
 
     return render(request, 'users/new.html', {'form': form, 'user': user})

@@ -1,9 +1,11 @@
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata
 
 
+@login_required
 def list_publishers(request):
     publishers = Publisher_Metadata.objects.all()
     return render(request, 'publishers/list.html', {'publishers': publishers})
@@ -76,6 +78,7 @@ class PublisherForm(forms.Form):
         return publisher
 
 
+@login_required
 def edit(request, publisher_id=None):
     publisher = None
     if publisher_id:

@@ -1201,42 +1201,114 @@ hr {
 }
 
 
-// Error/log listing
-// -
+// Centered form
+// -------------------------
 
-@log-output-height: 120px;
+.centered-form-panel {
+    width: 500px;
+    margin-top: 100px;
+    .center-block();
 
-.log-output {
-    border-left: 1px dotted #ccc;
-    margin-left: 19px;
-    margin-bottom: 8px;
-    margin-right: 6px;
-    position: relative;
-    padding-top: @log-output-height;
-
-    &.live {
-        border-left-color: @brand-warning;
+    @media (max-width: @screen-xs-max) {
+        width: 100%;
+        margin-top: 0;
+        border: none;
+        box-shadow: none;
     }
 
-    pre {
-        font-size: 12px;
+    .panel-heading {
+        .panel-title {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: @screen-xs-max) {
+            padding: 15px;
+        }
+    }
+
+    .simple-error {
+        color: @brand-danger;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+}
+
+html.dark-background {
+    background: url(/static/dist/diagonal-noise.png) repeat center center fixed;
+}
+
+img.big-splash-icon {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    height: 200px;
+}
+
+.simple-logout-link {
+    display: block;
+    text-align: right;
+    margin-top: 10px;
+    margin-right: 20px;
+}
+
+
+// Login page
+// -------------------------
+
+body.login {
+    background-color: transparent;
+
+    .centered-form-panel {
+        width: 300px;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 9px rgba(0,0,0,0.1);
+    }
+
+    .login-logo {
+        height: 250px;
+        margin-top: -45px;
+        margin-bottom: -15px;
+    }
+
+    h1 {
         font-weight: 200;
-        font-family: proxima-nova;
-        line-height: 1.8;
-        background-color: #fbfbfb;
-        border: none;
-        border-radius: 0;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        padding-left: 12px;
-        margin-top: 0;
-        margin-bottom: 0;
-        margin-left: 6px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: @log-output-height;
-        width: 100%;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 7px;
+        margin-top: 40px;
+        margin-bottom: 50px;
+    }
+
+    .btn {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .form-horizontal .form-group {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    .forgot-link {
+        width: 300px;
+        margin: 0 auto;
+        padding: 0 15px;
+
+        a {
+            color: @gray-light;
+            font-size: 11px;
+        }
+    }
+
+    .login-button-form-group {
+        height: 34px;
+    }
+
+    #login-loading {
+        font-size: 20px;
+        color: #ccc;
+        text-align: center;
     }
 }
 
@@ -1342,5 +1414,45 @@ hr {
             padding-left: 26px;
             padding-top: 1px;
         }
+    }
+}
+
+
+// Error/log listing
+// -------------------------
+
+@log-output-height: 120px;
+
+.log-output {
+    border-left: 1px dotted #ccc;
+    margin-left: 19px;
+    margin-bottom: 8px;
+    margin-right: 6px;
+    position: relative;
+    padding-top: @log-output-height;
+
+    &.live {
+        border-left-color: @brand-warning;
+    }
+
+    pre {
+        font-size: 12px;
+        font-weight: 200;
+        font-family: proxima-nova;
+        line-height: 1.8;
+        background-color: #fbfbfb;
+        border: none;
+        border-radius: 0;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-left: 12px;
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 6px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: @log-output-height;
+        width: 100%;
     }
 }

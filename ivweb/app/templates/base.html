@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="{{ html_class }}">
+<html lang="en" class="{% block html_class %}{% endblock %}">
     <head>
         <meta charset="utf-8">
         <title>{% block title %}{{ constants.APP_LABEL }}{% endblock %}</title>

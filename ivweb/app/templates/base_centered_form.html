@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body_class %}no-navbar{% endblock %}
+
+{% block body %}
+    {% block above_form %}{% endblock %}
+    <div class="panel panel-default centered-form-panel">
+        {% block panel_heading %}
+            <div class="panel-heading">
+                <h3 class="panel-title">{% block form_title %}{% endblock %}</h3>
+            </div>
+        {% endblock %}
+        <div class="panel-body">
+            {% block form_content %}Empty.{% endblock %}
+        </div>
+    </div>
+    {% block below_form %}{% endblock %}
+{% endblock %}

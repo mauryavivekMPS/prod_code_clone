@@ -1,0 +1,60 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Settings</h1>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                <form id="user-form" class="form-horizontal" method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row">
+                        <label for="email" class="col-sm-2">Email</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ request.user.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="first_name" class="col-sm-2">Name</label>
+                        <div class="col-sm-3">
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-sm-3">
+                            {{ form.last_name}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-2">Password</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static set-password-link"><a href="#">Set password...</a></p>
+                            {{ form.password }}
+                        </div>
+                    </div>
+                    <div class="form-group submit-row">
+                        <button type="submit" class="btn btn-primary submit-button">
+                            Save Changes
+                        </button>
+                        <span class="cancel">or <a href="../">Cancel</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            UserSettingsPage.init();
+        });
+    </script>
+{% endblock %}

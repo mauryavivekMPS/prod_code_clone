@@ -5,6 +5,13 @@ from django.conf.urls.static import static
 urlpatterns = patterns(
     'ivweb.app.views',
 
+    # auth
+    url(r'^login/$', 'auth.login', name='login'),
+    url(r'^logout/$', 'auth.logout', name='logout'),
+
+    # user settings
+    url(r'^settings/$', 'auth.settings', name='settings'),
+
     # homepage
     url(r'^$', 'home.home', name='home'),
 

@@ -7,5 +7,5 @@ from ivetl.models.IssnJournal import Issn_Journal
 from ivetl.models.PipelineStatus import Pipeline_Status
 from ivetl.models.PipelineTaskStatus import Pipeline_Task_Status
 from ivetl.models.RejectedArticles import Rejected_Articles
-from ivetl.models.User import User
+from ivetl.models.User import User, AnonymousUser
 from ivetl.models.PublisherUser import Publisher_User

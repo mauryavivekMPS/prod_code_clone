@@ -27,6 +27,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'ivweb.app.middleware.AuthenticationMiddleware',
 )
 
 ROOT_URLCONF = 'ivweb.urls'
@@ -64,6 +65,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'app/static')
 
 # Sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+# Auth
+LOGIN_URL = '/login/'
 
 # Logging setup
 LOG_ROOT = os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb')
