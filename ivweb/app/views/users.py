@@ -1,7 +1,7 @@
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from ivetl.models import User
+from ivetl.models import User, Publisher_User
 
 
 def list_users(request):
@@ -16,12 +16,14 @@ class AdminUserForm(forms.Form):
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
     staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}))
 
     def __init__(self, *args, instance=None, **kwargs):
         initial = {}
         if instance:
             initial = dict(instance)
             initial.pop('password')  # clear out the encoded password
+            initial['publishers'] = ', '.join([p.publisher_id for p in Publisher_User.objects.filter(user_email=instance.email)])
 
         super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -38,6 +40,18 @@ class AdminUserForm(forms.Form):
         )
 
         user = User.objects.get(email=email)
+
+        publishers = []
+        if self.cleaned_data['publishers']:
+            publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
+
+            # delete existing
+            for publisher_user in Publisher_User.objects(user_email=email):
+                publisher_user.delete()
+
+            # and recreate
+            for publisher_id in publisher_id_list:
+                Publisher_User.objects.create(user_email=email, publisher_id=publisher_id)
 
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data['password'])

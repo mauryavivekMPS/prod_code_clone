@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from ivetl.common import common
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Publisher_User
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def list_pipelines(request, pipeline_id):
 
     # get all publishers that support this pipeline
     supported_publishers = []
-    for publisher in Publisher_Metadata.objects.all():
+    for publisher in request.user.get_accessible_publishers():
         if pipeline_id in publisher.supported_pipelines:
             supported_publishers.append(publisher)
 
@@ -111,9 +111,9 @@ class UploadForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}))
     file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control'}))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
-        all_choices = list(Publisher_Metadata.objects.values_list('publisher_id', 'name'))
+        all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
@@ -123,7 +123,7 @@ def upload(request, pipeline_id):
     validation_errors = []
 
     if request.method == 'POST':
-        form = UploadForm(request.POST, request.FILES)
+        form = UploadForm(request.user, request.POST, request.FILES)
         if form.is_valid():
             publisher_id = form.cleaned_data['publisher']
             uploaded_file = request.FILES['file']
@@ -191,7 +191,7 @@ def upload(request, pipeline_id):
                 })
 
     else:
-        form = UploadForm()
+        form = UploadForm(request.user)
 
     return render(request, 'pipelines/upload.html', {
         'pipeline': pipeline,
@@ -203,9 +203,9 @@ def upload(request, pipeline_id):
 class RunForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super(RunForm, self).__init__(*args, **kwargs)
-        all_choices = list(Publisher_Metadata.objects.values_list('publisher_id', 'name'))
+        all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
@@ -214,7 +214,7 @@ def run(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     if request.method == 'POST':
-        form = RunForm(request.POST)
+        form = RunForm(request.user, request.POST)
         if form.is_valid():
             publisher_id = form.cleaned_data['publisher']
             if publisher_id:
@@ -232,7 +232,7 @@ def run(request, pipeline_id):
             return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id}))
 
     else:
-        form = RunForm()
+        form = RunForm(request.user)
 
     return render(request, 'pipelines/run.html', {
         'pipeline': pipeline,

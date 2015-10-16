@@ -33,7 +33,12 @@
                     <div class="form-group row">
                         <label for="email" class="col-sm-2">Email</label>
                         <div class="col-sm-6">
-                            {{ form.email }}
+                            {% if user.email %}
+                                <input type="hidden" name="email" value="{{ user.email }}">
+                                <p class="form-control-static">{{ user.email }}</p>
+                            {% else %}
+                                {{ form.email }}
+                            {% endif %}
                         </div>
                     </div>
                     <div class="form-group row">
@@ -52,6 +57,12 @@
                                 <label>{{ form.staff }} Staff</label>
                                 <label>{{ form.superuser }} Superuser</label>
                             </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="accounts" class="col-sm-2">Publishers</label>
+                        <div class="col-sm-6">
+                            {{ form.publishers }}
                         </div>
                     </div>
                     <div class="form-group submit-row">

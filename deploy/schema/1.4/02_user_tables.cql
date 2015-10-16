@@ -25,9 +25,9 @@ CREATE TABLE user (
   compression={'sstable_compression': 'LZ4Compressor'};
 
 CREATE TABLE publisher_user (
-  publisher_id text,
   user_email text,
-  PRIMARY KEY ((publisher_id), user_email)
+  publisher_id text,
+  PRIMARY KEY ((user_email), publisher_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

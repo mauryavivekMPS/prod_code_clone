@@ -2,12 +2,16 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata
+from ivetl.models import Publisher_Metadata, Publisher_User
 
 
 @login_required
 def list_publishers(request):
-    publishers = Publisher_Metadata.objects.all()
+    if request.user.superuser:
+        publishers = Publisher_Metadata.objects.all()
+    else:
+        publisher_id_list = [p.publisher_id for p in Publisher_User.objects.filter(user_email=request.user.email)]
+        publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
     return render(request, 'publishers/list.html', {'publishers': publishers})
 
 
@@ -30,9 +34,9 @@ class PublisherForm(forms.Form):
         initial = {}
         if instance:
             initial = dict(instance)
-            initial['scopus_api_keys'] = ','.join(initial['scopus_api_keys'])
-            initial['published_articles_issns_to_lookup'] = ','.join(initial['published_articles_issns_to_lookup'])
-            initial['issn_to_hw_journal_code'] = ','.join(['%s:%s' % (k, v) for k, v in initial['issn_to_hw_journal_code'].items()])
+            initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
+            initial['published_articles_issns_to_lookup'] = ', '.join(initial['published_articles_issns_to_lookup'])
+            initial['issn_to_hw_journal_code'] = ', '.join(['%s:%s' % (k, v) for k, v in initial['issn_to_hw_journal_code'].items()])
             initial['published_articles'] = 'published_articles' in initial['supported_pipelines']
             initial['article_citations'] = 'article_citations' in initial['supported_pipelines']
             initial['custom_article_data'] = 'custom_article_data' in initial['supported_pipelines']
@@ -63,7 +67,8 @@ class PublisherForm(forms.Form):
         if self.cleaned_data['issn_to_hw_journal_code']:
             issn_to_hw_journal_code = {k: v for k, v in [[p.strip() for p in s.strip().split(":")] for s in self.cleaned_data['issn_to_hw_journal_code'].split(",")]}
 
-        publisher = Publisher_Metadata.objects(publisher_id=self.cleaned_data['publisher_id']).update(
+        publisher_id = self.cleaned_data['publisher_id']
+        Publisher_Metadata.objects(publisher_id=publisher_id).update(
             name=self.cleaned_data['name'],
             hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
             issn_to_hw_journal_code=issn_to_hw_journal_code,
@@ -75,19 +80,30 @@ class PublisherForm(forms.Form):
             pilot=self.cleaned_data['pilot'],
         )
 
+        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
         return publisher
 
 
 @login_required
 def edit(request, publisher_id=None):
     publisher = None
+    new = True
     if publisher_id:
+        new = False
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
     if request.method == 'POST':
         form = PublisherForm(request.POST, instance=publisher)
         if form.is_valid():
-            form.save()
+            publisher = form.save()
+
+            if new and not request.user.superuser:
+                Publisher_User.objects.create(
+                    user_email=request.user.email,
+                    publisher_id=publisher.publisher_id,
+                )
+
             return HttpResponseRedirect(reverse('publishers.list'))
     else:
         form = PublisherForm(instance=publisher)
