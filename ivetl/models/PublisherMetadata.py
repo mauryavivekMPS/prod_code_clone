@@ -13,6 +13,7 @@ class Publisher_Metadata(Model):
     crossref_username = columns.Text()
     crossref_password = columns.Text()
     supported_pipelines = columns.List(columns.Text(index=True))
+    pilot = columns.Boolean()
 
     @property
     def display_name(self):

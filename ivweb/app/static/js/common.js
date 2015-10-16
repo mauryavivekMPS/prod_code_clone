@@ -455,3 +455,40 @@ var RunPage = (function() {
     };
 
 })();
+
+
+//
+// Edit Publisher page
+//
+
+var EditPublisherPage = (function() {
+    var f;
+    var pipelineId = '';
+
+    var checkForm = function() {
+        var publisherId = f.find("#id_publisher_id").val();
+        var name = f.find("#id_name").val();
+
+        if (publisherId && name) {
+            f.find('.submit-button').removeClass('disabled');
+        }
+        else {
+            f.find('.submit-button').addClass('disabled');
+        }
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            new: false
+        }, options);
+
+        f = $('#publisher-form');
+        f.find('#id_publisher_id').on('keyup', checkForm);
+        f.find('#id_name').on('keyup', checkForm);
+    };
+
+    return {
+        init: init
+    };
+
+})();

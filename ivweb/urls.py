@@ -13,6 +13,8 @@ urlpatterns = patterns(
 
     # publishers
     url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),
+    url(r'^publishers/new/$', 'publishers.edit', name='publishers.new'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/$', 'publishers.edit', name='publishers.edit'),
 
     # pipeline details
     url(r'^pipelines/(?P<pipeline_id>[\w]+)/$', 'pipelines.list_pipelines', name='pipelines.list'),
