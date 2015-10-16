@@ -1,10 +1,13 @@
 {% extends "base_standard.html" %}
+{% load tags %}
 {% block title %}Users{% endblock %}
+{% block body_class %}user{% endblock %}
 
 {% block content %}
     <div class="row header-row">
         <div class="col-md-8">
             <h1>Users</h1>
+            <a class="btn btn-default small add-user-button" href="new/">+ Add User</a>
         </div>
     </div>
 
@@ -13,23 +16,27 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Name</th>
                         <th>Email</th>
-                        <th>Type</th>
-                        <th>Added</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th class="text-center">Staff</th>
+                        <th class="text-center">Superuser</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <a href="#">
-                                HighWire Staff
-                            </a>
-                        </td>
-                        <td>staff@highwire.org</td>
-                        <td>Staff</td>
-                        <td>2015-08-14</td>
-                    </tr>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'users.edit' user.slug %}">
+                                    {{ user.email }}
+                                </a>
+                            </td>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td class="text-center">{% checkmark user.staff %}</td>
+                            <td class="text-center">{% checkmark user.superuser %}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

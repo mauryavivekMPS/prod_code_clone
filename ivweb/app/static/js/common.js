@@ -463,7 +463,7 @@ var RunPage = (function() {
 
 var EditPublisherPage = (function() {
     var f;
-    var pipelineId = '';
+    var publisherId = '';
 
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
@@ -479,12 +479,51 @@ var EditPublisherPage = (function() {
 
     var init = function(options) {
         options = $.extend({
-            new: false
+            publisherId: ''
         }, options);
+
+        publisherId = options.publisherId;
 
         f = $('#publisher-form');
         f.find('#id_publisher_id').on('keyup', checkForm);
         f.find('#id_name').on('keyup', checkForm);
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// Edit User page
+//
+
+var EditUserPage = (function() {
+    var f;
+    var email = '';
+
+    var checkForm = function() {
+        var email = f.find("#id_email").val();
+
+        if (email) {
+            f.find('.submit-button').removeClass('disabled');
+        }
+        else {
+            f.find('.submit-button').addClass('disabled');
+        }
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            email: ''
+        }, options);
+
+        email = options.email;
+
+        f = $('#user-form');
+        f.find('#id_email').on('keyup', checkForm);
     };
 
     return {

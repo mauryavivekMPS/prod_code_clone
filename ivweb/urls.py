@@ -10,6 +10,8 @@ urlpatterns = patterns(
 
     # users
     url(r'^users/$', 'users.list_users', name='users.list'),
+    url(r'^users/new/$', 'users.edit', name='users.new'),
+    url(r'^users/(?P<slug>[\w\-\.]+)/$', 'users.edit', name='users.edit'),
 
     # publishers
     url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),

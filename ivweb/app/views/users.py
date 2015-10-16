@@ -1,5 +1,51 @@
-from django.shortcuts import render
+from django import forms
+from django.shortcuts import render, HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from ivetl.models import User
 
 
 def list_users(request):
-    return render(request, 'users/list.html', {})
+    users = User.objects.all()
+    return render(request, 'users/list.html', {'users': users})
+
+
+class UserForm(forms.Form):
+    email = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'user@domain.com'}))
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
+    staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+
+    def __init__(self, *args, instance=None, **kwargs):
+        initial = {}
+        if instance:
+            initial = dict(instance)
+
+        super(UserForm, self).__init__(initial=initial, *args, **kwargs)
+
+    def save(self):
+        user = User.objects(email=self.cleaned_data['email']).update(
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            staff=self.cleaned_data['staff'],
+            superuser=self.cleaned_data['superuser'],
+        )
+
+        return user
+
+
+def edit(request, slug=None):
+    user = None
+    if slug:
+        email = User.slug_to_email(slug)
+        user = User.objects.get(email=email)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('users.list'))
+    else:
+        form = UserForm(instance=user)
+
+    return render(request, 'users/new.html', {'form': form, 'user': user})
