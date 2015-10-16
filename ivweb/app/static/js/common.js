@@ -524,6 +524,11 @@ var EditUserPage = (function() {
 
         f = $('#user-form');
         f.find('#id_email').on('keyup', checkForm);
+
+        f.find('.set-password-link a').click(function() {
+            $('.set-password-link').hide();
+            $('#id_password').show();
+        });
     };
 
     return {

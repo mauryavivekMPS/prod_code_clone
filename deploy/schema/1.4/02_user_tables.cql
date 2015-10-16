@@ -2,6 +2,7 @@ USE impactvizor;
 
 CREATE TABLE user (
   email text,
+  password text,
   first_name text,
   last_name text,
   staff boolean,

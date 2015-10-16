@@ -11,8 +11,9 @@ def list_users(request):
 
 class UserForm(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'user@domain.com'}))
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
     staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
@@ -20,16 +21,26 @@ class UserForm(forms.Form):
         initial = {}
         if instance:
             initial = dict(instance)
+            initial.pop('password')  # clear out the encoded password
 
         super(UserForm, self).__init__(initial=initial, *args, **kwargs)
 
+        if instance:
+            self.fields['password'].widget.attrs['style'] = 'display:none'
+
     def save(self):
-        user = User.objects(email=self.cleaned_data['email']).update(
+        email = self.cleaned_data['email']
+        User.objects(email=email).update(
             first_name=self.cleaned_data['first_name'],
             last_name=self.cleaned_data['last_name'],
             staff=self.cleaned_data['staff'],
             superuser=self.cleaned_data['superuser'],
         )
+
+        user = User.objects.get(email=email)
+
+        if self.cleaned_data['password']:
+            user.set_password(self.cleaned_data['password'])
 
         return user
 
