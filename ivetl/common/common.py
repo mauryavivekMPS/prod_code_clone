@@ -2,6 +2,27 @@ import os
 import sendgrid
 
 
+PRODUCTS = [
+    {
+        'product': 'published_articles',
+        'pipelines': [
+            {
+                'pipeline_id': 'published_articles',
+                'cohort': False,
+            }
+        ]
+    },
+    {
+        'product': 'cohort',
+        'pipelines': [
+            {
+                'pipeline_id': 'published_articles',
+                'cohort': True,
+            }
+        ]
+    }
+]
+
 PIPELINES = [
     {
         'name': 'Published Articles',
@@ -46,7 +67,7 @@ PIPELINES = [
         'name': 'Rejected Articles',
         'id': 'rejected_article_tracker',
         'class': 'ivetl.rat.MonitorIncomingFileTask',
-        'has_file_input': False,
+        'has_file_input': True,
         'validator_class': None,
         'tasks': ()
     },

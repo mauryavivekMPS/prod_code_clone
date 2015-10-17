@@ -61,9 +61,9 @@
         </div>
     {% endblock %}
 
-    {% if request.user.staff %}
-        <div id="left-menu">
-            <nav>
+    <div id="left-menu">
+        <nav>
+            {% if request.user.staff %}
                 <ul>
                     <li class="dashboard_menu_item">
                         <a href="{% url 'home' %}">Dashboard</a>
@@ -85,11 +85,20 @@
                         </li>
                     {% endfor %}
                 </ul>
-            </nav>
-        </div>
-    {% endif %}
+            {% else %}
+                <ul>
+                    <li class="dashboard_menu_item">
+                        <a href="{% url 'home' %}">Dashboard</a>
+                    </li>
+                    <li class="help_menu_item">
+                        <a href="#">Help</a>
+                    </li>
+                </ul>
+            {% endif %}
+        </nav>
+    </div>
 
-    <div id="main-container" class="container-fluid">
+    <div id="main-container" class="container-fluid {% if not request.staff %}publisher-user{% endif %}">
         <div class="messages-container" style="display:none"></div>
         <div class="errors-container" style="display:none"></div>
         <div id="main-pjax-container">

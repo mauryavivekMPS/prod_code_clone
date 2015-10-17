@@ -1,0 +1,39 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Audit Log{% endblock %}
+{% block body_class %}audit-log{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Audit Log</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Event Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Entity Type</th>
+                        <th>Entity ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log_entry in audit_log %}
+                        <tr>
+                            <td>{{ log_entry.event_time }}</td>
+                            <td>{{ log_entry.user_id }}</td>
+                            <td>{{ log_entry.action }}</td>
+                            <td>{{ log_entry.entity_type }}</td>
+                            <td>{{ log_entry.entity_id }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

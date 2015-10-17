@@ -12,6 +12,9 @@ urlpatterns = patterns(
     # user settings
     url(r'^settings/$', 'auth.settings', name='settings'),
 
+    # audit log
+    url(r'^audit/$', 'audit.show', name='audit'),
+
     # homepage
     url(r'^$', 'home.home', name='home'),
 

@@ -1,13 +1,14 @@
 USE impactvizor;
 
 CREATE TABLE user (
+  user_id text,
   email text,
   password text,
   first_name text,
   last_name text,
   staff boolean,
   superuser boolean,
-  PRIMARY KEY ((email))
+  PRIMARY KEY (user_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
@@ -25,9 +26,9 @@ CREATE TABLE user (
   compression={'sstable_compression': 'LZ4Compressor'};
 
 CREATE TABLE publisher_user (
-  user_email text,
+  user_id text,
   publisher_id text,
-  PRIMARY KEY ((user_email), publisher_id)
+  PRIMARY KEY ((user_id), publisher_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

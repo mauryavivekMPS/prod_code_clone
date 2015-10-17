@@ -5,7 +5,8 @@ from django.contrib.auth.hashers import check_password as django_check_password
 from ivetl.models import Publisher_User, Publisher_Metadata
 
 
-class AnonymousUser(object):
+class Anonymous_User(object):
+    user_id = ''
     email = ''
     staff = False
     superuser = False
@@ -18,7 +19,8 @@ class AnonymousUser(object):
 
 
 class User(Model):
-    email = columns.Text(primary_key=True)
+    user_id = columns.Text(primary_key=True)
+    email = columns.Text()
     password = columns.Text()
     first_name = columns.Text()
     last_name = columns.Text()

@@ -360,6 +360,10 @@ body {
     margin-left: @left-menu-width;
     padding-right: 30px;
 
+    //&.publisher-user {
+    //    margin-left: 0;
+    //}
+
     .header-row {
         margin-bottom: 10px;
 
@@ -1454,5 +1458,25 @@ body.login {
         left: 0;
         height: @log-output-height;
         width: 100%;
+    }
+}
+
+
+// User home
+// -------------------------
+
+.user-home {
+
+    .publisher-name {
+        margin-top: 15px;
+        font-weight: 600;
+    }
+
+    .pipeline-status-list {
+        margin-bottom: 25px;
+
+        > li {
+            margin-bottom: 10px;
+        }
     }
 }

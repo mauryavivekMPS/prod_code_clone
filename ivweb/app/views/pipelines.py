@@ -111,9 +111,13 @@ class UploadForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}))
     file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control'}))
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, *args, publisher=None, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
-        all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
+        if publisher:
+            all_choices = [(publisher.publisher_id, publisher.name)]
+        else:
+            all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
+
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
@@ -121,6 +125,7 @@ class UploadForm(forms.Form):
 def upload(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
+    publisher = None
 
     if request.method == 'POST':
         form = UploadForm(request.user, request.POST, request.FILES)
@@ -191,12 +196,17 @@ def upload(request, pipeline_id):
                 })
 
     else:
-        form = UploadForm(request.user)
+        publisher_id = request.GET.get('publisher')
+        if publisher_id:
+            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+        form = UploadForm(request.user, publisher=publisher)
 
     return render(request, 'pipelines/upload.html', {
         'pipeline': pipeline,
         'form': form,
-        'validation_errors': validation_errors
+        'validation_errors': validation_errors,
+        'publisher': publisher,
     })
 
 

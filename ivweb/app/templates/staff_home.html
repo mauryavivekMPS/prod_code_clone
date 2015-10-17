@@ -11,7 +11,11 @@
 
     <div class="row">
         <div class="col-md-12">
-            <p>Welcome to IVWEB.</p>
+            {% if request.user.superuser %}
+                <p>Welcome superuser &ndash; you can access all the publishers! (That is, {{ publishers|length }} of them.)</p>
+            {% else %}
+                <p>Welcome staff user &ndash; you can access {{ publishers|length }} publisher{{ publishers|pluralize }} today.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
