@@ -26,7 +26,7 @@
                     {% for log_entry in audit_log %}
                         <tr>
                             <td>{{ log_entry.event_time }}</td>
-                            <td>{{ log_entry.user_id }}</td>
+                            <td>{{ log_entry.user_email }}</td>
                             <td>{{ log_entry.action }}</td>
                             <td>{{ log_entry.entity_type }}</td>
                             <td>{{ log_entry.entity_id }}</td>

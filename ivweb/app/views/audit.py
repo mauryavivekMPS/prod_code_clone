@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Audit_Log
+from ivetl.models import Audit_Log, User
 
 
 @login_required
 def show(request):
-    audit_log = Audit_Log.objects.all()
+    audit_log = sorted(Audit_Log.objects.all().limit(1000), key=lambda l: l.event_time, reverse=True)
+    user_id_to_email = {u.user_id: u.email for u in User.objects.all()}
+    for log in audit_log:
+        setattr(log, 'user_email', user_id_to_email[log.user_id])
     return render(request, 'audit_log.html', {'audit_log': audit_log})
 
