@@ -29,7 +29,7 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
                     d = utils.parse_custom_data_line(line)
 
-                    doi = d['doi'].lower()
+                    doi = d['doi'].lower().strip()
                     tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                     # data is added only to the values table and we let the resolver figure out the rest
