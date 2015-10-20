@@ -11,3 +11,5 @@ DATABASES = {
         'HOST': '10.0.1.12',
     }
 }
+
+ALLOWED_HOSTS = ['10.0.1.99']
