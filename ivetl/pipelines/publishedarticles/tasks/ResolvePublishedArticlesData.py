@@ -23,7 +23,10 @@ class ResolvePublishedArticlesData(Task):
                 doi = line[1]
 
                 # grab the canonical article record that we're operating on
-                article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                try:
+                    article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                except Published_Article.DoesNotExist:
+                    continue
 
                 # resolve policy: if a value from source=custom is present it always wins
                 for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:
