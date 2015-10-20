@@ -27,7 +27,7 @@
                     {% for user in users %}
                         <tr>
                             <td>
-                                <a href="{% url 'users.edit' user.slug %}">
+                                <a href="{% url 'users.edit' user.user_id %}">
                                     {{ user.email }}
                                 </a>
                             </td>

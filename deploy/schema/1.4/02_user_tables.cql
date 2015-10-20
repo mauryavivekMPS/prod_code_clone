@@ -1,7 +1,7 @@
 USE impactvizor;
 
 CREATE TABLE user (
-  user_id text,
+  user_id uuid,
   email text,
   password text,
   first_name text,
@@ -25,8 +25,10 @@ CREATE TABLE user (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
+CREATE INDEX email_index ON user (email);
+
 CREATE TABLE publisher_user (
-  user_id text,
+  user_id uuid,
   publisher_id text,
   PRIMARY KEY ((user_id), publisher_id)
 ) WITH

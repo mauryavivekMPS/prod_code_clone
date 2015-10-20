@@ -1,7 +1,7 @@
 USE impactvizor;
 
 CREATE TABLE audit_log (
-  user_id text,
+  user_id uuid,
   event_time timestamp,
   action text,
   entity_type text,

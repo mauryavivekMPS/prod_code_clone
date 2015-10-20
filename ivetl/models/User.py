@@ -1,3 +1,4 @@
+import uuid
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 from django.contrib.auth.hashers import make_password as django_make_password
@@ -19,8 +20,8 @@ class Anonymous_User(object):
 
 
 class User(Model):
-    user_id = columns.Text(primary_key=True)
-    email = columns.Text()
+    user_id = columns.UUID(primary_key=True, default=uuid.uuid4)
+    email = columns.Text(index=True)
     password = columns.Text()
     first_name = columns.Text()
     last_name = columns.Text()
@@ -37,6 +38,10 @@ class User(Model):
     @property
     def slug(self):
         return self.email.replace('@', '-at-')
+
+    @property
+    def user_id_as_str(self):
+        return str(self.user_id)
 
     def set_password(self, password):
         self.password = self.make_password(password)

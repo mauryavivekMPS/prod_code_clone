@@ -18,8 +18,10 @@
     <div>
         <div class="row">
             <div class="col-md-12">
+                {{ form.errors }}
                 <form id="user-form" class="form-horizontal" method="post">
                     {% csrf_token %}
+                    {{ form.user_id }}
 
                     <div class="form-group row">
                         <label for="first_name" class="col-sm-2">Name</label>
@@ -33,12 +35,7 @@
                     <div class="form-group row">
                         <label for="email" class="col-sm-2">Email</label>
                         <div class="col-sm-6">
-                            {% if user.email %}
-                                <input type="hidden" name="email" value="{{ user.email }}">
-                                <p class="form-control-static">{{ user.email }}</p>
-                            {% else %}
-                                {{ form.email }}
-                            {% endif %}
+                            {{ form.email }}
                         </div>
                     </div>
                     <div class="form-group row">

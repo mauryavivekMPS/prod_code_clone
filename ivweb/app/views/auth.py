@@ -14,7 +14,7 @@ def login(request):
         try:
             user = User.objects.get(email=email)
             if user.check_password(password):
-                request.session['user_email'] = user.email
+                request.session['user_id'] = str(user.user_id)
                 return HttpResponseRedirect(reverse('home'))
 
         except User.DoesNotExist:
@@ -26,7 +26,7 @@ def login(request):
 
 
 def logout(request):
-    request.session['user_email'] = None
+    request.session['user_id'] = None
     return HttpResponseRedirect(reverse('login'))
 
 
