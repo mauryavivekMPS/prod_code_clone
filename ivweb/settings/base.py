@@ -1,7 +1,7 @@
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = '-3&ciydd_*vkt93q=v+9!j53!ectu290_v6*$ea!_re&8=25u3'
+SECRET_KEY = '-3&ciydd_*vkt93q=vasdfasdf+9!j53!ectu290_v6*$ea!_re&8=25u3'
 
 DEBUG = False
 
@@ -11,7 +11,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # 'django.contrib.auth',
     # 'django.contrib.contenttypes',
-    # 'django.contrib.sessions',
+    'django.contrib.sessions',
     # 'django.contrib.messages',
     'django_cassandra_engine',
     # 'django.contrib.staticfiles',
@@ -19,7 +19,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    # 'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     # 'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -27,6 +27,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'ivweb.app.middleware.AuthenticationMiddleware',
 )
 
 ROOT_URLCONF = 'ivweb.urls'
@@ -61,6 +62,12 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'app/static')
+
+# Sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+# Auth
+LOGIN_URL = '/login/'
 
 # Logging setup
 LOG_ROOT = os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb')

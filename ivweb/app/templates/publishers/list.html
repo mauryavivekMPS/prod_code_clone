@@ -1,12 +1,13 @@
 {% extends "base_standard.html" %}
 {% load tags %}
 {% block title %}Publishers{% endblock %}
+{% block body_class %}publisher{% endblock %}
 
 {% block content %}
     <div class="row header-row">
         <div class="col-md-8">
             <h1>Publishers</h1>
-{#            <a class="btn btn-default small add-publisher-button" href="#">+ Add Publisher</a>#}
+            <a class="btn btn-default small add-publisher-button" href="new/">+ Add Publisher</a>
         </div>
     </div>
 
@@ -20,13 +21,14 @@
                         <th class="text-center">Pipelines</th>
                         <th class="text-center">Scopus</th>
                         <th class="text-center">Crossref</th>
+                        <th class="text-center">Pilot</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for publisher in publishers %}
                         <tr>
                             <td>
-                                <a href="#">
+                                <a href="{% url 'publishers.edit' publisher.publisher_id %}">
                                     {{ publisher.name }}
                                 </a>
                             </td>
@@ -34,6 +36,7 @@
                             <td class="text-center">{{ publisher.supported_pipelines|length }}</td>
                             <td class="text-center">{% checkmark publisher.supports_scopus %}</td>
                             <td class="text-center">{% checkmark publisher.supports_crossref %}</td>
+                            <td class="text-center">{% checkmark publisher.pilot %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

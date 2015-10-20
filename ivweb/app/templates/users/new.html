@@ -1,0 +1,89 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}{% if user %}{{ user.email }}{% else %}New User{% endif %}{% endblock %}
+{% block body_class %}user{% endblock %}
+
+{% block content %}
+    <div class="row header-row with-breadcrumb">
+        <div class="col-md-8">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'users.list' %}">Users</a></li>
+                <li></li>
+            </ol>
+            <h1>{% if user %}{{ user.email }}{% else %}New User{% endif %}</h1>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                {{ form.errors }}
+                <form id="user-form" class="form-horizontal" method="post">
+                    {% csrf_token %}
+                    {{ form.user_id }}
+
+                    <div class="form-group row">
+                        <label for="first_name" class="col-sm-2">Name</label>
+                        <div class="col-sm-3">
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-sm-3">
+                            {{ form.last_name}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="email" class="col-sm-2">Email</label>
+                        <div class="col-sm-6">
+                            {{ form.email }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-2">Password</label>
+                        <div class="col-sm-6">
+                            {% if user %}
+                                <p class="form-control-static set-password-link"><a href="#">Set password...</a></p>
+                            {% endif %}
+                            {{ form.password }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Options</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.staff }} Staff</label>
+                                <label>{{ form.superuser }} Superuser</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="accounts" class="col-sm-2">Publishers</label>
+                        <div class="col-sm-6">
+                            {{ form.publishers }}
+                        </div>
+                    </div>
+                    <div class="form-group submit-row">
+                        <button type="submit" class="btn btn-primary submit-button {% if not user %}disabled{% endif %}">
+                            {% if user %}
+                                Save Changes
+                            {% else %}
+                                Add User
+                            {% endif %}
+                        </button>
+                        <span class="cancel">or <a href="../">Cancel</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            EditUserPage.init({
+                email: '{{ user.email }}'
+            });
+        });
+    </script>
+{% endblock %}

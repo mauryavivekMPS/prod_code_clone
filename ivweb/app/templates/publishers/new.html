@@ -1,0 +1,107 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}{% if publisher %}{{ publisher.name }}{% else %}New Publisher{% endif %}{% endblock %}
+{% block body_class %}publisher{% endblock %}
+
+{% block content %}
+    <div class="row header-row with-breadcrumb">
+        <div class="col-md-8">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
+                <li></li>
+            </ol>
+            <h1>{% if publisher %}{{ publisher.name }}{% else %}New Publisher{% endif %}</h1>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                <form id="publisher-form" class="form-horizontal" method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row">
+                        <label for="publisher_id" class="col-sm-2">Publisher ID</label>
+                        <div class="col-sm-3">
+                            {{ form.publisher_id }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2">Name</label>
+                        <div class="col-sm-6">
+                            {{ form.name }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="scopus_api_keys" class="col-sm-2">ISSNs</label>
+                        <div class="col-sm-6">
+                            {{ form.published_articles_issns_to_lookup }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="scopus_api_keys" class="col-sm-2">ISSN-to-Journal</label>
+                        <div class="col-sm-6">
+                            {{ form.issn_to_hw_journal_code }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="scopus_api_keys" class="col-sm-2">Scopus API Keys</label>
+                        <div class="col-sm-6">
+                            {{ form.scopus_api_keys }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="crossref_username" class="col-sm-2">Crossref Credentials</label>
+                        <div class="col-sm-3">
+                            {{ form.crossref_username }}
+                        </div>
+                        <div class="col-sm-3">
+                            {{ form.crossref_password }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Pipelines</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.published_articles }} Published Articles</label>
+                                <label>{{ form.article_citations }} Article Citations</label>
+                                <label>{{ form.custom_article_data }} Custom Article Data</label>
+                                <label>{{ form.rejected_article_tracker }} Rejected Articles</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Options</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.hw_addl_metadata_available }} Additional metadata available from HighWire</label>
+                                <label>{{ form.pilot }} Pilot Account</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group submit-row">
+                        <button type="submit" class="btn btn-primary submit-button {% if not publisher %}disabled{% endif %}">
+                            {% if publisher %}
+                                Save Changes
+                            {% else %}
+                                Add Publisher
+                            {% endif %}
+                        </button>
+                        <span class="cancel">or <a href="../">Cancel</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            EditPublisherPage.init({
+                publisherId: '{{ publisher.publisher_id }}'
+            });
+        });
+    </script>
+{% endblock %}

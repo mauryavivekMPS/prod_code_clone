@@ -5,13 +5,15 @@
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
-    <div class="row header-row with-breadcrumb">
+    <div class="row header-row {% if user.staff %}with-breadcrumb{% endif %}">
         <div class="col-md-8">
-            <ol class="breadcrumb">
-                <li><a href="#">Pipelines</a></li>
-                <li><a href="{% url 'pipelines.list' pipeline.id %}">{{ pipeline.name }}</a></li>
-                <li></li>
-            </ol>
+            {% if user.staff %}
+                <ol class="breadcrumb">
+                    <li><a href="#">Pipelines</a></li>
+                    <li><a href="{% url 'pipelines.list' pipeline.id %}">{{ pipeline.name }}</a></li>
+                    <li></li>
+                </ol>
+            {% endif %}
             <h1>Upload {{ pipeline.name }}</h1>
         </div>
     </div>
@@ -25,7 +27,11 @@
                     <div class="form-group row">
                         <label for="publisher" class="col-sm-2">Publisher</label>
                         <div class="col-sm-6">
-                            {{ form.publisher }}
+                            {% if publisher %}
+                                <p class="form-control-static">{{ publisher.name }}</p>
+                            {% else %}
+                                {{ form.publisher }}
+                            {% endif %}
                         </div>
                     </div>
 
@@ -40,7 +46,7 @@
                         <button type="submit" class="btn btn-primary submit-button disabled">
                             Upload
                         </button>
-                        <span class="cancel">or <a href="../">Cancel</a></span>
+                        <span class="cancel">or <a href="{% if user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
                     </div>
                 </form>
             </div>

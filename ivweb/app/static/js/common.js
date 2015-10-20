@@ -148,6 +148,7 @@ var PipelineListPage = (function() {
     var tailUrl = '';
     var runForPublisherUrl = '';
     var runForAllUrl = '';
+    var isSuperuser = false;
     var refreshIntervalIds = {};
     var tailIntervalIds = {};
 
@@ -308,6 +309,7 @@ var PipelineListPage = (function() {
             updatePublisherUrl: '',
             runForPublisherUrl: '',
             runForAllUrl: '',
+            isSuperuser: false,
             csrfToken: ''
         }, options);
 
@@ -317,15 +319,19 @@ var PipelineListPage = (function() {
         runForPublisherUrl = options.runForPublisherUrl;
         runForAllUrl = options.runForAllUrl;
         tailUrl = options.tailUrl;
+        isSuperuser = options.isSuperuser;
 
-        $('.run-button').click(function() {
-            $('#run-pipeline-form').submit();
-            return false;
-        });
+        if (isSuperuser) {
+            $('.run-button').click(function() {
+                $('#run-pipeline-form').submit();
+                return false;
+            });
 
-        wirePublisherLinks('.publisher-link');
+            wirePublisherLinks('.publisher-link');
+            wireTaskLinks('.task-link');
+        }
+
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
-        wireTaskLinks('.task-link');
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {
@@ -447,6 +453,144 @@ var RunPage = (function() {
 
         f.submit(function() {
             IvetlWeb.showLoading();
+        });
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// Edit Publisher page
+//
+
+var EditPublisherPage = (function() {
+    var f;
+    var publisherId = '';
+
+    var checkForm = function() {
+        var publisherId = f.find("#id_publisher_id").val();
+        var name = f.find("#id_name").val();
+
+        if (publisherId && name) {
+            f.find('.submit-button').removeClass('disabled');
+        }
+        else {
+            f.find('.submit-button').addClass('disabled');
+        }
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            publisherId: ''
+        }, options);
+
+        publisherId = options.publisherId;
+
+        f = $('#publisher-form');
+        f.find('#id_publisher_id').on('keyup', checkForm);
+        f.find('#id_name').on('keyup', checkForm);
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// Edit User page
+//
+
+var EditUserPage = (function() {
+    var f;
+    var email = '';
+
+    var checkForm = function() {
+        var email = f.find("#id_email").val();
+
+        if (email) {
+            f.find('.submit-button').removeClass('disabled');
+        }
+        else {
+            f.find('.submit-button').addClass('disabled');
+        }
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            email: ''
+        }, options);
+
+        email = options.email;
+
+        f = $('#user-form');
+        f.find('#id_email').on('keyup', checkForm);
+
+        f.find('.set-password-link a').click(function() {
+            $('.set-password-link').hide();
+            $('#id_password').show();
+        });
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// Login page
+//
+
+var LoginPage = (function() {
+
+    var checkForm = function() {
+        var username = $('#id_email').val();
+        var password = $('#id_password').val();
+        if (username && password) {
+            $('#login-button').removeClass('disabled btn-default').addClass('btn-primary').prop('disabled', false);
+        }
+        else {
+            $('#login-button').addClass('disabled btn-default').removeClass('btn-primary').prop('disabled', true);
+        }
+    };
+
+    var init = function() {
+        $('#id_email').on('keyup', checkForm);
+        $('#id_password').on('keyup', checkForm);
+
+        $('#login-button').click(function () {
+            $(this).fadeOut(100, function() {
+                $('#login-loading').fadeIn(100);
+            });
+        });
+
+        $('#id_email').focus();
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// User Settings page
+//
+
+var UserSettingsPage = (function() {
+
+    var init = function() {
+        $('.set-password-link a').click(function() {
+            $('.set-password-link').hide();
+            $('#id_password').show();
         });
     };
 

@@ -7,11 +7,13 @@ import humanize
 import subprocess
 import json
 import logging
+import datetime
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
+from django.contrib.auth.decorators import login_required
 from ivetl.common import common
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log
 
 log = logging.getLogger(__name__)
 
@@ -27,10 +29,11 @@ def get_recent_runs_for_publisher(pipeline_id, publisher):
     tasks_by_run = []
     for run in recent_runs:
         tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id, job_id=run.job_id)
+        sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
 
         tasks_by_run.append({
             'run': run,
-            'tasks': tasks,
+            'tasks': sorted_tasks,
         })
 
     # bubble up task info for most recent run, with extra info for running or error items
@@ -50,12 +53,13 @@ def get_recent_runs_for_publisher(pipeline_id, publisher):
     }
 
 
+@login_required
 def list_pipelines(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     # get all publishers that support this pipeline
     supported_publishers = []
-    for publisher in Publisher_Metadata.objects.all():
+    for publisher in request.user.get_accessible_publishers():
         if pipeline_id in publisher.supported_pipelines:
             supported_publishers.append(publisher)
 
@@ -71,6 +75,7 @@ def list_pipelines(request, pipeline_id):
     })
 
 
+@login_required
 def include_updated_publisher_runs(request, pipeline_id):
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
@@ -107,18 +112,24 @@ class UploadForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}))
     file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control'}))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, publisher=None, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
-        all_choices = list(Publisher_Metadata.objects.values_list('publisher_id', 'name'))
+        if publisher:
+            all_choices = [(publisher.publisher_id, publisher.name)]
+        else:
+            all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
+
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
+@login_required
 def upload(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
+    publisher = None
 
     if request.method == 'POST':
-        form = UploadForm(request.POST, request.FILES)
+        form = UploadForm(request.user, request.POST, request.FILES)
         if form.is_valid():
             publisher_id = form.cleaned_data['publisher']
             uploaded_file = request.FILES['file']
@@ -186,29 +197,35 @@ def upload(request, pipeline_id):
                 })
 
     else:
-        form = UploadForm()
+        publisher_id = request.GET.get('publisher')
+        if publisher_id:
+            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+        form = UploadForm(request.user, publisher=publisher)
 
     return render(request, 'pipelines/upload.html', {
         'pipeline': pipeline,
         'form': form,
-        'validation_errors': validation_errors
+        'validation_errors': validation_errors,
+        'publisher': publisher,
     })
 
 
 class RunForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super(RunForm, self).__init__(*args, **kwargs)
-        all_choices = list(Publisher_Metadata.objects.values_list('publisher_id', 'name'))
+        all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
+@login_required
 def run(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     if request.method == 'POST':
-        form = RunForm(request.POST)
+        form = RunForm(request.user, request.POST)
         if form.is_valid():
             publisher_id = form.cleaned_data['publisher']
             if publisher_id:
@@ -223,10 +240,18 @@ def run(request, pipeline_id):
             # kick the pipeline off
             pipeline_class.s(publisher_id_list=publisher_id_list).delay()
 
+            Audit_Log.objects.create(
+                user_id=request.user.user_id,
+                event_time=datetime.datetime.now(),
+                action='run-pipeline',
+                entity_type='pipeline',
+                entity_id=pipeline_id,
+            )
+
             return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id}))
 
     else:
-        form = RunForm()
+        form = RunForm(request.user)
 
     return render(request, 'pipelines/run.html', {
         'pipeline': pipeline,
@@ -234,6 +259,7 @@ def run(request, pipeline_id):
     })
 
 
+@login_required
 def tail(request, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']

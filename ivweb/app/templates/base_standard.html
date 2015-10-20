@@ -39,23 +39,21 @@
                                 </li>
                             {% endif %}
                         {% endif %}
-                        <li class="navbar-text">
-                            staff@highwire.org
+                        <li class="dropdown user-dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                {% if not request.user %}
+                                    Anonymous
+                                {% else %}
+                                    {{ request.user.email }}
+                                {% endif %}
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'settings' %}"><span class="lnr lnr-user"></span> User Settings</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url 'logout' %}"><span class="lnr lnr-exit"></span> Log Out</a></li>
+                            </ul>
                         </li>
-{#                        <li class="dropdown user-dropdown">#}
-{#                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">#}
-{#                                staff@highwire.org#}
-{#                                <span class="caret"></span>#}
-{#                            </a>#}
-{#                            <ul class="dropdown-menu">#}
-{#                                <li><a href=""><span class="lnr lnr-user"></span> User Settings</a></li>#}
-{#                                {% if request.account %}#}
-{#                                    <li><a href=""><span class="lnr lnr-cog"></span> Account Settings</a></li>#}
-{#                                {% endif %}#}
-{#                                <li class="divider"></li>#}
-{#                                <li><a href=""><span class="lnr lnr-exit"></span> Log Out</a></li>#}
-{#                            </ul>#}
-{#                        </li>#}
                     </ul>
                 </div>
                 <!-- /.navbar-collapse -->
@@ -65,29 +63,45 @@
 
     <div id="left-menu">
         <nav>
-            <ul>
-                <li>
-                    <a href="{% url 'home' %}">Dashboard</a>
-                </li>
-                <li>
-                    <a href="{% url 'publishers.list' %}">Publishers</a>
-                </li>
-                <li>
-                    <a href="{% url 'users.list' %}">Users</a>
-                </li>
-            </ul>
-            <div class="list-title">Pipelines</div>
-            <ul>
-                {% for pipeline_id, pipeline_name in common.PIPELINE_CHOICES %}
-                    <li class="{{ pipeline_id }}_menu_item">
-                        <a href="{% url 'pipelines.list' pipeline_id %}">{{ pipeline_name }}</a>
+            {% if request.user.staff %}
+                <ul>
+                    <li class="dashboard_menu_item">
+                        <a href="{% url 'home' %}">Dashboard</a>
                     </li>
-                {% endfor %}
-            </ul>
+                    <li class="publisher_menu_item">
+                        <a href="{% url 'publishers.list' %}">Publishers</a>
+                    </li>
+                    {% if request.user.superuser %}
+                        <li class="user_menu_item">
+                            <a href="{% url 'users.list' %}">Users</a>
+                        </li>
+                        <li class="audit_menu_item">
+                            <a href="{% url 'audit' %}">Audit Log</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <div class="list-title">Pipelines</div>
+                <ul>
+                    {% for pipeline_id, pipeline_name in common.PIPELINE_CHOICES %}
+                        <li class="{{ pipeline_id }}_menu_item">
+                            <a href="{% url 'pipelines.list' pipeline_id %}">{{ pipeline_name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul>
+                    <li class="dashboard_menu_item">
+                        <a href="{% url 'home' %}">Dashboard</a>
+                    </li>
+                    <li class="help_menu_item">
+                        <a href="#">Help</a>
+                    </li>
+                </ul>
+            {% endif %}
         </nav>
     </div>
 
-    <div id="main-container" class="container-fluid">
+    <div id="main-container" class="container-fluid {% if not request.staff %}publisher-user{% endif %}">
         <div class="messages-container" style="display:none"></div>
         <div class="errors-container" style="display:none"></div>
         <div id="main-pjax-container">
