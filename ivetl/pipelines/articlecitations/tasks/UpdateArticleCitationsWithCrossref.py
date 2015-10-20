@@ -41,15 +41,14 @@ class UpdateArticleCitationsWithCrossref(Task):
                         citation_doi=citation_doi
                     )
 
-                    if 'Scopus' not in existing_citation.citation_sources and 'Crossref' in existing_citation.citation_sources:
+                    if existing_citation.citation_source_scopus is not True and existing_citation.citation_source_xref is True:
                         add_citation = True
 
                     else:
-                        tlogger.info("Found existing citation %s in crossref, appending to sources" % citation_doi)
+                        tlogger.info("Found existing Scopus citation %s in crossref" % citation_doi)
 
-                        if 'Crossref' not in existing_citation.citation_sources:
-                            existing_citation.citation_sources.append('Crossref')
-                            existing_citation.save()
+                        existing_citation.citation_source_xref = True
+                        existing_citation.save()
 
                 except Article_Citations.DoesNotExist:
                     tlogger.info("Found new citation %s in crossref, adding record" % citation_doi)
@@ -75,7 +74,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                             citation_journal_issn=data['journal_issn'],
                             citation_journal_title=data['journal_title'],
                             citation_pages=data['pages'],
-                            citation_sources=[data['source']],
+                            citation_source_xref=True,
                             citation_title=data['title'],
                             citation_volume=data['volume'],
                             citation_count=1,
