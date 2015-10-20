@@ -3,7 +3,7 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log
+from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, User
 
 
 @login_required
@@ -11,7 +11,7 @@ def list_publishers(request):
     if request.user.superuser:
         publishers = Publisher_Metadata.objects.all()
     else:
-        publisher_id_list = [p.publisher_id for p in Publisher_User.objects.filter(user_email=request.user.email)]
+        publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
         publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
     return render(request, 'publishers/list.html', {'publishers': publishers})
 

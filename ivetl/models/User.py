@@ -68,5 +68,5 @@ class User(Model):
         if self.superuser:
             return Publisher_Metadata.objects.all()
         else:
-            publisher_id_list = [p.publisher_id for p in Publisher_User.objects.filter(user_email=self.email)]
+            publisher_id_list = [p.publisher_id for p in Publisher_User.objects.filter(user_id=self.user_id)]
             return Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)

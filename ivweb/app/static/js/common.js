@@ -148,6 +148,7 @@ var PipelineListPage = (function() {
     var tailUrl = '';
     var runForPublisherUrl = '';
     var runForAllUrl = '';
+    var isSuperuser = false;
     var refreshIntervalIds = {};
     var tailIntervalIds = {};
 
@@ -308,6 +309,7 @@ var PipelineListPage = (function() {
             updatePublisherUrl: '',
             runForPublisherUrl: '',
             runForAllUrl: '',
+            isSuperuser: false,
             csrfToken: ''
         }, options);
 
@@ -317,15 +319,19 @@ var PipelineListPage = (function() {
         runForPublisherUrl = options.runForPublisherUrl;
         runForAllUrl = options.runForAllUrl;
         tailUrl = options.tailUrl;
+        isSuperuser = options.isSuperuser;
 
-        $('.run-button').click(function() {
-            $('#run-pipeline-form').submit();
-            return false;
-        });
+        if (isSuperuser) {
+            $('.run-button').click(function() {
+                $('#run-pipeline-form').submit();
+                return false;
+            });
 
-        wirePublisherLinks('.publisher-link');
+            wirePublisherLinks('.publisher-link');
+            wireTaskLinks('.task-link');
+        }
+
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
-        wireTaskLinks('.task-link');
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {
