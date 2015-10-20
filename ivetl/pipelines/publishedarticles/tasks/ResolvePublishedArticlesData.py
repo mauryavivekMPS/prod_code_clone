@@ -21,10 +21,12 @@ class ResolvePublishedArticlesData(Task):
                     continue
 
                 doi = line[1]
+                tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                 # grab the canonical article record that we're operating on
                 try:
                     article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                    tlogger.info("DOI does not exist in published_article table")
                 except Published_Article.DoesNotExist:
                     continue
 
