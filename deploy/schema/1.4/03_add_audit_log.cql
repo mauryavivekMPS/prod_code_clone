@@ -6,7 +6,7 @@ CREATE TABLE audit_log (
   action text,
   entity_type text,
   entity_id text,
-  PRIMARY KEY (user_id)
+  PRIMARY KEY ((user_id), event_time, action, entity_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

@@ -77,7 +77,7 @@ def edit(request, user_id=None):
             Audit_Log.objects.create(
                 user_id=request.user.user_id,
                 event_time=datetime.datetime.now(),
-                action='create-user' if user else 'edit-user',
+                action='edit-user' if user_id else 'create-user',
                 entity_type='user',
                 entity_id=str(user.user_id),
             )

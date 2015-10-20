@@ -7,12 +7,13 @@ import humanize
 import subprocess
 import json
 import logging
+import datetime
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from ivetl.common import common
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Publisher_User
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log
 
 log = logging.getLogger(__name__)
 
@@ -238,6 +239,14 @@ def run(request, pipeline_id):
 
             # kick the pipeline off
             pipeline_class.s(publisher_id_list=publisher_id_list).delay()
+
+            Audit_Log.objects.create(
+                user_id=request.user.user_id,
+                event_time=datetime.datetime.now(),
+                action='run-pipeline',
+                entity_type='pipeline',
+                entity_id=pipeline_id,
+            )
 
             return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id}))
 

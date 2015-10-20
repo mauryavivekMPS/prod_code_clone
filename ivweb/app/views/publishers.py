@@ -1,8 +1,9 @@
+import datetime
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User
+from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log
 
 
 @login_required
@@ -100,9 +101,17 @@ def edit(request, publisher_id=None):
 
             if new and not request.user.superuser:
                 Publisher_User.objects.create(
-                    user_email=request.user.email,
+                    user_id=request.user.user_id,
                     publisher_id=publisher.publisher_id,
                 )
+
+            Audit_Log.objects.create(
+                user_id=request.user.user_id,
+                event_time=datetime.datetime.now(),
+                action='create-publisher' if new else 'edit-publisher',
+                entity_type='publisher',
+                entity_id=publisher.publisher_id,
+            )
 
             return HttpResponseRedirect(reverse('publishers.list'))
     else:
