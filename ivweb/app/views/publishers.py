@@ -34,6 +34,7 @@ class PublisherForm(forms.Form):
     def __init__(self, *args, instance=None, **kwargs):
         initial = {}
         if instance:
+            self.instance = instance
             initial = dict(instance)
             initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
             initial['published_articles_issns_to_lookup'] = ', '.join(initial['published_articles_issns_to_lookup'])
@@ -42,8 +43,21 @@ class PublisherForm(forms.Form):
             initial['article_citations'] = 'article_citations' in initial['supported_pipelines']
             initial['custom_article_data'] = 'custom_article_data' in initial['supported_pipelines']
             initial['rejected_article_tracker'] = 'rejected_article_tracker' in initial['supported_pipelines']
+        else:
+            self.instance = None
 
         super(PublisherForm, self).__init__(initial=initial, *args, **kwargs)
+
+    def clean_publisher_id(self):
+        publisher_id = self.cleaned_data['publisher_id']
+
+        if self.instance:
+            return self.instance.publisher_id  # can't change this
+        else:
+            if Publisher_Metadata.objects.filter(publisher_id=publisher_id).count():
+                raise forms.ValidationError("This publisher ID is already in use.")
+
+        return publisher_id
 
     def save(self):
         supported_pipelines = []

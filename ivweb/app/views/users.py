@@ -23,14 +23,24 @@ class AdminUserForm(forms.Form):
     def __init__(self, *args, instance=None, **kwargs):
         initial = {}
         if instance:
+            self.instance = instance
             initial = dict(instance)
             initial.pop('password')  # clear out the encoded password
             initial['publishers'] = ', '.join([p.publisher_id for p in Publisher_User.objects.filter(user_id=instance.user_id)])
+        else:
+            self.instance = None
 
         super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
         if instance:
             self.fields['password'].widget.attrs['style'] = 'display:none'
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not self.instance or email != self.instance.email:
+            if User.objects.filter(email=email).count():
+                raise forms.ValidationError("This email address is already in use.")
+        return email
 
     def save(self):
         user_id = self.cleaned_data['user_id']

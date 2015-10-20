@@ -102,8 +102,17 @@
     </div>
 
     <div id="main-container" class="container-fluid {% if not request.staff %}publisher-user{% endif %}">
-        <div class="messages-container" style="display:none"></div>
-        <div class="errors-container" style="display:none"></div>
+        {% if form.errors %}
+            <div class="errors-container">
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" class="lnr lnr-cross"></span>
+                    </button>
+                    There were some problems with your request &mdash; please fix and try again.
+                    {{ form.non_field_errors }}
+                </div>
+            </div>
+        {% endif %}
         <div id="main-pjax-container">
             {% block content %}Empty{% endblock %}
         </div>
