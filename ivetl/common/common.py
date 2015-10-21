@@ -58,42 +58,39 @@ PRODUCTS = [
     {
         'name': 'Published',
         'id': 'published_articles',
+        'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['published_articles'],
-                'cohort': False,
             },
             {
                 'pipeline': PIPELINE_BY_ID['custom_article_data'],
-                'cohort': False,
             },
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
-                'cohort': False,
             },
         ]
     },
     {
         'name': 'Rejected',
         'id': 'rejected_articles',
+        'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['rejected_article_tracker'],
-                'cohort': False,
             }
         ]
     },
     {
         'name': 'Cohort',
         'id': 'cohort_articles',
+        'cohort': True,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['published_articles'],
-                'cohort': True,
             },
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
-                'cohort': True,
             },
         ]
     },

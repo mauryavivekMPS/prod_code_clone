@@ -42,9 +42,13 @@
                         <tr>
                             <td>
                                 {% if publisher %}
-                                    <a href="{% url 'publishers.users.edit' publisher.publisher_id user.user_id %}">
+                                    {% if user.staff %}
                                         {{ user.email }}
-                                    </a>
+                                    {% else %}
+                                        <a href="{% url 'publishers.users.edit' publisher.publisher_id user.user_id %}">
+                                            {{ user.email }}
+                                        </a>
+                                    {% endif %}
                                 {% else %}
                                     <a href="{% url 'users.edit' user.user_id %}">
                                         {{ user.email }}

@@ -84,12 +84,8 @@
                     <div class="list-title">{{ product.name }}</div>
                     <ul>
                         {% for pipeline_entry in product.pipelines %}
-                            <li class="{{ pipeline_entry.pipeline.id }}{% if pipeline_entry.cohort %}_cohort{% endif %}_menu_item">
-                                {% if pipeline_entry.cohort %}
-                                    <a href="#" onclick="alert('Coming soon...'); return false;">{{ pipeline_entry.pipeline.name }}</a>
-                                {% else %}
-                                    <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
-                                {% endif %}
+                            <li class="{{ pipeline_entry.pipeline.id }}{% if product.cohort %}_cohort{% endif %}_menu_item">
+                                <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>
