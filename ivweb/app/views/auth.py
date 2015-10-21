@@ -31,6 +31,7 @@ def logout(request):
 
 
 class UserSettingsForm(forms.Form):
+    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'style': 'display:none'}), required=False)
@@ -42,6 +43,7 @@ class UserSettingsForm(forms.Form):
         super(UserSettingsForm, self).__init__(initial=initial, *args, **kwargs)
 
     def save(self):
+        self.instance.email = self.cleaned_data['email']
         self.instance.first_name = self.cleaned_data['first_name']
         self.instance.last_name = self.cleaned_data['last_name']
         self.instance.save()
