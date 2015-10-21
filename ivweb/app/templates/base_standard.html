@@ -80,14 +80,20 @@
                         </li>
                     {% endif %}
                 </ul>
-                <div class="list-title">Pipelines</div>
-                <ul>
-                    {% for pipeline_id, pipeline_name in common.PIPELINE_CHOICES %}
-                        <li class="{{ pipeline_id }}_menu_item">
-                            <a href="{% url 'pipelines.list' pipeline_id %}">{{ pipeline_name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% for product in common.PRODUCTS %}
+                    <div class="list-title">{{ product.name }}</div>
+                    <ul>
+                        {% for pipeline_entry in product.pipelines %}
+                            <li class="{{ pipeline_entry.pipeline.id }}{% if pipeline_entry.cohort %}_cohort{% endif %}_menu_item">
+                                {% if pipeline_entry.cohort %}
+                                    <a href="#" onclick="alert('Coming soon...'); return false;">{{ pipeline_entry.pipeline.name }}</a>
+                                {% else %}
+                                    <a href="{% url 'pipelines.list' pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
             {% else %}
                 <ul>
                     <li class="dashboard_menu_item">
