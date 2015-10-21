@@ -5,6 +5,12 @@ register = template.Library()
 
 @register.simple_tag
 def status_icon(status_item=None):
+    if type(status_item) == bool:
+        if status_item:
+            return '<span class="status-icon status-success"></span>'
+        else:
+            return '<span class="status-icon status-empty"></span>'
+
     if status_item:
         if status_item.status == 'started':
             return '<span class="status-icon status-empty"></span>'

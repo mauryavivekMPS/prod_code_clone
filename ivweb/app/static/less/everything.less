@@ -308,7 +308,8 @@ body {
 .article_citations_pipeline #left-menu .article_citations_menu_item,
 .rejected_article_tracker_pipeline #left-menu .rejected_article_tracker_menu_item,
 .published_articles_cohort_pipeline #left-menu .published_articles_cohort_menu_item,
-.article_citations_cohort_pipeline #left-menu .article_citations_cohort_menu_item {
+.article_citations_cohort_pipeline #left-menu .article_citations_cohort_menu_item,
+.user-home #left-menu .user_home_menu_item {
     a {
         color: @color-secondary-1-1;
     }
@@ -1490,17 +1491,17 @@ body.login {
 // -------------------------
 
 .user-home {
-
-    .publisher-name {
-        margin-top: 15px;
-        font-weight: 600;
+    .dashboard-status-col {
+        color: #999;
+        padding-left: 30px;
     }
 
-    .pipeline-status-list {
-        margin-bottom: 25px;
-
-        > li {
-            margin-bottom: 10px;
-        }
+    .little-upload-button {
+        font-size: 10px;
+        padding: 2px 8px;
+        margin-left: 10px;
+        vertical-align: 1px;
+        //opacity: .4;
+        //transition: opacity ease-in-out .2s;
     }
 }

@@ -56,7 +56,7 @@ PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
 PRODUCTS = [
     {
-        'name': 'Published',
+        'name': 'Published Articles',
         'id': 'published_articles',
         'cohort': False,
         'pipelines': [
@@ -72,8 +72,8 @@ PRODUCTS = [
         ]
     },
     {
-        'name': 'Rejected',
-        'id': 'rejected_articles',
+        'name': 'Rejected Manuscripts',
+        'id': 'rejected_manuscripts',
         'cohort': False,
         'pipelines': [
             {
