@@ -65,9 +65,9 @@
         <nav>
             {% if request.user.staff %}
                 <ul>
-                    <li class="dashboard_menu_item">
-                        <a href="{% url 'home' %}">Dashboard</a>
-                    </li>
+{#                    <li class="dashboard_menu_item">#}
+{#                        <a href="{% url 'home' %}">Dashboard</a>#}
+{#                    </li>#}
                     <li class="publisher_menu_item">
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
@@ -80,21 +80,26 @@
                         </li>
                     {% endif %}
                 </ul>
-                <div class="list-title">Pipelines</div>
-                <ul>
-                    {% for pipeline_id, pipeline_name in common.PIPELINE_CHOICES %}
-                        <li class="{{ pipeline_id }}_menu_item">
-                            <a href="{% url 'pipelines.list' pipeline_id %}">{{ pipeline_name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% for product in common.PRODUCTS %}
+                    <div class="list-title">{{ product.name }}</div>
+                    <ul>
+                        {% for pipeline_entry in product.pipelines %}
+                            <li class="{{ pipeline_entry.pipeline.id }}{% if product.cohort %}_cohort{% endif %}_menu_item">
+                                <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
             {% else %}
                 <ul>
-                    <li class="dashboard_menu_item">
+                    <li class="user_home_menu_item">
                         <a href="{% url 'home' %}">Dashboard</a>
                     </li>
-                    <li class="help_menu_item">
-                        <a href="#">Help</a>
+                    <li class="reports_menu_item">
+                        <a href="#">Reports</a>
+                    </li>
+                    <li class="support_menu_item">
+                        <a href="#">Support</a>
                     </li>
                 </ul>
             {% endif %}
@@ -102,8 +107,17 @@
     </div>
 
     <div id="main-container" class="container-fluid {% if not request.staff %}publisher-user{% endif %}">
-        <div class="messages-container" style="display:none"></div>
-        <div class="errors-container" style="display:none"></div>
+        {% if form.errors %}
+            <div class="errors-container">
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" class="lnr lnr-cross"></span>
+                    </button>
+                    There were some problems with your request &mdash; please fix and try again.
+                    {{ form.non_field_errors }}
+                </div>
+            </div>
+        {% endif %}
         <div id="main-pjax-container">
             {% block content %}Empty{% endblock %}
         </div>

@@ -16,10 +16,11 @@
                 <form id="user-form" class="form-horizontal" method="post">
                     {% csrf_token %}
 
-                    <div class="form-group row">
+                    <div class="form-group row {% if form.email.errors %}error{% endif %}">
                         <label for="email" class="col-sm-2">Email</label>
                         <div class="col-sm-6">
-                            <p class="form-control-static">{{ request.user.email }}</p>
+                            {{ form.email }}
+                            {{ form.email.errors }}
                         </div>
                     </div>
 

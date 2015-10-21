@@ -54,20 +54,23 @@ def get_recent_runs_for_publisher(pipeline_id, publisher):
 
 
 @login_required
-def list_pipelines(request, pipeline_id):
+def list_pipelines(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     # get all publishers that support this pipeline
     supported_publishers = []
-    for publisher in request.user.get_accessible_publishers():
-        if pipeline_id in publisher.supported_pipelines:
-            supported_publishers.append(publisher)
+    if not product['cohort']:  # leave cohort products empty for now
+        for publisher in request.user.get_accessible_publishers():
+            if product_id in publisher.supported_products:
+                supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, publisher))
 
     return render(request, 'pipelines/list.html', {
+        'product': product,
         'pipeline': pipeline,
         'runs_by_publisher': recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
@@ -76,7 +79,8 @@ def list_pipelines(request, pipeline_id):
 
 
 @login_required
-def include_updated_publisher_runs(request, pipeline_id):
+def include_updated_publisher_runs(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
@@ -123,7 +127,8 @@ class UploadForm(forms.Form):
 
 
 @login_required
-def upload(request, pipeline_id):
+def upload(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
     publisher = None
@@ -179,6 +184,7 @@ def upload(request, pipeline_id):
 
             if validation_errors:
                 return render(request, 'pipelines/upload_error.html', {
+                    'product': product,
                     'pipeline': pipeline,
                     'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
@@ -189,7 +195,7 @@ def upload(request, pipeline_id):
 
             else:
                 return render(request, 'pipelines/upload_success.html', {
-                    'pipeline': pipeline,
+                    'product': product,
                     'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
                     'file_size': uploaded_file_size,
@@ -204,6 +210,7 @@ def upload(request, pipeline_id):
         form = UploadForm(request.user, publisher=publisher)
 
     return render(request, 'pipelines/upload.html', {
+        'product': product,
         'pipeline': pipeline,
         'form': form,
         'validation_errors': validation_errors,
@@ -221,7 +228,8 @@ class RunForm(forms.Form):
 
 
 @login_required
-def run(request, pipeline_id):
+def run(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     if request.method == 'POST':
@@ -254,13 +262,15 @@ def run(request, pipeline_id):
         form = RunForm(request.user)
 
     return render(request, 'pipelines/run.html', {
+        'product': product,
         'pipeline': pipeline,
         'form': form
     })
 
 
 @login_required
-def tail(request, pipeline_id):
+def tail(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']
     job_id = request.REQUEST['job_id']
@@ -280,6 +290,7 @@ def tail(request, pipeline_id):
         content += '\n'  # just want a single newline
 
     return render(request, 'pipelines/include/tail.html', {
+        'product': product,
         'pipeline': pipeline,
         'content': content,
     })

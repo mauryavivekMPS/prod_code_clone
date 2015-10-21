@@ -2,12 +2,21 @@ import datetime
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from ivetl.models import User, Publisher_User, Audit_Log
+from ivetl.models import User, Publisher_User, Audit_Log, Publisher_Metadata
 
 
-def list_users(request):
-    users = User.objects.all()
-    return render(request, 'users/list.html', {'users': users})
+def list_users(request, publisher_id=None):
+    if publisher_id:
+        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher_users = [u.user_id for u in Publisher_User.objects.filter(publisher_id=publisher_id)]
+        users = User.objects.filter(user_id__in=publisher_users)
+    else:
+        publisher = None
+        users = User.objects.all()
+    return render(request, 'users/list.html', {
+        'users': users,
+        'publisher': publisher,
+    })
 
 
 class AdminUserForm(forms.Form):
@@ -20,17 +29,29 @@ class AdminUserForm(forms.Form):
     superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}), required=False)
 
-    def __init__(self, *args, instance=None, **kwargs):
+    def __init__(self, *args, instance=None, for_publisher=None, **kwargs):
+        self.for_publisher = for_publisher
         initial = {}
         if instance:
+            self.instance = instance
             initial = dict(instance)
             initial.pop('password')  # clear out the encoded password
-            initial['publishers'] = ', '.join([p.publisher_id for p in Publisher_User.objects.filter(user_id=instance.user_id)])
+            if not for_publisher:
+                initial['publishers'] = ', '.join([p.publisher_id for p in Publisher_User.objects.filter(user_id=instance.user_id)])
+        else:
+            self.instance = None
 
         super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
         if instance:
             self.fields['password'].widget.attrs['style'] = 'display:none'
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not self.instance or email != self.instance.email:
+            if User.objects.filter(email=email).count():
+                raise forms.ValidationError("This email address is already in use.")
+        return email
 
     def save(self):
         user_id = self.cleaned_data['user_id']
@@ -39,25 +60,37 @@ class AdminUserForm(forms.Form):
         else:
             user = User.objects.create()
 
-        user.update(
-            email=self.cleaned_data['email'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            staff=self.cleaned_data['staff'],
-            superuser=self.cleaned_data['superuser'],
-        )
+        if self.for_publisher:
+            user.update(
+                email=self.cleaned_data['email'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                # no setting of staff or superuser
+            )
 
-        publishers = []
-        if self.cleaned_data['publishers']:
-            publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
+            # add perms for just the current publisher
+            Publisher_User.objects.create(user_id=user.user_id, publisher_id=self.for_publisher.publisher_id)
 
-            # delete existing
-            for publisher_user in Publisher_User.objects(user_id=user.user_id):
-                publisher_user.delete()
+        else:
+            user.update(
+                email=self.cleaned_data['email'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                staff=self.cleaned_data['staff'],
+                superuser=self.cleaned_data['superuser'],
+            )
 
-            # and recreate
-            for publisher_id in publisher_id_list:
-                Publisher_User.objects.create(user_id=user.user_id, publisher_id=publisher_id)
+            publishers = []
+            if self.cleaned_data['publishers']:
+                publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
+
+                # delete existing
+                for publisher_user in Publisher_User.objects(user_id=user.user_id):
+                    publisher_user.delete()
+
+                # and recreate
+                for publisher_id in publisher_id_list:
+                    Publisher_User.objects.create(user_id=user.user_id, publisher_id=publisher_id)
 
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data['password'])
@@ -65,13 +98,18 @@ class AdminUserForm(forms.Form):
         return user
 
 
-def edit(request, user_id=None):
+def edit(request, publisher_id=None, user_id=None):
+    if publisher_id:
+        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    else:
+        publisher = None
+
     user = None
     if user_id:
         user = User.objects.get(user_id=user_id)
 
     if request.method == 'POST':
-        form = AdminUserForm(request.POST, instance=user)
+        form = AdminUserForm(request.POST, instance=user, for_publisher=publisher)
         if form.is_valid():
             user = form.save()
             Audit_Log.objects.create(
@@ -81,8 +119,15 @@ def edit(request, user_id=None):
                 entity_type='user',
                 entity_id=str(user.user_id),
             )
-            return HttpResponseRedirect(reverse('users.list'))
+            if publisher:
+                return HttpResponseRedirect(reverse('publishers.users', kwargs={'publisher_id': publisher.publisher_id}))
+            else:
+                return HttpResponseRedirect(reverse('users.list'))
     else:
-        form = AdminUserForm(instance=user)
+        form = AdminUserForm(instance=user, for_publisher=publisher)
 
-    return render(request, 'users/new.html', {'form': form, 'user': user})
+    return render(request, 'users/new.html', {
+        'form': form,
+        'user': user,
+        'publisher': publisher,
+    })

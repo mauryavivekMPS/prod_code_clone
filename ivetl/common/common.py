@@ -2,27 +2,6 @@ import os
 import sendgrid
 
 
-PRODUCTS = [
-    {
-        'product': 'published_articles',
-        'pipelines': [
-            {
-                'pipeline_id': 'published_articles',
-                'cohort': False,
-            }
-        ]
-    },
-    {
-        'product': 'cohort',
-        'pipelines': [
-            {
-                'pipeline_id': 'published_articles',
-                'cohort': True,
-            }
-        ]
-    }
-]
-
 PIPELINES = [
     {
         'name': 'Published Articles',
@@ -74,6 +53,51 @@ PIPELINES = [
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
+
+PRODUCTS = [
+    {
+        'name': 'Published Articles',
+        'id': 'published_articles',
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['published_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['custom_article_data'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+        ]
+    },
+    {
+        'name': 'Rejected Manuscripts',
+        'id': 'rejected_manuscripts',
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['rejected_article_tracker'],
+            }
+        ]
+    },
+    {
+        'name': 'Cohort',
+        'id': 'cohort_articles',
+        'cohort': True,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['published_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+        ]
+    },
+]
+PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
+PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
+
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',

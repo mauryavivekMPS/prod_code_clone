@@ -474,12 +474,41 @@ var EditPublisherPage = (function() {
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
         var name = f.find("#id_name").val();
+        var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
+        var rejectedArticlesProduct = f.find('#id_rejected_articles').is(':checked');
 
-        if (publisherId && name) {
+        if (publisherId && name && (publishedArticlesProduct || rejectedArticlesProduct)) {
             f.find('.submit-button').removeClass('disabled');
         }
         else {
             f.find('.submit-button').addClass('disabled');
+        }
+    };
+
+    var updatePublishedArticlesControls = function() {
+        if ($('#id_published_articles').is(':checked')) {
+            $('.published-articles-controls').fadeIn(200);
+        }
+        else {
+            $('.published-articles-controls').fadeOut(100);
+        }
+    };
+
+    var updateHighWireControls = function() {
+        if ($('#id_hw_addl_metadata_available').is(':checked')) {
+            $('.highwire-controls').fadeIn(200);
+        }
+        else {
+            $('.highwire-controls').fadeOut(100);
+        }
+    };
+
+    var updateCrossrefControls = function() {
+        if ($('#id_use_crossref').is(':checked')) {
+            $('.crossref-controls').fadeIn(200);
+        }
+        else {
+            $('.crossref-controls').fadeOut(100);
         }
     };
 
@@ -493,6 +522,21 @@ var EditPublisherPage = (function() {
         f = $('#publisher-form');
         f.find('#id_publisher_id').on('keyup', checkForm);
         f.find('#id_name').on('keyup', checkForm);
+
+        $('#id_published_articles').on('change', function() {
+            updatePublishedArticlesControls();
+            checkForm();
+        });
+        updatePublishedArticlesControls();
+
+        $('#id_hw_addl_metadata_available').on('change', function() {
+            updateHighWireControls();
+            checkForm();
+        });
+        updateHighWireControls();
+
+        $('#id_use_crossref').on('change', updateCrossrefControls);
+        updateCrossrefControls();
     };
 
     return {

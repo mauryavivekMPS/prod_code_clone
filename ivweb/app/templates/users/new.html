@@ -8,7 +8,13 @@
     <div class="row header-row with-breadcrumb">
         <div class="col-md-8">
             <ol class="breadcrumb">
-                <li><a href="{% url 'users.list' %}">Users</a></li>
+                {% if publisher %}
+                    <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
+                    <li><a href="{% url 'publishers.edit' publisher.publisher_id %}">{{ publisher.name }}</a></li>
+                    <li><a href="{% url 'publishers.users' publisher.publisher_id %}">Users</a></li>
+                {% else %}
+                    <li><a href="{% url 'users.list' %}">Users</a></li>
+                {% endif %}
                 <li></li>
             </ol>
             <h1>{% if user %}{{ user.email }}{% else %}New User{% endif %}</h1>
@@ -18,7 +24,6 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-                {{ form.errors }}
                 <form id="user-form" class="form-horizontal" method="post">
                     {% csrf_token %}
                     {{ form.user_id }}
@@ -32,10 +37,11 @@
                             {{ form.last_name}}
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row {% if form.email.errors %}error{% endif %}">
                         <label for="email" class="col-sm-2">Email</label>
                         <div class="col-sm-6">
                             {{ form.email }}
+                            {{ form.email.errors }}
                         </div>
                     </div>
                     <div class="form-group row">
@@ -47,21 +53,23 @@
                             {{ form.password }}
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label class="col-sm-2">Options</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.staff }} Staff</label>
-                                <label>{{ form.superuser }} Superuser</label>
+                    {% if not publisher %}
+                        <div class="form-group row">
+                            <label class="col-sm-2">Options</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.staff }} Staff</label>
+                                    <label>{{ form.superuser }} Superuser</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="accounts" class="col-sm-2">Publishers</label>
-                        <div class="col-sm-6">
-                            {{ form.publishers }}
+                        <div class="form-group row">
+                            <label for="accounts" class="col-sm-2">Publishers</label>
+                            <div class="col-sm-6">
+                                {{ form.publishers }}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button {% if not user %}disabled{% endif %}">
                             {% if user %}
