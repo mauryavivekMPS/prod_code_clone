@@ -23,7 +23,7 @@ class CustomArticleDataValidator(BaseValidator):
                             continue
 
                         # check for number of fields
-                        if len(line) != 7:
+                        if len(line) != 8:
                             errors.append("%s : %s - Incorrect number of fields, skipping other validation" % (file_name, (count - 1)))
                             continue
 
@@ -35,11 +35,11 @@ class CustomArticleDataValidator(BaseValidator):
                             continue
 
                         # and it needs to exist in the database
-                        try:
-                            article = Published_Article.get(publisher_id=publisher_id, article_doi=d['doi'])
-                        except Published_Article.DoesNotExist:
-                            errors.append("%s : %s - DOI not in database, skipping other validation" % (file_name, (count - 1)))
-                            continue
+                        # try:
+                        #     article = Published_Article.get(publisher_id=publisher_id, article_doi=d['doi'].lower())
+                        # except Published_Article.DoesNotExist:
+                        #     errors.append("%s : %s - DOI not in database, skipping other validation - %s" % (file_name, (count - 1), d['doi'].lower()))
+                        #     continue
 
                 total_count += count
                 tsv.close()

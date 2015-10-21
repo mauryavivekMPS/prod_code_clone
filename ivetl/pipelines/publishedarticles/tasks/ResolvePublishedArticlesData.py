@@ -21,9 +21,14 @@ class ResolvePublishedArticlesData(Task):
                     continue
 
                 doi = line[1]
+                tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                 # grab the canonical article record that we're operating on
-                article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                try:
+                    article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                except Published_Article.DoesNotExist:
+                    tlogger.info("DOI does not exist in published_article table")
+                    continue
 
                 # resolve policy: if a value from source=custom is present it always wins
                 for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:

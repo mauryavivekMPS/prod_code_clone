@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+IVETL_ROOT=/Users/nmehta/git/impactvizor-pipeline
+export IVETL_ROOT
+
 IVETL_LOCAL=1
 export IVETL_LOCAL
 

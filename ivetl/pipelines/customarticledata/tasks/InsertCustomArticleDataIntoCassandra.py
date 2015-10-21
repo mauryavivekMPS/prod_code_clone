@@ -29,7 +29,8 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
                     d = utils.parse_custom_data_line(line)
 
-                    doi = d['doi']
+                    doi = d['doi'].lower().strip()
+                    tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                     # data is added only to the values table and we let the resolver figure out the rest
                     Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='article_type').update(value_text=d['toc_section'])
