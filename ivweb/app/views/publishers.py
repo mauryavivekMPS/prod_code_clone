@@ -22,6 +22,7 @@ class PublisherForm(forms.Form):
     published_articles_issns_to_lookup = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated ISSNs'}), required=False)
     issn_to_hw_journal_code = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated pairs of ISSN : Journal Code'}), required=False)
     scopus_api_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated API keys'}), required=False)
+    use_crossref = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     crossref_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     crossref_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     hw_addl_metadata_available = forms.BooleanField(widget=forms.CheckboxInput, required=False)
@@ -44,6 +45,7 @@ class PublisherForm(forms.Form):
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_articles'] = 'rejected_articles' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
+            initial['use_crossref'] = initial['crossref_username'] or initial['instance.crossref_password']
         else:
             self.instance = None
 

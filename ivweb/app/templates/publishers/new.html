@@ -51,6 +51,7 @@
                         </div>
                     </div>
 
+                    <h2>Reporting</h2>
                     <div class="form-group row">
                         <label for="report_username" class="col-sm-2">Report Login</label>
                         <div class="col-sm-3">
@@ -66,37 +67,67 @@
                             {{ form.project_folder }}
                         </div>
                     </div>
+
+                    <h2>Rejected Articles</h2>
                     <div class="form-group row">
-                        <label class="col-sm-2">Pipelines</label>
+                        <label class="col-sm-2">Product</label>
                         <div class="col-sm-6">
                             <div class="checkbox">
-                                <label>{{ form.published_articles }} Analyze Published Articles</label>
-                                <label>{{ form.rejected_articles }} Analyze Rejected Articles</label>
+                                <label>{{ form.rejected_articles }} Enable Rejected Articles</label>
                             </div>
                         </div>
                     </div>
 
+                    <h2>Published Articles</h2>
                     <div class="form-group row">
-                        <label for="scopus_api_keys" class="col-sm-2">ISSNs</label>
+                        <label class="col-sm-2">Product</label>
                         <div class="col-sm-6">
-                            {{ form.published_articles_issns_to_lookup }}
+                            <div class="checkbox">
+                                <label>{{ form.published_articles }} Enable Published Articles</label>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="scopus_api_keys" class="col-sm-2">ISSN-to-Journal</label>
-                        <div class="col-sm-6">
-                            {{ form.issn_to_hw_journal_code }}
+
+                    <div class="published-articles-controls" style="display:none">
+                        <div class="form-group row">
+                            <label for="published_articles_issns_to_lookup" class="col-sm-2">ISSNs</label>
+                            <div class="col-sm-6">
+                                {{ form.published_articles_issns_to_lookup }}
+                            </div>
+                        </div>
+
+                        <div class="highwire-controls" style="display:none">
+                            <div class="form-group row issns-to-journal-row">
+                                <label for="issn_to_hw_journal_code" class="col-sm-2">ISSN-to-Journal</label>
+                                <div class="col-sm-6">
+                                    {{ form.issn_to_hw_journal_code }}
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+                            <label class="col-sm-2">Crossref</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.use_crossref }} Use Crossref</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="crossref-controls" style="display:none">
+                            <div class="form-group row">
+                                <label for="crossref_username" class="col-sm-2">Crossref Login</label>
+                                <div class="col-sm-3">
+                                    {{ form.crossref_username }}
+                                </div>
+                                <div class="col-sm-3">
+                                    {{ form.crossref_password }}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="crossref_username" class="col-sm-2">Crossref Credentials</label>
-                        <div class="col-sm-3">
-                            {{ form.crossref_username }}
-                        </div>
-                        <div class="col-sm-3">
-                            {{ form.crossref_password }}
-                        </div>
-                    </div>
+
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button {% if not publisher %}disabled{% endif %}">
                             {% if publisher %}
