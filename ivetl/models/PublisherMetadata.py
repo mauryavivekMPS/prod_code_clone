@@ -1,5 +1,6 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
+from ivetl.models import Publisher_User
 
 
 class Publisher_Metadata(Model):
@@ -26,3 +27,6 @@ class Publisher_Metadata(Model):
     @property
     def supports_crossref(self):
         return True if self.crossref_username and self.crossref_password else False
+
+    def users(self):
+        return Publisher_User.objects.filter(publisher_id=self.publisher_id)

@@ -4,12 +4,26 @@
 {% block body_class %}user{% endblock %}
 
 {% block content %}
-    <div class="row header-row">
-        <div class="col-md-8">
-            <h1>Users</h1>
-            <a class="btn btn-default small add-user-button" href="new/">+ Add User</a>
+    {% if publisher %}
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
+                    <li><a href="{% url 'publishers.edit' publisher.publisher_id %}">{{ publisher.name }}</a></li>
+                    <li></li>
+                </ol>
+                <h1>Users</h1>
+                <a class="btn btn-default small add-user-button" href="new/">+ Add User</a>
+            </div>
         </div>
-    </div>
+    {% else %}
+        <div class="row header-row">
+            <div class="col-md-8">
+                <h1>Users</h1>
+                <a class="btn btn-default small add-user-button" href="new/">+ Add User</a>
+            </div>
+        </div>
+    {% endif %}
 
     <div class="row">
         <div class="col-md-12">
@@ -27,9 +41,15 @@
                     {% for user in users %}
                         <tr>
                             <td>
-                                <a href="{% url 'users.edit' user.user_id %}">
-                                    {{ user.email }}
-                                </a>
+                                {% if publisher %}
+                                    <a href="{% url 'publishers.users.edit' publisher.publisher_id user.user_id %}">
+                                        {{ user.email }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'users.edit' user.user_id %}">
+                                        {{ user.email }}
+                                    </a>
+                                {% endif %}
                             </td>
                             <td>{{ user.first_name }}</td>
                             <td>{{ user.last_name }}</td>

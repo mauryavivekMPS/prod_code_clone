@@ -79,6 +79,7 @@ def list_pipelines(request, product_id, pipeline_id):
 
 @login_required
 def include_updated_publisher_runs(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
@@ -126,6 +127,7 @@ class UploadForm(forms.Form):
 
 @login_required
 def upload(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
     publisher = None
@@ -181,6 +183,7 @@ def upload(request, product_id, pipeline_id):
 
             if validation_errors:
                 return render(request, 'pipelines/upload_error.html', {
+                    'product': product,
                     'pipeline': pipeline,
                     'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
@@ -191,7 +194,7 @@ def upload(request, product_id, pipeline_id):
 
             else:
                 return render(request, 'pipelines/upload_success.html', {
-                    'pipeline': pipeline,
+                    'product': product,
                     'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
                     'file_size': uploaded_file_size,
@@ -206,6 +209,7 @@ def upload(request, product_id, pipeline_id):
         form = UploadForm(request.user, publisher=publisher)
 
     return render(request, 'pipelines/upload.html', {
+        'product': product,
         'pipeline': pipeline,
         'form': form,
         'validation_errors': validation_errors,
@@ -224,6 +228,7 @@ class RunForm(forms.Form):
 
 @login_required
 def run(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     if request.method == 'POST':
@@ -256,6 +261,7 @@ def run(request, product_id, pipeline_id):
         form = RunForm(request.user)
 
     return render(request, 'pipelines/run.html', {
+        'product': product,
         'pipeline': pipeline,
         'form': form
     })
@@ -263,6 +269,7 @@ def run(request, product_id, pipeline_id):
 
 @login_required
 def tail(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']
     job_id = request.REQUEST['job_id']
@@ -282,6 +289,7 @@ def tail(request, product_id, pipeline_id):
         content += '\n'  # just want a single newline
 
     return render(request, 'pipelines/include/tail.html', {
+        'product': product,
         'pipeline': pipeline,
         'content': content,
     })

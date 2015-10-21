@@ -46,3 +46,5 @@ CREATE TABLE publisher_user (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE INDEX publisher_id_index ON publisher_user (publisher_id);

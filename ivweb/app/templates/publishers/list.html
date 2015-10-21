@@ -18,9 +18,9 @@
                     <tr>
                         <th>Name</th>
                         <th>Publisher ID</th>
-                        <th class="text-center">Pipelines</th>
-                        <th class="text-center">Scopus</th>
-                        <th class="text-center">Crossref</th>
+                        <th>Users</th>
+                        <th class="text-center">Products</th>
+                        <th class="text-center">Customer</th>
                         <th class="text-center">Pilot</th>
                     </tr>
                 </thead>
@@ -33,9 +33,9 @@
                                 </a>
                             </td>
                             <td>{{ publisher.publisher_id }}</td>
-                            <td class="text-center">{{ publisher.supported_pipelines|length }}</td>
-                            <td class="text-center">{% checkmark publisher.supports_scopus %}</td>
-                            <td class="text-center">{% checkmark publisher.supports_crossref %}</td>
+                            <td><a href="{% url 'publishers.users' publisher.publisher_id %}">{{ publisher.users|length }} users</a></td>
+                            <td class="text-center">{{ publisher.supported_products|length }}</td>
+                            <td class="text-center">{% checkmark publisher.hw_addl_metadata_available %}</td>
                             <td class="text-center">{% checkmark publisher.pilot %}</td>
                         </tr>
                     {% endfor %}
