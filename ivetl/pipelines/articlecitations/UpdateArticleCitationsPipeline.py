@@ -10,7 +10,7 @@ from ivetl.models import Publisher_Metadata
 class UpdateArticleCitationsPipeline(Pipeline):
     pipeline_name = "article_citations"
 
-    def run(self, publisher_id_list=[]):
+    def run(self, publisher_id_list=[], product_id=None):
 
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
