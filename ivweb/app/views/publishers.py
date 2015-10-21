@@ -26,10 +26,12 @@ class PublisherForm(forms.Form):
     crossref_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     hw_addl_metadata_available = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    article_citations = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    custom_article_data = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_article_tracker = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    published_articles_product = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    rejected_articles_product = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    cohort_articles_product = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
+    report_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
+    project_folder = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
     def __init__(self, *args, instance=None, **kwargs):
         initial = {}
@@ -39,10 +41,9 @@ class PublisherForm(forms.Form):
             initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
             initial['published_articles_issns_to_lookup'] = ', '.join(initial['published_articles_issns_to_lookup'])
             initial['issn_to_hw_journal_code'] = ', '.join(['%s:%s' % (k, v) for k, v in initial['issn_to_hw_journal_code'].items()])
-            initial['published_articles'] = 'published_articles' in initial['supported_pipelines']
-            initial['article_citations'] = 'article_citations' in initial['supported_pipelines']
-            initial['custom_article_data'] = 'custom_article_data' in initial['supported_pipelines']
-            initial['rejected_article_tracker'] = 'rejected_article_tracker' in initial['supported_pipelines']
+            initial['published_articles_product'] = 'published_articles_product' in initial['supported_products']
+            initial['rejected_articles_product'] = 'rejected_articles_product' in initial['supported_products']
+            initial['cohort_articles_product'] = 'cohort_articles_product' in initial['supported_products']
         else:
             self.instance = None
 
@@ -60,15 +61,13 @@ class PublisherForm(forms.Form):
         return publisher_id
 
     def save(self):
-        supported_pipelines = []
-        if self.cleaned_data['published_articles']:
-            supported_pipelines.append('article_citations')
-        if self.cleaned_data['article_citations']:
-            supported_pipelines.append('published_articles')
-        if self.cleaned_data['custom_article_data']:
-            supported_pipelines.append('custom_article_data')
-        if self.cleaned_data['rejected_article_tracker']:
-            supported_pipelines.append('rejected_article_tracker')
+        supported_products = []
+        if self.cleaned_data['published_articles_product']:
+            supported_products.append('published_articles_product')
+        if self.cleaned_data['rejected_articles_product']:
+            supported_products.append('rejected_articles_product')
+        if self.cleaned_data['cohort_articles_product']:
+            supported_products.append('cohort_articles_product')
 
         scopus_api_keys = []
         if self.cleaned_data['scopus_api_keys']:
@@ -91,7 +90,7 @@ class PublisherForm(forms.Form):
             scopus_api_keys=scopus_api_keys,
             crossref_username=self.cleaned_data['crossref_username'],
             crossref_password=self.cleaned_data['crossref_password'],
-            supported_pipelines=supported_pipelines,
+            supported_products=supported_products,
             pilot=self.cleaned_data['pilot'],
         )
 

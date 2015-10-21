@@ -12,7 +12,7 @@ class Publisher_Metadata(Model):
     scopus_api_keys = columns.List(columns.Text())
     crossref_username = columns.Text()
     crossref_password = columns.Text()
-    supported_pipelines = columns.List(columns.Text(index=True))
+    supported_products = columns.List(columns.Text(index=True))
     pilot = columns.Boolean()
 
     @property
