@@ -54,13 +54,14 @@ def get_recent_runs_for_publisher(pipeline_id, publisher):
 
 
 @login_required
-def list_pipelines(request, pipeline_id):
+def list_pipelines(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     # get all publishers that support this pipeline
     supported_publishers = []
     for publisher in request.user.get_accessible_publishers():
-        if pipeline_id in publisher.supported_pipelines:
+        if product_id in publisher.supported_products:
             supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
@@ -68,6 +69,7 @@ def list_pipelines(request, pipeline_id):
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, publisher))
 
     return render(request, 'pipelines/list.html', {
+        'product': product,
         'pipeline': pipeline,
         'runs_by_publisher': recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
@@ -76,7 +78,7 @@ def list_pipelines(request, pipeline_id):
 
 
 @login_required
-def include_updated_publisher_runs(request, pipeline_id):
+def include_updated_publisher_runs(request, product_id, pipeline_id):
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
@@ -123,7 +125,7 @@ class UploadForm(forms.Form):
 
 
 @login_required
-def upload(request, pipeline_id):
+def upload(request, product_id, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
     publisher = None
@@ -221,7 +223,7 @@ class RunForm(forms.Form):
 
 
 @login_required
-def run(request, pipeline_id):
+def run(request, product_id, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
     if request.method == 'POST':
@@ -260,7 +262,7 @@ def run(request, pipeline_id):
 
 
 @login_required
-def tail(request, pipeline_id):
+def tail(request, product_id, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']
     job_id = request.REQUEST['job_id']

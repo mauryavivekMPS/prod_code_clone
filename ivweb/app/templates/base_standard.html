@@ -88,7 +88,7 @@
                                 {% if pipeline_entry.cohort %}
                                     <a href="#" onclick="alert('Coming soon...'); return false;">{{ pipeline_entry.pipeline.name }}</a>
                                 {% else %}
-                                    <a href="{% url 'pipelines.list' pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
+                                    <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
                                 {% endif %}
                             </li>
                         {% endfor %}

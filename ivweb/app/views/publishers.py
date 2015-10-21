@@ -26,9 +26,9 @@ class PublisherForm(forms.Form):
     crossref_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     hw_addl_metadata_available = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    published_articles_product = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_articles_product = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    cohort_articles_product = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    rejected_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     report_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     project_folder = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
@@ -41,9 +41,9 @@ class PublisherForm(forms.Form):
             initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
             initial['published_articles_issns_to_lookup'] = ', '.join(initial['published_articles_issns_to_lookup'])
             initial['issn_to_hw_journal_code'] = ', '.join(['%s:%s' % (k, v) for k, v in initial['issn_to_hw_journal_code'].items()])
-            initial['published_articles_product'] = 'published_articles_product' in initial['supported_products']
-            initial['rejected_articles_product'] = 'rejected_articles_product' in initial['supported_products']
-            initial['cohort_articles_product'] = 'cohort_articles_product' in initial['supported_products']
+            initial['published_articles'] = 'published_articles' in initial['supported_products']
+            initial['rejected_articles'] = 'rejected_articles' in initial['supported_products']
+            initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
         else:
             self.instance = None
 
@@ -62,12 +62,12 @@ class PublisherForm(forms.Form):
 
     def save(self):
         supported_products = []
-        if self.cleaned_data['published_articles_product']:
-            supported_products.append('published_articles_product')
-        if self.cleaned_data['rejected_articles_product']:
-            supported_products.append('rejected_articles_product')
-        if self.cleaned_data['cohort_articles_product']:
-            supported_products.append('cohort_articles_product')
+        if self.cleaned_data['published_articles']:
+            supported_products.append('published_articles')
+        if self.cleaned_data['rejected_articles']:
+            supported_products.append('rejected_articles')
+        if self.cleaned_data['cohort_articles']:
+            supported_products.append('cohort_articles')
 
         scopus_api_keys = []
         if self.cleaned_data['scopus_api_keys']:

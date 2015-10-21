@@ -57,7 +57,7 @@ PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 PRODUCTS = [
     {
         'name': 'Published',
-        'id': 'published_articles_product',
+        'id': 'published_articles',
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['published_articles'],
@@ -75,7 +75,7 @@ PRODUCTS = [
     },
     {
         'name': 'Rejected',
-        'id': 'rejected_articles_product',
+        'id': 'rejected_articles',
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['rejected_article_tracker'],
@@ -85,7 +85,7 @@ PRODUCTS = [
     },
     {
         'name': 'Cohort',
-        'id': 'cohort_articles_product',
+        'id': 'cohort_articles',
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['published_articles'],
@@ -98,6 +98,9 @@ PRODUCTS = [
         ]
     },
 ]
+PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
+PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
+
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',
