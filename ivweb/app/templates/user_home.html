@@ -13,17 +13,15 @@
     <div class="row">
         <div class="col-md-12">
             {% if not publisher_stats_list %}
-
                 <p>Sorry, you don't have access to any publishers or products.</p>
-
             {%  else %}
 
                 {% for publisher_stats in publisher_stats_list %}
-
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>{{ publisher_stats.publisher.name }}</th>
+                                <th></th>
                                 <th class="status-col"></th>
                             </tr>
                         </thead>
@@ -33,6 +31,7 @@
                                     <td>
                                         {{ product_stats.product.name }}
                                     </td>
+                                    <td></td>
                                     <td class="status-col"></td>
                                 </tr>
                                 {% for pipeline_stats in product_stats.pipeline_stats_list %}
@@ -42,7 +41,9 @@
                                             {% if pipeline_stats.pipeline.has_file_input %}
                                                 <a class="btn btn-default little-upload-button" href="{% url 'pipelines.upload' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
                                             {% endif %}
-
+                                        </td>
+                                        <td class="dashboard-time-col">
+                                            {{ pipeline_stats.recent_run.end_time }}
                                         </td>
                                         <td class="status-col">
                                             {% status_icon pipeline_stats.status %}
@@ -52,7 +53,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-
                 {% endfor %}
             {% endif %}
         </div>
