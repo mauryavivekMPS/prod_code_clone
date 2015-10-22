@@ -13,7 +13,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
     PUB_START_DATE = datetime.date(2010, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publisher_id_list=[], cohort=False, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
+    def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
