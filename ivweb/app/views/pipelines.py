@@ -194,6 +194,15 @@ def upload(request, product_id, pipeline_id):
                 })
 
             else:
+
+                Audit_Log.objects.create(
+                    user_id=request.user.user_id,
+                    event_time=datetime.datetime.now(),
+                    action='upload-file',
+                    entity_type='pipeline-file',
+                    entity_id='%s, %s' % (pipeline_id, uploaded_file_name),
+                )
+
                 return render(request, 'pipelines/upload_success.html', {
                     'product': product,
                     'publisher_id': publisher_id,
