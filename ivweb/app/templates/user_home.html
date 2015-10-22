@@ -35,7 +35,7 @@
                                     <td class="status-col"></td>
                                 </tr>
                                 {% for pipeline_stats in product_stats.pipeline_stats_list %}
-                                    <tr>
+                                    <tr class="pipeline-status-row">
                                         <td class="dashboard-status-col">
                                             {{ pipeline_stats.message }}
                                             {% if pipeline_stats.pipeline.has_file_input %}

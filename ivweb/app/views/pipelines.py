@@ -18,9 +18,12 @@ from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_
 log = logging.getLogger(__name__)
 
 
-def get_recent_runs_for_publisher(pipeline_id, publisher):
+def get_recent_runs_for_publisher(pipeline_id, publisher, only_completed_runs=False):
     # get all the runs
     all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id)
+
+    if only_completed_runs:
+        all_runs = [run for run in all_runs if run.status == 'completed']
 
     # sort the runs by date, most recent at top, take only the top 4
     recent_runs = sorted(all_runs, key=lambda r: r.start_time, reverse=True)[:4]
