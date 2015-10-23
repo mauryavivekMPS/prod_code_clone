@@ -65,9 +65,11 @@
         <nav>
             {% if request.user.staff %}
                 <ul>
-{#                    <li class="dashboard_menu_item">#}
-{#                        <a href="{% url 'home' %}">Dashboard</a>#}
-{#                    </li>#}
+                    {% if not request.user.superuser %}
+                        <li class="dashboard_menu_item">
+                            <a href="{% url 'home' %}">Dashboard</a>
+                        </li>
+                    {% endif %}
                     <li class="publisher_menu_item">
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
