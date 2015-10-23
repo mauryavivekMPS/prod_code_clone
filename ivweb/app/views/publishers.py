@@ -45,7 +45,7 @@ class PublisherForm(forms.Form):
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_articles'] = 'rejected_articles' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
-            initial['use_crossref'] = initial['crossref_username'] or initial['instance.crossref_password']
+            initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
         else:
             self.instance = None
 
