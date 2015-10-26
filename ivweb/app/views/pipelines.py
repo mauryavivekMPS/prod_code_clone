@@ -208,6 +208,7 @@ def upload(request, product_id, pipeline_id):
 
                 return render(request, 'pipelines/upload_success.html', {
                     'product': product,
+                    'pipeline': pipeline,
                     'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
                     'file_size': uploaded_file_size,

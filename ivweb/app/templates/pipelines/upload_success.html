@@ -5,13 +5,15 @@
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
-    <div class="row header-row with-breadcrumb">
+    <div class="row header-row {% if request.user.staff %}with-breadcrumb{% endif %}">
         <div class="col-md-8">
-            <ol class="breadcrumb">
-                <li><a href="#">Pipelines</a></li>
-                <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
-                <li></li>
-            </ol>
+            {% if request.user.staff %}
+                <ol class="breadcrumb">
+                    <li><a href="#">Pipelines</a></li>
+                    <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
+                    <li></li>
+                </ol>
+            {% endif %}
             <h1>Uploaded</h1>
         </div>
     </div>
@@ -31,15 +33,20 @@
                     </div>
                 </div>
                 <div>
-                    <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="../run/">
-                        {% csrf_token %}
-                        <input type="hidden" name="publisher" value="{{ publisher_id }}">
-                        <button type="submit" class="btn btn-primary submit-button">
-                            Run Pipeline for This Publisher Now
-                        </button>
-                        <a href="." class="btn btn-default upload-another-button">+ Upload Another File</a>
-                        <span class="cancel"> or <a href="../">I'm done</a></span>
-                    </form>
+                    {% if request.user.staff %}
+                        <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="../run/">
+                            {% csrf_token %}
+                            <input type="hidden" name="publisher" value="{{ publisher_id }}">
+                                <button type="submit" class="btn btn-primary submit-button">
+                                    Run Pipeline for This Publisher Now
+                                </button>
+                            <a href="." class="btn btn-default upload-another-button">+ Upload Another File</a>
+                            <span class="cancel"> or <a href="../">I'm done</a></span>
+                        </form>
+                    {% else %}
+                        <a href=".?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Another File</a>
+                        <span class="cancel"> or <a href="{% url 'home' %}">I'm done</a></span>
+                    {% endif %}
                 </div>
             </div>
         </div>

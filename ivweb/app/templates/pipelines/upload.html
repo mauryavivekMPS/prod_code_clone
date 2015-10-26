@@ -5,9 +5,9 @@
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
-    <div class="row header-row {% if user.staff %}with-breadcrumb{% endif %}">
+    <div class="row header-row {% if request.user.staff %}with-breadcrumb{% endif %}">
         <div class="col-md-8">
-            {% if user.staff %}
+            {% if request.user.staff %}
                 <ol class="breadcrumb">
                     <li><a href="#">Pipelines</a></li>
                     <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
@@ -29,6 +29,7 @@
                         <div class="col-sm-6">
                             {% if publisher %}
                                 <p class="form-control-static">{{ publisher.name }}</p>
+                                <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
                             {% else %}
                                 {{ form.publisher }}
                             {% endif %}
@@ -58,7 +59,8 @@
     <script>
         $(function() {
             UploadPage.init({
-                pipelineId: '{{ pipeline.id }}'
+                pipelineId: '{{ pipeline.id }}',
+                hasPublisher: {% if publisher %}true{% else %}false{% endif %}
             });
         });
     </script>
