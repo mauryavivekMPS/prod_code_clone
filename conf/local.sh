@@ -11,3 +11,6 @@ unset IVETL_PROD
 
 CQLSH=/Users/john/Projects/dse/bin/cqlsh
 export CQLSH
+
+DJANGO_SETTINGS_MODULE=ivweb.settings.local
+export DJANGO_SETTINGS_MODULE
