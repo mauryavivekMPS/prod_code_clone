@@ -23,7 +23,11 @@ def home(request):
                 for pipeline in product['pipelines']:
                     recent_runs = get_recent_runs_for_publisher(pipeline['pipeline']['id'], publisher)
                     status = True if recent_runs['recent_run'] else False
-                    pipeline_name = pipeline['pipeline']['name'].lower().capitalize()
+
+                    if 'user_facing_display_name' in pipeline['pipeline']:
+                        pipeline_name = pipeline['pipeline']['user_facing_display_name']
+                    else:
+                        pipeline_name = pipeline['pipeline']['name'].lower().capitalize()
 
                     if status:
                         message = '%s updated %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))

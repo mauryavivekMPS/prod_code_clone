@@ -5,13 +5,15 @@
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
-    <div class="row header-row with-breadcrumb">
+    <div class="row header-row {% if request.user.staff %}with-breadcrumb{% endif %}">
         <div class="col-md-8">
-            <ol class="breadcrumb">
-                <li><a href="#">Pipelines</a></li>
-                <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
-                <li></li>
-            </ol>
+            {% if request.user.staff %}
+                <ol class="breadcrumb">
+                    <li><a href="#">Pipelines</a></li>
+                    <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
+                    <li></li>
+                </ol>
+            {% endif %}
             <h1>Upload Failed</h1>
         </div>
     </div>
@@ -32,8 +34,8 @@
                     </div>
                 </div>
                 <div>
-                    <a href="." class="btn btn-default try-upload-again-button">Try Another Upload</a>
-                    <span class="cancel"> or <a href="../">Cancel</a></span>
+                    <a href=".{% if not request.user.staff %}?publisher={{ publisher_id }}{% endif %}" class="btn btn-default upload-another-button">+ Try Another Upload</a>
+                    <span class="cancel"> or <a href="{% if user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'm done</a></span>
                 </div>
             </div>
         </div>

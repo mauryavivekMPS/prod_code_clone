@@ -8,6 +8,7 @@ import subprocess
 import json
 import logging
 import datetime
+import stat
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
@@ -181,9 +182,11 @@ def upload(request, product_id, pipeline_id):
                         pass
                     line_count = i + 1
 
-            # if it passes, move to the pipeline inbox
+            # if it passes, move to the pipeline inbox and make it group writable and world readable
             incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id)
-            shutil.move(temp_file.name, os.path.join(incoming_dir, uploaded_file_name))
+            destination_file_path = os.path.join(incoming_dir, uploaded_file_name)
+            shutil.move(temp_file.name, destination_file_path)
+            os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
             if validation_errors:
                 return render(request, 'pipelines/upload_error.html', {
@@ -208,6 +211,7 @@ def upload(request, product_id, pipeline_id):
 
                 return render(request, 'pipelines/upload_success.html', {
                     'product': product,
+                    'pipeline': pipeline,
                     'publisher_id': publisher_id,
                     'file_name': uploaded_file_name,
                     'file_size': uploaded_file_size,

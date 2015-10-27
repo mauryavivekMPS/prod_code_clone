@@ -356,12 +356,16 @@ var PipelineListPage = (function() {
 var UploadPage = (function() {
     var f;
     var pipelineId = '';
+    var hasPublisher;
 
     var checkForm = function() {
-        var publisherId = f.find("#id_publisher option:selected").val();
+        var publisherId;
+        if (!hasPublisher) {
+            publisherId = f.find("#id_publisher option:selected").val();
+        }
         var file = f.find("#id_file").val();
 
-        if (publisherId && file) {
+        if ((hasPublisher || publisherId) && file) {
             f.find('.submit-button').removeClass('disabled');
         }
         else {
@@ -372,27 +376,30 @@ var UploadPage = (function() {
     var init = function(options) {
         options = $.extend({
             pipelineId: '',
-            selectedPublisher: null
+            hasPublisher: false
         }, options);
 
         f = $('#upload-form');
         pipelineId = options.pipelineId;
+        hasPublisher = options.hasPublisher;
 
-        var publisherMenu = f.find('#id_publisher');
-        var nullPublisherItem = publisherMenu.find('option:first-child');
-        nullPublisherItem.attr('disabled', 'disabled');
-        if (!options.selectedPublisher) {
-            publisherMenu.addClass('placeholder');
-            nullPublisherItem.attr('selected', 'selected');
-        }
-
-        publisherMenu.on('change', function() {
-            var selectedOption = publisherMenu.find("option:selected");
-            if (!selectedOption.attr('disabled')) {
-                publisherMenu.removeClass('placeholder');
+        if (!hasPublisher) {
+            var publisherMenu = f.find('#id_publisher');
+            var nullPublisherItem = publisherMenu.find('option:first-child');
+            nullPublisherItem.attr('disabled', 'disabled');
+            if (!options.selectedPublisher) {
+                publisherMenu.addClass('placeholder');
+                nullPublisherItem.attr('selected', 'selected');
             }
-            checkForm();
-        });
+
+            publisherMenu.on('change', function () {
+                var selectedOption = publisherMenu.find("option:selected");
+                if (!selectedOption.attr('disabled')) {
+                    publisherMenu.removeClass('placeholder');
+                }
+                checkForm();
+            });
+        }
 
         f.find('#id_file').on('change', checkForm);
 

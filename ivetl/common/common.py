@@ -6,6 +6,7 @@ PIPELINES = [
     {
         'name': 'Published Articles',
         'id': 'published_articles',
+        'user_facing_display_name': 'Published articles',
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -20,6 +21,7 @@ PIPELINES = [
     {
         'name': 'Custom Article Data',
         'id': 'custom_article_data',
+        'user_facing_display_name': 'FOAM',
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
@@ -33,6 +35,7 @@ PIPELINES = [
     {
         'name': 'Article Citations',
         'id': 'article_citations',
+        'user_facing_display_name': 'Article citations',
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -45,6 +48,7 @@ PIPELINES = [
     {
         'name': 'Rejected Articles',
         'id': 'rejected_article_tracker',
+        'user_facing_display_name': 'Rejected manuscripts',
         'class': 'ivetl.rat.MonitorIncomingFileTask',
         'has_file_input': True,
         'validator_class': None,
