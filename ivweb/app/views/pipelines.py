@@ -272,7 +272,7 @@ def run(request, product_id, pipeline_id):
                 entity_id=pipeline_id,
             )
 
-            return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id}))
+            return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
 
     else:
         form = RunForm(request.user)
