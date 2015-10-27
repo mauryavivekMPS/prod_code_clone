@@ -262,7 +262,7 @@ def run(request, product_id, pipeline_id):
             pipeline_class = getattr(importlib.import_module(module_name), class_name)
 
             # kick the pipeline off
-            pipeline_class.s(publisher_id_list=publisher_id_list).delay()
+            pipeline_class.s(publisher_id_list=publisher_id_list, product_id=product_id).delay()
 
             Audit_Log.objects.create(
                 user_id=request.user.user_id,
