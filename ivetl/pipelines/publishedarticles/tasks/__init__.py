@@ -5,4 +5,4 @@ from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdL
 from ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData import ResolvePublishedArticlesData
 from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
 from ivetl.pipelines.publishedarticles.tasks.InsertPlaceholderCitationsIntoCassandraTask import InsertPlaceholderCitationsIntoCassandraTask
-
+from ivetl.pipelines.publishedarticles.tasks.InsertCohortOwnerArticlesTask import InsertCohortOwnerArticlesTask

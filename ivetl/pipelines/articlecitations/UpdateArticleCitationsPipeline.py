@@ -50,7 +50,8 @@ class UpdateArticleCitationsPipeline(Pipeline):
             if publisher.is_cohort:
                 chain(
                     tasks.GetScopusArticleCitations.s(task_args) |
-                    tasks.InsertScopusIntoCassandra.s()
+                    tasks.InsertScopusIntoCassandra.s() |
+                    tasks.InsertCohortOwnerCitationsTask.s()
                 ).delay()
             elif publisher.crossref_username is not None and publisher.crossref_password is not None:
                 chain(

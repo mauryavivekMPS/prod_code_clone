@@ -68,7 +68,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                     tasks.GetPublishedArticlesTask.s(task_args) |
                     tasks.ScopusIdLookupTask.s() |
                     tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.CheckRejectedManuscriptTask.s()
+                    tasks.CheckRejectedManuscriptTask.s() |
+                    tasks.InsertCohortOwnerArticlesTask.s()
                 ).delay()
             elif pm.hw_addl_metadata_available:
                 chain(
