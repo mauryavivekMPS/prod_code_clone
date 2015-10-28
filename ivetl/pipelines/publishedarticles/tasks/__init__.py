@@ -4,4 +4,5 @@ from ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandr
 from ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask import ScopusIdLookupTask
 from ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData import ResolvePublishedArticlesData
 from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
+from ivetl.pipelines.publishedarticles.tasks.InsertPlaceholderCitationsIntoCassandraTask import InsertPlaceholderCitationsIntoCassandraTask
 

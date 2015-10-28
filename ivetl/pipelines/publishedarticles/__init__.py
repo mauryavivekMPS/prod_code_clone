@@ -1,2 +1,3 @@
 from ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline import UpdatePublishedArticlesPipeline
 from ivetl.pipelines.publishedarticles.CheckRejectedManuscriptsPipeline import CheckRejectedManuscriptsPipeline
+from ivetl.pipelines.publishedarticles.InsertPlaceholderCitationsPipeline import InsertPlaceholderCitationsPipeline
