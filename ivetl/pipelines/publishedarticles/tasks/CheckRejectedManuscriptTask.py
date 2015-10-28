@@ -39,4 +39,6 @@ class CheckRejectedManuscriptTask(Task):
                 article.update()
                 tlogger.info("Article sourced from rejected manuscript.")
 
+        self.pipeline_ended(publisher_id, job_id)
+
         return {self.COUNT: count}

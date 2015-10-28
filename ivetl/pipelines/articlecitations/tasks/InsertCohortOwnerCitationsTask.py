@@ -18,6 +18,16 @@ class InsertCohortOwnerCitationsTask(Task):
 
         pm = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
+        articles = Published_Article.objects.filter(publisher_id=pm.cohort_owner_publisher_id).limit(limit)
+        count = 0
+        for article in articles:
+            count += 1
+            tlogger.info("---")
+            tlogger.info("%s of %s. Copying Article for %s / %s" % (count, len(articles), pm.cohort_owner_publisher_id, article.article_doi))
+
+            article.publisher_id = publisher_id
+            article.save()
+
         count = 0
         citations = Article_Citations.objects.filter(publisher_id=pm.cohort_owner_publisher_id).limit(limit)
         for cite in citations:
