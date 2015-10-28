@@ -10,6 +10,7 @@ from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTries
 class ScopusConnector(BaseConnector):
     BASE_SCOPUS_URL_XML = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey='
     BASE_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey='
+    ABSTRACT_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/abstract/eid/'
     MAX_ATTEMPTS = 3
     REQUEST_TIMEOUT_SECS = 30
     ITEMS_PER_PAGE = 25
@@ -21,6 +22,7 @@ class ScopusConnector(BaseConnector):
     def get_entry(self, doi, issns, volume, issue, page, tlogger):
         scopus_id = None
         scopus_cited_by_count = None
+        has_abstract = True
 
         attempt = 0
         success = False
@@ -71,9 +73,22 @@ class ScopusConnector(BaseConnector):
                     scopus_id = n[0].text
 
                     c = root.xpath('//entry/citedby-count', namespaces=common.ns)
-
                     if len(c) != 0:
                         scopus_cited_by_count = c[0].text
+
+                    #Check if article has abstract
+                    # abstract_url = self.ABSTRACT_SCOPUS_URL_JSON + scopus_cited_by_count + \
+                    #                '?httpAccept=application%2Fjson&apiKey=' + \
+                    #                self.apikeys[self.count % len(self.apikeys)]
+                    # r = requests.get(abstract_url, timeout=30)
+                    # r.raise_for_status()
+                    #
+                    # has_abstract = False
+                    # abstract_data = r.json()
+                    #
+                    # # if response does not have top tag, assume there is an abstract
+                    # if 'abstracts-retrieval-response' not in abstract_data:
+                    #     has_abstract = True
 
                 success = True
 

@@ -2,7 +2,7 @@ import csv
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Published_Article, Rejected_Articles
+from ivetl.models import Published_Article, Rejected_Articles, Publisher_Metadata
 
 
 @app.task
@@ -14,10 +14,12 @@ class CheckRejectedManuscriptTask(Task):
         if 'max_articles_to_process' in task_args and task_args['max_articles_to_process']:
             article_limit = task_args['max_articles_to_process']
 
-        articles = Published_Article.objects.filter(publisher_id=publisher_id + "_cohort").limit(article_limit)
+        pm = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+        articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(article_limit)
         rm_map = {}
 
-        rms = Rejected_Articles.objects.filter(publisher_id=publisher_id).limit(1000000)
+        rms = Rejected_Articles.objects.filter(publisher_id=pm.cohort_owner_publisher_id).limit(1000000)
         for r in rms:
             if r.status != 'Not Published':
                 rm_map[r.crossref_doi] = r

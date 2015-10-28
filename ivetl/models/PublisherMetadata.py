@@ -13,8 +13,11 @@ class Publisher_Metadata(Model):
     scopus_api_keys = columns.List(columns.Text())
     crossref_username = columns.Text()
     crossref_password = columns.Text()
-    supported_products = columns.List(columns.Text(index=True))
+    supported_products = columns.List(columns.Text())
     pilot = columns.Boolean()
+    is_cohort = columns.Boolean(index=True)
+    cohort_publisher_id = columns.Text()
+    cohort_owner_publisher_id = columns.Text()
 
     @property
     def display_name(self):

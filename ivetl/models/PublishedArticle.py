@@ -34,3 +34,5 @@ class Published_Article(Model):
     rejected_manuscript_id = columns.Text()
     rejected_manuscript_editor = columns.Text()
     date_of_rejection = columns.DateTime()
+    is_cohort = columns.Boolean()
+    has_abstract = columns.Boolean()

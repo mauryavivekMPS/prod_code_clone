@@ -48,3 +48,16 @@ CREATE TABLE publisher_user (
   compression={'sstable_compression': 'LZ4Compressor'};
 
 CREATE INDEX publisher_id_index ON publisher_user (publisher_id);
+
+INSERT INTO impactvizor.user (
+  user_id,
+  email,
+  password,
+  staff,
+  superuser)
+VALUES (
+  55508e06-e168-4192-8e3d-3d2b2b7cc32a,
+  'admin',
+  'pbkdf2_sha256$20000$gNJzEdKc91aq$v0AuoYtGeN8g5T+P2NTUqfJMHBDnX/2TmQLHSI03npY=',
+  true,
+  true);

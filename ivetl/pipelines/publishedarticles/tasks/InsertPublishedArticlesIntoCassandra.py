@@ -29,6 +29,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
         for ij in Issn_Journal.objects.limit(100000):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
 
+        pm = Publisher_Metadata.filter(publisher_id=publisher_id).first()
+
         with codecs.open(file, encoding="utf-16") as tsv:
 
             for line in csv.reader(tsv, delimiter="\t"):
@@ -130,6 +132,11 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if pa.hw_metadata_retrieved is None:
                     pa.hw_metadata_retrieved = False
 
+                if pm.is_cohort:
+                    pa.is_cohort = True
+                else:
+                    pa.is_cohort = False
+
                 pa.save()
 
                 # now add overlapping values to the values table, and leave the rest to the resolver
@@ -147,10 +154,10 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
                 editor = None
                 if 'editor' in data and (data['editor'] != ''):
-                    ed_last_name = data['author'][0]['family']
+                    ed_last_name = data['editor'][0]['family']
                     ed_first_name = ''
-                    if 'given' in data['author'][0]:
-                        ed_first_name = data['author'][0]['given']
+                    if 'given' in data['editor'][0]:
+                        ed_first_name = data['editor'][0]['given']
                     editor = '%s, %s' % (ed_last_name, ed_first_name)
 
                 Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
@@ -185,9 +192,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
             pu['updated'] = updated
             pu.save()
 
-            m = Publisher_Metadata.filter(publisher_id=publisher_id).first()
-            m.published_articles_last_updated = updated
-            m.save()
+            pm.published_articles_last_updated = updated
+            pm.save()
 
         modified_articles_file.close()
         return {self.COUNT: count, 'modified_articles_file': modified_articles_file_name}
