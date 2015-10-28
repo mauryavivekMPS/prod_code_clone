@@ -9,7 +9,7 @@ from ivetl.pipelines.publishedarticles import tasks
 
 @app.task
 class InsertPlaceholderCitationsPipeline(Pipeline):
-    pipeline_name = "published_articles"
+    pipeline_name = "placeholder_citations"
 
     def run(self, publisher_id_list=[], max_articles_to_process=None):
 

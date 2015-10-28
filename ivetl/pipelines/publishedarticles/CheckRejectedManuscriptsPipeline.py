@@ -9,7 +9,7 @@ from ivetl.pipelines.publishedarticles import tasks
 
 @app.task
 class CheckRejectedManuscriptsPipeline(Pipeline):
-    pipeline_name = "published_articles"
+    pipeline_name = "check_rejected_manuscripts"
 
     def run(self, publisher_id_list=[], max_articles_to_process=None):
 
