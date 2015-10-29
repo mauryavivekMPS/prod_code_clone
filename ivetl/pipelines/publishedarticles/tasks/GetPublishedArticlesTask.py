@@ -23,6 +23,7 @@ class GetPublishedArticlesTask(Task):
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
+                          'ISSN\t'
                           'DATA\n')
 
         count = 0
@@ -75,9 +76,10 @@ class GetPublishedArticlesTask(Task):
 
                     for i in xrefdata['message']['items']:
 
-                        row = """%s\t%s\t%s\n""" % (
+                        row = """%s\t%s\t%s\t%s\n""" % (
                             publisher_id,
                             i['DOI'],
+                            issn,
                             json.dumps(i))
 
                         target_file.write(row)

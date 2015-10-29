@@ -10,7 +10,7 @@ from ivetl.pipelines.task import Task
 @app.task
 class GetScopusArticleCitations(Task):
     REPROCESS_ERRORS = 'GetScopusArticleCitations.ReprocessErrors'
-    QUERY_LIMIT = 500000
+    QUERY_LIMIT = 50000000
     MAX_ERROR_COUNT = 100
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
@@ -46,7 +46,7 @@ class GetScopusArticleCitations(Task):
 
             citations = []
             try:
-                citations = connector.get_citations(article.article_scopus_id, tlogger)
+                citations = connector.get_citations(article.article_scopus_id, article.is_cohort, tlogger)
 
             except MaxTriesAPIError:
                 tlogger.info("Scopus API failed for %s" % article.article_scopus_id)
@@ -70,7 +70,11 @@ class GetScopusArticleCitations(Task):
 
         target_file.close()
 
-        return {self.INPUT_FILE: target_file_name, self.COUNT: count}
+        task_args[self.INPUT_FILE] = target_file_name
+        task_args[self.COUNT] = count
+
+        return task_args
+
 
 
 

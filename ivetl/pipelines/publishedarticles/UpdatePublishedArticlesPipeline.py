@@ -31,13 +31,15 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
         for pm in publishers_metadata:
 
-            if product['cohort'] and not pm.is_cohort:
-                continue
-            if not product['cohort'] and pm.is_cohort:
+            if product['cohort'] and not pm.has_cohort:
                 continue
 
             publisher_id = pm.publisher_id
-            issns = pm.published_articles_issns_to_lookup
+
+            if product['cohort']:
+                issns = pm.cohort_articles_issns_to_lookup
+            else:
+                issns = pm.published_articles_issns_to_lookup
 
             if reprocess_all:
                 if product['cohort']:
@@ -63,25 +65,11 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'product_id': product_id
             }
 
-            if pm.is_cohort:
-                chain(
-                    tasks.GetPublishedArticlesTask.s(task_args) |
-                    tasks.ScopusIdLookupTask.s() |
-                    tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.CheckRejectedManuscriptTask.s()
-                ).delay()
-            elif pm.hw_addl_metadata_available:
-                chain(
-                    tasks.GetPublishedArticlesTask.s(task_args) |
-                    tasks.ScopusIdLookupTask.s() |
-                    tasks.HWMetadataLookupTask.s() |
-                    tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.ResolvePublishedArticlesData.s()
-                ).delay()
-            else:
-                chain(
-                    tasks.GetPublishedArticlesTask.s(task_args) |
-                    tasks.ScopusIdLookupTask.s() |
-                    tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.ResolvePublishedArticlesData.s()
-                ).delay()
+            chain(
+                tasks.GetPublishedArticlesTask.s(task_args) |
+                tasks.ScopusIdLookupTask.s() |
+                tasks.HWMetadataLookupTask.s() |
+                tasks.InsertPublishedArticlesIntoCassandra.s() |
+                tasks.ResolvePublishedArticlesData.s() |
+                tasks.CheckRejectedManuscriptTask.s()
+            ).delay()

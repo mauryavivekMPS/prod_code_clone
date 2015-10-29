@@ -55,5 +55,5 @@ class ResolvePublishedArticlesData(Task):
 
             tsv.close()
 
-        self.pipeline_ended(publisher_id, job_id)
-        return {self.COUNT: count}
+        task_args[self.COUNT] = count
+        return task_args

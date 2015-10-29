@@ -28,9 +28,7 @@ class UpdateArticleCitationsPipeline(Pipeline):
         # figure out which publisher has a non-empty incoming dir
         for publisher in publishers:
 
-            if product['cohort'] and not publisher.is_cohort:
-                continue
-            if not product['cohort'] and publisher.is_cohort:
+            if product['cohort'] and not publisher.has_cohort:
                 continue
 
             # create work folder, signal the start of the pipeline
@@ -47,20 +45,9 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'product_id': product_id
             }
 
-            if publisher.is_cohort:
-                chain(
-                    tasks.GetScopusArticleCitations.s(task_args) |
-                    tasks.InsertScopusIntoCassandra.s() |
-                    tasks.InsertCohortOwnerCitationsTask.s()
-                ).delay()
-            elif publisher.crossref_username is not None and publisher.crossref_password is not None:
-                chain(
-                    tasks.GetScopusArticleCitations.s(task_args) |
-                    tasks.InsertScopusIntoCassandra.s() |
-                    tasks.UpdateArticleCitationsWithCrossref.s()
-                ).delay()
-            else:
-                chain(
-                    tasks.GetScopusArticleCitations.s(task_args) |
-                    tasks.InsertScopusIntoCassandra.s()
-                ).delay()
+            chain(
+                tasks.GetScopusArticleCitations.s(task_args) |
+                tasks.InsertScopusIntoCassandra.s() |
+                tasks.UpdateArticleCitationsWithCrossref.s()
+            ).delay()
+

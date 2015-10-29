@@ -46,6 +46,7 @@ class InsertScopusIntoCassandra(Task):
                         citation_count=1,
                         updated=updated_date,
                         created=updated_date,
+                        is_cohort=data['is_cohort']
                     )
 
                 Published_Article.objects(publisher_id=publisher_id, article_doi=doi).update(citations_updated_on=updated_date)
@@ -61,4 +62,5 @@ class InsertScopusIntoCassandra(Task):
                 updated=updated_date,
             )
 
-        return {self.COUNT: count}
+        task_args[self.COUNT] = count
+        return task_args

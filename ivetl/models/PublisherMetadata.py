@@ -15,9 +15,9 @@ class Publisher_Metadata(Model):
     crossref_password = columns.Text()
     supported_products = columns.List(columns.Text())
     pilot = columns.Boolean()
-    is_cohort = columns.Boolean(index=True)
-    cohort_publisher_id = columns.Text()
-    cohort_owner_publisher_id = columns.Text()
+    has_cohort = columns.Boolean(index=True)
+    cohort_articles_issns_to_lookup = columns.List(columns.Text())
+    cohort_articles_last_updated = columns.DateTime()
 
     @property
     def display_name(self):

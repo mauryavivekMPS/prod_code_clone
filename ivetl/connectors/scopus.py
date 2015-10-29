@@ -111,7 +111,7 @@ class ScopusConnector(BaseConnector):
 
         return scopus_id, scopus_cited_by_count
 
-    def get_citations(self, article_scopus_id, tlogger):
+    def get_citations(self, article_scopus_id, is_cohort, tlogger):
         offset = 0
         num_citations = 0
         citations = []
@@ -222,6 +222,7 @@ class ScopusConnector(BaseConnector):
                                 'title': title,
                                 'volume': volume,
                                 'source': 'Scopus',
+                                'is_cohort': is_cohort
                             })
 
                         total_results = int(scopus_data['search-results']['opensearch:totalResults'])

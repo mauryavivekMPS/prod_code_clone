@@ -37,6 +37,7 @@ class HWMetadataLookupTask(Task):
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
+                          'ISSN\t'
                           'DATA\n')
 
         hw_xform = HWMetadataLookupTransform()
@@ -53,9 +54,15 @@ class HWMetadataLookupTask(Task):
 
                 publisher_id = line[0]
                 doi = line[1]
-                data = json.loads(line[2])
+                issn = line[2]
+                data = json.loads(line[3])
+                skip = False
 
                 tlogger.info(str(count-1) + ". Retrieving HW Metadata for: " + doi)
+
+                if issn in pm.cohort_articles_issns_to_lookup:
+                    tlogger.info("Cohort Article - Skipping (" + issn + ")")
+                    skip = True
 
                 hw_journal_code = '/'
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
@@ -64,12 +71,13 @@ class HWMetadataLookupTask(Task):
                 value = urllib.parse.urlencode({'value': hw_xform.xform_doi(publisher_id, doi)})
                 url = self.SASSFS_BASE_URL + 'under=' + hw_journal_code + '&' + value
 
-                tlogger.info("Looking up HREF on SASSFS:")
-                tlogger.info(url)
+                if not skip:
+                    tlogger.info("Looking up HREF on SASSFS:")
+                    tlogger.info(url)
 
                 attempt = 0
                 max_attempts = 3
-                while attempt < max_attempts:
+                while not skip and (attempt < max_attempts):
                     try:
 
                         sleep(100.0 / 1000.0)
@@ -178,7 +186,7 @@ class HWMetadataLookupTask(Task):
                         tlogger.info("General Exception - HW API failed. Trying Again")
                         attempt += 1
 
-                row = """%s\t%s\t%s\n""" % (publisher_id, doi, json.dumps(data))
+                row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
 
                 target_file.write(row)
                 target_file.flush()
@@ -186,7 +194,11 @@ class HWMetadataLookupTask(Task):
             tsv.close()
 
         target_file.close()
-        return {self.INPUT_FILE: target_file_name, self.COUNT: count}
+
+        task_args[self.INPUT_FILE] = target_file_name
+        task_args[self.COUNT] = count
+
+        return task_args
 
 
 
