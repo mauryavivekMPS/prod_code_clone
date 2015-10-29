@@ -5,6 +5,7 @@ from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
 from ivetl.models import Publisher_Metadata, Published_Article
 from ivetl.pipelines.task import Task
+from ivetl.common import common
 
 
 @app.task
@@ -16,6 +17,7 @@ class GetScopusArticleCitations(Task):
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
         reprocesserrorsonly = task_args[GetScopusArticleCitations.REPROCESS_ERRORS]
+        product = common.PRODUCT_BY_ID[task_args['product_id']]
 
         target_file_name = os.path.join(work_folder, "%s_articlecitations_target.tab" % publisher_id)
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -25,12 +27,17 @@ class GetScopusArticleCitations(Task):
 
         pm = Publisher_Metadata.objects.get(publisher_id=publisher_id)
         connector = ScopusConnector(pm.scopus_api_keys)
-        articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(self.QUERY_LIMIT)
+
+        if product['cohort']:
+            articles = Published_Article.objects.filter(publisher_id=publisher_id, is_cohort=True).limit(self.QUERY_LIMIT)
+        else:
+            articles = Published_Article.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.QUERY_LIMIT)
 
         count = 0
         error_count = 0
 
         for article in articles:
+
             count += 1
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
