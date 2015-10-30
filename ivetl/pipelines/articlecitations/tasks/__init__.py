@@ -1,4 +1,3 @@
 from ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations import GetScopusArticleCitations
 from ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra import InsertScopusIntoCassandra
 from ivetl.pipelines.articlecitations.tasks.UpdateArticleCitationsWithCrossref import UpdateArticleCitationsWithCrossref
-from ivetl.pipelines.articlecitations.tasks.InsertCohortOwnerCitationsTask import InsertCohortOwnerCitationsTask

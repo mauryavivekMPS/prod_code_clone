@@ -3,7 +3,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article, Article_Citations
+from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations
 
 
 @app.task
@@ -28,7 +28,7 @@ class UpdateArticleCitationsWithCrossref(Task):
             return {self.COUNT: count}
 
         crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
-        articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(self.QUERY_LIMIT)
+        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.QUERY_LIMIT)
         updated_date = datetime.datetime.today()
 
         for article in articles:

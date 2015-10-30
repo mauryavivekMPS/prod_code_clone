@@ -49,7 +49,7 @@ class ScopusIdLookupTask(Task):
                 # If its already in the database, we don't have to check with scopus
                 existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
-                if existing_record:
+                if existing_record and existing_record.article_scopus_id is not None:
                     data['scopus_id_status'] = "DOI in Scopus"
                     data['scopus_id'] = existing_record.article_scopus_id
                     data['scopus_citation_count'] = existing_record.scopus_citation_count
