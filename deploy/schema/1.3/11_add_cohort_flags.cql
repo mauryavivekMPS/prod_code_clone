@@ -128,3 +128,11 @@ UPDATE publisher_metadata SET
   supported_products=supported_products + ['cohort_articles'],
   scopus_api_keys = scopus_api_keys + ['caa6e88e64850e8c7fd96bfe70897306']
 WHERE publisher_id='asbmb';
+
+UPDATE publisher_metadata SET
+  has_cohort=true,
+  cohort_articles_last_updated='2013-01-01 00:00:00',
+  cohort_articles_issns_to_lookup=['1945-7170', '1945-7197'],
+  supported_products=supported_products + ['cohort_articles'],
+  scopus_api_keys = scopus_api_keys + ['825df60475f266dd5abb6cfd48c88710']
+WHERE publisher_id='ada';
