@@ -39,6 +39,5 @@ class InsertPlaceholderCitationsPipeline(Pipeline):
                 'max_articles_to_process': max_articles_to_process,
             }
 
-            chain(
-                tasks.InsertPlaceholderCitationsIntoCassandraTask(task_args)
-            ).delay()
+            tasks.InsertPlaceholderCitationsIntoCassandraTask.s(task_args).delay()
+
