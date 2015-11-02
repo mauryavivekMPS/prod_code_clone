@@ -36,7 +36,7 @@ class InsertPlaceholderCitationsIntoCassandraTask(Task):
                 plac['citation_date'] = datetime(yr, 1, 1)
                 plac['citation_count'] = 0
                 plac['is_cohort'] = article.is_cohort
-                plac['citation_source_xref '] = True
+                plac['citation_source_xref'] = True
                 plac['citation_source_scopus'] = True
                 plac.save()
 
