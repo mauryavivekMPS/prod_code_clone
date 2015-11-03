@@ -44,4 +44,7 @@ urlpatterns = patterns(
     # tail a task
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/task/$', 'pipelines.tail', name='pipelines.tail'),
 
+    # audit log
+    url(r'^validatecrossref/$', 'publishers.validate_crossref', name='publishers.validate_crossref'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

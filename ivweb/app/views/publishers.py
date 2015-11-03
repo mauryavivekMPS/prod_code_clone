@@ -1,6 +1,7 @@
 import datetime
+import requests
 from django import forms
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, User
@@ -133,3 +134,15 @@ def edit(request, publisher_id=None):
         form = PublisherForm(instance=publisher)
 
     return render(request, 'publishers/new.html', {'form': form, 'publisher': publisher})
+
+
+@login_required
+def validate_crossref(request):
+    username = request.GET['username']
+    password = request.GET['password']
+    r = requests.get('http://doi.crossref.org/servlet/getForwardLinks?usr=%s&pwd=%s' % (username, password))
+    if r.status_code == 401:
+        return HttpResponse('fail')
+    elif r.status_code == 400:
+        return HttpResponse('ok')
+    return HttpResponse('unknown')

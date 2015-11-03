@@ -499,7 +499,8 @@ var RunPage = (function() {
 
 var EditPublisherPage = (function() {
     var f;
-    var publisherId = '';
+    var publisherId;
+    var validateCrossrefUrl;
 
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
@@ -542,12 +543,45 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var updateValidateCrossrefButton = function() {
+        var username = f.find('#id_crossref_username').val();
+        var password = f.find('#id_crossref_password').val();
+        if (username && password) {
+            f.find('.validate-crossref-button').removeClass('disabled');
+        }
+        else {
+            f.find('.validate-crossref-button').addClass('disabled');
+        }
+    };
+
+    var checkCrossref = function() {
+        var username = f.find('#id_crossref_username').val();
+        var password = f.find('#id_crossref_password').val();
+
+        var data = [
+            {name: 'username', value: f.find('#id_crossref_username').val()},
+            {name: 'password', value: f.find('#id_crossref_password').val()},
+        ];
+
+        $.get(validateCrossrefUrl, data)
+            .done(function(html) {
+                if (html == 'ok') {
+                    console.log('done success');
+                }
+                else {
+                    console.log('fail');
+                }
+            });
+    };
+
     var init = function(options) {
         options = $.extend({
-            publisherId: ''
+            publisherId: '',
+            validateCrossrefUrl: ''
         }, options);
 
         publisherId = options.publisherId;
+        validateCrossrefUrl = options.validateCrossrefUrl;
 
         f = $('#publisher-form');
         f.find('#id_publisher_id').on('keyup', checkForm);
@@ -567,6 +601,10 @@ var EditPublisherPage = (function() {
 
         $('#id_use_crossref').on('change', updateCrossrefControls);
         updateCrossrefControls();
+
+        f.find('#id_crossref_username').on('keyup', updateValidateCrossrefButton);
+        f.find('#id_crossref_password').on('keyup', updateValidateCrossrefButton);
+        f.find('.validate-crossref-button').on('click', checkCrossref);
     };
 
     return {

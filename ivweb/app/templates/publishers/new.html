@@ -131,6 +131,11 @@
                                 <div class="col-sm-3">
                                     {{ form.crossref_password }}
                                 </div>
+                                <div class="col-sm-1">
+                                    <a type="button" class="btn btn-primary validate-crossref-button disabled">
+                                        Validate
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -155,7 +160,8 @@
     <script>
         $(function() {
             EditPublisherPage.init({
-                publisherId: '{{ publisher.publisher_id }}'
+                publisherId: '{{ publisher.publisher_id }}',
+                validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}'
             });
         });
     </script>
