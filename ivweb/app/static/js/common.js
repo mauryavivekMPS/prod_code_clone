@@ -149,8 +149,24 @@ var PipelineListPage = (function() {
     var runForPublisherUrl = '';
     var runForAllUrl = '';
     var isSuperuser = false;
-    var refreshIntervalIds = {};
     var tailIntervalIds = {};
+    var publisherTaskStatus = {};
+
+    var updateRunButton = function() {
+        var somethingIsRunning = false;
+        $.each(publisherTaskStatus, function(publisherId) {
+            if (publisherTaskStatus[publisherId] == 'in-progress') {
+                somethingIsRunning = true;
+                return false;
+            }
+        });
+        if (somethingIsRunning) {
+            $('.run-button').hide();
+        }
+        else {
+            $('.run-button').show();
+        }
+    };
 
     var updatePublisher = function(publisherId) {
         var summaryRow = $('.' + publisherId + '_summary_row');
@@ -171,10 +187,15 @@ var PipelineListPage = (function() {
             .done(function(html) {
                 if (html != 'No updates') {
                     $('.' + publisherId + '_row').remove();
-                    $('.' + publisherId + '_summary_row').replaceWith(html);
+                    summaryRow.replaceWith(html);
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
+
+                    // store this publisher status and update the main run button
+                    var newSummaryRow = $('.' + publisherId + '_summary_row');
+                    publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
+                    updateRunButton();
                 }
             });
 
@@ -213,6 +234,8 @@ var PipelineListPage = (function() {
     var wireRunForPublisherForms = function(selector) {
         $(selector).submit(function(event) {
             var form = $(this);
+            form.find('.run-pipeline-for-publisher-button').fadeOut(200);
+            $('.run-button').fadeOut(200);
             $.post(runForPublisherUrl, form.serialize());
             event.preventDefault();
             return false;
