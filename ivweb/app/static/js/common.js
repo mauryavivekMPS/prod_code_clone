@@ -501,6 +501,8 @@ var EditPublisherPage = (function() {
     var f;
     var publisherId;
     var validateCrossrefUrl;
+    var validateIssnUrl;
+    var validateJournalCodeUrl;
 
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
@@ -555,9 +557,6 @@ var EditPublisherPage = (function() {
     };
 
     var checkCrossref = function() {
-        var username = f.find('#id_crossref_username').val();
-        var password = f.find('#id_crossref_password').val();
-
         var data = [
             {name: 'username', value: f.find('#id_crossref_username').val()},
             {name: 'password', value: f.find('#id_crossref_password').val()},
@@ -574,14 +573,50 @@ var EditPublisherPage = (function() {
             });
     };
 
+    var checkIssn = function() {
+        var data = [
+            {name: 'issn', value: f.find('#issn_foo').val()}
+        ];
+
+        $.get(validateIssnUrl, data)
+            .done(function(html) {
+                if (html == 'ok') {
+                    console.log('done success');
+                }
+                else {
+                    console.log('fail');
+                }
+            });
+    };
+
+    var checkJournalCode = function() {
+        var data = [
+            {name: 'code', value: f.find('#journal_code_foo').val()}
+        ];
+
+        $.get(validateJournalCodeUrl, data)
+            .done(function(html) {
+                if (html == 'ok') {
+                    console.log('done success');
+                }
+                else {
+                    console.log('fail');
+                }
+            });
+    };
+
     var init = function(options) {
         options = $.extend({
             publisherId: '',
-            validateCrossrefUrl: ''
+            validateCrossrefUrl: '',
+            validateIssnUrl: '',
+            validateJournalCodeUrl: '',
         }, options);
 
         publisherId = options.publisherId;
         validateCrossrefUrl = options.validateCrossrefUrl;
+        validateIssnUrl = options.validateIssnUrl;
+        validateJournalCodeUrl = options.validateJournalCodeUrl;
 
         f = $('#publisher-form');
         f.find('#id_publisher_id').on('keyup', checkForm);
@@ -605,6 +640,9 @@ var EditPublisherPage = (function() {
         f.find('#id_crossref_username').on('keyup', updateValidateCrossrefButton);
         f.find('#id_crossref_password').on('keyup', updateValidateCrossrefButton);
         f.find('.validate-crossref-button').on('click', checkCrossref);
+
+        f.find('.validate-issn-button').on('click', checkIssn);
+        f.find('.validate-journal-code-button').on('click', checkJournalCode);
     };
 
     return {

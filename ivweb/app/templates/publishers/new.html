@@ -91,17 +91,37 @@
 
                     <div class="published-articles-controls" style="display:none">
                         <div class="form-group row">
-                            <label for="published_articles_issns_to_lookup" class="col-sm-2">ISSNs</label>
-                            <div class="col-sm-6">
-                                {{ form.published_articles_issns_to_lookup }}
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label class="col-sm-2">HighWire</label>
                             <div class="col-sm-6">
                                 <div class="checkbox">
                                     <label>{{ form.hw_addl_metadata_available }} Use HighWire metadata</label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="issn_table" class="col-sm-2">ISSNs</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" id="issn_foo" placeholder="Electronic ISSN">
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" placeholder="Print ISSN">
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" id="journal_code_foo" placeholder="Journal Code">
+                            </div>
+                            <div class="col-sm-2">
+                                <a type="button" class="btn btn-primary validate-issn-button">
+                                    Validate
+                                </a>
+                                <a type="button" class="btn btn-primary validate-journal-code-button">
+                                    Validate
+                                </a>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="published_articles_issns_to_lookup" class="col-sm-2">ISSNs</label>
+                            <div class="col-sm-6">
+                                {{ form.published_articles_issns_to_lookup }}
                             </div>
                         </div>
                         <div class="highwire-controls" style="display:none">
@@ -161,7 +181,9 @@
         $(function() {
             EditPublisherPage.init({
                 publisherId: '{{ publisher.publisher_id }}',
-                validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}'
+                validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}',
+                validateIssnUrl: '{% url 'publishers.validate_issn' %}',
+                validateJournalCodeUrl: '{% url 'publishers.validate_journal_code' %}'
             });
         });
     </script>

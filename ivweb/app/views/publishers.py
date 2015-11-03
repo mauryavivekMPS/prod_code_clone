@@ -141,8 +141,37 @@ def validate_crossref(request):
     username = request.GET['username']
     password = request.GET['password']
     r = requests.get('http://doi.crossref.org/servlet/getForwardLinks?usr=%s&pwd=%s' % (username, password))
-    if r.status_code == 401:
-        return HttpResponse('fail')
-    elif r.status_code == 400:
+
+    if r.status_code == 400:
         return HttpResponse('ok')
-    return HttpResponse('unknown')
+
+    return HttpResponse('fail')
+
+
+@login_required
+def validate_issn(request):
+    issn = request.GET['issn']
+    r = requests.get('http://api.crossref.org/journals/%s' % issn)
+
+    if r.status_code == 200:
+        try:
+            issn_json = r.json()
+            # the title below seems to show up for most random ISSNs, so treating it as an error
+            if issn_json['message']['title'] != 'Zeitschrift für Die Gesamte Experimentelle Medizin einschließlich experimenteller Chirurgie':
+                return HttpResponse('ok')
+
+        except ValueError:
+            pass
+
+    return HttpResponse('fail')
+
+
+@login_required
+def validate_journal_code(request):
+    code = request.GET['code']
+    r = requests.get('http://sass.highwire.org/%s.atom' % code)
+
+    if r.status_code == 200 and '<atom:id>' in r.text:
+            return HttpResponse('ok')
+
+    return HttpResponse('fail')
