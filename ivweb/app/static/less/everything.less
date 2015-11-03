@@ -1335,11 +1335,27 @@ body.login {
 // -------------------------
 
 #publisher-form {
+
+    .issn-values-row {
+        border-top: none;
+        padding-top: 0;
+
+        &:first-of-type {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+    }
+
+    .add-issn-loading, .validate-crossref-loading {
+        margin-top: 9px;
+    }
+
     .submit-row {
         padding-top: 50px;
         margin-bottom: 30px;
     }
 }
+
 
 
 // List pipeline page

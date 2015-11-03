@@ -98,39 +98,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="issn_table" class="col-sm-2">ISSNs</label>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control" id="issn_foo" placeholder="Electronic ISSN">
-                            </div>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control" placeholder="Print ISSN">
-                            </div>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control" id="journal_code_foo" placeholder="Journal Code">
-                            </div>
-                            <div class="col-sm-2">
-                                <a type="button" class="btn btn-primary validate-issn-button">
-                                    Validate
-                                </a>
-                                <a type="button" class="btn btn-primary validate-journal-code-button">
-                                    Validate
-                                </a>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="published_articles_issns_to_lookup" class="col-sm-2">ISSNs</label>
-                            <div class="col-sm-6">
-                                {{ form.published_articles_issns_to_lookup }}
-                            </div>
-                        </div>
-                        <div class="highwire-controls" style="display:none">
-                            <div class="form-group row issns-to-journal-row">
-                                <label for="issn_to_hw_journal_code" class="col-sm-2">ISSN to Journal Code</label>
-                                <div class="col-sm-6">
-                                    {{ form.issn_to_hw_journal_code }}
-                                </div>
-                            </div>
+
+                        <div id="issn-values-container">
+                            {% include "publishers/include/issn_table.html" %}
                         </div>
 
                         <div class="form-group row">
@@ -143,7 +113,7 @@
                         </div>
 
                         <div class="crossref-controls" style="display:none">
-                            <div class="form-group row">
+                            <div class="form-group row crossref-form-row">
                                 <label for="crossref_username" class="col-sm-2">Crossref Login</label>
                                 <div class="col-sm-3">
                                     {{ form.crossref_username }}
@@ -152,9 +122,8 @@
                                     {{ form.crossref_password }}
                                 </div>
                                 <div class="col-sm-1">
-                                    <a type="button" class="btn btn-primary validate-crossref-button disabled">
-                                        Validate
-                                    </a>
+                                    <a type="button" class="btn btn-primary validate-crossref-button disabled">Validate</a>
+                                    <i style="display:none" class="fa fa-spinner fa-pulse validate-crossref-loading"></i>
                                 </div>
                             </div>
                         </div>
@@ -183,7 +152,9 @@
                 publisherId: '{{ publisher.publisher_id }}',
                 validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}',
                 validateIssnUrl: '{% url 'publishers.validate_issn' %}',
-                validateJournalCodeUrl: '{% url 'publishers.validate_journal_code' %}'
+                validateJournalCodeUrl: '{% url 'publishers.validate_journal_code' %}',
+                addIssnValuesUrl: '{% url 'publishers.add_issn_values' %}',
+                csrfToken: '{{ csrf_token }}'
             });
         });
     </script>

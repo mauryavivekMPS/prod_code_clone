@@ -1,0 +1,44 @@
+<input type="hidden" name="issn_values" id="id_issn_values" value="{{ form.initial.issn_values }}">
+{% for issn_value in issn_values_list %}
+    <div class="form-group row issn-values-row">
+        <label class="col-sm-2">
+            {% if forloop.first %}ISSNs{% endif %}
+        </label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" value="{{ issn_value.electronic_issn }}" readonly>
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" value="{{ issn_value.print_issn }}" readonly>
+        </div>
+        <div class="col-sm-2 highwire-controls" style="display: none">
+            <input type="text" class="form-control" value="{{ issn_value.journal_code }}" readonly>
+        </div>
+    </div>
+{% endfor %}
+
+<div class="form-group row issn-values-row {% if new_electronic_issn_error or new_print_issn_error or new_journal_code_error %}error{% endif %}">
+    <label class="col-sm-2">
+        {% if not issn_values_list %}ISSNs{% endif %}
+    </label>
+    <div class="col-sm-2">
+        <input type="text" class="form-control" id="id_new_electronic_issn" placeholder="Electronic ISSN" value="{{ new_electronic_issn }}">
+    </div>
+    <div class="col-sm-2">
+        <input type="text" class="form-control" id="id_new_print_issn" placeholder="Print ISSN" value="{{ new_print_issn }}">
+    </div>
+    <div class="col-sm-2 highwire-controls" style="display: none">
+        <input type="text" class="form-control" id="id_new_journal_code" placeholder="Journal Code" value="{{ new_journal_code }}">
+    </div>
+    <div class="col-sm-2">
+        <a type="button" class="btn btn-primary add-issn-button">+ Add</a>
+        <i style="display:none" class="fa fa-spinner fa-pulse add-issn-loading"></i>
+    </div>
+</div>
+
+{% if is_include %}
+    <script>
+        $(function() {
+            EditPublisherPage.wireUpAddIssnButton();
+        });
+    </script>
+{% endif %}
