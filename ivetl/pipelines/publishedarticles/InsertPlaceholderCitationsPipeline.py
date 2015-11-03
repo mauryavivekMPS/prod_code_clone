@@ -8,8 +8,8 @@ from ivetl.pipelines.publishedarticles import tasks
 
 
 @app.task
-class CheckRejectedManuscriptsPipeline(Pipeline):
-    pipeline_name = "check_rejected_manuscripts"
+class InsertPlaceholderCitationsPipeline(Pipeline):
+    pipeline_name = "placeholder_citations"
 
     def run(self, publisher_id_list=[], max_articles_to_process=None):
 
@@ -39,6 +39,5 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
                 'max_articles_to_process': max_articles_to_process,
             }
 
-            chain(
-                tasks.CheckRejectedManuscriptTask(task_args)
-            ).delay()
+            tasks.InsertPlaceholderCitationsIntoCassandraTask.s(task_args).delay()
+

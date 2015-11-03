@@ -16,6 +16,7 @@ PIPELINES = [
             'ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask',
             'ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra',
             'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
+            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
         )
     },
     {

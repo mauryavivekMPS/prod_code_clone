@@ -21,3 +21,4 @@ class Article_Citations(Model):
     citation_count = columns.Integer()
     created = columns.DateTime()
     updated = columns.DateTime()
+    is_cohort = columns.Boolean()

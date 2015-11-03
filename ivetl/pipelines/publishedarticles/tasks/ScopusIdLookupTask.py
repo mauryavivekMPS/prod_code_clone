@@ -21,6 +21,7 @@ class ScopusIdLookupTask(Task):
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'DOI\t'
+                          'ISSN\t'
                           'DATA\n')
 
         pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
@@ -39,7 +40,8 @@ class ScopusIdLookupTask(Task):
 
                 publisher_id = line[0]
                 doi = line[1]
-                data = json.loads(line[2])
+                issn = line[2]
+                data = json.loads(line[3])
 
                 tlogger.info("---")
                 tlogger.info(str(count-1) + ". Retrieving Scopus Id for: " + doi)
@@ -47,7 +49,7 @@ class ScopusIdLookupTask(Task):
                 # If its already in the database, we don't have to check with scopus
                 existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
-                if existing_record:
+                if existing_record and existing_record.article_scopus_id is not None:
                     data['scopus_id_status'] = "DOI in Scopus"
                     data['scopus_id'] = existing_record.article_scopus_id
                     data['scopus_citation_count'] = existing_record.scopus_citation_count
@@ -79,8 +81,9 @@ class ScopusIdLookupTask(Task):
                         data['scopus_id_status'] = "Scopus API failed"
                         error_count += 1
 
-                row = """%s\t%s\t%s\n""" % (publisher_id,
+                row = """%s\t%s\t%s\t%s\n""" % (publisher_id,
                                             doi,
+                                            issn,
                                             json.dumps(data))
 
                 target_file.write(row)

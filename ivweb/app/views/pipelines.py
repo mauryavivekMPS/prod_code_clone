@@ -64,10 +64,10 @@ def list_pipelines(request, product_id, pipeline_id):
 
     # get all publishers that support this pipeline
     supported_publishers = []
-    if not product['cohort']:  # leave cohort products empty for now
-        for publisher in request.user.get_accessible_publishers():
-            if product_id in publisher.supported_products:
-                supported_publishers.append(publisher)
+   # if not product['cohort']:  # leave cohort products empty for now
+    for publisher in request.user.get_accessible_publishers():
+        if product_id in publisher.supported_products:
+            supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:

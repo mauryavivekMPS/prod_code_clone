@@ -5,12 +5,14 @@ from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.publishedarticles import tasks
+from ivetl.common import common
 
 
 @app.task
 class UpdatePublishedArticlesPipeline(Pipeline):
     pipeline_name = "published_articles"
     PUB_START_DATE = datetime.date(2010, 1, 1)
+    COHORT_PUB_START_DATE = datetime.date(2013, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
     def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
@@ -20,6 +22,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
         time = d.strftime('%H%M%S%f')
         job_id = today + "_" + time
 
+        product = common.PRODUCT_BY_ID[product_id]
+
         publishers_metadata = Publisher_Metadata.objects.all()
 
         if publisher_id_list:
@@ -27,11 +31,21 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
         for pm in publishers_metadata:
 
+            if product['cohort'] and not pm.has_cohort:
+                continue
+
             publisher_id = pm.publisher_id
-            issns = pm.published_articles_issns_to_lookup
+
+            if product['cohort']:
+                issns = pm.cohort_articles_issns_to_lookup
+            else:
+                issns = pm.published_articles_issns_to_lookup
 
             if reprocess_all:
-                start_publication_date = self.PUB_START_DATE
+                if product['cohort']:
+                    start_publication_date = self.COHORT_PUB_START_DATE
+                else:
+                    start_publication_date = self.PUB_START_DATE
             else:
                 start_publication_date = pm.published_articles_last_updated - relativedelta(months=self.PUB_OVERLAP_MONTHS)
 
@@ -48,20 +62,14 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 tasks.GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
+                'product_id': product_id
             }
 
-            if pm.hw_addl_metadata_available:
-                chain(
-                    tasks.GetPublishedArticlesTask.s(task_args) |
-                    tasks.ScopusIdLookupTask.s() |
-                    tasks.HWMetadataLookupTask.s() |
-                    tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.ResolvePublishedArticlesData.s()
-                ).delay()
-            else:
-                chain(
-                    tasks.GetPublishedArticlesTask.s(task_args) |
-                    tasks.ScopusIdLookupTask.s() |
-                    tasks.InsertPublishedArticlesIntoCassandra.s() |
-                    tasks.ResolvePublishedArticlesData.s()
-                ).delay()
+            chain(
+                tasks.GetPublishedArticlesTask.s(task_args) |
+                tasks.ScopusIdLookupTask.s() |
+                tasks.HWMetadataLookupTask.s() |
+                tasks.InsertPublishedArticlesIntoCassandra.s() |
+                tasks.ResolvePublishedArticlesData.s() |
+                tasks.CheckRejectedManuscriptTask.s()
+            ).delay()

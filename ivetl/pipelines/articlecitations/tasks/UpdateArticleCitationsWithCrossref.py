@@ -1,22 +1,35 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
+from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article, Article_Citations
+from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations
 
 
 @app.task
 class UpdateArticleCitationsWithCrossref(Task):
-    QUERY_LIMIT = 500000
+    QUERY_LIMIT = 50000000
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-        crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
-        articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(self.QUERY_LIMIT)
-        updated_date = datetime.datetime.today()
 
         count = 0
         error_count = 0
+
+        if not publisher.supports_crossref:
+            tlogger.info("Publisher is not configured for crossref")
+            self.pipeline_ended(publisher_id, job_id)
+            return {self.COUNT: count}
+
+        product = common.PRODUCT_BY_ID[task_args['product_id']]
+        if product['cohort']:
+            tlogger.info("Cohort product does not support crossref")
+            self.pipeline_ended(publisher_id, job_id)
+            return {self.COUNT: count}
+
+        crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
+        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.QUERY_LIMIT)
+        updated_date = datetime.datetime.today()
 
         for article in articles:
             count += 1

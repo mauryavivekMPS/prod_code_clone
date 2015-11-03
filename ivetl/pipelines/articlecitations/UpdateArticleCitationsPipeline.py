@@ -4,6 +4,7 @@ from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.articlecitations import tasks
 from ivetl.models import Publisher_Metadata
+from ivetl.common import common
 
 
 @app.task
@@ -16,6 +17,8 @@ class UpdateArticleCitationsPipeline(Pipeline):
         today_label = now.strftime('%Y%m%d')
         job_id = now.strftime('%Y%m%d_%H%M%S%f')
 
+        product = common.PRODUCT_BY_ID[product_id]
+
         # get the set of publishers to work on
         if publisher_id_list and len(publisher_id_list):
             publishers = Publisher_Metadata.filter(publisher_id__in=publisher_id_list)
@@ -24,6 +27,9 @@ class UpdateArticleCitationsPipeline(Pipeline):
 
         # figure out which publisher has a non-empty incoming dir
         for publisher in publishers:
+
+            if product['cohort'] and not publisher.has_cohort:
+                continue
 
             # create work folder, signal the start of the pipeline
             work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
@@ -35,7 +41,8 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'publisher_id': publisher.publisher_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                tasks.GetScopusArticleCitations.REPROCESS_ERRORS: False
+                tasks.GetScopusArticleCitations.REPROCESS_ERRORS: False,
+                'product_id': product_id
             }
 
             chain(
@@ -43,3 +50,4 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 tasks.InsertScopusIntoCassandra.s() |
                 tasks.UpdateArticleCitationsWithCrossref.s()
             ).delay()
+

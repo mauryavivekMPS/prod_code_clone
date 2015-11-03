@@ -4,8 +4,8 @@ import codecs
 import json
 from datetime import datetime
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
-from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
+from ivetl.common import common
+from ivetl.models import Published_Article, Published_Article_By_Cohort, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
 from ivetl.pipelines.task import Task
 
 
@@ -14,7 +14,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
     def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
 
-        file = task_args[BaseTask.INPUT_FILE]
+        file = task_args[self.INPUT_FILE]
 
         modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
         modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
@@ -24,10 +24,14 @@ class InsertPublishedArticlesIntoCassandra(Task):
         today = datetime.today()
         updated = today
 
+        product = common.PRODUCT_BY_ID[task_args['product_id']]
+
         # Build Issn Journal List
         issn_journals = {}
         for ij in Issn_Journal.objects.limit(100000):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
+
+        pm = Publisher_Metadata.filter(publisher_id=publisher_id).first()
 
         with codecs.open(file, encoding="utf-16") as tsv:
 
@@ -38,7 +42,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     continue
 
                 doi = line[1]
-                data = json.loads(line[2])
+                lookup_issn = line[2]
+                data = json.loads(line[3])
 
                 # first, add the non-overlapping values straight to the published article table
                 pa = Published_Article()
@@ -130,6 +135,11 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if pa.hw_metadata_retrieved is None:
                     pa.hw_metadata_retrieved = False
 
+                if product['cohort']:
+                    pa.is_cohort = True
+                else:
+                    pa.is_cohort = False
+
                 pa.save()
 
                 # now add overlapping values to the values table, and leave the rest to the resolver
@@ -147,16 +157,25 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
                 editor = None
                 if 'editor' in data and (data['editor'] != ''):
-                    ed_last_name = data['author'][0]['family']
+                    ed_last_name = data['editor'][0]['family']
                     ed_first_name = ''
-                    if 'given' in data['author'][0]:
-                        ed_first_name = data['author'][0]['given']
+                    if 'given' in data['editor'][0]:
+                        ed_first_name = data['editor'][0]['given']
                     editor = '%s, %s' % (ed_last_name, ed_first_name)
 
                 Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
                 Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='subject_category').update(value_text=subject_category)
                 Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='editor').update(value_text=editor)
                 Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
+
+                # Record in cohort table
+                pac = Published_Article_By_Cohort()
+                pac['publisher_id'] = publisher_id
+                pac['is_cohort'] = pa.is_cohort
+                pac['article_doi'] = pa.article_doi
+                pac['article_scopus_id'] = pa.article_scopus_id
+                pac['updated'] = updated
+                pac.save()
 
                 # finally, add placeholder citations
                 for yr in range(pa.date_of_publication.year, today.year + 1):
@@ -169,6 +188,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     plac['created'] = updated
                     plac['citation_date'] = datetime(yr, 1, 1)
                     plac['citation_count'] = 0
+                    plac['is_cohort'] = pa.is_cohort
                     plac.save()
 
                 tlogger.info(str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
@@ -185,12 +205,18 @@ class InsertPublishedArticlesIntoCassandra(Task):
             pu['updated'] = updated
             pu.save()
 
-            m = Publisher_Metadata.filter(publisher_id=publisher_id).first()
-            m.published_articles_last_updated = updated
-            m.save()
+            if product['cohort']:
+                pm.cohort_articles_last_updated = updated
+            else:
+                pm.published_articles_last_updated = updated
+            pm.save()
 
         modified_articles_file.close()
-        return {self.COUNT: count, 'modified_articles_file': modified_articles_file_name}
+
+        task_args['modified_articles_file'] = modified_articles_file_name
+        task_args[self.COUNT] = count
+
+        return task_args
 
 
 def to_date_time(month, day, year):
