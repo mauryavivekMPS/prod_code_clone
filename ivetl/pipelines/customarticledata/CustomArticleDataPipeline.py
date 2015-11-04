@@ -40,7 +40,7 @@ class CustomArticleDataPipeline(Pipeline):
         # figure out which publisher has a non-empty incoming dir
         for publisher in publishers:
 
-            if publisher.is_cohort or product['cohort']:
+            if product['cohort']:
                 continue
 
             publisher_dir = self.get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id)

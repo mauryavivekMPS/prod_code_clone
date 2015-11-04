@@ -52,7 +52,7 @@ WHERE publisher_id='alphamed';
 UPDATE publisher_metadata SET
   has_cohort=true,
   cohort_articles_last_updated='2013-01-01 00:00:00',
-  cohort_articles_issns_to_lookup=['1535-1386', '1432-5195', '1528-1132'],
+  cohort_articles_issns_to_lookup=['0021-9355', '1432-5195', '1528-1132'],
   supported_products=supported_products + ['cohort_articles'],
   scopus_api_keys = scopus_api_keys + ['2776603f1c0685a8e96c6015085cc37c']
 WHERE publisher_id='besbjs';
