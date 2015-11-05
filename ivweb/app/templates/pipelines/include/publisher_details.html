@@ -20,7 +20,7 @@
                 {% elif publisher_runs.recent_run.status == 'error' %}
                     Failed
                 {% endif %}
-                <span class="run-name">{{ publisher_runs.recent_run.display_name }}</span>
+{#                <span class="run-name">{{ publisher_runs.recent_run.display_name }}</span>#}
                 {% if publisher_runs.recent_run.status == 'error' %}
                     / {{ publisher_runs.recent_task.task_id }}
                 {% endif %}
