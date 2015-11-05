@@ -12,7 +12,7 @@ from ivetl.pipelines.task import Task
 @app.task
 class InsertPublishedArticlesIntoCassandra(Task):
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
 
         file = task_args[self.INPUT_FILE]
 
@@ -24,7 +24,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
         today = datetime.today()
         updated = today
 
-        product = common.PRODUCT_BY_ID[task_args['product_id']]
+        product = common.PRODUCT_BY_ID[product_id]
 
         # Build Issn Journal List
         issn_journals = {}

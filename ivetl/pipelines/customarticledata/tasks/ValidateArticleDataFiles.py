@@ -7,7 +7,7 @@ from ivetl.validators import CustomArticleDataValidator
 @app.task
 class ValidateArticleDataFiles(Task):
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']
         validator = CustomArticleDataValidator()
 

@@ -7,7 +7,7 @@ from ivetl.pipelines.task import Task
 @app.task
 class GetArticleDataFiles(Task):
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
         preserve_incoming_files = task_args.get('preserve_incoming_files', False)
 
         files = []

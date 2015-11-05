@@ -11,7 +11,7 @@ from ivetl.pipelines.publishedarticles import tasks
 class CheckRejectedManuscriptsPipeline(Pipeline):
     pipeline_name = "check_rejected_manuscripts"
 
-    def run(self, publisher_id_list=[], max_articles_to_process=None):
+    def run(self, publisher_id_list=[], product_id=None, max_articles_to_process=None):
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
@@ -37,6 +37,7 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'max_articles_to_process': max_articles_to_process,
+                'product_id': product_id
             }
 
             chain(
