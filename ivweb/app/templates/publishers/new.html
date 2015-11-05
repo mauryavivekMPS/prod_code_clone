@@ -137,9 +137,9 @@
                                 </div>
                                 <div class="col-sm-2">
                                     <p class="form-control-static">
-                                        <a href="#" class="validate-crossref-button" style="display:none">Validate Login</a>
+                                        <a href="#" class="validate-crossref-button" {% if form.crossref_username.value %}style="display:none"{% endif %}>Validate Login</a>
                                         <i class="fa fa-spinner fa-pulse validate-crossref-loading" style="display:none"></i>
-                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" style="display:none"></span>
+                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" {% if not form.crossref_username.value %}style="display:none"{% endif %}></span>
                                     </p>
                                 </div>
                             </div>
@@ -176,7 +176,7 @@
                     </div>
 
                     <div class="form-group submit-row">
-                        <button type="submit" class="btn btn-primary submit-button {% if not publisher %}disabled{% endif %}">
+                        <button type="submit" class="btn btn-primary submit-button disabled">
                             {% if publisher %}
                                 Save Changes
                             {% else %}

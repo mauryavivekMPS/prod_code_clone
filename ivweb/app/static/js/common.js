@@ -500,6 +500,7 @@ var RunPage = (function() {
 var EditPublisherPage = (function() {
     var f;
     var publisherId;
+    var isNew;
     var validateCrossrefUrl;
     var validateIssnUrl;
     var addIssnValuesUrl;
@@ -508,10 +509,54 @@ var EditPublisherPage = (function() {
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
         var name = f.find("#id_name").val();
+        var hasBasics = publisherId && name;
+
+        var scopusKeys = f.find("#id_scopus_api_keys").val();
+
         var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
         var rejectedArticlesProduct = f.find('#id_rejected_articles').is(':checked');
+        var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
+        var atLeastOneProduct = publishedArticlesProduct || rejectedArticlesProduct || cohortArticlesProduct;
 
-        if (publisherId && name && (publishedArticlesProduct || rejectedArticlesProduct)) {
+        var hasReportDetails = true;
+        if (isNew) {
+            var reportUsername = f.find('#id_report_username').val();
+            var reportPassword = f.find('#id_report_username').val();
+            var projectFolder = f.find('#id_project_folder').val();
+            hasReportDetails = reportUsername && reportPassword && projectFolder;
+        }
+
+        var crossref = true;
+        if (useCrossref()) {
+            var username = f.find('#id_crossref_username').val();
+            var password = f.find('#id_crossref_password').val();
+            var validated = f.find('.validate-crossref-checkmark').is(':visible');
+            crossref = username && password && validated;
+        }
+
+        var validIssns = true;
+        if (publishedArticlesProduct) {
+            $('.issn-values-row').each(function () {
+                var row = $(this);
+                if (!row.find('.validate-issn-checkmark').is(':visible')) {
+                    validIssns = false;
+                    return false;
+                }
+            });
+        }
+
+        var validCohortIssns = true;
+        if (cohortArticlesProduct) {
+            $('.issn-values-cohort-row').each(function () {
+                var row = $(this);
+                if (!row.find('.validate-issn-checkmark').is(':visible')) {
+                    validCohortIssns = false;
+                    return false;
+                }
+            });
+        }
+
+        if (hasBasics && scopusKeys && atLeastOneProduct && hasReportDetails && crossref && validIssns && validCohortIssns) {
             f.find('.submit-button').removeClass('disabled');
         }
         else {
@@ -550,8 +595,12 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var useCrossref = function() {
+        return $('#id_use_crossref').is(':checked');
+    };
+
     var updateCrossrefControls = function() {
-        if ($('#id_use_crossref').is(':checked')) {
+        if (useCrossref()) {
             $('.crossref-controls').fadeIn(200);
         }
         else {
@@ -614,6 +663,7 @@ var EditPublisherPage = (function() {
                     checkmark.hide();
                     button.addClass('disabled').show();
                 }
+                checkForm();
             });
 
         return false;
@@ -680,6 +730,7 @@ var EditPublisherPage = (function() {
                         checkmark.hide();
                         button.addClass('disabled').show();
                     }
+                    checkForm();
                 });
 
             return false;
@@ -687,7 +738,6 @@ var EditPublisherPage = (function() {
     };
 
     var wireUpIssnControls = function(rowSelector, index, cohort) {
-        console.log('wiring up for ' + rowSelector);
         var row = $(rowSelector);
         row.find('input').on('keyup', function() {
             row.find('.validate-issn-checkmark').hide();
@@ -695,7 +745,6 @@ var EditPublisherPage = (function() {
         });
 
         if (!cohort) {
-            console.log('not a cohort');
             $('#id_hw_addl_metadata_available').on('change', function () {
                 if (hasHighWire()) {
                     row.find('.validate-issn-checkmark').hide();
@@ -709,6 +758,7 @@ var EditPublisherPage = (function() {
         var row = $(rowSelector);
         row.find('.delete-issn-button').on('click', function() {
             row.remove();
+            checkForm();
             return false;
         });
     };
@@ -728,15 +778,19 @@ var EditPublisherPage = (function() {
         addIssnValuesUrl = options.addIssnValuesUrl;
         csrfToken = options.csrfToken;
 
+        isNew = publisherId == '';
+
         f = $('#publisher-form');
-        f.find('#id_publisher_id').on('keyup', checkForm);
-        f.find('#id_name').on('keyup', checkForm);
+        f.find('#id_publisher_id, #id_name').on('keyup', checkForm);
+        f.find('#id_report_username, #id_report_password, #id_project_folder').on('keyup', checkForm);
 
         $('#id_published_articles').on('change', function() {
             updatePublishedArticlesControls();
             checkForm();
         });
         updatePublishedArticlesControls();
+
+        $('#id_rejected_articles').on('change', checkForm);
 
         $('#id_cohort_articles').on('change', function() {
             updateCohortArticlesControls();
@@ -750,11 +804,16 @@ var EditPublisherPage = (function() {
         });
         updateHighWireControls();
 
-        $('#id_use_crossref').on('change', updateCrossrefControls);
+        $('#id_use_crossref').on('change', function() {
+            updateCrossrefControls();
+            checkForm();
+        });
         updateCrossrefControls();
 
-        f.find('#id_crossref_username').on('keyup', updateValidateCrossrefButton);
-        f.find('#id_crossref_password').on('keyup', updateValidateCrossrefButton);
+        f.find('#id_crossref_username, #id_crossref_password').on('keyup', function() {
+            updateValidateCrossrefButton();
+            checkForm();
+        });
         f.find('.validate-crossref-button').on('click', checkCrossref);
 
         f.find('.add-issn-button').on('click', function() {
@@ -762,6 +821,7 @@ var EditPublisherPage = (function() {
                 .done(function(html) {
                     $('#issn-values-container').append(html);
                     updateHighWireControls();
+                    checkForm();
                 });
             return false;
         });
@@ -770,6 +830,7 @@ var EditPublisherPage = (function() {
             $.get(addIssnValuesUrl, [{name: 'cohort', value: 1}])
                 .done(function(html) {
                     $('#issn-values-cohort-container').append(html);
+                    checkForm();
                 });
             return false;
         });
@@ -799,7 +860,9 @@ var EditPublisherPage = (function() {
                 });
             });
             $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
-        });
+        })
+
+        checkForm();
     };
 
     return {
