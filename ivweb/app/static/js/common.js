@@ -528,8 +528,12 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var hasHighWire = function() {
+        return $('#id_hw_addl_metadata_available').is(':checked');
+    };
+
     var updateHighWireControls = function() {
-        if ($('#id_hw_addl_metadata_available').is(':checked')) {
+        if (hasHighWire()) {
             $('.highwire-controls').fadeIn(200);
         }
         else {
@@ -606,44 +610,94 @@ var EditPublisherPage = (function() {
         return false;
     };
 
-    var checkIssn = function() {
-        var data = [
-            {name: 'issn', value: f.find('#issn_foo').val()}
-        ];
+    var updateValidateIssnButton = function() {
+        var username = f.find('#id_crossref_username').val();
+        var password = f.find('#id_crossref_password').val();
+        var button = f.find('.validate-crossref-button');
+        var message = f.find('.crossref-error-message');
+        var checkmark = f.find('.validate-crossref-checkmark');
+        var row = f.find('.crossref-form-row');
 
-        $.get(validateIssnUrl, data)
-            .done(function(html) {
-                if (html == 'ok') {
-                    console.log('done success');
-                }
-                else {
-                    console.log('fail');
-                }
-            });
+        message.hide();
+        checkmark.hide();
+        row.removeClass('error');
+
+        if (username || password) {
+            button.show();
+        }
+        else {
+            button.hide();
+        }
     };
 
-    var checkJournalCode = function() {
-        var data = [
-            {name: 'code', value: f.find('#journal_code_foo').val()}
-        ];
+    var wireUpValidateIssnButton = function(rowSelector, index) {
+        var row = $(rowSelector);
+        var button = row.find('.validate-issn-button');
 
-        $.get(validateJournalCodeUrl, data)
-            .done(function(html) {
-                if (html == 'ok') {
-                    console.log('done success');
-                }
-                else {
-                    console.log('fail');
-                }
-            });
+        button.on('click', function() {
+            var loading = row.find('.validate-issn-loading');
+            var checkmark = row.find('.validate-issn-checkmark');
+            var message = row.find('.issn-error-message');
+
+            button.hide();
+            loading.show();
+
+            var data = [
+                {name: 'electronic_issn', value: row.find('#id_electronic_issn_' + index).val()},
+                {name: 'print_issn', value: f.find('#id_print_issn_' + index).val()},
+                {name: 'csrfmiddlewaretoken', value: csrfToken}
+            ];
+
+            if (hasHighWire()) {
+                data.push(
+                    {name: 'journal_code', value: f.find('#id_journal_code_' + index).val()}
+                );
+            }
+
+            $.get(validateIssnUrl, data)
+                .done(function(response) {
+                    loading.hide();
+                    if (response == 'ok') {
+                        row.removeClass('error');
+                        button.hide();
+                        message.hide();
+                        button.hide();
+                        checkmark.show();
+                    }
+                    else {
+                        row.addClass('error');
+                        message.html('<li>' + response + '</li>').show();  // smuggle the janky error message in through the response
+                        button.show();
+                        checkmark.hide();
+                        button.addClass('disabled').show();
+                    }
+                });
+
+            return false;
+        });
     };
 
-    var wireUpValidateIssnButton = function() {
-        f.find('.validate-issn-button').on('click', addIssnValues);
+    var wireUpIssnControls = function(rowSelector, index) {
+        var row = $(rowSelector);
+        row.find('input').on('keyup', function() {
+            row.find('.validate-issn-checkmark').hide();
+            row.find('.validate-issn-button').show();
+        });
+
+        $('#id_hw_addl_metadata_available').on('change', function() {
+            if (hasHighWire()) {
+                row.find('.validate-issn-checkmark').hide();
+                row.find('.validate-issn-button').show();
+            }
+        });
     };
 
-    var wireUpAddIssnButton = function() {
-        f.find('.add-issn-button').on('click', addIssnValues);
+    var wireUpDeleteIssnButton = function(rowSelector) {
+        var row = $(rowSelector);
+        row.find('.delete-issn-button').on('click', function() {
+            row.remove();
+            return false;
+        });
     };
 
     var addIssnValues = function() {
@@ -655,7 +709,7 @@ var EditPublisherPage = (function() {
             {name: 'new_electronic_issn', value: f.find('#id_new_electronic_issn').val()},
             {name: 'new_print_issn', value: f.find('#id_new_print_issn').val()},
             {name: 'new_journal_code', value: f.find('#id_new_journal_code').val()},
-            {name: 'csrfmiddlewaretoken', value: csrfToken},
+            {name: 'csrfmiddlewaretoken', value: csrfToken}
         ];
 
         $.post(addIssnValuesUrl, data)
@@ -672,7 +726,6 @@ var EditPublisherPage = (function() {
             publisherId: '',
             validateCrossrefUrl: '',
             validateIssnUrl: '',
-            validateJournalCodeUrl: '',
             addIssnValuesUrl: '',
             csrfToken: ''
         }, options);
@@ -680,7 +733,6 @@ var EditPublisherPage = (function() {
         publisherId = options.publisherId;
         validateCrossrefUrl = options.validateCrossrefUrl;
         validateIssnUrl = options.validateIssnUrl;
-        validateJournalCodeUrl = options.validateJournalCodeUrl;
         addIssnValuesUrl = options.addIssnValuesUrl;
         csrfToken = options.csrfToken;
 
@@ -707,12 +759,20 @@ var EditPublisherPage = (function() {
         f.find('#id_crossref_password').on('keyup', updateValidateCrossrefButton);
         f.find('.validate-crossref-button').on('click', checkCrossref);
 
-        wireUpAddIssnButton();
+        f.find('.add-issn-button').on('click', function() {
+            $.get(addIssnValuesUrl)
+                .done(function(html) {
+                    $('#issn-values-container').append(html);
+                    updateHighWireControls();
+                });
+            return false;
+        });
     };
 
     return {
         wireUpValidateIssnButton: wireUpValidateIssnButton,
-        wireUpAddIssnButton: wireUpAddIssnButton,
+        wireUpDeleteIssnButton: wireUpDeleteIssnButton,
+        wireUpIssnControls: wireUpIssnControls,
         init: init
     };
 

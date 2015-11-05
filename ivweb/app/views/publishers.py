@@ -1,6 +1,7 @@
 import datetime
 import requests
 import json
+import time
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -32,12 +33,14 @@ class PublisherForm(forms.Form):
     published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     rejected_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    issn_values_cohort = forms.CharField(widget=forms.HiddenInput)
     report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     report_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     project_folder = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
     def __init__(self, *args, instance=None, **kwargs):
         self.issn_values_list = []
+        self.issn_values_cohort_list = []
         initial = {}
         if instance:
             self.instance = instance
@@ -48,7 +51,7 @@ class PublisherForm(forms.Form):
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
             initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
 
-            for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id):
+            for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
                 self.issn_values_list.append({
                     'product_id': 'published_articles',
                     'electronic_issn': code.electronic_issn,
@@ -56,6 +59,15 @@ class PublisherForm(forms.Form):
                     'journal_code': code.journal_code,
                 })
             initial['issn_values'] = json.dumps(self.issn_values_list)
+
+            for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
+                self.issn_values_list.append({
+                    'product_id': 'cohort_articles',
+                    'electronic_issn': code.electronic_issn,
+                    'print_issn': code.print_issn,
+                    'journal_code': code.journal_code,
+                })
+            initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
 
         else:
             self.instance = None
@@ -103,6 +115,14 @@ class PublisherForm(forms.Form):
         for issn_value in json.loads(self.cleaned_data['issn_values']):
             Publisher_Journal.objects.create(
                 product_id='published_articles',
+                publisher_id=publisher_id,
+                electronic_issn=issn_value['electronic_issn'],
+                print_issn=issn_value['print_issn'],
+                journal_code=issn_value['journal_code'],
+            )
+        for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
+            Publisher_Journal.objects.create(
+                product_id='cohort_articles',
                 publisher_id=publisher_id,
                 electronic_issn=issn_value['electronic_issn'],
                 print_issn=issn_value['print_issn'],
@@ -163,7 +183,41 @@ def validate_crossref(request):
     return HttpResponse('fail')
 
 
-def validate_issn(issn):
+@login_required
+def validate_issn(request):
+    electronic_issn = request.GET['electronic_issn']
+    print_issn = request.GET['print_issn']
+
+    electronic_issn_ok = check_issn(electronic_issn)
+
+    if 'journal_code' in request.GET:
+        journal_code = request.GET['journal_code']
+        journal_code_ok = check_journal_code(journal_code)
+    else:
+        journal_code_ok = True
+
+    if electronic_issn_ok and journal_code_ok:
+        return HttpResponse('ok')
+
+    error_fields = []
+
+    if not electronic_issn_ok:
+        error_fields.append('Electronic ISSN')
+
+    if not journal_code_ok:
+        error_fields.append('Journal Code')
+
+    if len(error_fields) == 1:
+        error_message = error_fields[0]
+    elif len(error_fields) == 2:
+        error_message = error_fields[0] + ' and ' + error_fields[1]
+    elif len(error_fields) > 2:
+        error_message = ", ".join(error_fields[:-1]) + ' and ' + error_fields[len(error_fields - 1)]
+
+    return HttpResponse("Validation failed for %s." % error_message)  # smuggle the error string in
+
+
+def check_issn(issn):
     r = requests.get('http://api.crossref.org/journals/%s' % issn)
     if r.status_code == 200:
         try:
@@ -176,11 +230,19 @@ def validate_issn(issn):
     return False
 
 
-def validate_journal_code(code):
+def check_journal_code(code):
     r = requests.get('http://sass.highwire.org/%s.atom' % code)
     if r.status_code == 200 and '<atom:id>' in r.text:
             return True
     return False
+
+
+@login_required
+def new_issn(request):
+    return render(request, 'publishers/include/issn_row.html', {
+        'index': str(time.time()).replace('.', ''),  # just a non-clashing random number
+        'is_include': True,
+    })
 
 
 @login_required
@@ -230,7 +292,9 @@ def add_issn_values(request):
         'is_include': True,
     })
 
+
 def register_for_scopus():
-    'https://www.developers.elsevier.com/action/customer/profile/display?pageOrigin=home&zone=header&'
-    'http://www.developers.elsevier.com/action/devprojects?originPageLogout=devportal&icr=true'
-    'http://www.developers.elsevier.com/action/devnewsite'
+    # 'https://www.developers.elsevier.com/action/customer/profile/display?pageOrigin=home&zone=header&'
+    # 'http://www.developers.elsevier.com/action/devprojects?originPageLogout=devportal&icr=true'
+    # 'http://www.developers.elsevier.com/action/devnewsite'
+    pass

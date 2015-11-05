@@ -47,7 +47,6 @@ urlpatterns = patterns(
     # various tools
     url(r'^validatecrossref/$', 'publishers.validate_crossref', name='publishers.validate_crossref'),
     url(r'^validateissn/$', 'publishers.validate_issn', name='publishers.validate_issn'),
-    url(r'^validatejournalcode/$', 'publishers.validate_journal_code', name='publishers.validate_journal_code'),
-    url(r'^addissnvalues/$', 'publishers.add_issn_values', name='publishers.add_issn_values'),
+    url(r'^newissn/$', 'publishers.new_issn', name='publishers.new_issn'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

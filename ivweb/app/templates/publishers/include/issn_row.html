@@ -1,0 +1,35 @@
+<div class="form-group row issn-values-row issn-values-row-{{ index }}">
+    <label class="col-sm-2">
+        <span class="issn-row-label">ISSNs</span>
+    </label>
+    <div class="col-sm-2">
+        <input type="text" class="form-control" id="id_electronic_issn_{{ index }}" placeholder="Electronic ISSN" value="{{ issn_value.electronic_issn }}">
+        <ul class="issn-error-message errorlist" style="display:none"><li>Validation failed, try again.</li></ul>
+    </div>
+    <div class="col-sm-2">
+        <input type="text" class="form-control" id="id_print_issn_{{ index }}" placeholder="Print ISSN" value="{{ issn_value.print_issn }}">
+        <span class="issn-divider">&mdash;</span>
+    </div>
+    <div class="col-sm-2 highwire-controls" style="display: none">
+        <input type="text" class="form-control" id="id_journal_code_{{ index }}" placeholder="Journal Code" value="{{ issn_value.journal_code }}">
+        <span class="issn-divider">&mdash;</span>
+    </div>
+    <div class="col-sm-2">
+        <p class="form-control-static">
+            <a href="#" class="delete-issn-button"><span class="lnr lnr-cross"></span></a>
+            <a href="#" class="validate-issn-button">Validate ISSN</a>
+            <i style="display:none" class="fa fa-spinner fa-pulse validate-issn-loading"></i>
+            <span class="validate-issn-checkmark lnr lnr-check checkmark" style="display:none"></span>
+        </p>
+    </div>
+</div>
+
+<script>
+    $(function() {
+        var row = '.issn-values-row-{{ index }}';
+        var index = '{{ index }}';
+        EditPublisherPage.wireUpValidateIssnButton(row, index);
+        EditPublisherPage.wireUpDeleteIssnButton(row, index);
+        EditPublisherPage.wireUpIssnControls(row, index);
+    });
+</script>
