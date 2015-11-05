@@ -5,7 +5,8 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Codes
+from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal
+from ivetl.common import common
 
 
 @login_required
@@ -47,8 +48,9 @@ class PublisherForm(forms.Form):
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
             initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
 
-            for code in Publisher_Codes.objects.filter(publisher_id=instance.publisher_id):
+            for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id):
                 self.issn_values_list.append({
+                    'product_id': 'published_articles',
                     'electronic_issn': code.electronic_issn,
                     'print_issn': code.print_issn,
                     'journal_code': code.journal_code,
@@ -97,9 +99,10 @@ class PublisherForm(forms.Form):
 
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
-        Publisher_Codes.objects.filter(publisher_id=publisher_id).delete()
+        Publisher_Journal.objects.filter(publisher_id=publisher_id).delete()
         for issn_value in json.loads(self.cleaned_data['issn_values']):
-            Publisher_Codes.objects.create(
+            Publisher_Journal.objects.create(
+                product_id='published_articles',
                 publisher_id=publisher_id,
                 electronic_issn=issn_value['electronic_issn'],
                 print_issn=issn_value['print_issn'],
@@ -144,7 +147,7 @@ def edit(request, publisher_id=None):
         'form': form,
         'publisher': publisher,
         'issn_values_list': form.issn_values_list,
-        'issn_values_json': form.initial['issn_values'],
+        'issn_values_json': json.dumps(form.issn_values_list),
     })
 
 
@@ -226,3 +229,8 @@ def add_issn_values(request):
         'new_journal_code_error': new_journal_code_error,
         'is_include': True,
     })
+
+def register_for_scopus():
+    'https://www.developers.elsevier.com/action/customer/profile/display?pageOrigin=home&zone=header&'
+    'http://www.developers.elsevier.com/action/devprojects?originPageLogout=devportal&icr=true'
+    'http://www.developers.elsevier.com/action/devnewsite'

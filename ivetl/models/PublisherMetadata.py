@@ -6,6 +6,7 @@ from ivetl.models import Publisher_User
 class Publisher_Metadata(Model):
     publisher_id = columns.Text(primary_key=True)
     name = columns.Text()
+    email = columns.Text()
     hw_addl_metadata_available = columns.Boolean()
     issn_to_hw_journal_code = columns.Map(columns.Text(), columns.Text())
     published_articles_issns_to_lookup = columns.List(columns.Text())

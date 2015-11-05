@@ -1,11 +1,12 @@
 USE impactvizor;
 
-CREATE TABLE publisher_codes (
+CREATE TABLE publisher_journal (
   publisher_id text,
+  product_id text,
   electronic_issn text,
   print_issn text,
   journal_code text,
-  PRIMARY KEY ((publisher_id))
+  PRIMARY KEY ((publisher_id), product_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

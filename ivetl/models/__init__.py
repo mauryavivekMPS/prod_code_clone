@@ -11,4 +11,4 @@ from ivetl.models.PublisherMetadata import Publisher_Metadata
 from ivetl.models.User import User, Anonymous_User
 from ivetl.models.AuditLog import Audit_Log
 from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
-from ivetl.models.PublisherCodes import Publisher_Codes
+from ivetl.models.PublisherJournal import Publisher_Journal
