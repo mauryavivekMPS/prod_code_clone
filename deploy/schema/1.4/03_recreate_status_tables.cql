@@ -42,6 +42,8 @@ CREATE TABLE pipeline_status (
   start_time timestamp,
   end_time timestamp,
   duration_seconds int,
+  current_count int,
+  total_count int,
   status text,
   error_details text,
   workfolder text,

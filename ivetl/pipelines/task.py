@@ -45,7 +45,7 @@ class Task(BaseTask):
 
         return task_result
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id,  job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
 
     def on_task_started(self, pipeline_name, publisher_id, product_id, job_id, work_folder, tlogger):
