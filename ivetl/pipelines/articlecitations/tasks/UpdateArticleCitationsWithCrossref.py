@@ -10,7 +10,7 @@ from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Articl
 class UpdateArticleCitationsWithCrossref(Task):
     QUERY_LIMIT = 50000000
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
         count = 0
@@ -21,7 +21,7 @@ class UpdateArticleCitationsWithCrossref(Task):
             self.pipeline_ended(publisher_id, job_id)
             return {self.COUNT: count}
 
-        product = common.PRODUCT_BY_ID[task_args['product_id']]
+        product = common.PRODUCT_BY_ID[product_id]
         if product['cohort']:
             tlogger.info("Cohort product does not support crossref")
             self.pipeline_ended(publisher_id, job_id)

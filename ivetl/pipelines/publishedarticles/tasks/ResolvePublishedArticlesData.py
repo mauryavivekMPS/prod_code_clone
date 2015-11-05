@@ -8,7 +8,7 @@ from ivetl.models import Published_Article, Published_Article_Values
 @app.task
 class ResolvePublishedArticlesData(Task):
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
         file_name = task_args['modified_articles_file']
         now = datetime.datetime.now()
         with open(file_name, encoding='utf-8') as tsv:
@@ -54,6 +54,9 @@ class ResolvePublishedArticlesData(Task):
                 article.save()
 
             tsv.close()
+
+        if self.pipeline_name == 'custom_article_data':
+            self.pipeline_ended(publisher_id, job_id)
 
         task_args[self.COUNT] = count
         return task_args

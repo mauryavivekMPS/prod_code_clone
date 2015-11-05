@@ -12,7 +12,7 @@ from ivetl.pipelines.task import Task
 @app.task
 class InsertPlaceholderCitationsIntoCassandraTask(Task):
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
 
         article_limit = 1000000
 

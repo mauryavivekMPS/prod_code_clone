@@ -21,7 +21,7 @@ def home(request):
 
                 pipeline_stats_list = []
                 for pipeline in product['pipelines']:
-                    recent_runs = get_recent_runs_for_publisher(pipeline['pipeline']['id'], publisher)
+                    recent_runs = get_recent_runs_for_publisher(pipeline['pipeline']['id'], product_id, publisher)
                     status = True if recent_runs['recent_run'] else False
 
                     if 'user_facing_display_name' in pipeline['pipeline']:

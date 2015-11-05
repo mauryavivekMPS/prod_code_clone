@@ -10,7 +10,7 @@ from ivetl.models import Published_Article_Values
 @app.task
 class InsertCustomArticleDataIntoCassandra(Task):
 
-    def run_task(self, publisher_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']
 
         modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?

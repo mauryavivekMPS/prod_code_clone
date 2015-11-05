@@ -149,8 +149,24 @@ var PipelineListPage = (function() {
     var runForPublisherUrl = '';
     var runForAllUrl = '';
     var isSuperuser = false;
-    var refreshIntervalIds = {};
     var tailIntervalIds = {};
+    var publisherTaskStatus = {};
+
+    var updateRunButton = function() {
+        var somethingIsRunning = false;
+        $.each(publisherTaskStatus, function(publisherId) {
+            if (publisherTaskStatus[publisherId] == 'in-progress') {
+                somethingIsRunning = true;
+                return false;
+            }
+        });
+        if (somethingIsRunning) {
+            $('.run-button').hide();
+        }
+        else {
+            $('.run-button').show();
+        }
+    };
 
     var updatePublisher = function(publisherId) {
         var summaryRow = $('.' + publisherId + '_summary_row');
@@ -171,10 +187,15 @@ var PipelineListPage = (function() {
             .done(function(html) {
                 if (html != 'No updates') {
                     $('.' + publisherId + '_row').remove();
-                    $('.' + publisherId + '_summary_row').replaceWith(html);
+                    summaryRow.replaceWith(html);
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
+
+                    // store this publisher status and update the main run button
+                    var newSummaryRow = $('.' + publisherId + '_summary_row');
+                    publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
+                    updateRunButton();
                 }
             });
 
@@ -213,6 +234,8 @@ var PipelineListPage = (function() {
     var wireRunForPublisherForms = function(selector) {
         $(selector).submit(function(event) {
             var form = $(this);
+            form.find('.run-pipeline-for-publisher-button').fadeOut(200);
+            $('.run-button').fadeOut(200);
             $.post(runForPublisherUrl, form.serialize());
             event.preventDefault();
             return false;
@@ -476,15 +499,64 @@ var RunPage = (function() {
 
 var EditPublisherPage = (function() {
     var f;
-    var publisherId = '';
+    var publisherId;
+    var isNew;
+    var validateCrossrefUrl;
+    var validateIssnUrl;
+    var addIssnValuesUrl;
+    var csrfToken;
 
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
         var name = f.find("#id_name").val();
+        var hasBasics = publisherId && name;
+
+        var scopusKeys = f.find("#id_scopus_api_keys").val();
+
         var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
         var rejectedArticlesProduct = f.find('#id_rejected_articles').is(':checked');
+        var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
+        var atLeastOneProduct = publishedArticlesProduct || rejectedArticlesProduct || cohortArticlesProduct;
 
-        if (publisherId && name && (publishedArticlesProduct || rejectedArticlesProduct)) {
+        var hasReportDetails = true;
+        if (isNew) {
+            var reportUsername = f.find('#id_report_username').val();
+            var reportPassword = f.find('#id_report_username').val();
+            var projectFolder = f.find('#id_project_folder').val();
+            hasReportDetails = reportUsername && reportPassword && projectFolder;
+        }
+
+        var crossref = true;
+        if (useCrossref()) {
+            var username = f.find('#id_crossref_username').val();
+            var password = f.find('#id_crossref_password').val();
+            var validated = f.find('.validate-crossref-checkmark').is(':visible');
+            crossref = username && password && validated;
+        }
+
+        var validIssns = true;
+        if (publishedArticlesProduct) {
+            $('.issn-values-row').each(function () {
+                var row = $(this);
+                if (!row.find('.validate-issn-checkmark').is(':visible')) {
+                    validIssns = false;
+                    return false;
+                }
+            });
+        }
+
+        var validCohortIssns = true;
+        if (cohortArticlesProduct) {
+            $('.issn-values-cohort-row').each(function () {
+                var row = $(this);
+                if (!row.find('.validate-issn-checkmark').is(':visible')) {
+                    validCohortIssns = false;
+                    return false;
+                }
+            });
+        }
+
+        if (hasBasics && scopusKeys && atLeastOneProduct && hasReportDetails && crossref && validIssns && validCohortIssns) {
             f.find('.submit-button').removeClass('disabled');
         }
         else {
@@ -501,8 +573,21 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var updateCohortArticlesControls = function() {
+        if ($('#id_cohort_articles').is(':checked')) {
+            $('.cohort-articles-controls').fadeIn(200);
+        }
+        else {
+            $('.cohort-articles-controls').fadeOut(100);
+        }
+    };
+
+    var hasHighWire = function() {
+        return $('#id_hw_addl_metadata_available').is(':checked');
+    };
+
     var updateHighWireControls = function() {
-        if ($('#id_hw_addl_metadata_available').is(':checked')) {
+        if (hasHighWire()) {
             $('.highwire-controls').fadeIn(200);
         }
         else {
@@ -510,8 +595,12 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var useCrossref = function() {
+        return $('#id_use_crossref').is(':checked');
+    };
+
     var updateCrossrefControls = function() {
-        if ($('#id_use_crossref').is(':checked')) {
+        if (useCrossref()) {
             $('.crossref-controls').fadeIn(200);
         }
         else {
@@ -519,16 +608,181 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var updateValidateCrossrefButton = function() {
+        var username = f.find('#id_crossref_username').val();
+        var password = f.find('#id_crossref_password').val();
+        var button = f.find('.validate-crossref-button');
+        var message = f.find('.crossref-error-message');
+        var checkmark = f.find('.validate-crossref-checkmark');
+        var row = f.find('.crossref-form-row');
+
+        message.hide();
+        checkmark.hide();
+        row.removeClass('error');
+
+        if (username || password) {
+            button.show();
+        }
+        else {
+            button.hide();
+        }
+    };
+
+    var checkCrossref = function() {
+        var button = f.find('.validate-crossref-button');
+        var loading = f.find('.validate-crossref-loading');
+
+        button.hide();
+        loading.show();
+
+        var username = f.find('#id_crossref_username');
+        var password = f.find('#id_crossref_password');
+        var row = f.find('.crossref-form-row');
+        var message = f.find('.crossref-error-message');
+        var checkmark = f.find('.validate-crossref-checkmark');
+
+        var data = [
+            {name: 'username', value: username.val()},
+            {name: 'password', value: password.val()},
+        ];
+
+        $.get(validateCrossrefUrl, data)
+            .done(function(html) {
+                loading.hide();
+                if (html == 'ok') {
+                    row.removeClass('error');
+                    button.hide();
+                    message.hide();
+                    button.hide();
+                    checkmark.show();
+                }
+                else {
+                    row.addClass('error');
+                    message.show();
+                    button.show();
+                    checkmark.hide();
+                    button.addClass('disabled').show();
+                }
+                checkForm();
+            });
+
+        return false;
+    };
+
+    var updateValidateIssnButton = function() {
+        var username = f.find('#id_crossref_username').val();
+        var password = f.find('#id_crossref_password').val();
+        var button = f.find('.validate-crossref-button');
+        var message = f.find('.crossref-error-message');
+        var checkmark = f.find('.validate-crossref-checkmark');
+        var row = f.find('.crossref-form-row');
+
+        message.hide();
+        checkmark.hide();
+        row.removeClass('error');
+
+        if (username || password) {
+            button.show();
+        }
+        else {
+            button.hide();
+        }
+    };
+
+    var wireUpValidateIssnButton = function(rowSelector, index, cohort) {
+        var row = $(rowSelector);
+        var button = row.find('.validate-issn-button');
+
+        button.on('click', function() {
+            var loading = row.find('.validate-issn-loading');
+            var checkmark = row.find('.validate-issn-checkmark');
+            var message = row.find('.issn-error-message');
+
+            button.hide();
+            loading.show();
+
+            var data = [
+                {name: 'electronic_issn', value: row.find('#id_electronic_issn_' + index).val()},
+                {name: 'print_issn', value: f.find('#id_print_issn_' + index).val()},
+                {name: 'csrfmiddlewaretoken', value: csrfToken}
+            ];
+
+            if (hasHighWire()) {
+                data.push(
+                    {name: 'journal_code', value: f.find('#id_journal_code_' + index).val()}
+                );
+            }
+
+            $.get(validateIssnUrl, data)
+                .done(function(response) {
+                    loading.hide();
+                    if (response == 'ok') {
+                        row.removeClass('error');
+                        button.hide();
+                        message.hide();
+                        button.hide();
+                        checkmark.show();
+                    }
+                    else {
+                        row.addClass('error');
+                        message.html('<li>' + response + '</li>').show();  // smuggle the janky error message in through the response
+                        button.show();
+                        checkmark.hide();
+                        button.addClass('disabled').show();
+                    }
+                    checkForm();
+                });
+
+            return false;
+        });
+    };
+
+    var wireUpIssnControls = function(rowSelector, index, cohort) {
+        var row = $(rowSelector);
+        row.find('input').on('keyup', function() {
+            row.find('.validate-issn-checkmark').hide();
+            row.find('.validate-issn-button').show();
+        });
+
+        if (!cohort) {
+            $('#id_hw_addl_metadata_available').on('change', function () {
+                if (hasHighWire()) {
+                    row.find('.validate-issn-checkmark').hide();
+                    row.find('.validate-issn-button').show();
+                }
+            });
+        }
+    };
+
+    var wireUpDeleteIssnButton = function(rowSelector, index, cohort) {
+        var row = $(rowSelector);
+        row.find('.delete-issn-button').on('click', function() {
+            row.remove();
+            checkForm();
+            return false;
+        });
+    };
+
     var init = function(options) {
         options = $.extend({
-            publisherId: ''
+            publisherId: '',
+            validateCrossrefUrl: '',
+            validateIssnUrl: '',
+            addIssnValuesUrl: '',
+            csrfToken: ''
         }, options);
 
         publisherId = options.publisherId;
+        validateCrossrefUrl = options.validateCrossrefUrl;
+        validateIssnUrl = options.validateIssnUrl;
+        addIssnValuesUrl = options.addIssnValuesUrl;
+        csrfToken = options.csrfToken;
+
+        isNew = publisherId == '';
 
         f = $('#publisher-form');
-        f.find('#id_publisher_id').on('keyup', checkForm);
-        f.find('#id_name').on('keyup', checkForm);
+        f.find('#id_publisher_id, #id_name').on('keyup', checkForm);
+        f.find('#id_report_username, #id_report_password, #id_project_folder').on('keyup', checkForm);
 
         $('#id_published_articles').on('change', function() {
             updatePublishedArticlesControls();
@@ -536,17 +790,85 @@ var EditPublisherPage = (function() {
         });
         updatePublishedArticlesControls();
 
+        $('#id_rejected_articles').on('change', checkForm);
+
+        $('#id_cohort_articles').on('change', function() {
+            updateCohortArticlesControls();
+            checkForm();
+        });
+        updateCohortArticlesControls();
+
         $('#id_hw_addl_metadata_available').on('change', function() {
             updateHighWireControls();
             checkForm();
         });
         updateHighWireControls();
 
-        $('#id_use_crossref').on('change', updateCrossrefControls);
+        $('#id_use_crossref').on('change', function() {
+            updateCrossrefControls();
+            checkForm();
+        });
         updateCrossrefControls();
+
+        f.find('#id_crossref_username, #id_crossref_password').on('keyup', function() {
+            updateValidateCrossrefButton();
+            checkForm();
+        });
+        f.find('.validate-crossref-button').on('click', checkCrossref);
+
+        f.find('.add-issn-button').on('click', function() {
+            $.get(addIssnValuesUrl)
+                .done(function(html) {
+                    $('#issn-values-container').append(html);
+                    updateHighWireControls();
+                    checkForm();
+                });
+            return false;
+        });
+
+        f.find('.add-issn-cohort-button').on('click', function() {
+            $.get(addIssnValuesUrl, [{name: 'cohort', value: 1}])
+                .done(function(html) {
+                    $('#issn-values-cohort-container').append(html);
+                    checkForm();
+                });
+            return false;
+        });
+
+        f.submit(function() {
+            var issnValues = [];
+            $('.issn-values-row').each(function() {
+                var row = $(this);
+                var index = row.attr('index');
+                issnValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    journal_code: row.find('#id_journal_code_' + index).val(),
+                    index: index
+                });
+            });
+            $('#id_issn_values').val(JSON.stringify(issnValues));
+
+            var issnCohortValues = [];
+            $('.issn-values-cohort-row').each(function() {
+                var row = $(this);
+                var index = row.attr('index');
+                issnCohortValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    index: index
+                });
+            });
+            $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
+        })
+
+        checkForm();
     };
 
     return {
+        wireUpValidateIssnButton: wireUpValidateIssnButton,
+        wireUpDeleteIssnButton: wireUpDeleteIssnButton,
+        wireUpIssnControls: wireUpIssnControls,
         init: init
     };
 

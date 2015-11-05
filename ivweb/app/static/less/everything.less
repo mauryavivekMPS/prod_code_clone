@@ -1335,11 +1335,68 @@ body.login {
 // -------------------------
 
 #publisher-form {
+
+    .issn-values-row, .issn-values-cohort-row, .issn-add-row {
+        border-top: none;
+        padding-top: 0;
+
+        &:not(:first-of-type) .issn-row-label {
+            display: none;
+        }
+
+        &:first-of-type {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+
+            .delete-issn-button {
+                display: none;
+            }
+        }
+
+        .issn-divider {
+            position: absolute;
+            left: -6px;
+            top: 7px;
+            color: #ccc;
+            font-weight: 200;
+        }
+
+        .delete-issn-button {
+            color: @brand-danger;
+            text-decoration: none;
+            height: 13px;
+            opacity: .5;
+            position: absolute;
+            left: -7px;
+            font-size: 12px;
+            top: 9px;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        .validate-issn-button {
+            margin-left: 11px;
+        }
+
+        .issn-error-message {
+            margin-right: -300px;
+            margin-bottom: 5px;
+        }
+    }
+
     .submit-row {
         padding-top: 50px;
         margin-bottom: 30px;
     }
+
+    .validate-crossref-checkmark, .validate-issn-checkmark {
+        vertical-align: -2px;
+        margin-left: 10px;
+    }
 }
+
 
 
 // List pipeline page
@@ -1351,6 +1408,13 @@ body.login {
     padding: 2px 4px;
     font-size: 12px;
     text-transform: uppercase;
+}
+
+.run-progress {
+    background-color: #f3f3f3;
+    color: #333;
+    padding: 2px 4px;
+    font-size: 12px;
 }
 
 .recent-run {

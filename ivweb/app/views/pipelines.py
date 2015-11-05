@@ -19,9 +19,9 @@ from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_
 log = logging.getLogger(__name__)
 
 
-def get_recent_runs_for_publisher(pipeline_id, publisher, only_completed_runs=False):
+def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_completed_runs=False):
     # get all the runs
-    all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id)
+    all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
 
     if only_completed_runs:
         all_runs = [run for run in all_runs if run.status == 'completed']
@@ -32,7 +32,7 @@ def get_recent_runs_for_publisher(pipeline_id, publisher, only_completed_runs=Fa
     # now get all the tasks for each run
     tasks_by_run = []
     for run in recent_runs:
-        tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, pipeline_id=pipeline_id, job_id=run.job_id)
+        tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
         sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
 
         tasks_by_run.append({
@@ -64,14 +64,14 @@ def list_pipelines(request, product_id, pipeline_id):
 
     # get all publishers that support this pipeline
     supported_publishers = []
-   # if not product['cohort']:  # leave cohort products empty for now
+
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
             supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
-        recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, publisher))
+        recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
     return render(request, 'pipelines/list.html', {
         'product': product,
@@ -92,7 +92,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     opened = True if request.GET.get('opened') == '1' else False
 
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-    publisher_runs = get_recent_runs_for_publisher(pipeline_id, publisher)
+    publisher_runs = get_recent_runs_for_publisher(pipeline_id, product_id, publisher)
 
     has_updates = True
 

@@ -15,11 +15,12 @@ class Pipeline(BaseTask):
         os.makedirs(pipeline_incoming_dir, exist_ok=True)
         return pipeline_incoming_dir
 
-    def on_pipeline_started(self, publisher_id, job_id, work_folder):
+    def on_pipeline_started(self, publisher_id, product_id, job_id, work_folder):
         start_date = datetime.datetime.today()
 
         p = Pipeline_Status()
         p.publisher_id = publisher_id
+        p.product_id = product_id
         p.pipeline_id = self.pipeline_name
         p.job_id = job_id
         p.start_time = start_date
@@ -36,12 +37,14 @@ class Pipeline(BaseTask):
         if args and type(args[0]) == dict:
             task_args = args[0]
             publisher_id = task_args.get('publisher_id', '')
+            product_id = task_args.get('product_id', '')
             job_id = task_args.get('job_id', '')
 
             # TODO: Not sure what to do here if there are no args yet!?!
 
             pts = Pipeline_Task_Status()
             pts.publisher_id = publisher_id
+            pts.product_id = product_id
             pts.pipeline_id = self.pipeline_name
             pts.job_id = job_id
             pts.task_id = self.short_name
@@ -52,7 +55,7 @@ class Pipeline(BaseTask):
             pts.update()
 
             try:
-                ps = Pipeline_Status.objects.get(publisher_id=publisher_id, pipeline_id=self.pipeline_name, job_id=job_id)
+                ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=self.pipeline_name, job_id=job_id)
                 ps.update(
                     end_time=end_date,
                     duration_seconds=(end_date - ps.start_time).total_seconds(),

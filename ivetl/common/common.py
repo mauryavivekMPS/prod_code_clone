@@ -87,7 +87,7 @@ PRODUCTS = [
         ]
     },
     {
-        'name': 'Cohort',
+        'name': 'Cohort Articles',
         'id': 'cohort_articles',
         'cohort': True,
         'pipelines': [

@@ -6,7 +6,7 @@ from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.customarticledata import tasks
 from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
-from ivetl.models import Publisher_Metadata
+from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
 @app.task
@@ -52,12 +52,11 @@ class CustomArticleDataPipeline(Pipeline):
                 # remove any hidden files, in particular .DS_Store
                 files = [f for f in files if not f.startswith('.')]
 
+                # create work folder, signal the start of the pipeline
+                work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
+                self.on_pipeline_started(publisher.publisher_id, product_id, job_id, work_folder)
+
                 if files:
-
-                    # create work folder, signal the start of the pipeline
-                    work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
-                    self.on_pipeline_started(publisher.publisher_id, job_id, work_folder)
-
                     # construct the first task args with all of the standard bits + the list of files
                     task_args = {
                         'pipeline_name': self.pipeline_name,
@@ -80,3 +79,14 @@ class CustomArticleDataPipeline(Pipeline):
                         tasks.InsertCustomArticleDataIntoCassandra.s() |
                         published_articles_tasks.ResolvePublishedArticlesData.s()
                     ).delay()
+
+                else:
+                    # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
+                    end_date = datetime.datetime.today()
+                    p = Pipeline_Status().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=self.pipeline_name, job_id=job_id).first()
+                    if p is not None:
+                        p.end_time = end_date
+                        p.duration_seconds = (end_date - p.start_time).total_seconds()
+                        p.status = self.PL_COMPLETED
+                        p.updated = end_date
+                        p.update()

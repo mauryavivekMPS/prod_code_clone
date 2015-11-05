@@ -91,12 +91,6 @@
 
                     <div class="published-articles-controls" style="display:none">
                         <div class="form-group row">
-                            <label for="published_articles_issns_to_lookup" class="col-sm-2">ISSNs</label>
-                            <div class="col-sm-6">
-                                {{ form.published_articles_issns_to_lookup }}
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label class="col-sm-2">HighWire</label>
                             <div class="col-sm-6">
                                 <div class="checkbox">
@@ -104,12 +98,21 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="highwire-controls" style="display:none">
-                            <div class="form-group row issns-to-journal-row">
-                                <label for="issn_to_hw_journal_code" class="col-sm-2">ISSN to Journal Code</label>
-                                <div class="col-sm-6">
-                                    {{ form.issn_to_hw_journal_code }}
-                                </div>
+
+                        <div id="issn-values-container">
+                            {{ form.issn_values }}
+                            {% for issn_value in issn_values_list %}
+                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=False %}
+                            {% empty %}
+                                {% include "publishers/include/issn_row.html" with index="pa-0" cohort=False %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group row issn-add-row">
+                            <div class="col-sm-2 col-sm-offset-2">
+                                <p class="form-control-static">
+                                    <a href="#" class="add-issn-button">+ Add Another</a>
+                                </p>
                             </div>
                         </div>
 
@@ -123,20 +126,57 @@
                         </div>
 
                         <div class="crossref-controls" style="display:none">
-                            <div class="form-group row">
+                            <div class="form-group row crossref-form-row">
                                 <label for="crossref_username" class="col-sm-2">Crossref Login</label>
                                 <div class="col-sm-3">
                                     {{ form.crossref_username }}
+                                    <ul class="crossref-error-message errorlist" style="display:none"><li>Validation failed, try again.</li></ul>
                                 </div>
                                 <div class="col-sm-3">
                                     {{ form.crossref_password }}
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="form-control-static">
+                                        <a href="#" class="validate-crossref-button" {% if form.crossref_username.value %}style="display:none"{% endif %}>Validate Login</a>
+                                        <i class="fa fa-spinner fa-pulse validate-crossref-loading" style="display:none"></i>
+                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" {% if not form.crossref_username.value %}style="display:none"{% endif %}></span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <h2>Cohort Articles</h2>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Product</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.cohort_articles }} Enable Cohort Articles</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cohort-articles-controls" style="display:none">
+                        <div id="issn-values-cohort-container">
+                            {{ form.issn_values_cohort }}
+                            {% for issn_value in issn_values_cohort_list %}
+                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=True %}
+                            {% empty %}
+                                {% include "publishers/include/issn_row.html" with index="ca-0" cohort=True %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group row issn-add-row">
+                            <div class="col-sm-2 col-sm-offset-2">
+                                <p class="form-control-static">
+                                    <a href="#" class="add-issn-cohort-button">+ Add Another</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group submit-row">
-                        <button type="submit" class="btn btn-primary submit-button {% if not publisher %}disabled{% endif %}">
+                        <button type="submit" class="btn btn-primary submit-button disabled">
                             {% if publisher %}
                                 Save Changes
                             {% else %}
@@ -155,7 +195,11 @@
     <script>
         $(function() {
             EditPublisherPage.init({
-                publisherId: '{{ publisher.publisher_id }}'
+                publisherId: '{{ publisher.publisher_id }}',
+                validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}',
+                validateIssnUrl: '{% url 'publishers.validate_issn' %}',
+                addIssnValuesUrl: '{% url 'publishers.new_issn' %}',
+                csrfToken: '{{ csrf_token }}'
             });
         });
     </script>
