@@ -30,14 +30,25 @@
         <input type="text" class="form-control" id="id_new_journal_code" placeholder="Journal Code" value="{{ new_journal_code }}">
     </div>
     <div class="col-sm-2">
-        <a type="button" class="btn btn-primary add-issn-button">+ Add</a>
-        <i style="display:none" class="fa fa-spinner fa-pulse add-issn-loading"></i>
+        <p class="form-control-static">
+            <a class="add-issn-button">Validate ISSN</a>
+            <i style="display:none" class="fa fa-spinner fa-pulse add-issn-loading"></i>
+        </p>
+    </div>
+</div>
+
+<div class="form-group row issn-values-row">
+    <div class="col-sm-2 col-sm-offset-2">
+        <p class="form-control-static">
+            <a href="#" class="add-issn-button">+ Add Another</a>
+        </p>
     </div>
 </div>
 
 {% if is_include %}
     <script>
         $(function() {
+            EditPublisherPage.wireUpValidateIssnButton();
             EditPublisherPage.wireUpAddIssnButton();
         });
     </script>

@@ -117,13 +117,17 @@
                                 <label for="crossref_username" class="col-sm-2">Crossref Login</label>
                                 <div class="col-sm-3">
                                     {{ form.crossref_username }}
+                                    <ul class="crossref-error-message errorlist" style="display:none"><li>Validation failed, try again.</li></ul>
                                 </div>
                                 <div class="col-sm-3">
                                     {{ form.crossref_password }}
                                 </div>
-                                <div class="col-sm-1">
-                                    <a type="button" class="btn btn-primary validate-crossref-button disabled">Validate</a>
-                                    <i style="display:none" class="fa fa-spinner fa-pulse validate-crossref-loading"></i>
+                                <div class="col-sm-2">
+                                    <p class="form-control-static">
+                                        <a href="#" class="validate-crossref-button" style="display:none">Validate Login</a>
+                                        <i class="fa fa-spinner fa-pulse validate-crossref-loading" style="display:none"></i>
+                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" style="display:none"></span>
+                                    </p>
                                 </div>
                             </div>
                         </div>

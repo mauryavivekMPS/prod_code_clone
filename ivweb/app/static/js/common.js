@@ -549,11 +549,20 @@ var EditPublisherPage = (function() {
     var updateValidateCrossrefButton = function() {
         var username = f.find('#id_crossref_username').val();
         var password = f.find('#id_crossref_password').val();
-        if (username && password) {
-            f.find('.validate-crossref-button').removeClass('disabled');
+        var button = f.find('.validate-crossref-button');
+        var message = f.find('.crossref-error-message');
+        var checkmark = f.find('.validate-crossref-checkmark');
+        var row = f.find('.crossref-form-row');
+
+        message.hide();
+        checkmark.hide();
+        row.removeClass('error');
+
+        if (username || password) {
+            button.show();
         }
         else {
-            f.find('.validate-crossref-button').addClass('disabled');
+            button.hide();
         }
     };
 
@@ -567,6 +576,8 @@ var EditPublisherPage = (function() {
         var username = f.find('#id_crossref_username');
         var password = f.find('#id_crossref_password');
         var row = f.find('.crossref-form-row');
+        var message = f.find('.crossref-error-message');
+        var checkmark = f.find('.validate-crossref-checkmark');
 
         var data = [
             {name: 'username', value: username.val()},
@@ -578,13 +589,21 @@ var EditPublisherPage = (function() {
                 loading.hide();
                 if (html == 'ok') {
                     row.removeClass('error');
-                    button.show();
+                    button.hide();
+                    message.hide();
+                    button.hide();
+                    checkmark.show();
                 }
                 else {
                     row.addClass('error');
+                    message.show();
+                    button.show();
+                    checkmark.hide();
                     button.addClass('disabled').show();
                 }
             });
+
+        return false;
     };
 
     var checkIssn = function() {
@@ -617,6 +636,10 @@ var EditPublisherPage = (function() {
                     console.log('fail');
                 }
             });
+    };
+
+    var wireUpValidateIssnButton = function() {
+        f.find('.validate-issn-button').on('click', addIssnValues);
     };
 
     var wireUpAddIssnButton = function() {
@@ -688,6 +711,7 @@ var EditPublisherPage = (function() {
     };
 
     return {
+        wireUpValidateIssnButton: wireUpValidateIssnButton,
         wireUpAddIssnButton: wireUpAddIssnButton,
         init: init
     };
