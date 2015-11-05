@@ -102,13 +102,13 @@
                         <div id="issn-values-container">
                             {{ form.issn_values }}
                             {% for issn_value in issn_values_list %}
-                                {% include "publishers/include/issn_row.html" with index=forloop.counter0 %}
+                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=False %}
                             {% empty %}
-                                {% include "publishers/include/issn_row.html" with index=0 %}
+                                {% include "publishers/include/issn_row.html" with index="pa-0" cohort=False %}
                             {% endfor %}
                         </div>
 
-                        <div class="form-group row issn-values-row">
+                        <div class="form-group row issn-add-row">
                             <div class="col-sm-2 col-sm-offset-2">
                                 <p class="form-control-static">
                                     <a href="#" class="add-issn-button">+ Add Another</a>
@@ -152,6 +152,25 @@
                         <div class="col-sm-6">
                             <div class="checkbox">
                                 <label>{{ form.cohort_articles }} Enable Cohort Articles</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cohort-articles-controls" style="display:none">
+                        <div id="issn-values-cohort-container">
+                            {{ form.issn_values_cohort }}
+                            {% for issn_value in issn_values_cohort_list %}
+                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=True %}
+                            {% empty %}
+                                {% include "publishers/include/issn_row.html" with index="ca-0" cohort=True %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group row issn-add-row">
+                            <div class="col-sm-2 col-sm-offset-2">
+                                <p class="form-control-static">
+                                    <a href="#" class="add-issn-cohort-button">+ Add Another</a>
+                                </p>
                             </div>
                         </div>
                     </div>

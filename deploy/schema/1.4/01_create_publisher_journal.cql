@@ -6,7 +6,7 @@ CREATE TABLE publisher_journal (
   electronic_issn text,
   print_issn text,
   journal_code text,
-  PRIMARY KEY ((publisher_id), product_id)
+  PRIMARY KEY ((publisher_id), product_id, electronic_issn)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

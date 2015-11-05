@@ -502,8 +502,8 @@ var EditPublisherPage = (function() {
     var publisherId;
     var validateCrossrefUrl;
     var validateIssnUrl;
-    var validateJournalCodeUrl;
     var addIssnValuesUrl;
+    var csrfToken;
 
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
@@ -525,6 +525,15 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.published-articles-controls').fadeOut(100);
+        }
+    };
+
+    var updateCohortArticlesControls = function() {
+        if ($('#id_cohort_articles').is(':checked')) {
+            $('.cohort-articles-controls').fadeIn(200);
+        }
+        else {
+            $('.cohort-articles-controls').fadeOut(100);
         }
     };
 
@@ -630,7 +639,7 @@ var EditPublisherPage = (function() {
         }
     };
 
-    var wireUpValidateIssnButton = function(rowSelector, index) {
+    var wireUpValidateIssnButton = function(rowSelector, index, cohort) {
         var row = $(rowSelector);
         var button = row.find('.validate-issn-button');
 
@@ -677,48 +686,31 @@ var EditPublisherPage = (function() {
         });
     };
 
-    var wireUpIssnControls = function(rowSelector, index) {
+    var wireUpIssnControls = function(rowSelector, index, cohort) {
+        console.log('wiring up for ' + rowSelector);
         var row = $(rowSelector);
         row.find('input').on('keyup', function() {
             row.find('.validate-issn-checkmark').hide();
             row.find('.validate-issn-button').show();
         });
 
-        $('#id_hw_addl_metadata_available').on('change', function() {
-            if (hasHighWire()) {
-                row.find('.validate-issn-checkmark').hide();
-                row.find('.validate-issn-button').show();
-            }
-        });
+        if (!cohort) {
+            console.log('not a cohort');
+            $('#id_hw_addl_metadata_available').on('change', function () {
+                if (hasHighWire()) {
+                    row.find('.validate-issn-checkmark').hide();
+                    row.find('.validate-issn-button').show();
+                }
+            });
+        }
     };
 
-    var wireUpDeleteIssnButton = function(rowSelector) {
+    var wireUpDeleteIssnButton = function(rowSelector, index, cohort) {
         var row = $(rowSelector);
         row.find('.delete-issn-button').on('click', function() {
             row.remove();
             return false;
         });
-    };
-
-    var addIssnValues = function() {
-        f.find('.add-issn-button').hide();
-        f.find('.add-issn-loading').show();
-
-        var data = [
-            {name: 'issn_values', value: f.find('#id_issn_values').val()},
-            {name: 'new_electronic_issn', value: f.find('#id_new_electronic_issn').val()},
-            {name: 'new_print_issn', value: f.find('#id_new_print_issn').val()},
-            {name: 'new_journal_code', value: f.find('#id_new_journal_code').val()},
-            {name: 'csrfmiddlewaretoken', value: csrfToken}
-        ];
-
-        $.post(addIssnValuesUrl, data)
-            .done(function(html) {
-                $('#issn-values-container').html(html);
-                console.log('new html');
-                wireUpAddIssnButton();
-                updateHighWireControls();
-            });
     };
 
     var init = function(options) {
@@ -746,6 +738,12 @@ var EditPublisherPage = (function() {
         });
         updatePublishedArticlesControls();
 
+        $('#id_cohort_articles').on('change', function() {
+            updateCohortArticlesControls();
+            checkForm();
+        });
+        updateCohortArticlesControls();
+
         $('#id_hw_addl_metadata_available').on('change', function() {
             updateHighWireControls();
             checkForm();
@@ -766,6 +764,41 @@ var EditPublisherPage = (function() {
                     updateHighWireControls();
                 });
             return false;
+        });
+
+        f.find('.add-issn-cohort-button').on('click', function() {
+            $.get(addIssnValuesUrl, [{name: 'cohort', value: 1}])
+                .done(function(html) {
+                    $('#issn-values-cohort-container').append(html);
+                });
+            return false;
+        });
+
+        f.submit(function() {
+            var issnValues = [];
+            $('.issn-values-row').each(function() {
+                var row = $(this);
+                var index = row.attr('index');
+                issnValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    journal_code: row.find('#id_journal_code_' + index).val(),
+                    index: index
+                });
+            });
+            $('#id_issn_values').val(JSON.stringify(issnValues));
+
+            var issnCohortValues = [];
+            $('.issn-values-cohort-row').each(function() {
+                var row = $(this);
+                var index = row.attr('index');
+                issnCohortValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    index: index
+                });
+            });
+            $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
         });
     };
 

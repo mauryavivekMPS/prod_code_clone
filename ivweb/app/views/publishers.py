@@ -33,7 +33,7 @@ class PublisherForm(forms.Form):
     published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     rejected_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    issn_values_cohort = forms.CharField(widget=forms.HiddenInput)
+    issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     report_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     project_folder = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
@@ -51,22 +51,26 @@ class PublisherForm(forms.Form):
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
             initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
 
+            index = 0
             for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
                 self.issn_values_list.append({
                     'product_id': 'published_articles',
                     'electronic_issn': code.electronic_issn,
                     'print_issn': code.print_issn,
                     'journal_code': code.journal_code,
+                    'index': 'pa-%s' % index,  # just needs to be unique on the page
                 })
+                index += 1
             initial['issn_values'] = json.dumps(self.issn_values_list)
 
             for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
-                self.issn_values_list.append({
+                self.issn_values_cohort_list.append({
                     'product_id': 'cohort_articles',
                     'electronic_issn': code.electronic_issn,
                     'print_issn': code.print_issn,
-                    'journal_code': code.journal_code,
+                    'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
                 })
+                index += 1
             initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
 
         else:
@@ -112,22 +116,23 @@ class PublisherForm(forms.Form):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
         Publisher_Journal.objects.filter(publisher_id=publisher_id).delete()
-        for issn_value in json.loads(self.cleaned_data['issn_values']):
-            Publisher_Journal.objects.create(
-                product_id='published_articles',
-                publisher_id=publisher_id,
-                electronic_issn=issn_value['electronic_issn'],
-                print_issn=issn_value['print_issn'],
-                journal_code=issn_value['journal_code'],
-            )
-        for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
-            Publisher_Journal.objects.create(
-                product_id='cohort_articles',
-                publisher_id=publisher_id,
-                electronic_issn=issn_value['electronic_issn'],
-                print_issn=issn_value['print_issn'],
-                journal_code=issn_value['journal_code'],
-            )
+        if self.cleaned_data['issn_values']:
+            for issn_value in json.loads(self.cleaned_data['issn_values']):
+                Publisher_Journal.objects.create(
+                    product_id='published_articles',
+                    publisher_id=publisher_id,
+                    electronic_issn=issn_value['electronic_issn'],
+                    print_issn=issn_value['print_issn'],
+                    journal_code=issn_value['journal_code'],
+                )
+        if self.cleaned_data['issn_values_cohort']:
+            for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
+                Publisher_Journal.objects.create(
+                    product_id='cohort_articles',
+                    publisher_id=publisher_id,
+                    electronic_issn=issn_value['electronic_issn'],
+                    print_issn=issn_value['print_issn'],
+                )
 
         return publisher
 
@@ -168,6 +173,8 @@ def edit(request, publisher_id=None):
         'publisher': publisher,
         'issn_values_list': form.issn_values_list,
         'issn_values_json': json.dumps(form.issn_values_list),
+        'issn_values_cohort_list': form.issn_values_cohort_list,
+        'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
     })
 
 
@@ -241,54 +248,7 @@ def check_journal_code(code):
 def new_issn(request):
     return render(request, 'publishers/include/issn_row.html', {
         'index': str(time.time()).replace('.', ''),  # just a non-clashing random number
-        'is_include': True,
-    })
-
-
-@login_required
-def add_issn_values(request):
-    raw_issn_values = request.POST.get('issn_values', '')
-    new_electronic_issn = request.POST.get('new_electronic_issn', '')
-    new_print_issn = request.POST.get('new_print_issn', '')
-    new_journal_code = request.POST.get('new_journal_code', '')
-    new_electronic_issn_error = False
-    new_print_issn_error = False
-    new_journal_code_error = False
-
-    if raw_issn_values:
-        issn_values_list = json.loads(raw_issn_values)
-    else:
-        issn_values_list = []
-
-    if new_electronic_issn:
-        if not validate_issn(new_electronic_issn):
-            new_electronic_issn_error = True
-
-        if new_journal_code:
-            if not validate_journal_code(new_journal_code):
-                new_journal_code_error = True
-
-        # if we have good values, add them to the list and clear out the values
-        if not new_electronic_issn_error and not new_journal_code_error:
-            issn_values_list.append({
-                'electronic_issn': new_electronic_issn,
-                'print_issn': new_print_issn,
-                'journal_code': new_journal_code,
-            })
-
-            new_electronic_issn = ''
-            new_print_issn = ''
-            new_journal_code = ''
-
-    return render(request, 'publishers/include/issn_table.html', {
-        'issn_values_list': issn_values_list,
-        'issn_values_json': json.dumps(issn_values_list),
-        'new_electronic_issn': new_electronic_issn,
-        'new_electronic_issn_error': new_electronic_issn_error,
-        'new_print_issn': new_print_issn,
-        'new_print_issn_error': new_print_issn_error,
-        'new_journal_code': new_journal_code,
-        'new_journal_code_error': new_journal_code_error,
+        'cohort': 'cohort' in request.GET,
         'is_include': True,
     })
 
