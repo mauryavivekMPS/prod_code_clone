@@ -39,10 +39,10 @@ class UpdateArticleCitationsPipeline(Pipeline):
             task_args = {
                 'pipeline_name': self.pipeline_name,
                 'publisher_id': publisher.publisher_id,
+                'product_id': product_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
                 tasks.GetScopusArticleCitations.REPROCESS_ERRORS: False,
-                'product_id': product_id
             }
 
             chain(

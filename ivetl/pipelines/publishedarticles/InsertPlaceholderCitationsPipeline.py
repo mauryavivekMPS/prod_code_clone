@@ -34,10 +34,10 @@ class InsertPlaceholderCitationsPipeline(Pipeline):
             task_args = {
                 'pipeline_name': self.pipeline_name,
                 'publisher_id': publisher_id,
+                'product_id': product_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'max_articles_to_process': max_articles_to_process,
-                'product_id': product_id
             }
 
             tasks.InsertPlaceholderCitationsIntoCassandraTask.s(task_args).delay()

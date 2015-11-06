@@ -61,10 +61,11 @@ class CustomArticleDataPipeline(Pipeline):
                     task_args = {
                         'pipeline_name': self.pipeline_name,
                         'publisher_id': publisher.publisher_id,
+                        'product_id': product_id,
                         'work_folder': work_folder,
                         'job_id': job_id,
                         'uploaded_files': [os.path.join(publisher_dir, f) for f in files],
-                        'preserve_incoming_files': preserve_incoming_files
+                        'preserve_incoming_files': preserve_incoming_files,
                     }
 
                     # send alert email that we're processing for this publisher
