@@ -701,15 +701,34 @@ var EditPublisherPage = (function() {
             button.hide();
             loading.show();
 
+            var electronicIssn = row.find('#id_electronic_issn_' + index).val();
+            var printIssn = row.find('#id_print_issn_' + index).val();
+            var journalCode = row.find('#id_journal_code_' + index).val();
+
+            var setIssnError = function(error) {
+                row.addClass('error');
+                message.html('<li>' + error + '</li>').show();
+                button.show();
+                checkmark.hide();
+                button.addClass('disabled').show();
+            };
+
+            // quick local checks for blank entries
+            if (electronicIssn == '' || printIssn == '' || (hasHighWire() && journalCode == '')) {
+                loading.hide();
+                setIssnError('All ISSN fields need a value.');
+                return false;
+            }
+
             var data = [
-                {name: 'electronic_issn', value: row.find('#id_electronic_issn_' + index).val()},
-                {name: 'print_issn', value: f.find('#id_print_issn_' + index).val()},
+                {name: 'electronic_issn', value: electronicIssn},
+                {name: 'print_issn', value: printIssn},
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
 
             if (hasHighWire()) {
                 data.push(
-                    {name: 'journal_code', value: f.find('#id_journal_code_' + index).val()}
+                    {name: 'journal_code', value: journalCode}
                 );
             }
 
@@ -724,11 +743,7 @@ var EditPublisherPage = (function() {
                         checkmark.show();
                     }
                     else {
-                        row.addClass('error');
-                        message.html('<li>' + response + '</li>').show();  // smuggle the janky error message in through the response
-                        button.show();
-                        checkmark.hide();
-                        button.addClass('disabled').show();
+                        setIssnError(response);  // smuggle the janky error message in through the response
                     }
                     checkForm();
                 });
