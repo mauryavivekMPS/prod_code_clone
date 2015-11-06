@@ -56,13 +56,13 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             task_args = {
                 'pipeline_name': self.pipeline_name,
                 'publisher_id': publisher_id,
+                'product_id': product_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
                 tasks.GetPublishedArticlesTask.ISSNS: issns,
                 tasks.GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
-                'product_id': product_id
             }
 
             chain(
