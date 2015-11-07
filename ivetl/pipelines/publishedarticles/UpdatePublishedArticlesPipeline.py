@@ -17,8 +17,6 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
 
-        max_articles_to_process = 20
-
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
         time = d.strftime('%H%M%S%f')
@@ -61,7 +59,6 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'product_id': product_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                'current_task_count': 0,
                 tasks.GetPublishedArticlesTask.ISSNS: issns,
                 tasks.GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
                 'articles_per_page': articles_per_page,

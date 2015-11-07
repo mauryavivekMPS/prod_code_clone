@@ -22,7 +22,11 @@ class Task(BaseTask):
         work_folder = new_task_args.pop('work_folder')
         job_id = new_task_args.pop('job_id')
         pipeline_name = new_task_args.pop('pipeline_name')
-        current_task_count = new_task_args.pop('current_task_count')
+
+        if 'current_task_count' in new_task_args:
+            current_task_count = new_task_args.pop('current_task_count')
+        else:
+            current_task_count = 0
 
         # bump the task count
         current_task_count += 1

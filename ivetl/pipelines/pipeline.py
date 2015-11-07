@@ -27,7 +27,7 @@ class Pipeline(BaseTask):
         p.workfolder = work_folder
         p.updated = start_date
         p.total_task_count = total_task_count
-        p.current_task_count = total_task_count
+        p.current_task_count = current_task_count
         p.save()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
