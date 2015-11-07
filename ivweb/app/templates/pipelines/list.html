@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
+{% load tags %}
 {% block title %}{{ pipeline.name }}{% endblock %}
 {% block body_class %}{{ pipeline.id }}{% if product.cohort %}_cohort{% endif %}_pipeline{% endblock %}
-
 {% block content %}
     <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
         {% csrf_token %}
@@ -34,12 +34,16 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th colspan="2">Publisher</th>
+                        <th class="status-col">
+                            <span class="summary-value">
+                                {% status_icon %}
+                            </span>
+                        </th>
+                        <th colspan="3">Publisher</th>
                         <th class="date-col">Date</th>
                         <th class="time-col">Start Time</th>
                         <th class="time-col">End Time</th>
                         <th class="duration-col text-right">Duration</th>
-                        <th class="status-col"></th>
                     </tr>
                 </thead>
                 <tbody>

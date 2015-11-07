@@ -1,6 +1,17 @@
 {% load filters %}
 {% load tags %}
 <tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ publisher_runs.recent_run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ publisher_runs.recent_task.status }}">
+    <td class="status-col">
+        {% if publisher_runs.runs %}
+            <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                {% status_icon publisher_runs.recent_run %}
+            </span>
+        {% else %}
+            <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                {% status_icon %}
+            </span>
+        {% endif %}
+    </td>
     {% if request.user.superuser %}
         <td class="opener-col">
             <span class="lnr lnr-chevron-down opener-icon {{ publisher_runs.publisher.publisher_id }}_closer" {% if opened %}style="display:none"{% endif %}></span>
@@ -48,31 +59,27 @@
     <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"H:i:s"|nullable_date }}</span></td>
     <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.end_time|date:"H:i:s"|nullable_date }}</span></td>
     <td class="text-right"><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.duration_seconds|nullable_duration }}</span></td>
-    <td class="status-col">
-        {% if publisher_runs.runs %}
-            <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
-                {% status_icon publisher_runs.recent_run %}
-            </span>
-        {% endif %}
-    </td>
 </tr>
 {% if request.user.superuser %}
     {% if publisher_runs.runs %}
         {% for run_item in publisher_runs.runs %}
             <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>
+                <td class="status-col">
+                    {% status_icon run_item.run %}
+                </td>
                 <td class="opener-col"></td>
                 <td class="run-col"><span class="run-name">{{ run_item.run.display_name }}</span></td>
                 <td>{{ run_item.run.start_time|date:"Y-m-d"|nullable_date }}</td>
                 <td>{{ run_item.run.start_time|date:"H:i:s"|nullable_date }}</td>
                 <td>{{ run_item.run.end_time|date:"H:i:s"|nullable_date }}</td>
                 <td class="text-right">{{ run_item.run.duration_seconds|nullable_duration }}</td>
-                <td class="status-col">
-                    {% status_icon run_item.run %}
-                </td>
             </tr>
             {% if forloop.first %}
                 {% for task in run_item.tasks %}
                     <tr class="{{ task.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
+                        <td class="status-col">
+                            {% status_icon task %}
+                        </td>
                         <td class="opener-col"></td>
                         <td class="task-col">
                             <span class="order">{{ forloop.counter }}.</span>
@@ -91,13 +98,11 @@
                         <td>{{ task.start_time|date:"H:i:s"|nullable_date }}</td>
                         <td>{{ task.end_time|date:"H:i:s"|nullable_date }}</td>
                         <td class="text-right">{{ task.duration_seconds|nullable_duration }}</td>
-                        <td class="status-col">
-                            {% status_icon task %}
-                        </td>
                     </tr>
                     <tr class="{{ task.publisher_id }}_row {{ task.publisher_id }}_{{ task.job_id }}_{{ task.task_id }}_row tail-row" {% if task.status != 'in-progress' or not opened %}style="display:none"{% endif %}>
+                        <td class="status-col"></td>
                         <td class="opener-col"></td>
-                        <td class="tail-col" colspan="6">
+                        <td class="tail-col" colspan="5">
                             <div class="tail-output log-output"><pre></pre></div>
                         </td>
                     </tr>
@@ -105,25 +110,29 @@
             {% endif %}
             {% if forloop.last and publisher_runs.additional_previous_runs %}
                 <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>
+                    <td class="status-col"></td>
                     <td class="opener-col"></td>
                     <td class="run-col additional-previous-runs">{{ publisher_runs.additional_previous_runs }} previous run{{ publisher_runs.additional_previous_runs|pluralize }}...</td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td class="text-right"></td>
-                    <td class="status-col"></td>
                 </tr>
             {% endif %}
         {% endfor %}
     {% else %}
         <tr class="{{ publisher_runs.publisher.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
+            <td class="status-col">
+                <span class="summary-value">
+                    {% status_icon %}
+                </span>
+            </td>
             <td class="opener-col"></td>
             <td class="run-col">No recent runs</td>
             <td><span class="null-value">&ndash;</span></td>
             <td><span class="null-value">&ndash;</span></td>
             <td><span class="null-value">&ndash;</span></td>
             <td class="text-right"><span class="null-value">&ndash;</span></td>
-            <td class="status-col"></td>
         </tr>
     {% endif %}
 {% endif %}
