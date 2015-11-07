@@ -7,7 +7,6 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 
 class Pipeline(BaseTask):
     abstract = True
-    pipeline_name = ''
 
     @classmethod
     def get_or_create_incoming_dir_for_publisher(cls, base_incoming_dir, publisher_id):
@@ -15,13 +14,13 @@ class Pipeline(BaseTask):
         os.makedirs(pipeline_incoming_dir, exist_ok=True)
         return pipeline_incoming_dir
 
-    def on_pipeline_started(self, publisher_id, product_id, job_id, work_folder, total_task_count=0, current_task_count=0):
+    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=0, current_task_count=0):
         start_date = datetime.datetime.today()
 
         p = Pipeline_Status()
         p.publisher_id = publisher_id
         p.product_id = product_id
-        p.pipeline_id = self.pipeline_name
+        p.pipeline_id = pipeline_id
         p.job_id = job_id
         p.start_time = start_date
         p.workfolder = work_folder
@@ -35,11 +34,14 @@ class Pipeline(BaseTask):
 
         # sometimes a pipeline will fail before there are a full set of task args
         publisher_id = ''
+        pipeline_id = ''
+        product_id = ''
         job_id = ''
         if args and type(args[0]) == dict:
             task_args = args[0]
             publisher_id = task_args.get('publisher_id', '')
             product_id = task_args.get('product_id', '')
+            pipeline_id = task_args.get('pipeline_id', '')
             job_id = task_args.get('job_id', '')
 
             # TODO: Not sure what to do here if there are no args yet!?!
@@ -57,7 +59,7 @@ class Pipeline(BaseTask):
             pts.update()
 
             try:
-                ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=self.pipeline_name, job_id=job_id)
+                ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id)
                 ps.update(
                     end_time=end_date,
                     duration_seconds=(end_date - ps.start_time).total_seconds(),
@@ -70,10 +72,10 @@ class Pipeline(BaseTask):
                 pass
 
         day = end_date.strftime('%Y.%m.%d')
-        subject = "ERROR! " + day + " - " + self.pipeline_name + " - " + self.short_name
+        subject = "ERROR! " + day + " - " + pipeline_id + " - " + self.short_name
 
         body = "<b>Pipeline:</b> <br>"
-        body += self.pipeline_name
+        body += pipeline_id
         body += "<br><br><b>Task:</b> <br>"
         body += self.short_name
         body += "<br><br><b>Arguments:</b> <br>"
@@ -87,10 +89,15 @@ class Pipeline(BaseTask):
         common.send_email(subject, body)
 
     def on_success(self, retval, task_id, args, kwargs):
+        pipeline_id = ''
+        if args and type(args[0]) == dict:
+            task_args = args[0]
+            pipeline_id = task_args.get('pipeline_id', '')
+
         day = datetime.datetime.today().strftime('%Y.%m.%d')
-        subject = "SUCCESS: " + day + " - " + self.pipeline_name + " - " + self.short_name
+        subject = "SUCCESS: " + day + " - " + pipeline_id + " - " + self.short_name
         body = "<b>Pipeline:</b> <br>"
-        body += self.pipeline_name
+        body += pipeline_id
         body += "<br><br><b>Task:</b> <br>"
         body += self.short_name
         body += "<br><br><b>Arguments:</b> <br>"

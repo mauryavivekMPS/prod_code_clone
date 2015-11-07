@@ -18,3 +18,8 @@ class Pipeline_Task_Status(Model):
     updated = columns.DateTime()
     workfolder = columns.Text()
 
+    def percent_complete(self):
+        if self.total_record_count:
+            return int(self.current_record_count / self.total_record_count * 100)
+        else:
+            return 0

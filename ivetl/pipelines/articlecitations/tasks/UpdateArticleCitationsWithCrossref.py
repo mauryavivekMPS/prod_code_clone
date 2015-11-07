@@ -10,7 +10,7 @@ from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Articl
 class UpdateArticleCitationsWithCrossref(Task):
     QUERY_LIMIT = 50000000
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
         count = 0
@@ -97,6 +97,6 @@ class UpdateArticleCitationsWithCrossref(Task):
                     else:
                         tlogger.info("No crossref data found for citation %s, skipping" % citation_doi)
 
-        self.pipeline_ended(publisher_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
         return {self.COUNT: count}

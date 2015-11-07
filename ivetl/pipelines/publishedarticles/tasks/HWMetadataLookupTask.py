@@ -26,7 +26,7 @@ class HWMetadataLookupTask(Task):
 
     ISSN_JNL_QUERY_LIMIT = 1000000
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
         file = task_args[self.INPUT_FILE]
 

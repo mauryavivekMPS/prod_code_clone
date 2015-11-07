@@ -14,7 +14,7 @@ class GetScopusArticleCitations(Task):
     QUERY_LIMIT = 50000000
     MAX_ERROR_COUNT = 100
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
         reprocesserrorsonly = task_args[GetScopusArticleCitations.REPROCESS_ERRORS]
         product = common.PRODUCT_BY_ID[product_id]

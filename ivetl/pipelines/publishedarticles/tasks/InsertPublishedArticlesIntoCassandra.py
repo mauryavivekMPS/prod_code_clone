@@ -12,7 +12,7 @@ from ivetl.pipelines.task import Task
 @app.task
 class InsertPublishedArticlesIntoCassandra(Task):
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
         file = task_args[self.INPUT_FILE]
 
