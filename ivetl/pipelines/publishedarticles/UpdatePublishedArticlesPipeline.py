@@ -41,7 +41,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             else:
                 issns = pm.published_articles_issns_to_lookup
 
-            if reprocess_all:
+            if reprocess_all or not pm.published_articles_last_updated:
                 if product['cohort']:
                     start_publication_date = self.COHORT_PUB_START_DATE
                 else:
@@ -51,7 +51,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today, publisher_id, job_id)
-            self.on_pipeline_started(publisher_id, product_id, job_id, work_folder)
+            self.on_pipeline_started(publisher_id, product_id, job_id, work_folder, total_task_count=6, current_task_count=0)
 
             task_args = {
                 'pipeline_name': self.pipeline_name,

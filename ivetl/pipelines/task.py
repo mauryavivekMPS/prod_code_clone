@@ -11,6 +11,7 @@ class Task(BaseTask):
     abstract = True
     pipeline_name = ''
     product_id = ''
+    current_task_count = 0
 
     def run(self, task_args):
         new_task_args = task_args.copy()
@@ -22,9 +23,18 @@ class Task(BaseTask):
         job_id = new_task_args.pop('job_id')
         pipeline_name = new_task_args.pop('pipeline_name')
 
+        if 'current_task_count' in new_task_args:
+            current_task_count = new_task_args.pop('current_task_count')
+        else:
+            current_task_count = 0
+
+        # bump the task count
+        current_task_count += 1
+
         # save the pipeline name and product ID
         self.pipeline_name = pipeline_name
         self.product_id = product_id
+        self.current_task_count = current_task_count
 
         # set up the directory for this task
         task_work_folder, tlogger = self.setup_task(work_folder)
@@ -42,6 +52,7 @@ class Task(BaseTask):
         task_result['work_folder'] = work_folder
         task_result['job_id'] = job_id
         task_result['pipeline_name'] = pipeline_name
+        task_result['current_task_count'] = current_task_count
 
         return task_result
 
@@ -65,6 +76,7 @@ class Task(BaseTask):
 
         Pipeline_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_name, job_id=job_id).update(
             current_task=self.short_name,
+            current_task_count=self.current_task_count,
             status=self.PL_INPROGRESS,
             updated=start_date
         )

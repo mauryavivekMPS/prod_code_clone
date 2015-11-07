@@ -87,6 +87,10 @@ class GetPublishedArticlesTask(Task):
 
                         count += 1
 
+                        # TODO: Added this for testing!!
+                        if count > 20:
+                            break
+
                     offset += task_args['articles_per_page']
 
                 else:

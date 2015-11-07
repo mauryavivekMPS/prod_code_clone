@@ -8,6 +8,8 @@ class Pipeline_Status(Model):
     pipeline_id = columns.Text(primary_key=True)
     job_id = columns.Text(primary_key=True)
     current_task = columns.Text()
+    current_task_count = columns.Integer()
+    total_task_count = columns.Integer()
     duration_seconds = columns.Integer()
     end_time = columns.DateTime()
     error_details = columns.Text()
@@ -18,3 +20,9 @@ class Pipeline_Status(Model):
 
     def display_name(self):
         return 'Run %s' % self.job_id[self.job_id.rindex('_') + 1:]
+
+    def percent_complete(self):
+        if self.total_task_count:
+            return int(self.current_task_count / self.total_task_count * 100)
+        else:
+            return 0

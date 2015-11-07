@@ -120,16 +120,6 @@
                 </div>
             </div>
         {% endif %}
-        <div id="main-pjax-container">
-            {% block content %}Empty{% endblock %}
-        </div>
+        {% block content %}Empty{% endblock %}
     </div>
-{% endblock %}
-
-{% block pjax_scripts %}
-    <script>
-        $(function() {
-//            Meerkat.initPjaxSpinner();
-        });
-    </script>
 {% endblock %}
