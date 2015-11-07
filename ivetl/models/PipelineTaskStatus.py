@@ -9,6 +9,8 @@ class Pipeline_Task_Status(Model):
     job_id = columns.Text(primary_key=True)
     task_id = columns.Text(primary_key=True)
     duration_seconds = columns.Integer()
+    current_record_count = columns.Integer()
+    total_record_count = columns.Integer()
     end_time = columns.DateTime()
     error_details = columns.Text()
     start_time = columns.DateTime()

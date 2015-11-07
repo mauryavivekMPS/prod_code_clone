@@ -20,16 +20,21 @@
                 {% elif publisher_runs.recent_run.status == 'error' %}
                     Failed
                 {% endif %}
-{#                <span class="run-name">{{ publisher_runs.recent_run.display_name }}</span>#}
-                {% if publisher_runs.recent_run.status == 'completed' %}
-{#                    <span class="run-progress">1,243 of 3,455 records</span>#}
-                {% endif %}
+
                 {% if publisher_runs.recent_run.status == 'error' %}
                     / {{ publisher_runs.recent_task.task_id }}
                 {% endif %}
             </span>
         {% endif %}
-        {% if publisher_runs.recent_run.status != 'in-progress' %}
+        {% if publisher_runs.recent_run.status == 'in-progress' %}
+            {% with current=publisher_runs.recent_run.current_task_count total=publisher_runs.recent_run.total_task_count percent=publisher_runs.recent_run.percent_complete %}
+                <div class="progress pipeline-progress" data-toggle="tooltip" data-placement="top" title="Task {{ current }} of {{ total }}">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percent }}%;">
+                    <span class="sr-only">{{ percent }}% Complete</span>
+                  </div>
+                </div>
+            {% endwith %}
+        {% else %}
             <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/">
                 {% csrf_token %}
                 <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
@@ -121,6 +126,7 @@
             {% if publisher_runs.recent_task.status == 'in-progress' %}
                 PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}')
             {% endif %}
+            IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
         });
     </script>
 {% endblock %}

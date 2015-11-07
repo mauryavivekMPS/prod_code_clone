@@ -3,8 +3,6 @@
 //
 
 var IvetlWeb = (function() {
-    var pjaxContainer = '#main-pjax-container';
-    var initialPageUrl = '';
     var loading = $('#loading');
     var loadingMessage = $('#loading-message');
     var loadingMessageTimer;
@@ -33,54 +31,14 @@ var IvetlWeb = (function() {
         });
     };
 
-    var initPjax = function() {
-        $(document).pjax('a:not(.no-default-pjax)', pjaxContainer).on('pjax:beforeSend', function (event, xhr) {
-            // set an inception header for links with the right class
-            if (event.relatedTarget && event.relatedTarget.className.indexOf('pjax-inception') != -1) {
-                xhr.setRequestHeader('X-PJAX-INCEPTION', 'true');
-            }
-        });
-
-        // get rid of any messages
-        $(document).on('pjax:end', function () {
-            hideMessages(true);
-        });
-    };
-
-    var initPjaxSpinner = function() {
-        $(document).on('pjax:send', function () {
-            showLoading();
-        });
-
-        $(document).on('pjax:end', function () {
-            hideLoading();
-        });
-
-        $(document).on('pjax:timeout', function(event) {
-            // prevent default timeout redirection behavior
-            event.preventDefault();
-        });
-    };
-
-    var initTooltips = function() {
-        $('[data-toggle="tooltip"]').tooltip();
-        $(document).on('pjax:end', function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        });
+    var initTooltips = function(baseSelector) {
+        console.log(baseSelector + ' ' + '[data-toggle="tooltip"]');
+        $(baseSelector + ' ' + '[data-toggle="tooltip"]').tooltip();
     };
 
     var setPageClasses = function(htmlClass, bodyClass) {
         $('html').removeClass().addClass(htmlClass);
         $('body').removeClass().addClass('meerkat ' + bodyClass);
-    };
-
-    var setInitialPageClasses = function(htmlClass, bodyClass) {
-        initialPageUrl = window.location.href;
-        $(document).on('pjax:end', function() {
-            if (window.location.href == initialPageUrl) {
-                setPageClasses(htmlClass, bodyClass);
-            }
-        });
     };
 
     var showMessages = function(messages, autoHide) {
@@ -120,14 +78,10 @@ var IvetlWeb = (function() {
     };
 
     return {
-        pjaxContainer: pjaxContainer,
         showLoading: showLoading,
         hideLoading: hideLoading,
-        initPjax: initPjax,
-        initPjaxSpinner: initPjaxSpinner,
         initTooltips: initTooltips,
         setPageClasses: setPageClasses,
-        setInitialPageClasses: setInitialPageClasses,
         showMessages: showMessages,
         hideMessages: hideMessages,
         showErrors: showErrors,

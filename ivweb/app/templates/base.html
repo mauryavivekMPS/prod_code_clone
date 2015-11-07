@@ -21,7 +21,6 @@
 
         <script src="/static/dist/jquery.min.js"></script>
         <script src="/static/dist/jquery-ui.min.js"></script>
-        <script src="/static/dist/jquery.pjax.js"></script>
         <script src="/static/dist/jquery.number.min.js"></script>
     </head>
 
@@ -36,12 +35,8 @@
 
         <script>
             $(function() {
-//                Meerkat.initPjax();
-//                Meerkat.initTooltips();
-//                Meerkat.setInitialPageClasses('{{ html_class }}', '{{ body_class }}');
+                IvetlWeb.initTooltips('body');
             });
         </script>
-
-        {% block pjax_scripts %}{% endblock %}
     </body>
 </html>

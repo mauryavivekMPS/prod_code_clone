@@ -15,7 +15,7 @@ class Pipeline(BaseTask):
         os.makedirs(pipeline_incoming_dir, exist_ok=True)
         return pipeline_incoming_dir
 
-    def on_pipeline_started(self, publisher_id, product_id, job_id, work_folder):
+    def on_pipeline_started(self, publisher_id, product_id, job_id, work_folder, total_task_count=0, current_task_count=0):
         start_date = datetime.datetime.today()
 
         p = Pipeline_Status()
@@ -26,6 +26,8 @@ class Pipeline(BaseTask):
         p.start_time = start_date
         p.workfolder = work_folder
         p.updated = start_date
+        p.total_task_count = total_task_count
+        p.current_task_count = total_task_count
         p.save()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):

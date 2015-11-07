@@ -1453,6 +1453,28 @@ body.login {
     }
 }
 
+.pipeline-progress {
+    width: 130px;
+    display: inline-block;
+    margin-bottom: 0;
+    height: 11px;
+    vertical-align: -1px;
+    margin-left: 10px;
+    box-shadow: none;
+    border-radius: 2px;
+
+    .progress-bar {
+        box-shadow: none;
+        background-color: #ddd;
+        transition: background-color ease-in-out .2s;
+    }
+
+    &:hover {
+        .progress-bar {
+            background-color: #aaa;
+        }
+    }
+}
 
 // Upload page
 // -------------------------
