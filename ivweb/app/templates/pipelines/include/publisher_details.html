@@ -40,9 +40,7 @@
         {% if publisher_runs.recent_run.status == 'in-progress' %}
             {% with current=publisher_runs.recent_run.current_task_count total=publisher_runs.recent_run.total_task_count percent=publisher_runs.recent_run.percent_complete %}
                 <div class="progress pipeline-progress" data-toggle="tooltip" data-placement="top" title="Task {{ current }} of {{ total }}">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percent }}%;">
-                    <span class="sr-only">{{ percent }}% Complete</span>
-                  </div>
+                  <div class="progress-bar" role="progressbar" style="width: {{ percent }}%;"></div>
                 </div>
             {% endwith %}
         {% else %}
@@ -86,10 +84,8 @@
                             <a href="#" class="task-link" publisher_id="{{ task.publisher_id }}" job_id="{{ task.job_id }}" task_id="{{ task.task_id }}">{{ task.task_id }}</a>
                             {% if task.status == 'in-progress' %}
                                 {% with current=task.current_record_count total=task.total_record_count percent=task.percent_complete %}
-                                    <div class="progress task-progress" data-toggle="tooltip" data-placement="top" title="Processing {{ current }} of {{ total }} records">
-                                      <div class="progress-bar" role="progressbar" style="width: {{ percent }}%;">
-                                        <span class="sr-only">{{ percent }}% Complete</span>
-                                      </div>
+                                    <div class="progress task-progress" data-toggle="tooltip" data-placement="top" title="{% if current and total %}Processing {{ current }} of {{ total }} records{% endif %}">
+                                      <div class="progress-bar" role="progressbar" style="width: {{ percent }}%;"></div>
                                     </div>
                                 {% endwith %}
                             {% endif %}
@@ -142,7 +138,7 @@
         $(function() {
             PipelineListPage.cancelTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% if publisher_runs.recent_task.status == 'in-progress' %}
-                PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}')
+                PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% endif %}
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_row');

@@ -72,7 +72,11 @@ class GetPublishedArticlesTask(Task):
 
                 xrefdata = r.json()
 
-                if 'ok' in xrefdata['status'] and len(xrefdata['message']['items']) > 0:
+                total_count = len(xrefdata['message']['items'])
+
+                if 'ok' in xrefdata['status'] and total_count > 0:
+
+                    self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
                     for i in xrefdata['message']['items']:
 
@@ -85,7 +89,7 @@ class GetPublishedArticlesTask(Task):
                         target_file.write(row)
                         target_file.flush()
 
-                        count += 1
+                        count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                         # TODO: Added this for testing!!
                         if count > 20:

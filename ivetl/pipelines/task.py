@@ -61,6 +61,8 @@ class Task(BaseTask):
         pts.job_id = job_id
         pts.task_id = self.short_name
         pts.start_time = start_date
+        pts.total_record_count = 0
+        pts.current_record_count = 0
         pts.status = self.PL_INPROGRESS
         pts.updated = start_date
         pts.workfolder = work_folder
@@ -161,7 +163,29 @@ class Task(BaseTask):
         body += str(retval)
         common.send_email(subject, body)
 
-    # !! TODO: this needs to be moved!
+    def set_total_record_count(self, publisher_id, product_id, pipeline_id, job_id, total_count):
+        Pipeline_Task_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id, task_id=self.short_name).update(
+            total_record_count=total_count
+        )
+
+    def increment_record_count(self, publisher_id, product_id, pipeline_id, job_id, total_count, current_count):
+        current_count += 1
+
+        if total_count:
+
+            # figure out a reasonable increment
+            if total_count < 10:
+                increment = 1
+            else:
+                increment = int(total_count / 10)
+
+        if total_count and current_count % increment == 0:
+            # write out every 100 records to the db
+            Pipeline_Task_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id, task_id=self.short_name).update(
+                current_record_count=current_count
+            )
+        return current_count
+
     def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id):
         end_date = datetime.datetime.today()
         p = Pipeline_Status().objects.filter(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()

@@ -30,13 +30,22 @@ class ScopusIdLookupTask(Task):
         count = 0
         error_count = 0
 
+        total_count = 0
+        with codecs.open(file, encoding="utf-16") as f:
+            for i, l in enumerate(f):
+                pass
+            total_count = i + 1
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         with codecs.open(file, encoding="utf-16") as tsv:
 
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
                 if count == 1:
-                    continue
+                    continue  # ignore the header
 
                 publisher_id = line[0]
                 doi = line[1]
