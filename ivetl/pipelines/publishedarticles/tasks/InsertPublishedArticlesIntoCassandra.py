@@ -14,7 +14,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        file = task_args[self.INPUT_FILE]
+        file = task_args['input_file']
+        total_count = task_args['count']
 
         modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
         modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
@@ -25,6 +26,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
         updated = today
 
         product = common.PRODUCT_BY_ID[product_id]
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         # Build Issn Journal List
         issn_journals = {}
@@ -37,7 +40,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
                 if count == 1:
                     continue
 
@@ -213,8 +216,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
         modified_articles_file.close()
 
-        task_args['modified_articles_file'] = modified_articles_file_name
-        task_args[self.COUNT] = count
+        task_args['input_file'] = modified_articles_file_name
+        task_args['count'] = count
 
         return task_args
 

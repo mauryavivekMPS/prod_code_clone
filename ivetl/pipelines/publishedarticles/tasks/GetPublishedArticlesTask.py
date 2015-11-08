@@ -102,8 +102,8 @@ class GetPublishedArticlesTask(Task):
 
         target_file.close()
 
-        task_args[self.INPUT_FILE] = target_file_name
-        task_args[self.COUNT] = count
+        task_args['input_file'] = target_file_name
+        task_args['count'] = count
 
         return task_args
 

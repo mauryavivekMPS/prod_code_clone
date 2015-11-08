@@ -15,7 +15,8 @@ class ScopusIdLookupTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        file = task_args[self.INPUT_FILE]
+        file = task_args['input_file']
+        total_count = task_args['count']
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "scopuscitationlookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -29,12 +30,6 @@ class ScopusIdLookupTask(Task):
 
         count = 0
         error_count = 0
-
-        total_count = 0
-        with codecs.open(file, encoding="utf-16") as f:
-            for i, l in enumerate(f):
-                pass
-            total_count = i + 1
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
@@ -105,8 +100,8 @@ class ScopusIdLookupTask(Task):
 
         target_file.close()
 
-        task_args[self.INPUT_FILE] = target_file_name
-        task_args[self.COUNT] = count
+        task_args['input_file'] = target_file_name
+        task_args['count'] = count
 
         return task_args
 

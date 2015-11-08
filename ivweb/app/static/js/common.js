@@ -312,6 +312,12 @@ var PipelineListPage = (function() {
 
         if (isSuperuser) {
             $('.run-button').click(function() {
+                $('.run-button').hide();
+                var loading = $('.run-for-all-loading-icon');
+                loading.show();
+                setTimeout(function() {
+                    loading.hide();
+                }, 3000);
                 $('#run-pipeline-form').submit();
                 return false;
             });

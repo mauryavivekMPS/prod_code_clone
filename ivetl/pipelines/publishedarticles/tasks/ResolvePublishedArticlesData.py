@@ -9,12 +9,18 @@ from ivetl.models import Published_Article, Published_Article_Values
 class ResolvePublishedArticlesData(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        file_name = task_args['modified_articles_file']
+        file = task_args['input_file']
+        total_count = task_args['count']
+
         now = datetime.datetime.now()
-        with open(file_name, encoding='utf-8') as tsv:
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        with open(file, encoding='utf-8') as tsv:
             count = 0
             for line in csv.reader(tsv, delimiter='\t'):
-                count += 1
+
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                 # skip header row
                 if count == 1:
@@ -58,5 +64,5 @@ class ResolvePublishedArticlesData(Task):
         if pipeline_id == 'custom_article_data':
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
-        task_args[self.COUNT] = count
+        task_args['count'] = count
         return task_args
