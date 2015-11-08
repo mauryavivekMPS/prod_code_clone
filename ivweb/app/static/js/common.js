@@ -199,8 +199,9 @@ var PipelineListPage = (function() {
     var wireRunForPublisherForms = function(selector) {
         $(selector).submit(function(event) {
             var form = $(this);
-            form.find('.run-pipeline-for-publisher-button').fadeOut(200);
-            $('.run-button').fadeOut(200);
+            form.find('.run-pipeline-for-publisher-button').hide();
+            form.find('.run-loading-icon').show();
+            $('.run-button').hide();
             $.post(runForPublisherUrl, form.serialize());
             event.preventDefault();
             return false;
