@@ -22,7 +22,8 @@ class Pipeline_Status(Model):
         return 'Run %s' % self.job_id[self.job_id.rindex('_') + 1:]
 
     def percent_complete(self):
-        if self.total_task_count:
-            return int(self.current_task_count / self.total_task_count * 100)
+        if self.total_task_count and self.current_task_count:
+            # btw, decrement task count because the task isn't done until we're at the next one
+            return int((self.current_task_count - 1) / self.total_task_count * 100)
         else:
             return 0
