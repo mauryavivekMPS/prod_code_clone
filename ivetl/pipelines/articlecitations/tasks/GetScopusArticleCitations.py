@@ -14,8 +14,7 @@ class GetScopusArticleCitations(Task):
     QUERY_LIMIT = 50000000
     MAX_ERROR_COUNT = 100
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
-
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         reprocesserrorsonly = task_args[GetScopusArticleCitations.REPROCESS_ERRORS]
         product = common.PRODUCT_BY_ID[product_id]
 
@@ -36,9 +35,12 @@ class GetScopusArticleCitations(Task):
         count = 0
         error_count = 0
 
+        total_count = len(articles)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         for article in articles:
 
-            count += 1
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
 
@@ -66,10 +68,10 @@ class GetScopusArticleCitations(Task):
 
         target_file.close()
 
-        task_args[self.INPUT_FILE] = target_file_name
-        task_args[self.COUNT] = count
-
-        return task_args
+        return {
+            'count': total_count,
+            'input_file': target_file_name
+        }
 
 
 

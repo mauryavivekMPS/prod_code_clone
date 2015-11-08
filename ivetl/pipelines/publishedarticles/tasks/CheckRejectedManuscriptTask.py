@@ -6,7 +6,10 @@ from ivetl.models import Published_Article, Rejected_Articles
 @app.task
 class CheckRejectedManuscriptTask(Task):
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        total_count = task_args['count']
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         article_limit = 1000000
         if 'max_articles_to_process' in task_args and task_args['max_articles_to_process']:
@@ -22,7 +25,8 @@ class CheckRejectedManuscriptTask(Task):
 
         count = 0
         for article in articles:
-            count += 1
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up rejected manuscript for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
 
@@ -35,5 +39,7 @@ class CheckRejectedManuscriptTask(Task):
                 article.update()
                 tlogger.info("Article sourced from rejected manuscript.")
 
-        self.pipeline_ended(publisher_id, job_id)
-        return {self.COUNT: count}
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+
+        return {'count': count}
+

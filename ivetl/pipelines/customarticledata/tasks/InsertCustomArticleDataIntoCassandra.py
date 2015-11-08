@@ -10,8 +10,11 @@ from ivetl.models import Published_Article_Values
 @app.task
 class InsertCustomArticleDataIntoCassandra(Task):
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']
+        total_count = task_args['count']
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
         modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
@@ -21,7 +24,7 @@ class InsertCustomArticleDataIntoCassandra(Task):
             with open(f, encoding='utf-8') as tsv:
                 count = 0
                 for line in csv.reader(tsv, delimiter='\t'):
-                    count += 1
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     # skip header row
                     if count == 1:
@@ -47,4 +50,7 @@ class InsertCustomArticleDataIntoCassandra(Task):
                 tsv.close()
 
         modified_articles_file.close()
-        return {self.COUNT: count, 'modified_articles_file': modified_articles_file_name}
+        return {
+            'count': count,
+            'input_file': modified_articles_file_name,
+        }

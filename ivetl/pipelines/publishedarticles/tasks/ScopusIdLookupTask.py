@@ -13,9 +13,9 @@ class ScopusIdLookupTask(Task):
 
     MAX_ERROR_COUNT = 100
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
-
-        file = task_args[self.INPUT_FILE]
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        file = task_args['input_file']
+        total_count = task_args['count']
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "scopuscitationlookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -30,13 +30,16 @@ class ScopusIdLookupTask(Task):
         count = 0
         error_count = 0
 
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         with codecs.open(file, encoding="utf-16") as tsv:
 
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
                 if count == 1:
-                    continue
+                    continue  # ignore the header
 
                 publisher_id = line[0]
                 doi = line[1]
@@ -96,8 +99,8 @@ class ScopusIdLookupTask(Task):
 
         target_file.close()
 
-        task_args[self.INPUT_FILE] = target_file_name
-        task_args[self.COUNT] = count
+        task_args['input_file'] = target_file_name
+        task_args['count'] = count
 
         return task_args
 

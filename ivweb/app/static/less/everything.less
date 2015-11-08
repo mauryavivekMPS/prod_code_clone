@@ -1047,6 +1047,10 @@ body {
     }
 }
 
+th .status-icon {
+    vertical-align: -2px;
+}
+
 
 // Status labels
 // -------------------------
@@ -1453,7 +1457,7 @@ body.login {
     }
 }
 
-.pipeline-progress {
+.pipeline-progress, .task-progress {
     width: 130px;
     display: inline-block;
     margin-bottom: 0;
@@ -1467,6 +1471,7 @@ body.login {
         box-shadow: none;
         background-color: #ddd;
         transition: background-color ease-in-out .2s;
+        min-width: 5px;
     }
 
     &:hover {
@@ -1474,6 +1479,16 @@ body.login {
             background-color: #aaa;
         }
     }
+}
+
+.run-loading-icon {
+    font-size: 10px;
+    margin-left: 10px;
+}
+
+.run-for-all-loading-icon {
+    margin-top: 15px;
+    margin-left: 20px;
 }
 
 // Upload page

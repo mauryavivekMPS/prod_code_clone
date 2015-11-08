@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
+{% load tags %}
 {% block title %}{{ pipeline.name }}{% endblock %}
 {% block body_class %}{{ pipeline.id }}{% if product.cohort %}_cohort{% endif %}_pipeline{% endblock %}
-
 {% block content %}
     <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
         {% csrf_token %}
@@ -16,6 +16,7 @@
             <h1>{{ pipeline.name }}</h1>
             {% if request.user.superuser %}
                 <a class="btn btn-default small run-button" href="#">Run for All Publishers</a>
+                <i class="fa fa-spinner fa-pulse run-for-all-loading-icon" style="display:none"></i>
             {% endif %}
             {% if pipeline.has_file_input %}
                 <a class="btn btn-default small upload-button" href="upload/">+ Upload</a>
@@ -34,12 +35,16 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th class="status-col">
+                            <span class="summary-value">
+                                {% status_icon %}
+                            </span>
+                        </th>
                         <th colspan="2">Publisher</th>
                         <th class="date-col">Date</th>
                         <th class="time-col">Start Time</th>
                         <th class="time-col">End Time</th>
                         <th class="duration-col text-right">Duration</th>
-                        <th class="status-col"></th>
                     </tr>
                 </thead>
                 <tbody>

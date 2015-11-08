@@ -11,8 +11,10 @@ import datetime
 import stat
 from django import forms
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, HttpResponseRedirect
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.template import loader, RequestContext
 from ivetl.common import common
 from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log
 
@@ -94,7 +96,12 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
     publisher_runs = get_recent_runs_for_publisher(pipeline_id, product_id, publisher)
 
-    has_updates = True
+    has_section_updates = True
+
+    has_progress_bar_updates = False
+    total_record_count = 0
+    current_record_count = 0
+    percent_complete = 0
 
     # get the current run and task
     if publisher_runs['runs']:
@@ -102,17 +109,31 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
             current_run = publisher_runs['runs'][0]
             current_task = current_run['tasks'][len(current_run['tasks']) - 1]
             if current_run['run'].job_id == current_job_id_on_client and current_task.task_id == current_task_id_on_client and current_task.status == current_task_status_on_client:
-                # there are no updates, bail
-                has_updates = False
+                has_section_updates = False
+            if current_task.status == 'in-progress':
+                has_progress_bar_updates = True
+                total_record_count = current_task.total_record_count
+                current_record_count = current_task.current_record_count
+                percent_complete = current_task.percent_complete()
     else:
-        has_updates = False
+        has_section_updates = False
 
-    if not has_updates:
-        return HttpResponse('No updates')  # TODO: this should probably be done with status code
+    publisher_details_html = ''
+    if has_section_updates:
+        template = loader.get_template('pipelines/include/publisher_details.html')
+        context = RequestContext(request, {
+            'publisher_runs': publisher_runs,
+            'opened': opened,
+        })
+        publisher_details_html = template.render(context)
 
-    return render(request, 'pipelines/include/publisher_details.html', {
-        'publisher_runs': publisher_runs,
-        'opened': opened,
+    return JsonResponse({
+        'has_section_updates': has_section_updates,
+        'publisher_details_html': publisher_details_html,
+        'has_progress_bar_updates': True,
+        'total_record_count': total_record_count,
+        'current_record_count': current_record_count,
+        'percent_complete': percent_complete,
     })
 
 
@@ -183,7 +204,7 @@ def upload(request, product_id, pipeline_id):
                     line_count = i + 1
 
             # if it passes, move to the pipeline inbox and make it group writable and world readable
-            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id)
+            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
             destination_file_path = os.path.join(incoming_dir, uploaded_file_name)
             shutil.move(temp_file.name, destination_file_path)
             os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)

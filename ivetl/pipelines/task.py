@@ -9,9 +9,6 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 
 class Task(BaseTask):
     abstract = True
-    pipeline_name = ''
-    product_id = ''
-    current_task_count = 0
 
     def run(self, task_args):
         new_task_args = task_args.copy()
@@ -21,7 +18,7 @@ class Task(BaseTask):
         product_id = new_task_args.pop('product_id')
         work_folder = new_task_args.pop('work_folder')
         job_id = new_task_args.pop('job_id')
-        pipeline_name = new_task_args.pop('pipeline_name')
+        pipeline_id = new_task_args.pop('pipeline_id')
 
         if 'current_task_count' in new_task_args:
             current_task_count = new_task_args.pop('current_task_count')
@@ -31,59 +28,56 @@ class Task(BaseTask):
         # bump the task count
         current_task_count += 1
 
-        # save the pipeline name and product ID
-        self.pipeline_name = pipeline_name
-        self.product_id = product_id
-        self.current_task_count = current_task_count
-
         # set up the directory for this task
         task_work_folder, tlogger = self.setup_task(work_folder)
         csv.field_size_limit(sys.maxsize)
 
         # run the task
         t0 = time()
-        self.on_task_started(pipeline_name, publisher_id, product_id, job_id, task_work_folder, tlogger)
-        task_result = self.run_task(publisher_id, product_id, job_id, task_work_folder, tlogger, new_task_args)
-        self.on_task_ended(pipeline_name, publisher_id, product_id, job_id, t0, tlogger, task_result.get('count'))
+        self.on_task_started(publisher_id, product_id, pipeline_id, job_id, task_work_folder, current_task_count, tlogger)
+        task_result = self.run_task(publisher_id, product_id, pipeline_id, job_id, task_work_folder, tlogger, new_task_args)
+        self.on_task_ended(publisher_id, product_id, pipeline_id, job_id, t0, tlogger, task_result.get('count'))
 
         # construct a new task args with the result
         task_result['publisher_id'] = publisher_id
         task_result['product_id'] = product_id
         task_result['work_folder'] = work_folder
         task_result['job_id'] = job_id
-        task_result['pipeline_name'] = pipeline_name
+        task_result['pipeline_id'] = pipeline_id
         task_result['current_task_count'] = current_task_count
 
         return task_result
 
-    def run_task(self, publisher_id, product_id,  job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
 
-    def on_task_started(self, pipeline_name, publisher_id, product_id, job_id, work_folder, tlogger):
+    def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, tlogger):
         start_date = datetime.datetime.today()
 
         pts = Pipeline_Task_Status()
         pts.publisher_id = publisher_id
         pts.product_id = product_id
-        pts.pipeline_id = pipeline_name
+        pts.pipeline_id = pipeline_id
         pts.job_id = job_id
         pts.task_id = self.short_name
         pts.start_time = start_date
+        pts.total_record_count = 0
+        pts.current_record_count = 0
         pts.status = self.PL_INPROGRESS
         pts.updated = start_date
         pts.workfolder = work_folder
         pts.save()
 
-        Pipeline_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_name, job_id=job_id).update(
+        Pipeline_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).update(
             current_task=self.short_name,
-            current_task_count=self.current_task_count,
+            current_task_count=current_task_count,
             status=self.PL_INPROGRESS,
-            updated=start_date
+            updated=start_date,
         )
 
         tlogger.info("Task %s started for publisher %s on %s" % (self.short_name, publisher_id, start_date))
 
-    def on_task_ended(self, pipeline_name, publisher_id, product_id, job_id, start_time, tlogger, count=None):
+    def on_task_ended(self, publisher_id, product_id, pipeline_id, job_id, start_time, tlogger, count=None):
         t1 = time()
         end_date = datetime.datetime.fromtimestamp(t1)
         duration_seconds = t1 - start_time
@@ -91,7 +85,7 @@ class Task(BaseTask):
         pts = Pipeline_Task_Status()
         pts.publisher_id = publisher_id
         pts.product_id = product_id
-        pts.pipeline_id = pipeline_name
+        pts.pipeline_id = pipeline_id
         pts.job_id = job_id
         pts.task_id = self.short_name
         pts.end_time = end_date
@@ -108,7 +102,7 @@ class Task(BaseTask):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         end_date = datetime.datetime.today()
         task_args = args[0]
-        pipeline_name = task_args['pipeline_name']
+        pipeline_id = task_args['pipeline_id']
         publisher_id = task_args['publisher_id']
         product_id = task_args['product_id']
         job_id = task_args['job_id']
@@ -116,7 +110,7 @@ class Task(BaseTask):
         pts = Pipeline_Task_Status()
         pts.publisher_id = publisher_id
         pts.product_id = product_id
-        pts.pipeline_id = pipeline_name
+        pts.pipeline_id = pipeline_id
         pts.job_id = job_id
         pts.task_id = self.short_name
         pts.end_time = end_date
@@ -126,7 +120,7 @@ class Task(BaseTask):
         pts.update()
 
         try:
-            ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_name, job_id=job_id)
+            ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id)
             ps.update(
                 end_time=end_date,
                 duration_seconds=(end_date - ps.start_time).total_seconds(),
@@ -139,9 +133,9 @@ class Task(BaseTask):
             pass
 
         day = end_date.strftime('%Y.%m.%d')
-        subject = "ERROR! " + day + " - " + pipeline_name + " - " + self.short_name
+        subject = "ERROR! " + day + " - " + pipeline_id + " - " + self.short_name
         body = "<b>Pipeline:</b> <br>"
-        body += pipeline_name
+        body += pipeline_id
         body += "<br><br><b>Task:</b> <br>"
         body += self.short_name
         body += "<br><br><b>Arguments:</b> <br>"
@@ -156,11 +150,11 @@ class Task(BaseTask):
 
     def on_success(self, retval, task_id, args, kwargs):
         task_args = args[0]
-        pipeline_name = task_args['pipeline_name']
+        pipeline_id = task_args['pipeline_id']
         day = datetime.datetime.today().strftime('%Y.%m.%d')
-        subject = "SUCCESS: " + day + " - " + pipeline_name + " - " + self.short_name
+        subject = "SUCCESS: " + day + " - " + pipeline_id + " - " + self.short_name
         body = "<b>Pipeline:</b> <br>"
-        body += pipeline_name
+        body += pipeline_id
         body += "<br><br><b>Task:</b> <br>"
         body += self.short_name
         body += "<br><br><b>Arguments:</b> <br>"
@@ -169,10 +163,32 @@ class Task(BaseTask):
         body += str(retval)
         common.send_email(subject, body)
 
-    # !! TODO: this needs to be moved!
-    def pipeline_ended(self, publisher_id, job_id):
+    def set_total_record_count(self, publisher_id, product_id, pipeline_id, job_id, total_count):
+        Pipeline_Task_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id, task_id=self.short_name).update(
+            total_record_count=total_count
+        )
+
+    def increment_record_count(self, publisher_id, product_id, pipeline_id, job_id, total_count, current_count):
+        current_count += 1
+
+        if total_count:
+
+            # figure out a reasonable increment
+            if total_count < 10:
+                increment = 1
+            else:
+                increment = int(total_count / 10)
+
+        if total_count and current_count % increment == 0:
+            # write out every 100 records to the db
+            Pipeline_Task_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id, task_id=self.short_name).update(
+                current_record_count=current_count
+            )
+        return current_count
+
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id):
         end_date = datetime.datetime.today()
-        p = Pipeline_Status().objects.filter(publisher_id=publisher_id, product_id=self.product_id, pipeline_id=self.pipeline_name, job_id=job_id).first()
+        p = Pipeline_Status().objects.filter(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
         if p is not None:
             p.end_time = end_date
             p.duration_seconds = (end_date - p.start_time).total_seconds()

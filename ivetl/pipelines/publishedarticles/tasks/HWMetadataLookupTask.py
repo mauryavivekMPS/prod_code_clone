@@ -26,9 +26,10 @@ class HWMetadataLookupTask(Task):
 
     ISSN_JNL_QUERY_LIMIT = 1000000
 
-    def run_task(self, publisher_id, product_id, job_id, work_folder, tlogger, task_args):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        file = task_args[self.INPUT_FILE]
+        file = task_args['input_file']
+        total_count = task_args['count']
 
         pm = Publisher_Metadata.filter(publisher_id=publisher_id).first()
         issn_to_hw_journal_code = pm.issn_to_hw_journal_code
@@ -44,11 +45,13 @@ class HWMetadataLookupTask(Task):
 
         count = 0
 
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         with codecs.open(file, encoding="utf-16") as tsv:
 
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
                 if count == 1:
                     continue
 
@@ -195,8 +198,8 @@ class HWMetadataLookupTask(Task):
 
         target_file.close()
 
-        task_args[self.INPUT_FILE] = target_file_name
-        task_args[self.COUNT] = count
+        task_args['input_file'] = target_file_name
+        task_args['count'] = count
 
         return task_args
 

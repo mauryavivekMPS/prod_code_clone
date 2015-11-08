@@ -11,7 +11,6 @@ from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 @app.task
 class CustomArticleDataPipeline(Pipeline):
-    pipeline_name = 'custom_article_data'
 
     # 1. Pipeline - setup job and iterate over pubs that have non-empty directories.
     # 2. GetIncomingFiles - move the files across into work folder.
@@ -20,6 +19,8 @@ class CustomArticleDataPipeline(Pipeline):
     # 5. ResolveArticleData - decide which data to promote from _values into pub_articles, and do the insert.
 
     def run(self, publisher_id_list=[], product_id=None, preserve_incoming_files=False, alt_incoming_dir=None):
+        pipeline_id = 'custom_article_data'
+
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
         job_id = now.strftime('%Y%m%d_%H%M%S%f')
@@ -43,7 +44,7 @@ class CustomArticleDataPipeline(Pipeline):
             if product['cohort']:
                 continue
 
-            publisher_dir = self.get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id)
+            publisher_dir = self.get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id, pipeline_id)
             if os.path.isdir(publisher_dir):
 
                 # grab all files from the directory
@@ -53,15 +54,15 @@ class CustomArticleDataPipeline(Pipeline):
                 files = [f for f in files if not f.startswith('.')]
 
                 # create work folder, signal the start of the pipeline
-                work_folder = self.get_work_folder(today_label, publisher.publisher_id, job_id)
-                self.on_pipeline_started(publisher.publisher_id, product_id, job_id, work_folder)
+                work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
+                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=4, current_task_count=0)
 
                 if files:
                     # construct the first task args with all of the standard bits + the list of files
                     task_args = {
-                        'pipeline_name': self.pipeline_name,
                         'publisher_id': publisher.publisher_id,
                         'product_id': product_id,
+                        'pipeline_id': pipeline_id,
                         'work_folder': work_folder,
                         'job_id': job_id,
                         'uploaded_files': [os.path.join(publisher_dir, f) for f in files],
@@ -69,7 +70,7 @@ class CustomArticleDataPipeline(Pipeline):
                     }
 
                     # send alert email that we're processing for this publisher
-                    subject = "%s - %s - Processing started for: %s" % (self.pipeline_name, today_label, publisher_dir)
+                    subject = "%s - %s - Processing started for: %s" % (pipeline_id, today_label, publisher_dir)
                     text = "Processing files for " + publisher_dir
                     common.send_email(subject, text)
 
@@ -84,7 +85,7 @@ class CustomArticleDataPipeline(Pipeline):
                 else:
                     # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
                     end_date = datetime.datetime.today()
-                    p = Pipeline_Status().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=self.pipeline_name, job_id=job_id).first()
+                    p = Pipeline_Status().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
                     if p is not None:
                         p.end_time = end_date
                         p.duration_seconds = (end_date - p.start_time).total_seconds()

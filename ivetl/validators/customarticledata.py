@@ -6,7 +6,7 @@ from ivetl.validators.base import BaseValidator
 
 
 class CustomArticleDataValidator(BaseValidator):
-    def validate_files(self, files, publisher_id):
+    def validate_files(self, files, publisher_id, increment_count_func=None):
         errors = []
         total_count = 0
         for f in files:
@@ -16,7 +16,10 @@ class CustomArticleDataValidator(BaseValidator):
                     count = 0
                     for line in csv.reader(tsv, delimiter='\t'):
                         if line:
-                            count += 1
+                            if increment_count_func:
+                                count = increment_count_func(count)
+                            else:
+                                count += 1
 
                             # skip header row
                             if count == 1:

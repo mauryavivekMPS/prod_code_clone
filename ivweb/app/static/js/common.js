@@ -32,7 +32,6 @@ var IvetlWeb = (function() {
     };
 
     var initTooltips = function(baseSelector) {
-        console.log(baseSelector + ' ' + '[data-toggle="tooltip"]');
         $(baseSelector + ' ' + '[data-toggle="tooltip"]').tooltip();
     };
 
@@ -137,11 +136,13 @@ var PipelineListPage = (function() {
             {name: 'opened', value: opened}
         ];
 
-        $.get(updatePublisherUrl, data)
-            .done(function(html) {
-                if (html != 'No updates') {
+        $.getJSON(updatePublisherUrl, data)
+            .done(function(json) {
+
+                // replace the entire publisher section if we've got a task-level update
+                if (json.has_section_updates) {
                     $('.' + publisherId + '_row').remove();
-                    summaryRow.replaceWith(html);
+                    summaryRow.replaceWith(json.publisher_details_html);
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
@@ -150,6 +151,16 @@ var PipelineListPage = (function() {
                     var newSummaryRow = $('.' + publisherId + '_summary_row');
                     publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
                     updateRunButton();
+                }
+
+                // update the progress bar
+                if (json.has_progress_bar_updates) {
+                    var progressBarContainer = $('.' + publisherId + '_row .task-progress');
+                    var progressBar = progressBarContainer.find('.progress-bar');
+                    var newTitle = 'Processing ' + json.current_record_count + ' of ' + json.total_record_count + ' records';
+                    progressBarContainer.attr('data-original-title', newTitle);
+                    progressBar.css('width', json.percent_complete + '%');
+                    IvetlWeb.initTooltips('.' + publisherId + '_row');
                 }
             });
 
@@ -188,8 +199,9 @@ var PipelineListPage = (function() {
     var wireRunForPublisherForms = function(selector) {
         $(selector).submit(function(event) {
             var form = $(this);
-            form.find('.run-pipeline-for-publisher-button').fadeOut(200);
-            $('.run-button').fadeOut(200);
+            form.find('.run-pipeline-for-publisher-button').hide();
+            form.find('.run-loading-icon').show();
+            $('.run-button').hide();
             $.post(runForPublisherUrl, form.serialize());
             event.preventDefault();
             return false;
@@ -300,6 +312,12 @@ var PipelineListPage = (function() {
 
         if (isSuperuser) {
             $('.run-button').click(function() {
+                $('.run-button').hide();
+                var loading = $('.run-for-all-loading-icon');
+                loading.show();
+                setTimeout(function() {
+                    loading.hide();
+                }, 3000);
                 $('#run-pipeline-form').submit();
                 return false;
             });
