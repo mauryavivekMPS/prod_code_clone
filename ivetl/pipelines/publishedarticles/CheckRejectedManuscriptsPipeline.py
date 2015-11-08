@@ -29,7 +29,7 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today, publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder)
+            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=1, current_task_count=0)
 
             task_args = {
                 'publisher_id': publisher_id,

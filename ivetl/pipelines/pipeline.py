@@ -8,9 +8,9 @@ from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 class Pipeline(BaseTask):
     abstract = True
 
-    @classmethod
-    def get_or_create_incoming_dir_for_publisher(cls, base_incoming_dir, publisher_id):
-        pipeline_incoming_dir = os.path.join(base_incoming_dir, publisher_id, cls.pipeline_name)
+    @staticmethod
+    def get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher_id, pipeline_id):
+        pipeline_incoming_dir = os.path.join(base_incoming_dir, publisher_id, pipeline_id)
         os.makedirs(pipeline_incoming_dir, exist_ok=True)
         return pipeline_incoming_dir
 

@@ -204,7 +204,7 @@ def upload(request, product_id, pipeline_id):
                     line_count = i + 1
 
             # if it passes, move to the pipeline inbox and make it group writable and world readable
-            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id)
+            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
             destination_file_path = os.path.join(incoming_dir, uploaded_file_name)
             shutil.move(temp_file.name, destination_file_path)
             os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)

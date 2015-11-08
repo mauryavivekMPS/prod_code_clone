@@ -14,7 +14,6 @@ class ScopusIdLookupTask(Task):
     MAX_ERROR_COUNT = 100
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-
         file = task_args['input_file']
         total_count = task_args['count']
 

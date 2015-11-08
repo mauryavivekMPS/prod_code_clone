@@ -11,6 +11,8 @@ class UpdateArticleCitationsWithCrossref(Task):
     QUERY_LIMIT = 50000000
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        total_count = task_args['count']
+
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
         count = 0
@@ -18,21 +20,23 @@ class UpdateArticleCitationsWithCrossref(Task):
 
         if not publisher.supports_crossref:
             tlogger.info("Publisher is not configured for crossref")
-            self.pipeline_ended(publisher_id, job_id)
+            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
             return {self.COUNT: count}
 
         product = common.PRODUCT_BY_ID[product_id]
         if product['cohort']:
             tlogger.info("Cohort product does not support crossref")
-            self.pipeline_ended(publisher_id, job_id)
+            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
             return {self.COUNT: count}
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
         articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.QUERY_LIMIT)
         updated_date = datetime.datetime.today()
 
         for article in articles:
-            count += 1
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
             citations = []
@@ -99,4 +103,6 @@ class UpdateArticleCitationsWithCrossref(Task):
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
-        return {self.COUNT: count}
+        return {
+            'count': count
+        }

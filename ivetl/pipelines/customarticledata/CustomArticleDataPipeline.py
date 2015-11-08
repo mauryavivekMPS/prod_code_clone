@@ -44,7 +44,7 @@ class CustomArticleDataPipeline(Pipeline):
             if product['cohort']:
                 continue
 
-            publisher_dir = self.get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id)
+            publisher_dir = self.get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id, pipeline_id)
             if os.path.isdir(publisher_dir):
 
                 # grab all files from the directory
@@ -55,7 +55,7 @@ class CustomArticleDataPipeline(Pipeline):
 
                 # create work folder, signal the start of the pipeline
                 work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
-                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder)
+                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=4, current_task_count=0)
 
                 if files:
                     # construct the first task args with all of the standard bits + the list of files

@@ -11,7 +11,11 @@ from ivetl.pipelines.task import Task
 class InsertScopusIntoCassandra(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        file = task_args[self.INPUT_FILE]
+        file = task_args['input_file']
+        total_count = task_args['count']
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         count = 0
         updated_date = datetime.datetime.today()
 
@@ -19,7 +23,7 @@ class InsertScopusIntoCassandra(Task):
 
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
                 if count == 1:
                     continue
 
@@ -62,5 +66,6 @@ class InsertScopusIntoCassandra(Task):
                 updated=updated_date,
             )
 
-        task_args[self.COUNT] = count
-        return task_args
+        return {
+            'count': count
+        }
