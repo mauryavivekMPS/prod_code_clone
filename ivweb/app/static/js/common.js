@@ -685,6 +685,13 @@ var EditPublisherPage = (function() {
                 button.addClass('disabled').show();
             };
 
+            var setIssnWarning = function(warning) {
+                message.html('<li>' + warning + '</li>').show();
+                button.show();
+                checkmark.hide();
+                button.addClass('disabled').show();
+            };
+
             // quick local checks for blank entries
             if (electronicIssn == '' || printIssn == '' || (hasHighWire() && journalCode == '')) {
                 loading.hide();
@@ -704,18 +711,22 @@ var EditPublisherPage = (function() {
                 );
             }
 
-            $.get(validateIssnUrl, data)
-                .done(function(response) {
+            $.getJSON(validateIssnUrl, data)
+                .done(function(json) {
                     loading.hide();
-                    if (response == 'ok') {
+                    if (json.status == 'ok') {
                         row.removeClass('error');
                         button.hide();
                         message.hide();
                         button.hide();
                         checkmark.show();
                     }
-                    else {
-                        setIssnError(response);  // smuggle the janky error message in through the response
+                    else if (json.status == 'error') {
+                        setIssnError(json.error_message);
+                    }
+                    else if (json.status == 'warning') {
+                        row.removeClass('error');
+                        setIssnWarning(json.warning_message);
                     }
                     checkForm();
                 });

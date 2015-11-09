@@ -2,8 +2,10 @@ import datetime
 import requests
 import json
 import time
+from bs4 import BeautifulSoup
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
+from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal
@@ -198,12 +200,39 @@ def validate_issn(request):
 
     if 'journal_code' in request.GET:
         journal_code = request.GET['journal_code']
-        journal_code_ok = check_journal_code(journal_code)
+
+        r = requests.get('http://sass.highwire.org/%s.atom' % journal_code)
+        if r.status_code == 200 and '<atom:id>' in r.text:
+            journal_code_ok = True
+
+            soup = BeautifulSoup(r.content, 'xml')
+            matching_electronic_issn = soup.find('pub-id', attrs={'pub-id-type': "eissn"}).text
+            matching_print_issn = soup.find('pub-id', attrs={'pub-id-type': "issn"}).text
+
+            if electronic_issn == matching_electronic_issn and print_issn == matching_print_issn:
+                matching_codes = True
+            else:
+                matching_codes = False
+        else:
+            journal_code_ok = False
+            matching_codes = True  # can't test until journal code is ok
+
     else:
         journal_code_ok = True
+        matching_codes = True
 
     if electronic_issn_ok and journal_code_ok:
-        return HttpResponse('ok')
+        if matching_codes:
+            # things are ok
+            return JsonResponse({
+                'status': 'ok',
+            })
+        else:
+            # thigns are ok, but return a warning
+            return JsonResponse({
+                'status': 'warning',
+                'warning_message': "The ISSNs do not match the HighWire database.",
+            })
 
     error_fields = []
 
@@ -220,7 +249,11 @@ def validate_issn(request):
     elif len(error_fields) > 2:
         error_message = ", ".join(error_fields[:-1]) + ' and ' + error_fields[len(error_fields - 1)]
 
-    return HttpResponse("Validation failed for %s." % error_message)  # smuggle the error string in
+    # things are bad
+    return JsonResponse({
+        'status': 'error',
+        'error_message': "Validation failed for %s." % error_message,
+    })
 
 
 def check_issn(issn):
@@ -233,13 +266,6 @@ def check_issn(issn):
                 return True
         except ValueError:
             pass
-    return False
-
-
-def check_journal_code(code):
-    r = requests.get('http://sass.highwire.org/%s.atom' % code)
-    if r.status_code == 200 and '<atom:id>' in r.text:
-            return True
     return False
 
 
