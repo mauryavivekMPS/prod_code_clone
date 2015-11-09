@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Publisher_Metadata
+from ivetl.models import Publisher_Metadata, Publisher_Journal
 from ivetl.pipelines.publishedarticles import tasks
 from ivetl.common import common
 
@@ -36,10 +36,13 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
             publisher_id = pm.publisher_id
 
-            if product['cohort']:
-                issns = pm.cohort_articles_issns_to_lookup
-            else:
-                issns = pm.published_articles_issns_to_lookup
+            # if product['cohort']:
+            #     issns = pm.cohort_articles_issns_to_lookup
+            # else:
+            #     issns = pm.published_articles_issns_to_lookup
+
+            issns = [j.print_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)]
+
 
             if reprocess_all or not pm.published_articles_last_updated:
                 if product['cohort']:
