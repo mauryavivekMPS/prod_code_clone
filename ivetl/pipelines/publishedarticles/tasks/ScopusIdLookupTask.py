@@ -10,7 +10,6 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class ScopusIdLookupTask(Task):
-
     MAX_ERROR_COUNT = 100
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
@@ -29,15 +28,11 @@ class ScopusIdLookupTask(Task):
 
         count = 0
         error_count = 0
-
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         with codecs.open(file, encoding="utf-16") as tsv:
-
             for line in csv.reader(tsv, delimiter="\t"):
-
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-
                 if count == 1:
                     continue  # ignore the header
 
@@ -99,13 +94,7 @@ class ScopusIdLookupTask(Task):
 
         target_file.close()
 
-        task_args['input_file'] = target_file_name
-        task_args['count'] = count
-
-        return task_args
-
-
-
-
-
-
+        return {
+            'input_file': target_file_name,
+            'count': count,
+        }

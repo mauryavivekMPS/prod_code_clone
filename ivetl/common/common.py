@@ -10,14 +10,6 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tasks': (
-            'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
-            'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
-            'ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTask',
-            'ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra',
-            'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
-            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
-        )
     },
     {
         'name': 'Custom Article Data',
@@ -26,12 +18,6 @@ PIPELINES = [
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
-        'tasks': (
-            'ivetl.pipelines.customarticledata.tasks.GetArticleDataFiles',
-            'ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles',
-            'ivetl.pipelines.customarticledata.tasks.InsertCustomArticleDataIntoCassandra',
-            'ivetl.pipelines.customarticledata.tasks.ResolvePublishedArticlesData',
-        )
     },
     {
         'name': 'Article Citations',
@@ -40,20 +26,14 @@ PIPELINES = [
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tasks': (
-            'ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations',
-            'ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra',
-            'ivetl.pipelines.articlecitations.tasks.UpdateArticleCitationsWithCrossref',
-        )
     },
     {
         'name': 'Rejected Articles',
-        'id': 'rejected_article_tracker',
+        'id': 'rejected_articles',
         'user_facing_display_name': 'Rejected manuscripts',
-        'class': 'ivetl.rat.MonitorIncomingFileTask',
+        'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
-        'validator_class': None,
-        'tasks': ()
+        'validator_class': 'ivetl.validators.RejectedArticlesValidator',
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
@@ -82,7 +62,7 @@ PRODUCTS = [
         'cohort': False,
         'pipelines': [
             {
-                'pipeline': PIPELINE_BY_ID['rejected_article_tracker'],
+                'pipeline': PIPELINE_BY_ID['rejected_articles'],
             }
         ]
     },
@@ -147,10 +127,6 @@ BASE_WORKING_DIR = os.environ.get('IVETL_WORKING_DIR', '/iv')
 BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
-
-# these will move to the refactored pipelines soon...
-RAT = RAT_DIR = "rejected_article_tracker"
-AC = "article_citations"
 
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")

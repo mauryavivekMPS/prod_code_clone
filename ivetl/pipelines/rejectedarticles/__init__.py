@@ -1,0 +1,1 @@
+from ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline import UpdateRejectedArticlesPipeline
