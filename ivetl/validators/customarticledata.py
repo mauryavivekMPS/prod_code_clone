@@ -1,7 +1,6 @@
 import os
 import csv
 import codecs
-from ivetl.pipelines.customarticledata import utils
 from ivetl.validators.base import BaseValidator
 
 
@@ -30,7 +29,15 @@ class CustomArticleDataValidator(BaseValidator):
                                 errors.append("%s : %s - Incorrect number of fields, skipping other validation" % (file_name, (count - 1)))
                                 continue
 
-                            d = utils.parse_custom_data_line(line)
+                            d = {
+                                'doi': line[0].strip(),
+                                'toc_section': line[1].strip(),
+                                'collection': line[2].strip(),
+                                'editor': line[3].strip(),
+                                'custom': line[4].strip(),
+                                'custom_2': line[5].strip(),
+                                'custom_3': line[6].strip()
+                            }
 
                             # we need a DOI
                             if not d['doi']:

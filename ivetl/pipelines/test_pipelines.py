@@ -55,7 +55,7 @@ class PipelineTestCase(unittest.TestCase):
                 'published_articles',
                 'custom_article_data',
                 'article_citations',
-                'rejected_article_tracker'
+                'rejected_articles'
             ],
         )
 
@@ -239,7 +239,7 @@ class PipelineTestCase(unittest.TestCase):
                 'published_articles',
                 'custom_article_data',
                 'article_citations',
-                'rejected_article_tracker'
+                'rejected_articles'
             ],
         )
 
@@ -249,7 +249,7 @@ class PipelineTestCase(unittest.TestCase):
             supported_pipelines=[
                 'published_articles',
                 'custom_article_data',
-                'rejected_article_tracker'
+                'rejected_articles'
             ],
         )
 
@@ -270,7 +270,7 @@ class PipelineTestCase(unittest.TestCase):
                 'published_articles',
                 'custom_article_data',
                 'article_citations',
-                'rejected_article_tracker'
+                'rejected_articles'
             ],
         )
 

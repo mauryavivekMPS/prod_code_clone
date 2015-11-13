@@ -3,7 +3,6 @@ import csv
 import codecs
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.pipelines.customarticledata import utils
 from ivetl.models import Published_Article_Values
 
 
@@ -30,7 +29,15 @@ class InsertCustomArticleDataIntoCassandra(Task):
                     if count == 1:
                         continue
 
-                    d = utils.parse_custom_data_line(line)
+                    d = {
+                        'doi': line[0].strip(),
+                        'toc_section': line[1].strip(),
+                        'collection': line[2].strip(),
+                        'editor': line[3].strip(),
+                        'custom': line[4].strip(),
+                        'custom_2': line[5].strip(),
+                        'custom_3': line[6].strip()
+                    }
 
                     doi = d['doi'].lower().strip()
                     tlogger.info("Processing #%s : %s" % (count - 1, doi))
@@ -46,8 +53,6 @@ class InsertCustomArticleDataIntoCassandra(Task):
                     # add a record of modified files for next task
                     modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
                     modified_articles_file.flush()  # why is this needed?
-
-                tsv.close()
 
         modified_articles_file.close()
         return {

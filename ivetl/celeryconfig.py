@@ -7,15 +7,7 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.publishedarticles',
     'ivetl.pipelines.customarticledata',
     'ivetl.pipelines.articlecitations',
-    'ivetl.rat.ValidateInputFileTask',
-    'ivetl.rat.MonitorIncomingFileTask',
-    'ivetl.rat.PrepareInputFileTask',
-    'ivetl.rat.XREFPublishedArticleSearchTask',
-    'ivetl.rat.SelectPublishedArticleTask',
-    'ivetl.rat.ScopusCitationLookupTask',
-    'ivetl.rat.PrepareForDBInsertTask',
-    'ivetl.rat.InsertIntoCassandraDBTask',
-    'ivetl.rat.XREFJournalCatalogTask',
+    'ivetl.pipelines.rejectedarticles',
 )
 
 CELERY_TASK_RESULT_EXPIRES = 3600

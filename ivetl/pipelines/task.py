@@ -1,7 +1,9 @@
+import os
 import datetime
-from time import time
 import csv
 import sys
+import shutil
+from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status
@@ -195,3 +197,64 @@ class Task(BaseTask):
             p.status = self.PL_COMPLETED
             p.updated = end_date
             p.update()
+
+    def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
+        files = task_args['input_files']
+
+        # just count the lines
+        total_count = 0
+        for file in files:
+            with open(file) as f:
+                for i, l in enumerate(f):
+                    pass
+                total_count = i + 1
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        def increment_count(count):
+            return self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+        t0 = time()
+        total_count, errors = validator.validate_files(files, publisher_id, increment_count)
+        t1 = time()
+        tlogger.info("Rows processed:   %s" % (total_count - 1))
+        tlogger.info("Time taken:       " + format(t1 - t0, '.2f') + " seconds / " + format((t1 - t0) / 60, '.2f') + " minutes")
+
+        if errors:
+            for error in errors:
+                tlogger.error(error)
+            raise Exception("Validation errors in files: %s" % files)
+        else:
+            tlogger.info("No errors found")
+
+        return {
+            'input_files': files,
+            'count': total_count,
+        }
+
+    def run_get_files_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        preserve_incoming_files = task_args.get('preserve_incoming_files', False)
+
+        total_count = len(task_args['uploaded_files'])
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        count = 0
+
+        files = []
+        for source_file in task_args['uploaded_files']:
+
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+            # move (or copy) files from incoming to current task folder
+            if preserve_incoming_files:
+                shutil.copy(source_file, work_folder)
+            else:
+                shutil.move(source_file, work_folder)
+
+            # compile a list of files for the next task
+            files.append(os.path.join(work_folder, os.path.basename(source_file)))
+
+        return {
+            'input_files': files,
+            'count': count,
+        }
