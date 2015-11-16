@@ -1,7 +1,15 @@
 class HWMetadataLookupTransform:
 
     def asm_xform_doi(input_doi):
-        return input_doi.replace('mbio', 'mBio').replace('/jb.', '/JB.')
+        return input_doi.replace('mbio', 'mBio')\
+            .replace('/jb.', '/JB.')\
+            .replace('/aem.', '/AEM.')\
+            .replace('/jvi.', '/JVI.')\
+            .replace('/iai.', '/IAI.')\
+            .replace('/mcb.', '/MCB.')\
+            .replace('/aac.', '/AAC.')\
+            .replace('/jcm.', '/JCM.')\
+            .replace('/cdli.', '/CDLI.')
 
     def aan_xform_doi(input_doi):
         return input_doi.replace('/wnl.', '/WNL.').replace('/cpj.', '/CPJ.').replace('/nxi.', '/NXI.')

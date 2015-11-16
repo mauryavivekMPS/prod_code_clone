@@ -176,10 +176,12 @@ class Task(BaseTask):
         if total_count:
 
             # figure out a reasonable increment
-            if total_count < 10:
+            if total_count <= 100:
                 increment = 1
+            elif total_count <= 100000:
+                increment = 100
             else:
-                increment = int(total_count / 10)
+                increment = 1000
 
         if total_count and current_count % increment == 0:
             # write out every 100 records to the db
