@@ -1224,6 +1224,15 @@ hr {
     margin-right: 2px;
 }
 
+.little-upload-button {
+    font-size: 10px;
+    padding: 2px 8px;
+    margin-left: 10px;
+    vertical-align: 1px;
+    //opacity: .4;
+    //transition: opacity ease-in-out .2s;
+}
+
 
 // Centered form
 // -------------------------
@@ -1453,8 +1462,19 @@ body.login {
     }
 }
 
+.publisher-summary-row {
+    .little-upload-button {
+        opacity: .4;
+        transition: opacity ease-in-out .2s;
+    }
+}
+
 .publisher-summary-row:hover {
     .run-pipeline-for-publisher-inline-form .submit-button {
+        opacity: 1;
+    }
+
+    .little-upload-button {
         opacity: 1;
     }
 }
@@ -1603,15 +1623,6 @@ body.login {
         font-size: 12px;
         font-weight: 200;
         vertical-align: middle;
-    }
-
-    .little-upload-button {
-        font-size: 10px;
-        padding: 2px 8px;
-        margin-left: 10px;
-        vertical-align: 1px;
-        //opacity: .4;
-        //transition: opacity ease-in-out .2s;
     }
 
     .pipeline-status-row td {

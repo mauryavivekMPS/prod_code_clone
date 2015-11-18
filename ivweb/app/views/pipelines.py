@@ -87,6 +87,7 @@ def list_pipelines(request, product_id, pipeline_id):
 @login_required
 def include_updated_publisher_runs(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
@@ -122,6 +123,8 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     if has_section_updates:
         template = loader.get_template('pipelines/include/publisher_details.html')
         context = RequestContext(request, {
+            'product': product,
+            'pipeline': pipeline,
             'publisher_runs': publisher_runs,
             'opened': opened,
         })

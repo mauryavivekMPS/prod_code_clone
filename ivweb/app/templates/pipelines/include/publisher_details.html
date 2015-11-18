@@ -51,6 +51,9 @@
                 </button>
                 <i class="fa fa-spinner fa-pulse run-loading-icon" style="display:none"></i>
             </form>
+            {% if pipeline.has_file_input %}
+                <a class="btn btn-default little-upload-button" href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_runs.publisher.publisher_id }}">+ Upload</a>
+            {% endif %}
         {% endif %}
     </td>
     <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d"|nullable_date }}</span></td>
