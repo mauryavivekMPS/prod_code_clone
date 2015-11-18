@@ -25,8 +25,8 @@ class RejectedArticlesValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 10:
-                                errors.append("%s : %s - Incorrect number of fields, skipping other validation" % (file_name, (count - 1)))
+                            if len(line) < 10:
+                                errors.append("%s : %s - Incorrect number of fields (%s present, 10 required), skipping other validation" % (file_name, (count - 1). len(line)))
                                 continue
 
                             input_data = {}
