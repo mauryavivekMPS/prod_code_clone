@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal
+from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key
 
 
 @login_required
@@ -98,8 +98,11 @@ class PublisherForm(forms.Form):
         if self.cleaned_data['cohort_articles']:
             supported_products.append('cohort_articles')
 
-        # TODO: !! pick up new scopus API keys if needed
+        # grab 5 API keys from the pool
         scopus_api_keys = []
+        for key in Scopus_Api_Key.objects.all()[:5]:
+            scopus_api_keys.append(key.key)
+            key.delete()
 
         publisher_id = self.cleaned_data['publisher_id']
         Publisher_Metadata.objects(publisher_id=publisher_id).update(

@@ -12,3 +12,4 @@ from ivetl.models.User import User, Anonymous_User
 from ivetl.models.AuditLog import Audit_Log
 from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
 from ivetl.models.PublisherJournal import Publisher_Journal
+from ivetl.models.ScopusApiKey import Scopus_Api_Key
