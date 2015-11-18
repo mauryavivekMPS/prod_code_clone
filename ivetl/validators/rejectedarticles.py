@@ -26,7 +26,7 @@ class RejectedArticlesValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) < 10:
-                                errors.append("%s : %s - Incorrect number of fields (%s present, 10 required), skipping other validation" % (file_name, (count - 1). len(line)))
+                                errors.append("%s : %s - Incorrect number of fields (%s present, 10 required), skipping other validation" % (file_name, (count - 1), len(line)))
                                 continue
 
                             input_data = {}
@@ -67,7 +67,7 @@ class RejectedArticlesValidator(BaseValidator):
                                 errors.append("%s : %s - Does not have value for DATE_OF_REJECTION" % (file_name, (count - 1)))
 
                             elif not self.valid_date(input_data['date_of_rejection']):
-                                errors.append("%s : %s - Does not have value for DATE_OF_REJECTION" % (file_name, (count - 1)))
+                                errors.append("%s : %s - Does not have valid value for DATE_OF_REJECTION (Valid format is MM/DD/YY)" % (file_name, (count - 1)))
 
                             if input_data['reject_reason'] == "":
                                 errors.append("%s : %s - Does not have value for REJECT_REASON" % (file_name, (count - 1)))
