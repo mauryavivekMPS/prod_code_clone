@@ -36,9 +36,10 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="scopus_api_keys" class="col-sm-2">Scopus API Keys</label>
+                        <label for="email" class="col-sm-2">Publisher Email</label>
                         <div class="col-sm-6">
-                            {{ form.scopus_api_keys }}
+                            {{ form.email }}
+                            {{ form.email.errors }}
                         </div>
                     </div>
                     <div class="form-group row">
