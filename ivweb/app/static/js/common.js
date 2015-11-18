@@ -485,9 +485,9 @@ var EditPublisherPage = (function() {
         var hasBasics = publisherId && name && email;
 
         var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
-        var rejectedArticlesProduct = f.find('#id_rejected_articles').is(':checked');
+        var rejectedManuscriptsProduct = f.find('#id_rejected_manuscripts').is(':checked');
         var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
-        var atLeastOneProduct = publishedArticlesProduct || rejectedArticlesProduct || cohortArticlesProduct;
+        var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct;
 
         var hasReportDetails = true;
         if (isNew) {
@@ -787,7 +787,7 @@ var EditPublisherPage = (function() {
         });
         updatePublishedArticlesControls();
 
-        $('#id_rejected_articles').on('change', checkForm);
+        $('#id_rejected_manuscripts').on('change', checkForm);
 
         $('#id_cohort_articles').on('change', function() {
             updateCohortArticlesControls();

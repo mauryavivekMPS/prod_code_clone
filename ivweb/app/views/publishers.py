@@ -32,7 +32,7 @@ class PublisherForm(forms.Form):
     hw_addl_metadata_available = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
@@ -47,7 +47,7 @@ class PublisherForm(forms.Form):
             self.instance = instance
             initial = dict(instance)
             initial['published_articles'] = 'published_articles' in initial['supported_products']
-            initial['rejected_articles'] = 'rejected_articles' in initial['supported_products']
+            initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
             initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
 
@@ -93,8 +93,8 @@ class PublisherForm(forms.Form):
         supported_products = []
         if self.cleaned_data['published_articles']:
             supported_products.append('published_articles')
-        if self.cleaned_data['rejected_articles']:
-            supported_products.append('rejected_articles')
+        if self.cleaned_data['rejected_manuscripts']:
+            supported_products.append('rejected_manuscripts')
         if self.cleaned_data['cohort_articles']:
             supported_products.append('cohort_articles')
 
