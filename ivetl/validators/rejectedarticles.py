@@ -25,7 +25,7 @@ class RejectedArticlesValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 13:
+                            if len(line) != 10:
                                 errors.append("%s : %s - Incorrect number of fields, skipping other validation" % (file_name, (count - 1)))
                                 continue
 
@@ -40,10 +40,13 @@ class RejectedArticlesValidator(BaseValidator):
                             input_data['subject_category'] = line[7].strip()
                             input_data['editor'] = line[8].strip()
                             input_data['submitted_journal'] = line[9].strip()
-                            input_data['article_type'] = line[10].strip()
+                            input_data['article_type'] = ''
                             input_data['keywords'] = ''
                             input_data['custom'] = ''
                             input_data['funders'] = ''
+
+                            if len(line) >= 11 and line[10].strip() != '':
+                                input_data['article_type'] = line[10].strip()
 
                             if len(line) >= 12 and line[11].strip() != '':
                                 input_data['keywords'] = line[11].strip()
