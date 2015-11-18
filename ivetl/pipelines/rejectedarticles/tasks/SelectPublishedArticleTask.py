@@ -9,15 +9,22 @@ from ivetl.pipelines.task import Task
 
 @app.task
 class SelectPublishedArticleTask(Task):
+
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
-        total_count = task_args['count']
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "selectpublishedarticle" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\t'
                           'MANUSCRIPT_ID\t'
                           'DATA\n')
+
+        # just count the lines
+        total_count = 0
+        with open(file) as f:
+            for i, l in enumerate(f):
+                pass
+            total_count = i + 1
 
         count = 0
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)

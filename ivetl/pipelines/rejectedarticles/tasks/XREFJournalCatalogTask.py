@@ -1,39 +1,17 @@
-from __future__ import absolute_import
-from time import time
-import datetime
-from os import makedirs
-
 import requests
-from cassandra.cqlengine import connection
 from cassandra.cqlengine.query import BatchQuery
-
 from ivetl.models.IssnJournal import Issn_Journal
-from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
 
-# TODO: !! Is this deprecated?? It hasn't been updated and doesn't seem to be referenced anywhere
 
 @app.task
 class XREFJournalCatalogTask(BaseTask):
-
-    taskname = "XREFJournalCatalog"
-    vizor = common.RAT
-
     ITEMS_PER_PAGE = 50
 
-    def run(self):
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
-
-        day = datetime.datetime.today().strftime('%Y%m%d')
-
-        path = common.BASE_WORK_DIR + "/" + day + "/" + self.taskname
-        makedirs(path, exist_ok=True)
-        tlogger = self.getTaskLogger(path, self.taskname)
-
-        t0 = time()
-
+        total_count = 0  # we don't know this up front
         count = 0
         offset = 0
 
@@ -64,8 +42,11 @@ class XREFJournalCatalogTask(BaseTask):
 
                 b = BatchQuery()
 
-                for i in xrefdata['message']['items']:
+                # take a best guess at a total
+                total_count += len(xrefdata['message']['items'])
+                self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
+                for i in xrefdata['message']['items']:
 
                     issn1 = ""
                     if len(i['ISSN']) > 0:
@@ -78,7 +59,7 @@ class XREFJournalCatalogTask(BaseTask):
                     journal = i['title']
                     publisher = i['publisher']
 
-                    count += 1
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     if issn1 != "":
                         Issn_Journal.batch(b).create(issn=issn1, journal=journal, publisher=publisher)
@@ -96,11 +77,7 @@ class XREFJournalCatalogTask(BaseTask):
             else:
                 offset = -1
 
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
-
-        return
+        return {'count': count}
 
 
 

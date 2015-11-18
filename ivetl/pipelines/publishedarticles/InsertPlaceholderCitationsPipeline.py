@@ -1,22 +1,23 @@
 import datetime
-from dateutil.relativedelta import relativedelta
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.publishedarticles import tasks
+from ivetl.common import common
 
 
 @app.task
 class InsertPlaceholderCitationsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, max_articles_to_process=None):
+    def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
         pipeline_id = "placeholder_citations"
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
         time = d.strftime('%H%M%S%f')
         job_id = today + "_" + time
+
+        product = common.PRODUCT_BY_ID[product_id]
 
         publishers_metadata = Publisher_Metadata.objects.all()
 
