@@ -14,7 +14,7 @@ PIPELINES = [
     {
         'name': 'Custom Article Data',
         'id': 'custom_article_data',
-        'user_facing_display_name': 'FOAM',
+        'user_facing_display_name': 'Additional metadata files',
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
