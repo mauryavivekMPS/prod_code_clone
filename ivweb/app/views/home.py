@@ -46,9 +46,11 @@ def home(request):
                     'pipeline_stats_list': pipeline_stats_list,
                 })
 
+            sorted_product_stats_list = sorted(product_stats_list, key=lambda p: p['product']['order'])
+
             publisher_stats_list.append({
                 'publisher': publisher,
-                'product_stats_list': product_stats_list,
+                'product_stats_list': sorted_product_stats_list,
             })
 
         return render(request, 'user_home.html', {

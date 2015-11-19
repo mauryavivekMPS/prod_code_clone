@@ -72,6 +72,7 @@ PRODUCTS = [
         'name': 'Published Articles',
         'id': 'published_articles',
         'is_user_facing': True,
+        'order': 1,
         'cohort': False,
         'pipelines': [
             {
@@ -89,6 +90,7 @@ PRODUCTS = [
         'name': 'Rejected Manuscripts',
         'id': 'rejected_manuscripts',
         'is_user_facing': True,
+        'order': 2,
         'cohort': False,
         'pipelines': [
             {
@@ -100,6 +102,7 @@ PRODUCTS = [
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
         'is_user_facing': True,
+        'order': 3,
         'cohort': True,
         'pipelines': [
             {
@@ -114,6 +117,7 @@ PRODUCTS = [
         'name': 'Check Rejected Manuscripts',
         'id': 'check_rejected_manuscripts',
         'is_user_facing': False,
+        'order': 4,
         'cohort': False,
         'pipelines': [
             {
@@ -125,6 +129,7 @@ PRODUCTS = [
         'name': 'Insert Placeholder Citations',
         'id': 'insert_placeholder_citations',
         'is_user_facing': False,
+        'order': 5,
         'cohort': False,
         'pipelines': [
             {
@@ -136,6 +141,7 @@ PRODUCTS = [
         'name': 'Update Manuscripts',
         'id': 'update_manuscripts',
         'is_user_facing': False,
+        'order': 6,
         'cohort': False,
         'pipelines': [
             {
@@ -147,6 +153,7 @@ PRODUCTS = [
         'name': 'XREF Journal Catalog',
         'id': 'xref_journal_catalog',
         'is_user_facing': False,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {
