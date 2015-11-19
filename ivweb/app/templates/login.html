@@ -6,8 +6,9 @@
 
 {% block form_content %}
 
-    <div class="text-center">
-        <h1>IVWEB</h1>
+    <div class="text-center login-branding">
+        <img src="/static/dist/logo.png">
+        <h1>Impact Vizor Manager</h1>
     </div>
 
     {% if error %}
@@ -41,7 +42,7 @@
 {% endblock %}
 
 {% block below_form %}
-    <p class="text-right forgot-link"><a href="#" onclick="alert('Email help@hyperplane.io to reset your password.')">I forgot my password</a></p>
+{#    <p class="text-right forgot-link"><a href="#" onclick="alert('Email help@hyperplane.io to reset your password.')">I forgot my password</a></p>#}
 {% endblock %}
 
 {% block page_scripts %}

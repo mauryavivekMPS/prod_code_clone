@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.common import common
-from ivweb.app.views.pipelines import get_recent_runs_for_publisher
+from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending_files_for_publisher
 
 
 @login_required
@@ -22,7 +22,15 @@ def home(request):
                 pipeline_stats_list = []
                 for pipeline in product['pipelines']:
                     recent_runs = get_recent_runs_for_publisher(pipeline['pipeline']['id'], product_id, publisher)
-                    status = True if recent_runs['recent_run'] else False
+
+                    # only show running status if it's a file-based pipeline, otherwise green or empty
+                    if recent_runs['recent_run']:
+                        if pipeline['pipeline']['has_file_input'] and recent_runs['recent_run'].status == 'in-progress':
+                            status = recent_runs['recent_run']
+                        else:
+                            status = True
+                    else:
+                        status = False
 
                     if 'user_facing_display_name' in pipeline['pipeline']:
                         pipeline_name = pipeline['pipeline']['user_facing_display_name']
@@ -34,11 +42,16 @@ def home(request):
                     else:
                         message = '%s not recently updated' % pipeline_name
 
+                    pending_files = []
+                    if pipeline['pipeline']['has_file_input']:
+                        pending_files = get_pending_files_for_publisher(publisher.publisher_id, product_id, pipeline['pipeline']['id'], with_lines_and_sizes=False)
+
                     pipeline_stats_list.append({
                         'pipeline': pipeline['pipeline'],
                         'status': status,
                         'message': message,
                         'recent_run': recent_runs['recent_run'],
+                        'pending_files': pending_files,
                     })
 
                 product_stats_list.append({
@@ -46,9 +59,11 @@ def home(request):
                     'pipeline_stats_list': pipeline_stats_list,
                 })
 
+            sorted_product_stats_list = sorted(product_stats_list, key=lambda p: p['product']['order'])
+
             publisher_stats_list.append({
                 'publisher': publisher,
-                'product_stats_list': product_stats_list,
+                'product_stats_list': sorted_product_stats_list,
             })
 
         return render(request, 'user_home.html', {

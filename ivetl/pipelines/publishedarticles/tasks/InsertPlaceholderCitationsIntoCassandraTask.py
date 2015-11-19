@@ -1,11 +1,6 @@
-import os
-import csv
-import codecs
-import json
 from datetime import datetime
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
-from ivetl.models import Published_Article, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
+from ivetl.models import Published_Article, Article_Citations
 from ivetl.pipelines.task import Task
 
 
@@ -13,16 +8,18 @@ from ivetl.pipelines.task import Task
 class InsertPlaceholderCitationsIntoCassandraTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-
         article_limit = 1000000
 
         articles = Published_Article.objects.filter(publisher_id=publisher_id).limit(article_limit)
         count = 0
+        total_count = len(articles)
         today = datetime.today()
         updated = today
 
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         for article in articles:
-            count += 1
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
             tlogger.info("---")
             tlogger.info("%s of %s. Adding placeholder citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
 
@@ -40,8 +37,9 @@ class InsertPlaceholderCitationsIntoCassandraTask(Task):
                 plac['citation_source_scopus'] = True
                 plac.save()
 
-        self.pipeline_ended(publisher_id, job_id)
-        return {self.COUNT: count}
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+
+        return {'count': count}
 
 
 def to_date_time(month, day, year):

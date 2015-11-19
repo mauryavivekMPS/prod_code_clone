@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal
+from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key
 
 
 @login_required
@@ -25,14 +25,14 @@ class PublisherForm(forms.Form):
     publisher_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a short, unique identifier'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a name for display'}))
     issn_values = forms.CharField(widget=forms.HiddenInput)
-    scopus_api_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated API keys'}), required=False)
+    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     use_crossref = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     crossref_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     crossref_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     hw_addl_metadata_available = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
@@ -46,9 +46,8 @@ class PublisherForm(forms.Form):
         if instance:
             self.instance = instance
             initial = dict(instance)
-            initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
             initial['published_articles'] = 'published_articles' in initial['supported_products']
-            initial['rejected_articles'] = 'rejected_articles' in initial['supported_products']
+            initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
             initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
 
@@ -94,18 +93,21 @@ class PublisherForm(forms.Form):
         supported_products = []
         if self.cleaned_data['published_articles']:
             supported_products.append('published_articles')
-        if self.cleaned_data['rejected_articles']:
-            supported_products.append('rejected_articles')
+        if self.cleaned_data['rejected_manuscripts']:
+            supported_products.append('rejected_manuscripts')
         if self.cleaned_data['cohort_articles']:
             supported_products.append('cohort_articles')
 
+        # grab 5 API keys from the pool
         scopus_api_keys = []
-        if self.cleaned_data['scopus_api_keys']:
-            scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
+        for key in Scopus_Api_Key.objects.all()[:5]:
+            scopus_api_keys.append(key.key)
+            key.delete()
 
         publisher_id = self.cleaned_data['publisher_id']
         Publisher_Metadata.objects(publisher_id=publisher_id).update(
             name=self.cleaned_data['name'],
+            email=self.cleaned_data['email'],
             hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
             scopus_api_keys=scopus_api_keys,
             crossref_username=self.cleaned_data['crossref_username'],
@@ -276,10 +278,3 @@ def new_issn(request):
         'cohort': 'cohort' in request.GET,
         'is_include': True,
     })
-
-
-def register_for_scopus():
-    # 'https://www.developers.elsevier.com/action/customer/profile/display?pageOrigin=home&zone=header&'
-    # 'http://www.developers.elsevier.com/action/devprojects?originPageLogout=devportal&icr=true'
-    # 'http://www.developers.elsevier.com/action/devnewsite'
-    pass

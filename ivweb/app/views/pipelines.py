@@ -1,7 +1,5 @@
 import os
 import re
-import shutil
-import tempfile
 import importlib
 import humanize
 import subprocess
@@ -9,6 +7,7 @@ import json
 import logging
 import datetime
 import stat
+import shutil
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
@@ -56,6 +55,7 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
         'additional_previous_runs': len(all_runs) - len(tasks_by_run),
         'recent_run': recent_run['run'] if recent_run else None,
         'recent_task': recent_task,
+        'pending_files': get_pending_files_for_publisher(publisher.publisher_id, product_id, pipeline_id)
     }
 
 
@@ -87,11 +87,12 @@ def list_pipelines(request, product_id, pipeline_id):
 @login_required
 def include_updated_publisher_runs(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.GET['publisher_id']
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
     current_task_status_on_client = request.GET.get('current_task_status')
-    opened = True if request.GET.get('opened') == '1' else False
+    opened = True if request.GET.get('opened') == '1' and request.user.superuser else False
 
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
     publisher_runs = get_recent_runs_for_publisher(pipeline_id, product_id, publisher)
@@ -122,6 +123,8 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     if has_section_updates:
         template = loader.get_template('pipelines/include/publisher_details.html')
         context = RequestContext(request, {
+            'product': product,
+            'pipeline': pipeline,
             'publisher_runs': publisher_runs,
             'opened': opened,
         })
@@ -151,26 +154,39 @@ class UploadForm(forms.Form):
         self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
 
 
+def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
+    pub_dir = os.path.join('/tmp', publisher_id, product_id, pipeline_id)
+    os.makedirs(pub_dir, exist_ok=True)
+    return pub_dir
+
+
+def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name):
+    return os.path.join(get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id), name)
+
+
 @login_required
 def upload(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     validation_errors = []
-    publisher = None
+
+    # publisher is a required param now
+    publisher_id = request.REQUEST['publisher']
+    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
     if request.method == 'POST':
         form = UploadForm(request.user, request.POST, request.FILES)
         if form.is_valid():
-            publisher_id = form.cleaned_data['publisher']
             uploaded_file = request.FILES['file']
             uploaded_file_name = form.cleaned_data['file'].name
 
-            # write the file to a temporary location
-            temp_file = tempfile.NamedTemporaryFile(delete=False)
+            # write the file to the pending location
+            pending_file_path = get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, uploaded_file_name)
+            pending_file = open(pending_file_path, 'wb')
             for chunk in uploaded_file.chunks():
-                temp_file.write(chunk)
-            uploaded_file_size = humanize.naturalsize(os.stat(temp_file.name).st_size)
-            temp_file.close()
+                pending_file.write(chunk)
+            pending_file.close()
+            uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
 
             # get the pipeline class
             pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
@@ -181,11 +197,11 @@ def upload(request, product_id, pipeline_id):
                 validator_module_name, class_name = pipeline['validator_class'].rsplit('.', 1)
                 validator_class = getattr(importlib.import_module(validator_module_name), class_name)
                 validator = validator_class()
-                line_count, raw_errors = validator.validate_files([temp_file.name], publisher_id)
+                line_count, raw_errors = validator.validate_files([pending_file_path], publisher_id)
 
                 # parse errors into line number and message
                 validation_errors = []
-                error_regex = re.compile('^\w+ : (\d+) - (.*)$')
+                error_regex = re.compile('^.+ : (\d+) - (.*)$')
                 # %s : %s - Incorrect
                 for error in raw_errors:
                     m = error_regex.match(error)
@@ -198,18 +214,16 @@ def upload(request, product_id, pipeline_id):
                 validation_errors = []
 
                 # just count the lines
-                with open(temp_file.name) as f:
+                with open(pending_file_path) as f:
                     for i, l in enumerate(f):
                         pass
                     line_count = i + 1
 
-            # if it passes, move to the pipeline inbox and make it group writable and world readable
-            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
-            destination_file_path = os.path.join(incoming_dir, uploaded_file_name)
-            shutil.move(temp_file.name, destination_file_path)
-            os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
-
             if validation_errors:
+
+                # delete the file
+                os.remove(pending_file_path)
+
                 return render(request, 'pipelines/upload_error.html', {
                     'product': product,
                     'pipeline': pipeline,
@@ -218,9 +232,19 @@ def upload(request, product_id, pipeline_id):
                     'file_size': uploaded_file_size,
                     'line_count': line_count,
                     'validation_errors': validation_errors,
+                    'publisher': publisher,
                 })
 
             else:
+
+                # make sure it's world readable, just to be safe
+                os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+
+                # if it passes, move to the pipeline inbox and make it group writable and world readable
+                incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
+                # destination_file_path = os.path.join(incoming_dir, uploaded_file_name)
+                # shutil.move(temp_file.name, destination_file_path)
+                # os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
                 Audit_Log.objects.create(
                     user_id=request.user.user_id,
@@ -237,13 +261,11 @@ def upload(request, product_id, pipeline_id):
                     'file_name': uploaded_file_name,
                     'file_size': uploaded_file_size,
                     'line_count': line_count,
+                    'publisher': publisher,
+                    'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=uploaded_file_name),
                 })
 
     else:
-        publisher_id = request.GET.get('publisher')
-        if publisher_id:
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-
         form = UploadForm(request.user, publisher=publisher)
 
     return render(request, 'pipelines/upload.html', {
@@ -256,7 +278,8 @@ def upload(request, product_id, pipeline_id):
 
 
 class RunForm(forms.Form):
-    publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
+    move_pending_files = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, user, *args, **kwargs):
         super(RunForm, self).__init__(*args, **kwargs)
@@ -282,6 +305,10 @@ def run(request, product_id, pipeline_id):
             module_name, class_name = pipeline['class'].rsplit('.', 1)
             pipeline_class = getattr(importlib.import_module(module_name), class_name)
 
+            # optionally move files from pending to incoming
+            if form.cleaned_data['move_pending_files']:
+                move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class)
+
             # kick the pipeline off
             pipeline_class.s(publisher_id_list=publisher_id_list, product_id=product_id).delay()
 
@@ -293,7 +320,10 @@ def run(request, product_id, pipeline_id):
                 entity_id=pipeline_id,
             )
 
-            return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
+            if request.user.staff:
+                return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
+            else:
+                return HttpResponseRedirect(reverse('home'))
 
     else:
         form = RunForm(request.user)
@@ -330,4 +360,48 @@ def tail(request, product_id, pipeline_id):
         'product': product,
         'pipeline': pipeline,
         'content': content,
+    })
+
+
+def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=None):
+    pub_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
+    files = [{'file_name': n} for n in os.listdir(pub_dir) if not ignore or ignore and n != ignore]
+    if with_lines_and_sizes:
+        for file in files:
+            file_path = os.path.join(pub_dir, file['file_name'])
+            line_count = 0
+            with open(file_path) as f:
+                for i, l in enumerate(f):
+                    pass
+                line_count = i + 1
+            file['line_count'] = line_count
+            file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
+    return files
+
+
+def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
+    pending_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
+    files = get_pending_files_for_publisher(publisher_id, product_id, pipeline_id)
+    incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
+
+    for file in files:
+        source_file_path = os.path.join(pending_dir, file['file_name'])
+        destination_file_path = os.path.join(incoming_dir, file['file_name'])
+        shutil.move(source_file_path, destination_file_path)
+        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+
+
+@login_required
+def pending_files(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
+    publisher_id = request.REQUEST['publisher']
+    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+    return render(request, 'pipelines/pending_files.html', {
+        'product': product,
+        'pipeline': pipeline,
+        'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True),
+        'publisher_id': publisher_id,
+        'publisher': publisher,
     })

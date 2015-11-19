@@ -8,10 +8,10 @@ from ivetl.common import common
 
 
 @app.task
-class CheckRejectedManuscriptsPipeline(Pipeline):
+class UpdateManuscriptsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
-        pipeline_id = "check_rejected_manuscripts"
+    def run(self, publisher_id_list=[], product_id=None, input_file=None):
+        pipeline_id = "update_manuscripts"
 
         d = datetime.datetime.today()
         today = d.strftime('%Y%m%d')
@@ -39,9 +39,9 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                'max_articles_to_process': max_articles_to_process,
+                'input_file': input_file,
             }
 
             chain(
-                tasks.CheckRejectedManuscriptTask(task_args)
+                tasks.UpdateManuscriptsInCassandraTask(task_args)
             ).delay()

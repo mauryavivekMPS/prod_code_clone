@@ -481,14 +481,13 @@ var EditPublisherPage = (function() {
     var checkForm = function() {
         var publisherId = f.find("#id_publisher_id").val();
         var name = f.find("#id_name").val();
-        var hasBasics = publisherId && name;
-
-        var scopusKeys = f.find("#id_scopus_api_keys").val();
+        var email = f.find("#id_email").val();
+        var hasBasics = publisherId && name && email;
 
         var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
-        var rejectedArticlesProduct = f.find('#id_rejected_articles').is(':checked');
+        var rejectedManuscriptsProduct = f.find('#id_rejected_manuscripts').is(':checked');
         var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
-        var atLeastOneProduct = publishedArticlesProduct || rejectedArticlesProduct || cohortArticlesProduct;
+        var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct;
 
         var hasReportDetails = true;
         if (isNew) {
@@ -528,7 +527,7 @@ var EditPublisherPage = (function() {
             });
         }
 
-        if (hasBasics && scopusKeys && atLeastOneProduct && hasReportDetails && crossref && validIssns && validCohortIssns) {
+        if (hasBasics && atLeastOneProduct && hasReportDetails && crossref && validIssns && validCohortIssns) {
             f.find('.submit-button').removeClass('disabled');
         }
         else {
@@ -779,7 +778,7 @@ var EditPublisherPage = (function() {
         isNew = publisherId == '';
 
         f = $('#publisher-form');
-        f.find('#id_publisher_id, #id_name').on('keyup', checkForm);
+        f.find('#id_publisher_id, #id_name #id_email').on('keyup', checkForm);
         f.find('#id_report_username, #id_report_password, #id_project_folder').on('keyup', checkForm);
 
         $('#id_published_articles').on('change', function() {
@@ -788,7 +787,7 @@ var EditPublisherPage = (function() {
         });
         updatePublishedArticlesControls();
 
-        $('#id_rejected_articles').on('change', checkForm);
+        $('#id_rejected_manuscripts').on('change', checkForm);
 
         $('#id_cohort_articles').on('change', function() {
             updateCohortArticlesControls();

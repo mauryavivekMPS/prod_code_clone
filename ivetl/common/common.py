@@ -14,7 +14,7 @@ PIPELINES = [
     {
         'name': 'Custom Article Data',
         'id': 'custom_article_data',
-        'user_facing_display_name': 'FOAM',
+        'user_facing_display_name': 'Additional metadata files',
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
@@ -35,6 +35,34 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
     },
+    {
+        'name': 'Check Rejected Manuscripts',
+        'id': 'check_rejected_manuscripts',
+        'class': 'ivetl.pipelines.publishedarticles.CheckRejectedManuscriptsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+    },
+    {
+        'name': 'Insert Placeholder Citations',
+        'id': 'insert_placeholder_citations',
+        'class': 'ivetl.pipelines.publishedarticles.InsertPlaceholderCitationsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+    },
+    {
+        'name': 'Update Manuscripts',
+        'id': 'update_manuscripts',
+        'class': 'ivetl.pipelines.rejectedarticles.UpdateManuscriptsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+    },
+    {
+        'name': 'XREF Journal Catalog',
+        'id': 'xref_journal_catalog',
+        'class': 'ivetl.pipelines.rejectedarticles.XREFJournalCatalogPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -43,6 +71,9 @@ PRODUCTS = [
     {
         'name': 'Published Articles',
         'id': 'published_articles',
+        'icon': 'lnr-layers',
+        'is_user_facing': True,
+        'order': 1,
         'cohort': False,
         'pipelines': [
             {
@@ -59,6 +90,9 @@ PRODUCTS = [
     {
         'name': 'Rejected Manuscripts',
         'id': 'rejected_manuscripts',
+        'icon': 'lnr-layers-crossed',
+        'is_user_facing': True,
+        'order': 2,
         'cohort': False,
         'pipelines': [
             {
@@ -69,6 +103,9 @@ PRODUCTS = [
     {
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
+        'icon': 'lnr-icons2',
+        'is_user_facing': True,
+        'order': 3,
         'cohort': True,
         'pipelines': [
             {
@@ -77,6 +114,54 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
             },
+        ]
+    },
+    {
+        'name': 'Check Rejected Manuscripts',
+        'id': 'check_rejected_manuscripts',
+        'is_user_facing': False,
+        'order': 4,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['check_rejected_manuscripts'],
+            }
+        ]
+    },
+    {
+        'name': 'Insert Placeholder Citations',
+        'id': 'insert_placeholder_citations',
+        'is_user_facing': False,
+        'order': 5,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['insert_placeholder_citations'],
+            }
+        ]
+    },
+    {
+        'name': 'Update Manuscripts',
+        'id': 'update_manuscripts',
+        'is_user_facing': False,
+        'order': 6,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['update_manuscripts'],
+            }
+        ]
+    },
+    {
+        'name': 'XREF Journal Catalog',
+        'id': 'xref_journal_catalog',
+        'is_user_facing': False,
+        'order': 7,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['xref_journal_catalog'],
+            }
         ]
     },
 ]

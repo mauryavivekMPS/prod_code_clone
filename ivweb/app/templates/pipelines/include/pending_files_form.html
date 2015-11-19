@@ -1,0 +1,28 @@
+{% if pending_files %}
+    <p class="uploaded-file-message">
+        {% if additional %}Additionally, the{% else %}The{% endif %} following
+        {% if pending_files|length == 1 %}
+            file is
+        {% else %}
+            {{ pending_files|length }} file{{ pending_files|pluralize }} are
+        {% endif %}
+        pending submission for processing:
+    </p>
+    <div class="all-files">
+        {% for file in pending_files %}
+            {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count %}
+        {% endfor %}
+    </div>
+{% endif %}
+<div>
+    <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="{% url 'pipelines.run' product.id pipeline.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="publisher" value="{{ publisher_id }}">
+        <input type="hidden" name="move_pending_files" value="1">
+        <button type="submit" class="btn btn-primary submit-button">
+            Submit for Processing
+        </button>
+        <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Another File</a>
+        <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'll submit later</a></span>
+    </form>
+</div>

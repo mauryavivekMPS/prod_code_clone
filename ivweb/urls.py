@@ -37,6 +37,7 @@ urlpatterns = patterns(
 
     # upload files for a pipeline
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/upload/$', 'pipelines.upload', name='pipelines.upload'),
+    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles/$', 'pipelines.pending_files', name='pipelines.pending_files'),
 
     # run a pipeline
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/run/$', 'pipelines.run', name='pipelines.run'),

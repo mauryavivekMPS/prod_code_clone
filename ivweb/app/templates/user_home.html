@@ -29,6 +29,7 @@
                             {% for product_stats in publisher_stats.product_stats_list %}
                                 <tr>
                                     <td>
+                                        <span class="lnr {{ product_stats.product.icon }} product-icon"></span>
                                         {{ product_stats.product.name }}
                                     </td>
                                     <td></td>
@@ -40,6 +41,9 @@
                                             {{ pipeline_stats.message }}
                                             {% if pipeline_stats.pipeline.has_file_input %}
                                                 <a class="btn btn-default little-upload-button" href="{% url 'pipelines.upload' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
+                                                {% if pipeline_stats.pending_files %}
+                                                    <a class="little-files-link" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">{{ pipeline_stats.pending_files|length }} pending file{{ pipeline_stats.pending_files|pluralize }}</a>
+                                                {% endif %}
                                             {% endif %}
                                         </td>
                                         <td class="dashboard-time-col">

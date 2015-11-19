@@ -1,57 +1,31 @@
-from __future__ import absolute_import
-
 import csv
 import codecs
-from time import time
 import json
 from decimal import Decimal
 from datetime import datetime
-from os import makedirs
-
-
 import cassandra.util
-from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
-from cassandra.cqlengine import connection
 from cassandra.cqlengine.query import BatchQuery
-
-
-from ivetl.common import common
 from ivetl.celery import app
 from ivetl.common.BaseTask import BaseTask
+from ivetl.models import Rejected_Articles
 
-# TODO: !! Is this deprecated?? It hasn't been updated and doesn't seem to be referenced anywhere
 
 @app.task
-class UpdateManuscriptsInCassandraDBTask(BaseTask):
+class UpdateManuscriptsInCassandraTask(BaseTask):
 
-    taskname = "UpdateManuscriptsInCassandraDB"
-    vizor = common.RAT
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        file = task_args['input_file']
+        total_count = task_args['count']
 
-    def run(self, args):
-
-        file = args[0]
-        publisher = args[1]
-        day = args[2]
-        workfolder = args[3]
-
-        path = workfolder + "/" + self.taskname
-        makedirs(path, exist_ok=True)
-
-        tlogger = self.getTaskLogger(path, self.taskname)
-
-        connection.setup([common.CASSANDRA_IP], common.CASSANDRA_KEYSPACE_IV)
-
-        t0 = time()
         count = 0
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         with codecs.open(file, encoding="utf-16") as tsv:
-
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
                 if count == 1:
-                    continue
+                    continue  # ignore the header
 
                 publisher = line[0]
                 manuscript_id = line[1]
@@ -174,29 +148,20 @@ class UpdateManuscriptsInCassandraDBTask(BaseTask):
 
                 tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher + " / " + manuscript_id)
 
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
-            tsv.close()
+        return {'count': count}
 
-            pu = Publisher_Vizor_Updates()
-            pu['publisher_id'] = publisher
-            pu['vizor_id'] = 'rejected_articles'
-            pu['updated'] = updated
-            pu.save()
-
-
-        t1 = time()
-        tlogger.info("Rows Processed:   " + str(count - 1))
-        tlogger.info("Time Taken:       " + format(t1-t0, '.2f') + " seconds / " + format((t1-t0)/60, '.2f') + " minutes")
-
-        return
 
 def unix_time(dt):
     epoch = datetime.datetime.utcfromtimestamp(0)
     delta = dt - epoch
     return delta.total_seconds()
 
+
 def unix_time_millis(dt):
     return (unix_time(dt) * 1000.0)
+
 
 def toDateTime(mdy_str):
     dor_parts = mdy_str.split('/')
@@ -210,51 +175,3 @@ def toDateTime(mdy_str):
     # date (y, m, d)
     dor_date = datetime(dor_year, dor_month, dor_day)
     return dor_date
-
-
-class Publisher_Vizor_Updates(Model):
-
-    publisher_id = columns.Text(primary_key=True)
-    vizor_id = columns.Text(primary_key=True)
-    updated = columns.DateTime()
-
-
-class Rejected_Articles(Model):
-
-    publisher_id = columns.Text(primary_key=True)
-    rejected_article_id = columns.TimeUUID(primary_key=True)
-    article_type = columns.Text(required=False)
-    authors_match_score = columns.Decimal(required=False)
-    citation_lookup_status = columns.Text(required=False)
-    citations = columns.Integer(required=False)
-    co_authors = columns.Text(required=False)
-    corresponding_author = columns.Text(required=False)
-    created = columns.DateTime()
-    crossref_doi = columns.Text(required=False)
-    crossref_match_score = columns.Decimal(required=False)
-    custom = columns.Text(required=False)
-    date_of_publication = columns.DateTime(required=False)
-    date_of_rejection = columns.DateTime()
-    editor = columns.Text()
-    first_author = columns.Text(required=False)
-    keywords = columns.Text(required=False)
-    manuscript_id = columns.Text()
-    manuscript_title = columns.Text()
-    published_co_authors = columns.Text(required=False)
-    published_first_author = columns.Text(required=False)
-    published_journal = columns.Text(required=False)
-    published_journal_issn = columns.Text(required=False)
-    published_publisher = columns.Text(required=False)
-    published_title = columns.Text(required=False)
-    reject_reason = columns.Text()
-    scopus_doi_status = columns.Text(required=False)
-    scopus_id = columns.Text(required=False)
-    source_file_name = columns.Text()
-    status = columns.Text()
-    subject_category = columns.Text(required=False)
-    submitted_journal = columns.Text()
-    updated = columns.DateTime()
-
-
-
-
