@@ -3,6 +3,7 @@ import datetime
 import csv
 import sys
 import shutil
+import codecs
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
@@ -206,7 +207,7 @@ class Task(BaseTask):
         # just count the lines
         total_count = 0
         for file in files:
-            with open(file) as f:
+            with codecs.open(file, encoding='utf-8') as f:
                 for i, l in enumerate(f):
                     pass
                 total_count = i + 1

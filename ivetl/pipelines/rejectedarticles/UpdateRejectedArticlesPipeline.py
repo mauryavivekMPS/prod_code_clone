@@ -7,6 +7,7 @@ from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.rejectedarticles import tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
+from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 
 
 @app.task
@@ -49,7 +50,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
 
                 # create work folder, signal the start of the pipeline
                 work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
-                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=8, current_task_count=0)
+                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=9, current_task_count=0)
 
                 if files:
                     # construct the first task args with all of the standard bits + the list of files
@@ -77,7 +78,8 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                         tasks.SelectPublishedArticleTask.s() |
                         tasks.ScopusCitationLookupTask.s() |
                         tasks.PrepareForDBInsertTask.s() |
-                        tasks.InsertIntoCassandraDBTask.s()
+                        tasks.InsertIntoCassandraDBTask.s() |
+                        published_articles_tasks.CheckRejectedManuscriptTask.s()
                     ).delay()
 
                 else:
