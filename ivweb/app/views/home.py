@@ -22,7 +22,15 @@ def home(request):
                 pipeline_stats_list = []
                 for pipeline in product['pipelines']:
                     recent_runs = get_recent_runs_for_publisher(pipeline['pipeline']['id'], product_id, publisher)
-                    status = True if recent_runs['recent_run'] else False
+
+                    # only show running status if it's a file-based pipeline, otherwise green or empty
+                    if recent_runs['recent_run']:
+                        if pipeline['has_file_input'] and recent_runs['recent_run'].status == 'in-progress':
+                            status = recent_runs['recent_run']
+                        else:
+                            status = True
+                    else:
+                        status = False
 
                     if 'user_facing_display_name' in pipeline['pipeline']:
                         pipeline_name = pipeline['pipeline']['user_facing_display_name']
