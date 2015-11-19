@@ -71,6 +71,7 @@ PRODUCTS = [
     {
         'name': 'Published Articles',
         'id': 'published_articles',
+        'icon': 'lnr-layers',
         'is_user_facing': True,
         'order': 1,
         'cohort': False,
@@ -89,6 +90,7 @@ PRODUCTS = [
     {
         'name': 'Rejected Manuscripts',
         'id': 'rejected_manuscripts',
+        'icon': 'lnr-layers-crossed',
         'is_user_facing': True,
         'order': 2,
         'cohort': False,
@@ -101,6 +103,7 @@ PRODUCTS = [
     {
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
+        'icon': 'lnr-icons2',
         'is_user_facing': True,
         'order': 3,
         'cohort': True,

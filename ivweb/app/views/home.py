@@ -25,7 +25,7 @@ def home(request):
 
                     # only show running status if it's a file-based pipeline, otherwise green or empty
                     if recent_runs['recent_run']:
-                        if pipeline['has_file_input'] and recent_runs['recent_run'].status == 'in-progress':
+                        if pipeline['pipeline']['has_file_input'] and recent_runs['recent_run'].status == 'in-progress':
                             status = recent_runs['recent_run']
                         else:
                             status = True
