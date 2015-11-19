@@ -18,6 +18,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
+        'format_file': 'AdditionalMetadata-Format.pdf',
     },
     {
         'name': 'Article Citations',
@@ -34,6 +35,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
+        'format_file': 'RejectedArticles-Format.pdf',
     },
     {
         'name': 'Check Rejected Manuscripts',
