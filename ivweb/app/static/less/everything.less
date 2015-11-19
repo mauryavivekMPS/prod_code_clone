@@ -117,11 +117,13 @@ body {
         color: #333;
         text-transform: uppercase;
         height: @navbar-height;
-        letter-spacing: 7px;
+        letter-spacing: 5px;
 
         img {
-            height: 30px;
-            margin-top: -15px;
+            height: 28px;
+            margin-top: -4px;
+            margin-right: 5px;
+            display: inline-block;
         }
     }
 
@@ -1229,8 +1231,12 @@ hr {
     padding: 2px 8px;
     margin-left: 10px;
     vertical-align: 1px;
-    //opacity: .4;
-    //transition: opacity ease-in-out .2s;
+}
+
+.little-files-link {
+    font-size: 10px;
+    margin-left: 10px;
+    vertical-align: 1px;
 }
 
 
@@ -1463,7 +1469,7 @@ body.login {
 }
 
 .publisher-summary-row {
-    .little-upload-button {
+    .little-upload-button, .little-files-link {
         opacity: .4;
         transition: opacity ease-in-out .2s;
     }
@@ -1474,7 +1480,7 @@ body.login {
         opacity: 1;
     }
 
-    .little-upload-button {
+    .little-upload-button, .little-files-link {
         opacity: 1;
     }
 }
