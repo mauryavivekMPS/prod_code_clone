@@ -61,30 +61,30 @@ class RejectedArticlesValidator(BaseValidator):
                                 input_data['published_doi'] = line[14].strip()
 
                             if input_data['manuscript_id'] == "":
-                                errors.append("%s : %s - Does not have value for MANUSCRIPT_ID" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - No value for MANUSCRIPT_ID" % (file_name, (count - 1)))
 
                             if input_data['date_of_rejection'] == "":
-                                errors.append("%s : %s - Does not have value for DATE_OF_REJECTION" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - No value for DATE_OF_REJECTION" % (file_name, (count - 1)))
 
                             elif not self.valid_date(input_data['date_of_rejection']):
-                                errors.append("%s : %s - Does not have valid value for DATE_OF_REJECTION (Valid format is MM/DD/YY)" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - Invalid format for DATE_OF_REJECTION %s (Valid format is MM/DD/YY)" % (file_name, (count - 1), input_data['date_of_rejection']))
 
                             if input_data['reject_reason'] == "":
-                                errors.append("%s : %s - Does not have value for REJECT_REASON" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - No value for REJECT_REASON" % (file_name, (count - 1)))
 
                             if input_data['title'] == "":
-                                errors.append("%s : %s - Does not have value for TITLE" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - No have value for TITLE" % (file_name, (count - 1)))
 
                             if input_data['first_author'] == "" and input_data['corresponding_author'] == "" and input_data['co_authors'] == "":
-                                errors.append("%s : %s - Does not have value for any of the author fields (first, corresponding, co)" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - No value for any of the author fields (first, corresponding, co)" % (file_name, (count - 1)))
 
                             if input_data['submitted_journal'] == "":
-                                errors.append("%s : %s - Does not have value for SUBMITTED_JOURNAL" % (file_name, (count - 1)))
+                                errors.append("%s : Line# %s - No value for SUBMITTED_JOURNAL" % (file_name, (count - 1)))
 
                     total_count += count
 
             except UnicodeDecodeError:
-                errors.append("%s : %s - This file is not UTF-8, skipping further validation" % (file_name, 0))
+                errors.append("%s : %s - This file is not in UTF-8, skipping further validation" % (file_name, 0))
 
         return total_count, errors
 
