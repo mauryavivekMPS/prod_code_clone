@@ -1,5 +1,6 @@
 import os
 import datetime
+import stat
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status
