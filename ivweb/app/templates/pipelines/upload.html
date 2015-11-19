@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}Upload {{ pipeline.name }}{% endblock %}
+{% block title %}Upload {{ pipeline.user_facing_display_name|title }}{% endblock %}
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
@@ -14,22 +14,23 @@
                     <li></li>
                 </ol>
             {% endif %}
-            <h1>Upload {{ pipeline.name }}</h1>
+            <h1>Upload {{ pipeline.user_facing_display_name|title }}</h1>
         </div>
     </div>
 
     <div>
         <div class="row">
             <div class="col-md-12 upload-form-container">
+                <p class="uploaded-file-message">Use the form below to upload {{ pipeline.user_facing_display_name|lower }} for validation and processing:</p>
                 <form id="upload-form" class="form-horizontal" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
+                    <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
 
                     <div class="form-group row">
                         <label for="publisher" class="col-sm-2">Publisher</label>
                         <div class="col-sm-6">
                             {% if publisher %}
                                 <p class="form-control-static">{{ publisher.name }}</p>
-                                <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
                             {% else %}
                                 {{ form.publisher }}
                             {% endif %}
@@ -45,7 +46,7 @@
 
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button disabled">
-                            Upload
+                            Upload and Validate
                         </button>
                         <span class="cancel">or <a href="{% if user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
                     </div>

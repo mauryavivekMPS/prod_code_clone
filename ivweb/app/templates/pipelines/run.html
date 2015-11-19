@@ -9,7 +9,7 @@
         <div class="col-md-8">
             <ol class="breadcrumb">
                 <li><a href="#">Pipelines</a></li>
-                <li><a href="{% url 'pipelines.list' pipeline.id %}">{{ pipeline.name }}</a></li>
+                <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
                 <li></li>
             </ol>
             <h1>Run {{ pipeline.name }}</h1>

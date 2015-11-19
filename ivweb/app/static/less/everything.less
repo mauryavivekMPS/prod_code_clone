@@ -1549,10 +1549,13 @@ body.login {
 
 .uploaded-file {
     border-top: 1px dotted #ccc;
-    border-bottom: 1px dotted #ccc;
     padding-top: 15px;
     padding-bottom: 5px;
-    margin-bottom: 30px;
+
+    &:last-child {
+        margin-bottom: 30px;
+        border-bottom: 1px dotted #ccc;
+    }
 
     .uploaded-file-icon {
         font-size: 48px;
@@ -1642,7 +1645,7 @@ body.login {
 
 .user-home {
     .dashboard-status-col {
-        padding-left: 54px;
+        padding-left: 50px;
         font-weight: 200;
     }
 

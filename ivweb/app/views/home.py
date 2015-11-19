@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.common import common
-from ivweb.app.views.pipelines import get_recent_runs_for_publisher
+from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending_files_for_publisher
 
 
 @login_required
@@ -42,11 +42,16 @@ def home(request):
                     else:
                         message = '%s not recently updated' % pipeline_name
 
+                    pending_files = []
+                    if pipeline['pipeline']['has_file_input']:
+                        pending_files = get_pending_files_for_publisher(publisher.publisher_id, product_id, pipeline['pipeline']['id'], with_lines_and_sizes=False)
+
                     pipeline_stats_list.append({
                         'pipeline': pipeline['pipeline'],
                         'status': status,
                         'message': message,
                         'recent_run': recent_runs['recent_run'],
+                        'pending_files': pending_files,
                     })
 
                 product_stats_list.append({

@@ -78,7 +78,9 @@
                 </ul>
                 {% for product in common.PRODUCTS %}
                     {% if product.is_user_facing %}
-                        <div class="list-title">{{ product.name }}</div>
+                        <div class="list-title">
+                            {{ product.name }}
+                        </div>
                         <ul>
                             {% for pipeline_entry in product.pipelines %}
                                 <li class="{{ pipeline_entry.pipeline.id }}{% if product.cohort %}_cohort{% endif %}_menu_item">
