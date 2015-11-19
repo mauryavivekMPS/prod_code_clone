@@ -220,14 +220,14 @@ SG_PWD = "Hello123!"
 
 
 def send_email(subject, body):
-        try:
-            sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
-            message = sendgrid.Mail()
-            message.add_to(EMAIL_TO)
-            message.set_subject(subject)
-            message.set_html(body)
-            message.set_from(EMAIL_FROM)
-            sg.send(message)
-        except:
-            # do nothing
-            print("sending of email failed")
+    try:
+        sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
+        message = sendgrid.Mail()
+        message.add_to(EMAIL_TO)
+        message.set_subject(subject)
+        message.set_html(body)
+        message.set_from(EMAIL_FROM)
+        sg.send(message)
+    except:
+        # do nothing
+        print("sending of email failed")

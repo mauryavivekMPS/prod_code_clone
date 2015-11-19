@@ -391,12 +391,24 @@ def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
         os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
 
+def delete_pending_file(publisher_id, product_id, pipeline_id, name):
+    os.remove(os.path.join(get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id), name))
+
+
 @login_required
 def pending_files(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher']
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+    if request.method == 'POST':
+        file_to_delete = request.POST.get('file_to_delete')
+        if file_to_delete:
+            delete_pending_file(publisher_id, product_id, pipeline_id, file_to_delete)
+
+        # redirect on the response so the user can't reload the delete action
+        return HttpResponseRedirect(reverse('pipelines.pending_files', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}) + '?publisher=' + publisher_id)
 
     return render(request, 'pipelines/pending_files.html', {
         'product': product,

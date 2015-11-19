@@ -13,16 +13,25 @@
             {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count %}
         {% endfor %}
     </div>
+{% else %}
+    {% if only_pending %}
+        <p class="uploaded-file-message">There are no pending files.</p>
+    {% endif %}
 {% endif %}
 <div>
-    <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="{% url 'pipelines.run' product.id pipeline.id %}">
-        {% csrf_token %}
-        <input type="hidden" name="publisher" value="{{ publisher_id }}">
-        <input type="hidden" name="move_pending_files" value="1">
-        <button type="submit" class="btn btn-primary submit-button">
-            Submit for Processing
-        </button>
-        <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Another File</a>
-        <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'll submit later</a></span>
-    </form>
+    {% if pending_files or not only_pending %}
+        <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="{% url 'pipelines.run' product.id pipeline.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="publisher" value="{{ publisher_id }}">
+            <input type="hidden" name="move_pending_files" value="1">
+            <button type="submit" class="btn btn-primary submit-button">
+                Submit for Processing
+            </button>
+            <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Another File</a>
+            <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'll submit later</a></span>
+        </form>
+    {% else %}
+        <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload a File</a>
+        <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
+    {% endif %}
 </div>

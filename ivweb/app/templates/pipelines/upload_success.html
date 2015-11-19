@@ -25,7 +25,7 @@
                 <div class="all-files">
                     {% include "pipelines/include/file.html" %}
                 </div>
-                {% include "pipelines/include/pending_files_form.html" with additional=True ignore=file_name %}
+                {% include "pipelines/include/pending_files_form.html" with additional=True ignore=file_name only_pending=False %}
             </div>
         </div>
     </div>

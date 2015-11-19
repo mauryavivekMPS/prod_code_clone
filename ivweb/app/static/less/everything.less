@@ -1572,6 +1572,21 @@ body.login {
         }
     }
 
+    .delete-file-button {
+        float: right;
+        margin-top: -50px;
+        font-size: 12px;
+        border: none;
+        box-shadow: none;
+        color: @brand-danger;
+        margin-right: 15px;
+
+        &:hover {
+            color: @brand-danger;
+            background-color: #F5E9EB;
+        }
+    }
+
     .validation-output {
         margin-left: 8px;
         margin-top: 14px;
@@ -1657,5 +1672,9 @@ body.login {
 
     .pipeline-status-row td {
         border-top-style: dotted;
+    }
+
+    .little-files-link {
+        font-weight: normal;
     }
 }
