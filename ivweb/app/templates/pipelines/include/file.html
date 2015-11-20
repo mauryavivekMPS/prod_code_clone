@@ -6,5 +6,14 @@
             <li class="uploaded-file-line-count">{{ line_count }} line{{ line_count|pluralize }}</li>
             <li class="uploaded-file-size">{{ file_size }}</li>
         </ul>
+
+        <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="file_to_delete" value="{{ file_name }}">
+            <input type="hidden" name="publisher" value="{{ publisher_id }}">
+            <button type="submit" class="btn btn-default submit-button delete-file-button">
+                <span class="lnr lnr-trash2"></span> Delete
+            </button>
+        </form>
     </div>
 </div>

@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import SafeText
 
 register = template.Library()
 
@@ -10,6 +11,10 @@ def status_icon(status_item=None):
             return '<span class="status-icon status-success"></span>'
         else:
             return '<span class="status-icon status-empty"></span>'
+
+    if type(status_item) == SafeText or type(status_item) == str:
+        if status_item == 'in-progress':
+            return '<span class="status-icon status-warning status-pulse"></span>'
 
     if status_item:
         if status_item.status == 'started':

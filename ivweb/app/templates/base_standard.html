@@ -96,7 +96,7 @@
                         <a href="{% url 'home' %}">Dashboard</a>
                     </li>
                     <li class="reports_menu_item">
-                        <a href="#">Reports</a>
+                        <a href="http://login.vizors.org" target="_blank">Reports <span class="lnr lnr-launch"></span></a>
                     </li>
                     <li class="support_menu_item">
                         <a href="#">Support</a>
@@ -107,16 +107,41 @@
     </div>
 
     <div id="main-container" class="container-fluid {% if not request.staff %}publisher-user{% endif %}">
-        {% if form.errors %}
+        {% if form.errors or alt_error_message %}
             <div class="errors-container">
                 <div class="alert alert-danger alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true" class="lnr lnr-cross"></span>
                     </button>
-                    There were some problems with your request &mdash; please fix and try again.
-                    {{ form.non_field_errors }}
+                    {% if alt_error_message %}
+                        {{ alt_error_message }}
+                    {% else %}
+                        There were some problems with your request &mdash; please fix and try again.
+                        {{ form.non_field_errors }}
+                    {% endif %}
                 </div>
             </div>
+        {% endif %}
+        {% if messages %}
+            <div class="messages-container">
+                <div class="alert messages alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" class="lnr lnr-cross"></span>
+                    </button>
+                    <ul>
+                        {% for message in messages %}
+                            <li class="success">
+                                {{ message }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <script>
+                $(function() {
+                    IvetlWeb.hideMessagesAfterDelay({% if messages_reset_url %}'{{ messages_reset_url }}'{% endif %});
+                });
+            </script>
         {% endif %}
         {% block content %}Empty{% endblock %}
     </div>

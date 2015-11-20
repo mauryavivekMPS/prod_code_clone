@@ -14,28 +14,36 @@
                     <li></li>
                 </ol>
             {% endif %}
-            <h1>Upload Failed</h1>
+            <h1>Upload Failed &ndash; {{ pipeline.user_facing_display_name|title }}</h1>
         </div>
     </div>
 
     <div>
         <div class="row">
             <div class="col-md-12">
-                <p class="uploaded-file-message">There were validation errors in your file, see below.</p>
-                <div class="uploaded-file validation-errors">
-                    <div class="lnr lnr-file-spreadsheet uploaded-file-icon"></div>
-                    <div class="uploaded-file-attributes">
-                        <ul>
-                            <li class="uploaded-file-name">{{ file_name }}</li>
-                        </ul>
-                    </div>
-                    <div class="validation-output log-output">
-                        <pre>{% for error in validation_errors %}{{ error }}{% endfor %}</pre>
-                    </div>
-                </div>
+                <p class="uploaded-file-message">
+                    There {{ validation_errors|pluralize:"was,were" }} {{ validation_errors|length }} validation error{{ validation_errors|pluralize }} in your file:
+                </p>
+                <p class="uploaded-file-error-icon"><span class="lnr lnr-file-spreadsheet"></span>{{ file_name }}</p>
+                <table class="table validation-error-table">
+                    <thead>
+                        <tr>
+                            <th class="line-number-col">Line #</th>
+                            <th>Error</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error in validation_errors %}
+                            <tr>
+                                <td>{{ error.line_number }}</td>
+                                <td class="message">{{ error.message }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
                 <div>
                     <a href=".{% if not request.user.staff %}?publisher={{ publisher_id }}{% endif %}" class="btn btn-default upload-another-button">+ Try Another Upload</a>
-                    <span class="cancel"> or <a href="{% if user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'm done</a></span>
+                    <span class="cancel"> or <a href="{% if user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
                 </div>
             </div>
         </div>

@@ -34,7 +34,8 @@ module.exports = function(grunt) {
               'ivweb/app/static/images/**',
               'ivweb/app/static/ico/**',
               'ivweb/app/static/css/**',
-              'ivweb/app/static/fonts/**'
+              'ivweb/app/static/fonts/**',
+              'ivweb/app/static/pdf/**'
             ],
             dest: './ivweb/app/static/dist/',
             filter: 'isFile',
@@ -63,6 +64,9 @@ module.exports = function(grunt) {
             './ivweb/app/static/js/**',
             './ivweb/app/static/images/**',
             './ivweb/app/static/ico/**',
+            'ivweb/app/static/css/**',
+            'ivweb/app/static/fonts/**',
+            'ivweb/app/static/pdf/**',
             './bower_components/**'
         ],
         tasks: ['copy'], // tasks to run

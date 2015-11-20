@@ -14,14 +14,14 @@
                     <li></li>
                 </ol>
             {% endif %}
-            <h1>Pending Files</h1>
+            <h1>Pending Files &ndash; {{ pipeline.user_facing_display_name|title }}</h1>
         </div>
     </div>
 
     <div>
         <div class="row">
             <div class="col-md-12">
-                {% include "pipelines/include/pending_files_form.html" with additional=False %}
+                {% include "pipelines/include/pending_files_form.html" with additional=False only_pending=True %}
             </div>
         </div>
     </div>

@@ -200,6 +200,12 @@
 .lnr-desktop:before {
 	content: "\e7af";
 }
+.lnr-launch:before {
+	content: "\e7b0";
+}
+.lnr-new-tab:before {
+	content: "\e7b1";
+}
 .lnr-lamp:before {
 	content: "\e7bc";
 }
@@ -404,3 +410,4 @@
 .lnr-radio-button:before {
 	content: "\e99e";
 }
+

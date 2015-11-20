@@ -36,23 +36,36 @@
                                     <td class="status-col"></td>
                                 </tr>
                                 {% for pipeline_stats in product_stats.pipeline_stats_list %}
-                                    <tr class="pipeline-status-row">
-                                        <td class="dashboard-status-col">
-                                            {{ pipeline_stats.message }}
-                                            {% if pipeline_stats.pipeline.has_file_input %}
-                                                <a class="btn btn-default little-upload-button" href="{% url 'pipelines.upload' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
-                                                {% if pipeline_stats.pending_files %}
-                                                    <a class="little-files-link" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">{{ pipeline_stats.pending_files|length }} pending file{{ pipeline_stats.pending_files|pluralize }}</a>
+                                    {% if pipeline_stats.file_based_pipeline_currently_running or running_publisher == publisher_stats.publisher.publisher_id and running_pipeline == pipeline_stats.pipeline.id %}
+                                        <tr class="pipeline-status-row currently-running-row">
+                                            <td class="dashboard-status-col">
+                                                {{ pipeline_stats.message }}
+                                            </td>
+                                            <td class="dashboard-time-col">
+                                            </td>
+                                            <td class="status-col">
+                                                {% status_icon "in-progress" %}
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr class="pipeline-status-row">
+                                            <td class="dashboard-status-col">
+                                                {{ pipeline_stats.message }}
+                                                {% if pipeline_stats.pipeline.has_file_input %}
+                                                    <a class="btn btn-default little-upload-button" href="{% url 'pipelines.upload' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
+                                                    {% if pipeline_stats.pending_files %}
+                                                        <a class="little-files-link" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">{{ pipeline_stats.pending_files|length }} pending file{{ pipeline_stats.pending_files|pluralize }}</a>
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        </td>
-                                        <td class="dashboard-time-col">
-                                            {{ pipeline_stats.recent_run.end_time }}
-                                        </td>
-                                        <td class="status-col">
-                                            {% status_icon pipeline_stats.status %}
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="dashboard-time-col">
+                                                {{ pipeline_stats.recent_run.end_time }}
+                                            </td>
+                                            <td class="status-col">
+                                                {% status_icon pipeline_stats.status %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
                                 {% endfor %}
                             {% endfor %}
                         </tbody>

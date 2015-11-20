@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}Uploaded{% endblock %}
+{% block title %}Upload Succeeded{% endblock %}
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
                     <li></li>
                 </ol>
             {% endif %}
-            <h1>Upload Successful</h1>
+            <h1>Upload Succeeded &ndash; {{ pipeline.user_facing_display_name|title }}</h1>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
                 <div class="all-files">
                     {% include "pipelines/include/file.html" %}
                 </div>
-                {% include "pipelines/include/pending_files_form.html" with additional=True ignore=file_name %}
+                {% include "pipelines/include/pending_files_form.html" with additional=True ignore=file_name only_pending=False %}
             </div>
         </div>
     </div>

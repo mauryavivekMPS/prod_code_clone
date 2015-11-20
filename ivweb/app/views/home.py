@@ -12,6 +12,14 @@ def home(request):
         return HttpResponseRedirect(reverse('publishers.list'))
 
     else:
+        messages = []
+        running_publisher = ''
+        running_pipeline = ''
+        if 'from' in request.GET and request.GET['from'] == 'run':
+            running_publisher = request.GET['publisher']
+            running_pipeline = request.GET['pipeline']
+            messages.append("Your uploads are being processed and you'll be sent an email upon completion.")
+
         publisher_stats_list = []
         for publisher in request.user.get_accessible_publishers():
 
@@ -23,10 +31,13 @@ def home(request):
                 for pipeline in product['pipelines']:
                     recent_runs = get_recent_runs_for_publisher(pipeline['pipeline']['id'], product_id, publisher)
 
+                    file_based_pipeline_currently_running = False
+
                     # only show running status if it's a file-based pipeline, otherwise green or empty
                     if recent_runs['recent_run']:
                         if pipeline['pipeline']['has_file_input'] and recent_runs['recent_run'].status == 'in-progress':
                             status = recent_runs['recent_run']
+                            file_based_pipeline_currently_running = True
                         else:
                             status = True
                     else:
@@ -37,10 +48,13 @@ def home(request):
                     else:
                         pipeline_name = pipeline['pipeline']['name'].lower().capitalize()
 
-                    if status:
-                        message = '%s updated %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))
+                    if file_based_pipeline_currently_running or running_publisher == publisher.publisher_id and running_pipeline == pipeline['pipeline']['id']:
+                        message = '%s currently being processed' % pipeline_name
                     else:
-                        message = '%s not recently updated' % pipeline_name
+                        if status:
+                            message = '%s updated %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))
+                        else:
+                            message = '%s not recently updated' % pipeline_name
 
                     pending_files = []
                     if pipeline['pipeline']['has_file_input']:
@@ -49,6 +63,7 @@ def home(request):
                     pipeline_stats_list.append({
                         'pipeline': pipeline['pipeline'],
                         'status': status,
+                        'file_based_pipeline_currently_running': file_based_pipeline_currently_running,
                         'message': message,
                         'recent_run': recent_runs['recent_run'],
                         'pending_files': pending_files,
@@ -67,5 +82,9 @@ def home(request):
             })
 
         return render(request, 'user_home.html', {
-            'publisher_stats_list': publisher_stats_list
+            'publisher_stats_list': publisher_stats_list,
+            'messages': messages,
+            'messages_reset_url': reverse('home'),
+            'running_publisher': running_publisher,
+            'running_pipeline': running_pipeline,
         })

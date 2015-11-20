@@ -18,6 +18,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
+        'format_file': 'AdditionalMetadata-Format.pdf',
     },
     {
         'name': 'Article Citations',
@@ -34,6 +35,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
+        'format_file': 'RejectedArticles-Format.pdf',
     },
     {
         'name': 'Check Rejected Manuscripts',
@@ -220,14 +222,14 @@ SG_PWD = "Hello123!"
 
 
 def send_email(subject, body):
-        try:
-            sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
-            message = sendgrid.Mail()
-            message.add_to(EMAIL_TO)
-            message.set_subject(subject)
-            message.set_html(body)
-            message.set_from(EMAIL_FROM)
-            sg.send(message)
-        except:
-            # do nothing
-            print("sending of email failed")
+    try:
+        sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
+        message = sendgrid.Mail()
+        message.add_to(EMAIL_TO)
+        message.set_subject(subject)
+        message.set_html(body)
+        message.set_from(EMAIL_FROM)
+        sg.send(message)
+    except:
+        # do nothing
+        print("sending of email failed")

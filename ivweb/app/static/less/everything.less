@@ -324,6 +324,13 @@ body {
     }
 }
 
+.reports_menu_item {
+    .lnr {
+        margin-left: 5px;
+        font-size: 9px;
+        vertical-align: 1px;
+    }
+}
 
 // Main container layout
 // -------------------------
@@ -1547,6 +1554,11 @@ body.login {
     margin-bottom: 25px;
 }
 
+.format-file-link-icon {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
 .uploaded-file {
     border-top: 1px dotted #ccc;
     padding-top: 15px;
@@ -1572,31 +1584,52 @@ body.login {
         }
     }
 
-    .validation-output {
-        margin-left: 8px;
-        margin-top: 14px;
-        margin-bottom: 20px;
+    .delete-file-button {
+        float: right;
+        margin-top: -50px;
+        font-size: 12px;
+        border: none;
+        box-shadow: none;
+        color: @brand-danger;
+        margin-right: 15px;
+
+        &:hover {
+            color: @brand-danger;
+            background-color: #F5E9EB;
+        }
+    }
+}
+
+p.uploaded-file-error-icon {
+    border-top: 1px dotted #ccc;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dotted #ccc;
+    margin-bottom: 20px;
+    padding-left: 8px;
+
+    .lnr {
+        margin-right: 7px;
+        font-size: 20px;
+        vertical-align: -3px;
+    }
+}
+
+.validation-error-table {
+    margin-bottom: 35px;
+
+    .line-number-col {
+        width: 70px;
+    }
+
+    .message {
+        color: @brand-danger;
     }
 }
 
 .upload-another-button {
     margin-left: 4px;
     margin-right: 2px;
-}
-
-.validation-errors {
-    margin-bottom: 15px;
-
-    .uploaded-file-icon {
-        font-size: 17px;
-    }
-
-    .uploaded-file-attributes {
-        ul {
-            padding-left: 26px;
-            padding-top: 1px;
-        }
-    }
 }
 
 
@@ -1657,5 +1690,15 @@ body.login {
 
     .pipeline-status-row td {
         border-top-style: dotted;
+    }
+
+    .little-files-link {
+        font-weight: normal;
+    }
+
+    .currently-running-row {
+        td {
+            background-color: #FFFAEA;
+        }
     }
 }
