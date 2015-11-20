@@ -8,6 +8,7 @@ import logging
 import datetime
 import stat
 import shutil
+import codecs
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
@@ -212,7 +213,7 @@ def upload(request, product_id, pipeline_id):
                 validation_errors = []
 
                 # just count the lines
-                with open(pending_file_path) as f:
+                with codecs.open(pending_file_path, encoding='utf-8') as f:
                     for i, l in enumerate(f):
                         pass
                     line_count = i + 1
@@ -363,7 +364,7 @@ def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_
         for file in files:
             file_path = os.path.join(pub_dir, file['file_name'])
             line_count = 0
-            with open(file_path) as f:
+            with codecs.open(file_path, encoding='utf-8') as f:
                 for i, l in enumerate(f):
                     pass
                 line_count = i + 1
