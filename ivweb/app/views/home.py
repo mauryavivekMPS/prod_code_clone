@@ -66,6 +66,12 @@ def home(request):
                 'product_stats_list': sorted_product_stats_list,
             })
 
+        messages = []
+        if 'from' in request.GET and request.GET['from'] == 'run':
+            messages.append("Your uploads are being processed and you'll be sent an email upon completion.")
+
         return render(request, 'user_home.html', {
-            'publisher_stats_list': publisher_stats_list
+            'publisher_stats_list': publisher_stats_list,
+            'messages': messages,
+            'messages_reset_url': reverse('home'),
         })

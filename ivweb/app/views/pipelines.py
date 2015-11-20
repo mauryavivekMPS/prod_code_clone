@@ -324,7 +324,7 @@ def run(request, product_id, pipeline_id):
             if request.user.staff:
                 return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
             else:
-                return HttpResponseRedirect(reverse('home'))
+                return HttpResponseRedirect(reverse('home') + '?from=run')
 
     else:
         form = RunForm(request.user)

@@ -40,40 +40,28 @@ var IvetlWeb = (function() {
         $('body').removeClass().addClass('meerkat ' + bodyClass);
     };
 
-    var showMessages = function(messages, autoHide) {
-        $('.messages-container').empty().html(messages).fadeIn(400);
-        if (autoHide) {
-            setTimeout(function() {
-                hideMessages();
-            }, 7000);
-        }
+    var hideMessagesAfterDelay = function(resetUrl) {
+        setTimeout(function() {
+            hideMessages();
+            if (resetUrl) {
+                history.replaceState({}, "", resetUrl);
+            }
+        }, 5000);
+
     };
 
-    var hideMessages = function(immediate) {
-        if (immediate) {
-            $('.messages-container').hide();
-        }
-        else {
-            $('.messages-container').fadeOut(400);
-        }
+    var hideMessages = function() {
+        $('.messages-container').fadeOut(400);
     };
 
-    var showErrors = function(errors, autoHide) {
-        $('.errors-container').empty().html(errors).fadeIn(400);
-        if (autoHide) {
-            setTimeout(function() {
-                hideErrors();
-            }, 7000);
-        }
+    var hideErrorsAfterDelay = function() {
+        setTimeout(function() {
+            hideErrors();
+        }, 5000);
     };
 
     var hideErrors = function(immediate) {
-        if (immediate) {
-            $('.errors-container').hide();
-        }
-        else {
-            $('.errors-container').fadeOut(400);
-        }
+        $('.errors-container').fadeOut(400);
     };
 
     return {
@@ -81,9 +69,9 @@ var IvetlWeb = (function() {
         hideLoading: hideLoading,
         initTooltips: initTooltips,
         setPageClasses: setPageClasses,
-        showMessages: showMessages,
+        hideMessagesAfterDelay: hideMessagesAfterDelay,
         hideMessages: hideMessages,
-        showErrors: showErrors,
+        hideErrorsAfterDelay: hideErrorsAfterDelay,
         hideErrors: hideErrors
     };
 
