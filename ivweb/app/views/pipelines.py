@@ -207,8 +207,8 @@ def upload(request, product_id, pipeline_id):
                     m = error_regex.match(error)
                     if m:
                         line_number, message = m.groups()
-                        # validation_errors.append({'line_number': line_number, 'message': message})
-                        validation_errors.append('%s. %s\n' % (line_number, message))
+                        validation_errors.append({'line_number': line_number, 'message': message})
+                        # validation_errors.append('%s. %s\n' % (line_number, message))
 
             else:
                 validation_errors = []
@@ -233,6 +233,7 @@ def upload(request, product_id, pipeline_id):
                     'line_count': line_count,
                     'validation_errors': validation_errors,
                     'publisher': publisher,
+                    'alt_error_message': 'Your upload was not successful, please see below and try again.'
                 })
 
             else:

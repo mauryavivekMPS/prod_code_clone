@@ -1598,32 +1598,38 @@ body.login {
             background-color: #F5E9EB;
         }
     }
+}
 
-    .validation-output {
-        margin-left: 8px;
-        margin-top: 14px;
-        margin-bottom: 20px;
+p.uploaded-file-error-icon {
+    border-top: 1px dotted #ccc;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dotted #ccc;
+    margin-bottom: 20px;
+    padding-left: 8px;
+
+    .lnr {
+        margin-right: 7px;
+        font-size: 20px;
+        vertical-align: -3px;
+    }
+}
+
+.validation-error-table {
+    margin-bottom: 35px;
+    
+    .line-number-col {
+        width: 70px;
+    }
+
+    .message {
+        color: @brand-danger;
     }
 }
 
 .upload-another-button {
     margin-left: 4px;
     margin-right: 2px;
-}
-
-.validation-errors {
-    margin-bottom: 15px;
-
-    .uploaded-file-icon {
-        font-size: 17px;
-    }
-
-    .uploaded-file-attributes {
-        ul {
-            padding-left: 26px;
-            padding-top: 1px;
-        }
-    }
 }
 
 
