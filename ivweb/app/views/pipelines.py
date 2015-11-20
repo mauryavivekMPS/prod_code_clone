@@ -208,8 +208,6 @@ def upload(request, product_id, pipeline_id):
                     if m:
                         line_number, message = m.groups()
                         validation_errors.append({'line_number': line_number, 'message': message})
-                        # validation_errors.append('%s. %s\n' % (line_number, message))
-
             else:
                 validation_errors = []
 
@@ -240,12 +238,6 @@ def upload(request, product_id, pipeline_id):
 
                 # make sure it's world readable, just to be safe
                 os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
-
-                # if it passes, move to the pipeline inbox and make it group writable and world readable
-                incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
-                # destination_file_path = os.path.join(incoming_dir, uploaded_file_name)
-                # shutil.move(temp_file.name, destination_file_path)
-                # os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
                 Audit_Log.objects.create(
                     user_id=request.user.user_id,
@@ -324,7 +316,7 @@ def run(request, product_id, pipeline_id):
             if request.user.staff:
                 return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
             else:
-                return HttpResponseRedirect(reverse('home') + '?from=run')
+                return HttpResponseRedirect('%s?from=run&publisher=%s&pipeline=%s' % (reverse('home'), publisher_id, pipeline_id))
 
     else:
         form = RunForm(request.user)

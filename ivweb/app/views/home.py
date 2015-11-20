@@ -12,6 +12,14 @@ def home(request):
         return HttpResponseRedirect(reverse('publishers.list'))
 
     else:
+        messages = []
+        running_publisher = ''
+        running_pipeline = ''
+        if 'from' in request.GET and request.GET['from'] == 'run':
+            running_publisher = request.GET['publisher']
+            running_pipeline = request.GET['pipeline']
+            messages.append("Your uploads are being processed and you'll be sent an email upon completion.")
+
         publisher_stats_list = []
         for publisher in request.user.get_accessible_publishers():
 
@@ -40,7 +48,7 @@ def home(request):
                     else:
                         pipeline_name = pipeline['pipeline']['name'].lower().capitalize()
 
-                    if file_based_pipeline_currently_running:
+                    if file_based_pipeline_currently_running or running_publisher == publisher.publisher_id and running_pipeline == pipeline['pipeline']['id']:
                         message = '%s currently being processed' % pipeline_name
                     else:
                         if status:
@@ -73,12 +81,10 @@ def home(request):
                 'product_stats_list': sorted_product_stats_list,
             })
 
-        messages = []
-        if 'from' in request.GET and request.GET['from'] == 'run':
-            messages.append("Your uploads are being processed and you'll be sent an email upon completion.")
-
         return render(request, 'user_home.html', {
             'publisher_stats_list': publisher_stats_list,
             'messages': messages,
             'messages_reset_url': reverse('home'),
+            'running_publisher': running_publisher,
+            'running_pipeline': running_pipeline,
         })
