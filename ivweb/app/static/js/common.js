@@ -470,7 +470,7 @@ var EditPublisherPage = (function() {
         var publisherId = f.find("#id_publisher_id").val();
         var name = f.find("#id_name").val();
         var email = f.find("#id_email").val();
-        var hasBasics = publisherId && name && email;
+        var hasBasics = publisherId != '' && name != '' && email != '';
 
         var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
         var rejectedManuscriptsProduct = f.find('#id_rejected_manuscripts').is(':checked');
@@ -564,6 +564,19 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.crossref-controls').fadeOut(100);
+        }
+    };
+
+    var useScopusApiKeysFromPool = function() {
+        return $('#id_use_scopus_api_keys_from_pool').is(':checked');
+    };
+
+    var updateScopusControls = function() {
+        if (useScopusApiKeysFromPool()) {
+            $('.scopus-controls').fadeOut(200);
+        }
+        else {
+            $('.scopus-controls').fadeIn(100);
         }
     };
 
@@ -766,8 +779,9 @@ var EditPublisherPage = (function() {
         isNew = publisherId == '';
 
         f = $('#publisher-form');
-        f.find('#id_publisher_id, #id_name #id_email').on('keyup', checkForm);
+        f.find('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
         f.find('#id_report_username, #id_report_password, #id_project_folder').on('keyup', checkForm);
+        $('#id_pilot').on('change', checkForm);
 
         $('#id_published_articles').on('change', function() {
             updatePublishedArticlesControls();
@@ -794,6 +808,14 @@ var EditPublisherPage = (function() {
             checkForm();
         });
         updateCrossrefControls();
+
+        if (isNew) {
+            $('#id_use_scopus_api_keys_from_pool').on('change', function() {
+                updateScopusControls();
+                checkForm();
+            });
+            updateScopusControls();
+        }
 
         f.find('#id_crossref_username, #id_crossref_password').on('keyup', function() {
             updateValidateCrossrefButton();
@@ -845,7 +867,7 @@ var EditPublisherPage = (function() {
                 });
             });
             $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
-        })
+        });
 
         checkForm();
     };
@@ -891,7 +913,7 @@ var EditUserPage = (function() {
 
         f.find('.set-password-link a').click(function() {
             $('.set-password-link').hide();
-            $('#id_password').show();
+            $('#id_password').show().focus();
         });
     };
 
@@ -948,7 +970,7 @@ var UserSettingsPage = (function() {
     var init = function() {
         $('.set-password-link a').click(function() {
             $('.set-password-link').hide();
-            $('#id_password').show();
+            $('#id_password').show().focus();
         });
     };
 
