@@ -21,6 +21,19 @@
                 <form id="publisher-form" class="form-horizontal" method="post">
                     {% csrf_token %}
 
+                    <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
+                        <label for="publisher_id" class="col-sm-2">Publisher ID</label>
+                        <div class="col-sm-3">
+                            {% if publisher %}
+                                <p class="form-control-static">
+                                    {{ form.initial.publisher_id }}
+                                </p>
+                            {% else %}
+                                {{ form.publisher_id }}
+                                {{ form.publisher_id.errors }}
+                            {% endif %}
+                        </div>
+                    </div>
                     <div class="form-group row {% if form.name.errors %}error{% endif %}">
                         <label for="name" class="col-sm-2">Name</label>
                         <div class="col-sm-6">
@@ -28,22 +41,40 @@
                             {{ form.name.errors }}
                         </div>
                     </div>
-                    <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
-                        <label for="publisher_id" class="col-sm-2">Publisher ID</label>
-                        <div class="col-sm-3">
-                            {{ form.publisher_id }}
-                            {{ form.publisher_id.errors }}
-                        </div>
-                    </div>
                     <div class="form-group row">
-                        <label for="email" class="col-sm-2">Publisher Email</label>
+                        <label for="email" class="col-sm-2">Email</label>
                         <div class="col-sm-6">
                             {{ form.email }}
                             {{ form.email.errors }}
                         </div>
                     </div>
+
+                    {% if request.user.superuser %}
+                        {% if not publisher %}
+                            <div class="form-group row">
+                                <label class="col-sm-2">Scopus</label>
+                                <div class="col-sm-6">
+                                    <div class="checkbox">
+                                        <label>{{ form.use_scopus_api_keys_from_pool }} Get Scopus API keys from pool</label>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="scopus-controls" {% if not publisher %}style="display:none"{% endif %}>
+                            <div class="form-group row">
+                                <label for="scopus_api_keys" class="col-sm-2">Scopus API Keys</label>
+                                <div class="col-sm-6">
+                                    {{ form.scopus_api_keys }}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <input type="hidden" name="use_scopus_api_keys_from_pool" value="{{ form.initial.use_scopus_api_keys_from_pool }}">
+                        <input type="hidden" name="scopus_api_keys" value="{{ form.initial.scopus_api_keys }}">
+                    {% endif %}
+
                     <div class="form-group row">
-                        <label class="col-sm-2">Pilot Account</label>
+                        <label class="col-sm-2">Pilot</label>
                         <div class="col-sm-6">
                             <div class="checkbox">
                                 <label>{{ form.pilot }} Enable Pilot restrictions on this publisher</label>

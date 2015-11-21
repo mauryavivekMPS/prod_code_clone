@@ -25,6 +25,8 @@ class PublisherForm(forms.Form):
     publisher_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a short, unique identifier'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a name for display'}))
     issn_values = forms.CharField(widget=forms.HiddenInput)
+    use_scopus_api_keys_from_pool = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    scopus_api_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated API keys'}), required=False)
     email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     use_crossref = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     crossref_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
@@ -39,13 +41,15 @@ class PublisherForm(forms.Form):
     report_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     project_folder = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
-    def __init__(self, *args, instance=None, **kwargs):
+    def __init__(self, creating_user, *args, instance=None, **kwargs):
+        self.creating_user = creating_user
         self.issn_values_list = []
         self.issn_values_cohort_list = []
         initial = {}
         if instance:
             self.instance = instance
             initial = dict(instance)
+            initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
@@ -75,6 +79,7 @@ class PublisherForm(forms.Form):
 
         else:
             self.instance = None
+            initial['use_scopus_api_keys_from_pool'] = True
 
         super(PublisherForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -98,11 +103,14 @@ class PublisherForm(forms.Form):
         if self.cleaned_data['cohort_articles']:
             supported_products.append('cohort_articles')
 
-        # grab 5 API keys from the pool
         scopus_api_keys = []
-        for key in Scopus_Api_Key.objects.all()[:5]:
-            scopus_api_keys.append(key.key)
-            key.delete()
+        if self.cleaned_data['scopus_api_keys']:
+            scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
+        if not self.instance and self.cleaned_data['use_scopus_api_keys_from_pool']:
+            # grab 5 API keys from the pool
+            for key in Scopus_Api_Key.objects.all()[:5]:
+                scopus_api_keys.append(key.key)
+                key.delete()
 
         publisher_id = self.cleaned_data['publisher_id']
         Publisher_Metadata.objects(publisher_id=publisher_id).update(
@@ -149,7 +157,7 @@ def edit(request, publisher_id=None):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
     if request.method == 'POST':
-        form = PublisherForm(request.POST, instance=publisher)
+        form = PublisherForm(request.user, request.POST, instance=publisher)
         if form.is_valid():
             publisher = form.save()
 
@@ -169,7 +177,7 @@ def edit(request, publisher_id=None):
 
             return HttpResponseRedirect(reverse('publishers.list'))
     else:
-        form = PublisherForm(instance=publisher)
+        form = PublisherForm(request.user, instance=publisher)
 
     return render(request, 'publishers/new.html', {
         'form': form,
