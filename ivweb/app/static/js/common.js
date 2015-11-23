@@ -40,12 +40,13 @@ var IvetlWeb = (function() {
         $('body').removeClass().addClass('meerkat ' + bodyClass);
     };
 
-    var hideMessagesAfterDelay = function(resetUrl) {
+    var resetUrl = function(url) {
+        history.replaceState({}, "", url);
+    };
+
+    var hideMessagesAfterDelay = function() {
         setTimeout(function() {
             hideMessages();
-            if (resetUrl) {
-                history.replaceState({}, "", resetUrl);
-            }
         }, 5000);
 
     };
@@ -69,6 +70,7 @@ var IvetlWeb = (function() {
         hideLoading: hideLoading,
         initTooltips: initTooltips,
         setPageClasses: setPageClasses,
+        resetUrl: resetUrl,
         hideMessagesAfterDelay: hideMessagesAfterDelay,
         hideMessages: hideMessages,
         hideErrorsAfterDelay: hideErrorsAfterDelay,

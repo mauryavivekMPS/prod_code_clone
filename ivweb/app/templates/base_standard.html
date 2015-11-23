@@ -139,7 +139,14 @@
             </div>
             <script>
                 $(function() {
-                    IvetlWeb.hideMessagesAfterDelay({% if messages_reset_url %}'{{ messages_reset_url }}'{% endif %});
+                    IvetlWeb.hideMessagesAfterDelay();
+                });
+            </script>
+        {% endif %}
+        {% if reset_url %}
+            <script>
+                $(function() {
+                    IvetlWeb.resetUrl({{ reset_url }});
                 });
             </script>
         {% endif %}
