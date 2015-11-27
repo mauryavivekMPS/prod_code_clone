@@ -120,7 +120,7 @@ class ScopusConnector(BaseConnector):
         self.count += 1
 
         url_api = self.BASE_SCOPUS_URL_JSON + self.apikeys[self.count % len(self.apikeys)] + '&'
-        crossref = CrossrefConnector()
+        crossref = CrossrefConnector("", "", tlogger)
 
         while offset != -1:
 
