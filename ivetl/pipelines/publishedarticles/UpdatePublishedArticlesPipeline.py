@@ -40,13 +40,10 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             issns = [j.print_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)]
             issns.extend([j.electronic_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)])
 
-            if reprocess_all or not pm.published_articles_last_updated:
-                if product['cohort']:
-                    start_publication_date = self.COHORT_PUB_START_DATE
-                else:
-                    start_publication_date = self.PUB_START_DATE
+            if product['cohort']:
+                start_publication_date = self.COHORT_PUB_START_DATE
             else:
-                start_publication_date = pm.published_articles_last_updated - relativedelta(months=self.PUB_OVERLAP_MONTHS)
+                start_publication_date = self.PUB_START_DATE
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today, publisher_id, product_id, pipeline_id, job_id)

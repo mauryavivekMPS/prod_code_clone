@@ -5,6 +5,7 @@ from requests import HTTPError
 from lxml import etree
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTriesAPIError
+from ivetl.connectors.crossref import CrossrefConnector
 
 
 class ScopusConnector(BaseConnector):
@@ -119,6 +120,7 @@ class ScopusConnector(BaseConnector):
         self.count += 1
 
         url_api = self.BASE_SCOPUS_URL_JSON + self.apikeys[self.count % len(self.apikeys)] + '&'
+        crossref = CrossrefConnector()
 
         while offset != -1:
 
@@ -179,8 +181,15 @@ class ScopusConnector(BaseConnector):
                                 scopus_id = scopus_citation['eid']
 
                             citation_date = None
-                            if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
-                                citation_date = scopus_citation['prism:coverDate']
+                            cr_article = crossref.get_article(doi)
+
+                            if cr_article['date'] is None:
+                                tlogger.info("Using Scopus value for date of citation")
+                                if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
+                                    citation_date = scopus_citation['prism:coverDate']
+                            else:
+                                tlogger.info("Using CrossRef value for date of citation")
+                                citation_date = cr_article['date']
 
                             first_author = None
                             if 'dc:creator' in scopus_citation and (scopus_citation['dc:creator'] != 0):
