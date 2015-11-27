@@ -38,6 +38,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
             # get ISSNs by product to deal with cohort or not
             issns = [j.print_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)]
+            issns.extend([j.electronic_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)])
 
             if reprocess_all or not pm.published_articles_last_updated:
                 if product['cohort']:

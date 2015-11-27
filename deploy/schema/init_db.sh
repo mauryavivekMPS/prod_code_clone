@@ -45,4 +45,8 @@ echo "Updated to 1.3"
 cqlsh -f 1.4/01_create_publisher_journal.cql
 cqlsh -f 1.4/02_add_publisher_email.cql
 cqlsh -f 1.4/03_recreate_status_tables.cql
+cqlsh -f 1.4/04_add_publisher_journals.cql
 echo "Updated to 1.4"
+
+cqlsh -f 1.5/add_scopus_api_keys.cql
+echo "Updated to 1.5"
