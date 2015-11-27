@@ -46,6 +46,11 @@ VALUES ('besbjs', 'published_articles', '2049-4394', '2049-4394', 'jbjsr'
   );
 
 INSERT INTO impactvizor.publisher_journal (
+  publisher_id, product_id, electronic_issn, print_issn, journal_code)
+VALUES ('besbjs', 'published_articles', '2044-5377', '0301-620X', 'jbjsr'
+  );
+
+INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
 VALUES ('besbjs', 'cohort_articles', '1535-1386', '0021-9355'
   );
