@@ -189,7 +189,7 @@ class ScopusConnector(BaseConnector):
                                     citation_date = scopus_citation['prism:coverDate']
                             else:
                                 tlogger.info("Using CrossRef value for date of citation")
-                                citation_date = cr_article['date']
+                                citation_date = cr_article['date'].strftime('%Y-%m-%d')
 
                             first_author = None
                             if 'dc:creator' in scopus_citation and (scopus_citation['dc:creator'] != 0):
