@@ -49,7 +49,7 @@ class CrossrefConnector(BaseConnector):
             # author
             if 'author' in article_json:
                 author_parts = article_json['author'][0]
-                author = '%s,%s' % (author_parts['family'], author_parts.get('given', ''))
+                author = '%s,%s' % (author_parts.get('family', ''), author_parts.get('given', ''))
             else:
                 author = None
 

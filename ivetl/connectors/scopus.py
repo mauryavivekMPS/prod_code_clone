@@ -184,11 +184,11 @@ class ScopusConnector(BaseConnector):
                             cr_article = crossref.get_article(doi)
 
                             if cr_article is None or cr_article['date'] is None:
-                                tlogger.info("Using Scopus value for date of citation")
+                                #tlogger.info("Using Scopus value for date of citation")
                                 if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
                                     citation_date = scopus_citation['prism:coverDate']
                             else:
-                                tlogger.info("Using CrossRef value for date of citation")
+                                #tlogger.info("Using CrossRef value for date of citation")
                                 citation_date = cr_article['date'].strftime('%Y-%m-%d')
 
                             first_author = None
