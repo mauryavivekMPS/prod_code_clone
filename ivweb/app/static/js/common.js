@@ -668,6 +668,7 @@ var EditPublisherPage = (function() {
         var button = row.find('.validate-issn-button');
 
         button.on('click', function() {
+            var usingJournal = hasHighWire() && !cohort;
             var loading = row.find('.validate-issn-loading');
             var checkmark = row.find('.validate-issn-checkmark');
             var message = row.find('.issn-error-message');
@@ -677,7 +678,10 @@ var EditPublisherPage = (function() {
 
             var electronicIssn = row.find('#id_electronic_issn_' + index).val();
             var printIssn = row.find('#id_print_issn_' + index).val();
-            var journalCode = row.find('#id_journal_code_' + index).val();
+
+            if (usingJournal) {
+                var journalCode = row.find('#id_journal_code_' + index).val();
+            }
 
             var setIssnError = function(error) {
                 row.addClass('error');
@@ -695,7 +699,7 @@ var EditPublisherPage = (function() {
             };
 
             // quick local checks for blank entries
-            if (electronicIssn == '' || printIssn == '' || (hasHighWire() && journalCode == '')) {
+            if (electronicIssn == '' || printIssn == '' || (usingJournal && journalCode == '')) {
                 loading.hide();
                 setIssnError('All ISSN fields need a value.');
                 return false;
@@ -707,7 +711,7 @@ var EditPublisherPage = (function() {
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
 
-            if (hasHighWire()) {
+            if (usingJournal) {
                 data.push(
                     {name: 'journal_code', value: journalCode}
                 );
