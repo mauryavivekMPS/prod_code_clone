@@ -13,12 +13,21 @@ from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publishe
 
 @login_required
 def list_publishers(request):
+    alt_error_message = ''
+    if 'from' in request.GET and request.GET['from'] == 'nokeys':
+        alt_error_message = 'There are no Scopus API keys available. Please contact your administrator before creating a new publisher.'
+
     if request.user.superuser:
         publishers = Publisher_Metadata.objects.all()
     else:
         publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
         publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
-    return render(request, 'publishers/list.html', {'publishers': publishers})
+
+    return render(request, 'publishers/list.html', {
+        'publishers': publishers,
+        'alt_error_message': alt_error_message,
+        'reset_url': reverse('publishers.list'),
+    })
 
 
 class PublisherForm(forms.Form):
@@ -155,6 +164,11 @@ def edit(request, publisher_id=None):
     if publisher_id:
         new = False
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+    # bail quickly if there are no API keys
+    if new:
+        if Scopus_Api_Key.objects.count() < 5:
+            return HttpResponseRedirect(reverse('publishers.list') + '?from=nokeys')
 
     if request.method == 'POST':
         form = PublisherForm(request.user, request.POST, instance=publisher)

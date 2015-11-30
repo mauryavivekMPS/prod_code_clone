@@ -7,7 +7,7 @@ import codecs
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
-from ivetl.models import Pipeline_Status, Pipeline_Task_Status
+from ivetl.models import Pipeline_Status, Pipeline_Task_Status, Publisher_Metadata
 
 
 class Task(BaseTask):
@@ -191,7 +191,7 @@ class Task(BaseTask):
             )
         return current_count
 
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id):
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, send_notification_email=False, notification_count=None):
         end_date = datetime.datetime.today()
         p = Pipeline_Status().objects.filter(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
         if p is not None:
@@ -200,6 +200,18 @@ class Task(BaseTask):
             p.status = self.PL_COMPLETED
             p.updated = end_date
             p.update()
+
+        # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        if send_notification_email and pipeline['has_file_input']:
+            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+            if publisher.email:
+                subject = '%s processing complete' % pipeline['user_facing_display_name']
+                if notification_count:
+                    body = 'Impact Vizor has completed processing of uploaded %s – %s records were found.' % (pipeline['user_facing_display_name'].lower(), notification_count)
+                else:
+                    body = 'Impact Vizor has completed processing of uploaded %s.' % pipeline['user_facing_display_name'].lower()
+                common.send_email(subject, body, to=publisher.email)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']

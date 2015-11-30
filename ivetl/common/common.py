@@ -221,11 +221,11 @@ SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
 
-def send_email(subject, body):
+def send_email(subject, body, to=EMAIL_TO):
     try:
         sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
         message = sendgrid.Mail()
-        message.add_to(EMAIL_TO)
+        message.add_to(to)
         message.set_subject(subject)
         message.set_html(body)
         message.set_from(EMAIL_FROM)
