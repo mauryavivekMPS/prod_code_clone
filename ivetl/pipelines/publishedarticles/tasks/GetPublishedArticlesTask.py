@@ -26,6 +26,7 @@ class GetPublishedArticlesTask(Task):
                           'ISSN\t'
                           'DATA\n')
 
+        articles = {}
         count = 0
         for issn in issns:
 
@@ -56,7 +57,7 @@ class GetPublishedArticlesTask(Task):
 
                     except HTTPError as he:
                         if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
-                            tlogger.info("HTTP 401/408 - Scopus API failed. Trying Again")
+                            tlogger.info("HTTP 401/408 - CrossRef API failed. Trying Again")
                             attempt += 1
 
                             if attempt >= max_attempts:
@@ -64,7 +65,7 @@ class GetPublishedArticlesTask(Task):
                         else:
                             raise
                     except Exception:
-                        tlogger.info("General Exception - Scopus API failed. Trying Again")
+                        tlogger.info("General Exception - CrossRef API failed. Trying Again")
 
                         attempt += 1
                         if attempt >= max_attempts:
@@ -80,21 +81,22 @@ class GetPublishedArticlesTask(Task):
 
                     for i in xrefdata['message']['items']:
 
-                        row = """%s\t%s\t%s\t%s\n""" % (
-                            publisher_id,
-                            i['DOI'],
-                            issn,
-                            json.dumps(i))
-
-                        target_file.write(row)
-                        target_file.flush()
-
+                        articles[i['DOI']] = (i['DOI'], issn, json.dumps(i))
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     offset += task_args['articles_per_page']
 
                 else:
                     offset = -1
+
+        for a in articles.values():
+            row = """%s\t%s\t%s\t%s\n""" % (
+                            publisher_id,
+                            a[0],
+                            a[1],
+                            a[2])
+
+            target_file.write(row)
 
         target_file.close()
 

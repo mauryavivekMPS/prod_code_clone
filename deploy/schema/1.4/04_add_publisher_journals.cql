@@ -46,6 +46,11 @@ VALUES ('besbjs', 'published_articles', '2049-4394', '2049-4394', 'jbjsr'
   );
 
 INSERT INTO impactvizor.publisher_journal (
+  publisher_id, product_id, electronic_issn, print_issn, journal_code)
+VALUES ('besbjs', 'published_articles', '2044-5377', '0301-620X', 'jbjsr'
+  );
+
+INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
 VALUES ('besbjs', 'cohort_articles', '1535-1386', '0021-9355'
   );
@@ -283,4 +288,9 @@ VALUES ('aan', 'cohort_articles', '1872-8421', '0165-5728'
 INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
 VALUES ('rsc', 'published_articles', '2041-6539', '2041-6520'
+  );
+
+INSERT INTO impactvizor.publisher_journal (
+  publisher_id, product_id, electronic_issn, print_issn)
+VALUES ('aspet', 'cohort_articles', '1879-016X', '0163-7258'
   );
