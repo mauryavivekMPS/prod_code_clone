@@ -7,7 +7,7 @@ import re
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
-from ivetl.models import User, Publisher_User, Publisher_Metadata
+from ivetl.models import User
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.common import common
 
@@ -49,18 +49,18 @@ class IvetlAuthorizer(DummyAuthorizer):
 class IvetlHandler(FTPHandler):
 
     def on_file_received(self, file):
-        # get the pipeline from the path
-        pipeline_id = ''
-        publisher_id = ''
-
+        # get the pipeline and publisher from the path
         m = re.search('.*/(\w+)/(\w+)/.*$', file)
         if m and len(m.groups()) == 2:
             publisher_id, pipeline_id = m.groups()
             pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
+            # TODO: will there be a problem distinguishing cohort or not here?
+
+            # TODO: add validation
+
             print('running: %s for %s' % (pipeline['name'], publisher_id))
 
-        # TODO: will there be a problem distinguishing cohort or not here?
 
 
 def main():
