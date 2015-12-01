@@ -27,6 +27,7 @@
                             {% if publisher %}
                                 <p class="form-control-static">
                                     {{ form.initial.publisher_id }}
+                                    <input type="hidden" name="publisher_id" value="{{ form.initial.publisher_id }}">
                                 </p>
                             {% else %}
                                 {{ form.publisher_id }}

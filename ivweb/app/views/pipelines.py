@@ -72,6 +72,8 @@ def list_pipelines(request, product_id, pipeline_id):
         if product_id in publisher.supported_products:
             supported_publishers.append(publisher)
 
+    supported_publishers = sorted(supported_publishers, key=lambda p: p.name)
+
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
