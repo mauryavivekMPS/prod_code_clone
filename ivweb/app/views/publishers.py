@@ -23,6 +23,8 @@ def list_publishers(request):
         publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
         publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
 
+    publishers = sorted(publishers, key=lambda p: p.name)
+
     return render(request, 'publishers/list.html', {
         'publishers': publishers,
         'alt_error_message': alt_error_message,
