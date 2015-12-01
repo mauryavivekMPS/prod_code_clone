@@ -180,8 +180,8 @@ class HWMetadataLookupTask(Task):
                         break
 
                     except HTTPError as he:
-                        if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
-                            tlogger.info("HTTP 401/408 - HW API failed. Trying Again")
+                        if he.response.status_code == requests.codes.BAD_GATEWAY or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                            tlogger.info("HTTP 401/408/502 - HW API failed. Trying Again")
                             attempt += 1
                         else:
                             raise
