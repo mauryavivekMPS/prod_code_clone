@@ -351,10 +351,10 @@ var UploadPage = (function() {
         var file = f.find("#id_file").val();
 
         if ((hasPublisher || publisherId) && file) {
-            f.find('.submit-button').removeClass('disabled');
+            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
-            f.find('.submit-button').addClass('disabled');
+            f.find('.submit-button').addClass('disabled').prop('disabled', true);
         }
     };
 
@@ -411,10 +411,10 @@ var RunPage = (function() {
     var checkForm = function() {
         var publisherId = f.find("#id_publisher option:selected").val();
         if (publisherId) {
-            f.find('.submit-button').removeClass('disabled');
+            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
-            f.find('.submit-button').addClass('disabled');
+            f.find('.submit-button').addClass('disabled').prop('disabled', false);
         }
     };
 
@@ -527,10 +527,10 @@ var EditPublisherPage = (function() {
         }
 
         if (hasBasics && atLeastOneProduct && hasReportDetails && crossref && validIssns && validCohortIssns) {
-            f.find('.submit-button').removeClass('disabled');
+            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
-            f.find('.submit-button').addClass('disabled');
+            f.find('.submit-button').addClass('disabled').prop('disabled', true);
         }
     };
 
@@ -922,10 +922,10 @@ var EditUserPage = (function() {
         var email = f.find("#id_email").val();
 
         if (email) {
-            f.find('.submit-button').removeClass('disabled');
+            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
-            f.find('.submit-button').addClass('disabled');
+            f.find('.submit-button').addClass('disabled').prop('disabled', true);
         }
     };
 
