@@ -31,9 +31,6 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
         for pm in publishers_metadata:
 
-            if product['cohort'] and not pm.has_cohort:
-                continue
-
             publisher_id = pm.publisher_id
 
             # get ISSNs by product to deal with cohort or not

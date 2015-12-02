@@ -292,5 +292,5 @@ VALUES ('rsc', 'published_articles', '2041-6539', '2041-6520'
 
 INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
-VALUES ('aspet', 'cohort_articles', '1879-016X', '0163-7258'
+VALUES ('aspet', 'cohort_articles', '0163-7258', '0163-7258'
   );

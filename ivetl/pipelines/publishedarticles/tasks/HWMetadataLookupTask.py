@@ -31,7 +31,13 @@ class HWMetadataLookupTask(Task):
         file = task_args['input_file']
         total_count = task_args['count']
 
-        pm = Publisher_Metadata.filter(publisher_id=publisher_id).first()
+        product = common.PRODUCT_BY_ID[product_id]
+
+        # if cohort product, skip this task
+        if product['cohort']:
+            tlogger.info("Cohort product - Skipping Task")
+            return task_args
+
         issn_to_hw_journal_code = {j.electronic_issn: j.journal_code for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)}
         issn_to_hw_journal_code.update({j.print_issn: j.journal_code for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)})
 
@@ -63,10 +69,6 @@ class HWMetadataLookupTask(Task):
                 skip = False
 
                 tlogger.info(str(count-1) + ". Retrieving HW Metadata for: " + doi)
-
-                if issn in pm.cohort_articles_issns_to_lookup:
-                    tlogger.info("Cohort Article - Skipping (" + issn + ")")
-                    skip = True
 
                 hw_journal_code = '/'
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
@@ -203,8 +205,3 @@ class HWMetadataLookupTask(Task):
         task_args['count'] = count
 
         return task_args
-
-
-
-
-
