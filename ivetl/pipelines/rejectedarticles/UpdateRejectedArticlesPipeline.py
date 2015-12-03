@@ -13,7 +13,7 @@ from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 @app.task
 class UpdateRejectedArticlesPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, preserve_incoming_files=False, alt_incoming_dir=None):
+    def run(self, publisher_id_list=[], product_id=None, preserve_incoming_files=False, alt_incoming_dir=None, initiating_user_email=None):
         pipeline_id = 'rejected_articles'
 
         now = datetime.datetime.now()
@@ -50,7 +50,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
 
                 # create work folder, signal the start of the pipeline
                 work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
-                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=9, current_task_count=0)
+                self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=9, current_task_count=0)
 
                 if files:
                     # construct the first task args with all of the standard bits + the list of files

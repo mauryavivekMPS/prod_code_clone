@@ -10,7 +10,7 @@ from ivetl.common import common
 @app.task
 class UpdateArticleCitationsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None):
+    def run(self, publisher_id_list=[], product_id=None, initiating_user_email=None):
         pipeline_id = "article_citations"
 
         now = datetime.datetime.now()
@@ -33,7 +33,7 @@ class UpdateArticleCitationsPipeline(Pipeline):
 
             # create work folder, signal the start of the pipeline
             work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=3, current_task_count=0)
+            self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=3, current_task_count=0)
 
             # construct the first task args with all of the standard bits + the list of files
             task_args = {

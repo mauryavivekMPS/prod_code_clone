@@ -16,7 +16,7 @@ class Pipeline(BaseTask):
         os.chmod(pipeline_incoming_dir, stat.S_IXOTH | stat.S_IROTH | stat.S_IXGRP| stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
         return pipeline_incoming_dir
 
-    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=0, current_task_count=0):
+    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=None, total_task_count=0, current_task_count=0):
         start_date = datetime.datetime.today()
 
         p = Pipeline_Status()
@@ -29,6 +29,7 @@ class Pipeline(BaseTask):
         p.updated = start_date
         p.total_task_count = total_task_count
         p.current_task_count = current_task_count
+        p.user_email = initiating_user_email
         p.save()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):

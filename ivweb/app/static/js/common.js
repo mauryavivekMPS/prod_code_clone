@@ -481,10 +481,10 @@ var EditPublisherPage = (function() {
 
         var hasReportDetails = true;
         if (isNew) {
-            var reportUsername = f.find('#id_report_username').val();
-            var reportPassword = f.find('#id_report_username').val();
-            var projectFolder = f.find('#id_project_folder').val();
-            hasReportDetails = reportUsername && reportPassword && projectFolder;
+            var reportsUsername = f.find('#id_reports_username').val();
+            var reportsPassword = f.find('#id_reports_username').val();
+            var reportsProject = f.find('#id_reports_project').val();
+            hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
         }
 
         var crossref = true;
@@ -526,7 +526,7 @@ var EditPublisherPage = (function() {
             });
         }
 
-        if (hasBasics && atLeastOneProduct && hasReportDetails && crossref && validIssns && validCohortIssns) {
+        if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns) {
             f.find('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
@@ -804,7 +804,7 @@ var EditPublisherPage = (function() {
 
         f = $('#publisher-form');
         f.find('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
-        f.find('#id_report_username, #id_report_password, #id_project_folder').on('keyup', checkForm);
+        f.find('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
         $('#id_pilot').on('change', checkForm);
 
         $('#id_published_articles').on('change', function() {
