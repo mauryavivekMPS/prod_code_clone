@@ -111,8 +111,8 @@ class CrossrefConnector(BaseConnector):
                 if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
                     self.tlogger.info("Crossref API timed out. Trying again...")
                     attempt += 1
-                elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR:
-                    self.tlogger.info("Crossref API 500 error. Trying again...")
+                elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
+                    self.tlogger.info("Crossref API 500/502 error. Trying again...")
                     attempt += 1
                 else:
                     raise http_error
