@@ -1,4 +1,5 @@
 import os
+import importlib
 import sendgrid
 
 
@@ -68,6 +69,17 @@ PIPELINES = [
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
+
+
+def get_pipeline_class(pipeline):
+    pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
+    return getattr(importlib.import_module(pipeline_module_name), class_name)
+
+
+def get_validator_class(pipeline):
+    validator_module_name, class_name = pipeline['validator_class'].rsplit('.', 1)
+    return getattr(importlib.import_module(validator_module_name), class_name)
+
 
 PRODUCTS = [
     {
@@ -170,6 +182,28 @@ PRODUCTS = [
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
 PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
 
+FTP_DIRS = [
+    {
+        'product_id': 'published_articles',
+        'pipeline_id': 'custom_article_data',
+        'ftp_dir_name': 'additional_metadata_files',
+    },
+    {
+        'product_id': 'rejected_manuscripts',
+        'pipeline_id': 'rejected_articles',
+        'ftp_dir_name': 'rejected_manuscripts',
+    },
+]
+PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}
+PIPELINE_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['pipeline_id'] for f in FTP_DIRS}
+
+
+def get_ftp_dir_name(product_id, pipeline_id):
+    for d in FTP_DIRS:
+        if d['product_id'] == product_id and d['pipeline_id'] == pipeline_id:
+            return d['ftp_dir_name']
+    return None
+
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',
@@ -212,6 +246,7 @@ CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor'
 
 BASE_WORKING_DIR = os.environ.get('IVETL_WORKING_DIR', '/iv')
 BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
+BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
@@ -221,13 +256,16 @@ SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
 
-def send_email(subject, body, to=EMAIL_TO):
+def send_email(subject, body, to=EMAIL_TO, format="html"):
     try:
         sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
         message = sendgrid.Mail()
         message.add_to(to)
         message.set_subject(subject)
-        message.set_html(body)
+        if format == 'html':
+            message.set_html(body)
+        elif format == 'test':
+            message.set_text(body)
         message.set_from(EMAIL_FROM)
         sg.send(message)
     except:
