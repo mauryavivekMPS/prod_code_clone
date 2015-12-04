@@ -167,7 +167,7 @@ VALUES ('aap', 'published_articles', '2154-1671', '2154-1663', 'hosppeds'
 
 INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
-VALUES ('aap', 'cohort_articles', '2168-6211', '2168-6203'
+VALUES ('aap', 'cohort_articles', '2168-6203', '2168-6203'
   );
 
 INSERT INTO impactvizor.publisher_journal (
@@ -282,7 +282,7 @@ VALUES ('aan', 'cohort_articles', '1474-7766', '1474-7758'
 
 INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
-VALUES ('aan', 'cohort_articles', '1872-8421', '0165-5728'
+VALUES ('aan', 'cohort_articles', '0165-5728', '0165-5728'
   );
 
 INSERT INTO impactvizor.publisher_journal (
@@ -292,5 +292,5 @@ VALUES ('rsc', 'published_articles', '2041-6539', '2041-6520'
 
 INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn)
-VALUES ('aspet', 'cohort_articles', '1879-016X', '0163-7258'
+VALUES ('aspet', 'cohort_articles', '0163-7258', '0163-7258'
   );

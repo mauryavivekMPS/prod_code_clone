@@ -39,7 +39,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
             if product['cohort']:
                 continue
 
-            publisher_dir = self.get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id, pipeline_id)
+            publisher_dir = self.get_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id, pipeline_id)
             if os.path.isdir(publisher_dir):
 
                 # grab all files from the directory
