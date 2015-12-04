@@ -5,8 +5,8 @@ os.sys.path.append(os.environ['IVETL_ROOT'])
 
 import re
 import datetime
-import shutil
 import stat
+from collections import defaultdict
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
@@ -52,66 +52,88 @@ class IvetlAuthorizer(DummyAuthorizer):
 
 class IvetlHandler(FTPHandler):
 
+    def __init__(self, conn, server, ioloop=None):
+        super(IvetlHandler, self).__init__(conn, server, ioloop)
+        self.uploaded_files = []
+
     def on_file_received(self, file):
+        self.uploaded_files.append(file)
+
+    def on_disconnect(self):
+        """Called when connection is closed."""
+
+        files_to_process = defaultdict(dict)  # indexed by pub then by ftp_dir_name
 
         user = User.objects.get(email=self.username)
-        file_name = os.path.basename(file)
 
-        # get the pipeline and publisher from the path
-        m = re.search('.*/(\w+)/(\w+)/.*$', file)
-        if m and len(m.groups()) == 2:
-            publisher_id, pipeline_ftp_dir_name = m.groups()
-            product_id = common.PRODUCT_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir_name]
-            pipeline_id = common.PIPELINE_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir_name]
-            pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        for file in self.uploaded_files:
+            file_name = os.path.basename(file)
 
-            # get the validator class, if any, and run validation
-            if pipeline['validator_class']:
-                validator_class = common.get_validator_class(pipeline)
-                validator = validator_class()
-                line_count, raw_errors = validator.validate_files([file], publisher_id)
-                validation_errors = validator.parse_errors(raw_errors)
+            # get the pipeline and publisher from the path
+            m = re.search('.*/(\w+)/(\w+)/.*$', file)
+            if m and len(m.groups()) == 2:
+                publisher_id, pipeline_ftp_dir_name = m.groups()
+                product_id = common.PRODUCT_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir_name]
+                pipeline_id = common.PIPELINE_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir_name]
+                pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-                if validation_errors:
-                    subject = "Problems with your uploaded file"
-                    body = "<p>We found some validation errors in your uploaded file: <b>%s</b></p>" % file_name
-                    body += "<ul>"
-                    for error in validation_errors:
-                        body += "<li>Line %s: %s</li>" % (error['line_number'], error['message'])
-                    body += "</ul>"
-                    body += "<p>Please fix the errors and upload again.</p>"
-                    common.send_email(subject, body, to=user.email)
+                # get the validator class, if any, and run validation
+                if pipeline['validator_class']:
+                    validator_class = common.get_validator_class(pipeline)
+                    validator = validator_class()
+                    line_count, raw_errors = validator.validate_files([file], publisher_id)
+                    validation_errors = validator.parse_errors(raw_errors)
 
-                    print('Validation failed with %s errors' % len(validation_errors))
+                    if validation_errors:
+                        subject = "Problems with your uploaded file"
+                        body = "<p>We found some validation errors in your uploaded file: <b>%s</b></p>" % file_name
+                        body += "<ul>"
+                        for error in validation_errors:
+                            body += "<li>Line %s: %s</li>" % (error['line_number'], error['message'])
+                        body += "</ul>"
+                        body += "<p>Please fix the errors and upload again.</p>"
+                        common.send_email(subject, body, to=user.email)
 
-                    # no more processing of this file
-                    return
+                        print('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
 
-            pipeline_class = common.get_pipeline_class(pipeline)
+                        continue
 
-            # copy the file to incoming
-            # incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
-            # destination_file_path = os.path.join(incoming_dir, file_name)
-            # shutil.copy(file, destination_file_path)
-            # os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
-            os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
-            # kick the pipeline off with an explicit file list
-            pipeline_class.s(
-                publisher_id_list=[publisher_id],
-                product_id=product_id,
-                files=[file],
-                preserve_incoming_files=True,
-                initiating_user_email=user.email,
-            ).delay()
+                files_by_publisher = files_to_process[publisher_id]
+                if pipeline_ftp_dir_name not in files_by_publisher:
+                    files_by_publisher[pipeline_ftp_dir_name] = {
+                        'product_id': product_id,
+                        'pipeline': pipeline,
+                        'files': []
+                    }
 
-            Audit_Log.objects.create(
-                user_id=user.user_id,
-                event_time=datetime.datetime.now(),
-                action='run-pipeline',
-                entity_type='pipeline',
-                entity_id=pipeline_id,
-            )
+                files_by_publisher[pipeline_ftp_dir_name]['files'].append(file)
+
+        for publisher_id, files_by_pipeline in files_to_process.items():
+            for pipeline_ftp_dir_name, pipeline_files in files_by_pipeline.items():
+
+                product_id = pipeline_files['product_id']
+                pipeline = pipeline_files['pipeline']
+                files = pipeline_files['files']
+
+                # kick the pipeline off with an explicit file list
+                pipeline_class = common.get_pipeline_class(pipeline)
+                pipeline_class.s(
+                    publisher_id_list=[publisher_id],
+                    product_id=product_id,
+                    files=files,
+                    preserve_incoming_files=True,
+                    initiating_user_email=user.email,
+                ).delay()
+
+                Audit_Log.objects.create(
+                    user_id=user.user_id,
+                    event_time=datetime.datetime.now(),
+                    action='run-pipeline',
+                    entity_type='pipeline',
+                    entity_id=pipeline['id'],
+                )
 
 if __name__ == '__main__':
     # initialize the database
