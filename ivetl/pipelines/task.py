@@ -204,14 +204,13 @@ class Task(BaseTask):
         # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
         if send_notification_email and pipeline['has_file_input']:
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-            if publisher.email:
+            if p.user_email:
                 subject = '%s processing complete' % pipeline['user_facing_display_name']
                 if notification_count:
                     body = 'Impact Vizor has completed processing of uploaded %s – %s records were found.' % (pipeline['user_facing_display_name'].lower(), notification_count)
                 else:
                     body = 'Impact Vizor has completed processing of uploaded %s.' % pipeline['user_facing_display_name'].lower()
-                common.send_email(subject, body, to=publisher.email)
+                common.send_email(subject, body, to=p.user_email)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']
