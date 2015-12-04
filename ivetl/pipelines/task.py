@@ -207,9 +207,9 @@ class Task(BaseTask):
             if p.user_email:
                 subject = '%s processing complete' % pipeline['user_facing_display_name']
                 if notification_count:
-                    body = 'Impact Vizor has completed processing of uploaded %s – %s records were found.' % (pipeline['user_facing_display_name'].lower(), notification_count)
+                    body = '<p>Impact Vizor has completed processing your uploaded %s – %s records were processed.<p>' % (pipeline['user_facing_display_name'].lower(), notification_count)
                 else:
-                    body = 'Impact Vizor has completed processing of uploaded %s.' % pipeline['user_facing_display_name'].lower()
+                    body = '<p>Impact Vizor has completed processing of uploaded %s.</p>' % pipeline['user_facing_display_name'].lower()
                 common.send_email(subject, body, to=p.user_email)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):

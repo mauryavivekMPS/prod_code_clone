@@ -42,7 +42,8 @@ class IvetlAuthorizer(DummyAuthorizer):
             home_dir = os.path.join(common.BASE_FTP_DIR, user_dir_name)
 
             # add the user on-demand so that the rest of the class behaves normally
-            self.add_user(user.email, '', home_dir, perm='elradfmw')
+            if not self.has_user(user.email):
+                self.add_user(user.email, '', home_dir, perm='elrw')
 
             return True
         else:
@@ -89,13 +90,14 @@ class IvetlHandler(FTPHandler):
             pipeline_class = common.get_pipeline_class(pipeline)
 
             # copy the file to incoming
-            incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
-            destination_file_path = os.path.join(incoming_dir, file_name)
-            shutil.copy(file, destination_file_path)
-            os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+            # incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
+            # destination_file_path = os.path.join(incoming_dir, file_name)
+            # shutil.copy(file, destination_file_path)
+            # os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+            os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
-            # kick the pipeline off
-            pipeline_class.s(publisher_id_list=[publisher_id], product_id=product_id, initating_user_email=user.email).delay()
+            # kick the pipeline off with an explicit file list
+            pipeline_class.s(publisher_id_list=[publisher_id], product_id=product_id, files=[file], initiating_user_email=user.email).delay()
 
             Audit_Log.objects.create(
                 user_id=user.user_id,
