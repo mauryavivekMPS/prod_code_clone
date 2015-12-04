@@ -96,7 +96,7 @@ body {
     border-right: none;
     padding-left: 30px;
     padding-right: 30px;
-    background-color: white;
+    background-color: #282828;
     .border-bottom-radius(0);
     box-shadow: 0 .5px 4px rgba(0, 0, 0, 0.05);
 }
@@ -114,7 +114,7 @@ body {
     .navbar-brand {
         padding: 20px 10px 20px 0;
         font-weight: 200;
-        color: #333;
+        color: #ccc;
         text-transform: uppercase;
         height: @navbar-height;
         letter-spacing: 5px;
@@ -124,6 +124,10 @@ body {
             margin-top: -4px;
             margin-right: 5px;
             display: inline-block;
+        }
+
+        &:hover, &:focus {
+            color: #ccc;
         }
     }
 
@@ -207,6 +211,7 @@ body {
 
         > a {
             margin-right: 12px;
+            color: #ccc;
         }
 
         .dropdown-menu a {
@@ -235,12 +240,14 @@ body {
 
     .navbar-nav>.dropdown.open>a,
     .navbar-nav>.dropdown a:hover {
-        background-color: #fff;
+        background-color: #222;
+        color: #eee;
         border-bottom: none;
     }
 
     .navbar-nav>.dropdown>.dropdown-menu a:hover {
         background-color: @gray-lighter;
+        color: #333;
         border-bottom: none;
     }
 
