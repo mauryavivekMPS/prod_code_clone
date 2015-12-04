@@ -142,7 +142,7 @@ VALUES ('sfn', 'cohort_articles', '0896-6273', '0896-6273'
 
 INSERT INTO impactvizor.publisher_journal (
   publisher_id, product_id, electronic_issn, print_issn, journal_code)
-VALUES ('blood', 'published_articles', '1528-0020', '0006-4971', 'blood'
+VALUES ('blood', 'published_articles', '1528-0020', '0006-4971', 'bloodjournal'
   );
 
 INSERT INTO impactvizor.publisher_journal (

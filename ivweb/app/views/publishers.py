@@ -23,6 +23,8 @@ def list_publishers(request):
         publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
         publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
 
+    publishers = sorted(publishers, key=lambda p: p.name)
+
     return render(request, 'publishers/list.html', {
         'publishers': publishers,
         'alt_error_message': alt_error_message,
@@ -46,9 +48,9 @@ class PublisherForm(forms.Form):
     rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
-    report_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
-    report_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
-    project_folder = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
+    reports_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
+    reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
+    reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
     def __init__(self, creating_user, *args, instance=None, **kwargs):
         self.creating_user = creating_user
@@ -131,6 +133,9 @@ class PublisherForm(forms.Form):
             crossref_password=self.cleaned_data['crossref_password'],
             supported_products=supported_products,
             pilot=self.cleaned_data['pilot'],
+            reports_username=self.cleaned_data['reports_username'],
+            reports_password=self.cleaned_data['reports_password'],
+            reports_project=self.cleaned_data['reports_project'],
         )
 
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)

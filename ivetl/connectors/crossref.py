@@ -14,7 +14,7 @@ class CrossrefConnector(BaseConnector):
     max_attempts = 5
     request_timeout = 30
 
-    def __init__(self, username, password, tlogger):
+    def __init__(self, username, password, tlogger=None):
         self.username = username
         self.password = password
         self.tlogger = tlogger
@@ -109,21 +109,25 @@ class CrossrefConnector(BaseConnector):
                 if http_error.response.status_code == requests.codes.NOT_FOUND:
                     return r
                 if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
-                    self.tlogger.info("Crossref API timed out. Trying again...")
+                    self.log("Crossref API timed out. Trying again...")
                     attempt += 1
                 elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
-                    self.tlogger.info("Crossref API 500/502 error. Trying again...")
+                    self.log("Crossref API 500 error. Trying again...")
                     attempt += 1
                 else:
                     raise http_error
             except Exception:
-                    self.tlogger.info("General Exception - CrossRef API failed. Trying Again")
+                    self.log("General Exception - CrossRef API failed. Trying Again")
                     attempt += 1
 
         if not success:
             raise MaxTriesAPIError(self.max_attempts)
 
         return r
+
+    def log(self, message):
+        if self.tlogger:
+            self.tlogger.info(message)
 
     def date_string_from_parts(self, date_parts_list):
         if type(date_parts_list) is list:
@@ -144,7 +148,6 @@ class CrossrefConnector(BaseConnector):
         return None
 
     def datetime_from_parts(self, date_parts):
-
         year = date_parts[0]
 
         if year is None:

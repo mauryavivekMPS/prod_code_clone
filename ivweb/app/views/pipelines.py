@@ -72,6 +72,8 @@ def list_pipelines(request, product_id, pipeline_id):
         if product_id in publisher.supported_products:
             supported_publishers.append(publisher)
 
+    supported_publishers = sorted(supported_publishers, key=lambda p: p.name)
+
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
@@ -189,26 +191,13 @@ def upload(request, product_id, pipeline_id):
             pending_file.close()
             uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
 
-            # get the pipeline class
-            pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
-            pipeline_class = getattr(importlib.import_module(pipeline_module_name), class_name)
-
             # get the validator class, if any, and run validation
             if pipeline['validator_class']:
-                validator_module_name, class_name = pipeline['validator_class'].rsplit('.', 1)
-                validator_class = getattr(importlib.import_module(validator_module_name), class_name)
+                validator_class = common.get_validator_class(pipeline)
                 validator = validator_class()
                 line_count, raw_errors = validator.validate_files([pending_file_path], publisher_id)
+                validation_errors = validator.parse_errors(raw_errors)
 
-                # parse errors into line number and message
-                validation_errors = []
-                error_regex = re.compile('^.+ : (\d+) - (.*)$')
-                # %s : %s - Incorrect
-                for error in raw_errors:
-                    m = error_regex.match(error)
-                    if m:
-                        line_number, message = m.groups()
-                        validation_errors.append({'line_number': line_number, 'message': message})
             else:
                 validation_errors = []
 
@@ -296,15 +285,14 @@ def run(request, product_id, pipeline_id):
                 publisher_id_list = []
 
             # get the pipeline class
-            module_name, class_name = pipeline['class'].rsplit('.', 1)
-            pipeline_class = getattr(importlib.import_module(module_name), class_name)
+            pipeline_class = common.get_pipeline_class(pipeline)
 
             # optionally move files from pending to incoming
             if form.cleaned_data['move_pending_files']:
                 move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class)
 
             # kick the pipeline off
-            pipeline_class.s(publisher_id_list=publisher_id_list, product_id=product_id).delay()
+            pipeline_class.s(publisher_id_list=publisher_id_list, product_id=product_id, initating_user_email=request.user.email).delay()
 
             Audit_Log.objects.create(
                 user_id=request.user.user_id,

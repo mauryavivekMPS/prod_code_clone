@@ -14,7 +14,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
     COHORT_PUB_START_DATE = datetime.date(2013, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None):
+    def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
         pipeline_id = "published_articles"
 
         d = datetime.datetime.today()
@@ -44,7 +44,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today, publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=6, current_task_count=0)
+            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=6, current_task_count=0)
 
             task_args = {
                 'product_id': product_id,

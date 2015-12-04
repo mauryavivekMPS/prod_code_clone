@@ -10,7 +10,7 @@ from ivetl.common import common
 @app.task
 class XREFJournalCatalogPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, input_file=None):
+    def run(self, publisher_id_list=[], product_id=None, input_file=None, initiating_user_email=None):
         pipeline_id = "update_manuscripts"
 
         d = datetime.datetime.today()
@@ -31,7 +31,7 @@ class XREFJournalCatalogPipeline(Pipeline):
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today, publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, total_task_count=1, current_task_count=0)
+            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=1, current_task_count=0)
 
             task_args = {
                 'publisher_id': publisher_id,

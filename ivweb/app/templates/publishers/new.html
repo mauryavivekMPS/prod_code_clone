@@ -27,6 +27,7 @@
                             {% if publisher %}
                                 <p class="form-control-static">
                                     {{ form.initial.publisher_id }}
+                                    <input type="hidden" name="publisher_id" value="{{ form.initial.publisher_id }}">
                                 </p>
                             {% else %}
                                 {{ form.publisher_id }}
@@ -82,24 +83,40 @@
                         </div>
                     </div>
 
-                    {% if not publisher %}
-                        <h2>Reporting</h2>
-                        <div class="form-group row">
-                            <label for="report_username" class="col-sm-2">Report Login</label>
-                            <div class="col-sm-3">
-                                {{ form.report_username }}
-                            </div>
-                            <div class="col-sm-3">
-                                {{ form.report_password }}
-                            </div>
+                    <h2>Reporting</h2>
+                    <div class="form-group row">
+                        <label for="reports_username" class="col-sm-2">Reports Login</label>
+                        <div class="col-sm-3">
+                            {% if publisher %}
+                                <p class="form-control-static">
+                                    {{ form.initial.reports_username }}
+                                    <input type="hidden" name="reports_username" value="{{ form.initial.reports_username }}">
+                                </p>
+                            {% else %}
+                                {{ form.reports_username }}
+                            {% endif %}
                         </div>
-                        <div class="form-group row">
-                            <label for="project_folder" class="col-sm-2">Project Folder</label>
-                            <div class="col-sm-6">
-                                {{ form.project_folder }}
-                            </div>
+                        <div class="col-sm-3">
+                            {% if publisher %}
+                                <input type="hidden" name="reports_password" value="{{ form.initial.reports_password }}">
+                            {% else %}
+                                {{ form.reports_password }}
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
+                    <div class="form-group row">
+                        <label for="reports_project" class="col-sm-2">Project Folder</label>
+                        <div class="col-sm-6">
+                            {% if publisher %}
+                                <p class="form-control-static">
+                                    {{ form.initial.reports_project }}
+                                    <input type="hidden" name="reports_project" value="{{ form.initial.reports_project }}">
+                                </p>
+                            {% else %}
+                                {{ form.reports_project }}
+                            {% endif %}
+                        </div>
+                    </div>
 
                     <h2>Rejected Manuscripts</h2>
                     <div class="form-group row">
@@ -208,7 +225,7 @@
                     </div>
 
                     <div class="form-group submit-row">
-                        <button type="submit" class="btn btn-primary submit-button disabled">
+                        <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled">
                             {% if publisher %}
                                 Save Changes
                             {% else %}
