@@ -95,7 +95,7 @@ class IvetlHandler(FTPHandler):
             os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
             # kick the pipeline off
-            pipeline_class.s(publisher_id_list=[publisher_id], product_id=product_id, initating_user_email=user.email).delay()
+            pipeline_class.s(publisher_id_list=[publisher_id], product_id=product_id, initiating_user_email=user.email).delay()
 
             Audit_Log.objects.create(
                 user_id=user.user_id,
