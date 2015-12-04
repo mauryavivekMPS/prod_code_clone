@@ -133,6 +133,9 @@ class PublisherForm(forms.Form):
             crossref_password=self.cleaned_data['crossref_password'],
             supported_products=supported_products,
             pilot=self.cleaned_data['pilot'],
+            reports_username=self.cleaned_data['reports_username'],
+            reports_password=self.cleaned_data['reports_password'],
+            reports_project=self.cleaned_data['reports_project'],
         )
 
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
