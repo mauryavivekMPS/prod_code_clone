@@ -12,4 +12,4 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ['10.0.1.99']
+ALLOWED_HOSTS = ['10.0.1.99', 'manage.vizors.org']
