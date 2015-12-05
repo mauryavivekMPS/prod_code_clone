@@ -479,7 +479,7 @@ var EditPublisherPage = (function() {
         var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
         var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct;
 
-        var hasReportDetails = true;
+        var hasReportsDetails = true;
         if (isNew) {
             var reportsUsername = f.find('#id_reports_username').val();
             var reportsPassword = f.find('#id_reports_username').val();
