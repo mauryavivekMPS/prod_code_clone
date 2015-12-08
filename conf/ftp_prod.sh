@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+IVETL_PROD=1
+export IVETL_PROD
+
+unset IVETL_LOCAL
+unset IVETL_QA
+
+IVETL_ROOT=/iv/impactvizor-pipeline
+export IVETL_ROOT
+
+IVETL_CASSANDRA_IP=10.0.1.12
+export IVETL_CASSANDRA_IP
+
+DJANGO_SETTINGS_MODULE=ivweb.settings.prod
+export DJANGO_SETTINGS_MODULE
+
+IVETL_RABBITMQ_BROKER_IP=10.0.1.99
+
+IVFTP_PUBLIC_IP=52.25.65.132
+

@@ -48,5 +48,10 @@ cqlsh -f 1.4/03_recreate_status_tables.cql
 cqlsh -f 1.4/04_add_publisher_journals.cql
 echo "Updated to 1.4"
 
-cqlsh -f 1.5/add_scopus_api_keys.cql
+cqlsh -f 1.5/01_add_scopus_api_keys.cql
 echo "Updated to 1.5"
+
+cqlsh -f 1.6/01_add_email_to_status.cql
+cqlsh -f 1.6/02_add_report_params_to_publisher.cql
+cqlsh -f 1.6/03_add_scopus_keys_to_pool.cql
+echo "Updated to 1.6"

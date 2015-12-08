@@ -1,7 +1,7 @@
 import os
+from ivetl.common import common
 
-
-BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+BROKER_URL = 'amqp://guest:guest@' + common.RABBITMQ_BROKER_IP + ':5672//'
 
 CELERY_IMPORTS = (
     'ivetl.pipelines.publishedarticles',

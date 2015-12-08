@@ -1,0 +1,1 @@
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('');
