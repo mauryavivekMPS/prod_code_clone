@@ -315,7 +315,7 @@ class TableauConnector(BaseConnector):
 
         # create project, group, user, and assign permissions
         project_id = self.create_project(project_name)
-        group_id = self.create_group(project_name)
+        group_id = self.create_group(project_name + " User Group")
         self.add_group_to_project(group_id, project_id)
         user_id = self.create_user(username)
         self.set_user_password(user_id, password)
