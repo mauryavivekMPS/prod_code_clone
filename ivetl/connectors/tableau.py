@@ -2,12 +2,15 @@ import os
 import untangle
 import requests
 import subprocess
+import datetime
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
-from ivetl.models import Publisher_Metadata
 from ivetl.common import common
+from ivetl.connectors.base import BaseConnector
 
-TEMPLATE_PUBLISHER_ID = 'blood'
+
+TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
+TEMPLATE_SERVER_TO_REPLACE = 'vizors.stackly.org'
 
 DATA_SOURCES = [
     {
@@ -64,19 +67,20 @@ WORKBOOKS_BY_ID = {w['id']: w for w in WORKBOOKS}
 TABCMD = os.path.join(common.IVETL_ROOT, 'deploy/tabcmd/tabcmd.sh')
 
 
-class TableauClient(object):
+class TableauConnector(BaseConnector):
 
     def __init__(self, username=common.TABLEAU_USERNAME, password=common.TABLEAU_PASSWORD, server=common.TABLEAU_SERVER):
         self.username = username
         self.password = password
         self.server = server
+        self.server_url = 'http://' + self.server
         self.token = ''
         self.user_id = ''
         self.site_id = ''
         self.signed_in = False
 
     def sign_in(self):
-        url = self.server + "/api/2.0/auth/signin"
+        url = self.server_url + "/api/2.0/auth/signin"
 
         request_string = """
             <tsRequest>
@@ -107,7 +111,7 @@ class TableauClient(object):
 
     def create_project(self, project_name):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/projects" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/projects" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -127,7 +131,7 @@ class TableauClient(object):
 
     def create_group(self, group_name):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/groups" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/groups" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -148,7 +152,7 @@ class TableauClient(object):
 
     def add_group_to_project(self, group_id, project_id):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/projects/%s/permissions" % (self.site_id, project_id)
+        url = self.server_url + "/api/2.0/sites/%s/projects/%s/permissions" % (self.site_id, project_id)
 
         request_string = """
             <tsRequest>
@@ -180,7 +184,7 @@ class TableauClient(object):
 
     def create_user(self, username):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/users" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/users" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -201,7 +205,7 @@ class TableauClient(object):
 
     def set_user_password(self, user_id, password):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/users/%s" % (self.site_id, user_id)
+        url = self.server_url + "/api/2.0/sites/%s/users/%s" % (self.site_id, user_id)
 
         request_string = """
             <tsRequest>
@@ -216,7 +220,7 @@ class TableauClient(object):
 
     def add_user_to_group(self, user_id, group_id):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/groups/%s/users/" % (self.site_id, group_id)
+        url = self.server_url + "/api/2.0/sites/%s/groups/%s/users/" % (self.site_id, group_id)
 
         request_string = """
             <tsRequest>
@@ -245,7 +249,7 @@ class TableauClient(object):
 
     def add_data_source_to_project(self, project_id, publisher_id, data_source_id, job_id=None):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -266,7 +270,10 @@ class TableauClient(object):
             data_source_name += '_' + job_id
 
         prepared_data_source = template.replace(data_source['template_name'], data_source_name)
-        prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID, '&apos;%s&apos;' % publisher_id)
+        prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher_id)
+
+        with open('/Users/john/Desktop/article_citations_ds.xml', 'wt') as f:
+            f.write(prepared_data_source)
 
         payload, content_type = self._make_multipart({
             'request_payload': ('', request_string % (data_source_name, project_id), 'text/xml'),
@@ -277,7 +284,7 @@ class TableauClient(object):
 
     def add_workbook_to_project(self, project_id, publisher_id, workbook_id):
         self._check_authentication()
-        url = self.server + "/api/2.0/sites/%s/workbooks/?overwrite=true&workbookType=twb" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/workbooks/?overwrite=true&workbookType=twb" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -293,7 +300,11 @@ class TableauClient(object):
         with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), 'rt') as f:
             template = f.read()
 
-        prepared_workbook = template.replace(workbook['data_source']['template_name'],  workbook['data_source']['template_name'] + '_' + publisher_id)
+        prepared_workbook = template.replace(workbook['data_source']['template_name'], workbook['data_source']['template_name'] + '_' + publisher_id)
+        prepared_workbook = prepared_workbook.replace(TEMPLATE_SERVER_TO_REPLACE, self.server)
+
+        with open('/Users/john/Desktop/' + workbook['template_name'] + '_' + publisher_id + '.twb', 'wt') as f:
+            f.write(prepared_workbook)
 
         payload, content_type = self._make_multipart({
             'request_payload': ('', request_string % (workbook['name'], project_id), 'text/xml'),
@@ -305,11 +316,7 @@ class TableauClient(object):
         print(response.status_code)
         print(response.text)
 
-    def setup_account(self, publisher_id):
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-        project_name = publisher.reports_project
-        username = publisher.reports_username
-        password = publisher.reports_password
+    def setup_account(self, publisher_id, username, password, project_name):
 
         # create project, group, user, and assign permissions
         project_id = self.create_project(project_name)
@@ -319,25 +326,20 @@ class TableauClient(object):
         self.set_user_password(user_id, password)
         self.add_user_to_group(user_id, group_id)
 
-        # save various IDs for later
-        publisher.reports_project_id = project_id
-        publisher.reports_group_id = group_id
-        publisher.reports_user_id = user_id
-        publisher.save()
-
         # add all data sources
         for data_source in DATA_SOURCES:
+            fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
+            self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
 
         # and all workbooks, regardless of the selected products
         for workbook in WORKBOOKS:
             self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
 
-    def refresh_data_source(self, publisher_id, data_source_id):
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-        project_name = publisher.reports_project
+        return project_id, group_id, user_id
+
+    def refresh_data_source(self, publisher_id, project_name, data_source_id):
         data_source = DATA_SOURCES_BY_ID[data_source_id]
         data_source_name = data_source['template_name'] + '_' + publisher_id
-
-        login_params = ['-s', common.TABLEAU_SERVER, '-u', common.TABLEAU_USERNAME, '-p', common.TABLEAU_PASSWORD]
+        login_params = ['-s', self.server, '-u', self.username, '-p', self.password]
         subprocess.call([TABCMD, 'refreshextracts', '--datasource', data_source_name, '--project', project_name] + login_params)

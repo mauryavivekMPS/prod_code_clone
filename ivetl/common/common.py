@@ -11,7 +11,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tableau_data_source_id': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'Custom Article Data',
@@ -21,7 +21,7 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
-        'tableau_data_source_id': 'article_citations',
+        'rebuild_data_source_id': 'article_citations',
     },
     {
         'name': 'Article Citations',
@@ -30,7 +30,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tableau_data_source_id': 'article_citations',
+        'rebuild_data_source_id': 'article_citations',
     },
     {
         'name': 'Rejected Articles',
@@ -40,7 +40,7 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
-        'tableau_data_source_id': 'rejected_articles',
+        'rebuild_data_source_id': 'rejected_articles',
     },
     {
         'name': 'Check Rejected Manuscripts',
@@ -48,7 +48,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.CheckRejectedManuscriptsPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tableau_data_source_id': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'Insert Placeholder Citations',
@@ -56,7 +56,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.InsertPlaceholderCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tableau_data_source_id': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'Update Manuscripts',
@@ -64,7 +64,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.UpdateManuscriptsPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tableau_data_source_id': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'XREF Journal Catalog',
@@ -72,7 +72,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.XREFJournalCatalogPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'tableau_data_source_id': None,
+        'rebuild_data_source_id': None,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
@@ -274,7 +274,7 @@ BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
-TABLEAU_SERVER = os.environ.get('TABLEAU_SERVER', 'http://10.0.0.143')
+TABLEAU_SERVER = os.environ.get('TABLEAU_SERVER', '10.0.0.143')
 TABLEAU_USERNAME = os.environ.get('TABLEAU_USERNAME', 'admin')
 TABLEAU_PASSWORD = os.environ.get('TABLEAU_PASSWORD', 'admin')
 

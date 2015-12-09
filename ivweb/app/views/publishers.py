@@ -9,6 +9,8 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key
+from ivetl.common import common
+from ivetl.connectors import TableauConnector
 
 
 @login_required
@@ -180,11 +182,24 @@ def edit(request, publisher_id=None):
         if form.is_valid():
             publisher = form.save()
 
-            if new and not request.user.superuser:
-                Publisher_User.objects.create(
-                    user_id=request.user.user_id,
-                    publisher_id=publisher.publisher_id,
+            if new:
+                if not request.user.superuser:
+                    Publisher_User.objects.create(
+                        user_id=request.user.user_id,
+                        publisher_id=publisher.publisher_id,
+                    )
+
+                t = TableauConnector(
+                    username=common.TABLEAU_USERNAME,
+                    password=common.TABLEAU_PASSWORD,
+                    server=common.TABLEAU_SERVER
                 )
+
+                project_id, group_id, user_id = t.setup_account(publisher.publisher_id)
+                publisher.reports_project_id = project_id
+                publisher.reports_group_id = group_id
+                publisher.reports_user_id = user_id
+                publisher.save()
 
             Audit_Log.objects.create(
                 user_id=request.user.user_id,

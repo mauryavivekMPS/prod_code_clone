@@ -8,6 +8,7 @@ from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status, Publisher_Metadata
+from ivweb.app.tableau import TableauClient
 
 
 class Task(BaseTask):
@@ -211,6 +212,20 @@ class Task(BaseTask):
                 else:
                     body = '<p>Impact Vizor has completed processing of uploaded %s.</p>' % pipeline['user_facing_display_name'].lower()
                 common.send_email(subject, body, to=p.user_email)
+
+        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+        # update the data in tableau
+        t = TableauClient(
+            username=common.TABLEAU_USERNAME,
+            password=common.TABLEAU_PASSWORD,
+            server=common.TABLEAU_SERVER
+        )
+
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        if pipeline['rebuild_data_source_id']:
+            t.refresh_data_source(publisher_id, publisher.reports_project, pipeline['rebuild_data_source_id'])
+            t.add_data_source_to_project(publisher.reports_project_id, publisher_id, pipeline['rebuild_data_source_id'], job_id=job_id)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']
