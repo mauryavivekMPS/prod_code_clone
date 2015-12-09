@@ -274,9 +274,9 @@ BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
-TABLEAU_SERVER = os.environ.get('TABLEAU_SERVER', '10.0.0.143')
-TABLEAU_USERNAME = os.environ.get('TABLEAU_USERNAME', 'admin')
-TABLEAU_PASSWORD = os.environ.get('TABLEAU_PASSWORD', 'admin')
+TABLEAU_SERVER = os.environ.get('IVETL_TABLEAU_SERVER', '10.0.0.143')
+TABLEAU_USERNAME = os.environ.get('IVETL_TABLEAU_USERNAME', 'admin')
+TABLEAU_PASSWORD = os.environ.get('IVETL_TABLEAU_PASSWORD', 'admin')
 
 FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
 RABBITMQ_BROKER_IP = os.environ.get('IVETL_RABBITMQ_BROKER_IP', '127.0.0.1')
