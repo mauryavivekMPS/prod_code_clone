@@ -3,6 +3,7 @@ import untangle
 import requests
 import subprocess
 import datetime
+import codecs
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
@@ -261,7 +262,7 @@ class TableauConnector(BaseConnector):
 
         data_source = DATA_SOURCES_BY_ID[data_source_id]
 
-        with open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + data_source['template_name'] + '.tds'), 'rt') as f:
+        with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + data_source['template_name'] + '.tds'), encoding='utf-8') as f:
             template = f.read()
 
         data_source_name = data_source['template_name'] + '_' + publisher_id
@@ -271,9 +272,6 @@ class TableauConnector(BaseConnector):
 
         prepared_data_source = template.replace(data_source['template_name'], data_source_name)
         prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher_id)
-
-        with open('/Users/john/Desktop/article_citations_ds.xml', 'wt') as f:
-            f.write(prepared_data_source)
 
         payload, content_type = self._make_multipart({
             'request_payload': ('', request_string % (data_source_name, project_id), 'text/xml'),
@@ -297,14 +295,11 @@ class TableauConnector(BaseConnector):
         print(workbook_id)
 
         workbook = WORKBOOKS_BY_ID[workbook_id]
-        with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), 'rt') as f:
+        with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), encoding='utf-8') as f:
             template = f.read()
 
         prepared_workbook = template.replace(workbook['data_source']['template_name'], workbook['data_source']['template_name'] + '_' + publisher_id)
         prepared_workbook = prepared_workbook.replace(TEMPLATE_SERVER_TO_REPLACE, self.server)
-
-        with open('/Users/john/Desktop/' + workbook['template_name'] + '_' + publisher_id + '.twb', 'wt') as f:
-            f.write(prepared_workbook)
 
         payload, content_type = self._make_multipart({
             'request_payload': ('', request_string % (workbook['name'], project_id), 'text/xml'),
