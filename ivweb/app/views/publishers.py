@@ -195,7 +195,13 @@ def edit(request, publisher_id=None):
                     server=common.TABLEAU_SERVER
                 )
 
-                project_id, group_id, user_id = t.setup_account(publisher.publisher_id)
+                project_id, group_id, user_id = t.setup_account(
+                    publisher.publisher_id,
+                    publisher.reports_username,
+                    publisher.reports_password,
+                    publisher.reports_project
+                )
+
                 publisher.reports_project_id = project_id
                 publisher.reports_group_id = group_id
                 publisher.reports_user_id = user_id
