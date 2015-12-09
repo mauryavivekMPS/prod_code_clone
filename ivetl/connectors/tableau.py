@@ -272,7 +272,7 @@ class TableauConnector(BaseConnector):
 
         prepared_data_source = template.replace(data_source['template_name'], data_source_name)
         prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher_id)
-        with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "r+", encoding="utf-8") as fh:
+        with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "w", encoding="utf-8") as fh:
             fh.write(prepared_data_source)
             fh.close()
         with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "rb", encoding="utf-8") as fh:
@@ -306,10 +306,10 @@ class TableauConnector(BaseConnector):
 
         prepared_workbook = template.replace(workbook['data_source']['template_name'], workbook['data_source']['template_name'] + '_' + publisher_id)
         prepared_workbook = prepared_workbook.replace(TEMPLATE_SERVER_TO_REPLACE, self.server)
-        with codecs.open(workbook['template_name'] + '_' + publisher_id + '.twb', "r+", encoding="utf-8") as fh:
+        with codecs.open(common.TMP_DIR + '/' + workbook['template_name'] + '_' + publisher_id + '.twb', "w", encoding="utf-8") as fh:
             fh.write(prepared_workbook)
             fh.close()
-        with codecs.open(workbook['template_name'] + '_' + publisher_id + '.twb', "rb", encoding="utf-8") as fh:
+        with codecs.open(common.TMP_DIR + '/' + workbook['template_name'] + '_' + publisher_id + '.twb', "rb", encoding="utf-8") as fh:
             prepared_workbook_binary = fh.read()
 
         payload, content_type = self._make_multipart({
