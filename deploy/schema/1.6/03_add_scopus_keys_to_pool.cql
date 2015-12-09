@@ -1,1 +1,11 @@
-INSERT INTO impactvizor.scopus_api_key (key) VALUES ('');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('1');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('2');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('3');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('4');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('5');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('6');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('7');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('8');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('9');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('10');
+INSERT INTO impactvizor.scopus_api_key (key) VALUES ('11');
