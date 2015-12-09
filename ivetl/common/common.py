@@ -278,6 +278,9 @@ TABLEAU_SERVER = os.environ.get('TABLEAU_SERVER', 'http://10.0.0.143')
 TABLEAU_USERNAME = os.environ.get('TABLEAU_USERNAME', 'admin')
 TABLEAU_PASSWORD = os.environ.get('TABLEAU_PASSWORD', 'admin')
 
+FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
+RABBITMQ_BROKER_IP = os.environ.get('IVETL_RABBITMQ_BROKER_IP', '127.0.0.1')
+
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"

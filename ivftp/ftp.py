@@ -144,6 +144,8 @@ if __name__ == '__main__':
     handler = IvetlHandler
     handler.authorizer = authorizer
     handler.banner = "Impact Vizor ftpd ready."
+    handler.passive_ports=range(57000,57501)
+    handler.masquerade_address = common.FTP_PUBLIC_IP
     address = ('', 2121)
     server = FTPServer(address, handler)
     server.max_cons = 256
