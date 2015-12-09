@@ -69,7 +69,7 @@ TABCMD = os.path.join(common.IVETL_ROOT, 'deploy/tabcmd/tabcmd.sh')
 
 class TableauConnector(BaseConnector):
 
-    def __init__(self, username=common.TABLEAU_USERNAME, password=common.TABLEAU_PASSWORD, server=common.TABLEAU_SERVER):
+    def __init__(self, username, password, server):
         self.username = username
         self.password = password
         self.server = server
