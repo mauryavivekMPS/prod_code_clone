@@ -31,8 +31,8 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
                     d = {
                         'doi': line[0].strip(),
-                        'toc_section': line[1].strip(),
-                        'collection': line[2].strip(),
+                        'toc_section': line[1].strip().title(),
+                        'collection': line[2].strip().title(),
                         'editor': line[3].strip(),
                         'custom': line[4].strip(),
                         'custom_2': line[5].strip(),
