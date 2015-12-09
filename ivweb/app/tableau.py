@@ -1,6 +1,7 @@
 import os
 import untangle
 import requests
+import subprocess
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.models import Publisher_Metadata
@@ -12,65 +13,67 @@ DATA_SOURCES = [
     {
         'id': 'rejected_articles',
         'template_name': 'rejected_articles_ds',
-        'extension': '.tds',
     },
     {
         'id': 'article_citations',
         'template_name': 'article_citations_ds',
-        'extension': '.tds',
     },
 ]
 DATA_SOURCES_BY_ID = {d['id']: d for d in DATA_SOURCES}
 
 WORKBOOKS = [
     {
-        'id': 'rejected_article_tracker',
+        'id': 'rejected_article_tracker_workbook',
         'name': 'Rejected Article Tracker',
         'template_name': 'rejected_article_tracker',
         'data_source': DATA_SOURCES_BY_ID['rejected_articles'],
     },
     {
-        'id': 'section_performance_analyzer',
+        'id': 'section_performance_analyzer_workbook',
         'name': 'Section Performance Analyzer',
         'template_name': 'section_performance_analyzer',
         'data_source': DATA_SOURCES_BY_ID['article_citations'],
     },
     {
-        'id': 'hot_article_tracker',
+        'id': 'hot_article_tracker_workbook',
         'name': 'Hot Article Tracker',
         'template_name': 'hot_article_tracker',
         'data_source': DATA_SOURCES_BY_ID['article_citations'],
     },
     {
-        'id': 'hot_object_tracker',
+        'id': 'hot_object_tracker_workbook',
         'name': 'Hot Object Tracker',
         'template_name': 'hot_object_tracker',
         'data_source': DATA_SOURCES_BY_ID['article_citations'],
     },
     {
-        'id': 'citation_distribution_surveyor',
+        'id': 'citation_distribution_surveyor_workbook',
         'name': 'Citation Distribution Surveyor',
         'template_name': 'citation_distribution_surveyor',
         'data_source': DATA_SOURCES_BY_ID['article_citations'],
     },
     {
-        'id': 'cohort_comparator',
+        'id': 'cohort_comparator_workbook',
         'name': 'Cohort Comparator',
         'template_name': 'cohort_comparator',
         'data_source': DATA_SOURCES_BY_ID['article_citations'],
     },
 ]
+WORKBOOKS_BY_ID = {w['id']: w for w in WORKBOOKS}
+
+TABCMD = os.path.join(common.IVETL_ROOT, 'deploy/tabcmd/tabcmd.sh')
 
 
 class TableauClient(object):
 
-    def __init__(self, username='admin', password='admin', server='http://10.0.0.143'):
+    def __init__(self, username=common.TABLEAU_USERNAME, password=common.TABLEAU_PASSWORD, server=common.TABLEAU_SERVER):
         self.username = username
         self.password = password
         self.server = server
         self.token = ''
         self.user_id = ''
         self.site_id = ''
+        self.signed_in = False
 
     def sign_in(self):
         url = self.server + "/api/2.0/auth/signin"
@@ -87,6 +90,7 @@ class TableauClient(object):
         if response.status_code != 200:
             print('There was an error:')
             print(response.text)
+            self.signed_in = False
 
         r = untangle.parse(response.text).tsResponse
         self.token = r.credentials['token']
@@ -95,7 +99,14 @@ class TableauClient(object):
 
         print('The token is: %s' % self.token)
 
+        self.signed_in = True
+
+    def _check_authentication(self):
+        if not self.signed_in:
+            self.sign_in()
+
     def create_project(self, project_name):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/projects" % self.site_id
 
         request_string = """
@@ -115,6 +126,7 @@ class TableauClient(object):
         return project_id
 
     def create_group(self, group_name):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/groups" % self.site_id
 
         request_string = """
@@ -135,6 +147,7 @@ class TableauClient(object):
         return group_id
 
     def add_group_to_project(self, group_id, project_id):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/projects/%s/permissions" % (self.site_id, project_id)
 
         request_string = """
@@ -166,6 +179,7 @@ class TableauClient(object):
             print(response.text)
 
     def create_user(self, username):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/users" % self.site_id
 
         request_string = """
@@ -186,6 +200,7 @@ class TableauClient(object):
         return user_id
 
     def set_user_password(self, user_id, password):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/users/%s" % (self.site_id, user_id)
 
         request_string = """
@@ -200,6 +215,7 @@ class TableauClient(object):
             print(response.text)
 
     def add_user_to_group(self, user_id, group_id):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/groups/%s/users/" % (self.site_id, group_id)
 
         request_string = """
@@ -227,7 +243,8 @@ class TableauClient(object):
 
         return post_body, content_type
 
-    def add_data_sources_to_project(self, project_id, publisher_id):
+    def add_data_source_to_project(self, project_id, publisher_id, data_source_id, job_id=None):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
 
         request_string = """
@@ -238,23 +255,28 @@ class TableauClient(object):
             </tsRequest>
         """
 
-        for data_source in DATA_SOURCES:
-            with open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + data_source['template_name'] + '.tds'), 'rt') as f:
-                template = f.read()
+        data_source = DATA_SOURCES_BY_ID[data_source_id]
 
-            data_source_name = data_source['template_name'] + '_' + publisher_id
+        with open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + data_source['template_name'] + '.tds'), 'rt') as f:
+            template = f.read()
 
-            prepared_data_source = template.replace(data_source['template_name'], data_source_name)
-            prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID, '&apos;%s&apos;' % publisher_id)
+        data_source_name = data_source['template_name'] + '_' + publisher_id
 
-            payload, content_type = self._make_multipart({
-                'request_payload': ('', request_string % (data_source_name, project_id), 'text/xml'),
-                'tableau_datasource': (data_source_name + '.tds', prepared_data_source, 'application/octet-stream'),
-            })
+        if job_id:
+            data_source_name += '_' + job_id
 
-            requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        prepared_data_source = template.replace(data_source['template_name'], data_source_name)
+        prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID, '&apos;%s&apos;' % publisher_id)
 
-    def add_workbooks_to_project(self, project_id, publisher_id):
+        payload, content_type = self._make_multipart({
+            'request_payload': ('', request_string % (data_source_name, project_id), 'text/xml'),
+            'tableau_datasource': (data_source_name + '.tds', prepared_data_source, 'application/octet-stream'),
+        })
+
+        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+
+    def add_workbook_to_project(self, project_id, publisher_id, workbook_id):
+        self._check_authentication()
         url = self.server + "/api/2.0/sites/%s/workbooks/?overwrite=true&workbookType=twb" % self.site_id
 
         request_string = """
@@ -265,29 +287,31 @@ class TableauClient(object):
             </tsRequest>
         """
 
-        for workbook in WORKBOOKS:
-            with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), 'rt') as f:
-                template = f.read()
+        print(workbook_id)
 
-            prepared_workbook = template.replace(workbook['data_source']['template_name'],  workbook['data_source']['template_name'] + '_' + publisher_id)
+        workbook = WORKBOOKS_BY_ID[workbook_id]
+        with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), 'rt') as f:
+            template = f.read()
 
-            with open('/Users/john/Desktop/' + workbook['template_name'] + '_' + publisher_id + '.twb', 'wt') as f:
-                f.write(prepared_workbook)
+        prepared_workbook = template.replace(workbook['data_source']['template_name'],  workbook['data_source']['template_name'] + '_' + publisher_id)
 
-            payload, content_type = self._make_multipart({
-                'request_payload': ('', request_string % (workbook['name'], project_id), 'text/xml'),
-                'tableau_workbook': (workbook['template_name'] + '_' + publisher_id + '.twb', prepared_workbook, 'application/octet-stream'),
-            })
+        payload, content_type = self._make_multipart({
+            'request_payload': ('', request_string % (workbook['name'], project_id), 'text/xml'),
+            'tableau_workbook': (workbook['template_name'] + '_' + publisher_id + '.twb', prepared_workbook, 'application/octet-stream'),
+        })
 
-            response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
-            print(response.status_code)
-            print(response.text)
+        print(response.status_code)
+        print(response.text)
 
-    def setup_account(self, publisher_id, project_name, username, password):
+    def setup_account(self, publisher_id):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        project_name = publisher.reports_project
+        username = publisher.reports_username
+        password = publisher.reports_password
 
-        self.sign_in()
+        # create project, group, user, and assign permissions
         project_id = self.create_project(project_name)
         group_id = self.create_group(project_name)
         self.add_group_to_project(group_id, project_id)
@@ -295,8 +319,25 @@ class TableauClient(object):
         self.set_user_password(user_id, password)
         self.add_user_to_group(user_id, group_id)
 
-        # save ID for later
+        # save various IDs for later
         publisher.reports_project_id = project_id
         publisher.reports_group_id = group_id
         publisher.reports_user_id = user_id
         publisher.save()
+
+        # add all data sources
+        for data_source in DATA_SOURCES:
+            self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
+
+        # and all workbooks, regardless of the selected products
+        for workbook in WORKBOOKS:
+            self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
+
+    def refresh_data_source(self, publisher_id, data_source_id):
+        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        project_name = publisher.reports_project
+        data_source = DATA_SOURCES_BY_ID[data_source_id]
+        data_source_name = data_source['template_name'] + '_' + publisher_id
+
+        login_params = ['-s', common.TABLEAU_SERVER, '-u', common.TABLEAU_USERNAME, '-p', common.TABLEAU_PASSWORD]
+        subprocess.call([TABCMD, 'refreshextracts', '--datasource', data_source_name, '--project', project_name] + login_params)
