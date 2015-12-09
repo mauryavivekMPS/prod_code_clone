@@ -11,6 +11,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'Custom Article Data',
@@ -20,6 +21,7 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
+        'rebuild_data_source_id': 'article_citations',
     },
     {
         'name': 'Article Citations',
@@ -28,6 +30,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
+        'rebuild_data_source_id': 'article_citations',
     },
     {
         'name': 'Rejected Articles',
@@ -37,6 +40,7 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
+        'rebuild_data_source_id': 'rejected_articles',
     },
     {
         'name': 'Check Rejected Manuscripts',
@@ -44,6 +48,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.CheckRejectedManuscriptsPipeline',
         'has_file_input': False,
         'validator_class': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'Insert Placeholder Citations',
@@ -51,6 +56,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.InsertPlaceholderCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'Update Manuscripts',
@@ -58,6 +64,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.UpdateManuscriptsPipeline',
         'has_file_input': False,
         'validator_class': None,
+        'rebuild_data_source_id': None,
     },
     {
         'name': 'XREF Journal Catalog',
@@ -65,6 +72,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.XREFJournalCatalogPipeline',
         'has_file_input': False,
         'validator_class': None,
+        'rebuild_data_source_id': None,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
@@ -99,6 +107,12 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
             },
+        ],
+        'tableau_workbooks': [
+            'section_performance_analyzer_workbook',
+            'hot_article_tracker_workbook',
+            'hot_object_tracker_workbook',
+            'citation_distribution_surveyor_workbook',
         ]
     },
     {
@@ -112,6 +126,9 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['rejected_articles'],
             }
+        ],
+        'tableau_workbooks': [
+            'rejected_article_tracker_workbook',
         ]
     },
     {
@@ -128,6 +145,9 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
             },
+        ],
+        'tableau_workbooks': [
+            'cohort_comparator_workbook',
         ]
     },
     {
@@ -140,7 +160,8 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['check_rejected_manuscripts'],
             }
-        ]
+        ],
+        'tableau_workbooks': [],
     },
     {
         'name': 'Insert Placeholder Citations',
@@ -152,7 +173,8 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['insert_placeholder_citations'],
             }
-        ]
+        ],
+        'tableau_workbooks': [],
     },
     {
         'name': 'Update Manuscripts',
@@ -164,7 +186,8 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['update_manuscripts'],
             }
-        ]
+        ],
+        'tableau_workbooks': [],
     },
     {
         'name': 'XREF Journal Catalog',
@@ -176,7 +199,8 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['xref_journal_catalog'],
             }
-        ]
+        ],
+        'tableau_workbooks': [],
     },
 ]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
@@ -250,8 +274,11 @@ BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 
-FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
+TABLEAU_SERVER = os.environ.get('TABLEAU_SERVER', '10.0.0.143')
+TABLEAU_USERNAME = os.environ.get('TABLEAU_USERNAME', 'admin')
+TABLEAU_PASSWORD = os.environ.get('TABLEAU_PASSWORD', 'admin')
 
+FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
 RABBITMQ_BROKER_IP = os.environ.get('IVETL_RABBITMQ_BROKER_IP', '127.0.0.1')
 
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
