@@ -4,6 +4,7 @@ import requests
 import subprocess
 import datetime
 import codecs
+import time
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
@@ -334,10 +335,12 @@ class TableauConnector(BaseConnector):
 
         # add all data sources
         for data_source in DATA_SOURCES:
-            fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
+            #fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
-            self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
+            self.refresh_data_source(publisher_id, project_name, data_source['id'])
+            #self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
 
+        time.sleep(10)
         # and all workbooks, regardless of the selected products
         for workbook in WORKBOOKS:
             self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
