@@ -151,5 +151,10 @@
             </script>
         {% endif %}
         {% block content %}Empty{% endblock %}
+        <script>
+            $(function() {
+                $('#left-menu a, .show-loading, .submit-row button, .submit-row a, .user-dropdown .dropdown-menu a').click(IvetlWeb.showLoading);
+            });
+        </script>
     </div>
 {% endblock %}
