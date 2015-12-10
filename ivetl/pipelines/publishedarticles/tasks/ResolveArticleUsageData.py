@@ -50,15 +50,15 @@ class ResolveArticleUsageData(Task):
 
                     if usage.month_number <= 3:
                         month_usage_03 += usage.month_usage
-                    elif usage.month_number <= 6:
+                    if usage.month_number <= 6:
                         month_usage_06 += usage.month_usage
-                    elif usage.month_number <= 9:
+                    if usage.month_number <= 9:
                         month_usage_09 += usage.month_usage
-                    elif usage.month_number <= 12:
+                    if usage.month_number <= 12:
                         month_usage_12 += usage.month_usage
-                    elif usage.month_number <= 24:
+                    if usage.month_number <= 24:
                         month_usage_24 += usage.month_usage
-                    elif usage.month_number <= 36:
+                    if usage.month_number <= 36:
                         month_usage_36 += usage.month_usage
 
                 article.month_usage_03 = month_usage_03
