@@ -88,7 +88,7 @@ class AdminUserForm(forms.Form):
 
             # delete existing
             for publisher_user in Publisher_User.objects(user_id=user.user_id):
-                log.debug('deleting pub user: %s, %s' % (publisher_user.publisher_id, publisher_user.publisher_id))
+                log.debug('deleting pub user: %s, %s' % (publisher_user.user_id, publisher_user.publisher_id))
                 publisher_user.delete()
 
             # and recreate

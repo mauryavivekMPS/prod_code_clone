@@ -27,7 +27,7 @@ class InsertArticleUsageIntoCassandra(Task):
                 for line in csv.DictReader(tsv, delimiter='\t'):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    doi = line['Article DOI']
+                    doi = line['Article DOI'].lower()
                     usage_start_date = parser.parse(line['Pub Date'])
 
                     for n in range(1, 37):
