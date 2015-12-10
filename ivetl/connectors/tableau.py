@@ -279,7 +279,6 @@ class TableauConnector(BaseConnector):
         with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "rb", encoding="utf-8") as fh:
             prepared_data_source_binary = fh.read()
 
-
         payload, content_type = self._make_multipart({
             'request_payload': ('', request_string % (data_source_name, project_id), 'text/xml'),
             'tableau_datasource': (data_source_name + '.tds', prepared_data_source_binary, 'application/octet-stream'),
