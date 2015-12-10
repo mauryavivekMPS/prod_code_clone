@@ -711,10 +711,8 @@ var EditPublisherPage = (function() {
 
             var setIssnWarning = function(warning) {
                 message.html('<li>' + warning + '</li>').show();
-                button.show();
-                checkmark.hide();
-                button.addClass('disabled').show();
-            };
+                checkmark.show();
+]            };
 
             // quick local checks for blank entries
             if (electronicIssn == '' || printIssn == '' || (usingJournal && journalCode == '')) {
