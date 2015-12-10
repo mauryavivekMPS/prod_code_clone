@@ -64,5 +64,6 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 tasks.HWMetadataLookupTask.s() |
                 tasks.InsertPublishedArticlesIntoCassandra.s() |
                 tasks.ResolvePublishedArticlesData.s() |
+                tasks.ResolveArticleUsageData.s() |
                 tasks.CheckRejectedManuscriptTask.s()
             ).delay()

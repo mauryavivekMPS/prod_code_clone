@@ -5,6 +5,7 @@ from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.articleusage import tasks
+from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
@@ -62,7 +63,8 @@ class ArticleUsagePipeline(Pipeline):
                 chain(
                     tasks.GetArticleUsageFiles.s(task_args) |
                     tasks.ValidateArticleUsageFiles.s() |
-                    tasks.InsertArticleUsageIntoCassandra.s()
+                    tasks.InsertArticleUsageIntoCassandra.s() |
+                    published_articles_tasks.ResolveArticleUsageData.s()
                 ).delay()
 
             else:
