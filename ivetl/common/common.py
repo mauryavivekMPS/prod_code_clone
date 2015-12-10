@@ -33,6 +33,15 @@ PIPELINES = [
         'rebuild_data_source_id': 'article_citations',
     },
     {
+        'name': 'Article Usage',
+        'id': 'article_usage',
+        'user_facing_display_name': 'Article usage',
+        'class': 'ivetl.pipelines.articleusage.ArticleUsagePipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.ArticleUsageValidator',
+        'rebuild_data_source_id': None,
+    },
+    {
         'name': 'Rejected Articles',
         'id': 'rejected_articles',
         'user_facing_display_name': 'Rejected manuscripts',
@@ -106,6 +115,9 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['article_usage'],
             },
         ],
         'tableau_workbooks': [
@@ -211,6 +223,11 @@ FTP_DIRS = [
         'product_id': 'published_articles',
         'pipeline_id': 'custom_article_data',
         'ftp_dir_name': 'additional_metadata_files',
+    },
+    {
+        'product_id': 'published_articles',
+        'pipeline_id': 'article_usage',
+        'ftp_dir_name': 'article_usage_files',
     },
     {
         'product_id': 'rejected_manuscripts',

@@ -8,6 +8,7 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.customarticledata',
     'ivetl.pipelines.articlecitations',
     'ivetl.pipelines.rejectedarticles',
+    'ivetl.pipelines.articleusage',
 )
 
 CELERY_TASK_RESULT_EXPIRES = 3600

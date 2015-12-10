@@ -113,3 +113,9 @@ class Pipeline(BaseTask):
         body += "<br><br><b>Return Value:</b> <br>"
         body += str(retval)
         common.send_email(subject, body)
+
+    def generate_job_id(self):
+        now = datetime.datetime.now()
+        today_label = now.strftime('%Y%m%d')
+        job_id = now.strftime('%Y%m%d_%H%M%S%f')
+        return now, today_label, job_id
