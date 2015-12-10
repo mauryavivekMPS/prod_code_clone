@@ -42,7 +42,7 @@
                     </tbody>
                 </table>
                 <div>
-                    <a href=".{% if not request.user.staff %}?publisher={{ publisher_id }}{% endif %}" class="btn btn-default upload-another-button">+ Try Another Upload</a>
+                    <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Try Another Upload</a>
                     <span class="cancel"> or <a href="{% if user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
                 </div>
             </div>

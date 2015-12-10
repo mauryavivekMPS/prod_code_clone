@@ -8,7 +8,7 @@ from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status, Publisher_Metadata
-from ivweb.app.tableau import TableauClient
+from ivetl.connectors import TableauConnector
 
 
 class Task(BaseTask):
@@ -216,7 +216,7 @@ class Task(BaseTask):
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
         # update the data in tableau
-        t = TableauClient(
+        t = TableauConnector(
             username=common.TABLEAU_USERNAME,
             password=common.TABLEAU_PASSWORD,
             server=common.TABLEAU_SERVER

@@ -4,22 +4,16 @@ from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.customarticledata import tasks
+from ivetl.pipelines.articleusage import tasks
 from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
 @app.task
-class CustomArticleDataPipeline(Pipeline):
-
-    # 1. Pipeline - setup job and iterate over pubs that have non-empty directories.
-    # 2. GetIncomingFiles - move the files across into work folder.
-    # 3. ValidateFile - run through each file, checking for a variety of errors. If found, exit.
-    # 4. InsertArticleData - insert non-overlapping data into pub_articles and overlapping into _values.
-    # 5. ResolveArticleData - decide which data to promote from _values into pub_articles, and do the insert.
+class ArticleUsagePipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'custom_article_data'
+        pipeline_id = 'article_usage'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]
 
@@ -67,10 +61,10 @@ class CustomArticleDataPipeline(Pipeline):
 
                 # and run the pipeline!
                 chain(
-                    tasks.GetArticleDataFiles.s(task_args) |
-                    tasks.ValidateArticleDataFiles.s() |
-                    tasks.InsertCustomArticleDataIntoCassandra.s() |
-                    published_articles_tasks.ResolvePublishedArticlesData.s()
+                    tasks.GetArticleUsageFiles.s(task_args) |
+                    tasks.ValidateArticleUsageFiles.s() |
+                    tasks.InsertArticleUsageIntoCassandra.s() |
+                    published_articles_tasks.ResolveArticleUsageData.s()
                 ).delay()
 
             else:
