@@ -712,7 +712,7 @@ var EditPublisherPage = (function() {
             var setIssnWarning = function(warning) {
                 message.html('<li>' + warning + '</li>').show();
                 checkmark.show();
-]            };
+            };
 
             // quick local checks for blank entries
             if (electronicIssn == '' || printIssn == '' || (usingJournal && journalCode == '')) {
