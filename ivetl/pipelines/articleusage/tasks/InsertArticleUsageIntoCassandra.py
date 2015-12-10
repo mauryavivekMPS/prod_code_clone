@@ -38,7 +38,7 @@ class InsertArticleUsageIntoCassandra(Task):
                             usage = 0
 
                         Article_Usage.objects(article_doi=doi, publisher_id=publisher_id, month_number=n).update(
-                            month_usage=0,
+                            month_usage=usage,
                             usage_start_date=usage_start_date,
                         )
 
