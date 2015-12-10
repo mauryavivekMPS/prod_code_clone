@@ -1,7 +1,6 @@
 import datetime
 from celery import chain
 from ivetl.celery import app
-from dateutil.relativedelta import relativedelta
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata, Publisher_Journal
 from ivetl.pipelines.publishedarticles import tasks
