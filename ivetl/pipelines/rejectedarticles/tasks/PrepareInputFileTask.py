@@ -43,7 +43,9 @@ class PrepareInputFileTask(Task):
                     input_data['subject_category'] = line[7].strip()
                     input_data['editor'] = line[8].strip()
                     input_data['submitted_journal'] = line[9].strip()
-                    input_data['article_type'] = line[10].strip()
+
+                    if len(line) >= 11 and line[10].strip() != '':
+                        input_data['article_type'] = line[10].strip()
 
                     if len(line) >= 12 and line[11].strip() != '':
                         input_data['keywords'] = line[11].strip()
