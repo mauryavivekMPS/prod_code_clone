@@ -2,7 +2,6 @@ import os
 import untangle
 import requests
 import subprocess
-import datetime
 import codecs
 import time
 from requests.packages.urllib3.fields import RequestField

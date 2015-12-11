@@ -41,4 +41,5 @@ class Published_Article(Model):
     month_usage_24 = columns.Integer()
     month_usage_36 = columns.Integer()
     usage_start_date = columns.DateTime()
+    mendeley_saves = columns.Integer()
     updated = columns.DateTime()
