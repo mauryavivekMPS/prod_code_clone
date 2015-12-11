@@ -941,6 +941,18 @@ var EditUserPage = (function() {
             $('.set-password-link').hide();
             $('#id_password').show().focus();
         });
+
+        f.find('#id_superuser').on('change', function() {
+            if ($(this).is(':checked')) {
+                f.find('#id_staff').prop("checked", true);
+            }
+        });
+
+        f.find('#id_staff').on('change', function() {
+            if (!$(this).is(':checked')) {
+                f.find('#id_superuser').prop("checked", false);
+            }
+        });
     };
 
     return {

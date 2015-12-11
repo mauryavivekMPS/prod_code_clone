@@ -2,7 +2,6 @@ import os
 import untangle
 import requests
 import subprocess
-import datetime
 import codecs
 import time
 from requests.packages.urllib3.fields import RequestField
@@ -234,6 +233,21 @@ class TableauConnector(BaseConnector):
         if response.status_code != 200:
             print('There was an error:')
             print(response.text)
+
+    def list_account_things(self):
+        self._check_authentication()
+
+        url = self.server_url + "/api/2.0/sites/%s/projects/" % self.site_id
+        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        print(response.text)
+
+        url = self.server_url + "/api/2.0/sites/%s/groups/" % self.site_id
+        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        print(response.text)
+
+        url = self.server_url + "/api/2.0/sites/%s/users/" % self.site_id
+        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        print(response.text)
 
     def _make_multipart(self, parts):
         mime_multipart_parts = []

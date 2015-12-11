@@ -138,6 +138,9 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if pa.hw_metadata_retrieved is None:
                     pa.hw_metadata_retrieved = False
 
+                if 'mendeley_saves' in data:
+                    pa.mendeley_saves = data['mendeley_saves']
+
                 if product['cohort']:
                     pa.is_cohort = True
                 else:
@@ -201,14 +204,6 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 # add a record of modified files for next task
                 modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
                 modified_articles_file.flush()  # why is this needed?
-
-            tsv.close()
-
-            pu = Publisher_Vizor_Updates()
-            pu['publisher_id'] = publisher_id
-            pu['vizor_id'] = 'published_articles'
-            pu['updated'] = updated
-            pu.save()
 
             if product['cohort']:
                 pm.cohort_articles_last_updated = updated
