@@ -4,10 +4,11 @@ import requests
 import subprocess
 import codecs
 import time
+import datetime
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
-from ivetl.connectors.base import BaseConnector
+from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
 
 
 TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
@@ -91,20 +92,19 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.post(url, data=request_string % (self.username, self.password))
-        if response.status_code != 200:
-            print('There was an error:')
-            print(response.text)
-            self.signed_in = False
+        self.signed_in = False
 
-        r = untangle.parse(response.text).tsResponse
-        self.token = r.credentials['token']
-        self.site_id = r.credentials.site['id']
-        self.user_id = r.credentials.user['id']
+        try:
+            response = requests.post(url, data=request_string % (self.username, self.password))
+            response.raise_for_status()
 
-        print('The token is: %s' % self.token)
-
-        self.signed_in = True
+            r = untangle.parse(response.text).tsResponse
+            self.token = r.credentials['token']
+            self.site_id = r.credentials.site['id']
+            self.user_id = r.credentials.user['id']
+            self.signed_in = True
+        except:
+            raise AuthorizationAPIError(response.text)
 
     def _check_authentication(self):
         if not self.signed_in:
@@ -121,13 +121,10 @@ class TableauConnector(BaseConnector):
         """
 
         response = requests.post(url, data=request_string % project_name, headers={'X-Tableau-Auth': self.token})
-        if response.status_code != 201:
-            print('There was an error:')
-            print(response.text)
+        response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
         project_id = r.project['id']
-        print('The new project ID is: %s' % project_id)
         return project_id
 
     def create_group(self, group_name):
@@ -141,14 +138,11 @@ class TableauConnector(BaseConnector):
         """
 
         response = requests.post(url, data=request_string % group_name, headers={'X-Tableau-Auth': self.token})
-        if response.status_code != 201:
-            print('There was an error:')
-            print(response.text)
+        response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
         group_id = r.group['id']
 
-        print('The new group ID is: %s' % group_id)
         return group_id
 
     def add_group_to_project(self, group_id, project_id):
@@ -179,9 +173,7 @@ class TableauConnector(BaseConnector):
         """
 
         response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
-        if response.status_code != 200:
-            print('There was an error:')
-            print(response.text)
+        response.raise_for_status()
 
     def create_user(self, username):
         self._check_authentication()
@@ -194,14 +186,11 @@ class TableauConnector(BaseConnector):
         """
 
         response = requests.post(url, data=request_string % username, headers={'X-Tableau-Auth': self.token})
-        if response.status_code != 201:
-            print('There was an error:')
-            print(response.text)
+        response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
         user_id = r.user['id']
 
-        print('The new user ID is: %s' % user_id)
         return user_id
 
     def set_user_password(self, user_id, password):
@@ -215,9 +204,7 @@ class TableauConnector(BaseConnector):
         """
 
         response = requests.put(url, data=request_string % password, headers={'X-Tableau-Auth': self.token})
-        if response.status_code != 200:
-            print('There was an error:')
-            print(response.text)
+        response.raise_for_status()
 
     def add_user_to_group(self, user_id, group_id):
         self._check_authentication()
@@ -230,9 +217,7 @@ class TableauConnector(BaseConnector):
         """
 
         response = requests.post(url, data=request_string % user_id, headers={'X-Tableau-Auth': self.token})
-        if response.status_code != 200:
-            print('There was an error:')
-            print(response.text)
+        response.raise_for_status()
 
     def list_account_things(self):
         self._check_authentication()
@@ -287,9 +272,10 @@ class TableauConnector(BaseConnector):
 
         prepared_data_source = template.replace(data_source['template_name'], data_source_name)
         prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher_id)
+
         with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "w", encoding="utf-8") as fh:
             fh.write(prepared_data_source)
-            fh.close()
+
         with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "rb", encoding="utf-8") as fh:
             prepared_data_source_binary = fh.read()
 
@@ -312,17 +298,16 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        print(workbook_id)
-
         workbook = WORKBOOKS_BY_ID[workbook_id]
         with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), encoding='utf-8') as f:
             template = f.read()
 
         prepared_workbook = template.replace(workbook['data_source']['template_name'], workbook['data_source']['template_name'] + '_' + publisher_id)
         prepared_workbook = prepared_workbook.replace(TEMPLATE_SERVER_TO_REPLACE, self.server)
+
         with codecs.open(common.TMP_DIR + '/' + workbook['template_name'] + '_' + publisher_id + '.twb', "w", encoding="utf-8") as fh:
             fh.write(prepared_workbook)
-            fh.close()
+
         with codecs.open(common.TMP_DIR + '/' + workbook['template_name'] + '_' + publisher_id + '.twb', "rb", encoding="utf-8") as fh:
             prepared_workbook_binary = fh.read()
 
@@ -331,10 +316,7 @@ class TableauConnector(BaseConnector):
             'tableau_workbook': (workbook['template_name'] + '_' + publisher_id + '.twb', prepared_workbook_binary, 'application/octet-stream'),
         })
 
-        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
-
-        print(response.status_code)
-        print(response.text)
+        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
     def setup_account(self, publisher_id, username, password, project_name):
 
@@ -348,12 +330,13 @@ class TableauConnector(BaseConnector):
 
         # add all data sources
         for data_source in DATA_SOURCES:
-            #fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
+            fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
             self.refresh_data_source(publisher_id, project_name, data_source['id'])
-            #self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
+            self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
 
         time.sleep(10)
+
         # and all workbooks, regardless of the selected products
         for workbook in WORKBOOKS:
             self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
