@@ -31,7 +31,7 @@ def list_publishers(request):
         publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
         publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
 
-    publishers = sorted(publishers, key=lambda p: p.name)
+    publishers = sorted(publishers, key=lambda p: p.name.lower().lstrip('('))
 
     return render(request, 'publishers/list.html', {
         'publishers': publishers,
