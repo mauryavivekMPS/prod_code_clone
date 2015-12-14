@@ -9,15 +9,21 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key
-from ivetl.common import common
-from ivetl.connectors import TableauConnector
+from ivetl.tasks import setup_reports
 
 
 @login_required
 def list_publishers(request):
     alt_error_message = ''
-    if 'from' in request.GET and request.GET['from'] == 'nokeys':
-        alt_error_message = 'There are no Scopus API keys available. Please contact your administrator before creating a new publisher.'
+    messages = []
+    if 'from' in request.GET:
+        from_value = request.GET['from']
+        if from_value == 'no-keys':
+            alt_error_message = 'There are no Scopus API keys available. Please contact your administrator before creating a new publisher.'
+        elif from_value == 'new-error':
+            alt_error_message = 'There was an error setting up reports for the new publisher in Tableau. Please contact your administrator.'
+        elif from_value == 'new-success':
+            messages.append("Your new publisher account is created and ready to go.")
 
     if request.user.superuser:
         publishers = Publisher_Metadata.objects.all()
@@ -25,11 +31,12 @@ def list_publishers(request):
         publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
         publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
 
-    publishers = sorted(publishers, key=lambda p: p.name)
+    publishers = sorted(publishers, key=lambda p: p.name.lower().lstrip('('))
 
     return render(request, 'publishers/list.html', {
         'publishers': publishers,
         'alt_error_message': alt_error_message,
+        'messages': messages,
         'reset_url': reverse('publishers.list'),
     })
 
@@ -175,7 +182,7 @@ def edit(request, publisher_id=None):
     # bail quickly if there are no API keys
     if new:
         if Scopus_Api_Key.objects.count() < 5:
-            return HttpResponseRedirect(reverse('publishers.list') + '?from=nokeys')
+            return HttpResponseRedirect(reverse('publishers.list') + '?from=no-keys')
 
     if request.method == 'POST':
         form = PublisherForm(request.user, request.POST, instance=publisher)
@@ -189,31 +196,20 @@ def edit(request, publisher_id=None):
                         publisher_id=publisher.publisher_id,
                     )
 
-                t = TableauConnector(
-                    username=common.TABLEAU_USERNAME,
-                    password=common.TABLEAU_PASSWORD,
-                    server=common.TABLEAU_SERVER
+                Audit_Log.objects.create(
+                    user_id=request.user.user_id,
+                    event_time=datetime.datetime.now(),
+                    action='create-publisher' if new else 'edit-publisher',
+                    entity_type='publisher',
+                    entity_id=publisher.publisher_id,
                 )
 
-                project_id, group_id, user_id = t.setup_account(
-                    publisher.publisher_id,
-                    publisher.reports_username,
-                    publisher.reports_password,
-                    publisher.reports_project
-                )
+                # tableau setup takes a while, run it through celery
+                setup_reports.s(publisher.publisher_id, request.user.user_id).delay()
 
-                publisher.reports_project_id = project_id
-                publisher.reports_group_id = group_id
-                publisher.reports_user_id = user_id
-                publisher.save()
-
-            Audit_Log.objects.create(
-                user_id=request.user.user_id,
-                event_time=datetime.datetime.now(),
-                action='create-publisher' if new else 'edit-publisher',
-                entity_type='publisher',
-                entity_id=publisher.publisher_id,
-            )
+                return HttpResponseRedirect(reverse("publishers.wait_for_reports", kwargs={
+                    'publisher_id': publisher.publisher_id,
+                }))
 
             return HttpResponseRedirect(reverse('publishers.list'))
     else:
@@ -226,6 +222,23 @@ def edit(request, publisher_id=None):
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
+    })
+
+
+@login_required
+def wait_for_reports(request, publisher_id=None):
+    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    return render(request, 'publishers/wait_for_reports.html', {
+        'publisher': publisher,
+    })
+
+
+@login_required
+def check_reports(request):
+    publisher_id = request.GET['publisher']
+    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    return JsonResponse({
+        'status': publisher.reports_setup_status,
     })
 
 

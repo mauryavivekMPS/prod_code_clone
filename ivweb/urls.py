@@ -27,6 +27,7 @@ urlpatterns = patterns(
     url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),
     url(r'^publishers/new/$', 'publishers.edit', name='publishers.new'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/$', 'publishers.edit', name='publishers.edit'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/waitforreports/$', 'publishers.wait_for_reports', name='publishers.wait_for_reports'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/$', 'users.list_users', name='publishers.users'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/new/$', 'users.edit', name='publishers.users.new'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/(?P<user_id>[\w\-\.]+)/$', 'users.edit', name='publishers.users.edit'),
@@ -49,5 +50,7 @@ urlpatterns = patterns(
     url(r'^validatecrossref/$', 'publishers.validate_crossref', name='publishers.validate_crossref'),
     url(r'^validateissn/$', 'publishers.validate_issn', name='publishers.validate_issn'),
     url(r'^newissn/$', 'publishers.new_issn', name='publishers.new_issn'),
+    url(r'^setupreports/$', 'publishers.setup_reports', name='publishers.setup_reports'),
+    url(r'^checkreports/$', 'publishers.check_reports', name='publishers.check_reports'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

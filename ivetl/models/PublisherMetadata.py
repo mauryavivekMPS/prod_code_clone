@@ -20,6 +20,7 @@ class Publisher_Metadata(Model):
     reports_user_id = columns.Text()
     reports_group_id = columns.Text()
     reports_project_id = columns.Text()
+    reports_setup_status = columns.Text()
     supported_products = columns.List(columns.Text())
     pilot = columns.Boolean()
     has_cohort = columns.Boolean(index=True)

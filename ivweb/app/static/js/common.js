@@ -47,7 +47,7 @@ var IvetlWeb = (function() {
     var hideMessagesAfterDelay = function() {
         setTimeout(function() {
             hideMessages();
-        }, 5000);
+        }, 10000);
 
     };
 
@@ -650,26 +650,6 @@ var EditPublisherPage = (function() {
             });
 
         return false;
-    };
-
-    var updateValidateIssnButton = function() {
-        var username = f.find('#id_crossref_username').val();
-        var password = f.find('#id_crossref_password').val();
-        var button = f.find('.validate-crossref-button');
-        var message = f.find('.crossref-error-message');
-        var checkmark = f.find('.validate-crossref-checkmark');
-        var row = f.find('.crossref-form-row');
-
-        message.hide();
-        checkmark.hide();
-        row.removeClass('error');
-
-        if (username || password) {
-            button.show();
-        }
-        else {
-            button.hide();
-        }
     };
 
     var isIssnRowEmpty = function(row) {

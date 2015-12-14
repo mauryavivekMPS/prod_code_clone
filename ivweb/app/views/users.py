@@ -17,6 +17,9 @@ def list_users(request, publisher_id=None):
     else:
         publisher = None
         users = User.objects.all()
+
+    users = sorted(users, key=lambda u: u.email)
+
     return render(request, 'users/list.html', {
         'users': users,
         'publisher': publisher,

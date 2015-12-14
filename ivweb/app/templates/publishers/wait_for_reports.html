@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="waiting-icon"><i class="fa fa-spinner fa-pulse"></i></div>
+    <div class="waiting-message">Waiting for the Tableau reports to be built...</div>
+    <script>
+        var pollUrl = '{% url 'publishers.check_reports' %}?publisher={{ publisher.publisher_id }}';
+        var successUrl = '{% url 'publishers.list' %}?from=new-success';
+        var errorUrl = '{% url 'publishers.list' %}?from=new-fail';
+        setInterval(function() {
+            $.getJSON(pollUrl)
+                .done(function(json) {
+                    if (json.status == 'completed') {
+                        window.location = successUrl;
+                    }
+                    else if (json.status == 'error') {
+                        window.location = errorUrl;
+                    }
+                });
+        }, 1000);
+    </script>
+{% endblock %}
