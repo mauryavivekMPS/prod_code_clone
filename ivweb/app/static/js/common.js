@@ -575,6 +575,8 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.crossref-controls').fadeOut(100);
+            $('#id_crossref_username').val('');
+            $('#id_crossref_password').val('');
         }
     };
 

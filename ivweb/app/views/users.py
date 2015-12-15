@@ -88,20 +88,14 @@ class AdminUserForm(forms.Form):
             )
 
             publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
-            log.debug('publisher_id_list = %s' % publisher_id_list)
 
-            with BatchQuery() as b:
+            # delete existing
+            Publisher_User.objects.filter(user_id=user.user_id).delete()
 
-                # delete existing
-                for publisher_user in Publisher_User.objects(user_id=user.user_id):
-                    log.debug('deleting pub user: %s, %s' % (publisher_user.user_id, publisher_user.publisher_id))
-                    publisher_user.batch(b).delete()
-
-                # and recreate
-                for publisher_id in publisher_id_list:
-                    if publisher_id:
-                        log.debug('creating publisher_user: %s, %s' % (user.user_id, publisher_id))
-                        Publisher_User.objects.batch(b).create(user_id=user.user_id, publisher_id=publisher_id)
+            # and recreate
+            for publisher_id in publisher_id_list:
+                if publisher_id:
+                    Publisher_User.objects.create(user_id=user.user_id, publisher_id=publisher_id)
 
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data['password'])
