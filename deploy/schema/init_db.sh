@@ -55,3 +55,12 @@ cqlsh -f 1.6/01_add_email_to_status.cql
 cqlsh -f 1.6/02_add_report_params_to_publisher.cql
 cqlsh -f 1.6/03_add_scopus_keys_to_pool.cql
 echo "Updated to 1.6"
+
+cqlsh -f 1.7/01_add_article_usage.cql
+cqlsh -f 1.7/02_add_usage_to_published_articles.cql
+cqlsh -f 1.7/03_add_mendeley.cql
+cqlsh -f 1.7/04_add_report_setup_status.cql
+echo "Updated to 1.7"
+
+cqlsh -f 1.8/03_recreate_join_tables.cql
+echo "Updated to 1.8"
