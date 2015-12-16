@@ -466,6 +466,9 @@ var EditPublisherPage = (function() {
     var validateCrossrefUrl;
     var validateIssnUrl;
     var addIssnValuesUrl;
+    var buildingPollUrl;
+    var buildingSuccessUrl;
+    var buildingErrorUrl;
     var csrfToken;
 
     var checkForm = function() {
@@ -765,12 +768,34 @@ var EditPublisherPage = (function() {
         });
     };
 
+    var showBuildingReportsModal = function() {
+        $('#creating-publisher-modal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        setInterval(function() {
+            $.getJSON(buildingPollUrl)
+                .done(function(json) {
+                    if (json.status == 'completed') {
+                        window.location = buildingSuccessUrl;
+                    }
+                    else if (json.status == 'error') {
+                        window.location = buildingErrorUrl;
+                    }
+                });
+        }, 1000);
+    };
+
     var init = function(options) {
         options = $.extend({
             publisherId: '',
             validateCrossrefUrl: '',
             validateIssnUrl: '',
             addIssnValuesUrl: '',
+            buildingPollUrl: '',
+            buildingSuccessUrl: '',
+            buildingErrorUrl: '',
             csrfToken: ''
         }, options);
 
@@ -778,6 +803,9 @@ var EditPublisherPage = (function() {
         validateCrossrefUrl = options.validateCrossrefUrl;
         validateIssnUrl = options.validateIssnUrl;
         addIssnValuesUrl = options.addIssnValuesUrl;
+        buildingPollUrl = options.buildingPollUrl;
+        buildingSuccessUrl = options.buildingSuccessUrl;
+        buildingErrorUrl = options.buildingErrorUrl;
         csrfToken = options.csrfToken;
 
         isNew = publisherId == '';
@@ -847,6 +875,7 @@ var EditPublisherPage = (function() {
         });
 
         f.submit(function() {
+
             var issnValues = [];
             $('.issn-values-row').each(function() {
                 var row = $(this);
@@ -884,6 +913,7 @@ var EditPublisherPage = (function() {
         wireUpValidateIssnButton: wireUpValidateIssnButton,
         wireUpDeleteIssnButton: wireUpDeleteIssnButton,
         wireUpIssnControls: wireUpIssnControls,
+        showBuildingReportsModal: showBuildingReportsModal,
         init: init
     };
 

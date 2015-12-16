@@ -22,6 +22,8 @@ def list_publishers(request):
             alt_error_message = 'There are no Scopus API keys available. Please contact your administrator before creating a new publisher.'
         elif from_value == 'new-error':
             alt_error_message = 'There was an error setting up reports for the new publisher in Tableau. Please contact your administrator.'
+        elif from_value == 'save-success':
+            messages.append("Changes to your publisher account have been saved.")
         elif from_value == 'new-success':
             messages.append("Your new publisher account is created and ready to go.")
 
@@ -207,12 +209,16 @@ def edit(request, publisher_id=None):
                 # tableau setup takes a while, run it through celery
                 setup_reports.s(publisher.publisher_id, request.user.user_id).delay()
 
-                return HttpResponseRedirect(reverse("publishers.wait_for_reports", kwargs={
+                return HttpResponseRedirect(reverse("publishers.edit", kwargs={
                     'publisher_id': publisher.publisher_id,
-                }))
+                }) + '?from=new-publisher')
 
-            return HttpResponseRedirect(reverse('publishers.list'))
+            return HttpResponseRedirect(reverse('publishers.list') + '?from=save-success')
     else:
+        from_value = ''
+        if 'from' in request.GET:
+            from_value = request.GET['from']
+
         form = PublisherForm(request.user, instance=publisher)
 
     return render(request, 'publishers/new.html', {
@@ -222,14 +228,7 @@ def edit(request, publisher_id=None):
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
-    })
-
-
-@login_required
-def wait_for_reports(request, publisher_id=None):
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-    return render(request, 'publishers/wait_for_reports.html', {
-        'publisher': publisher,
+        'from_value': from_value,
     })
 
 

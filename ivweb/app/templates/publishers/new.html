@@ -2,7 +2,7 @@
 {% load filters %}
 {% load tags %}
 {% block title %}{% if publisher %}{{ publisher.name }}{% else %}New Publisher{% endif %}{% endblock %}
-{% block body_class %}publisher{% endblock %}
+{% block body_class %}publisher new-publisher{% endblock %}
 
 {% block content %}
     <div class="row header-row with-breadcrumb">
@@ -238,6 +238,18 @@
             </div>
         </div>
     </div>
+
+    {% if from_value == 'new-publisher' %}
+        <div class="modal fade" id="creating-publisher-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="waiting-icon"><i class="fa fa-spinner fa-pulse"></i></div>
+                    <div class="waiting-message">Waiting for the Tableau reports to be built...</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block page_scripts %}
@@ -248,8 +260,17 @@
                 validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}',
                 validateIssnUrl: '{% url 'publishers.validate_issn' %}',
                 addIssnValuesUrl: '{% url 'publishers.new_issn' %}',
+                {% if publisher %}
+                    buildingPollUrl: '{% url 'publishers.check_reports' %}?publisher={{ publisher.publisher_id }}',
+                    buildingSuccessUrl: '{% url 'publishers.list' %}?from=new-success',
+                    buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
+                {% endif %}
                 csrfToken: '{{ csrf_token }}'
             });
+
+            {% if from_value == 'new-publisher' %}
+                EditPublisherPage.showBuildingReportsModal();
+            {% endif %}
         });
     </script>
 {% endblock %}
