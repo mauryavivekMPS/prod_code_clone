@@ -90,7 +90,8 @@ class AdminUserForm(forms.Form):
             publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
 
             # delete existing
-            Publisher_User.objects.filter(user_id=user.user_id).delete()
+            for publisher_user in Publisher_User.objects.filter(user_id=user.user_id):
+                publisher_user.delete()
 
             # and recreate
             for publisher_id in publisher_id_list:

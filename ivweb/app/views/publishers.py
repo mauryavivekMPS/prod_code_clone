@@ -151,7 +151,9 @@ class PublisherForm(forms.Form):
 
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
-        Publisher_Journal.objects.filter(publisher_id=publisher_id).delete()
+        for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
+            journal.delete()
+
         if self.cleaned_data['issn_values']:
             for issn_value in json.loads(self.cleaned_data['issn_values']):
                 Publisher_Journal.objects.create(
