@@ -38,6 +38,15 @@ class HWMetadataLookupTransform:
     def portland_xform_doi(input_doi):
         return input_doi.upper()
 
+    def jbjs_xform_doi(input_doi):
+        return input_doi.upper()
+
+    def asn_xform_doi(input_doi):
+        return input_doi.upper()
+
+    def aha_xform_doi(input_doi):
+        return input_doi.upper()
+
     xform_doi_dict = {
         'asm': asm_xform_doi,
         'aan': aan_xform_doi,
@@ -46,7 +55,10 @@ class HWMetadataLookupTransform:
         'besbjs': besbjs_xform_doi,
         'sfn': sfn_xform_doi,
         'alphamed': alphamed_xform_doi,
-        'portland': portland_xform_doi
+        'portland': portland_xform_doi,
+        'jbjs': jbjs_xform_doi,
+        'asn': asn_xform_doi,
+        'aha': aha_xform_doi
     }
 
     def xform_doi(self, publisher_id, doi):
