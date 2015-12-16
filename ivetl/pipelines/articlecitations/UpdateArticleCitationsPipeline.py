@@ -28,9 +28,6 @@ class UpdateArticleCitationsPipeline(Pipeline):
         # figure out which publisher has a non-empty incoming dir
         for publisher in publishers:
 
-            if product['cohort'] and not publisher.has_cohort:
-                continue
-
             # create work folder, signal the start of the pipeline
             work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
             self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=3, current_task_count=0)
