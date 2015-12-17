@@ -6,7 +6,7 @@
 {% block content %}
     <div class="row header-row">
         <div class="col-md-8">
-            <h1>Dashboard</h1>
+            <h1>Growth</h1>
         </div>
     </div>
 
@@ -15,20 +15,20 @@
 
         <div class="row stats-ribbon">
             <div class="col-md-2 selectable active" id="summary-graph-journals">
-                <h2>Journals <span class="value">148</span></h2>
+                <h2>Journals <span class="value">85</span></h2>
             </div>
             <div class="col-md-2 selectable" id="summary-graph-articles">
-                <h2>Articles <span class="value">9,552</span></h2>
+                <h2>Articles <span class="value">184,851</span></h2>
             </div>
             <div class="col-md-2 selectable" id="summary-graph-citations">
-                <h2>Citations <span class="value">72,001</span></h2>
+                <h2>Citations <span class="value">2.1M</span></h2>
             </div>
             <div class="col-md-2 selectable" id="summary-graph-saves">
-                <h2>Saves <span class="value">1,211,078</span></h2>
+                <h2>Saves <span class="value">46,102</span></h2>
             </div>
             <div class="col-md-2 selectable" id="summary-graph-click-through-rate">
                 <div class="ribbon-divider"></div>
-                <h2>Accounts  <span class="value">42</span></h2>
+                <h2>Publishers  <span class="value">21</span></h2>
             </div>
             <div class="col-md-2 selectable" id="summary-graph-conversion-rate">
                 <h2>Users <span class="value">76</span></h2>
@@ -36,6 +36,90 @@
         </div>
 
         <hr>
+
+        <div class="row">
+            <div class="col-md-12">
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Pipeline Performance</h2>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Pipeline Errors</h2>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th class="text-center">Staff</th>
+                            <th class="text-center">Superuser</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>
+                                    {% if publisher %}
+                                        {% if user.staff %}
+                                            {{ user.email }}
+                                        {% else %}
+                                            <a href="{% url 'publishers.users.edit' publisher.publisher_id user.user_id %}">
+                                                {{ user.email }}
+                                            </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{% url 'users.edit' user.user_id %}">
+                                            {{ user.email }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                                <td class="text-center">{% checkmark user.staff %}</td>
+                                <td class="text-center">{% checkmark user.superuser %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
 {% endblock %}

@@ -1393,112 +1393,118 @@ body.login {
 // Dashboard
 // -------------------------
 
-.stats-ribbon {
-    >div.selectable {
-        cursor: pointer;
+.dashboard {
 
-        &:hover,
-        &.active {
-            h2 {
-                color: #333;
-
-                .value {
-                    border-bottom-color: #0084ae;
-                }
-            }
-
-            &#summary-graph-click-through-rate {
-                .value {
-                    border-bottom-color: @color-secondary-2-2;
-                }
-            }
-
-            &#summary-graph-conversion-rate {
-                .value {
-                    border-bottom-color: @color-secondary-3-1;
-                }
-            }
-        }
+    h2 {
+        font-size: 16px;
     }
 
-    .toggle {
-        position: absolute;
-        font-size: 9px;
-        top: 42px;
-        right: 36px;
-        text-align: right;
-        text-transform: uppercase;
-        display: none;
-    }
-
-    &.at-least-one-rate {
+    .stats-ribbon {
         > div.selectable {
-            &:hover {
-                .add {
-                    display: block;
-                }
-            }
+            cursor: pointer;
+
+            &:hover,
             &.active {
-                .add {
-                    display: none;
-                }
-            }
-        }
-    }
+                h2 {
+                    color: #333;
 
-    &.both-rates {
-        > div.selectable {
-            &:hover {
-                &#summary-graph-click-through-rate,
-                &#summary-graph-conversion-rate {
-                    h2 {
-                        color: #ccc;
-                        .value {
-                            border-bottom-color: #ccc;
-                        }
+                    .value {
+                        border-bottom-color: #0084ae;
                     }
                 }
 
-                .add {
-                    display: none;
+                &#summary-graph-click-through-rate {
+                    .value {
+                        border-bottom-color: @color-secondary-2-2;
+                    }
                 }
 
-                .remove {
-                    display: block;
+                &#summary-graph-conversion-rate {
+                    .value {
+                        border-bottom-color: @color-secondary-3-1;
+                    }
                 }
             }
         }
-    }
 
-    .ribbon-divider {
-        position: absolute;
-        height: 76px;
-        border-left: 1px dotted #ddd;
-        left: -10px;
-        top: 3px;
-    }
+        .toggle {
+            position: absolute;
+            font-size: 9px;
+            top: 42px;
+            right: 36px;
+            text-align: right;
+            text-transform: uppercase;
+            display: none;
+        }
 
-    h2 {
-        font-size: 12px;
-        font-weight: 200;
-        text-transform: uppercase;
-        color: #aaa;
-        margin-top: 15px;
-        margin-bottom: 15px;
+        &.at-least-one-rate {
+            > div.selectable {
+                &:hover {
+                    .add {
+                        display: block;
+                    }
+                }
+                &.active {
+                    .add {
+                        display: none;
+                    }
+                }
+            }
+        }
 
-        .value {
-            font-size: 20px;
-            font-weight: 400;
-            color: #333;
-            display: block;
-            margin-top: 5px;
-            border-bottom: 1px solid white;
-            padding-bottom: 10px;
-            margin-right: 20px;
+        &.both-rates {
+            > div.selectable {
+                &:hover {
+                    &#summary-graph-click-through-rate,
+                    &#summary-graph-conversion-rate {
+                        h2 {
+                            color: #ccc;
+                            .value {
+                                border-bottom-color: #ccc;
+                            }
+                        }
+                    }
+
+                    .add {
+                        display: none;
+                    }
+
+                    .remove {
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        .ribbon-divider {
+            position: absolute;
+            height: 76px;
+            border-left: 1px dotted #ddd;
+            left: -10px;
+            top: 3px;
+        }
+
+        h2 {
+            font-size: 12px;
+            font-weight: 200;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-top: 15px;
+            margin-bottom: 15px;
+
+            .value {
+                font-size: 20px;
+                font-weight: 400;
+                color: #333;
+                display: block;
+                margin-top: 5px;
+                border-bottom: 1px solid white;
+                padding-bottom: 10px;
+                margin-right: 20px;
+            }
         }
     }
 }
-
 
 
 // Publisher form
