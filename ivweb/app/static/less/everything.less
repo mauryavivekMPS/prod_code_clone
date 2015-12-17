@@ -317,6 +317,7 @@ body {
 }
 
 .dashboard #left-menu .dashboard_menu_item,
+.home #left-menu .home_menu_item,
 .publisher #left-menu .publisher_menu_item,
 .user #left-menu .user_menu_item,
 .audit #left-menu .audit_menu_item,
@@ -325,8 +326,7 @@ body {
 .article_citations_pipeline #left-menu .article_citations_menu_item,
 .rejected_article_tracker_pipeline #left-menu .rejected_article_tracker_menu_item,
 .published_articles_cohort_pipeline #left-menu .published_articles_cohort_menu_item,
-.article_citations_cohort_pipeline #left-menu .article_citations_cohort_menu_item,
-.user-home #left-menu .user_home_menu_item {
+.article_citations_cohort_pipeline #left-menu .article_citations_cohort_menu_item {
     a {
         color: @color-secondary-1-1;
     }
@@ -1007,7 +1007,7 @@ ul.errorlist {
             font-size: 12px;
         }
     }
-    
+
     .null-value {
         color: #ccc;
         font-weight: 200;
@@ -1390,6 +1390,123 @@ body.login {
 }
 
 
+// Dashboard
+// -------------------------
+
+.dashboard {
+
+    h2 {
+        font-size: 16px;
+    }
+
+    .stats-ribbon {
+        > div.selectable {
+            cursor: pointer;
+
+            &:hover,
+            &.active {
+                h2 {
+                    color: #333;
+
+                    .value {
+                        border-bottom-color: #0084ae;
+                    }
+                }
+
+                &#summary-graph-click-through-rate {
+                    .value {
+                        border-bottom-color: @color-secondary-2-2;
+                    }
+                }
+
+                &#summary-graph-conversion-rate {
+                    .value {
+                        border-bottom-color: @color-secondary-3-1;
+                    }
+                }
+            }
+        }
+
+        .toggle {
+            position: absolute;
+            font-size: 9px;
+            top: 42px;
+            right: 36px;
+            text-align: right;
+            text-transform: uppercase;
+            display: none;
+        }
+
+        &.at-least-one-rate {
+            > div.selectable {
+                &:hover {
+                    .add {
+                        display: block;
+                    }
+                }
+                &.active {
+                    .add {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        &.both-rates {
+            > div.selectable {
+                &:hover {
+                    &#summary-graph-click-through-rate,
+                    &#summary-graph-conversion-rate {
+                        h2 {
+                            color: #ccc;
+                            .value {
+                                border-bottom-color: #ccc;
+                            }
+                        }
+                    }
+
+                    .add {
+                        display: none;
+                    }
+
+                    .remove {
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        .ribbon-divider {
+            position: absolute;
+            height: 76px;
+            border-left: 1px dotted #ddd;
+            left: -10px;
+            top: 3px;
+        }
+
+        h2 {
+            font-size: 12px;
+            font-weight: 200;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-top: 15px;
+            margin-bottom: 15px;
+
+            .value {
+                font-size: 20px;
+                font-weight: 400;
+                color: #333;
+                display: block;
+                margin-top: 5px;
+                border-bottom: 1px solid white;
+                padding-bottom: 10px;
+                margin-right: 20px;
+            }
+        }
+    }
+}
+
+
 // Publisher form
 // -------------------------
 
@@ -1711,13 +1828,13 @@ p.uploaded-file-error-icon {
 // User home
 // -------------------------
 
-.user-home {
-    .dashboard-status-col {
+.home {
+    .home-status-col {
         padding-left: 50px;
         font-weight: 200;
     }
 
-    .dashboard-time-col {
+    .home-time-col {
         font-size: 12px;
         font-weight: 200;
         vertical-align: middle;
