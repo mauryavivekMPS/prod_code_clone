@@ -60,9 +60,12 @@
             {% if request.user.staff %}
                 <ul>
                     {% if request.user.superuser %}
-                        <li class="dashboard_menu_item">
-                            <a href="{% url 'dashboard' %}">Dashboard</a>
+                        <li class="growth_menu_item">
+                            <a href="{% url 'growth' %}">Dashboard</a>
                         </li>
+{#                        <li class="performance_menu_item">#}
+{#                            <a href="{% url 'performance' %}">Performance</a>#}
+{#                        </li>#}
                     {% else %}
                         <li class="home_menu_item">
                             <a href="{% url 'home' %}">Dashboard</a>

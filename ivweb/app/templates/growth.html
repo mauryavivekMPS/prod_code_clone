@@ -1,0 +1,140 @@
+{% extends "base_standard.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body_class %}dashboard growth{% endblock %}
+{% load tags %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Dashboard</h1>
+        </div>
+    </div>
+
+    <div id="view">
+        <hr>
+
+        <div class="row stats-ribbon">
+            <div class="col-md-2 selectable" id="summary-graph-journals">
+                <h3>Journals <span class="value">85</span></h3>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-articles">
+                <h3>Articles <span class="value">184,851</span></h3>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-citations">
+                <h3>Citations <span class="value">2.1M</span></h3>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-saves">
+                <h3>Saves <span class="value">46,102</span></h3>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-click-through-rate">
+                <div class="ribbon-divider"></div>
+                <h3>Publishers  <span class="value">21</span></h3>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-conversion-rate">
+                <h3>Users <span class="value">76</span></h3>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-3">
+{#                <div class="btn-group btn-group-sm graph-switcher" role="group">#}
+{#                    <button type="button" class="btn btn-default reports-section-button active">Reports</button>#}
+{#                    <button type="button" class="btn btn-default timeline-section-button">Timeline</button>#}
+{#                </div>#}
+                <div class="chart-link">
+                    <a href="#" class="active"><span class="lnr lnr-chart-growth"></span></a>
+                    <a href="#"><span class="lnr lnr-pie-chart"></span></a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h2 class="chart-title"></h2>
+            </div>
+            <div class="col-md-3">
+                <div class="chart-link share-link">
+                    <a href="#"><span class="lnr lnr-exit-up"></span></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 chart-col">
+                <div id="chart"></div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row below-graph">
+            <div class="col-md-12">
+                <ul class="list-tabs table-buttons">
+                    <li><a href="#" class="active table-button line-items-table-button">New Journals</a></li>
+                    <li><a href="#" class="table-button channels-table-button">New Users</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Publisher</th>
+                            <th>Added by</th>
+                            <td>Added on</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Neurology</td>
+                            <td><a href="aan">aan</a></td>
+                            <td>nmehta@highwire.org</td>
+                            <td>Dec. 17, 2015, 12:39 a.m.</td>
+                        </tr>
+                        <tr>
+                            <td>Proceedings of the National Academy of Sciences</td>
+                            <td><a href="aan">pnas</a></td>
+                            <td>nmehta@highwire.org</td>
+                            <td>Dec. 17, 2015, 12:03 a.m.</td>
+                        </tr>
+                        <tr>
+                            <td>Chemical Research in Toxicology</td>
+                            <td><a href="aan">acs</a></td>
+                            <td>lynne@highwire.org</td>
+                            <td>Dec. 02, 2015, 9:12 a.m.</td>
+                        </tr>
+                        <tr>
+                            <td>ACS Photonics</td>
+                            <td><a href="aan">acs</a></td>
+                            <td>lynne@highwire.org</td>
+                            <td>Dec. 02, 2015, 9:01 a.m.</td>
+                        </tr>
+                        <tr>
+                            <td>The Journal of Organic Chemistry</td>
+                            <td><a href="aan">acs</a></td>
+                            <td>lynne@highwire.org</td>
+                            <td>Dec. 02, 2015, 8:43 a.m.</td>
+                        </tr>
+                        <tr>
+                            <td>Biomacromolecules</td>
+                            <td><a href="aan">acs</a></td>
+                            <td>lynne@highwire.org</td>
+                            <td>Dec. 02, 2015, 8:37 a.m.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            GrowthPage.init();
+        });
+    </script>
+{% endblock %}
