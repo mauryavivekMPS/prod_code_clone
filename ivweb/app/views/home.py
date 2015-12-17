@@ -9,7 +9,7 @@ from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending
 @login_required
 def home(request):
     if request.user.superuser:
-        return HttpResponseRedirect(reverse('publishers.list'))
+        return HttpResponseRedirect(reverse('dashboard'))
 
     else:
         messages = []
@@ -81,10 +81,21 @@ def home(request):
                 'product_stats_list': sorted_product_stats_list,
             })
 
-        return render(request, 'user_home.html', {
+        return render(request, 'home.html', {
             'publisher_stats_list': publisher_stats_list,
             'messages': messages,
             'reset_url': reverse('home'),
             'running_publisher': running_publisher,
             'running_pipeline': running_pipeline,
+        })
+
+
+@login_required
+def dashboard(request):
+    if not request.user.superuser:
+        return HttpResponseRedirect(reverse('home'))
+
+    else:
+
+        return render(request, 'dashboard.html', {
         })

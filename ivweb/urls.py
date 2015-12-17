@@ -17,6 +17,7 @@ urlpatterns = patterns(
 
     # homepage
     url(r'^$', 'home.home', name='home'),
+    url(r'^dashboard/$', 'home.dashboard', name='dashboard'),
 
     # users
     url(r'^users/$', 'users.list_users', name='users.list'),

@@ -1,6 +1,6 @@
 {% extends "base_standard.html" %}
 {% block title %}Dashboard{% endblock %}
-{% block body_class %}user-home{% endblock %}
+{% block body_class %}home{% endblock %}
 {% load tags %}
 
 {% block content %}
@@ -38,10 +38,10 @@
                                 {% for pipeline_stats in product_stats.pipeline_stats_list %}
                                     {% if pipeline_stats.file_based_pipeline_currently_running or running_publisher == publisher_stats.publisher.publisher_id and running_pipeline == pipeline_stats.pipeline.id %}
                                         <tr class="pipeline-status-row currently-running-row">
-                                            <td class="dashboard-status-col">
+                                            <td class="home-status-col">
                                                 {{ pipeline_stats.message }}
                                             </td>
-                                            <td class="dashboard-time-col">
+                                            <td class="home-time-col">
                                             </td>
                                             <td class="status-col">
                                                 {% status_icon "in-progress" %}
@@ -49,7 +49,7 @@
                                         </tr>
                                     {% else %}
                                         <tr class="pipeline-status-row">
-                                            <td class="dashboard-status-col">
+                                            <td class="home-status-col">
                                                 {{ pipeline_stats.message }}
                                                 {% if pipeline_stats.pipeline.has_file_input %}
                                                     <a class="btn btn-default little-upload-button" href="{% url 'pipelines.upload' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
@@ -58,7 +58,7 @@
                                                     {% endif %}
                                                 {% endif %}
                                             </td>
-                                            <td class="dashboard-time-col">
+                                            <td class="home-time-col">
                                                 {{ pipeline_stats.recent_run.end_time }}
                                             </td>
                                             <td class="status-col">

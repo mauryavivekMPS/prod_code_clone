@@ -1,0 +1,41 @@
+{% extends "base_standard.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body_class %}dashboard{% endblock %}
+{% load tags %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Dashboard</h1>
+        </div>
+    </div>
+
+    <div id="view">
+        <hr>
+
+        <div class="row stats-ribbon">
+            <div class="col-md-2 selectable active" id="summary-graph-journals">
+                <h2>Journals <span class="value">148</span></h2>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-articles">
+                <h2>Articles <span class="value">9,552</span></h2>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-citations">
+                <h2>Citations <span class="value">72,001</span></h2>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-saves">
+                <h2>Saves <span class="value">1,211,078</span></h2>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-click-through-rate">
+                <div class="ribbon-divider"></div>
+                <h2>Accounts  <span class="value">42</span></h2>
+            </div>
+            <div class="col-md-2 selectable" id="summary-graph-conversion-rate">
+                <h2>Users <span class="value">76</span></h2>
+            </div>
+        </div>
+
+        <hr>
+    </div>
+
+{% endblock %}
