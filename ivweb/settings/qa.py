@@ -11,3 +11,5 @@ DATABASES = {
         'HOST': '10.0.0.115',
     }
 }
+
+SECURE_SSL_REDIRECT = False
