@@ -815,6 +815,15 @@ var EditPublisherPage = (function() {
         f.find('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
         $('#id_pilot').on('change', checkForm);
 
+        if (isNew) {
+            f.find('#id_reports_password').show();
+        }
+        f.find('.set-reports-password-link a').click(function() {
+            f.find('.set-reports-password-link').hide();
+            f.find('#id_reports_password').show().focus();
+            return false;
+        });
+
         $('#id_published_articles').on('change', function() {
             updatePublishedArticlesControls();
             checkForm();

@@ -10,6 +10,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key
 from ivetl.tasks import setup_reports
+from ivetl.connectors import TableauConnector
+from ivetl.common import common
 
 
 @login_required
@@ -60,7 +62,7 @@ class PublisherForm(forms.Form):
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     reports_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
-    reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
+    reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
     def __init__(self, creating_user, *args, instance=None, **kwargs):
@@ -71,6 +73,7 @@ class PublisherForm(forms.Form):
         if instance:
             self.instance = instance
             initial = dict(instance)
+            initial.pop('reports_password')  # clear out the encoded password
             initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
@@ -144,12 +147,28 @@ class PublisherForm(forms.Form):
             crossref_password=self.cleaned_data['crossref_password'],
             supported_products=supported_products,
             pilot=self.cleaned_data['pilot'],
-            reports_username=self.cleaned_data['reports_username'],
-            reports_password=self.cleaned_data['reports_password'],
-            reports_project=self.cleaned_data['reports_project'],
         )
 
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+        if self.instance:
+            new_password = self.cleaned_data['reports_password']
+            if new_password:
+                t = TableauConnector(
+                    username=common.TABLEAU_USERNAME,
+                    password=common.TABLEAU_PASSWORD,
+                    server=common.TABLEAU_SERVER
+                )
+                t.set_user_password(publisher.reports_user_id, new_password)
+                publisher.update(
+                    reports_password=self.cleaned_data['reports_password'],
+                )
+        else:
+            publisher.update(
+                reports_username=self.cleaned_data['reports_username'],
+                reports_password=self.cleaned_data['reports_password'],
+                reports_project=self.cleaned_data['reports_project'],
+            )
 
         for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
             journal.delete()
