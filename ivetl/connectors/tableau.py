@@ -104,7 +104,7 @@ class TableauConnector(BaseConnector):
             self.user_id = r.credentials.user['id']
             self.signed_in = True
         except:
-            raise AuthorizationAPIError(response.text)
+            raise AuthorizationAPIError()
 
     def _check_authentication(self):
         if not self.signed_in:

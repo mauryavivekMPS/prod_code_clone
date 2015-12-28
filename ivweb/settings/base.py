@@ -8,7 +8,6 @@ DEBUG = False
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
-    'sslserver',
     'django.contrib.sessions',
     'django_cassandra_engine',
     'ivweb.app',
@@ -34,8 +33,6 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                # 'django.contrib.auth.context_processors.auth',
-                # 'django.contrib.messages.context_processors.messages',
                 'ivweb.app.context_processors.common',
                 'ivweb.app.context_processors.constants',
             ],

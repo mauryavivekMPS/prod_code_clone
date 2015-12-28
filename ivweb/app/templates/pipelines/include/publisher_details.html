@@ -82,7 +82,7 @@
                 <td>{{ run_item.run.end_time|date:"H:i:s"|nullable_date }}</td>
                 <td class="text-right">{{ run_item.run.duration_seconds|nullable_duration }}</td>
             </tr>
-            {% if forloop.first %}
+            {% if forloop.first or run_item.run.status == 'in-progress' %}
                 {% for task in run_item.tasks %}
                     <tr class="{{ task.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
                         <td class="status-col">

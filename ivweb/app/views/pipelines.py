@@ -19,7 +19,7 @@ from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_
 log = logging.getLogger(__name__)
 
 
-def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_completed_runs=False):
+def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_completed_runs=False, prioritize_most_recent_running=True):
     # get all the runs
     all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
 
@@ -40,11 +40,22 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
             'tasks': sorted_tasks,
         })
 
-    # bubble up task info for most recent run, with extra info for running or error items
+    # bubble up task info for a summary, with extra info for running or error items
     recent_run = None
     recent_task = None
     if tasks_by_run:
-        recent_run = tasks_by_run[0]
+
+        # take the most recent running task
+        if prioritize_most_recent_running:
+            for run in tasks_by_run:
+                if run['run'].status == 'in-progress':
+                    recent_run = run
+                    break
+
+        # if no task is running, just get the most recent
+        if not recent_run:
+            recent_run = tasks_by_run[0]
+
         if recent_run['tasks']:
             recent_task = recent_run['tasks'][len(recent_run['tasks']) - 1]
 
