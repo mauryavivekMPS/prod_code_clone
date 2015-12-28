@@ -98,10 +98,9 @@
                         </div>
                         <div class="col-sm-3">
                             {% if publisher %}
-                                <input type="hidden" name="reports_password" value="{{ form.initial.reports_password }}">
-                            {% else %}
-                                {{ form.reports_password }}
+                                <p class="form-control-static set-reports-password-link"><a href="#">Set password...</a></p>
                             {% endif %}
+                            {{ form.reports_password }}
                         </div>
                     </div>
                     <div class="form-group row">

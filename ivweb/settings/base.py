@@ -8,13 +8,8 @@ DEBUG = False
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
-    # 'django.contrib.admin',
-    # 'django.contrib.auth',
-    # 'django.contrib.contenttypes',
     'django.contrib.sessions',
-    # 'django.contrib.messages',
     'django_cassandra_engine',
-    # 'django.contrib.staticfiles',
     'ivweb.app',
 )
 
@@ -22,9 +17,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    # 'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'ivweb.app.middleware.AuthenticationMiddleware',
@@ -41,8 +33,6 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                # 'django.contrib.auth.context_processors.auth',
-                # 'django.contrib.messages.context_processors.messages',
                 'ivweb.app.context_processors.common',
                 'ivweb.app.context_processors.constants',
             ],
@@ -51,6 +41,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ivweb.wsgi.application'
+
+# Force HTTPS and grab the swallowed https protocol from the load balancer in a header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
 
 # Language, time, i18n
 LANGUAGE_CODE = 'en-us'
