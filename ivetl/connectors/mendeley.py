@@ -24,7 +24,6 @@ class MendeleyConnector(BaseConnector):
                 "Professor",
                 "Professor > Associate Professor",
                 "Researcher",
-                "Student  > Bachelor",
                 "Student  > Doctoral Student",
                 "Student  > Master",
                 "Student  > Ph. D. Student",
