@@ -11,7 +11,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'rebuild_data_source_id': None,
+        'rebuild_data_source_id': ['article_citations', 'article_usage'],
     },
     {
         'name': 'Custom Article Data',
@@ -21,7 +21,7 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
-        'rebuild_data_source_id': 'article_citations',
+        'rebuild_data_source_id': ['article_citations'],
     },
     {
         'name': 'Article Citations',
@@ -30,7 +30,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
-        'rebuild_data_source_id': 'article_citations',
+        'rebuild_data_source_id': ['article_citations'],
     },
     {
         'name': 'Article Usage',
@@ -39,7 +39,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.articleusage.ArticleUsagePipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.ArticleUsageValidator',
-        'rebuild_data_source_id': None,
+        'rebuild_data_source_id': ['article_citations', 'article_usage'],
     },
     {
         'name': 'Rejected Articles',
@@ -49,7 +49,7 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
-        'rebuild_data_source_id': 'rejected_articles',
+        'rebuild_data_source_id': ['rejected_articles'],
     },
     {
         'name': 'Check Rejected Manuscripts',
