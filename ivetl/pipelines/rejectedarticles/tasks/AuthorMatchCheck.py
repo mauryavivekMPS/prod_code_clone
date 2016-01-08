@@ -41,7 +41,7 @@ class AuthorMatchCheck:
                 if entry[0].strip() != '':
                     rejected_manuscript_author_surnames_map[entry[0].lower().strip()] = entry[0].lower().strip()
 
-        rejected_manuscript_author_surnames = rejected_manuscript_author_surnames_map.keys()
+        rejected_manuscript_author_surnames = list(rejected_manuscript_author_surnames_map.keys())
         rejected_manuscript_author_surnames_len = len(rejected_manuscript_author_surnames)
 
         xref_article_authors = ''
