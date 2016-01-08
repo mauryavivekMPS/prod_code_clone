@@ -310,10 +310,10 @@ class TableauConnector(BaseConnector):
 
         workbook = WORKBOOKS_BY_ID[workbook_id]
         with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), encoding='utf-8') as f:
-            template = f.read()
+            prepared_workbook = f.read()
 
         for ds in workbook['data_source']:
-            prepared_workbook = template.replace(ds['template_name'], ds['template_name'] + '_' + publisher_id)
+            prepared_workbook = prepared_workbook.replace(ds['template_name'], ds['template_name'] + '_' + publisher_id)
 
         prepared_workbook = prepared_workbook.replace(TEMPLATE_SERVER_TO_REPLACE, self.server)
 
@@ -345,7 +345,6 @@ class TableauConnector(BaseConnector):
             fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
             self.refresh_data_source(publisher_id, project_name, data_source['id'])
-            self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
 
         time.sleep(10)
 
