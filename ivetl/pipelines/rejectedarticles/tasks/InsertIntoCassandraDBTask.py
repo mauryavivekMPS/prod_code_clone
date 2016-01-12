@@ -162,7 +162,12 @@ def unix_time_millis(dt):
 
 
 def to_datetime(mdy_str):
-    dor_parts = mdy_str.split('/')
+
+    if '-' in mdy_str:
+         dor_parts = mdy_str.split('-')
+    else:
+         dor_parts = mdy_str.split('/')
+
     dor_month = int(dor_parts[0])
     dor_day = int(dor_parts[1])
     dor_year = int(dor_parts[2])
