@@ -30,17 +30,18 @@ class AuthorMatchCheck:
         else:
             rejected_manuscript_authors = reject_co_authors_ln_fn
 
-        rejected_manuscript_author_surnames = []
+        rejected_manuscript_author_surnames_map = {}
         for entry in rejected_manuscript_authors.split(';'):
             entry = entry.rsplit(',', 1)
             entry = entry[0].rsplit(' ', 1)
             if len(entry) == 2:
                 if entry[1].strip() != '':
-                    rejected_manuscript_author_surnames.append(entry[1].lower().strip())
+                    rejected_manuscript_author_surnames_map[entry[1].lower().strip()] = entry[1].lower().strip()
             else:
                 if entry[0].strip() != '':
-                    rejected_manuscript_author_surnames.append(entry[0].lower().strip())
+                    rejected_manuscript_author_surnames_map[entry[0].lower().strip()] = entry[0].lower().strip()
 
+        rejected_manuscript_author_surnames = list(rejected_manuscript_author_surnames_map.keys())
         rejected_manuscript_author_surnames_len = len(rejected_manuscript_author_surnames)
 
         xref_article_authors = ''
@@ -86,7 +87,7 @@ class AuthorMatchCheck:
         tlogger.info("Rejected Authors: " + ','.join(rejected_manuscript_author_surnames))
         tlogger.info("CrossRef Authors: " + ','.join(xref_article_author_surnames))
 
-        if rejected_manuscript_author_surnames_len >= 5 and ratio_match >= 0.80:
+        if rejected_manuscript_author_surnames_len >= 5 and ratio_match >= 0.70:
             authors_match = True
         elif ratio_match == 1.0:
             authors_match = True

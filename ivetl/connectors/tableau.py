@@ -23,6 +23,10 @@ DATA_SOURCES = [
         'id': 'article_citations',
         'template_name': 'article_citations_ds',
     },
+    {
+        'id': 'article_usage',
+        'template_name': 'article_usage_ds',
+    },
 ]
 DATA_SOURCES_BY_ID = {d['id']: d for d in DATA_SOURCES}
 
@@ -31,37 +35,43 @@ WORKBOOKS = [
         'id': 'rejected_article_tracker_workbook',
         'name': 'Rejected Article Tracker',
         'template_name': 'rejected_article_tracker',
-        'data_source': DATA_SOURCES_BY_ID['rejected_articles'],
+        'data_source': [DATA_SOURCES_BY_ID['rejected_articles']],
     },
     {
         'id': 'section_performance_analyzer_workbook',
         'name': 'Section Performance Analyzer',
         'template_name': 'section_performance_analyzer',
-        'data_source': DATA_SOURCES_BY_ID['article_citations'],
+        'data_source': [DATA_SOURCES_BY_ID['article_citations']],
     },
     {
         'id': 'hot_article_tracker_workbook',
         'name': 'Hot Article Tracker',
         'template_name': 'hot_article_tracker',
-        'data_source': DATA_SOURCES_BY_ID['article_citations'],
+        'data_source': [DATA_SOURCES_BY_ID['article_citations'], DATA_SOURCES_BY_ID['article_usage']],
     },
     {
         'id': 'hot_object_tracker_workbook',
         'name': 'Hot Object Tracker',
         'template_name': 'hot_object_tracker',
-        'data_source': DATA_SOURCES_BY_ID['article_citations'],
+        'data_source': [DATA_SOURCES_BY_ID['article_citations'], DATA_SOURCES_BY_ID['article_usage']],
     },
     {
         'id': 'citation_distribution_surveyor_workbook',
         'name': 'Citation Distribution Surveyor',
         'template_name': 'citation_distribution_surveyor',
-        'data_source': DATA_SOURCES_BY_ID['article_citations'],
+        'data_source': [DATA_SOURCES_BY_ID['article_citations']],
+    },
+    {
+        'id': 'advance_correlator_citation_usage',
+        'name': 'Advance Correlator of Citations & Usage',
+        'template_name': 'advance_correlator_citation_usage',
+        'data_source': [DATA_SOURCES_BY_ID['article_citations'], DATA_SOURCES_BY_ID['article_usage']],
     },
     {
         'id': 'cohort_comparator_workbook',
         'name': 'Cohort Comparator',
         'template_name': 'cohort_comparator',
-        'data_source': DATA_SOURCES_BY_ID['article_citations'],
+        'data_source': [DATA_SOURCES_BY_ID['article_citations']],
     },
 ]
 WORKBOOKS_BY_ID = {w['id']: w for w in WORKBOOKS}
@@ -300,9 +310,11 @@ class TableauConnector(BaseConnector):
 
         workbook = WORKBOOKS_BY_ID[workbook_id]
         with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook['template_name'] + '.twb'), encoding='utf-8') as f:
-            template = f.read()
+            prepared_workbook = f.read()
 
-        prepared_workbook = template.replace(workbook['data_source']['template_name'], workbook['data_source']['template_name'] + '_' + publisher_id)
+        for ds in workbook['data_source']:
+            prepared_workbook = prepared_workbook.replace(ds['template_name'], ds['template_name'] + '_' + publisher_id)
+
         prepared_workbook = prepared_workbook.replace(TEMPLATE_SERVER_TO_REPLACE, self.server)
 
         with codecs.open(common.TMP_DIR + '/' + workbook['template_name'] + '_' + publisher_id + '.twb', "w", encoding="utf-8") as fh:
@@ -333,7 +345,6 @@ class TableauConnector(BaseConnector):
             fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
             self.refresh_data_source(publisher_id, project_name, data_source['id'])
-            self.add_data_source_to_project(project_id, publisher_id, data_source['id'], job_id=fake_job_id)
 
         time.sleep(10)
 

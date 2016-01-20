@@ -92,7 +92,10 @@ class RejectedArticlesValidator(BaseValidator):
 
         is_valid = True
 
-        date_parts = date.split('/')
+        if '-' in date:
+            date_parts = date.split('-')
+        else:
+            date_parts = date.split('/')
 
         if len(date_parts) != 3:
             is_valid = False

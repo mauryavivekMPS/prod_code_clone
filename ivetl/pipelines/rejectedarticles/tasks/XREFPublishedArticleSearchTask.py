@@ -53,7 +53,11 @@ class XREFPublishedArticleSearchTask(Task):
 
                 data['status'] = ''
 
-                dor_parts = date_of_rejection.split('/')
+                if '-' in date_of_rejection:
+                    dor_parts = date_of_rejection.split('-')
+                else:
+                    dor_parts = date_of_rejection.split('/')
+
                 dor_month = int(dor_parts[0])
                 dor_day = int(dor_parts[1])
                 dor_year = int(dor_parts[2])
