@@ -520,11 +520,20 @@ var EditPublisherPage = (function() {
 
         var validCohortIssns = true;
         if (cohortArticlesProduct) {
+            var gotOne = false;
             $('.issn-values-cohort-row').each(function () {
                 var row = $(this);
-                if (!row.find('.validate-issn-checkmark').is(':visible')) {
-                    validCohortIssns = false;
-                    return false;
+                if (row.find('.validate-issn-checkmark').is(':visible')) {
+                    gotOne = true;
+                }
+                else {
+                    if (gotOne && isIssnRowEmpty(row)) {
+                        // let it slide
+                    }
+                    else {
+                        validCohortIssns = false;
+                        return false;
+                    }
                 }
             });
         }
@@ -662,7 +671,6 @@ var EditPublisherPage = (function() {
         var electronicIssn = row.find('#id_electronic_issn_' + index).val();
         var printIssn = row.find('#id_print_issn_' + index).val();
         var journalCode = row.find('#id_journal_code_' + index).val();
-
         return !electronicIssn && !printIssn && !journalCode;
     };
 
