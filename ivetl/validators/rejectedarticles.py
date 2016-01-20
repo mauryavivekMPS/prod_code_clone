@@ -26,7 +26,7 @@ class RejectedArticlesValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) < 10:
-                                errors.append("%s : %s - Incorrect number of fields (%s present, 10 required), skipping other validation" % (file_name, (count - 1), len(line)))
+                                errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields (%s present, 10 required), skipping other validation" % len(line)))
                                 continue
 
                             input_data = {}
@@ -61,30 +61,30 @@ class RejectedArticlesValidator(BaseValidator):
                                 input_data['published_doi'] = line[14].strip()
 
                             if input_data['manuscript_id'] == "":
-                                errors.append("%s : Line# %s - No value for MANUSCRIPT_ID" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No value for MANUSCRIPT_ID"))
 
                             if input_data['date_of_rejection'] == "":
-                                errors.append("%s : Line# %s - No value for DATE_OF_REJECTION" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No value for DATE_OF_REJECTION"))
 
                             elif not self.valid_date(input_data['date_of_rejection']):
-                                errors.append("%s : Line# %s - Invalid format for DATE_OF_REJECTION %s (Valid format is MM/DD/YY)" % (file_name, (count - 1), input_data['date_of_rejection']))
+                                errors.append(self.format_error(file_name, count - 1, "Invalid format for DATE_OF_REJECTION %s (Valid format is MM/DD/YY)" % input_data['date_of_rejection']))
 
                             if input_data['reject_reason'] == "":
-                                errors.append("%s : Line# %s - No value for REJECT_REASON" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No value for REJECT_REASON"))
 
                             if input_data['title'] == "":
-                                errors.append("%s : Line# %s - No have value for TITLE" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No have value for TITLE"))
 
                             if input_data['first_author'] == "" and input_data['corresponding_author'] == "" and input_data['co_authors'] == "":
-                                errors.append("%s : Line# %s - No value for any of the author fields (first, corresponding, co)" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No value for any of the author fields (first, corresponding, co)"))
 
                             if input_data['submitted_journal'] == "":
-                                errors.append("%s : Line# %s - No value for SUBMITTED_JOURNAL" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No value for SUBMITTED_JOURNAL"))
 
                     total_count += count
 
             except UnicodeDecodeError:
-                errors.append("%s : %s - This file is not in UTF-8, skipping further validation" % (file_name, 0))
+                errors.append(self.format_error(file_name, 0, "This file is not in UTF-8, skipping further validation"))
 
         return total_count, errors
 
