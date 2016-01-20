@@ -1,25 +1,27 @@
 {% load filters %}
 {% load tags %}
 <tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ publisher_runs.recent_run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ publisher_runs.recent_task.status }}">
-    <td class="status-col">
-        {% if publisher_runs.runs %}
-            <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
-                {% status_icon publisher_runs.recent_run %}
-            </span>
-        {% else %}
-            <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
-                {% status_icon %}
-            </span>
-        {% endif %}
-    </td>
-    {% if request.user.superuser %}
+    {% if not all_pipelines %}
+        <td class="status-col">
+            {% if publisher_runs.runs %}
+                <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                    {% status_icon publisher_runs.recent_run %}
+                </span>
+            {% else %}
+                <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                    {% status_icon %}
+                </span>
+            {% endif %}
+        </td>
+    {% endif %}
+    {% if not all_pipelines and request.user.superuser %}
         <td class="opener-col">
             <span class="lnr lnr-chevron-down opener-icon {{ publisher_runs.publisher.publisher_id }}_closer" {% if opened %}style="display:none"{% endif %}></span>
             <span class="lnr lnr-chevron-up closer-icon {{ publisher_runs.publisher.publisher_id }}_opener" {% if not opened %}style="display:none"{% endif %}></span>
         </td>
     {% endif %}
-    <td {% if not request.user.superuser %}colspan="2"{% endif %}>
-        {% if request.user.superuser %}
+    <td {% if not all_pipelines and not request.user.superuser %}colspan="2"{% endif %}>
+        {% if not all_pipelines and request.user.superuser %}
             <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.publisher.display_name }}</a>
         {% else %}
             {{ publisher_runs.publisher.display_name }}

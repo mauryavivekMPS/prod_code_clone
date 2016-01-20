@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_completed_runs=False, prioritize_most_recent_running=True):
+
     # get all the runs
     all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
 

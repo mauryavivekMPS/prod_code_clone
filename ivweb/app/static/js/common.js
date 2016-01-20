@@ -1225,3 +1225,19 @@ var UserSettingsPage = (function() {
     };
 
 })();
+
+
+//
+// All pipelines page
+//
+
+var AllPipelinesPage = (function() {
+
+    var init = function() {
+    };
+
+    return {
+        init: init
+    };
+
+})();
