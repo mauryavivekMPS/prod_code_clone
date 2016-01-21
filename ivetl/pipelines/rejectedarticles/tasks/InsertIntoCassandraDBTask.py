@@ -134,6 +134,9 @@ class InsertIntoCassandraDBTask(Task):
                 if 'submitted_journal' in data and (data['submitted_journal'] != ''):
                     ra['submitted_journal'] = data['submitted_journal']
 
+                if 'mendeley_saves' in data and (data['mendeley_saves'] != ''):
+                    ra['mendeley_saves'] = int(data['mendeley_saves'])
+
                 ra.batch(b).save()
 
                 b.execute()

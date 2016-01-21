@@ -72,6 +72,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                     tasks.XREFPublishedArticleSearchTask.s() |
                     tasks.SelectPublishedArticleTask.s() |
                     tasks.ScopusCitationLookupTask.s() |
+                    tasks.MendeleyLookupTask.s() |
                     tasks.PrepareForDBInsertTask.s() |
                     tasks.InsertIntoCassandraDBTask.s() |
                     published_articles_tasks.CheckRejectedManuscriptTask.s()

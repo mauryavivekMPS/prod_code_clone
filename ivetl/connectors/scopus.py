@@ -114,7 +114,6 @@ class ScopusConnector(BaseConnector):
 
     def get_citations(self, article_scopus_id, is_cohort, tlogger):
         offset = 0
-        num_citations = 0
         citations = []
 
         self.count += 1
