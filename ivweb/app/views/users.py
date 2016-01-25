@@ -1,6 +1,5 @@
 import datetime
 import logging
-from cassandra.cqlengine.query import BatchQuery
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
