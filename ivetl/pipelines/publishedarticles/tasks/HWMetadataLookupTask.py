@@ -74,6 +74,10 @@ class HWMetadataLookupTask(Task):
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
                     hw_journal_code = "/" + issn_to_hw_journal_code[data['ISSN'][0]]
 
+                if hw_journal_code == '/':
+                    tlogger.info("No HW Journal Code for ISSN ... skipping record.")
+                    continue
+
                 value = urllib.parse.urlencode({'value': hw_xform.xform_doi(publisher_id, doi)})
                 url = self.SASSFS_BASE_URL + 'under=' + hw_journal_code + '&' + value
 
