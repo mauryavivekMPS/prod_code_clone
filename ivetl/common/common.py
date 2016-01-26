@@ -42,13 +42,22 @@ PIPELINES = [
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
     },
     {
-        'name': 'Rejected Articles',
+        'name': 'Upload Rejected',
         'id': 'rejected_articles',
         'user_facing_display_name': 'Rejected manuscripts',
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
+        'rebuild_data_source_id': ['rejected_articles'],
+    },
+    {
+        'name': 'Reprocess Rejected',
+        'id': 'reprocess_rejected_articles',
+        'user_facing_display_name': 'Reprocess rejected manuscripts',
+        'class': 'ivetl.pipelines.rejectedarticles.ReprocessRejectedArticlesPipeline',
+        'has_file_input': False,
+        'validator_class': None,
         'rebuild_data_source_id': ['rejected_articles'],
     },
     {
@@ -137,6 +146,9 @@ PRODUCTS = [
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['rejected_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
             }
         ],
         'tableau_workbooks': [

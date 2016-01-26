@@ -2,16 +2,17 @@ import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.articlecitations import tasks
+from ivetl.pipelines.rejectedarticles import tasks
+from ivetl.pipelines.publishedarticles import published_articles_tasks
 from ivetl.models import Publisher_Metadata
 from ivetl.common import common
 
 
 @app.task
-class UpdateArticleCitationsPipeline(Pipeline):
+class ReprocessRejectedArticlesPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, initiating_user_email=None):
-        pipeline_id = "article_citations"
+        pipeline_id = "reprocess_rejected_articles"
 
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
@@ -39,12 +40,15 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                tasks.GetScopusArticleCitations.REPROCESS_ERRORS: False,
             }
 
             chain(
-                tasks.GetScopusArticleCitations.s(task_args) |
-                tasks.InsertScopusIntoCassandra.s() |
-                tasks.UpdateArticleCitationsWithCrossref.s()
+                    tasks.GetRejectedArticlesTask.s(task_args) |
+                    tasks.XREFPublishedArticleSearchTask.s() |
+                    tasks.SelectPublishedArticleTask.s() |
+                    tasks.ScopusCitationLookupTask.s() |
+                    tasks.MendeleyLookupTask.s() |
+                    tasks.PrepareForDBInsertTask.s() |
+                    tasks.InsertIntoCassandraDBTask.s() |
+                    published_articles_tasks.CheckRejectedManuscriptTask.s()
             ).delay()
-

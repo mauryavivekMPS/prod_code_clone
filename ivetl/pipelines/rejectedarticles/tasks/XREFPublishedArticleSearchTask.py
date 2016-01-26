@@ -48,84 +48,87 @@ class XREFPublishedArticleSearchTask(Task):
 
                 tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + publisher + " / " + manuscript_id)
 
-                date_of_rejection = data['date_of_rejection']
-                title = data['title']
+                # skip the lookup if we already have it (typical for a reprocess run)
+                if not data.get('status') == 'Match found':
 
-                data['status'] = ''
+                    date_of_rejection = data['date_of_rejection']
+                    title = data['title']
 
-                if '-' in date_of_rejection:
-                    dor_parts = date_of_rejection.split('-')
-                else:
-                    dor_parts = date_of_rejection.split('/')
+                    data['status'] = ''
 
-                dor_month = int(dor_parts[0])
-                dor_day = int(dor_parts[1])
-                dor_year = int(dor_parts[2])
+                    if '-' in date_of_rejection:
+                        dor_parts = date_of_rejection.split('-')
+                    else:
+                        dor_parts = date_of_rejection.split('/')
 
-                if dor_year < 99:
-                    dor_year += 2000
+                    dor_month = int(dor_parts[0])
+                    dor_day = int(dor_parts[1])
+                    dor_year = int(dor_parts[2])
 
-                # date (y, m, d)
-                dor_date = date(dor_year, dor_month, dor_day)
-                dop_date = dor_date + timedelta(days=1)
+                    if dor_year < 99:
+                        dor_year += 2000
 
-                dop_date_param = "filter=from-pub-date:" + dop_date.strftime('%Y-%m')
+                    # date (y, m, d)
+                    dor_date = date(dor_year, dor_month, dor_day)
+                    dop_date = dor_date + timedelta(days=1)
 
-                title = self.remove_hex(title)
-                title = self.solr_encode(title)
+                    dop_date_param = "filter=from-pub-date:" + dop_date.strftime('%Y-%m')
 
-                attempt = 0
-                max_attempts = 3
+                    title = self.remove_hex(title)
+                    title = self.solr_encode(title)
 
-                while attempt < max_attempts:
+                    attempt = 0
+                    max_attempts = 3
 
-                    try:
-                        url = 'http://api.crossref.org/works?rows=4&' + dop_date_param + '&query=' + title
-                        tlogger.info("Searching CrossRef for: " + url)
-                        r = requests.get(url, timeout=30)
+                    while attempt < max_attempts:
 
-                        if "Internal Server Error" in str(r.content):
-                            print("No match found")
-                            data['status'] = "No match found"
+                        try:
+                            url = 'http://api.crossref.org/works?rows=4&' + dop_date_param + '&query=' + title
+                            tlogger.info("Searching CrossRef for: " + url)
+                            r = requests.get(url, timeout=30)
 
-                        else:
-
-                            xrefdata = r.json()
-
-                            if 'ok' in xrefdata['status'] and len(xrefdata['message']['items']) > 0:
-
-                                data['status'] = "Match found"
-
-                                for i in xrefdata['message']['items']:
-
-                                    article = CRArticle()
-                                    article.setxrefdetails(i, issn_journals)
-
-                                    i["xref_journal"] = article.journal
-                                    i["xref_publisher"] = article.publisher
-                                    i["xref_publishdate"] = article.publishdate
-                                    i["xref_first_author"] = article.author_last_name + ',' + article.author_first_name
-                                    i["xref_co_authors_ln_fn"] = ';'.join(article.xrefcoauthors)
-                                    i["xref_title"] = article.bptitle
-                                    i["xref_doi"] = article.doi
-                                    i["doi_lookup_status"] = "Match found"
-
-                                data['xref_results'] = xrefdata
-
-                            else:
+                            if "Internal Server Error" in str(r.content):
+                                print("No match found")
                                 data['status'] = "No match found"
 
-                            break
+                            else:
 
-                    except Exception:
-                        tlogger.info("XREF Search failed. Trying Again")
-                        tlogger.info(Exception, exc_info=True)
-                        data['status'] = "No match found"
+                                xrefdata = r.json()
 
-                        attempt += 1
+                                if 'ok' in xrefdata['status'] and len(xrefdata['message']['items']) > 0:
 
-                if attempt >= max_attempts:
-                    tlogger.error("!!! XREF Search failed max times !!!")
+                                    data['status'] = "Match found"
+
+                                    for i in xrefdata['message']['items']:
+
+                                        article = CRArticle()
+                                        article.setxrefdetails(i, issn_journals)
+
+                                        i["xref_journal"] = article.journal
+                                        i["xref_publisher"] = article.publisher
+                                        i["xref_publishdate"] = article.publishdate
+                                        i["xref_first_author"] = article.author_last_name + ',' + article.author_first_name
+                                        i["xref_co_authors_ln_fn"] = ';'.join(article.xrefcoauthors)
+                                        i["xref_title"] = article.bptitle
+                                        i["xref_doi"] = article.doi
+                                        i["doi_lookup_status"] = "Match found"
+
+                                    data['xref_results'] = xrefdata
+
+                                else:
+                                    data['status'] = "No match found"
+
+                                break
+
+                        except Exception:
+                            tlogger.info("XREF Search failed. Trying Again")
+                            tlogger.info(Exception, exc_info=True)
+                            data['status'] = "No match found"
+
+                            attempt += 1
+
+                    if attempt >= max_attempts:
+                        tlogger.error("!!! XREF Search failed max times !!!")
 
                 row = """%s\t%s\t%s\n""" % (
                     publisher,

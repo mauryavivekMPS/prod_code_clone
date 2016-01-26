@@ -25,7 +25,7 @@ is_running() {
 
 case "$1" in
     start)
-    if is_running; then
+    if is_running;12 then
         echo "Already started"
     else
         echo "Starting $name"
