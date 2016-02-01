@@ -1,13 +1,11 @@
-<div class="uploaded-file">
-    <div class="lnr lnr-file-spreadsheet uploaded-file-icon"></div>
-    <div class="uploaded-file-attributes">
-        <ul>
-            <li class="uploaded-file-name">{{ file_name }}</li>
-            <li class="uploaded-file-line-count">{{ line_count }} line{{ line_count|pluralize }}</li>
-            <li class="uploaded-file-size">{{ file_size }}</li>
-        </ul>
-
-        {% if not validation_errors %}
+<tr>
+    <td class="file-icon-col"><span class="lnr lnr-file-spreadsheet file-icon"></span></td>
+    <td class="text-only-col">{{ file_name }}</td>
+    <td class="text-only-col">{{ line_count }}</td>
+    <td class="text-only-col">{{ file_size }}</td>
+    <td class="text-only-col"><span class="lnr lnr-checkmark-circle file-status-icon"></span> Validated</td>
+    <td>
+        {% if not validation_errors and 0 %}
             <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="file_to_delete" value="{{ file_name }}">
@@ -17,23 +15,48 @@
                 </button>
             </form>
         {% endif %}
-    </div>
-    {% if validation_errors %}
-        <table class="table validation-error-table">
-            <thead>
-                <tr>
-                    <th class="line-number-col">Line #</th>
-                    <th>Error</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for error in validation_errors %}
+    </td>
+</tr>
+{% if validation_errors and 0 %}
+    <tr>
+        <td colspan="5">
+            <table class="table validation-error-table">
+                <thead>
                     <tr>
-                        <td>{{ error.line_number }}</td>
-                        <td class="message">{{ error.message }}</td>
+                        <th class="line-number-col">Line #</th>
+                        <th>Error</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-</div>
+                </thead>
+                <tbody>
+                    {% for error in validation_errors %}
+                        <tr>
+                            <td>{{ error.line_number }}</td>
+                            <td class="message">{{ error.message }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+{% endif %}
+
+{#    <div class="lnr lnr-file-spreadsheet uploaded-file-icon"></div>#}
+{#    <div class="uploaded-file-attributes">#}
+{#        <ul>#}
+{#            <li class="uploaded-file-name">{{ file_name }}</li>#}
+{#            <li class="uploaded-file-line-count">{{ line_count }} line{{ line_count|pluralize }}</li>#}
+{#            <li class="uploaded-file-size">{{ file_size }}</li>#}
+{#        </ul>#}
+{##}
+{#        {% if not validation_errors %}#}
+{#            <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}">#}
+{#                {% csrf_token %}#}
+{#                <input type="hidden" name="file_to_delete" value="{{ file_name }}">#}
+{#                <input type="hidden" name="publisher" value="{{ publisher_id }}">#}
+{#                <button type="submit" class="btn btn-default submit-button delete-file-button">#}
+{#                    <span class="lnr lnr-trash2"></span> Delete#}
+{#                </button>#}
+{#            </form>#}
+{#        {% endif %}#}
+{#    </div>#}
+{#</div>#}

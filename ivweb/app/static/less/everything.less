@@ -1783,34 +1783,30 @@ body.login {
     font-size: 12px;
 }
 
-.uploaded-file {
-    border-top: 1px dotted #ccc;
-    padding-top: 15px;
-    padding-bottom: 5px;
+.all-files-table {
 
-    &:last-child {
-        margin-bottom: 30px;
-        border-bottom: 1px dotted #ccc;
-    }
+    .file-icon-col {
+        width: 30px;
+        padding-right: 0;
+        padding-top: 15px;
+        padding-bottom: 12px;
 
-    .uploaded-file-icon {
-        font-size: 48px;
-        float: left;
-    }
-
-    .uploaded-file-attributes {
-        padding-left: 0px;
-
-        ul {
-            list-style: none;
-            padding-left: 58px;
-            font-size: 12px;
+        .file-icon {
+            font-size: 20px;
         }
     }
 
+    .text-only-col {
+        padding-top: 16px;
+    }
+
+    .file-status-icon {
+        font-size: 16px;
+        vertical-align: -2px;
+        margin-right: 4px;
+    }
+
     .delete-file-button {
-        float: right;
-        margin-top: -50px;
         font-size: 12px;
         border: none;
         box-shadow: none;
@@ -1823,6 +1819,47 @@ body.login {
         }
     }
 }
+
+//.uploaded-file {
+//    border-top: 1px dotted #ccc;
+//    padding-top: 15px;
+//    padding-bottom: 5px;
+//
+//    &:last-child {
+//        margin-bottom: 30px;
+//        border-bottom: 1px dotted #ccc;
+//    }
+//
+//    .uploaded-file-icon {
+//        font-size: 48px;
+//        float: left;
+//    }
+//
+//    .uploaded-file-attributes {
+//        padding-left: 0px;
+//
+//        ul {
+//            list-style: none;
+//            padding-left: 58px;
+//            font-size: 12px;
+//        }
+//    }
+//
+//    .delete-file-button {
+//        float: right;
+//        margin-top: -50px;
+//        font-size: 12px;
+//        border: none;
+//        box-shadow: none;
+//        color: @brand-danger;
+//        margin-right: 15px;
+//
+//        &:hover {
+//            color: @brand-danger;
+//            background-color: #F5E9EB;
+//        }
+//    }
+//}
 
 p.uploaded-file-error-icon {
     border-top: 1px dotted #ccc;

@@ -22,11 +22,22 @@
         <div class="row">
             <div class="col-md-12">
                 <p class="uploaded-file-message">Here are the results of your upload:</p>
-                <div class="all-files">
-                    {% for file in processed_files %}
-                        {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count validation_errors=file.validation_errors %}
-                    {% endfor %}
-                </div>
+                <table class="table all-files-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">File</th>
+                            <th>Lines</th>
+                            <th>Size</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in processed_files %}
+                            {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count validation_errors=file.validation_errors %}
+                        {% endfor %}
+                    </tbody>
+                </table>
                 {% include "pipelines/include/pending_files_form.html" with additional=True ignore=file_name only_pending=False %}
             </div>
         </div>
