@@ -194,6 +194,7 @@ def upload(request, product_id, pipeline_id):
         if form.is_valid():
             all_uploaded_files = request.FILES.getlist('files')
             all_processed_files = []
+            includes_invalid_files = False
 
             for uploaded_file in all_uploaded_files:
 
@@ -222,6 +223,7 @@ def upload(request, product_id, pipeline_id):
                         line_count = i + 1
 
                 if validation_errors:
+                    includes_invalid_files = True
 
                     # delete the file
                     os.remove(pending_file_path)
@@ -278,6 +280,7 @@ def upload(request, product_id, pipeline_id):
                 'processed_files': all_processed_files,
                 'publisher': publisher,
                 'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=all_file_names),
+                'includes_invalid_files': includes_invalid_files,
             })
 
     else:
