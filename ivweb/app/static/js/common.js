@@ -341,64 +341,6 @@ var PipelineListPage = (function() {
 // Upload page
 //
 
-var PendingFilesForm = (function() {
-    var pipelineId = '';
-    var publisherId = '';
-    var deleteUrl = '';
-    var csrfToken = '';
-
-    var wireUpDeleteButtons = function(selector) {
-        $(selector).each(function() {
-            var link = $(this);
-            link.click(function() {
-                var fileToDelete = link.attr('file_to_delete');
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: publisherId},
-                    {name: 'file_to_delete', value: fileToDelete}
-                ];
-
-                $.post(deleteUrl, data)
-                    .always(function() {
-                        var row = link.closest('tr');
-                        row.fadeOut(150, function() {
-                            row.remove();
-                        });
-                    });
-
-                return false;
-            });
-        });
-
-    };
-
-    var init = function(options) {
-        options = $.extend({
-            pipelineId: '',
-            publisherId: '',
-            deleteUrl: '',
-            csrfToken: ''
-        }, options);
-
-        pipelineId = options.pipelineId;
-        publisherId = options.publisherId;
-        deleteUrl = options.deleteUrl;
-        csrfToken = options.csrfToken;
-
-        wireUpDeleteButtons('.delete-file-button');
-    };
-
-    return {
-        init: init
-    };
-
-})();
-
-
-//
-// Upload page
-//
-
 var UploadPage = (function() {
     var f;
     var pipelineId = '';
@@ -462,6 +404,64 @@ var UploadPage = (function() {
 
 
 //
+// Pending files form
+//
+
+var PendingFilesForm = (function() {
+    var pipelineId = '';
+    var publisherId = '';
+    var deleteUrl = '';
+    var csrfToken = '';
+
+    var wireUpDeleteButtons = function(selector) {
+        $(selector).each(function() {
+            var link = $(this);
+            link.click(function() {
+                var fileToDelete = link.attr('file_to_delete');
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: csrfToken},
+                    {name: 'publisher', value: publisherId},
+                    {name: 'file_to_delete', value: fileToDelete}
+                ];
+
+                $.post(deleteUrl, data)
+                    .always(function() {
+                        var row = link.closest('tr');
+                        row.fadeOut(150, function() {
+                            row.remove();
+                        });
+                    });
+
+                return false;
+            });
+        });
+
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            pipelineId: '',
+            publisherId: '',
+            deleteUrl: '',
+            csrfToken: ''
+        }, options);
+
+        pipelineId = options.pipelineId;
+        publisherId = options.publisherId;
+        deleteUrl = options.deleteUrl;
+        csrfToken = options.csrfToken;
+
+        wireUpDeleteButtons('.delete-file-button');
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
 // Upload Results page
 //
 
@@ -481,12 +481,14 @@ var UploadResultsPage = (function() {
         });
 
         if (hasReplacementFiles) {
-            f.find('.replacement-file-submit-row').show();
-            $('.pending-files-container').hide();
+            $('.pending-files-container').fadeOut(150, function() {
+                f.find('.replacement-file-submit-row').fadeIn(150);
+            });
         }
         else {
-            f.find('.replacement-file-submit-row').hide();
-            $('.pending-files-container').show();
+            f.find('.replacement-file-submit-row').fadeOut(150, function() {
+                $('.pending-files-container').fadeIn(150);
+            });
         }
     };
 
