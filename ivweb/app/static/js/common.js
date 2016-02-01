@@ -191,6 +191,9 @@ var PipelineListPage = (function() {
             var form = $(this);
             form.find('.run-pipeline-for-publisher-button').hide();
             form.find('.run-loading-icon').show();
+            var parent = form.parent();
+            parent.find('.little-upload-button').hide();
+            parent.find('.little-files-link').hide();
             $('.run-button').hide();
             $.post(runForPublisherUrl, form.serialize());
             event.preventDefault();
@@ -348,7 +351,7 @@ var UploadPage = (function() {
         if (!hasPublisher) {
             publisherId = f.find("#id_publisher option:selected").val();
         }
-        var file = f.find("#id_file").val();
+        var file = f.find("#id_files").val();
 
         if ((hasPublisher || publisherId) && file) {
             f.find('.submit-button').removeClass('disabled').prop('disabled', false);
@@ -386,7 +389,7 @@ var UploadPage = (function() {
             });
         }
 
-        f.find('#id_file').on('change', checkForm);
+        f.find('#id_files').on('change', checkForm);
 
         f.submit(function() {
             IvetlWeb.showLoading();

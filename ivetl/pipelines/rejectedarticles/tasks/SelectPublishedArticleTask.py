@@ -35,7 +35,7 @@ class SelectPublishedArticleTask(Task):
 
                 tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + publisher + " / " + manuscript_id)
 
-                if data['status'] == "Match found" and 'xref_results' in data:
+                if data['status'] == "Match found":
 
                     xref_search_results_json = data['xref_results']
 

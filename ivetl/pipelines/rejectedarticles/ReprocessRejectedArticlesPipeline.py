@@ -3,7 +3,7 @@ from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.rejectedarticles import tasks
-from ivetl.pipelines.publishedarticles import published_articles_tasks
+from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata
 from ivetl.common import common
 

@@ -1,6 +1,8 @@
 class AuthorizationAPIError(Exception):
-    def __init__(self, error):
-        message = "Authorization Error: " + str(error)
+    def __init__(self, error=None):
+        message = "Authorization Error"
+        if error:
+            message += ": %s" % error
         super(AuthorizationAPIError, self).__init__(message)
 
 
