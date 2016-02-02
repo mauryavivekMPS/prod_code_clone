@@ -430,6 +430,7 @@ var PendingFilesForm = (function() {
                         row.fadeOut(150, function() {
                             row.remove();
                         });
+                        IvetlWeb.hideLoading();
                     });
 
                 return false;
@@ -455,6 +456,7 @@ var PendingFilesForm = (function() {
     };
 
     return {
+        wireUpDeleteButtons: wireUpDeleteButtons,
         init: init
     };
 
@@ -466,56 +468,46 @@ var PendingFilesForm = (function() {
 //
 
 var UploadResultsPage = (function() {
-    var f;
-    var pipelineId = '';
-    var hasPublisher;
+    var uploadUrl;
 
-    var checkForm = function() {
-        var hasReplacementFiles = false;
-
-        f.find(".replacement-file-picker").each(function() {
+    var wireUpFilePickers = function(selector) {
+        $(selector).on('change', function() {
             var picker = $(this);
             if (picker.val()) {
-                hasReplacementFiles = true;
+                var f = $(this.form)[0];
+                var data = new FormData(f);
+
+                var parentRow = picker.closest('tr.error-list-row');
+                var fileId = parentRow.attr('file_id');
+
+                $('.file-row.file-row-' + fileId).remove();
+                $('.error-list-row.file-row-' + fileId).remove();
+                $('.loading-row.file-row-' + fileId).show();
+
+                $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
+                    .done(function(html) {
+                        console.log('done');
+                        $('.loading-row.file-row-' + fileId).replaceWith(html);
+                    })
+                    .always(function() {
+                        console.log('always');
+                    });
             }
         });
-
-        if (hasReplacementFiles) {
-            $('.pending-files-container').fadeOut(150, function() {
-                f.find('.replacement-file-submit-row').fadeIn(150);
-            });
-        }
-        else {
-            f.find('.replacement-file-submit-row').fadeOut(150, function() {
-                $('.pending-files-container').fadeIn(150);
-            });
-        }
     };
 
     var init = function(options) {
         options = $.extend({
-            pipelineId: '',
-            hasPublisher: false
+            uploadUrl: ''
         }, options);
 
-        f = $('#upload-form');
-        pipelineId = options.pipelineId;
-        hasPublisher = options.hasPublisher;
+        uploadUrl = options.uploadUrl;
 
-        f.find('.replacement-file-picker').on('change', checkForm);
-
-        f.find('.clear-replacement-files').click(function() {
-            f.find('.replacement-file-picker').val('');
-            f.find('.replacement-file-submit-row').hide();
-            $('.pending-files-container').show();
-        });
-
-        f.submit(function() {
-            IvetlWeb.showLoading();
-        });
+        wireUpFilePickers('.replacement-file-picker');
     };
 
     return {
+        wireUpFilePickers: wireUpFilePickers,
         init: init
     };
 

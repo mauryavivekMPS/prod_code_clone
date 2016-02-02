@@ -1894,58 +1894,46 @@ body.login {
         }
     }
 
-   .file-row:hover {
+    .file-row:hover {
        .delete-file-button {
            opacity: 1;
        }
-   }
+    }
+
+    .loading-row {
+        .loading-spinner {
+            vertical-align: -7px;
+            font-size: 12px;
+            margin-left: 2px;
+        }
+
+        .loading-message {
+            padding-top: 15px;
+            padding-bottom: 16px;
+        }
+    }
+
+    .line-count-col {
+        width: 80px;
+    }
+
+    .file-size-col {
+        width: 120px;
+    }
+
+    .file-status-col {
+        width: 150px;
+    }
+}
+
+.inline-upload-form {
+    display: inline-block;
 }
 
 .form-horizontal .replacement-file-submit-row {
     padding-top: 0;
     border-top: 0;
 }
-
-//.uploaded-file {
-//    border-top: 1px dotted #ccc;
-//    padding-top: 15px;
-//    padding-bottom: 5px;
-//
-//    &:last-child {
-//        margin-bottom: 30px;
-//        border-bottom: 1px dotted #ccc;
-//    }
-//
-//    .uploaded-file-icon {
-//        font-size: 48px;
-//        float: left;
-//    }
-//
-//    .uploaded-file-attributes {
-//        padding-left: 0px;
-//
-//        ul {
-//            list-style: none;
-//            padding-left: 58px;
-//            font-size: 12px;
-//        }
-//    }
-//
-//    .delete-file-button {
-//        float: right;
-//        margin-top: -50px;
-//        font-size: 12px;
-//        border: none;
-//        box-shadow: none;
-//        color: @brand-danger;
-//        margin-right: 15px;
-//
-//        &:hover {
-//            color: @brand-danger;
-//            background-color: #F5E9EB;
-//        }
-//    }
-//}
 
 p.uploaded-file-error-icon {
     border-top: 1px dotted #ccc;

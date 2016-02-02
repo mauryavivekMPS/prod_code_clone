@@ -7,6 +7,7 @@ import datetime
 import stat
 import shutil
 import codecs
+import uuid
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
@@ -158,6 +159,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 class UploadForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}))
     files = ivweb_forms.MultiFileField(widget=ivweb_forms.MultiFileInput(attrs={'class': 'form-control'}))
+    single_file_only = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)
 
     def __init__(self, user, *args, publisher=None, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
@@ -273,15 +275,32 @@ def upload(request, product_id, pipeline_id):
 
             all_file_names = [n['file_name'] for n in all_processed_files]
 
-            return render(request, 'pipelines/upload_results.html', {
-                'product': product,
-                'pipeline': pipeline,
-                'publisher_id': publisher_id,
-                'processed_files': all_processed_files,
-                'publisher': publisher,
-                'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=all_file_names),
-                'includes_invalid_files': includes_invalid_files,
-            })
+            if form.cleaned_data['single_file_only']:
+                single_file = all_processed_files[0]
+
+                return render(request, 'pipelines/include/file.html', {
+                    'product': product,
+                    'pipeline': pipeline,
+                    'publisher_id': publisher_id,
+                    'file_name': single_file['file_name'],
+                    'file_size': single_file['file_size'],
+                    'line_count': single_file['line_count'],
+                    'validation_errors': single_file['validation_errors'],
+                    'file_index': str(uuid.uuid4()),
+                    'publisher': publisher,
+                    'single_file_only': True,
+                })
+
+            else:
+                return render(request, 'pipelines/upload_results.html', {
+                    'product': product,
+                    'pipeline': pipeline,
+                    'publisher_id': publisher_id,
+                    'processed_files': all_processed_files,
+                    'publisher': publisher,
+                    'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=all_file_names),
+                    'includes_invalid_files': includes_invalid_files,
+                })
 
     else:
         form = UploadForm(request.user, publisher=publisher)

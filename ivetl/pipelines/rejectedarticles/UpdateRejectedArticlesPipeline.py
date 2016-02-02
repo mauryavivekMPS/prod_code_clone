@@ -52,11 +52,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
             work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
             self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=9, current_task_count=0)
 
-            print("Here Fuck!")
-
             if files:
-                print('got files: %s' % files)
-
                 # construct the first task args with all of the standard bits + the list of files
                 task_args = {
                     'publisher_id': publisher.publisher_id,
@@ -83,8 +79,6 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                 ).delay()
 
             else:
-                print('no files')
-
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
                 end_date = datetime.datetime.today()
                 p = Pipeline_Status().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
