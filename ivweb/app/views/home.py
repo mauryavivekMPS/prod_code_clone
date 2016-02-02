@@ -3,13 +3,14 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.common import common
+from ivetl.models import Pipeline_Status, Pipeline_Task_Status
 from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending_files_for_publisher
 
 
 @login_required
 def home(request):
     if request.user.superuser:
-        return HttpResponseRedirect(reverse('growth'))
+        return HttpResponseRedirect(reverse('publishers.list'))
 
     else:
         messages = []
@@ -91,12 +92,53 @@ def home(request):
 
 
 @login_required
+def all_pipelines(request):
+    if not request.user.superuser:
+        return HttpResponseRedirect(reverse('home'))
+    else:
+
+        all_publishers = request.user.get_accessible_publishers()
+
+        # publishers ordered by name
+        ordered_publishers = sorted(all_publishers, key=lambda p: p.name.lower().lstrip('('))
+
+        # temporary run storage by publisher ID
+        runs_by_pub = {p.publisher_id: {'publisher': p, 'runs': []} for p in all_publishers}
+
+        # get any reasonably recent in progress runs
+        in_progress_runs = [run for run in Pipeline_Status.objects().limit(1000) if run.status == 'completed']
+
+        # sort the runs by pub
+        for run in in_progress_runs:
+            tasks = Pipeline_Task_Status.objects(publisher_id=run.publisher_id, product_id=run.product_id, pipeline_id=run.pipeline_id, job_id=run.job_id)
+            sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
+            # TODO: order runs by product/pipeline order
+            runs_by_pub[run.publisher_id]['runs'].append({
+                'run': run,
+                'tasks': sorted_tasks,
+                'product': common.PRODUCT_BY_ID[run.product_id],
+                'pipeline': common.PIPELINE_BY_ID[run.pipeline_id],
+            })
+
+        ordered_runs = []
+        for publisher in ordered_publishers:
+            if runs_by_pub[publisher.publisher_id]['runs']:
+                ordered_runs.append({
+                    'publisher': publisher,
+                    'runs': runs_by_pub[publisher.publisher_id]['runs'],
+                })
+
+        return render(request, 'all_pipelines.html', {
+            'runs_by_publisher': ordered_runs,
+        })
+
+
+@login_required
 def growth(request):
     if not request.user.superuser:
         return HttpResponseRedirect(reverse('home'))
     else:
-        return render(request, 'growth.html', {
-        })
+        return render(request, 'growth.html', {})
 
 
 @login_required
@@ -104,5 +146,4 @@ def performance(request):
     if not request.user.superuser:
         return HttpResponseRedirect(reverse('home'))
     else:
-        return render(request, 'performance.html', {
-        })
+        return render(request, 'performance.html', {})

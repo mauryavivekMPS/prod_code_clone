@@ -316,6 +316,7 @@ body {
     }
 }
 
+.all_pipelines #left-menu .all_pipelines_menu_item,
 .performance #left-menu .performance_menu_item,
 .growth #left-menu .growth_menu_item,
 .dashboard #left-menu .dashboard_menu_item,
@@ -1773,7 +1774,7 @@ body.login {
 // Upload page
 // -------------------------
 
-.uploaded-file-message {
+.no-pending-files-message {
     margin-bottom: 25px;
 }
 
@@ -1782,45 +1783,156 @@ body.login {
     font-size: 12px;
 }
 
-.uploaded-file {
-    border-top: 1px dotted #ccc;
-    padding-top: 15px;
-    padding-bottom: 5px;
+.all-files-table {
+    margin-bottom: 40px;
 
-    &:last-child {
-        margin-bottom: 30px;
-        border-bottom: 1px dotted #ccc;
-    }
+    .file-icon-col {
+        width: 30px;
+        padding-right: 0;
+        padding-top: 15px;
+        padding-bottom: 12px;
 
-    .uploaded-file-icon {
-        font-size: 48px;
-        float: left;
-    }
+        .file-icon {
+            font-size: 20px;
 
-    .uploaded-file-attributes {
-        padding-left: 0px;
-
-        ul {
-            list-style: none;
-            padding-left: 58px;
-            font-size: 12px;
+            &.error {
+                color: @brand-danger;
+            }
         }
+    }
+
+    .text-only-col {
+        padding-top: 16px;
+    }
+
+    .file-status-col {
+        text-align: center;
+    }
+
+    .file-status-icon {
+        font-size: 16px;
+        vertical-align: -2px;
+        margin-right: 8px;
+
+        &.success {
+            color: @color-secondary-2-3;
+        }
+
+        &.error {
+            color: @brand-danger;
+        }
+    }
+
+    .show-errors-button {
+        font-size: 10px;
+        padding: 2px 8px;
+        vertical-align: 1px;
+    }
+
+    .show-errors-link {
+        color: @brand-danger;
+    }
+
+    .success-message {
+        color: @color-secondary-2-3;
+    }
+
+    .validation-error-table-col {
+        padding-top: 0;
+    }
+
+    > tbody tr.error-list-row > td {
+        border-top: none;
+    }
+
+    > tbody > tr:last-of-type > td {
+        border-bottom: 1px solid #eee;
+    }
+
+    table.validation-error-table {
+        font-size: 12px;
+        margin-bottom: 5px;
+
+        .message {
+            color: @brand-danger;
+        }
+
+        > tbody > tr > td {
+            border-top: 1px dotted #eee;
+        }
+
+        .line-number-col {
+            width: 40px;
+        }
+    }
+
+    .replacement-file-arrow {
+        vertical-align: -2px;
+    }
+    .replacement-file-picker {
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .delete-file-col {
+        padding-top: 15px;
+        width: 60px;
+        text-align: center;
     }
 
     .delete-file-button {
-        float: right;
-        margin-top: -50px;
-        font-size: 12px;
+        font-size: 14px;
         border: none;
         box-shadow: none;
-        color: @brand-danger;
-        margin-right: 15px;
+        padding-top: 2px;
+        padding-bottom: 0;
+        opacity: .4;
 
-        &:hover {
-            color: @brand-danger;
-            background-color: #F5E9EB;
+        .lnr {
+            font-size: 13px;
+            margin-right: 0;
         }
     }
+
+    .file-row:hover {
+       .delete-file-button {
+           opacity: 1;
+       }
+    }
+
+    .loading-row {
+        .loading-spinner {
+            vertical-align: -7px;
+            font-size: 12px;
+            margin-left: 2px;
+        }
+
+        .loading-message {
+            padding-top: 15px;
+            padding-bottom: 16px;
+        }
+    }
+
+    .line-count-col {
+        width: 80px;
+    }
+
+    .file-size-col {
+        width: 120px;
+    }
+
+    .file-status-col {
+        width: 150px;
+    }
+}
+
+.inline-upload-form {
+    display: inline-block;
+}
+
+.form-horizontal .replacement-file-submit-row {
+    padding-top: 0;
+    border-top: 0;
 }
 
 p.uploaded-file-error-icon {
@@ -1835,18 +1947,6 @@ p.uploaded-file-error-icon {
         margin-right: 7px;
         font-size: 20px;
         vertical-align: -3px;
-    }
-}
-
-.validation-error-table {
-    margin-bottom: 35px;
-
-    .line-number-col {
-        width: 70px;
-    }
-
-    .message {
-        color: @brand-danger;
     }
 }
 

@@ -19,6 +19,7 @@
         "jquery-ui": "~1.11.4",
         "jquery-pjax": "latest",
         "jquery-number": "latest",
-        "moment": "latest"
+        "moment": "latest",
+        "nvd3": "~1.8.1"
     }
 }

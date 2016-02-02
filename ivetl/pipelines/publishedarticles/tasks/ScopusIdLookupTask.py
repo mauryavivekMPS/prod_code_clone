@@ -56,11 +56,14 @@ class ScopusIdLookupTask(Task):
 
                 else:
                     try:
-                        scopus_id, scopus_cited_by = connector.get_entry(doi, data.get('ISSN'),
-                                                                              data.get('volume'),
-                                                                              data.get('issue'),
-                                                                              data.get('page'),
-                                                                              tlogger)
+                        scopus_id, scopus_cited_by = connector.get_entry(
+                            doi,
+                            tlogger,
+                            data.get('ISSN'),
+                            data.get('volume'),
+                            data.get('issue'),
+                            data.get('page')
+                        )
 
                         if scopus_id is not None and scopus_cited_by is not None:
 

@@ -1,0 +1,70 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Pipelines{% endblock %}
+{% block body_class %}all_pipelines{% endblock %}
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-12">
+            <h1>Pipelines</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Publisher</th>
+                        <th>Product</th>
+                        <th>Pipeline</th>
+                        <td>ID</td>
+                        <th>Progress</th>
+                        <th class="date-col">Date</th>
+                        <th class="time-col">Start Time</th>
+                        <th class="duration-col text-right">Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for publisher_runs in runs_by_publisher %}
+                        {% for run in publisher_runs.runs %}
+                            <tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ run.recent_task.status }}">
+                                <td>{{ publisher_runs.publisher.display_name }}</td>
+                                <td>{{ run.product.name }}</td>
+                                <td>{{ run.pipeline.name }}</td>
+                                <td><a href="#">{{ run.run.job_id }}</a></td>
+                                <td>
+                                    {% with current=run.run.current_task_count total=run.run.total_task_count percent=run.run.percent_complete %}
+                                        <div class="progress pipeline-progress" data-toggle="tooltip" data-placement="top" title="Task {{ current }} of {{ total }}">
+                                          <div class="progress-bar" role="progressbar" style="width: {{ percent }}%;"></div>
+                                        </div>
+                                    {% endwith %}
+                                </td>
+                                <td><span class="summary-value">{{ run.run.start_time|date:"Y-m-d"|nullable_date }}</span></td>
+                                <td><span class="summary-value">{{ run.run.end_time|date:"H:i:s"|nullable_date }}</span></td>
+                                <td class="text-right"><span class="summary-value">{{ run.run.duration_seconds|nullable_duration }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            AllPipelinesPage.init({
+{#                piplineId: '{{ pipeline.id }}',#}
+{#                publishers: {{ publisher_id_list_as_json|safe }},#}
+{#                tailUrl: '{% url 'pipelines.tail' product.id pipeline.id %}',#}
+{#                updatePublisherUrl: '{% url 'pipelines.include_updated_publisher_runs' product.id pipeline.id %}',#}
+{#                runForPublisherUrl: '{% url 'pipelines.run' product.id pipeline.id %}',#}
+{#                runForAllUrl: '{% url 'pipelines.run' product.id pipeline.id %}',#}
+{#                isSuperuser: {% if request.user.superuser %}true{% else %}false{% endif %},#}
+{#                csrfToken: '{{ csrf_token }}'#}
+            });
+        });
+    </script>
+{% endblock %}

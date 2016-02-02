@@ -17,6 +17,7 @@ urlpatterns = patterns(
 
     # homepage
     url(r'^$', 'home.home', name='home'),
+    url(r'^pipelines/$', 'home.all_pipelines', name='all_pipelines'),
     url(r'^growth/$', 'home.growth', name='growth'),
     url(r'^performance/$', 'home.performance', name='performance'),
 

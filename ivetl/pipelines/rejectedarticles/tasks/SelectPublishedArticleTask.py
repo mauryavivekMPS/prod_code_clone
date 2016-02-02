@@ -81,9 +81,9 @@ class SelectPublishedArticleTask(Task):
                         tlogger.info("Matched Journal: " + data['xref_journal'] + "\n")
 
                 row = """%s\t%s\t%s\n""" % (
-                                        publisher,
-                                        manuscript_id,
-                                        json.dumps(data))
+                        publisher,
+                        manuscript_id,
+                        json.dumps(data))
 
                 target_file.write(row)
                 target_file.flush()

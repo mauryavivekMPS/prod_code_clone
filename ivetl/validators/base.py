@@ -8,8 +8,12 @@ class ValidationError(Exception):
 
 
 class BaseValidator(object):
+
     def validate_files(self, files, publisher_id):
         raise NotImplementedError
+
+    def format_error(self, file_name, line_number, message):
+        return "%s : %s - %s" % (file_name, line_number, message)
 
     def parse_errors(self, raw_errors):
         error_list = []

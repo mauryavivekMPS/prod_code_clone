@@ -26,3 +26,16 @@
         </div>
     </div>
 {% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            PendingFilesForm.init({
+                pipelineId: '{{ pipeline.id }}',
+                publisherId: '{{ publisher_id }}',
+                deleteUrl: '{% url 'pipelines.pending_files' product.id pipeline.id %}',
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

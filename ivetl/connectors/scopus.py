@@ -20,7 +20,7 @@ class ScopusConnector(BaseConnector):
         self.apikeys = apikeys
         self.count = 0
 
-    def get_entry(self, doi, issns, volume, issue, page, tlogger):
+    def get_entry(self, doi, tlogger, issns=None, volume=None, issue=None, page=None):
         scopus_id = None
         scopus_cited_by_count = None
         has_abstract = True
@@ -114,7 +114,6 @@ class ScopusConnector(BaseConnector):
 
     def get_citations(self, article_scopus_id, is_cohort, tlogger):
         offset = 0
-        num_citations = 0
         citations = []
 
         self.count += 1

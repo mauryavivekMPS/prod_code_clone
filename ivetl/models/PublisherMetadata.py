@@ -40,4 +40,4 @@ class Publisher_Metadata(Model):
         return True if self.crossref_username and self.crossref_password else False
 
     def users(self):
-        return Publisher_User.objects.filter(publisher_id=self.publisher_id)
+        return Publisher_User.objects.allow_filtering().filter(publisher_id=self.publisher_id)

@@ -20,31 +20,32 @@ class InsertIntoCassandraDBTask(Task):
         count = 0
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
+        updated = datetime.today()
+
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
                 if count == 1:
                     continue  # ignore the header
 
-                publisher = line[0]
+                publisher_id = line[0]
                 manuscript_id = line[1]
                 data = json.loads(line[2])
 
-                if publisher == 'aaas' and (data['submitted_journal'] == 'Signaling' or data['submitted_journal'] == 'Translational Medicine'):
+                if publisher_id == 'aaas' and (data['submitted_journal'] == 'Signaling' or data['submitted_journal'] == 'Translational Medicine'):
                     continue
 
-                updated = datetime.today()
 
                 b = BatchQuery()
 
-                existing_record = Rejected_Articles.objects.filter(publisher_id=publisher, manuscript_id=manuscript_id).first()
+                existing_record = Rejected_Articles.objects.filter(publisher_id=publisher_id, manuscript_id=manuscript_id).first()
 
                 if existing_record:
                     existing_record.batch(b).delete()
 
                 ra = Rejected_Articles()
 
-                ra['publisher_id'] = publisher
+                ra['publisher_id'] = publisher_id
                 ra['rejected_article_id'] = cassandra.util.uuid_from_time(updated)
                 ra['manuscript_id'] = manuscript_id
                 ra['updated'] = updated
@@ -134,14 +135,17 @@ class InsertIntoCassandraDBTask(Task):
                 if 'submitted_journal' in data and (data['submitted_journal'] != ''):
                     ra['submitted_journal'] = data['submitted_journal']
 
+                if 'mendeley_saves' in data and (data['mendeley_saves'] != ''):
+                    ra['mendeley_saves'] = int(data['mendeley_saves'])
+
                 ra.batch(b).save()
 
                 b.execute()
 
-                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher + " / " + manuscript_id)
+                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + manuscript_id)
 
             pu = Publisher_Vizor_Updates()
-            pu['publisher_id'] = publisher
+            pu['publisher_id'] = publisher_id
             pu['vizor_id'] = 'rejected_articles'
             pu['updated'] = updated
             pu.save()

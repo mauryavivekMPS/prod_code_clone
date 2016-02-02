@@ -1,0 +1,63 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Upload Results{% endblock %}
+{% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
+
+{% block content %}
+    <div class="row header-row {% if request.user.staff %}with-breadcrumb{% endif %}">
+        <div class="col-md-8">
+            {% if request.user.staff %}
+                <ol class="breadcrumb">
+                    <li><a href="#">Pipelines</a></li>
+                    <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
+                    <li></li>
+                </ol>
+            {% endif %}
+            <h1>Upload Results &ndash; {{ pipeline.user_facing_display_name|title }}</h1>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="uploaded-file-message">Here are the results of your upload:</p>
+                <table class="table all-files-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">File</th>
+                            <th>Lines</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in processed_files %}
+                            {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count validation_errors=file.validation_errors file_id=forloop.counter %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% include "pipelines/include/pending_files_form.html" with additional=True includes_invalid_files=includes_invalid_files ignore=file_name only_pending=False %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            UploadResultsPage.init({
+                pipelineId: '{{ pipeline.id }}',
+                hasPublisher: {% if publisher %}true{% else %}false{% endif %},
+                uploadUrl: '{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}'
+            });
+            PendingFilesForm.init({
+                pipelineId: '{{ pipeline.id }}',
+                publisherId: '{{ publisher_id }}',
+                deleteUrl: '{% url 'pipelines.pending_files' product.id pipeline.id %}',
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

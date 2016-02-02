@@ -27,12 +27,12 @@ class ArticleUsageValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) != 42:
-                                errors.append("%s : %s - Incorrect number of fields, skipping other validation" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 
                     total_count += count
 
             except UnicodeDecodeError:
-                errors.append("%s : %s - This file is not UTF-8, skipping further validation" % (file_name, 0))
+                errors.append(self.format_error(file_name, 0, "This file is not UTF-8, skipping further validation"))
 
         return total_count, errors

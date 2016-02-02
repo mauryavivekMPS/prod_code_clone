@@ -1,19 +1,68 @@
-<div class="uploaded-file">
-    <div class="lnr lnr-file-spreadsheet uploaded-file-icon"></div>
-    <div class="uploaded-file-attributes">
-        <ul>
-            <li class="uploaded-file-name">{{ file_name }}</li>
-            <li class="uploaded-file-line-count">{{ line_count }} line{{ line_count|pluralize }}</li>
-            <li class="uploaded-file-size">{{ file_size }}</li>
-        </ul>
+<tr class="file-row file-row-{{ file_id }}" file_id="{{ file_id }}">
+    <td class="file-icon-col"><span class="lnr lnr-file-spreadsheet file-icon {% if validation_errors %}error{% endif %}"></span></td>
+    <td class="text-only-col">
+        {{ file_name }}
+    </td>
+    <td class="text-only-col line-count-col">{{ line_count }}</td>
+    <td class="text-only-col file-size-col">{{ file_size }}</td>
+    <td class="text-only-col file-status-col">
+        {% if validation_errors %}
+            <span class="lnr lnr-warning file-status-icon error"></span>
+            <a href="#" class="show-errors-link">{{ validation_errors|length }} error{{ validation_errors|pluralize }}</a>
+        {% else %}
+            <span class="lnr lnr-checkmark-circle file-status-icon success"></span>
+            <span class="success-message">Validated</span>
+        {% endif %}
+    </td>
+    <td class="delete-file-col">
+        {% if not validation_errors %}
+            <a file_to_delete="{{ file_name }}" class="btn btn-default submit-button delete-file-button">
+                <span class="lnr lnr-trash2"></span>
+            </a>
+        {% endif %}
+    </td>
+</tr>
 
-        <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="file_to_delete" value="{{ file_name }}">
-            <input type="hidden" name="publisher" value="{{ publisher_id }}">
-            <button type="submit" class="btn btn-default submit-button delete-file-button">
-                <span class="lnr lnr-trash2"></span> Delete
-            </button>
-        </form>
-    </div>
-</div>
+{% if validation_errors %}
+    <tr class="error-list-row file-row-{{ file_id }}" file_id="{{ file_id }}">
+        <td></td>
+        <td colspan="5" class="validation-error-table-col">
+            <table class="table validation-error-table">
+                <tbody>
+                    {% for error in validation_errors %}
+                        <tr>
+                            <td class="line-number-col">{{ error.line_number }}</td>
+                            <td class="message">{{ error.message }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td><span class="lnr lnr-arrow-right replacement-file-arrow"></span></td>
+                        <td class="upload-another-col">
+                            Choose a replacement file:
+                            <form class="inline-upload-form" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="single_file_only" value="1">
+                                <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
+                                <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+{% endif %}
+
+<tr class="loading-row file-row-{{ file_id }}" file_id="{{ file_id }}" style="display:none">
+    <td><i class="fa fa-spinner fa-pulse loading-spinner"></i></td>
+    <td colspan="5" class="loading-message">Uploading replacement file...</td>
+</tr>
+
+{% if single_file_only %}
+    <script>
+        $(function() {
+            UploadResultsPage.wireUpFilePickers('.file-row-{{ file_id }} .replacement-file-picker');
+            PendingFilesForm.wireUpDeleteButtons('.file-row-{{ file_id }} .delete-file-button');
+        });
+    </script>
+{% endif %}

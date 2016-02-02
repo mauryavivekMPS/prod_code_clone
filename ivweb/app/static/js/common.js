@@ -191,6 +191,9 @@ var PipelineListPage = (function() {
             var form = $(this);
             form.find('.run-pipeline-for-publisher-button').hide();
             form.find('.run-loading-icon').show();
+            var parent = form.parent();
+            parent.find('.little-upload-button').hide();
+            parent.find('.little-files-link').hide();
             $('.run-button').hide();
             $.post(runForPublisherUrl, form.serialize());
             event.preventDefault();
@@ -348,7 +351,7 @@ var UploadPage = (function() {
         if (!hasPublisher) {
             publisherId = f.find("#id_publisher option:selected").val();
         }
-        var file = f.find("#id_file").val();
+        var file = f.find("#id_files").val();
 
         if ((hasPublisher || publisherId) && file) {
             f.find('.submit-button').removeClass('disabled').prop('disabled', false);
@@ -386,7 +389,7 @@ var UploadPage = (function() {
             });
         }
 
-        f.find('#id_file').on('change', checkForm);
+        f.find('#id_files').on('change', checkForm);
 
         f.submit(function() {
             IvetlWeb.showLoading();
@@ -394,6 +397,117 @@ var UploadPage = (function() {
     };
 
     return {
+        init: init
+    };
+
+})();
+
+
+//
+// Pending files form
+//
+
+var PendingFilesForm = (function() {
+    var pipelineId = '';
+    var publisherId = '';
+    var deleteUrl = '';
+    var csrfToken = '';
+
+    var wireUpDeleteButtons = function(selector) {
+        $(selector).each(function() {
+            var link = $(this);
+            link.click(function() {
+                var fileToDelete = link.attr('file_to_delete');
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: csrfToken},
+                    {name: 'publisher', value: publisherId},
+                    {name: 'file_to_delete', value: fileToDelete}
+                ];
+
+                $.post(deleteUrl, data)
+                    .always(function() {
+                        var row = link.closest('tr');
+                        row.fadeOut(150, function() {
+                            row.remove();
+                        });
+                        IvetlWeb.hideLoading();
+                    });
+
+                return false;
+            });
+        });
+
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            pipelineId: '',
+            publisherId: '',
+            deleteUrl: '',
+            csrfToken: ''
+        }, options);
+
+        pipelineId = options.pipelineId;
+        publisherId = options.publisherId;
+        deleteUrl = options.deleteUrl;
+        csrfToken = options.csrfToken;
+
+        wireUpDeleteButtons('.delete-file-button');
+    };
+
+    return {
+        wireUpDeleteButtons: wireUpDeleteButtons,
+        init: init
+    };
+
+})();
+
+
+//
+// Upload Results page
+//
+
+var UploadResultsPage = (function() {
+    var uploadUrl;
+
+    var wireUpFilePickers = function(selector) {
+        $(selector).on('change', function() {
+            var picker = $(this);
+            if (picker.val()) {
+                var f = $(this.form)[0];
+                var data = new FormData(f);
+
+                var parentRow = picker.closest('tr.error-list-row');
+                var fileId = parentRow.attr('file_id');
+
+                $('.file-row.file-row-' + fileId).remove();
+                $('.error-list-row.file-row-' + fileId).remove();
+                $('.loading-row.file-row-' + fileId).show();
+
+                $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
+                    .done(function(html) {
+                        console.log('done');
+                        $('.loading-row.file-row-' + fileId).replaceWith(html);
+                    })
+                    .always(function() {
+                        console.log('always');
+                    });
+            }
+        });
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            uploadUrl: ''
+        }, options);
+
+        uploadUrl = options.uploadUrl;
+
+        wireUpFilePickers('.replacement-file-picker');
+    };
+
+    return {
+        wireUpFilePickers: wireUpFilePickers,
         init: init
     };
 
@@ -520,11 +634,20 @@ var EditPublisherPage = (function() {
 
         var validCohortIssns = true;
         if (cohortArticlesProduct) {
+            var gotOne = false;
             $('.issn-values-cohort-row').each(function () {
                 var row = $(this);
-                if (!row.find('.validate-issn-checkmark').is(':visible')) {
-                    validCohortIssns = false;
-                    return false;
+                if (row.find('.validate-issn-checkmark').is(':visible')) {
+                    gotOne = true;
+                }
+                else {
+                    if (gotOne && isIssnRowEmpty(row)) {
+                        // let it slide
+                    }
+                    else {
+                        validCohortIssns = false;
+                        return false;
+                    }
                 }
             });
         }
@@ -662,7 +785,6 @@ var EditPublisherPage = (function() {
         var electronicIssn = row.find('#id_electronic_issn_' + index).val();
         var printIssn = row.find('#id_print_issn_' + index).val();
         var journalCode = row.find('#id_journal_code_' + index).val();
-
         return !electronicIssn && !printIssn && !journalCode;
     };
 
@@ -1218,6 +1340,22 @@ var UserSettingsPage = (function() {
             $('.set-password-link').hide();
             $('#id_password').show().focus();
         });
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
+// All pipelines page
+//
+
+var AllPipelinesPage = (function() {
+
+    var init = function() {
     };
 
     return {

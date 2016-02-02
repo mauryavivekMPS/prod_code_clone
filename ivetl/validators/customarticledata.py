@@ -41,7 +41,7 @@ class CustomArticleDataValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) != 8:
-                                errors.append("%s : %s - Incorrect number of fields, skipping other validation" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 
                             d = {
@@ -56,7 +56,7 @@ class CustomArticleDataValidator(BaseValidator):
 
                             # we need a DOI
                             if not d['doi']:
-                                errors.append("%s : %s - No DOI found, skipping other validation" % (file_name, (count - 1)))
+                                errors.append(self.format_error(file_name, count - 1, "No DOI found, skipping other validation"))
                                 continue
 
                             # check that the articles are for the right publisher
@@ -64,21 +64,12 @@ class CustomArticleDataValidator(BaseValidator):
                                 article = crossref.get_article(d['doi'])
 
                                 if not article['journal_issn'] in all_issns:
-                                    errors.append("%s : %s - ISSN for DOI does not match publisher" % (file_name, (count - 1)))
+                                    errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher"))
                                     continue
-
-                            # TODO: is this just not needed anymore?
-
-                            # and it needs to exist in the database
-                            # try:
-                            #     article = Published_Article.get(publisher_id=publisher_id, article_doi=d['doi'].lower())
-                            # except Published_Article.DoesNotExist:
-                            #     errors.append("%s : %s - DOI not in database, skipping other validation - %s" % (file_name, (count - 1), d['doi'].lower()))
-                            #     continue
 
                     total_count += count
 
             except UnicodeDecodeError:
-                errors.append("%s : %s - This file is not UTF-8, skipping further validation" % (file_name, 0))
+                errors.append(self.format_error(file_name, 0, "This file is not UTF-8, skipping further validation"))
 
         return total_count, errors
