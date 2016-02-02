@@ -10,7 +10,7 @@ class GetRejectedArticlesTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        rejected_articles = Rejected_Articles.objects.filter(publisher_id=publisher_id)
+        rejected_articles = Rejected_Articles.objects.filter(publisher_id=publisher_id).limit(1000000)
         total_count = rejected_articles.count()
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
