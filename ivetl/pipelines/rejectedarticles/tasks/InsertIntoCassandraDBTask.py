@@ -144,6 +144,12 @@ class InsertIntoCassandraDBTask(Task):
 
                 tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + manuscript_id)
 
+            pu = Publisher_Vizor_Updates()
+            pu['publisher_id'] = publisher_id
+            pu['vizor_id'] = 'rejected_articles'
+            pu['updated'] = updated
+            pu.save()
+
         return {
             'count': count,
         }
