@@ -46,9 +46,9 @@ class MendeleyLookupTask(Task):
                     except:
                         tlogger.info("General Exception - Mendelez API failed. Moving to next article...")
 
-                    row = """%s\t%s\t%s\n""" % (publisher_id, manuscript_id, json.dumps(data))
+                row = """%s\t%s\t%s\n""" % (publisher_id, manuscript_id, json.dumps(data))
 
-                    target_file.write(row)
+                target_file.write(row)
 
         target_file.close()
 
