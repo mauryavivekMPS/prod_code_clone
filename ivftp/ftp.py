@@ -85,13 +85,14 @@ class IvetlHandler(FTPHandler):
                     validation_errors = validator.parse_errors(raw_errors)
 
                     if validation_errors:
-                        subject = "Problems with your uploaded file"
-                        body = "<p>We found some validation errors in your uploaded file: <b>%s</b></p>" % file_name
+                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, pipeline['user_facing_display_name'].title())
+                        body = "<p>We found some validation errors in: <b>%s</b></p>" % file_name
                         body += "<ul>"
                         for error in validation_errors:
                             body += "<li>Line %s: %s</li>" % (error['line_number'], error['message'])
                         body += "</ul>"
-                        body += "<p>Please fix the errors and upload again.</p>"
+                        body += "<p>Please resolve the errors above and FTP the file again.</p>"
+                        body += '<p>Thank you,<br/>Impact Vizor Team</p>'
                         common.send_email(subject, body, to=user.email)
 
                         print('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
