@@ -165,6 +165,7 @@ class HWMetadataLookupTask(Task):
                                 article_type = "None"
 
                             data['article_type'] = article_type
+                            tlogger.info("Article Type: " + article_type)
 
                             subject_category = None
                             sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
@@ -182,6 +183,7 @@ class HWMetadataLookupTask(Task):
                                 subject_category = "None"
 
                             data['subject_category'] = subject_category
+                            tlogger.info("Subject Category: " + subject_category)
 
                         else:
                             tlogger.info("No SASS HREF found for DOI: " + doi)
