@@ -90,7 +90,6 @@ class HWMetadataLookupTask(Task):
                 while not skip and (attempt < max_attempts):
                     try:
 
-                        sleep(100.0 / 1000.0)
                         r = requests.get(url, timeout=30)
 
                         root = etree.fromstring(r.content)
