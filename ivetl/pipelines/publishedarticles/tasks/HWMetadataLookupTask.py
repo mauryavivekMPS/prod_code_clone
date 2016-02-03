@@ -157,7 +157,7 @@ class HWMetadataLookupTask(Task):
                                     sub_article_type = sub_article_type.replace('\r', ' ')
                                     sub_article_type = sub_article_type.title()
 
-                            if article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
+                            if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
                                 article_type += ": " + sub_article_type
                                 tlogger.info("Article Type with Sub Type: " + article_type)
 
