@@ -37,7 +37,7 @@ class MendeleyLookupTask(Task):
 
                 if data['status'] == "Match found":
 
-                    tlogger.info(str(count-1) + ". Retrieving Mendeley saves for: " + doi)
+                    tlogger.info(str(count-1) + ". Retrieving Mendeley saves for: " + manuscript_id)
 
                     doi = data['xref_doi']
 
@@ -46,7 +46,7 @@ class MendeleyLookupTask(Task):
                     except:
                         tlogger.info("No Saves. Moving to next article...")
                 else:
-                    tlogger.info(str(count-1) + ". No match found for manuscript, skipping retrieval of Mendeley saves for: " + doi)
+                    tlogger.info(str(count-1) + ". No match found for manuscript, skipping retrieval of Mendeley saves for: " + manuscript_id)
 
                 row = """%s\t%s\t%s\n""" % (publisher_id, manuscript_id, json.dumps(data))
 
