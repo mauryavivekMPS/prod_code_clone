@@ -37,14 +37,16 @@ class MendeleyLookupTask(Task):
 
                 if data['status'] == "Match found":
 
-                    doi = data['xref_doi']
+                    tlogger.info(str(count-1) + ". Retrieving Mendeley saves for: " + doi)
 
-                    tlogger.info(str(count-1) + ". Retrieving Mendelez saves for: " + doi)
+                    doi = data['xref_doi']
 
                     try:
                         data['mendeley_saves'] = mendeley.get_saves(doi)
                     except:
-                        tlogger.info("General Exception - Mendelez API failed. Moving to next article...")
+                        tlogger.info("No Saves. Moving to next article...")
+                else:
+                    tlogger.info(str(count-1) + ". No match found for manuscript, skipping retrieval of Mendeley saves for: " + doi)
 
                 row = """%s\t%s\t%s\n""" % (publisher_id, manuscript_id, json.dumps(data))
 
