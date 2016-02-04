@@ -90,7 +90,6 @@ class HWMetadataLookupTask(Task):
                 while not skip and (attempt < max_attempts):
                     try:
 
-                        sleep(100.0 / 1000.0)
                         r = requests.get(url, timeout=30)
 
                         root = etree.fromstring(r.content)
@@ -121,23 +120,12 @@ class HWMetadataLookupTask(Task):
 
                             # Article Type
                             article_type = None
-                            pnas_sub_article_type = None
+                            sub_article_type = None
 
                             at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="leader"]/nlm:subject', namespaces=common.ns)
 
                             if len(at) == 0:
                                 at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
-
-                            if publisher_id == 'pnas' and len(at) != 0:
-                                pnas_sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subject', namespaces=common.ns)
-                                if len(pnas_sub_at) != 0:
-                                    pnas_sub_article_type = pnas_sub_at[0].text
-                                    pnas_sub_article_type = re.sub("<.*?>", "", pnas_sub_article_type)
-                                    pnas_sub_article_type = pnas_sub_article_type.strip(' \t\r\n')
-                                    pnas_sub_article_type = pnas_sub_article_type.replace('\n', ' ')
-                                    pnas_sub_article_type = pnas_sub_article_type.replace('\t', ' ')
-                                    pnas_sub_article_type = pnas_sub_article_type.replace('\r', ' ')
-                                    pnas_sub_article_type = pnas_sub_article_type.title()
 
                             if len(at) == 0:
                                 at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
@@ -154,14 +142,30 @@ class HWMetadataLookupTask(Task):
                                 article_type = article_type.replace('\r', ' ')
                                 article_type = article_type.title()
 
-                            if article_type is not None and article_type != '' and pnas_sub_article_type is not None and pnas_sub_article_type != '':
-                                article_type += ": " + pnas_sub_article_type
-                                tlogger.info("PNAS Article Type with Sub Type: " + article_type)
+                            if len(at) != 0:
+                                sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subject', namespaces=common.ns)
+
+                                if len(sub_at) == 0:
+                                    sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
+
+                                if len(sub_at) != 0:
+                                    sub_article_type = sub_at[0].text
+                                    sub_article_type = re.sub("<.*?>", "", sub_article_type)
+                                    sub_article_type = sub_article_type.strip(' \t\r\n')
+                                    sub_article_type = sub_article_type.replace('\n', ' ')
+                                    sub_article_type = sub_article_type.replace('\t', ' ')
+                                    sub_article_type = sub_article_type.replace('\r', ' ')
+                                    sub_article_type = sub_article_type.title()
+
+                            if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
+                                article_type += ": " + sub_article_type
+                                tlogger.info("Article Type with Sub Type: " + article_type)
 
                             if article_type is None or article_type == '':
                                 article_type = "None"
 
                             data['article_type'] = article_type
+                            tlogger.info("Article Type: " + article_type)
 
                             subject_category = None
                             sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
@@ -179,6 +183,7 @@ class HWMetadataLookupTask(Task):
                                 subject_category = "None"
 
                             data['subject_category'] = subject_category
+                            tlogger.info("Subject Category: " + subject_category)
 
                         else:
                             tlogger.info("No SASS HREF found for DOI: " + doi)

@@ -25,6 +25,9 @@ class AuthorMatchCheck:
         if rejected_manuscript_authors == '' and reject_corresponding_author.strip() != '':
                 rejected_manuscript_authors = reject_corresponding_author
 
+        if reject_co_authors_ln_fn is None:
+            reject_co_authors_ln_fn = ''
+
         if rejected_manuscript_authors != '':
             rejected_manuscript_authors = rejected_manuscript_authors + ";" + reject_co_authors_ln_fn
         else:
