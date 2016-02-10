@@ -74,6 +74,9 @@
                     <li class="publisher_menu_item">
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
+                    <li class="demo_menu_item">
+                        <a href="{% url 'demos.list' %}">Demos</a>
+                    </li>
                     {% if request.user.superuser %}
                         <li class="user_menu_item">
                             <a href="{% url 'users.list' %}">Users</a>

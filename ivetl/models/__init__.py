@@ -14,3 +14,4 @@ from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
 from ivetl.models.PublisherJournal import Publisher_Journal
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
+from ivetl.models.Demo import Demo

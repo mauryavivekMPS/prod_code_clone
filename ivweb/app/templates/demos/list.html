@@ -1,0 +1,42 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Demos{% endblock %}
+{% block body_class %}demo{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Demos</h1>
+            <a class="btn btn-default small add-demo-button show-loading" href="new/">+ Add Demo</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Publisher Name</th>
+                        <th>Requestor</th>
+                        <th>Start Date</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for demo in demos %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'demos.edit' demo.demo_id %}">
+                                    {{ demo.publisher_name }}
+                                </a>
+                            </td>
+                            <td>{{ demo.requestor_id }}</td>
+                            <td>{{ demo.start_date }}</td>
+                            <td class="text-center">{{ demo.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

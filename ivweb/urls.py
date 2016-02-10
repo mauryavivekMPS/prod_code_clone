@@ -26,6 +26,10 @@ urlpatterns = patterns(
     url(r'^users/new/$', 'users.edit', name='users.new'),
     url(r'^users/(?P<user_id>[\w\-\.]+)/$', 'users.edit', name='users.edit'),
 
+    # demos
+    url(r'^demos/$', 'demos.list_demos', name='demos.list'),
+    url(r'^demos/new/$', 'demos.edit', name='demos.new'),
+
     # publishers
     url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),
     url(r'^publishers/new/$', 'publishers.edit', name='publishers.new'),
