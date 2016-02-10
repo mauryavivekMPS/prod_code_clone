@@ -32,7 +32,7 @@ class InsertIntoCassandraDBTask(Task):
                 manuscript_id = line[1]
                 data = json.loads(line[2])
 
-                tlogger.info("\n" + str(count-1) + " of " + total_count + ". Processing record: " + publisher_id + " / " + manuscript_id)
+                tlogger.info("\n" + str(count-1) + " of " + str(total_count) + ". Processing record: " + publisher_id + " / " + manuscript_id)
 
                 if publisher_id == 'aaas' and (data['submitted_journal'] == 'Signaling' or data['submitted_journal'] == 'Translational Medicine'):
                     continue
@@ -44,7 +44,7 @@ class InsertIntoCassandraDBTask(Task):
                 if existing_record:
                     if data['status'] == "Not Published":
                         if existing_record['status'] == "Not Published":
-                            tlogger.info("No change from previous run, skipping")
+                            tlogger.info("No change from previous run (Not Published), skipping")
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
@@ -52,7 +52,7 @@ class InsertIntoCassandraDBTask(Task):
 
                     elif data['status'] == 'Published & Not Cited':
                         if existing_record['status'] == "Published & Not Cited" and data['xref_doi'] == existing_record['crossref_doi']:
-                            tlogger.info("No change from previous run, skipping")
+                            tlogger.info("No change from previous run (Published & Not Cited), skipping")
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
@@ -60,7 +60,7 @@ class InsertIntoCassandraDBTask(Task):
 
                     elif data['status'] == 'Published & Citation Info Unavailable':
                         if existing_record['status'] == "Published & Citation Info Unavailable" and data['xref_doi'] == existing_record['crossref_doi']:
-                            tlogger.info("No change from previous run, skipping")
+                            tlogger.info("No change from previous run (Published & Citation Info Unavailable), skipping")
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
