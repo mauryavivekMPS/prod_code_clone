@@ -38,7 +38,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                {% include "pipelines/include/pending_files_form.html" with additional=True includes_invalid_files=includes_invalid_files ignore=file_name only_pending=False %}
+                {% include "pipelines/include/pending_files_form.html" with includes_invalid_files=includes_invalid_files ignore=file_name only_pending=False %}
             </div>
         </div>
     </div>

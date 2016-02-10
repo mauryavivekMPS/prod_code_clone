@@ -1,60 +1,76 @@
-<div class="pending-files-container">
-    {% if pending_files %}
-        <p class="uploaded-file-message">
-            {% if additional %}Additionally, the{% else %}The{% endif %} following
-            {% if pending_files|length == 1 %}
-                file is
-            {% else %}
-                {{ pending_files|length }} file{{ pending_files|pluralize }} are
+<div class="pending-files-container {% if is_demo %}demo-files{% endif %}">
+    {% if pending_files or is_demo %}
+        {% if not is_demo %}
+            <p class="uploaded-file-message">
+                {% if additional %}Additionally, the{% else %}The{% endif %} following
+                {% if pending_files|length == 1 %}
+                    file is
+                {% else %}
+                    {{ pending_files|length }} file{{ pending_files|pluralize }} are
+                {% endif %}
+                pending submission for processing:
+            </p>
+        {% endif %}
+
+        <table class="table all-files-table {% if pending_files %}has-files{% else %}no-files{% endif %}">
+            {% if not is_demo %}
+                <thead>
+                    <tr>
+                        <th colspan="2">File</th>
+                        <th>Lines</th>
+                        <th>Size</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
             {% endif %}
-            pending submission for processing:
-        </p>
-        <table class="table all-files-table">
-            <thead>
-                <tr>
-                    <th colspan="2">File</th>
-                    <th>Lines</th>
-                    <th>Size</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
             <tbody>
                 {% for file in pending_files %}
                     {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count validation_errors=file.validation_errors %}
                 {% endfor %}
+                <tr>
+                    <td class="upload-another-col" colspan="6">
+                        <form class="inline-upload-form" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="single_file_only" value="1">
+                            <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
+                            <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
+                        </form>
+                    </td>
+                </tr>
             </tbody>
         </table>
     {% else %}
-        {% if only_pending %}
+        {% if only_pending and not is_demo %}
             <p class="no-pending-files-message">There are no pending files.</p>
         {% endif %}
     {% endif %}
-    <div>
-        {% if pending_files or not only_pending %}
-            <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="{% url 'pipelines.run' product.id pipeline.id %}">
+    {% if not is_demo %}
+        <div>
+            {% if pending_files or not only_pending %}
+                <form id="run-pipeline-for-publisher-form" class="form-horizontal" method="post" action="{% url 'pipelines.run' product.id pipeline.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="publisher" value="{{ publisher_id }}">
+                    <input type="hidden" name="move_pending_files" value="1">
+                    <button type="submit" class="btn btn-primary submit-button">
+                        Submit {% if includes_invalid_files %}All Validated Files{% endif %} for Processing
+                    </button>
+                    <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload More Files</a>
+                    <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'll submit later</a></span>
+                </form>
+            {% else %}
+                <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Files</a>
+                <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
+            {% endif %}
+
+            <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}" style="display: none">
                 {% csrf_token %}
+                <input type="hidden" name="file_to_delete" value="{{ file_name }}">
                 <input type="hidden" name="publisher" value="{{ publisher_id }}">
-                <input type="hidden" name="move_pending_files" value="1">
-                <button type="submit" class="btn btn-primary submit-button">
-                    Submit {% if includes_invalid_files %}All Validated Files{% endif %} for Processing
+                <button type="submit" class="btn btn-default submit-button delete-file-button">
+                    <span class="lnr lnr-trash2"></span>
                 </button>
-                <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload More Files</a>
-                <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'll submit later</a></span>
             </form>
-        {% else %}
-            <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Files</a>
-            <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
-        {% endif %}
-
-        <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}" style="display: none">
-            {% csrf_token %}
-            <input type="hidden" name="file_to_delete" value="{{ file_name }}">
-            <input type="hidden" name="publisher" value="{{ publisher_id }}">
-            <button type="submit" class="btn btn-default submit-button delete-file-button">
-                <span class="lnr lnr-trash2"></span>
-            </button>
-        </form>
-
-    </div>
+        </div>
+    {% endif %}
 </div>

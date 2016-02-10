@@ -181,6 +181,12 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
     return os.path.join(get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id), name)
 
 
+def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
+    demo_dir = os.path.join(common.BASE_DEMO_DIR, demo_id, product_id, pipeline_id)
+    os.makedirs(demo_dir, exist_ok=True)
+    return demo_dir
+
+
 @login_required
 def upload(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
@@ -249,29 +255,6 @@ def upload(request, product_id, pipeline_id):
                     'line_count': line_count,
                     'validation_errors': validation_errors
                 })
-
-                # return render(request, 'pipelines/upload_error.html', {
-                #     'product': product,
-                #     'pipeline': pipeline,
-                #     'publisher_id': publisher_id,
-                #     'file_name': uploaded_file_name,
-                #     'file_size': uploaded_file_size,
-                #     'line_count': line_count,
-                #     'validation_errors': validation_errors,
-                #     'publisher': publisher,
-                #     'alt_error_message': 'Your upload was not successful, please see below and try again.'
-                # })
-
-                # return render(request, 'pipelines/upload_success.html', {
-                #     'product': product,
-                #     'pipeline': pipeline,
-                #     'publisher_id': publisher_id,
-                #     'file_name': uploaded_file_name,
-                #     'file_size': uploaded_file_size,
-                #     'line_count': line_count,
-                #     'publisher': publisher,
-                #     'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=uploaded_file_name),
-                # })
 
             all_file_names = [n['file_name'] for n in all_processed_files]
 
@@ -424,6 +407,11 @@ def get_queued_files_for_publisher(publisher_id, product_id, pipeline_id, with_l
     pipeline_class = common.get_pipeline_class(pipeline)
     incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
     return _get_files_in_dir(incoming_dir, with_lines_and_sizes, ignore)
+
+
+def get_pending_files_for_demo(demo_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
+    demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
+    return _get_files_in_dir(demo_dir, with_lines_and_sizes, ignore)
 
 
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):

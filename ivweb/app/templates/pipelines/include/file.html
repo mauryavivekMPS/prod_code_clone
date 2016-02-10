@@ -3,7 +3,7 @@
     <td class="text-only-col">
         {{ file_name }}
     </td>
-    <td class="text-only-col line-count-col">{{ line_count }}</td>
+    <td class="text-only-col line-count-col">{% if not is_demo %}{{ line_count }}{% endif %}</td>
     <td class="text-only-col file-size-col">{{ file_size }}</td>
     <td class="text-only-col file-status-col">
         {% if validation_errors %}

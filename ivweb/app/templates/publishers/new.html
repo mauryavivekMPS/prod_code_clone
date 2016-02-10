@@ -1,15 +1,15 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{% if publisher %}{{ publisher.name }}{% else %}New {% if demo %}Demo{% else %}Publisher{% endif %}{% endif %}{% endblock %}
-{% block body_class %}publisher new-publisher {% if demo %}new-demo{% endif %}{% endblock %}
+{% block title %}{% if publisher %}{{ publisher.name }}{% else %}New {% if is_demo %}Demo{% else %}Publisher{% endif %}{% endif %}{% endblock %}
+{% block body_class %}publisher new-publisher {% if is_demo %}new-demo{% endif %}{% endblock %}
 
 {% block content %}
     <div class="row header-row with-breadcrumb">
         <div class="col-md-8">
             <ol class="breadcrumb">
                 <li>
-                    {% if demo %}
+                    {% if is_demo %}
                         <a href="{% url 'publishers.list_demos' %}">Demos</a>
                     {% else %}
                         <a href="{% url 'publishers.list' %}">Publishers</a>
@@ -17,7 +17,7 @@
                 </li>
                 <li></li>
             </ol>
-            <h1>{% if publisher %}{{ publisher.name }}{% else %}New {% if demo %}Demo{% else %}Publisher{% endif %}{% endif %}</h1>
+            <h1>{% if publisher %}{{ publisher.name }}{% else %}New {% if is_demo %}Demo{% else %}Publisher{% endif %}{% endif %}</h1>
         </div>
     </div>
 
@@ -27,11 +27,11 @@
                 <form id="publisher-form" class="form-horizontal" method="post">
                     {% csrf_token %}
 
-                    {% if demo %}
+                    {% if is_demo %}
                         <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id }}">
                     {% endif %}
 
-                    {% if not demo %}
+                    {% if not is_demo %}
                         <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
                             <label for="publisher_id" class="col-sm-2">Publisher ID</label>
                             <div class="col-sm-3">
@@ -49,14 +49,14 @@
                     {% endif %}
 
                     <div class="form-group row {% if form.name.errors %}error{% endif %}">
-                        <label for="name" class="col-sm-2">{% if demo %}Publisher {% endif %}Name</label>
+                        <label for="name" class="col-sm-2">{% if is_demo %}Publisher {% endif %}Name</label>
                         <div class="col-sm-6">
                             {{ form.name }}
                             {{ form.name.errors }}
                         </div>
                     </div>
 
-                    {% if demo %}
+                    {% if is_demo %}
                         <div class="form-group row {% if form.start_date.errors %}error{% endif %}">
                             <label for="start_date" class="col-sm-2">Start Date</label>
                             <div class="col-sm-3">
@@ -66,7 +66,7 @@
                         </div>
                     {% endif %}
 
-                    {% if not demo %}
+                    {% if not is_demo %}
                         <div class="form-group row">
                             <label for="email" class="col-sm-2">Email</label>
                             <div class="col-sm-6">
@@ -110,7 +110,7 @@
 
                     {% endif %}
 
-                    {% if not demo %}
+                    {% if not is_demo %}
                         <h2>Reporting</h2>
                         <div class="form-group row">
                             <label for="reports_username" class="col-sm-2">Reports Login</label>
@@ -252,7 +252,7 @@
                         </div>
                     </div>
 
-                    {% if demo %}
+                    {% if is_demo %}
                         <h2>Demo Notes</h2>
                         <div class="form-group row">
                             <label for="email" class="col-sm-2">Notes</label>
@@ -262,18 +262,38 @@
                             </div>
                         </div>
                     {% endif %}
+                </form>
 
+                {% if is_demo %}
+                    <div class="form-horizontal demo-files-fake-form">
+                        <h2>File Uploads</h2>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2">Additional Metadata</label>
+                            <div class="col-sm-10">
+                                {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_custom_article_data additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.published_articles pipeline=common.PIPELINE_BY_ID.custom_article_data %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2">Rejected Articles</label>
+                            <div class="col-sm-10">
+                                {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-horizontal fake-form-submit-row">
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled">
                             {% if publisher %}
                                 Save Changes
                             {% else %}
-                                Add {% if demo %}Demo{% else %}Publisher{% endif %}
+                                Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
                             {% endif %}
                         </button>
                         <span class="cancel">or <a href="../">Cancel</a></span>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -305,7 +325,7 @@
                     buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
                 {% endif %}
                 csrfToken: '{{ csrf_token }}',
-                isDemo: {% if demo %}true{% else %}false{% endif %}
+                isDemo: {% if is_demo %}true{% else %}false{% endif %}
             });
 
             {% if from_value == 'new-publisher' %}

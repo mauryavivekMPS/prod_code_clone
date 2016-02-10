@@ -12,6 +12,7 @@ from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publishe
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
+from .pipelines import get_pending_files_for_demo
 
 
 @login_required
@@ -330,12 +331,6 @@ def edit(request, publisher_id=None):
     })
 
 
-class DemoAsPublisher(object):
-
-    def __init__(self, demo=None):
-        self.demo = demo
-
-
 @login_required
 def edit_demo(request, demo_id=None):
     demo = None
@@ -350,14 +345,22 @@ def edit_demo(request, demo_id=None):
     else:
         form = PublisherForm(request.user, instance=demo, is_demo=True)
 
+    demo_files_custom_article_data = []
+    demo_files_custom_rejected_articles = []
+    if demo:
+        demo_files_custom_article_data = get_pending_files_for_demo(demo_id, 'published_articles', 'custom_article_data', with_lines_and_sizes=True)
+        demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
+
     return render(request, 'publishers/new.html', {
         'form': form,
         'publisher': demo,
-        'demo': True,
+        'is_demo': True,
         'issn_values_list': form.issn_values_list,
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
+        'demo_files_custom_article_data': demo_files_custom_article_data,
+        'demo_files_rejected_artiles': demo_files_rejected_articles,
     })
 
 @login_required

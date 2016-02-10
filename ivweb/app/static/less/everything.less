@@ -1809,7 +1809,7 @@ body.login {
     }
 
     .file-status-col {
-        text-align: center;
+        text-align: left;
     }
 
     .file-status-icon {
@@ -1961,6 +1961,50 @@ p.uploaded-file-error-icon {
 .confirm-dialog {
     .modal-footer {
         text-align: left;
+    }
+}
+
+
+// Demo files
+// -------------------------
+
+.demo-files-fake-form {
+    .form-group {
+        margin-bottom: 5px;
+    }
+}
+
+.demo-files {
+    .all-files-table {
+        margin-bottom: 0;
+
+        tr:first-of-type {
+            td {
+                border-top: none;
+                padding-top: 7px;
+            }
+        }
+
+        > tbody > tr:last-of-type > td {
+            border-bottom: none;
+        }
+
+        .replacement-file-picker {
+            margin-left: 0;
+        }
+
+        &.has-files {
+            .upload-another-col {
+                padding-top: 17px;
+                padding-bottom: 15px;
+            }
+        }
+    }
+}
+
+.fake-form-submit-row {
+    .submit-row {
+        margin-top: 40px;
     }
 }
 
