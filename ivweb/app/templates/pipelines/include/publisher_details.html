@@ -50,7 +50,7 @@
             {% endwith %}
         {% else %}
             {% if publisher_runs.pending_files or not pipeline.has_file_input %}
-                <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/">
+                <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/" publisher_name="{{ publisher_runs.publisher.name }}">
                     {% csrf_token %}
                     <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
                     <input type="hidden" name="move_pending_files" value="1">

@@ -94,6 +94,7 @@ var PipelineListPage = (function() {
     var isSuperuser = false;
     var tailIntervalIds = {};
     var publisherTaskStatus = {};
+    var pipelineName = '';
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
@@ -189,13 +190,34 @@ var PipelineListPage = (function() {
     var wireRunForPublisherForms = function(selector) {
         $(selector).submit(function(event) {
             var form = $(this);
-            form.find('.run-pipeline-for-publisher-button').hide();
-            form.find('.run-loading-icon').show();
-            var parent = form.parent();
-            parent.find('.little-upload-button').hide();
-            parent.find('.little-files-link').hide();
-            $('.run-button').hide();
-            $.post(runForPublisherUrl, form.serialize());
+            var publisherName = form.attr('publisher_name');
+
+            // update the modal and open it
+            var m = $('#confirm-run-single-modal');
+            m.find('.modal-title').html('Run Pipeline for Publisher');
+            m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for ' + publisherName + '?</p>');
+
+            var submitButton = m.find('.confirm-run-single-submit-button');
+            submitButton.on('click', function() {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+                m.modal('hide');
+
+                form.find('.run-pipeline-for-publisher-button').hide();
+                form.find('.run-loading-icon').show();
+                var parent = form.parent();
+                parent.find('.little-upload-button').hide();
+                parent.find('.little-files-link').hide();
+                $('.run-button').hide();
+                $.post(runForPublisherUrl, form.serialize());
+            });
+            m.modal();
+
+            m.on('hidden.bs.modal', function () {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+            });
+
             event.preventDefault();
             return false;
         });
@@ -292,7 +314,8 @@ var PipelineListPage = (function() {
             runForPublisherUrl: '',
             runForAllUrl: '',
             isSuperuser: false,
-            csrfToken: ''
+            csrfToken: '',
+            pipelineName: ''
         }, options);
 
         pipelineId = options.pipelineId;
@@ -302,9 +325,16 @@ var PipelineListPage = (function() {
         runForAllUrl = options.runForAllUrl;
         tailUrl = options.tailUrl;
         isSuperuser = options.isSuperuser;
+        pipelineName = options.pipelineName;
 
         if (isSuperuser) {
+            var m = $('#confirm-run-all-modal');
             $('.run-button').click(function() {
+                m.modal();
+            });
+
+            $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
+                m.modal('hide');
                 $('.run-button').hide();
                 var loading = $('.run-for-all-loading-icon');
                 loading.show();

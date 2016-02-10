@@ -46,6 +46,46 @@
             </table>
         </div>
     </div>
+
+    <div class="modal fade confirm-dialog" id="confirm-run-single-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-run-modal-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="confirm-run-single-modal-label"></h4>
+                </div>
+                <div class="modal-body">
+                    <p id="confirm-run-single-modal-label"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary confirm-run-single-submit-button">Yes, Run Pipeline</button>
+                    <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade confirm-dialog" id="confirm-run-all-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-run-modal-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Run Pipeline for All Publishers</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to run the {{ pipeline.name }} pipeline for all publishers?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary confirm-run-all-submit-button">Yes, Run for All Publishers</button>
+                    <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block page_scripts %}
@@ -59,7 +99,8 @@
                 runForPublisherUrl: '{% url 'pipelines.run' product.id pipeline.id %}',
                 runForAllUrl: '{% url 'pipelines.run' product.id pipeline.id %}',
                 isSuperuser: {% if request.user.superuser %}true{% else %}false{% endif %},
-                csrfToken: '{{ csrf_token }}'
+                csrfToken: '{{ csrf_token }}',
+                pipelineName: '{{ pipeline.name }}'
             });
         });
     </script>
