@@ -32,16 +32,49 @@ class InsertIntoCassandraDBTask(Task):
                 manuscript_id = line[1]
                 data = json.loads(line[2])
 
+                tlogger.info("\n" + str(count-1) + " of " + str(total_count) + ". Processing record: " + publisher_id + " / " + manuscript_id)
+
                 if publisher_id == 'aaas' and (data['submitted_journal'] == 'Signaling' or data['submitted_journal'] == 'Translational Medicine'):
                     continue
-
 
                 b = BatchQuery()
 
                 existing_record = Rejected_Articles.objects.filter(publisher_id=publisher_id, manuscript_id=manuscript_id).first()
 
                 if existing_record:
-                    existing_record.batch(b).delete()
+                    if data['status'] == "Not Published":
+                        if existing_record['status'] == "Not Published":
+                            tlogger.info("No change from previous run (Not Published), skipping")
+                            continue
+                        else:
+                            tlogger.info("Manuscript changed status from last run, deleting existing record")
+                            existing_record.batch(b).delete()
+
+                    elif data['status'] == 'Published & Not Cited':
+                        if existing_record['status'] == "Published & Not Cited" and data['xref_doi'] == existing_record['crossref_doi']:
+                            tlogger.info("No change from previous run (Published & Not Cited), skipping")
+                            continue
+                        else:
+                            tlogger.info("Manuscript changed status from last run, deleting existing record")
+                            existing_record.batch(b).delete()
+
+                    elif data['status'] == 'Published & Citation Info Unavailable':
+                        if existing_record['status'] == "Published & Citation Info Unavailable" and data['xref_doi'] == existing_record['crossref_doi']:
+                            tlogger.info("No change from previous run (Published & Citation Info Unavailable), skipping")
+                            continue
+                        else:
+                            tlogger.info("Manuscript changed status from last run, deleting existing record")
+                            existing_record.batch(b).delete()
+
+                    elif data['status'] == "Published & Cited":
+                        if existing_record['status'] == "Published & Cited" and data['xref_doi'] == existing_record['crossref_doi']:
+                            tlogger.info("Matched (Published & Cited) in previous run, updating citation count")
+                            existing_record['citations'] = int(data['citations'])
+                            existing_record.save()
+                            continue
+                        else:
+                            tlogger.info("Manuscript changed status from last run, deleting existing record")
+                            existing_record.batch(b).delete()
 
                 ra = Rejected_Articles()
 
@@ -142,7 +175,7 @@ class InsertIntoCassandraDBTask(Task):
 
                 b.execute()
 
-                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher_id + " / " + manuscript_id)
+                tlogger.info("Inserting record")
 
             pu = Publisher_Vizor_Updates()
             pu['publisher_id'] = publisher_id
