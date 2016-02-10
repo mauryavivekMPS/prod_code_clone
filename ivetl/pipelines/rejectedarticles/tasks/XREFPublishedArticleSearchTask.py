@@ -51,6 +51,10 @@ class XREFPublishedArticleSearchTask(Task):
                 date_of_rejection = data['date_of_rejection']
                 title = data['title']
 
+                if title is None or title.strip == "":
+                    tlogger.info("No title, skipping record")
+                    continue
+
                 data['status'] = ''
 
                 if '-' in date_of_rejection:
