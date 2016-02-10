@@ -17,10 +17,11 @@ class AuthorMatchCheck:
         num_match = 0
 
         rejected_manuscript_authors = ''
-        if reject_first_author.strip() != '':
+        if reject_first_author is not None and reject_first_author.strip() != '':
             rejected_manuscript_authors = reject_first_author
-            if reject_corresponding_author.strip() != '' and reject_first_author != reject_corresponding_author:
-                rejected_manuscript_authors = rejected_manuscript_authors + ";" + reject_corresponding_author
+
+        if reject_corresponding_author is not None and reject_corresponding_author.strip() != '':
+            rejected_manuscript_authors = rejected_manuscript_authors + ";" + reject_corresponding_author
 
         if rejected_manuscript_authors == '' and reject_corresponding_author.strip() != '':
                 rejected_manuscript_authors = reject_corresponding_author
