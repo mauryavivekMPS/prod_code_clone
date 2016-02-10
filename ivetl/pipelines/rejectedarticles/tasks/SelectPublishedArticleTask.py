@@ -40,7 +40,8 @@ class SelectPublishedArticleTask(Task):
                     xref_search_results_json = data['xref_results']
 
                     xref_matches = xref_search_results_json['message']['items']
-                    if 'published_doi' in data and data['published_doi'] != '':
+                    if 'preprint_doi' in data and data['preprint_doi'] is not None and data['preprint_doi'] != '':
+                        tlogger("This manuscript has a preprint doi.")
                         xref_matches = self.filter_out_published_doi(data['published_doi'], xref_matches)
 
                     xref_article = JournalFilterCheck.check(xref_matches, tlogger)

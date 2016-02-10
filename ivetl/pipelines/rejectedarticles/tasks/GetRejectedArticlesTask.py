@@ -40,7 +40,7 @@ class GetRejectedArticlesTask(Task):
                 'article_type': article.article_type,
                 'keywords': article.keywords,
                 'custom': article.custom,
-                #'published_doi': article.crossref_doi,
+                'preprint_doi': article.preprint_doi,
                 'source_file_name': article.source_file_name,
             }
 

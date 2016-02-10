@@ -171,6 +171,9 @@ class InsertIntoCassandraDBTask(Task):
                 if 'mendeley_saves' in data and (data['mendeley_saves'] != ''):
                     ra['mendeley_saves'] = int(data['mendeley_saves'])
 
+                if 'preprint_doi' in data and (data['preprint_doi'] != ''):
+                    ra['preprint_doi'] = int(data['preprint_doi'])
+
                 ra.batch(b).save()
 
                 b.execute()

@@ -58,7 +58,7 @@ class RejectedArticlesValidator(BaseValidator):
                                 input_data['funders'] = line[13].strip()
 
                             if len(line) >= 15 and line[14].strip() != '':
-                                input_data['published_doi'] = line[14].strip()
+                                input_data['preprint_doi'] = line[14].strip()
 
                             if input_data['manuscript_id'] == "":
                                 errors.append(self.format_error(file_name, count - 1, "No value for MANUSCRIPT_ID"))
