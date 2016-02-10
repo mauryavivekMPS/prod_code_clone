@@ -12,6 +12,9 @@ def home(request):
     if request.user.superuser:
         return HttpResponseRedirect(reverse('all_pipelines'))
 
+    elif request.user.staff:
+        return HttpResponseRedirect(reverse('publishers.list_demos'))
+
     else:
         messages = []
         running_publisher = ''

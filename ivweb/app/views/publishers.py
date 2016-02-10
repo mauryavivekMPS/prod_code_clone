@@ -47,15 +47,11 @@ def list_publishers(request):
 
 @login_required
 def list_demos(request):
-
     if request.user.superuser:
         demos = Demo.objects.all()
     else:
-        demos = Demo.objects.all()
-
+        demos = Demo.objects.filter(requestor_id=request.user.user_id)
     demos = sorted(demos, key=lambda p: p.name.lower().lstrip('('))
-
-
     return render(request, 'publishers/list_demos.html', {
         'demos': demos,
     })
@@ -84,6 +80,7 @@ class PublisherForm(forms.Form):
     # demo-specific fields
     demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
     start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}), required=False)
+    demo_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Add notes about the demo'}), required=False)
 
     def __init__(self, creating_user, *args, instance=None, is_demo=False, **kwargs):
         self.is_demo = is_demo
@@ -104,6 +101,7 @@ class PublisherForm(forms.Form):
                 initial['crossref_password'] = properties.get('crossref_password')
                 initial['issn_values_list'] = properties.get('issn_values_list', [])
                 initial['issn_values_cohort_list'] = properties.get('issn_values_cohort_list', [])
+                initial['demo_notes'] = properties.get('demo_notes')
 
             initial.pop('reports_password', None)  # clear out the encoded password
             initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
@@ -193,7 +191,8 @@ class PublisherForm(forms.Form):
                 'crossref_password': self.cleaned_data['crossref_password'],
                 'supported_products': supported_products,
                 'issn_values_list': [],
-                'issn_values_cohort_list': []
+                'issn_values_cohort_list': [],
+                'demo_notes': self.cleaned_data['demo_notes'],
             }
 
             demo.update(

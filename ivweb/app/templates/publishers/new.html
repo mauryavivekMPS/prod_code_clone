@@ -252,6 +252,17 @@
                         </div>
                     </div>
 
+                    {% if demo %}
+                        <h2>Demo Notes</h2>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2">Notes</label>
+                            <div class="col-sm-6">
+                                {{ form.demo_notes }}
+                                {{ form.demo_notes.errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled">
                             {% if publisher %}
