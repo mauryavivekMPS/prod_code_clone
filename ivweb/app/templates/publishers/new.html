@@ -1,17 +1,23 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{% if publisher %}{{ publisher.name }}{% else %}New Publisher{% endif %}{% endblock %}
-{% block body_class %}publisher new-publisher{% endblock %}
+{% block title %}{% if publisher %}{{ publisher.name }}{% else %}New {% if demo %}Demo{% else %}Publisher{% endif %}{% endif %}{% endblock %}
+{% block body_class %}publisher new-publisher {% if demo %}new-demo{% endif %}{% endblock %}
 
 {% block content %}
     <div class="row header-row with-breadcrumb">
         <div class="col-md-8">
             <ol class="breadcrumb">
-                <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
+                <li>
+                    {% if demo %}
+                        <a href="{% url 'publishers.list_demos' %}">Demos</a>
+                    {% else %}
+                        <a href="{% url 'publishers.list' %}">Publishers</a>
+                    {% endif %}
+                </li>
                 <li></li>
             </ol>
-            <h1>{% if publisher %}{{ publisher.name }}{% else %}New Publisher{% endif %}</h1>
+            <h1>{% if publisher %}{{ publisher.name }}{% else %}New {% if demo %}Demo{% else %}Publisher{% endif %}{% endif %}</h1>
         </div>
     </div>
 
@@ -21,101 +27,124 @@
                 <form id="publisher-form" class="form-horizontal" method="post">
                     {% csrf_token %}
 
-                    <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
-                        <label for="publisher_id" class="col-sm-2">Publisher ID</label>
-                        <div class="col-sm-3">
-                            {% if publisher %}
-                                <p class="form-control-static">
-                                    {{ form.initial.publisher_id }}
-                                    <input type="hidden" name="publisher_id" value="{{ form.initial.publisher_id }}">
-                                </p>
-                            {% else %}
-                                {{ form.publisher_id }}
-                                {{ form.publisher_id.errors }}
-                            {% endif %}
+                    {% if demo %}
+                        <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id }}">
+                    {% endif %}
+
+                    {% if not demo %}
+                        <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
+                            <label for="publisher_id" class="col-sm-2">Publisher ID</label>
+                            <div class="col-sm-3">
+                                {% if publisher %}
+                                    <p class="form-control-static">
+                                        {{ form.initial.publisher_id }}
+                                        <input type="hidden" name="publisher_id" value="{{ form.initial.publisher_id }}">
+                                    </p>
+                                {% else %}
+                                    {{ form.publisher_id }}
+                                    {{ form.publisher_id.errors }}
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
+
                     <div class="form-group row {% if form.name.errors %}error{% endif %}">
-                        <label for="name" class="col-sm-2">Name</label>
+                        <label for="name" class="col-sm-2">{% if demo %}Publisher {% endif %}Name</label>
                         <div class="col-sm-6">
                             {{ form.name }}
                             {{ form.name.errors }}
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="email" class="col-sm-2">Email</label>
-                        <div class="col-sm-6">
-                            {{ form.email }}
-                            {{ form.email.errors }}
-                        </div>
-                    </div>
 
-                    {% if request.user.superuser %}
-                        {% if not publisher %}
-                            <div class="form-group row">
-                                <label class="col-sm-2">Scopus</label>
-                                <div class="col-sm-6">
-                                    <div class="checkbox">
-                                        <label>{{ form.use_scopus_api_keys_from_pool }} Get Scopus API keys from pool</label>
+                    {% if demo %}
+                        <div class="form-group row {% if form.start_date.errors %}error{% endif %}">
+                            <label for="start_date" class="col-sm-2">Start Date</label>
+                            <div class="col-sm-3">
+                                {{ form.start_date }}
+                                {{ form.start_date.errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if not demo %}
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2">Email</label>
+                            <div class="col-sm-6">
+                                {{ form.email }}
+                                {{ form.email.errors }}
+                            </div>
+                        </div>
+
+                        {% if request.user.superuser %}
+                            {% if not publisher %}
+                                <div class="form-group row">
+                                    <label class="col-sm-2">Scopus</label>
+                                    <div class="col-sm-6">
+                                        <div class="checkbox">
+                                            <label>{{ form.use_scopus_api_keys_from_pool }} Get Scopus API keys from pool</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="scopus-controls" {% if not publisher %}style="display:none"{% endif %}>
+                                <div class="form-group row">
+                                    <label for="scopus_api_keys" class="col-sm-2">Scopus API Keys</label>
+                                    <div class="col-sm-6">
+                                        {{ form.scopus_api_keys }}
                                     </div>
                                 </div>
                             </div>
+                        {% else %}
+                            <input type="hidden" name="use_scopus_api_keys_from_pool" value="{{ form.initial.use_scopus_api_keys_from_pool }}">
+                            <input type="hidden" name="scopus_api_keys" value="{{ form.initial.scopus_api_keys }}">
                         {% endif %}
-                        <div class="scopus-controls" {% if not publisher %}style="display:none"{% endif %}>
-                            <div class="form-group row">
-                                <label for="scopus_api_keys" class="col-sm-2">Scopus API Keys</label>
-                                <div class="col-sm-6">
-                                    {{ form.scopus_api_keys }}
+
+                        <div class="form-group row">
+                            <label class="col-sm-2">Pilot</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.pilot }} Enable Pilot restrictions on this publisher</label>
                                 </div>
                             </div>
                         </div>
-                    {% else %}
-                        <input type="hidden" name="use_scopus_api_keys_from_pool" value="{{ form.initial.use_scopus_api_keys_from_pool }}">
-                        <input type="hidden" name="scopus_api_keys" value="{{ form.initial.scopus_api_keys }}">
+
                     {% endif %}
 
-                    <div class="form-group row">
-                        <label class="col-sm-2">Pilot</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.pilot }} Enable Pilot restrictions on this publisher</label>
+                    {% if not demo %}
+                        <h2>Reporting</h2>
+                        <div class="form-group row">
+                            <label for="reports_username" class="col-sm-2">Reports Login</label>
+                            <div class="col-sm-3">
+                                {% if publisher %}
+                                    <p class="form-control-static">
+                                        {{ form.initial.reports_username }}
+                                        <input type="hidden" name="reports_username" value="{{ form.initial.reports_username }}">
+                                    </p>
+                                {% else %}
+                                    {{ form.reports_username }}
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-3">
+                                {% if publisher %}
+                                    <p class="form-control-static set-reports-password-link"><a href="#">Set password...</a></p>
+                                {% endif %}
+                                {{ form.reports_password }}
                             </div>
                         </div>
-                    </div>
-
-                    <h2>Reporting</h2>
-                    <div class="form-group row">
-                        <label for="reports_username" class="col-sm-2">Reports Login</label>
-                        <div class="col-sm-3">
-                            {% if publisher %}
-                                <p class="form-control-static">
-                                    {{ form.initial.reports_username }}
-                                    <input type="hidden" name="reports_username" value="{{ form.initial.reports_username }}">
-                                </p>
-                            {% else %}
-                                {{ form.reports_username }}
-                            {% endif %}
+                        <div class="form-group row">
+                            <label for="reports_project" class="col-sm-2">Project Folder</label>
+                            <div class="col-sm-6">
+                                {% if publisher %}
+                                    <p class="form-control-static">
+                                        {{ form.initial.reports_project }}
+                                        <input type="hidden" name="reports_project" value="{{ form.initial.reports_project }}">
+                                    </p>
+                                {% else %}
+                                    {{ form.reports_project }}
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="col-sm-3">
-                            {% if publisher %}
-                                <p class="form-control-static set-reports-password-link"><a href="#">Set password...</a></p>
-                            {% endif %}
-                            {{ form.reports_password }}
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="reports_project" class="col-sm-2">Project Folder</label>
-                        <div class="col-sm-6">
-                            {% if publisher %}
-                                <p class="form-control-static">
-                                    {{ form.initial.reports_project }}
-                                    <input type="hidden" name="reports_project" value="{{ form.initial.reports_project }}">
-                                </p>
-                            {% else %}
-                                {{ form.reports_project }}
-                            {% endif %}
-                        </div>
-                    </div>
+                    {% endif %}
 
                     <h2>Rejected Manuscripts</h2>
                     <div class="form-group row">
@@ -228,7 +257,7 @@
                             {% if publisher %}
                                 Save Changes
                             {% else %}
-                                Add Publisher
+                                Add {% if demo %}Demo{% else %}Publisher{% endif %}
                             {% endif %}
                         </button>
                         <span class="cancel">or <a href="../">Cancel</a></span>
@@ -264,7 +293,8 @@
                     buildingSuccessUrl: '{% url 'publishers.list' %}?from=new-success',
                     buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
                 {% endif %}
-                csrfToken: '{{ csrf_token }}'
+                csrfToken: '{{ csrf_token }}',
+                isDemo: {% if demo %}true{% else %}false{% endif %}
             });
 
             {% if from_value == 'new-publisher' %}

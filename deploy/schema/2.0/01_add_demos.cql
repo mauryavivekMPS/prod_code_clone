@@ -2,12 +2,12 @@ USE impactvizor;
 
 CREATE TABLE demo (
   demo_id uuid,
-  publisher_name text,
+  name text,
   requestor_id uuid,
   start_date timestamp,
   status text,
   properties text,
-  PRIMARY KEY ((demo_id), requestor_id)
+  PRIMARY KEY ((demo_id))
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
@@ -23,3 +23,5 @@ CREATE TABLE demo (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE INDEX requestor_id_index ON demo (requestor_id);

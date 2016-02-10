@@ -614,10 +614,25 @@ var EditPublisherPage = (function() {
     var buildingSuccessUrl;
     var buildingErrorUrl;
     var csrfToken;
+    var isDemo;
 
     var checkForm = function() {
-        var publisherId = f.find("#id_publisher_id").val();
+
+        // quick easy validation for saving demos
         var name = f.find("#id_name").val();
+        var hasName = name != '';
+        if (isDemo) {
+            if (hasName) {
+                f.find('.submit-button').removeClass('disabled').prop('disabled', false);
+            }
+            else {
+                f.find('.submit-button').addClass('disabled').prop('disabled', true);
+            }
+            return
+        }
+
+        // onto the non-demo validation
+        var publisherId = f.find("#id_publisher_id").val();
         var email = f.find("#id_email").val();
         var hasBasics = publisherId != '' && name != '' && email != '';
 
@@ -948,7 +963,8 @@ var EditPublisherPage = (function() {
             buildingPollUrl: '',
             buildingSuccessUrl: '',
             buildingErrorUrl: '',
-            csrfToken: ''
+            csrfToken: '',
+            isDemo: false
         }, options);
 
         publisherId = options.publisherId;
@@ -959,6 +975,7 @@ var EditPublisherPage = (function() {
         buildingSuccessUrl = options.buildingSuccessUrl;
         buildingErrorUrl = options.buildingErrorUrl;
         csrfToken = options.csrfToken;
+        isDemo = options.isDemo;
 
         isNew = publisherId == '';
 

@@ -26,12 +26,18 @@
                     {% for demo in demos %}
                         <tr>
                             <td>
-                                <a href="{% url 'demos.edit' demo.demo_id %}">
-                                    {{ demo.publisher_name }}
+                                <a href="{% url 'publishers.edit_demo' demo.demo_id %}">
+                                    {{ demo.name }}
                                 </a>
                             </td>
-                            <td>{{ demo.requestor_id }}</td>
-                            <td>{{ demo.start_date }}</td>
+                            <td>{{ demo.requestor.display_name }}</td>
+                            <td>
+                                {% if demo.start_date %}
+                                    {{ demo.start_date.date }}
+                                {% else %}
+                                    <span class="null-value">&mdash;</span>
+                                {% endif %}
+                            </td>
                             <td class="text-center">{{ demo.status }}</td>
                         </tr>
                     {% endfor %}

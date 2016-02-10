@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key
+from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -45,6 +45,22 @@ def list_publishers(request):
     })
 
 
+@login_required
+def list_demos(request):
+
+    if request.user.superuser:
+        demos = Demo.objects.all()
+    else:
+        demos = Demo.objects.all()
+
+    demos = sorted(demos, key=lambda p: p.name.lower().lstrip('('))
+
+
+    return render(request, 'publishers/list_demos.html', {
+        'demos': demos,
+    })
+
+
 class PublisherForm(forms.Form):
     publisher_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a short, unique identifier'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a name for display'}))
@@ -65,7 +81,12 @@ class PublisherForm(forms.Form):
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
-    def __init__(self, creating_user, *args, instance=None, **kwargs):
+    # demo-specific fields
+    demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}), required=False)
+
+    def __init__(self, creating_user, *args, instance=None, is_demo=False, **kwargs):
+        self.is_demo = is_demo
         self.creating_user = creating_user
         self.issn_values_list = []
         self.issn_values_cohort_list = []
@@ -73,34 +94,54 @@ class PublisherForm(forms.Form):
         if instance:
             self.instance = instance
             initial = dict(instance)
-            initial.pop('reports_password')  # clear out the encoded password
-            initial['scopus_api_keys'] = ', '.join(initial['scopus_api_keys'])
+
+            if self.is_demo:
+                properties = json.loads(initial.get('properties', '{}'))
+                initial['hw_addl_metadata_available'] = properties.get('hw_addl_metadata_available', False)
+                initial['use_crossref'] = properties.get('use_crossref', False)
+                initial['supported_products'] = properties.get('supported_products', [])
+                initial['crossref_username'] = properties.get('crossref_username')
+                initial['crossref_password'] = properties.get('crossref_password')
+                initial['issn_values_list'] = properties.get('issn_values_list', [])
+                initial['issn_values_cohort_list'] = properties.get('issn_values_cohort_list', [])
+
+            initial.pop('reports_password', None)  # clear out the encoded password
+            initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
-            initial['use_crossref'] = initial['crossref_username'] or initial['crossref_password']
+            initial['use_crossref'] = initial.get('use_crossref') or initial['crossref_username'] or initial['crossref_password']
 
-            index = 0
-            for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
-                self.issn_values_list.append({
-                    'product_id': 'published_articles',
-                    'electronic_issn': code.electronic_issn,
-                    'print_issn': code.print_issn,
-                    'journal_code': code.journal_code,
-                    'index': 'pa-%s' % index,  # just needs to be unique on the page
-                })
-                index += 1
-            initial['issn_values'] = json.dumps(self.issn_values_list)
+            if self.is_demo:
+                self.issn_values_list = initial['issn_values_list']
+                initial['issn_values'] = json.dumps(self.issn_values_list)
+            else:
+                index = 0
+                for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
+                    self.issn_values_list.append({
+                        'product_id': 'published_articles',
+                        'electronic_issn': code.electronic_issn,
+                        'print_issn': code.print_issn,
+                        'journal_code': code.journal_code,
+                        'index': 'pa-%s' % index,  # just needs to be unique on the page
+                    })
+                    index += 1
+                initial['issn_values'] = json.dumps(self.issn_values_list)
 
-            for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
-                self.issn_values_cohort_list.append({
-                    'product_id': 'cohort_articles',
-                    'electronic_issn': code.electronic_issn,
-                    'print_issn': code.print_issn,
-                    'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
-                })
-                index += 1
-            initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
+            if self.is_demo:
+                self.issn_values_cohort_list = initial['issn_values_cohort_list']
+                initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
+            else:
+                index = 0
+                for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
+                    self.issn_values_cohort_list.append({
+                        'product_id': 'cohort_articles',
+                        'electronic_issn': code.electronic_issn,
+                        'print_issn': code.print_issn,
+                        'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
+                    })
+                    index += 1
+                initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
 
         else:
             self.instance = None
@@ -108,14 +149,21 @@ class PublisherForm(forms.Form):
 
         super(PublisherForm, self).__init__(initial=initial, *args, **kwargs)
 
+        if self.is_demo:
+            self.fields['publisher_id'].required = False
+            self.fields['email'].required = False
+            self.fields['issn_values'].required = False
+            self.fields['name'].widget.attrs['placeholder'] = 'Enter demo publisher name'
+
     def clean_publisher_id(self):
         publisher_id = self.cleaned_data['publisher_id']
 
-        if self.instance:
-            return self.instance.publisher_id  # can't change this
-        else:
-            if Publisher_Metadata.objects.filter(publisher_id=publisher_id).count():
-                raise forms.ValidationError("This publisher ID is already in use.")
+        if not self.is_demo:
+            if self.instance:
+                return self.instance.publisher_id  # can't change this
+            else:
+                if Publisher_Metadata.objects.filter(publisher_id=publisher_id).count():
+                    raise forms.ValidationError("This publisher ID is already in use.")
 
         return publisher_id
 
@@ -128,70 +176,99 @@ class PublisherForm(forms.Form):
         if self.cleaned_data['cohort_articles']:
             supported_products.append('cohort_articles')
 
-        scopus_api_keys = []
-        if self.cleaned_data['scopus_api_keys']:
-            scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
-        if not self.instance and self.cleaned_data['use_scopus_api_keys_from_pool']:
-            # grab 5 API keys from the pool
-            for key in Scopus_Api_Key.objects.all()[:5]:
-                scopus_api_keys.append(key.key)
-                key.delete()
-
-        publisher_id = self.cleaned_data['publisher_id']
-        Publisher_Metadata.objects(publisher_id=publisher_id).update(
-            name=self.cleaned_data['name'],
-            email=self.cleaned_data['email'],
-            hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
-            scopus_api_keys=scopus_api_keys,
-            crossref_username=self.cleaned_data['crossref_username'],
-            crossref_password=self.cleaned_data['crossref_password'],
-            supported_products=supported_products,
-            pilot=self.cleaned_data['pilot'],
-        )
-
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-
-        if self.instance:
-            new_password = self.cleaned_data['reports_password']
-            if new_password:
-                t = TableauConnector(
-                    username=common.TABLEAU_USERNAME,
-                    password=common.TABLEAU_PASSWORD,
-                    server=common.TABLEAU_SERVER
+        if self.is_demo:
+            demo_id = self.cleaned_data['demo_id']
+            if demo_id:
+                demo = Demo.objects.get(demo_id=demo_id)
+            else:
+                demo = Demo.objects.create(
+                    requestor_id=self.creating_user.user_id,
+                    status='creating',
                 )
-                t.set_user_password(publisher.reports_user_id, new_password)
-                publisher.update(
-                    reports_password=self.cleaned_data['reports_password'],
-                )
-        else:
-            publisher.update(
-                reports_username=self.cleaned_data['reports_username'],
-                reports_password=self.cleaned_data['reports_password'],
-                reports_project=self.cleaned_data['reports_project'],
+
+            properties = {
+                'hw_addl_metadata_available': self.cleaned_data['hw_addl_metadata_available'],
+                'use_crossref': self.cleaned_data['use_crossref'],
+                'crossref_username': self.cleaned_data['crossref_username'],
+                'crossref_password': self.cleaned_data['crossref_password'],
+                'supported_products': supported_products,
+                'issn_values_list': [],
+                'issn_values_cohort_list': []
+            }
+
+            demo.update(
+                name=self.cleaned_data['name'],
+                start_date=self.cleaned_data['start_date'],
+                properties=json.dumps(properties),
             )
 
-        for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
-            journal.delete()
+            return demo
 
-        if self.cleaned_data['issn_values']:
-            for issn_value in json.loads(self.cleaned_data['issn_values']):
-                Publisher_Journal.objects.create(
-                    product_id='published_articles',
-                    publisher_id=publisher_id,
-                    electronic_issn=issn_value['electronic_issn'],
-                    print_issn=issn_value['print_issn'],
-                    journal_code=issn_value['journal_code'],
-                )
-        if self.cleaned_data['issn_values_cohort']:
-            for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
-                Publisher_Journal.objects.create(
-                    product_id='cohort_articles',
-                    publisher_id=publisher_id,
-                    electronic_issn=issn_value['electronic_issn'],
-                    print_issn=issn_value['print_issn'],
+        else:
+            scopus_api_keys = []
+            if self.cleaned_data['scopus_api_keys']:
+                scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
+            if not self.instance and self.cleaned_data['use_scopus_api_keys_from_pool']:
+                # grab 5 API keys from the pool
+                for key in Scopus_Api_Key.objects.all()[:5]:
+                    scopus_api_keys.append(key.key)
+                    key.delete()
+
+            publisher_id = self.cleaned_data['publisher_id']
+            Publisher_Metadata.objects(publisher_id=publisher_id).update(
+                name=self.cleaned_data['name'],
+                email=self.cleaned_data['email'],
+                hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
+                scopus_api_keys=scopus_api_keys,
+                crossref_username=self.cleaned_data['crossref_username'],
+                crossref_password=self.cleaned_data['crossref_password'],
+                supported_products=supported_products,
+                pilot=self.cleaned_data['pilot'],
+            )
+
+            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
+            if self.instance:
+                new_password = self.cleaned_data['reports_password']
+                if new_password:
+                    t = TableauConnector(
+                        username=common.TABLEAU_USERNAME,
+                        password=common.TABLEAU_PASSWORD,
+                        server=common.TABLEAU_SERVER
+                    )
+                    t.set_user_password(publisher.reports_user_id, new_password)
+                    publisher.update(
+                        reports_password=self.cleaned_data['reports_password'],
+                    )
+            else:
+                publisher.update(
+                    reports_username=self.cleaned_data['reports_username'],
+                    reports_password=self.cleaned_data['reports_password'],
+                    reports_project=self.cleaned_data['reports_project'],
                 )
 
-        return publisher
+            for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
+                journal.delete()
+
+            if self.cleaned_data['issn_values']:
+                for issn_value in json.loads(self.cleaned_data['issn_values']):
+                    Publisher_Journal.objects.create(
+                        product_id='published_articles',
+                        publisher_id=publisher_id,
+                        electronic_issn=issn_value['electronic_issn'],
+                        print_issn=issn_value['print_issn'],
+                        journal_code=issn_value['journal_code'],
+                    )
+            if self.cleaned_data['issn_values_cohort']:
+                for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
+                    Publisher_Journal.objects.create(
+                        product_id='cohort_articles',
+                        publisher_id=publisher_id,
+                        electronic_issn=issn_value['electronic_issn'],
+                        print_issn=issn_value['print_issn'],
+                    )
+
+            return publisher
 
 
 @login_required
@@ -245,6 +322,7 @@ def edit(request, publisher_id=None):
     return render(request, 'publishers/new.html', {
         'form': form,
         'publisher': publisher,
+        'demo': False,
         'issn_values_list': form.issn_values_list,
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
@@ -252,6 +330,36 @@ def edit(request, publisher_id=None):
         'from_value': from_value,
     })
 
+
+class DemoAsPublisher(object):
+
+    def __init__(self, demo=None):
+        self.demo = demo
+
+
+@login_required
+def edit_demo(request, demo_id=None):
+    demo = None
+    if demo_id:
+        demo = Demo.objects.get(demo_id=demo_id)
+
+    if request.method == 'POST':
+        form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
+        if form.is_valid():
+            demo = form.save()
+            return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=save-success')
+    else:
+        form = PublisherForm(request.user, instance=demo, is_demo=True)
+
+    return render(request, 'publishers/new.html', {
+        'form': form,
+        'publisher': demo,
+        'demo': True,
+        'issn_values_list': form.issn_values_list,
+        'issn_values_json': json.dumps(form.issn_values_list),
+        'issn_values_cohort_list': form.issn_values_cohort_list,
+        'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
+    })
 
 @login_required
 def check_reports(request):

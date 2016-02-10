@@ -27,8 +27,9 @@ urlpatterns = patterns(
     url(r'^users/(?P<user_id>[\w\-\.]+)/$', 'users.edit', name='users.edit'),
 
     # demos
-    url(r'^demos/$', 'demos.list_demos', name='demos.list'),
-    url(r'^demos/new/$', 'demos.edit', name='demos.new'),
+    url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
+    url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),
+    url(r'^demos/(?P<demo_id>[\w\-\.]+)/$', 'publishers.edit_demo', name='publishers.edit_demo'),
 
     # publishers
     url(r'^publishers/$', 'publishers.list_publishers', name='publishers.list'),
