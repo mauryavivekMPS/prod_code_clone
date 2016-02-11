@@ -1132,55 +1132,7 @@ var EditPublisherPage = (function() {
             event.preventDefault();
             return false;
         });
-
-        //var fileToDelete = link.attr('file_to_delete');
-        //var data = [
-        //    {name: 'csrfmiddlewaretoken', value: csrfToken},
-        //    {name: 'publisher', value: publisherId},
-        //    {name: 'file_to_delete', value: fileToDelete}
-        //];
-        //
-        //$.post(deleteUrl, data)
-        //    .always(function() {
-        //        var row = link.closest('tr');
-        //        row.fadeOut(150, function() {
-        //            row.remove();
-        //        });
-        //        IvetlWeb.hideLoading();
-        //    });
-
-        //f.submit(function() {
-        //
-        //    var issnValues = [];
-        //    $('.issn-values-row').each(function() {
-        //        var row = $(this);
-        //        if (!isIssnRowEmpty(row)) {
-        //            var index = row.attr('index');
-        //            issnValues.push({
-        //                electronic_issn: row.find('#id_electronic_issn_' + index).val(),
-        //                print_issn: row.find('#id_print_issn_' + index).val(),
-        //                journal_code: row.find('#id_journal_code_' + index).val(),
-        //                index: index
-        //            });
-        //        }
-        //    });
-        //    $('#id_issn_values').val(JSON.stringify(issnValues));
-        //
-        //    var issnCohortValues = [];
-        //    $('.issn-values-cohort-row').each(function() {
-        //        var row = $(this);
-        //        if (!isIssnRowEmpty(row)) {
-        //            var index = row.attr('index');
-        //            issnCohortValues.push({
-        //                electronic_issn: row.find('#id_electronic_issn_' + index).val(),
-        //                print_issn: row.find('#id_print_issn_' + index).val(),
-        //                index: index
-        //            });
-        //        }
-        //    });
-        //    $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
-        //});
-
+        
         checkForm();
     };
 

@@ -19,9 +19,9 @@
     <div class="col-sm-2">
         <p class="form-control-static">
             <a href="#" class="delete-issn-button"><span class="lnr lnr-cross"></span></a>
-            <a href="#" class="validate-issn-button" {% if issn_value %}style="display:none"{% endif %}>Validate ISSN</a>
+            <a href="#" class="validate-issn-button" {% if not is_demo and issn_value %}style="display:none"{% endif %}>Validate ISSN</a>
             <i style="display:none" class="fa fa-spinner fa-pulse validate-issn-loading"></i>
-            <span class="validate-issn-checkmark lnr lnr-check checkmark" {% if not issn_value %}style="display:none"{% endif %}></span>
+            <span class="validate-issn-checkmark lnr lnr-check checkmark" {% if is_demo or not issn_value %}style="display:none"{% endif %}></span>
         </p>
     </div>
 </div>
