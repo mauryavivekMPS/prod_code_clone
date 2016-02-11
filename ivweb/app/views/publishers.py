@@ -203,8 +203,8 @@ class PublisherForm(forms.Form):
                 'crossref_username': self.cleaned_data['crossref_username'],
                 'crossref_password': self.cleaned_data['crossref_password'],
                 'supported_products': supported_products,
-                'issn_values_list': [],
-                'issn_values_cohort_list': [],
+                'issn_values_list': json.loads(self.cleaned_data['issn_values']),
+                'issn_values_cohort_list': json.loads(self.cleaned_data['issn_values_cohort']),
                 'demo_notes': self.cleaned_data['demo_notes'],
             }
 
