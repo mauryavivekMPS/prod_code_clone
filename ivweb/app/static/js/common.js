@@ -195,7 +195,7 @@ var PipelineListPage = (function() {
             // update the modal and open it
             var m = $('#confirm-run-single-modal');
             m.find('.modal-title').html('Run Pipeline for Publisher');
-            m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for ' + publisherName + '?</p>');
+            m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
 
             var submitButton = m.find('.confirm-run-single-submit-button');
             submitButton.on('click', function() {
@@ -604,7 +604,6 @@ var RunPage = (function() {
 //
 
 var EditPublisherPage = (function() {
-    var f;
     var publisherId;
     var isNew;
     var validateCrossrefUrl;
@@ -616,44 +615,52 @@ var EditPublisherPage = (function() {
     var csrfToken;
     var isDemo;
 
+    var enableSubmit = function() {
+        $('.submit-button.save-button').removeClass('disabled').prop('disabled', false);
+    };
+
+    var disableSubmit = function() {
+        $('.submit-button.save-button').addClass('disabled').prop('disabled', true);
+    };
+
     var checkForm = function() {
 
         // quick easy validation for saving demos
-        var name = f.find("#id_name").val();
+        var name = $("#id_name").val();
         var hasName = name != '';
         if (isDemo) {
             if (hasName) {
-                f.find('.submit-button').removeClass('disabled').prop('disabled', false);
+                enableSubmit();
             }
             else {
-                f.find('.submit-button').addClass('disabled').prop('disabled', true);
+                disableSubmit();
             }
             return
         }
 
         // onto the non-demo validation
-        var publisherId = f.find("#id_publisher_id").val();
-        var email = f.find("#id_email").val();
+        var publisherId = $("#id_publisher_id").val();
+        var email = $("#id_email").val();
         var hasBasics = publisherId != '' && name != '' && email != '';
 
-        var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
-        var rejectedManuscriptsProduct = f.find('#id_rejected_manuscripts').is(':checked');
-        var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
+        var publishedArticlesProduct = $('#id_published_articles').is(':checked');
+        var rejectedManuscriptsProduct = $('#id_rejected_manuscripts').is(':checked');
+        var cohortArticlesProduct = $('#id_cohort_articles').is(':checked');
         var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct;
 
         var hasReportsDetails = true;
         if (isNew) {
-            var reportsUsername = f.find('#id_reports_username').val();
-            var reportsPassword = f.find('#id_reports_username').val();
-            var reportsProject = f.find('#id_reports_project').val();
+            var reportsUsername = $('#id_reports_username').val();
+            var reportsPassword = $('#id_reports_username').val();
+            var reportsProject = $('#id_reports_project').val();
             hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
         }
 
         var crossref = true;
         if (useCrossref()) {
-            var username = f.find('#id_crossref_username').val();
-            var password = f.find('#id_crossref_password').val();
-            var validated = f.find('.validate-crossref-checkmark').is(':visible');
+            var username = $('#id_crossref_username').val();
+            var password = $('#id_crossref_password').val();
+            var validated = $('.validate-crossref-checkmark').is(':visible');
             crossref = username && password && validated;
         }
 
@@ -698,10 +705,10 @@ var EditPublisherPage = (function() {
         }
 
         if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns) {
-            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
+            enableSubmit();
         }
         else {
-            f.find('.submit-button').addClass('disabled').prop('disabled', true);
+            disableSubmit();
         }
     };
 
@@ -711,6 +718,15 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.published-articles-controls').fadeOut(100);
+        }
+    };
+
+    var updateRejectedManuscriptsControls = function() {
+        if ($('#id_rejected_manuscripts').is(':checked')) {
+            $('.rejected-manuscripts-controls').fadeIn(200);
+        }
+        else {
+            $('.rejected-manuscripts-controls').fadeOut(100);
         }
     };
 
@@ -765,12 +781,12 @@ var EditPublisherPage = (function() {
     };
 
     var updateValidateCrossrefButton = function() {
-        var username = f.find('#id_crossref_username').val();
-        var password = f.find('#id_crossref_password').val();
-        var button = f.find('.validate-crossref-button');
-        var message = f.find('.crossref-error-message');
-        var checkmark = f.find('.validate-crossref-checkmark');
-        var row = f.find('.crossref-form-row');
+        var username = $('#id_crossref_username').val();
+        var password = $('#id_crossref_password').val();
+        var button = $('.validate-crossref-button');
+        var message = $('.crossref-error-message');
+        var checkmark = $('.validate-crossref-checkmark');
+        var row = $('.crossref-form-row');
 
         message.hide();
         checkmark.hide();
@@ -785,17 +801,17 @@ var EditPublisherPage = (function() {
     };
 
     var checkCrossref = function() {
-        var button = f.find('.validate-crossref-button');
-        var loading = f.find('.validate-crossref-loading');
+        var button = $('.validate-crossref-button');
+        var loading = $('.validate-crossref-loading');
 
         button.hide();
         loading.show();
 
-        var username = f.find('#id_crossref_username');
-        var password = f.find('#id_crossref_password');
-        var row = f.find('.crossref-form-row');
-        var message = f.find('.crossref-error-message');
-        var checkmark = f.find('.validate-crossref-checkmark');
+        var username = $('#id_crossref_username');
+        var password = $('#id_crossref_password');
+        var row = $('.crossref-form-row');
+        var message = $('.crossref-error-message');
+        var checkmark = $('.validate-crossref-checkmark');
 
         var data = [
             {name: 'username', value: username.val()},
@@ -954,6 +970,62 @@ var EditPublisherPage = (function() {
         }, 1000);
     };
 
+    var submit = function() {
+        var issnValues = [];
+        $('.issn-values-row').each(function() {
+            var row = $(this);
+            if (!isIssnRowEmpty(row)) {
+                var index = row.attr('index');
+                issnValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    journal_code: row.find('#id_journal_code_' + index).val(),
+                    index: index
+                });
+            }
+        });
+        $('#id_issn_values').val(JSON.stringify(issnValues));
+
+        var issnCohortValues = [];
+        $('.issn-values-cohort-row').each(function() {
+            var row = $(this);
+            if (!isIssnRowEmpty(row)) {
+                var index = row.attr('index');
+                issnCohortValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    index: index
+                });
+            }
+        });
+        $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
+
+        var f = $('#hidden-publisher-form');
+        f.find('input[name="publisher_id"]').val($('#id_publisher_id').val());
+        f.find('input[name="name"]').val($('#id_name').val());
+        f.find('input[name="issn_values"]').val($('#id_issn_values').val());
+        f.find('input[name="use_scopus_api_keys_from_pool"]').val($('#id_use_scopus_api_keys_from_pool').is(':checked') ? 'on' : '');
+        f.find('input[name="scopus_api_keys"]').val($('#id_scopus_api_keys').val());
+        f.find('input[name="email"]').val($('#id_email').val());
+        f.find('input[name="use_crossref"]').val($('#id_use_crossref').is(':checked') ? 'on' : '');
+        f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
+        f.find('input[name="crossref_password"]').val($('#id_crossref_password').val());
+        f.find('input[name="hw_addl_metadata_available"]').val($('#id_hw_addl_metadata_available').is(':checked') ? 'on' : '');
+        f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
+        f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
+        f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
+        f.find('input[name="cohort_articles"]').val($('#id_cohort_articles').is(':checked') ? 'on' : '');
+        f.find('input[name="issn_values_cohort"]').val($('#id_issn_values_cohort').val());
+        f.find('input[name="reports_username"]').val($('#id_reports_username').val());
+        f.find('input[name="reports_password"]').val($('#id_reports_password').val());
+        f.find('input[name="reports_project"]').val($('#id_reports_project').val());
+        f.find('input[name="demo_id"]').val($('#id_demo_id').val());
+        f.find('input[name="start_date"]').val($('#id_start_date').val());
+        f.find('input[name="demo_notes"]').val($('#id_demo_notes').val());
+
+        f.submit();
+    };
+
     var init = function(options) {
         options = $.extend({
             publisherId: '',
@@ -979,17 +1051,16 @@ var EditPublisherPage = (function() {
 
         isNew = publisherId == '';
 
-        f = $('#publisher-form');
-        f.find('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
-        f.find('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
+        $('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
+        $('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
         $('#id_pilot').on('change', checkForm);
 
         if (isNew) {
-            f.find('#id_reports_password').show();
+            $('#id_reports_password').show();
         }
-        f.find('.set-reports-password-link a').click(function() {
-            f.find('.set-reports-password-link').hide();
-            f.find('#id_reports_password').show().focus();
+        $('.set-reports-password-link a').click(function() {
+            $('.set-reports-password-link').hide();
+            $('#id_reports_password').show().focus();
             return false;
         });
 
@@ -999,7 +1070,11 @@ var EditPublisherPage = (function() {
         });
         updatePublishedArticlesControls();
 
-        $('#id_rejected_manuscripts').on('change', checkForm);
+        $('#id_rejected_manuscripts').on('change', function() {
+            updateRejectedManuscriptsControls();
+            checkForm();
+        });
+        updateRejectedManuscriptsControls();
 
         $('#id_cohort_articles').on('change', function() {
             updateCohortArticlesControls();
@@ -1027,13 +1102,13 @@ var EditPublisherPage = (function() {
             updateScopusControls();
         }
 
-        f.find('#id_crossref_username, #id_crossref_password').on('keyup', function() {
+        $('#id_crossref_username, #id_crossref_password').on('keyup', function() {
             updateValidateCrossrefButton();
             checkForm();
         });
-        f.find('.validate-crossref-button').on('click', checkCrossref);
+        $('.validate-crossref-button').on('click', checkCrossref);
 
-        f.find('.add-issn-button').on('click', function() {
+        $('.add-issn-button').on('click', function() {
             $.get(addIssnValuesUrl)
                 .done(function(html) {
                     $('#issn-values-container').append(html);
@@ -1043,7 +1118,7 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        f.find('.add-issn-cohort-button').on('click', function() {
+        $('.add-issn-cohort-button').on('click', function() {
             $.get(addIssnValuesUrl, [{name: 'cohort', value: 1}])
                 .done(function(html) {
                     $('#issn-values-cohort-container').append(html);
@@ -1052,37 +1127,59 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        f.submit(function() {
-
-            var issnValues = [];
-            $('.issn-values-row').each(function() {
-                var row = $(this);
-                if (!isIssnRowEmpty(row)) {
-                    var index = row.attr('index');
-                    issnValues.push({
-                        electronic_issn: row.find('#id_electronic_issn_' + index).val(),
-                        print_issn: row.find('#id_print_issn_' + index).val(),
-                        journal_code: row.find('#id_journal_code_' + index).val(),
-                        index: index
-                    });
-                }
-            });
-            $('#id_issn_values').val(JSON.stringify(issnValues));
-
-            var issnCohortValues = [];
-            $('.issn-values-cohort-row').each(function() {
-                var row = $(this);
-                if (!isIssnRowEmpty(row)) {
-                    var index = row.attr('index');
-                    issnCohortValues.push({
-                        electronic_issn: row.find('#id_electronic_issn_' + index).val(),
-                        print_issn: row.find('#id_print_issn_' + index).val(),
-                        index: index
-                    });
-                }
-            });
-            $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
+        $('.submit-button.save-button').on('click', function(event) {
+            submit();
+            event.preventDefault();
+            return false;
         });
+
+        //var fileToDelete = link.attr('file_to_delete');
+        //var data = [
+        //    {name: 'csrfmiddlewaretoken', value: csrfToken},
+        //    {name: 'publisher', value: publisherId},
+        //    {name: 'file_to_delete', value: fileToDelete}
+        //];
+        //
+        //$.post(deleteUrl, data)
+        //    .always(function() {
+        //        var row = link.closest('tr');
+        //        row.fadeOut(150, function() {
+        //            row.remove();
+        //        });
+        //        IvetlWeb.hideLoading();
+        //    });
+
+        //f.submit(function() {
+        //
+        //    var issnValues = [];
+        //    $('.issn-values-row').each(function() {
+        //        var row = $(this);
+        //        if (!isIssnRowEmpty(row)) {
+        //            var index = row.attr('index');
+        //            issnValues.push({
+        //                electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+        //                print_issn: row.find('#id_print_issn_' + index).val(),
+        //                journal_code: row.find('#id_journal_code_' + index).val(),
+        //                index: index
+        //            });
+        //        }
+        //    });
+        //    $('#id_issn_values').val(JSON.stringify(issnValues));
+        //
+        //    var issnCohortValues = [];
+        //    $('.issn-values-cohort-row').each(function() {
+        //        var row = $(this);
+        //        if (!isIssnRowEmpty(row)) {
+        //            var index = row.attr('index');
+        //            issnCohortValues.push({
+        //                electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+        //                print_issn: row.find('#id_print_issn_' + index).val(),
+        //                index: index
+        //            });
+        //        }
+        //    });
+        //    $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
+        //});
 
         checkForm();
     };
@@ -1107,7 +1204,7 @@ var EditUserPage = (function() {
     var email = '';
 
     var checkForm = function() {
-        var email = f.find("#id_email").val();
+        var email = $("#id_email").val();
 
         if (email) {
             f.find('.submit-button').removeClass('disabled').prop('disabled', false);

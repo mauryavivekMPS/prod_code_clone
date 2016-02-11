@@ -321,7 +321,7 @@ body {
 .growth #left-menu .growth_menu_item,
 .dashboard #left-menu .dashboard_menu_item,
 .home #left-menu .home_menu_item,
-.publisher #left-menu .publisher_menu_item,
+.publisher:not(.demo) #left-menu .publisher_menu_item,
 .demo #left-menu .demo_menu_item,
 .user #left-menu .user_menu_item,
 .audit #left-menu .audit_menu_item,
@@ -1587,7 +1587,7 @@ body.login {
 
 .new-publisher {
 
-    #publisher-form {
+    .publisher-form {
 
         .issn-values-row, .issn-values-cohort-row, .issn-add-row {
             border-top: none;
@@ -1642,6 +1642,10 @@ body.login {
         .submit-row {
             padding-top: 50px;
             margin-bottom: 30px;
+
+            .submit-for-approval-button {
+                margin-left: 6px;
+            }
         }
 
         .validate-crossref-checkmark, .validate-issn-checkmark {
@@ -1999,12 +2003,6 @@ p.uploaded-file-error-icon {
                 padding-bottom: 15px;
             }
         }
-    }
-}
-
-.fake-form-submit-row {
-    .submit-row {
-        margin-top: 40px;
     }
 }
 

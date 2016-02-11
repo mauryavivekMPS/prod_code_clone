@@ -62,15 +62,12 @@
                 <a href="{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}" class="btn btn-default upload-another-button">+ Upload Files</a>
                 <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">Cancel</a></span>
             {% endif %}
-
-            <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}" style="display: none">
-                {% csrf_token %}
-                <input type="hidden" name="file_to_delete" value="{{ file_name }}">
-                <input type="hidden" name="publisher" value="{{ publisher_id }}">
-                <button type="submit" class="btn btn-default submit-button delete-file-button">
-                    <span class="lnr lnr-trash2"></span>
-                </button>
-            </form>
         </div>
     {% endif %}
+
+    <form class="delete-file-inline-form" method="post" action="{% url 'pipelines.pending_files' product.id pipeline.id %}" style="display: none">
+        {% csrf_token %}
+        <input type="hidden" name="file_to_delete" value="{{ file_name }}">
+        <input type="hidden" name="publisher" value="{{ publisher_id }}">
+    </form>
 </div>

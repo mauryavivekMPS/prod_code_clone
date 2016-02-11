@@ -2,6 +2,7 @@ import datetime
 import requests
 import json
 import time
+import uuid
 from bs4 import BeautifulSoup
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
@@ -146,6 +147,10 @@ class PublisherForm(forms.Form):
             self.instance = None
             initial['use_scopus_api_keys_from_pool'] = True
 
+        # pre-initialize the demo ID so that we can upload files to a known location
+        if is_demo and not instance:
+            initial['demo_id'] = str(uuid.uuid4())
+
         super(PublisherForm, self).__init__(initial=initial, *args, **kwargs)
 
         if self.is_demo:
@@ -177,10 +182,17 @@ class PublisherForm(forms.Form):
 
         if self.is_demo:
             demo_id = self.cleaned_data['demo_id']
+
+            demo = None
             if demo_id:
-                demo = Demo.objects.get(demo_id=demo_id)
-            else:
+                try:
+                    demo = Demo.objects.get(demo_id=demo_id)
+                except Demo.DoesNotExist:
+                    pass
+
+            if not demo:
                 demo = Demo.objects.create(
+                    demo_id=demo_id,
                     requestor_id=self.creating_user.user_id,
                     status='creating',
                 )
@@ -346,7 +358,7 @@ def edit_demo(request, demo_id=None):
         form = PublisherForm(request.user, instance=demo, is_demo=True)
 
     demo_files_custom_article_data = []
-    demo_files_custom_rejected_articles = []
+    demo_files_rejected_articles = []
     if demo:
         demo_files_custom_article_data = get_pending_files_for_demo(demo_id, 'published_articles', 'custom_article_data', with_lines_and_sizes=True)
         demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
@@ -362,6 +374,7 @@ def edit_demo(request, demo_id=None):
         'demo_files_custom_article_data': demo_files_custom_article_data,
         'demo_files_rejected_artiles': demo_files_rejected_articles,
     })
+
 
 @login_required
 def check_reports(request):
