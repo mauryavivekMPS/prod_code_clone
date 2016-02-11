@@ -213,9 +213,9 @@
                                 </div>
                                 <div class="col-sm-2">
                                     <p class="form-control-static">
-                                        <a href="#" class="validate-crossref-button" {% if form.crossref_username.value %}style="display:none"{% endif %}>Validate Login</a>
+                                        <a href="#" class="validate-crossref-button" {% if not is_demo and form.crossref_username.value %}style="display:none"{% endif %}>Validate Login</a>
                                         <i class="fa fa-spinner fa-pulse validate-crossref-loading" style="display:none"></i>
-                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" {% if not form.crossref_username.value %}style="display:none"{% endif %}></span>
+                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" {% if is_demo or not form.crossref_username.value %}style="display:none"{% endif %}></span>
                                     </p>
                                 </div>
                             </div>
