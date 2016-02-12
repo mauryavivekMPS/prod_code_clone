@@ -38,7 +38,7 @@
                     <tr>
                         <td><span class="lnr lnr-arrow-right replacement-file-arrow"></span></td>
                         <td class="upload-replacement-col">
-                            Choose a replacement file:
+                            This file was rejected, please fix and upload a replacement:
                             <form class="inline-upload-form" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="hidden" name="product_id" value="{{ product.id }}">
