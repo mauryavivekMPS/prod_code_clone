@@ -433,6 +433,137 @@ var UploadPage = (function() {
 })();
 
 
+
+
+
+
+
+
+
+
+
+
+//
+// File upload widget
+//
+
+var FileUploadWidget = (function() {
+    var publisherId;
+    var demoId;
+    var uploadUrl;
+    var deleteUrl;
+    var csrfToken;
+    var isDemo;
+
+    var wireUpDeleteButtons = function(selector) {
+        $(selector).each(function() {
+            var link = $(this);
+            link.click(function() {
+                var productId = link.attr('product_id');
+                var pipelineId = link.attr('pipeline_id');
+                var fileToDelete = link.attr('file_to_delete');
+                var fileId = link.closest('tr.file-row').attr('file_id');
+
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: csrfToken},
+                    {name: 'file_to_delete', value: fileToDelete},
+                    {name: 'product_id', value: productId},
+                    {name: 'pipeline_id', value: pipelineId}
+                ];
+
+                if (isDemo) {
+                    data.push({name: 'file_type', value: 'demo'});
+                    data.push({name: 'demo_id', value: demoId});
+                }
+                else {
+                    data.push({name: 'file_type', value: 'publisher'});
+                    data.push({name: 'publisher_id', value: publisherId});
+                }
+
+                $.post(deleteUrl, data)
+                    .always(function() {
+                        var row = link.closest('tr');
+                        row.fadeOut(150, function() {
+                            $('.file-row.file-row-' + fileId).remove();
+                            $('.error-list-row.file-row-' + fileId).remove();
+                            $('.loading-row.file-row-' + fileId).remove();
+                        });
+                        IvetlWeb.hideLoading();
+                    });
+
+                return false;
+            });
+        });
+    };
+
+    var wireUpFilePickers = function(selector) {
+        $(selector).on('change', function() {
+            //var picker = $(this);
+            //if (picker.val()) {
+            //    var f = $(this.form)[0];
+            //    var data = new FormData(f);
+            //
+            //    var parentRow = picker.closest('tr.error-list-row');
+            //    var fileId = parentRow.attr('file_id');
+            //
+            //    $('.file-row.file-row-' + fileId).remove();
+            //    $('.error-list-row.file-row-' + fileId).remove();
+            //    $('.loading-row.file-row-' + fileId).show();
+            //
+            //    $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
+            //        .done(function(html) {
+            //            console.log('done');
+            //            $('.loading-row.file-row-' + fileId).replaceWith(html);
+            //        })
+            //        .always(function() {
+            //            console.log('always');
+            //        });
+            //}
+        });
+    };
+
+    var init = function(options) {
+        options = $.extend({
+            publisherId: '',
+            demoId: '',
+            uploadUrl: '',
+            deleteUrl: '',
+            isDemo: false,
+            csrfToken: ''
+        }, options);
+
+        publisherId = options.publisherId;
+        demoId = options.demoId;
+        uploadUrl = options.uploadUrl;
+        deleteUrl = options.deleteUrl;
+        csrfToken = options.csrfToken;
+        isDemo = options.isDemo;
+
+        wireUpDeleteButtons('.delete-file-button');
+        wireUpFilePickers('.replacement-file-picker');
+
+    };
+
+    return {
+        wireUpDeleteButtons: wireUpDeleteButtons,
+        wireUpFilePickers: wireUpFilePickers,
+        init: init
+    };
+
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 // Pending files form
 //
@@ -1132,7 +1263,7 @@ var EditPublisherPage = (function() {
             event.preventDefault();
             return false;
         });
-        
+
         checkForm();
     };
 

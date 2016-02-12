@@ -482,3 +482,4 @@ def new_issn(request):
         'cohort': 'cohort' in request.GET,
         'is_include': True,
     })
+

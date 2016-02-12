@@ -10,7 +10,7 @@ import codecs
 import uuid
 from django import forms
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
@@ -394,6 +394,7 @@ def _get_files_in_dir(dir, with_lines_and_sizes=False, ignore=[]):
                 line_count = i + 1
             file['line_count'] = line_count
             file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
+            file['file_id'] = uuid.uuid4()
     return files
 
 
@@ -425,8 +426,12 @@ def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
         os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
 
-def delete_pending_file(publisher_id, product_id, pipeline_id, name):
+def delete_pending_publisher_file(publisher_id, product_id, pipeline_id, name):
     os.remove(os.path.join(get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id), name))
+
+
+def delete_pending_demo_file(demo_id, product_id, pipeline_id, name):
+    os.remove(os.path.join(get_or_create_demo_file_dir(demo_id, product_id, pipeline_id), name))
 
 
 @login_required
@@ -439,7 +444,7 @@ def pending_files(request, product_id, pipeline_id):
     if request.method == 'POST':
         file_to_delete = request.POST.get('file_to_delete')
         if file_to_delete:
-            delete_pending_file(publisher_id, product_id, pipeline_id, file_to_delete)
+            delete_pending_publisher_file(publisher_id, product_id, pipeline_id, file_to_delete)
 
         # redirect on the response so the user can't reload the delete action
         return HttpResponseRedirect(reverse('pipelines.pending_files', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}) + '?publisher=' + publisher_id)
@@ -451,3 +456,30 @@ def pending_files(request, product_id, pipeline_id):
         'publisher_id': publisher_id,
         'publisher': publisher,
     })
+
+
+@login_required
+def upload_pending_file_inline(request):
+    pass
+
+
+@login_required
+def delete_pending_file_inline(request):
+
+    if request.method == 'POST':
+        file_to_delete = request.POST.get('file_to_delete')
+
+        if file_to_delete:
+            product_id = request.POST['product_id']
+            pipeline_id = request.POST['pipeline_id']
+            file_type = request.POST['file_type']
+
+            if file_type == 'publisher':
+                publisher_id = request.POST['publisher_id']
+                delete_pending_publisher_file(publisher_id, product_id, pipeline_id, file_to_delete)
+
+            elif file_type == 'demo':
+                demo_id = request.POST['demo_id']
+                delete_pending_demo_file(demo_id, product_id, pipeline_id, file_to_delete)
+
+    return HttpResponse('ok')

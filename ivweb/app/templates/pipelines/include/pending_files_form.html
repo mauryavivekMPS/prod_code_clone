@@ -26,7 +26,7 @@
             {% endif %}
             <tbody>
                 {% for file in pending_files %}
-                    {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count validation_errors=file.validation_errors %}
+                    {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count file_id=file.file_id validation_errors=file.validation_errors %}
                 {% endfor %}
                 <tr>
                     <td class="upload-another-col" colspan="6">
