@@ -498,27 +498,52 @@ var FileUploadWidget = (function() {
 
     var wireUpFilePickers = function(selector) {
         $(selector).on('change', function() {
-            //var picker = $(this);
-            //if (picker.val()) {
-            //    var f = $(this.form)[0];
-            //    var data = new FormData(f);
-            //
-            //    var parentRow = picker.closest('tr.error-list-row');
-            //    var fileId = parentRow.attr('file_id');
-            //
-            //    $('.file-row.file-row-' + fileId).remove();
-            //    $('.error-list-row.file-row-' + fileId).remove();
-            //    $('.loading-row.file-row-' + fileId).show();
-            //
-            //    $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
-            //        .done(function(html) {
-            //            console.log('done');
-            //            $('.loading-row.file-row-' + fileId).replaceWith(html);
-            //        })
-            //        .always(function() {
-            //            console.log('always');
-            //        });
-            //}
+            var picker = $(this);
+            if (picker.val()) {
+                var f = $(this.form)[0];
+                var data = new FormData(f);
+                var pickerRow;
+                var loadingWidget;
+
+                if (isDemo) {
+                    data.append('crossref_username', $('#id_crossref_username'));
+                    data.append('crossref_password', $('#id_crossref_password'));
+
+                    var issns = [];
+                    $('.issn-values-row').each(function() {
+                        var row = $(this);
+                        var index = row.attr('index');
+                        issns.push({
+                            electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                            print_issn: row.find('#id_print_issn_' + index).val()
+                        });
+                    });
+                    data.append('issns', JSON.stringify(issns));
+                    $(f).hide();
+                    pickerRow = picker.closest('tr.upload-another-row');
+                    loadingWidget = pickerRow.find('.inline-upload-form-loading');
+                    loadingWidget.show();
+                }
+                else {
+                    var fileId = picker.closest('tr.error-list-row').attr('file_id');
+                    $('.file-row.file-row-' + fileId).remove();
+                    $('.error-list-row.file-row-' + fileId).remove();
+                    $('.loading-row.file-row-' + fileId).show();
+                }
+
+                $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
+                    .done(function(html) {
+                        if (isDemo) {
+                            pickerRow.before(html);
+                            loadingWidget.hide();
+                            picker.val('');
+                            $(f).show();
+                        }
+                        else {
+                            $('.loading-row.file-row-' + fileId).replaceWith(html);
+                        }
+                    });
+            }
         });
     };
 
@@ -562,66 +587,6 @@ var FileUploadWidget = (function() {
 
 
 
-
-
-//
-// Pending files form
-//
-
-var PendingFilesForm = (function() {
-    var pipelineId = '';
-    var publisherId = '';
-    var deleteUrl = '';
-    var csrfToken = '';
-
-    var wireUpDeleteButtons = function(selector) {
-        $(selector).each(function() {
-            var link = $(this);
-            link.click(function() {
-                var fileToDelete = link.attr('file_to_delete');
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: publisherId},
-                    {name: 'file_to_delete', value: fileToDelete}
-                ];
-
-                $.post(deleteUrl, data)
-                    .always(function() {
-                        var row = link.closest('tr');
-                        row.fadeOut(150, function() {
-                            row.remove();
-                        });
-                        IvetlWeb.hideLoading();
-                    });
-
-                return false;
-            });
-        });
-
-    };
-
-    var init = function(options) {
-        options = $.extend({
-            pipelineId: '',
-            publisherId: '',
-            deleteUrl: '',
-            csrfToken: ''
-        }, options);
-
-        pipelineId = options.pipelineId;
-        publisherId = options.publisherId;
-        deleteUrl = options.deleteUrl;
-        csrfToken = options.csrfToken;
-
-        //wireUpDeleteButtons('.delete-file-button');
-    };
-
-    return {
-        wireUpDeleteButtons: wireUpDeleteButtons,
-        init: init
-    };
-
-})();
 
 
 //

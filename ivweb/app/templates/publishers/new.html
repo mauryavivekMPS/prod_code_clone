@@ -228,7 +228,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-2">Metadata Files</label>
                                 <div class="col-sm-10">
-                                    {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_custom_article_data additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.published_articles pipeline=common.PIPELINE_BY_ID.custom_article_data %}
+                                    {% include "pipelines/include/pending_files_form.html" with is_demo=True demo_id=form.initial.demo_id pending_files=demo_files_custom_article_data additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.published_articles pipeline=common.PIPELINE_BY_ID.custom_article_data %}
                                 </div>
                             </div>
                         </div>

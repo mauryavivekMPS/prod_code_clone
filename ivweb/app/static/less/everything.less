@@ -1997,10 +1997,26 @@ p.uploaded-file-error-icon {
             margin-left: 0;
         }
 
+        .upload-another-message {
+            font-size: 12px;
+            display: none;
+        }
+
         tr:not(:first-of-type) {
             .upload-another-col {
                 padding-top: 17px;
                 padding-bottom: 15px;
+            }
+
+            .upload-another-message {
+                display: inline;
+            }
+        }
+
+        .upload-another-col {
+            .loading-message {
+                font-size: 12px;
+                margin-left: 5px;
             }
         }
     }

@@ -6,12 +6,12 @@ from ivetl.models.IssnJournal import Issn_Journal
 from ivetl.models.PipelineStatus import Pipeline_Status
 from ivetl.models.PipelineTaskStatus import Pipeline_Task_Status
 from ivetl.models.RejectedArticles import Rejected_Articles
+from ivetl.models.PublisherJournal import Publisher_Journal
 from ivetl.models.PublisherUser import Publisher_User
 from ivetl.models.PublisherMetadata import Publisher_Metadata
 from ivetl.models.User import User, Anonymous_User
 from ivetl.models.AuditLog import Audit_Log
 from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
-from ivetl.models.PublisherJournal import Publisher_Journal
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo

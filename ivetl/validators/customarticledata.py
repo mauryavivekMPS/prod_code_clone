@@ -2,22 +2,14 @@ import os
 import csv
 import codecs
 from ivetl.validators.base import BaseValidator
-from ivetl.models import Publisher_Metadata, Publisher_Journal
 from ivetl.connectors import CrossrefConnector
 
 
 class CustomArticleDataValidator(BaseValidator):
-    def validate_files(self, files, publisher_id, increment_count_func=None):
-
-        # get all valid ISSNs for publisher
-        all_issns = []
-        for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id='published_articles'):
-            all_issns.append(j.electronic_issn)
-            all_issns.append(j.print_issn)
+    def validate_files(self, files, publisher_id, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
 
         # create a crossref connector
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-        crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password)
+        crossref = CrossrefConnector(crossref_username, crossref_password)
 
         check_first_n_records = 10
 
@@ -63,7 +55,11 @@ class CustomArticleDataValidator(BaseValidator):
                             if count <= check_first_n_records:
                                 article = crossref.get_article(d['doi'])
 
-                                if not article['journal_issn'] in all_issns:
+                                if not article:
+                                    errors.append(self.format_error(file_name, count - 1, "DOI not found in crossref"))
+                                    continue
+
+                                if not article['journal_issn'] in issns:
                                     errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher"))
                                     continue
 

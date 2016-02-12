@@ -37,12 +37,12 @@
                     {% endfor %}
                     <tr>
                         <td><span class="lnr lnr-arrow-right replacement-file-arrow"></span></td>
-                        <td class="upload-another-col">
+                        <td class="upload-replacement-col">
                             Choose a replacement file:
                             <form class="inline-upload-form" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="hidden" name="single_file_only" value="1">
-                                <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
+                                <input type="hidden" name="publisher" value="{{ publisher_id }}">
                                 <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
                             </form>
                         </td>

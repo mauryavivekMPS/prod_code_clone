@@ -29,14 +29,26 @@
                     {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count file_id=file.file_id validation_errors=file.validation_errors %}
                 {% endfor %}
                 {% if is_demo %}
-                    <tr>
+                    <tr class="upload-another-row">
                         <td class="upload-another-col" colspan="6">
                             <form class="inline-upload-form" method="post" enctype="multipart/form-data">
+                                <span class="upload-another-message">Upload more files:</span>
                                 {% csrf_token %}
-                                <input type="hidden" name="single_file_only" value="1">
-                                <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
-                                <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="pipeline_id" value="{{ pipeline.id }}">
+                                {% if is_demo %}
+                                    <input type="hidden" name="file_type" value="demo">
+                                    <input type="hidden" name="demo_id" value="{{ demo_id }}">
+                                {% else %}
+                                    <input type="hidden" name="file_type" value="publisher">
+                                    <input type="hidden" name="publisher_id" value="{{ publisher.publisher_id }}">
+                                {% endif %}
+                                <input class="replacement-file-picker" name="files" type="file" file_type="demo" multiple>
                             </form>
+                            <div class="inline-upload-form-loading" style="display:none">
+                                <i class="fa fa-spinner fa-pulse loading-spinner"></i>
+                                <span class="loading-message">Uploading new files...</span>
+                            </div>
                         </td>
                     </tr>
                 {% endif %}

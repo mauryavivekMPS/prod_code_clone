@@ -30,13 +30,6 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            PendingFilesForm.init({
-                pipelineId: '{{ pipeline.id }}',
-                publisherId: '{{ publisher_id }}',
-                deleteUrl: '{% url 'pipelines.pending_files' product.id pipeline.id %}',
-                csrfToken: '{{ csrf_token }}'
-            });
-
             FileUploadWidget.init({
                 publisherId: '{{ publisher_id }}',
                 uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',

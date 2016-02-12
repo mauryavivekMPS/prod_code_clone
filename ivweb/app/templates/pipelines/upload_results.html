@@ -52,10 +52,12 @@
                 hasPublisher: {% if publisher %}true{% else %}false{% endif %},
                 uploadUrl: '{% url 'pipelines.upload' product.id pipeline.id %}?publisher={{ publisher_id }}'
             });
-            PendingFilesForm.init({
-                pipelineId: '{{ pipeline.id }}',
+
+            FileUploadWidget.init({
                 publisherId: '{{ publisher_id }}',
-                deleteUrl: '{% url 'pipelines.pending_files' product.id pipeline.id %}',
+                uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
+                deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
+                isDemo: false,
                 csrfToken: '{{ csrf_token }}'
             });
         });
