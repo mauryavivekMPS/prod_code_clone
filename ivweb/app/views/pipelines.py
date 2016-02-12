@@ -536,12 +536,16 @@ def upload_pending_file_inline(request):
                 'validation_errors': validation_errors
             })
 
+        ui_type = request.POST.get('ui_type', 'more')
+
         return render(request, 'pipelines/include/multiple_files.html', {
             'product': product,
             'pipeline': pipeline,
             'publisher_id': publisher_id,
             'processed_files': all_processed_files,
             'is_demo': file_type == 'demo',
+            'ui_type': ui_type,
+            'inline': True,
         })
 
     return HttpResponse('ok')

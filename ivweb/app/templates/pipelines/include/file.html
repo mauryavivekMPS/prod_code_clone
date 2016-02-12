@@ -41,9 +41,17 @@
                             Choose a replacement file:
                             <form class="inline-upload-form" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
-                                <input type="hidden" name="single_file_only" value="1">
-                                <input type="hidden" name="publisher" value="{{ publisher_id }}">
-                                <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="pipeline_id" value="{{ pipeline.id }}">
+                                {% if is_demo %}
+                                    <input type="hidden" name="file_type" value="demo">
+                                    <input type="hidden" name="demo_id" value="{{ demo_id }}">
+                                {% else %}
+                                    <input type="hidden" name="file_type" value="publisher">
+                                    <input type="hidden" name="publisher_id" value="{{ publisher.publisher_id }}">
+                                {% endif %}
+                                <input type="hidden" name="ui_type" value="replacement">
+                                <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file" ui_type="replacement">
                             </form>
                         </td>
                     </tr>
@@ -58,11 +66,11 @@
     <td colspan="5" class="loading-message">Uploading replacement file...</td>
 </tr>
 
-{% if single_file_only %}
+{% if inline %}
     <script>
         $(function() {
-            UploadResultsPage.wireUpFilePickers('.file-row-{{ file_id }} .replacement-file-picker');
-            PendingFilesForm.wireUpDeleteButtons('.file-row-{{ file_id }} .delete-file-button');
+            FileUploadWidget.wireUpFilePickers('.file-row-{{ file_id }} .replacement-file-picker');
+            FileUploadWidget.wireUpDeleteButtons('.file-row-{{ file_id }} .delete-file-button');
         });
     </script>
 {% endif %}

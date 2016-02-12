@@ -519,28 +519,32 @@ var FileUploadWidget = (function() {
                         });
                     });
                     data.append('issns', JSON.stringify(issns));
-                    $(f).hide();
-                    pickerRow = picker.closest('tr.upload-another-row');
-                    loadingWidget = pickerRow.find('.inline-upload-form-loading');
-                    loadingWidget.show();
                 }
-                else {
+
+                var uiType = picker.attr('ui_type');
+                if (uiType == 'replacement') {
                     var fileId = picker.closest('tr.error-list-row').attr('file_id');
                     $('.file-row.file-row-' + fileId).remove();
                     $('.error-list-row.file-row-' + fileId).remove();
                     $('.loading-row.file-row-' + fileId).show();
                 }
+                else {
+                    $(f).hide();
+                    pickerRow = picker.closest('tr.upload-another-row');
+                    loadingWidget = pickerRow.find('.inline-upload-form-loading');
+                    loadingWidget.show();
+                }
 
                 $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
                     .done(function(html) {
-                        if (isDemo) {
+                        if (uiType == 'replacement') {
+                            $('.loading-row.file-row-' + fileId).replaceWith(html);
+                        }
+                        else {
                             pickerRow.before(html);
                             loadingWidget.hide();
                             picker.val('');
                             $(f).show();
-                        }
-                        else {
-                            $('.loading-row.file-row-' + fileId).replaceWith(html);
                         }
                     });
             }
