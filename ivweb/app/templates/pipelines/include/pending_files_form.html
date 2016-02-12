@@ -28,16 +28,18 @@
                 {% for file in pending_files %}
                     {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count file_id=file.file_id validation_errors=file.validation_errors %}
                 {% endfor %}
-                <tr>
-                    <td class="upload-another-col" colspan="6">
-                        <form class="inline-upload-form" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="hidden" name="single_file_only" value="1">
-                            <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
-                            <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
-                        </form>
-                    </td>
-                </tr>
+                {% if is_demo %}
+                    <tr>
+                        <td class="upload-another-col" colspan="6">
+                            <form class="inline-upload-form" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="single_file_only" value="1">
+                                <input type="hidden" name="publisher" value="{{ publisher.publisher_id }}">
+                                <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file">
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
             </tbody>
         </table>
     {% else %}

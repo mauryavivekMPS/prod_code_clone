@@ -36,6 +36,14 @@
                 deleteUrl: '{% url 'pipelines.pending_files' product.id pipeline.id %}',
                 csrfToken: '{{ csrf_token }}'
             });
+
+            FileUploadWidget.init({
+                publisherId: '{{ publisher_id }}',
+                uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
+                deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
+                isDemo: false,
+                csrfToken: '{{ csrf_token }}'
+            });
         });
     </script>
 {% endblock %}

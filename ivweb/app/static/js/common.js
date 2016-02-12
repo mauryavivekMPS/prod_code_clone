@@ -613,7 +613,7 @@ var PendingFilesForm = (function() {
         deleteUrl = options.deleteUrl;
         csrfToken = options.csrfToken;
 
-        wireUpDeleteButtons('.delete-file-button');
+        //wireUpDeleteButtons('.delete-file-button');
     };
 
     return {
