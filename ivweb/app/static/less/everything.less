@@ -1786,8 +1786,10 @@ body.login {
 }
 
 .format-file-link-icon {
-    margin-left: 5px;
-    font-size: 12px;
+    margin-left: 0px;
+    font-size: 8px;
+    margin-right: 2px;
+    vertical-align: 4px;
 }
 
 .all-files-table {
@@ -2019,6 +2021,36 @@ p.uploaded-file-error-icon {
                 margin-left: 5px;
             }
         }
+    }
+}
+
+.all-files-table {
+
+    .upload-another-message {
+        font-size: 12px;
+        display: none;
+    }
+
+    tr:not(:first-of-type) {
+        .upload-another-col {
+            padding-top: 17px;
+            padding-bottom: 15px;
+        }
+
+        .upload-another-message {
+            display: inline;
+        }
+    }
+
+    .upload-another-col {
+        .loading-message {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    }
+
+    .replacement-file-picker {
+        font-size: 12px;
     }
 }
 

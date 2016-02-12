@@ -48,7 +48,7 @@
                                     <input type="hidden" name="demo_id" value="{{ demo_id }}">
                                 {% else %}
                                     <input type="hidden" name="file_type" value="publisher">
-                                    <input type="hidden" name="publisher_id" value="{{ publisher.publisher_id }}">
+                                    <input type="hidden" name="publisher_id" value="{{ publisher_id }}">
                                 {% endif %}
                                 <input type="hidden" name="ui_type" value="replacement">
                                 <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file" ui_type="replacement">

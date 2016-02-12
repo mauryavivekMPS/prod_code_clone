@@ -9,7 +9,7 @@ class ValidationError(Exception):
 
 class BaseValidator(object):
 
-    def validate_files(self, files, publisher_id):
+    def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
         raise NotImplementedError
 
     def format_error(self, file_name, line_number, message):
