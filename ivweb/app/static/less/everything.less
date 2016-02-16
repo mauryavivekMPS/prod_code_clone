@@ -1795,6 +1795,27 @@ body.login {
 .all-files-table {
     margin-bottom: 40px;
 
+    th .status-icon {
+        margin-left: 1px;
+    }
+
+    .status-icon-col {
+        width: 30px;
+
+        .file-status-icon {
+            font-size: 16px;
+            vertical-align: -9px;
+
+            &.success {
+                color: @color-secondary-2-3;
+            }
+
+            &.error {
+                color: @brand-danger;
+            }
+        }
+    }
+
     .file-icon-col {
         width: 30px;
         padding-right: 0;
@@ -1816,20 +1837,6 @@ body.login {
 
     .file-status-col {
         text-align: left;
-    }
-
-    .file-status-icon {
-        font-size: 16px;
-        vertical-align: -2px;
-        margin-right: 8px;
-
-        &.success {
-            color: @color-secondary-2-3;
-        }
-
-        &.error {
-            color: @brand-danger;
-        }
     }
 
     .show-errors-button {
@@ -2001,6 +2008,9 @@ p.uploaded-file-error-icon {
 
         tbody {
             tr:first-of-type {
+                .file-status-icon {
+                    vertical-align: -4px;
+                }
                 td {
                     border-top: none;
                     padding-top: 7px;

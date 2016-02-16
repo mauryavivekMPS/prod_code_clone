@@ -1,5 +1,14 @@
 <tr class="file-row file-row-{{ file_id }} {% if not validation_errors %}validated-file{% endif %}" file_id="{{ file_id }}">
-    <td class="file-icon-col"><span class="lnr lnr-file-spreadsheet file-icon {% if validation_errors %}error{% endif %}"></span></td>
+    <td class="status-icon-col">
+        {% if validation_errors %}
+            <span class="lnr lnr-warning file-status-icon error"></span>
+        {% else %}
+            <span class="lnr lnr-checkmark-circle file-status-icon success"></span>
+        {% endif %}
+    </td>
+    <td class="file-icon-col">
+        <span class="lnr lnr-file-spreadsheet file-icon {% if validation_errors %}error{% endif %}"></span>
+    </td>
     <td class="text-only-col">
         {{ file_name }}
     </td>
@@ -7,10 +16,8 @@
     <td class="text-only-col file-size-col">{{ file_size }}</td>
     <td class="text-only-col file-status-col">
         {% if validation_errors %}
-            <span class="lnr lnr-warning file-status-icon error"></span>
             <a href="#" class="show-errors-link">{{ validation_errors|length }} error{{ validation_errors|pluralize }}</a>
         {% else %}
-            <span class="lnr lnr-checkmark-circle file-status-icon success"></span>
             <span class="success-message">Validated</span>
         {% endif %}
     </td>
@@ -25,6 +32,7 @@
 
 {% if validation_errors %}
     <tr class="error-list-row file-row-{{ file_id }}" file_id="{{ file_id }}">
+        <td></td>
         <td></td>
         <td colspan="5" class="validation-error-table-col">
             <table class="table validation-error-table">
@@ -63,7 +71,7 @@
 
 <tr class="loading-row file-row-{{ file_id }}" file_id="{{ file_id }}" style="display:none">
     <td><i class="fa fa-spinner fa-pulse loading-spinner"></i></td>
-    <td colspan="5" class="loading-message">Uploading replacement file...</td>
+    <td colspan="6" class="loading-message">Uploading replacement file...</td>
 </tr>
 
 {% if inline %}

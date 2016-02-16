@@ -4,6 +4,7 @@
         {% if not is_demo %}
             <thead>
                 <tr>
+                    <th><span class="status-icon status-empty"></span></th>
                     <th colspan="2">File</th>
                     <th>Lines</th>
                     <th>Size</th>
@@ -17,7 +18,7 @@
                 {% include "pipelines/include/file.html" with file_name=file.file_name file_size=file.file_size line_count=file.line_count file_id=file.file_id validation_errors=file.validation_errors %}
             {% endfor %}
             <tr class="upload-another-row">
-                <td class="upload-another-col" colspan="6">
+                <td class="upload-another-col" colspan="7">
                     <form class="inline-upload-form" method="post" enctype="multipart/form-data">
                         <span class="upload-first-message">Select one or more files to upload:</span>
                         <span class="upload-another-message">Upload more files:</span>
