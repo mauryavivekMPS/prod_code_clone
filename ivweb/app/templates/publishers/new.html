@@ -321,10 +321,16 @@
                                 Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
                             {% endif %}
                         </button>
-                        {% if is_demo and not request.user.superuser %}
-                            <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
-                                Save and Submit for Approval
-                            </button>
+                        {% if is_demo %}
+                            {% if request.user.superuser %}
+                                <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
+                                    Convert to Publisher
+                                </button>
+                            {% else %}
+                                <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
+                                    Save and Submit for Approval
+                                </button>
+                            {% endif %}
                         {% endif %}
                         <span class="cancel">or <a href="../">Cancel</a></span>
                     </div>

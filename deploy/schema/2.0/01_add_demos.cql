@@ -25,3 +25,7 @@ CREATE TABLE demo (
   compression={'sstable_compression': 'LZ4Compressor'};
 
 CREATE INDEX requestor_id_index ON demo (requestor_id);
+
+ALTER TABLE publisher_metadata ADD demo_id text;
+
+CREATE INDEX demo_id_index ON publisher_metadata(demo_id);
