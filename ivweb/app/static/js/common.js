@@ -1056,6 +1056,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="reports_project"]').val($('#id_reports_project').val());
         f.find('input[name="demo_id"]').val($('#id_demo_id').val());
         f.find('input[name="start_date"]').val($('#id_start_date').val());
+        f.find('input[name="status"]').val($('#id_status option:selected').val());
         f.find('input[name="demo_notes"]').val($('#id_demo_notes').val());
 
         f.submit();

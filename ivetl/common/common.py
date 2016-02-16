@@ -265,6 +265,7 @@ DEMO_STATUS_CHOICES = [
     ('in-progress', 'In Progress'),
     ('completed', 'Completed'),
 ]
+DEMO_STATUS_LOOKUP = dict(DEMO_STATUS_CHOICES)
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',
