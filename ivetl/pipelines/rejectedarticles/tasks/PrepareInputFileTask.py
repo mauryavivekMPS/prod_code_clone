@@ -57,7 +57,7 @@ class PrepareInputFileTask(Task):
                         input_data['funders'] = line[13].strip()
 
                     if len(line) >= 15 and line[14].strip() != '':
-                        input_data['published_doi'] = line[14].strip()
+                        input_data['preprint_doi'] = line[14].strip()
 
                     input_data['source_file_name'] = file
 

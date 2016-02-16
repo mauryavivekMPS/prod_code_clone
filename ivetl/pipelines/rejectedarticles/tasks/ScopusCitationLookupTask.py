@@ -23,6 +23,9 @@ class ScopusCitationLookupTask(Task):
         count = 0
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
+        pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
+        connector = ScopusConnector(pm.scopus_api_keys)
+
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
@@ -34,9 +37,6 @@ class ScopusCitationLookupTask(Task):
                 data = json.loads(line[2])
 
                 tlogger.info("\n" + str(count-1) + ". Retrieving Citations for: " + manuscript_id)
-
-                pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
-                connector = ScopusConnector(pm.scopus_api_keys)
 
                 if data['status'] == "Match found":
 

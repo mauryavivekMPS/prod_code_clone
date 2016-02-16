@@ -33,7 +33,7 @@ class CustomArticleDataValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) != 8:
-                                errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields, skipping other validation"))
                                 continue
 
                             d = {
@@ -48,7 +48,7 @@ class CustomArticleDataValidator(BaseValidator):
 
                             # we need a DOI
                             if not d['doi']:
-                                errors.append(self.format_error(file_name, count - 1, "No DOI found, skipping other validation"))
+                                errors.append(self.format_error(file_name, count, "No DOI found, skipping other validation"))
                                 continue
 
                             # check that the articles are for the right publisher
@@ -63,7 +63,7 @@ class CustomArticleDataValidator(BaseValidator):
                                     errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher"))
                                     continue
 
-                    total_count += count
+                    total_count += count-1
 
             except UnicodeDecodeError:
                 errors.append(self.format_error(file_name, 0, "This file is not UTF-8, skipping further validation"))

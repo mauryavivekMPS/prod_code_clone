@@ -84,92 +84,95 @@ class InsertIntoCassandraDBTask(Task):
                 ra['updated'] = updated
                 ra['created'] = updated
 
-                if 'article_type' in data and (data['article_type'] != ''):
+                if 'article_type' in data and data['article_type'] is not None and (data['article_type'] != ''):
                     ra['article_type'] = data['article_type']
 
-                if 'author_match_score' in data and (data['author_match_score'] != ''):
+                if 'author_match_score' in data and data['author_match_score'] is not None and (data['author_match_score'] != ''):
                     ra['authors_match_score'] = Decimal(data['author_match_score'])
 
-                if 'citation_lookup_status' in data and (data['citation_lookup_status'] != ''):
+                if 'citation_lookup_status' in data and data['citation_lookup_status'] is not None and (data['citation_lookup_status'] != ''):
                     ra['citation_lookup_status'] = data['citation_lookup_status']
 
-                if 'citations' in data and (data['citations'] != ''):
+                if 'citations' in data and data['citations'] is not None and (data['citations'] != ''):
                     ra['citations'] = int(data['citations'])
 
-                if 'co_authors' in data and (data['co_authors'] != ''):
+                if 'co_authors' in data and data['co_authors'] is not None and (data['co_authors'] != ''):
                     ra['co_authors'] = data['co_authors']
 
-                if 'corresponding_author' in data and (data['corresponding_author'] != ''):
+                if 'corresponding_author' in data and data['corresponding_author'] is not None and (data['corresponding_author'] != ''):
                     ra['corresponding_author'] = data['corresponding_author']
 
-                if 'xref_doi' in data and (data['xref_doi'] != ''):
+                if 'xref_doi' in data and data['xref_doi'] is not None and (data['xref_doi'] != ''):
                     ra['crossref_doi'] = data['xref_doi']
 
-                if 'xref_score' in data and (data['xref_score'] != ''):
+                if 'xref_score' in data and data['xref_score'] is not None and (data['xref_score'] != ''):
                     ra['crossref_match_score'] = Decimal(data['xref_score'])
 
-                if 'custom' in data and (data['custom'] != ''):
+                if 'custom' in data and data['custom'] is not None and (data['custom'] != ''):
                     ra['custom'] = data['custom']
 
-                if 'xref_publishdate' in data and (data['xref_publishdate'] != ''):
+                if 'xref_publishdate' in data and data['xref_publishdate'] is not None and (data['xref_publishdate'] != ''):
                     ra['date_of_publication'] = to_datetime(data['xref_publishdate'])
 
-                if 'date_of_rejection' in data and (data['date_of_rejection'] != ''):
+                if 'date_of_rejection' in data and data['date_of_rejection'] is not None and (data['date_of_rejection'] != ''):
                     ra['date_of_rejection'] = to_datetime(data['date_of_rejection'])
 
-                if 'editor' in data and (data['editor'] != ''):
+                if 'editor' in data and data['editor'] is not None and (data['editor'] != ''):
                     ra['editor'] = data['editor']
 
-                if 'first_author' in data and (data['first_author'] != ''):
+                if 'first_author' in data and data['first_author'] is not None and (data['first_author'] != ''):
                     ra['first_author'] = data['first_author']
 
-                if 'keywords' in data and (data['keywords'] != ''):
+                if 'keywords' in data and data['keywords'] is not None and (data['keywords'] != ''):
                     ra['keywords'] = data['keywords']
 
-                if 'title' in data and (data['title'] != ''):
+                if 'title' in data and data['title'] is not None and (data['title'] != ''):
                     ra['manuscript_title'] = data['title']
 
-                if 'xref_co_authors_ln_fn' in data and (data['xref_co_authors_ln_fn'] != ''):
+                if 'xref_co_authors_ln_fn' in data and data['xref_co_authors_ln_fn'] is not None and (data['xref_co_authors_ln_fn'] != ''):
                     ra['published_co_authors'] = data['xref_co_authors_ln_fn']
 
-                if 'xref_first_author' in data and (data['xref_first_author'] != ''):
+                if 'xref_first_author' in data and data['xref_first_author'] is not None and (data['xref_first_author'] != ''):
                     ra['published_first_author'] = data['xref_first_author']
 
-                if 'xref_journal' in data and (data['xref_journal'] != ''):
+                if 'xref_journal' in data and data['xref_journal'] is not None and (data['xref_journal'] != ''):
                     ra['published_journal'] = data['xref_journal']
 
-                if 'xref_journal_issn' in data and (data['xref_journal_issn'] != ''):
+                if 'xref_journal_issn' in data and data['xref_journal_issn'] is not None and (data['xref_journal_issn'] != ''):
                     ra['published_journal_issn'] = data['xref_journal_issn']
 
-                if 'xref_published_publisher' in data and (data['xref_published_publisher'] != ''):
+                if 'xref_published_publisher' in data and data['xref_published_publisher'] is not None and (data['xref_published_publisher'] != ''):
                     ra['published_publisher'] = data['xref_published_publisher']
 
-                if 'xref_title' in data and (data['xref_title'] != ''):
+                if 'xref_title' in data and data['xref_title'] is not None and (data['xref_title'] != ''):
                     ra['published_title'] = data['xref_title']
 
-                if 'reject_reason' in data and (data['reject_reason'] != ''):
+                if 'reject_reason' in data and data['reject_reason'] is not None and (data['reject_reason'] != ''):
                     ra['reject_reason'] = data['reject_reason']
 
-                if 'scopus_doi_status' in data and (data['scopus_doi_status'] != ''):
+                if 'scopus_doi_status' in data and data['scopus_doi_status'] is not None and (data['scopus_doi_status'] != ''):
                     ra['scopus_doi_status'] = data['scopus_doi_status']
 
-                if 'scopus_id' in data and (data['scopus_id'] != ''):
+                if 'scopus_id' in data and data['scopus_id'] is not None and (data['scopus_id'] != ''):
                     ra['scopus_id'] = data['scopus_id']
 
-                if 'source_file_name' in data and (data['source_file_name'] != ''):
+                if 'source_file_name' in data and data['source_file_name'] is not None and (data['source_file_name'] != ''):
                     ra['source_file_name'] = data['source_file_name']
 
-                if 'status' in data and (data['status'] != ''):
+                if 'status' in data and data['status'] is not None and (data['status'] != ''):
                     ra['status'] = data['status']
 
-                if 'subject_category' in data and (data['subject_category'] != ''):
+                if 'subject_category' in data and data['subject_category'] is not None and (data['subject_category'] != ''):
                     ra['subject_category'] = data['subject_category']
 
-                if 'submitted_journal' in data and (data['submitted_journal'] != ''):
+                if 'submitted_journal' in data and data['submitted_journal'] is not None and (data['submitted_journal'] != ''):
                     ra['submitted_journal'] = data['submitted_journal']
 
-                if 'mendeley_saves' in data and (data['mendeley_saves'] != ''):
+                if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
                     ra['mendeley_saves'] = int(data['mendeley_saves'])
+
+                if 'preprint_doi' in data and data['preprint_doi'] is not None and (data['preprint_doi'] != ''):
+                    ra['preprint_doi'] = data['preprint_doi']
 
                 ra.batch(b).save()
 

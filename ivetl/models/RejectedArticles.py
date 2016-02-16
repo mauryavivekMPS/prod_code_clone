@@ -36,4 +36,5 @@ class Rejected_Articles(Model):
     subject_category = columns.Text(required=False)
     submitted_journal = columns.Text(index=True)
     mendeley_saves = columns.Integer(required=False)
+    preprint_doi = columns.Text(required=False)
     updated = columns.DateTime()
