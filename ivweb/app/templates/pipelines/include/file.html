@@ -71,6 +71,7 @@
         $(function() {
             FileUploadWidget.wireUpFilePickers('.file-row-{{ file_id }} .replacement-file-picker');
             FileUploadWidget.wireUpDeleteButtons('.file-row-{{ file_id }} .delete-file-button');
+            FileUploadWidget.updateTable();
         });
     </script>
 {% endif %}

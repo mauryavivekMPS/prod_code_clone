@@ -483,3 +483,14 @@ def new_issn(request):
         'is_include': True,
     })
 
+
+@login_required
+def update_demo_status(request):
+    if request.POST:
+        demo_id = request.POST['demo_id']
+        demo = Demo.objects.get(demo_id=demo_id)
+        status = request.POST['status']
+        demo.status = status
+        demo.save()
+
+    return HttpResponse('ok')

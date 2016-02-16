@@ -1,4 +1,4 @@
-<div class="pending-files-container {% if is_demo %}demo-files{% endif %}">
+<div class="pending-files-container {% if is_demo %}demo-files{% else %}pending-files{% endif %}">
 
     <table class="table all-files-table {% if pending_files %}has-files{% else %}no-files{% endif %}">
         {% if not is_demo %}
@@ -19,6 +19,7 @@
             <tr class="upload-another-row">
                 <td class="upload-another-col" colspan="6">
                     <form class="inline-upload-form" method="post" enctype="multipart/form-data">
+                        <span class="upload-first-message">Select one or more files to upload:</span>
                         <span class="upload-another-message">Upload more files:</span>
                         {% csrf_token %}
                         <input type="hidden" name="product_id" value="{{ product.id }}">

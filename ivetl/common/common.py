@@ -257,6 +257,14 @@ def get_ftp_dir_name(product_id, pipeline_id):
             return d['ftp_dir_name']
     return None
 
+DEMO_STATUS_CHOICES = [
+    ('creating', 'Creating'),
+    ('submitted-for-review', 'Submitted for Review'),
+    ('changed-needed', 'Changes Needed'),
+    ('accepted', 'Accepted'),
+    ('in-progress', 'In Progress'),
+    ('completed', 'Completed'),
+]
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',

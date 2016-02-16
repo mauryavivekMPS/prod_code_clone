@@ -43,8 +43,7 @@ urlpatterns = patterns(
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/$', 'pipelines.list_pipelines', name='pipelines.list'),
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/include/updatedpublisherruns/$', 'pipelines.include_updated_publisher_runs', name='pipelines.include_updated_publisher_runs'),
 
-    # upload files for a pipeline
-    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/upload/$', 'pipelines.upload', name='pipelines.upload'),
+    # upload files for a pipeline or demo
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles/$', 'pipelines.pending_files', name='pipelines.pending_files'),
 
     # run a pipeline
@@ -59,6 +58,7 @@ urlpatterns = patterns(
     url(r'^newissn/$', 'publishers.new_issn', name='publishers.new_issn'),
     url(r'^setupreports/$', 'publishers.setup_reports', name='publishers.setup_reports'),
     url(r'^checkreports/$', 'publishers.check_reports', name='publishers.check_reports'),
+    url(r'^updatedemostatus/$', 'publishers.update_demo_status', name='publishers.update_demo_status'),
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),
     url(r'^deletefile/$', 'pipelines.delete_pending_file_inline', name='pipelines.delete_pending_file_inline'),
 

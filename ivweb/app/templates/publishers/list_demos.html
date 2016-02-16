@@ -13,13 +13,13 @@
 
     <div class="row">
         <div class="col-md-12">
-            <table class="table table-hover">
+            <table class="table table-hover demo-table">
                 <thead>
                     <tr>
                         <th>Publisher Name</th>
                         <th>Requestor</th>
                         <th>Start Date</th>
-                        <th class="text-center">Status</th>
+                        <th class="text-center demo-status-col">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,7 +38,13 @@
                                     <span class="null-value">&mdash;</span>
                                 {% endif %}
                             </td>
-                            <td class="text-center">{{ demo.status }}</td>
+                            <td class="text-center demo-status-col">
+                                <select class="form-control input-sm inline-demo-status-menu" demo_id="{{ demo.demo_id }}">
+                                    {% for choice in common.DEMO_STATUS_CHOICES %}
+                                        <option value="{{ choice.0 }}" {% if demo.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -46,3 +52,15 @@
         </div>
     </div>
 {% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            ListDemosPage.init({
+                updateDemoStatusUrl: '{% url 'publishers.update_demo_status' %}',
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}
+
