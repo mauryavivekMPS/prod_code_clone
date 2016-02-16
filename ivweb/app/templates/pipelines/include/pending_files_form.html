@@ -49,8 +49,8 @@
                     {% csrf_token %}
                     <input type="hidden" name="publisher" value="{{ publisher_id }}">
                     <input type="hidden" name="move_pending_files" value="1">
-                    <button type="submit" class="btn btn-primary submit-button">
-                        Submit {% if includes_invalid_files %}All Validated Files{% endif %} for Processing
+                    <button type="submit" class="btn btn-primary submit-button submit-for-processing-button disabled" disabled>
+                        Submit Validated Files for Processing
                     </button>
                     <span class="cancel"> or <a href="{% if request.user.staff %}../{% else %}{% url 'home' %}{% endif %}">I'll submit later</a></span>
                 </form>
@@ -67,3 +67,9 @@
         <input type="hidden" name="publisher" value="{{ publisher_id }}">
     </form>
 </div>
+
+<script>
+    $(function() {
+        PendingFilesForm.init();
+    });
+</script>

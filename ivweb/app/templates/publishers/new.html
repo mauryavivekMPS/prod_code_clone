@@ -327,7 +327,7 @@
                                     Convert to Publisher
                                 </button>
                             {% else %}
-                                {% if form.initial.status == 'creating' %}
+                                {% if form.initial.status == 'creating' or not form.initial.status %}
                                     <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
                                         Save and Submit for Approval
                                     </button>

@@ -1,4 +1,4 @@
-<tr class="file-row file-row-{{ file_id }}" file_id="{{ file_id }}">
+<tr class="file-row file-row-{{ file_id }} {% if not validation_errors %}validated-file{% endif %}" file_id="{{ file_id }}">
     <td class="file-icon-col"><span class="lnr lnr-file-spreadsheet file-icon {% if validation_errors %}error{% endif %}"></span></td>
     <td class="text-only-col">
         {{ file_name }}
@@ -72,6 +72,7 @@
             FileUploadWidget.wireUpFilePickers('.file-row-{{ file_id }} .replacement-file-picker');
             FileUploadWidget.wireUpDeleteButtons('.file-row-{{ file_id }} .delete-file-button');
             FileUploadWidget.updateTable();
+            PendingFilesForm.updateSubmitForProcessing();
         });
     </script>
 {% endif %}
