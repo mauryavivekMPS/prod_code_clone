@@ -57,31 +57,26 @@
 
     <div id="left-menu">
         <nav>
-            {% if request.user.staff %}
+            {% if request.user.superuser %}
                 <ul>
-                    {% if request.user.superuser %}
-{#                        <li class="all_pipelines_menu_item">#}
-{#                            <a href="{% url 'all_pipelines' %}">Pipelines</a>#}
-{#                        </li>#}
+                    <li class="all_pipelines_menu_item">
+                        <a href="{% url 'all_pipelines' %}">Pipelines</a>
+                    </li>
 {#                        <li class="growth_menu_item">#}
 {#                            <a href="{% url 'growth' %}">Growth</a>#}
 {#                        </li>#}
-                    {% else %}
-                        <li class="home_menu_item">
-                            <a href="{% url 'home' %}">Dashboard</a>
-                        </li>
-                    {% endif %}
                     <li class="publisher_menu_item">
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
-                    {% if request.user.superuser %}
-                        <li class="user_menu_item">
-                            <a href="{% url 'users.list' %}">Users</a>
-                        </li>
-                        <li class="audit_menu_item">
-                            <a href="{% url 'audit' %}">Audit Log</a>
-                        </li>
-                    {% endif %}
+                    <li class="demo_menu_item">
+                        <a href="{% url 'publishers.list_demos' %}">Demos</a>
+                    </li>
+                    <li class="user_menu_item">
+                        <a href="{% url 'users.list' %}">Users</a>
+                    </li>
+                    <li class="audit_menu_item">
+                        <a href="{% url 'audit' %}">Audit Log</a>
+                    </li>
                 </ul>
                 {% for product in common.PRODUCTS %}
                     {% if product.is_user_facing %}
@@ -99,14 +94,20 @@
                 {% endfor %}
             {% else %}
                 <ul>
-                    <li class="home_menu_item">
-                        <a href="{% url 'home' %}">Dashboard</a>
-                    </li>
+                    {% if request.user.staff %}
+                        <li class="demo_menu_item">
+                            <a href="{% url 'publishers.list_demos' %}">Demos</a>
+                        </li>
+                    {% else %}
+                        <li class="home_menu_item">
+                            <a href="{% url 'home' %}">Dashboard</a>
+                        </li>
+                    {% endif %}
                     <li class="reports_menu_item">
-                        <a href="https://login.vizors.org" target="_blank">Reports <span class="lnr lnr-launch"></span></a>
+                        <a class="external-link" href="https://login.vizors.org" target="_blank">Reports <span class="lnr lnr-launch"></span></a>
                     </li>
                     <li class="support_menu_item">
-                        <a href="#">Support</a>
+                        <a class="external-link" href="mailto:impactvizorsupport@highwire.org">Support</a>
                     </li>
                 </ul>
             {% endif %}
@@ -153,14 +154,14 @@
         {% if reset_url %}
             <script>
                 $(function() {
-                    IvetlWeb.resetUrl({{ reset_url }});
+                    IvetlWeb.resetUrl('{{ reset_url }}');
                 });
             </script>
         {% endif %}
         {% block content %}Empty{% endblock %}
         <script>
             $(function() {
-                $('#left-menu a, .show-loading, .submit-row button, .submit-row a, .user-dropdown .dropdown-menu a').click(IvetlWeb.showLoading);
+                $('#left-menu a:not(.external-link), .show-loading, .submit-row button, .submit-row a, .user-dropdown .dropdown-menu a').click(IvetlWeb.showLoading);
             });
         </script>
     </div>

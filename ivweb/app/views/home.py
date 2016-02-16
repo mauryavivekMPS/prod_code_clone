@@ -10,7 +10,10 @@ from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending
 @login_required
 def home(request):
     if request.user.superuser:
-        return HttpResponseRedirect(reverse('publishers.list'))
+        return HttpResponseRedirect(reverse('all_pipelines'))
+
+    elif request.user.staff:
+        return HttpResponseRedirect(reverse('publishers.list_demos'))
 
     else:
         messages = []

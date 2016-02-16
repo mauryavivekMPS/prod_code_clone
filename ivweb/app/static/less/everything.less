@@ -321,13 +321,16 @@ body {
 .growth #left-menu .growth_menu_item,
 .dashboard #left-menu .dashboard_menu_item,
 .home #left-menu .home_menu_item,
-.publisher #left-menu .publisher_menu_item,
+.publisher:not(.demo) #left-menu .publisher_menu_item,
+.demo #left-menu .demo_menu_item,
 .user #left-menu .user_menu_item,
 .audit #left-menu .audit_menu_item,
 .published_articles_pipeline #left-menu .published_articles_menu_item,
 .custom_article_data_pipeline #left-menu .custom_article_data_menu_item,
 .article_citations_pipeline #left-menu .article_citations_menu_item,
+.article_usage_pipeline #left-menu .article_usage_menu_item,
 .rejected_article_tracker_pipeline #left-menu .rejected_article_tracker_menu_item,
+.reprocess_rejected_articles_menu_item_pipeline #left-menu .reprocess_rejected_articles_menu_item,
 .published_articles_cohort_pipeline #left-menu .published_articles_cohort_menu_item,
 .article_citations_cohort_pipeline #left-menu .article_citations_cohort_menu_item {
     a {
@@ -424,7 +427,7 @@ body {
             }
         }
 
-        .upload-button, .run-button, .add-publisher-button, .add-user-button {
+        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-demo-button {
             margin-top: 21px;
             margin-left: 20px;
             float: left;
@@ -1584,7 +1587,7 @@ body.login {
 
 .new-publisher {
 
-    #publisher-form {
+    .publisher-form {
 
         .issn-values-row, .issn-values-cohort-row, .issn-add-row {
             border-top: none;
@@ -1639,6 +1642,10 @@ body.login {
         .submit-row {
             padding-top: 50px;
             margin-bottom: 30px;
+
+            .submit-for-approval-button {
+                margin-left: 6px;
+            }
         }
 
         .validate-crossref-checkmark, .validate-issn-checkmark {
@@ -1779,12 +1786,35 @@ body.login {
 }
 
 .format-file-link-icon {
-    margin-left: 5px;
-    font-size: 12px;
+    margin-left: 0px;
+    font-size: 8px;
+    margin-right: 2px;
+    vertical-align: 4px;
 }
 
 .all-files-table {
     margin-bottom: 40px;
+
+    th .status-icon {
+        margin-left: 1px;
+    }
+
+    .status-icon-col {
+        width: 30px;
+
+        .file-status-icon {
+            font-size: 16px;
+            vertical-align: -9px;
+
+            &.success {
+                color: @color-secondary-2-3;
+            }
+
+            &.error {
+                color: @brand-danger;
+            }
+        }
+    }
 
     .file-icon-col {
         width: 30px;
@@ -1806,21 +1836,7 @@ body.login {
     }
 
     .file-status-col {
-        text-align: center;
-    }
-
-    .file-status-icon {
-        font-size: 16px;
-        vertical-align: -2px;
-        margin-right: 8px;
-
-        &.success {
-            color: @color-secondary-2-3;
-        }
-
-        &.error {
-            color: @brand-danger;
-        }
+        text-align: left;
     }
 
     .show-errors-button {
@@ -1954,6 +1970,144 @@ p.uploaded-file-error-icon {
     margin-left: 4px;
     margin-right: 2px;
 }
+
+.confirm-dialog {
+    .modal-footer {
+        text-align: left;
+    }
+}
+
+
+// Demo files
+// -------------------------
+
+.demo-table {
+    > tbody > tr > td.demo-status-col {
+        width: 200px;
+        padding-top: 6px;
+        padding-bottom: 0;
+
+        .inline-demo-status-menu {
+            height: 27px;
+            line-height: 27px;
+            border-color: #dedede;
+        }
+    }
+
+}
+
+.demo-files-fake-form {
+    .form-group {
+        margin-bottom: 5px;
+    }
+}
+
+.pending-files-container.demo-files {
+    .all-files-table {
+        margin-bottom: 0;
+
+        tbody {
+            tr:first-of-type {
+                .file-status-icon {
+                    vertical-align: -4px;
+                }
+                td {
+                    border-top: none;
+                    padding-top: 7px;
+                }
+            }
+
+            > tr:last-of-type > td {
+                border-bottom: none;
+            }
+
+            .upload-first-message {
+                display: none;
+            }
+
+            .replacement-file-picker {
+                margin-left: 0;
+            }
+
+            .upload-another-message {
+                font-size: 12px;
+                display: none;
+            }
+
+            tr:not(:first-of-type) {
+                .upload-another-col {
+                    padding-top: 17px;
+                    padding-bottom: 15px;
+                }
+
+                .upload-another-message {
+                    display: inline;
+                }
+            }
+
+            .upload-another-col {
+                .loading-message {
+                    font-size: 12px;
+                    margin-left: 5px;
+                }
+            }
+        }
+    }
+}
+
+.pending-files-container.pending-files {
+    .all-files-table {
+
+        &.no-files {
+            margin-top: 30px;
+
+            > thead {
+                display: none;
+            }
+        }
+
+        tbody {
+            .upload-first-message {
+                display: none;
+            }
+
+            .upload-another-message {
+                font-size: 12px;
+                display: none;
+            }
+
+            tr:first-of-type {
+                .upload-first-message {
+                    display: inline;
+                }
+            }
+
+            tr:not(:first-of-type) {
+                .upload-another-message {
+                    display: inline;
+                }
+            }
+
+            .upload-another-col {
+                padding-top: 17px;
+                padding-bottom: 15px;
+            }
+
+            .upload-another-col {
+                .loading-message {
+                    font-size: 12px;
+                    margin-left: 5px;
+                }
+            }
+
+            .replacement-file-picker {
+                font-size: 12px;
+            }
+
+        }
+    }
+}
+
 
 
 // Error/log listing

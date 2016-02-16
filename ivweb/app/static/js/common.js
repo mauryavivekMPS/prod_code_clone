@@ -94,6 +94,7 @@ var PipelineListPage = (function() {
     var isSuperuser = false;
     var tailIntervalIds = {};
     var publisherTaskStatus = {};
+    var pipelineName = '';
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
@@ -189,13 +190,34 @@ var PipelineListPage = (function() {
     var wireRunForPublisherForms = function(selector) {
         $(selector).submit(function(event) {
             var form = $(this);
-            form.find('.run-pipeline-for-publisher-button').hide();
-            form.find('.run-loading-icon').show();
-            var parent = form.parent();
-            parent.find('.little-upload-button').hide();
-            parent.find('.little-files-link').hide();
-            $('.run-button').hide();
-            $.post(runForPublisherUrl, form.serialize());
+            var publisherName = form.attr('publisher_name');
+
+            // update the modal and open it
+            var m = $('#confirm-run-single-modal');
+            m.find('.modal-title').html('Run Pipeline for Publisher');
+            m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+
+            var submitButton = m.find('.confirm-run-single-submit-button');
+            submitButton.on('click', function() {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+                m.modal('hide');
+
+                form.find('.run-pipeline-for-publisher-button').hide();
+                form.find('.run-loading-icon').show();
+                var parent = form.parent();
+                parent.find('.little-upload-button').hide();
+                parent.find('.little-files-link').hide();
+                $('.run-button').hide();
+                $.post(runForPublisherUrl, form.serialize());
+            });
+            m.modal();
+
+            m.on('hidden.bs.modal', function () {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+            });
+
             event.preventDefault();
             return false;
         });
@@ -292,7 +314,8 @@ var PipelineListPage = (function() {
             runForPublisherUrl: '',
             runForAllUrl: '',
             isSuperuser: false,
-            csrfToken: ''
+            csrfToken: '',
+            pipelineName: ''
         }, options);
 
         pipelineId = options.pipelineId;
@@ -302,9 +325,16 @@ var PipelineListPage = (function() {
         runForAllUrl = options.runForAllUrl;
         tailUrl = options.tailUrl;
         isSuperuser = options.isSuperuser;
+        pipelineName = options.pipelineName;
 
         if (isSuperuser) {
+            var m = $('#confirm-run-all-modal');
             $('.run-button').click(function() {
+                m.modal();
+            });
+
+            $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
+                m.modal('hide');
                 $('.run-button').hide();
                 var loading = $('.run-for-all-loading-icon');
                 loading.show();
@@ -338,61 +368,34 @@ var PipelineListPage = (function() {
 
 
 //
-// Upload page
+// List demos page
 //
 
-var UploadPage = (function() {
-    var f;
-    var pipelineId = '';
-    var hasPublisher;
-
-    var checkForm = function() {
-        var publisherId;
-        if (!hasPublisher) {
-            publisherId = f.find("#id_publisher option:selected").val();
-        }
-        var file = f.find("#id_files").val();
-
-        if ((hasPublisher || publisherId) && file) {
-            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
-        }
-        else {
-            f.find('.submit-button').addClass('disabled').prop('disabled', true);
-        }
-    };
+var ListDemosPage = (function() {
 
     var init = function(options) {
         options = $.extend({
-            pipelineId: '',
-            hasPublisher: false
+            updateDemoStatusUrl: '',
+            csrfToken: ''
         }, options);
 
-        f = $('#upload-form');
-        pipelineId = options.pipelineId;
-        hasPublisher = options.hasPublisher;
+        $('.inline-demo-status-menu').on('change', function () {
+            var menu = $(this);
+            var status = menu.find("option:selected").val();
+            var demoId = menu.attr('demo_id');
 
-        if (!hasPublisher) {
-            var publisherMenu = f.find('#id_publisher');
-            var nullPublisherItem = publisherMenu.find('option:first-child');
-            nullPublisherItem.attr('disabled', 'disabled');
-            if (!options.selectedPublisher) {
-                publisherMenu.addClass('placeholder');
-                nullPublisherItem.attr('selected', 'selected');
-            }
-
-            publisherMenu.on('change', function () {
-                var selectedOption = publisherMenu.find("option:selected");
-                if (!selectedOption.attr('disabled')) {
-                    publisherMenu.removeClass('placeholder');
-                }
-                checkForm();
-            });
-        }
-
-        f.find('#id_files').on('change', checkForm);
-
-        f.submit(function() {
             IvetlWeb.showLoading();
+
+            var data = [
+                {name: 'csrfmiddlewaretoken', value: options.csrfToken},
+                {name: 'demo_id', value: demoId},
+                {name: 'status', value: status},
+            ];
+
+            $.post(options.updateDemoStatusUrl, data)
+                .always(function() {
+                    IvetlWeb.hideLoading();
+                });
         });
     };
 
@@ -408,55 +411,40 @@ var UploadPage = (function() {
 //
 
 var PendingFilesForm = (function() {
-    var pipelineId = '';
-    var publisherId = '';
-    var deleteUrl = '';
-    var csrfToken = '';
+    var isDemo;
 
-    var wireUpDeleteButtons = function(selector) {
-        $(selector).each(function() {
-            var link = $(this);
-            link.click(function() {
-                var fileToDelete = link.attr('file_to_delete');
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: publisherId},
-                    {name: 'file_to_delete', value: fileToDelete}
-                ];
+    var enableSubmitForProcessing = function() {
+        $('.submit-for-processing-button').removeClass('disabled').prop('disabled', false);
+    };
 
-                $.post(deleteUrl, data)
-                    .always(function() {
-                        var row = link.closest('tr');
-                        row.fadeOut(150, function() {
-                            row.remove();
-                        });
-                        IvetlWeb.hideLoading();
-                    });
+    var disableSubmitForProcessing = function() {
+        $('.submit-for-processing-button').addClass('disabled').prop('disabled', true);
+    };
 
-                return false;
-            });
-        });
-
+    var updateSubmitForProcessing = function() {
+        if (!isDemo) {
+            var table = $('table.all-files-table');
+            if (table.find('> tbody > tr.validated-file').length > 0) {
+                enableSubmitForProcessing();
+            }
+            else {
+                disableSubmitForProcessing();
+            }
+        }
     };
 
     var init = function(options) {
         options = $.extend({
-            pipelineId: '',
-            publisherId: '',
-            deleteUrl: '',
-            csrfToken: ''
+            isDemo: false
         }, options);
 
-        pipelineId = options.pipelineId;
-        publisherId = options.publisherId;
-        deleteUrl = options.deleteUrl;
-        csrfToken = options.csrfToken;
+        isDemo = options.isDemo;
 
-        wireUpDeleteButtons('.delete-file-button');
+        updateSubmitForProcessing();
     };
 
     return {
-        wireUpDeleteButtons: wireUpDeleteButtons,
+        updateSubmitForProcessing: updateSubmitForProcessing,
         init: init
     };
 
@@ -464,11 +452,59 @@ var PendingFilesForm = (function() {
 
 
 //
-// Upload Results page
+// File upload widget
 //
 
-var UploadResultsPage = (function() {
+var FileUploadWidget = (function() {
+    var publisherId;
+    var demoId;
     var uploadUrl;
+    var deleteUrl;
+    var csrfToken;
+    var isDemo;
+
+    var wireUpDeleteButtons = function(selector) {
+        $(selector).each(function() {
+            var link = $(this);
+            link.click(function() {
+                var productId = link.attr('product_id');
+                var pipelineId = link.attr('pipeline_id');
+                var fileToDelete = link.attr('file_to_delete');
+                var fileId = link.closest('tr.file-row').attr('file_id');
+
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: csrfToken},
+                    {name: 'file_to_delete', value: fileToDelete},
+                    {name: 'product_id', value: productId},
+                    {name: 'pipeline_id', value: pipelineId}
+                ];
+
+                if (isDemo) {
+                    data.push({name: 'file_type', value: 'demo'});
+                    data.push({name: 'demo_id', value: demoId});
+                }
+                else {
+                    data.push({name: 'file_type', value: 'publisher'});
+                    data.push({name: 'publisher_id', value: publisherId});
+                }
+
+                $.post(deleteUrl, data)
+                    .always(function() {
+                        var row = link.closest('tr');
+                        row.fadeOut(150, function() {
+                            $('.file-row.file-row-' + fileId).remove();
+                            $('.error-list-row.file-row-' + fileId).remove();
+                            $('.loading-row.file-row-' + fileId).remove();
+                            updateTable();
+                            PendingFilesForm.updateSubmitForProcessing();
+                        });
+                        IvetlWeb.hideLoading();
+                    });
+
+                return false;
+            });
+        });
+    };
 
     var wireUpFilePickers = function(selector) {
         $(selector).on('change', function() {
@@ -476,38 +512,95 @@ var UploadResultsPage = (function() {
             if (picker.val()) {
                 var f = $(this.form)[0];
                 var data = new FormData(f);
+                var pickerRow;
+                var loadingWidget;
 
-                var parentRow = picker.closest('tr.error-list-row');
-                var fileId = parentRow.attr('file_id');
+                if (isDemo) {
+                    data.append('crossref_username', $('#id_crossref_username'));
+                    data.append('crossref_password', $('#id_crossref_password'));
 
-                $('.file-row.file-row-' + fileId).remove();
-                $('.error-list-row.file-row-' + fileId).remove();
-                $('.loading-row.file-row-' + fileId).show();
+                    var issns = [];
+                    $('.issn-values-row').each(function() {
+                        var row = $(this);
+                        var index = row.attr('index');
+                        issns.push({
+                            electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                            print_issn: row.find('#id_print_issn_' + index).val()
+                        });
+                    });
+                    data.append('issns', JSON.stringify(issns));
+                }
+
+                var uiType = picker.attr('ui_type');
+                if (uiType == 'replacement') {
+                    var fileId = picker.closest('tr.error-list-row').attr('file_id');
+                    $('.file-row.file-row-' + fileId).remove();
+                    $('.error-list-row.file-row-' + fileId).remove();
+                    $('.loading-row.file-row-' + fileId).show();
+                }
+                else {
+                    $(f).hide();
+                    pickerRow = picker.closest('tr.upload-another-row');
+                    loadingWidget = pickerRow.find('.inline-upload-form-loading');
+                    loadingWidget.show();
+                }
 
                 $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
                     .done(function(html) {
-                        console.log('done');
-                        $('.loading-row.file-row-' + fileId).replaceWith(html);
-                    })
-                    .always(function() {
-                        console.log('always');
+                        if (uiType == 'replacement') {
+                            $('.loading-row.file-row-' + fileId).replaceWith(html);
+                        }
+                        else {
+                            pickerRow.before(html);
+                            loadingWidget.hide();
+                            picker.val('');
+                            $(f).show();
+                        }
                     });
             }
         });
     };
 
+    var updateTable = function() {
+        if (!isDemo) {
+            var table = $('table.all-files-table');
+            if (table.find('> tbody > tr').length == 1) {
+                table.addClass('no-files');
+                table.removeClass('has-files');
+            }
+            else {
+                table.addClass('has-files');
+                table.removeClass('no-files');
+            }
+        }
+    };
+
     var init = function(options) {
         options = $.extend({
-            uploadUrl: ''
+            publisherId: '',
+            demoId: '',
+            uploadUrl: '',
+            deleteUrl: '',
+            isDemo: false,
+            csrfToken: ''
         }, options);
 
+        publisherId = options.publisherId;
+        demoId = options.demoId;
         uploadUrl = options.uploadUrl;
+        deleteUrl = options.deleteUrl;
+        csrfToken = options.csrfToken;
+        isDemo = options.isDemo;
 
+        wireUpDeleteButtons('.delete-file-button');
         wireUpFilePickers('.replacement-file-picker');
+        updateTable();
     };
 
     return {
+        wireUpDeleteButtons: wireUpDeleteButtons,
         wireUpFilePickers: wireUpFilePickers,
+        updateTable: updateTable,
         init: init
     };
 
@@ -574,7 +667,6 @@ var RunPage = (function() {
 //
 
 var EditPublisherPage = (function() {
-    var f;
     var publisherId;
     var isNew;
     var validateCrossrefUrl;
@@ -584,31 +676,55 @@ var EditPublisherPage = (function() {
     var buildingSuccessUrl;
     var buildingErrorUrl;
     var csrfToken;
+    var isDemo;
+
+    var enableSubmit = function() {
+        $('.submit-button.save-button').removeClass('disabled').prop('disabled', false);
+    };
+
+    var disableSubmit = function() {
+        $('.submit-button.save-button').addClass('disabled').prop('disabled', true);
+    };
+
+    var enableSubmitForApproval = function() {
+        $('.submit-button.submit-for-approval-button').removeClass('disabled').prop('disabled', false);
+    };
+
+    var disableSubmitForApproval = function() {
+        $('.submit-button.submit-for-approval-button').addClass('disabled').prop('disabled', true);
+    };
 
     var checkForm = function() {
-        var publisherId = f.find("#id_publisher_id").val();
-        var name = f.find("#id_name").val();
-        var email = f.find("#id_email").val();
+        var name = $("#id_name").val();
+        var hasName = name != '';
+
+        if (isDemo) {
+            var startDate = $("#id_start_date").val();
+            var hasStartDate = startDate != '';
+        }
+
+        var publisherId = $("#id_publisher_id").val();
+        var email = $("#id_email").val();
         var hasBasics = publisherId != '' && name != '' && email != '';
 
-        var publishedArticlesProduct = f.find('#id_published_articles').is(':checked');
-        var rejectedManuscriptsProduct = f.find('#id_rejected_manuscripts').is(':checked');
-        var cohortArticlesProduct = f.find('#id_cohort_articles').is(':checked');
+        var publishedArticlesProduct = $('#id_published_articles').is(':checked');
+        var rejectedManuscriptsProduct = $('#id_rejected_manuscripts').is(':checked');
+        var cohortArticlesProduct = $('#id_cohort_articles').is(':checked');
         var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct;
 
         var hasReportsDetails = true;
         if (isNew) {
-            var reportsUsername = f.find('#id_reports_username').val();
-            var reportsPassword = f.find('#id_reports_username').val();
-            var reportsProject = f.find('#id_reports_project').val();
+            var reportsUsername = $('#id_reports_username').val();
+            var reportsPassword = $('#id_reports_username').val();
+            var reportsProject = $('#id_reports_project').val();
             hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
         }
 
         var crossref = true;
         if (useCrossref()) {
-            var username = f.find('#id_crossref_username').val();
-            var password = f.find('#id_crossref_password').val();
-            var validated = f.find('.validate-crossref-checkmark').is(':visible');
+            var username = $('#id_crossref_username').val();
+            var password = $('#id_crossref_password').val();
+            var validated = $('.validate-crossref-checkmark').is(':visible');
             crossref = username && password && validated;
         }
 
@@ -652,11 +768,28 @@ var EditPublisherPage = (function() {
             });
         }
 
-        if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns) {
-            f.find('.submit-button').removeClass('disabled').prop('disabled', false);
+        if (isDemo) {
+            if (hasName) {
+                enableSubmit();
+            }
+            else {
+                disableSubmit();
+            }
+
+            if (hasBasics && hasStartDate && atLeastOneProduct && crossref && validIssns && validCohortIssns) {
+                enableSubmitForApproval();
+            }
+            else {
+                disableSubmitForApproval();
+            }
         }
         else {
-            f.find('.submit-button').addClass('disabled').prop('disabled', true);
+            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns) {
+                enableSubmit();
+            }
+            else {
+                disableSubmit();
+            }
         }
     };
 
@@ -666,6 +799,15 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.published-articles-controls').fadeOut(100);
+        }
+    };
+
+    var updateRejectedManuscriptsControls = function() {
+        if ($('#id_rejected_manuscripts').is(':checked')) {
+            $('.rejected-manuscripts-controls').fadeIn(200);
+        }
+        else {
+            $('.rejected-manuscripts-controls').fadeOut(100);
         }
     };
 
@@ -720,12 +862,12 @@ var EditPublisherPage = (function() {
     };
 
     var updateValidateCrossrefButton = function() {
-        var username = f.find('#id_crossref_username').val();
-        var password = f.find('#id_crossref_password').val();
-        var button = f.find('.validate-crossref-button');
-        var message = f.find('.crossref-error-message');
-        var checkmark = f.find('.validate-crossref-checkmark');
-        var row = f.find('.crossref-form-row');
+        var username = $('#id_crossref_username').val();
+        var password = $('#id_crossref_password').val();
+        var button = $('.validate-crossref-button');
+        var message = $('.crossref-error-message');
+        var checkmark = $('.validate-crossref-checkmark');
+        var row = $('.crossref-form-row');
 
         message.hide();
         checkmark.hide();
@@ -740,17 +882,17 @@ var EditPublisherPage = (function() {
     };
 
     var checkCrossref = function() {
-        var button = f.find('.validate-crossref-button');
-        var loading = f.find('.validate-crossref-loading');
+        var button = $('.validate-crossref-button');
+        var loading = $('.validate-crossref-loading');
 
         button.hide();
         loading.show();
 
-        var username = f.find('#id_crossref_username');
-        var password = f.find('#id_crossref_password');
-        var row = f.find('.crossref-form-row');
-        var message = f.find('.crossref-error-message');
-        var checkmark = f.find('.validate-crossref-checkmark');
+        var username = $('#id_crossref_username');
+        var password = $('#id_crossref_password');
+        var row = $('.crossref-form-row');
+        var message = $('.crossref-error-message');
+        var checkmark = $('.validate-crossref-checkmark');
 
         var data = [
             {name: 'username', value: username.val()},
@@ -909,6 +1051,73 @@ var EditPublisherPage = (function() {
         }, 1000);
     };
 
+    var submit = function(options) {
+        options = $.extend({
+            submitForApproval: false
+        }, options);
+
+        var issnValues = [];
+        $('.issn-values-row').each(function() {
+            var row = $(this);
+            if (!isIssnRowEmpty(row)) {
+                var index = row.attr('index');
+                issnValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    journal_code: row.find('#id_journal_code_' + index).val(),
+                    index: index
+                });
+            }
+        });
+        $('#id_issn_values').val(JSON.stringify(issnValues));
+
+        var issnCohortValues = [];
+        $('.issn-values-cohort-row').each(function() {
+            var row = $(this);
+            if (!isIssnRowEmpty(row)) {
+                var index = row.attr('index');
+                issnCohortValues.push({
+                    electronic_issn: row.find('#id_electronic_issn_' + index).val(),
+                    print_issn: row.find('#id_print_issn_' + index).val(),
+                    index: index
+                });
+            }
+        });
+        $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
+
+        var f = $('#hidden-publisher-form');
+        f.find('input[name="publisher_id"]').val($('#id_publisher_id').val());
+        f.find('input[name="name"]').val($('#id_name').val());
+        f.find('input[name="issn_values"]').val($('#id_issn_values').val());
+        f.find('input[name="use_scopus_api_keys_from_pool"]').val($('#id_use_scopus_api_keys_from_pool').is(':checked') ? 'on' : '');
+        f.find('input[name="scopus_api_keys"]').val($('#id_scopus_api_keys').val());
+        f.find('input[name="email"]').val($('#id_email').val());
+        f.find('input[name="use_crossref"]').val($('#id_use_crossref').is(':checked') ? 'on' : '');
+        f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
+        f.find('input[name="crossref_password"]').val($('#id_crossref_password').val());
+        f.find('input[name="hw_addl_metadata_available"]').val($('#id_hw_addl_metadata_available').is(':checked') ? 'on' : '');
+        f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
+        f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
+        f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
+        f.find('input[name="cohort_articles"]').val($('#id_cohort_articles').is(':checked') ? 'on' : '');
+        f.find('input[name="issn_values_cohort"]').val($('#id_issn_values_cohort').val());
+        f.find('input[name="reports_username"]').val($('#id_reports_username').val());
+        f.find('input[name="reports_password"]').val($('#id_reports_password').val());
+        f.find('input[name="reports_project"]').val($('#id_reports_project').val());
+        f.find('input[name="demo_id"]').val($('#id_demo_id').val());
+        f.find('input[name="start_date"]').val($('#id_start_date').val());
+        f.find('input[name="demo_notes"]').val($('#id_demo_notes').val());
+
+        if (options.submitForApproval) {
+            f.find('input[name="status"]').val('submitted-for-review');
+        }
+        else {
+            f.find('input[name="status"]').val($('#id_status option:selected').val());
+        }
+
+        f.submit();
+    };
+
     var init = function(options) {
         options = $.extend({
             publisherId: '',
@@ -918,7 +1127,8 @@ var EditPublisherPage = (function() {
             buildingPollUrl: '',
             buildingSuccessUrl: '',
             buildingErrorUrl: '',
-            csrfToken: ''
+            csrfToken: '',
+            isDemo: false
         }, options);
 
         publisherId = options.publisherId;
@@ -929,20 +1139,20 @@ var EditPublisherPage = (function() {
         buildingSuccessUrl = options.buildingSuccessUrl;
         buildingErrorUrl = options.buildingErrorUrl;
         csrfToken = options.csrfToken;
+        isDemo = options.isDemo;
 
         isNew = publisherId == '';
 
-        f = $('#publisher-form');
-        f.find('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
-        f.find('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
+        $('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
+        $('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
         $('#id_pilot').on('change', checkForm);
 
         if (isNew) {
-            f.find('#id_reports_password').show();
+            $('#id_reports_password').show();
         }
-        f.find('.set-reports-password-link a').click(function() {
-            f.find('.set-reports-password-link').hide();
-            f.find('#id_reports_password').show().focus();
+        $('.set-reports-password-link a').click(function() {
+            $('.set-reports-password-link').hide();
+            $('#id_reports_password').show().focus();
             return false;
         });
 
@@ -952,7 +1162,11 @@ var EditPublisherPage = (function() {
         });
         updatePublishedArticlesControls();
 
-        $('#id_rejected_manuscripts').on('change', checkForm);
+        $('#id_rejected_manuscripts').on('change', function() {
+            updateRejectedManuscriptsControls();
+            checkForm();
+        });
+        updateRejectedManuscriptsControls();
 
         $('#id_cohort_articles').on('change', function() {
             updateCohortArticlesControls();
@@ -980,13 +1194,13 @@ var EditPublisherPage = (function() {
             updateScopusControls();
         }
 
-        f.find('#id_crossref_username, #id_crossref_password').on('keyup', function() {
+        $('#id_crossref_username, #id_crossref_password').on('keyup', function() {
             updateValidateCrossrefButton();
             checkForm();
         });
-        f.find('.validate-crossref-button').on('click', checkCrossref);
+        $('.validate-crossref-button').on('click', checkCrossref);
 
-        f.find('.add-issn-button').on('click', function() {
+        $('.add-issn-button').on('click', function() {
             $.get(addIssnValuesUrl)
                 .done(function(html) {
                     $('#issn-values-container').append(html);
@@ -996,7 +1210,7 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        f.find('.add-issn-cohort-button').on('click', function() {
+        $('.add-issn-cohort-button').on('click', function() {
             $.get(addIssnValuesUrl, [{name: 'cohort', value: 1}])
                 .done(function(html) {
                     $('#issn-values-cohort-container').append(html);
@@ -1005,36 +1219,16 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        f.submit(function() {
+        $('.submit-button.save-button').on('click', function(event) {
+            submit();
+            event.preventDefault();
+            return false;
+        });
 
-            var issnValues = [];
-            $('.issn-values-row').each(function() {
-                var row = $(this);
-                if (!isIssnRowEmpty(row)) {
-                    var index = row.attr('index');
-                    issnValues.push({
-                        electronic_issn: row.find('#id_electronic_issn_' + index).val(),
-                        print_issn: row.find('#id_print_issn_' + index).val(),
-                        journal_code: row.find('#id_journal_code_' + index).val(),
-                        index: index
-                    });
-                }
-            });
-            $('#id_issn_values').val(JSON.stringify(issnValues));
-
-            var issnCohortValues = [];
-            $('.issn-values-cohort-row').each(function() {
-                var row = $(this);
-                if (!isIssnRowEmpty(row)) {
-                    var index = row.attr('index');
-                    issnCohortValues.push({
-                        electronic_issn: row.find('#id_electronic_issn_' + index).val(),
-                        print_issn: row.find('#id_print_issn_' + index).val(),
-                        index: index
-                    });
-                }
-            });
-            $('#id_issn_values_cohort').val(JSON.stringify(issnCohortValues));
+        $('.submit-button.submit-for-approval-button').on('click', function(event) {
+            submit({submitForApproval: true});
+            event.preventDefault();
+            return false;
         });
 
         checkForm();
@@ -1060,7 +1254,7 @@ var EditUserPage = (function() {
     var email = '';
 
     var checkForm = function() {
-        var email = f.find("#id_email").val();
+        var email = $("#id_email").val();
 
         if (email) {
             f.find('.submit-button').removeClass('disabled').prop('disabled', false);

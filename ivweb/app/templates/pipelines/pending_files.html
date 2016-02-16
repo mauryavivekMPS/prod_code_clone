@@ -21,7 +21,11 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-                {% include "pipelines/include/pending_files_form.html" with additional=False only_pending=True %}
+                <p class="pending-files-message">Upload files for processing according to the
+                    <a class="format-file-link" href="/static/dist/{{ pipeline.format_file }}" target="_blank">{{ pipeline.user_facing_display_name|title }} Specification</a>
+                    <span class="lnr lnr-launch format-file-link-icon"></span>.
+                </p>
+                {% include "pipelines/include/pending_files_form.html" with additional=False %}
             </div>
         </div>
     </div>
@@ -30,10 +34,11 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            PendingFilesForm.init({
-                pipelineId: '{{ pipeline.id }}',
+            FileUploadWidget.init({
                 publisherId: '{{ publisher_id }}',
-                deleteUrl: '{% url 'pipelines.pending_files' product.id pipeline.id %}',
+                uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
+                deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
+                isDemo: false,
                 csrfToken: '{{ csrf_token }}'
             });
         });

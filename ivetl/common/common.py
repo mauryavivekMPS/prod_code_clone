@@ -257,6 +257,15 @@ def get_ftp_dir_name(product_id, pipeline_id):
             return d['ftp_dir_name']
     return None
 
+DEMO_STATUS_CHOICES = [
+    ('creating', 'Creating'),
+    ('submitted-for-review', 'Submitted for Review'),
+    ('changed-needed', 'Changes Needed'),
+    ('accepted', 'Accepted'),
+    ('in-progress', 'In Progress'),
+    ('completed', 'Completed'),
+]
+DEMO_STATUS_LOOKUP = dict(DEMO_STATUS_CHOICES)
 
 ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'rsp': 'http://schema.highwire.org/Service/Response',
@@ -302,6 +311,7 @@ BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
 BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
+BASE_DEMO_DIR = os.path.join(BASE_WORKING_DIR, "demos")
 TMP_DIR = os.environ.get('IVETL_TMP_DIR', '/iv/tmp')
 
 TABLEAU_SERVER = os.environ.get('IVETL_TABLEAU_SERVER', '10.0.0.143')

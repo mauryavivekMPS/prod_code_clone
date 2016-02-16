@@ -1,0 +1,70 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Demos{% endblock %}
+{% block body_class %}demo{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-8">
+            <h1>Demos</h1>
+            <a class="btn btn-default small add-demo-button show-loading" href="new/">+ Add Demo</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover demo-table">
+                <thead>
+                    <tr>
+                        <th>Publisher Name</th>
+                        <th>Requestor</th>
+                        <th>Start Date</th>
+                        <th class="text-center demo-status-col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for demo in demos %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'publishers.edit_demo' demo.demo_id %}">
+                                    {{ demo.name }}
+                                </a>
+                            </td>
+                            <td>{{ demo.requestor.display_name }}</td>
+                            <td>
+                                {% if demo.start_date %}
+                                    {{ demo.start_date.date }}
+                                {% else %}
+                                    <span class="null-value">&mdash;</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center demo-status-col">
+                                {% if request.user.superuser %}
+                                    <select class="form-control input-sm inline-demo-status-menu" demo_id="{{ demo.demo_id }}">
+                                        {% for choice in common.DEMO_STATUS_CHOICES %}
+                                            <option value="{{ choice.0 }}" {% if demo.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    {{ demo.display_status }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            ListDemosPage.init({
+                updateDemoStatusUrl: '{% url 'publishers.update_demo_status' %}',
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}
+

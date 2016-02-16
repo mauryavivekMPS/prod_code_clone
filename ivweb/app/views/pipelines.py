@@ -10,13 +10,13 @@ import codecs
 import uuid
 from django import forms
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
 from ivweb.app import forms as ivweb_forms
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, Demo
 
 log = logging.getLogger(__name__)
 
@@ -156,21 +156,6 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     })
 
 
-class UploadForm(forms.Form):
-    publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}))
-    files = ivweb_forms.MultiFileField(widget=ivweb_forms.MultiFileInput(attrs={'class': 'form-control'}))
-    single_file_only = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)
-
-    def __init__(self, user, *args, publisher=None, **kwargs):
-        super(UploadForm, self).__init__(*args, **kwargs)
-        if publisher:
-            all_choices = [(publisher.publisher_id, publisher.name)]
-        else:
-            all_choices = list(user.get_accessible_publishers().values_list('publisher_id', 'name'))
-
-        self.fields['publisher'].choices = [['', 'Select a publisher']] + all_choices
-
-
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
     pub_dir = os.path.join('/tmp', publisher_id, product_id, pipeline_id)
     os.makedirs(pub_dir, exist_ok=True)
@@ -181,137 +166,14 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
     return os.path.join(get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id), name)
 
 
-@login_required
-def upload(request, product_id, pipeline_id):
-    product = common.PRODUCT_BY_ID[product_id]
-    pipeline = common.PIPELINE_BY_ID[pipeline_id]
-    validation_errors = []
+def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
+    demo_dir = os.path.join(common.BASE_DEMO_DIR, demo_id, product_id, pipeline_id)
+    os.makedirs(demo_dir, exist_ok=True)
+    return demo_dir
 
-    # publisher is a required param now
-    publisher_id = request.REQUEST['publisher']
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
-    if request.method == 'POST':
-        form = UploadForm(request.user, request.POST, request.FILES)
-        if form.is_valid():
-            all_uploaded_files = request.FILES.getlist('files')
-            all_processed_files = []
-            includes_invalid_files = False
-
-            for uploaded_file in all_uploaded_files:
-
-                # write the file to the pending location
-                pending_file_path = get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, uploaded_file.name)
-                pending_file = open(pending_file_path, 'wb')
-                for chunk in uploaded_file.chunks():
-                    pending_file.write(chunk)
-                pending_file.close()
-                uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
-
-                # get the validator class, if any, and run validation
-                if pipeline['validator_class']:
-                    validator_class = common.get_validator_class(pipeline)
-                    validator = validator_class()
-                    line_count, raw_errors = validator.validate_files([pending_file_path], publisher_id)
-                    validation_errors = validator.parse_errors(raw_errors)
-
-                else:
-                    validation_errors = []
-
-                    # just count the lines
-                    with codecs.open(pending_file_path, encoding='utf-8') as f:
-                        for i, l in enumerate(f):
-                            pass
-                        line_count = i + 1
-
-                if validation_errors:
-                    includes_invalid_files = True
-
-                    # delete the file
-                    os.remove(pending_file_path)
-
-                else:
-
-                    # make sure it's world readable, just to be safe
-                    os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
-
-                    Audit_Log.objects.create(
-                        user_id=request.user.user_id,
-                        event_time=datetime.datetime.now(),
-                        action='upload-file',
-                        entity_type='pipeline-file',
-                        entity_id='%s, %s' % (pipeline_id, uploaded_file.name),
-                    )
-
-                all_processed_files.append({
-                    'file_name': uploaded_file.name,
-                    'file_size': uploaded_file_size,
-                    'line_count': line_count,
-                    'validation_errors': validation_errors
-                })
-
-                # return render(request, 'pipelines/upload_error.html', {
-                #     'product': product,
-                #     'pipeline': pipeline,
-                #     'publisher_id': publisher_id,
-                #     'file_name': uploaded_file_name,
-                #     'file_size': uploaded_file_size,
-                #     'line_count': line_count,
-                #     'validation_errors': validation_errors,
-                #     'publisher': publisher,
-                #     'alt_error_message': 'Your upload was not successful, please see below and try again.'
-                # })
-
-                # return render(request, 'pipelines/upload_success.html', {
-                #     'product': product,
-                #     'pipeline': pipeline,
-                #     'publisher_id': publisher_id,
-                #     'file_name': uploaded_file_name,
-                #     'file_size': uploaded_file_size,
-                #     'line_count': line_count,
-                #     'publisher': publisher,
-                #     'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=uploaded_file_name),
-                # })
-
-            all_file_names = [n['file_name'] for n in all_processed_files]
-
-            if form.cleaned_data['single_file_only']:
-                single_file = all_processed_files[0]
-
-                return render(request, 'pipelines/include/file.html', {
-                    'product': product,
-                    'pipeline': pipeline,
-                    'publisher_id': publisher_id,
-                    'file_name': single_file['file_name'],
-                    'file_size': single_file['file_size'],
-                    'line_count': single_file['line_count'],
-                    'validation_errors': single_file['validation_errors'],
-                    'file_index': str(uuid.uuid4()),
-                    'publisher': publisher,
-                    'single_file_only': True,
-                })
-
-            else:
-                return render(request, 'pipelines/upload_results.html', {
-                    'product': product,
-                    'pipeline': pipeline,
-                    'publisher_id': publisher_id,
-                    'processed_files': all_processed_files,
-                    'publisher': publisher,
-                    'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True, ignore=all_file_names),
-                    'includes_invalid_files': includes_invalid_files,
-                })
-
-    else:
-        form = UploadForm(request.user, publisher=publisher)
-
-    return render(request, 'pipelines/upload.html', {
-        'product': product,
-        'pipeline': pipeline,
-        'form': form,
-        'validation_errors': validation_errors,
-        'publisher': publisher,
-    })
+def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
+    return os.path.join(get_or_create_demo_file_dir(demo_id, product_id, pipeline_id), name)
 
 
 class RunForm(forms.Form):
@@ -411,6 +273,7 @@ def _get_files_in_dir(dir, with_lines_and_sizes=False, ignore=[]):
                 line_count = i + 1
             file['line_count'] = line_count
             file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
+            file['file_id'] = uuid.uuid4()
     return files
 
 
@@ -426,6 +289,11 @@ def get_queued_files_for_publisher(publisher_id, product_id, pipeline_id, with_l
     return _get_files_in_dir(incoming_dir, with_lines_and_sizes, ignore)
 
 
+def get_pending_files_for_demo(demo_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
+    demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
+    return _get_files_in_dir(demo_dir, with_lines_and_sizes, ignore)
+
+
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
     pending_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
     files = get_pending_files_for_publisher(publisher_id, product_id, pipeline_id)
@@ -437,8 +305,12 @@ def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
         os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
 
-def delete_pending_file(publisher_id, product_id, pipeline_id, name):
+def delete_pending_publisher_file(publisher_id, product_id, pipeline_id, name):
     os.remove(os.path.join(get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id), name))
+
+
+def delete_pending_demo_file(demo_id, product_id, pipeline_id, name):
+    os.remove(os.path.join(get_or_create_demo_file_dir(demo_id, product_id, pipeline_id), name))
 
 
 @login_required
@@ -448,14 +320,6 @@ def pending_files(request, product_id, pipeline_id):
     publisher_id = request.REQUEST['publisher']
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
-    if request.method == 'POST':
-        file_to_delete = request.POST.get('file_to_delete')
-        if file_to_delete:
-            delete_pending_file(publisher_id, product_id, pipeline_id, file_to_delete)
-
-        # redirect on the response so the user can't reload the delete action
-        return HttpResponseRedirect(reverse('pipelines.pending_files', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}) + '?publisher=' + publisher_id)
-
     return render(request, 'pipelines/pending_files.html', {
         'product': product,
         'pipeline': pipeline,
@@ -463,3 +327,121 @@ def pending_files(request, product_id, pipeline_id):
         'publisher_id': publisher_id,
         'publisher': publisher,
     })
+
+
+@login_required
+def upload_pending_file_inline(request):
+
+    if request.method == 'POST':
+        product_id = request.POST['product_id']
+        pipeline_id = request.POST['pipeline_id']
+        product = common.PRODUCT_BY_ID[product_id]
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        file_type = request.POST['file_type']
+
+        validation_errors = []
+        all_uploaded_files = request.FILES.getlist('files')
+        all_processed_files = []
+
+        for uploaded_file in all_uploaded_files:
+
+            publisher_id = None
+            demo_id = None
+
+            if file_type == 'publisher':
+                publisher_id = request.POST['publisher_id']
+                pending_file_path = get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, uploaded_file.name)
+
+            elif file_type == 'demo':
+                demo_id = request.POST['demo_id']
+                pending_file_path = get_or_create_demo_file_path(demo_id, product_id, pipeline_id, uploaded_file.name)
+
+            pending_file = open(pending_file_path, 'wb')
+            for chunk in uploaded_file.chunks():
+                pending_file.write(chunk)
+            pending_file.close()
+            uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
+
+            # get the validator class, if any, and run validation
+            if pipeline['validator_class']:
+                validator_class = common.get_validator_class(pipeline)
+                validator = validator_class()
+
+                if file_type == 'publisher':
+                    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+                    issns = publisher.all_issns
+                    crossref_username = publisher.crossref_username
+                    crossref_password = publisher.crossref_password
+                else:
+                    issns = json.loads(request.POST.get('issns', '[]'))
+                    crossref_username = request.POST.get('crossref_username', '')
+                    crossref_password = request.POST.get('crossref_password', '')
+
+                line_count, raw_errors = validator.validate_files([pending_file_path], issns, crossref_username, crossref_password)
+                validation_errors = validator.parse_errors(raw_errors)
+
+            else:
+                # just count the lines
+                with codecs.open(pending_file_path, encoding='utf-8') as f:
+                    for i, l in enumerate(f):
+                        pass
+                    line_count = i + 1
+
+            if validation_errors:
+                os.remove(pending_file_path)  # delete the file
+
+            else:
+
+                # make sure it's world readable, just to be safe
+                os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+
+                Audit_Log.objects.create(
+                    user_id=request.user.user_id,
+                    event_time=datetime.datetime.now(),
+                    action='upload-file',
+                    entity_type='pipeline-file',
+                    entity_id='%s, %s' % (pipeline_id, uploaded_file.name),
+                )
+
+            all_processed_files.append({
+                'file_name': uploaded_file.name,
+                'file_size': uploaded_file_size,
+                'line_count': line_count,
+                'file_id': uuid.uuid4(),
+                'validation_errors': validation_errors
+            })
+
+        ui_type = request.POST.get('ui_type', 'more')
+
+        return render(request, 'pipelines/include/multiple_files.html', {
+            'product': product,
+            'pipeline': pipeline,
+            'publisher_id': publisher_id,
+            'processed_files': all_processed_files,
+            'is_demo': file_type == 'demo',
+            'ui_type': ui_type,
+            'inline': True,
+        })
+
+    return HttpResponse('ok')
+
+@login_required
+def delete_pending_file_inline(request):
+
+    if request.method == 'POST':
+        file_to_delete = request.POST.get('file_to_delete')
+
+        if file_to_delete:
+            product_id = request.POST['product_id']
+            pipeline_id = request.POST['pipeline_id']
+            file_type = request.POST['file_type']
+
+            if file_type == 'publisher':
+                publisher_id = request.POST['publisher_id']
+                delete_pending_publisher_file(publisher_id, product_id, pipeline_id, file_to_delete)
+
+            elif file_type == 'demo':
+                demo_id = request.POST['demo_id']
+                delete_pending_demo_file(demo_id, product_id, pipeline_id, file_to_delete)
+
+    return HttpResponse('ok')
