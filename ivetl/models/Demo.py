@@ -19,4 +19,4 @@ class Demo(Model):
 
     @property
     def display_status(self):
-        return common.DEMO_STATUS_LOOKUP[self.status]
+        return common.DEMO_STATUS_LOOKUP.get(self.status)

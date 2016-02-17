@@ -257,13 +257,19 @@ def get_ftp_dir_name(product_id, pipeline_id):
             return d['ftp_dir_name']
     return None
 
+DEMO_STATUS_CREATING = 'creating'
+DEMO_STATUS_SUBMITTED_FOR_REVIEW = 'submitted-for-review'
+DEMO_STATUS_CHANGES_NEEDED = 'changed-needed'
+DEMO_STATUS_ACCEPTED = 'accepted'
+DEMO_STATUS_IN_PROGRESS = 'in-progress'
+DEMO_STATUS_COMPLETED = 'completed'
 DEMO_STATUS_CHOICES = [
-    ('creating', 'Creating'),
-    ('submitted-for-review', 'Submitted for Review'),
-    ('changed-needed', 'Changes Needed'),
-    ('accepted', 'Accepted'),
-    ('in-progress', 'In Progress'),
-    ('completed', 'Completed'),
+    (DEMO_STATUS_CREATING, 'Creating'),
+    (DEMO_STATUS_SUBMITTED_FOR_REVIEW, 'Submitted for Review'),
+    (DEMO_STATUS_CHANGES_NEEDED, 'Changes Needed'),
+    (DEMO_STATUS_ACCEPTED, 'Accepted'),
+    (DEMO_STATUS_IN_PROGRESS, 'In Progress'),
+    (DEMO_STATUS_COMPLETED, 'Completed'),
 ]
 DEMO_STATUS_LOOKUP = dict(DEMO_STATUS_CHOICES)
 

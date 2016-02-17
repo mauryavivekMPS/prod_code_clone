@@ -81,7 +81,7 @@ class PublisherForm(forms.Form):
 
     # demo-specific fields
     demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}), required=False)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
     demo_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Add notes about the demo'}), required=False)
     status = forms.ChoiceField(choices=common.DEMO_STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
 
@@ -147,6 +147,7 @@ class PublisherForm(forms.Form):
         else:
             self.instance = None
             initial['use_scopus_api_keys_from_pool'] = True
+            initial['status'] = common.DEMO_STATUS_CREATING
 
         # pre-initialize the demo ID so that we can upload files to a known location
         if is_demo and not instance:
@@ -194,8 +195,7 @@ class PublisherForm(forms.Form):
             if not demo:
                 demo = Demo.objects.create(
                     demo_id=demo_id,
-                    requestor_id=self.creating_user.user_id,
-                    status='creating',
+                    requestor_id=self.creating_user.user_id
                 )
 
             properties = {
@@ -209,9 +209,9 @@ class PublisherForm(forms.Form):
                 'demo_notes': self.cleaned_data['demo_notes'],
             }
 
-            status = self.cleaned_data['status']
+            status = self.cleaned_data.get('status')
             if not status:
-                status = demo.status
+                status = common.DEMO_STATUS_CREATING
 
             demo.update(
                 name=self.cleaned_data['name'],
@@ -372,9 +372,17 @@ def edit_demo(request, demo_id=None):
     if not demo:
         demo_id = form.initial['demo_id']
 
+    read_only = False
+    if not form.initial.get('status', common.DEMO_STATUS_CREATING) in (common.DEMO_STATUS_CREATING, common.DEMO_STATUS_CHANGES_NEEDED):
+        if not request.user.superuser:
+            read_only = True
+            for f in form.fields:
+                form.fields[f].widget.attrs['readonly'] = True
+                form.fields[f].widget.attrs['disabled'] = True
+
     return render(request, 'publishers/new.html', {
         'form': form,
-        'publisher': demo,
+        'demo': demo,
         'demo_id': demo_id,
         'is_demo': True,
         'issn_values_list': form.issn_values_list,
@@ -383,6 +391,7 @@ def edit_demo(request, demo_id=None):
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
         'demo_files_custom_article_data': demo_files_custom_article_data,
         'demo_files_rejected_articles': demo_files_rejected_articles,
+        'read_only': read_only,
     })
 
 

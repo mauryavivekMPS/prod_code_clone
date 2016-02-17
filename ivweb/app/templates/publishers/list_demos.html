@@ -19,7 +19,7 @@
                         <th>Publisher Name</th>
                         <th>Requestor</th>
                         <th>Start Date</th>
-                        <th class="text-center demo-status-col">Status</th>
+                        <th class="demo-status-col">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,12 +33,12 @@
                             <td>{{ demo.requestor.display_name }}</td>
                             <td>
                                 {% if demo.start_date %}
-                                    {{ demo.start_date.date }}
+                                    {{ demo.start_date|date:"m/d/Y" }}
                                 {% else %}
                                     <span class="null-value">&mdash;</span>
                                 {% endif %}
                             </td>
-                            <td class="text-center demo-status-col">
+                            <td class="demo-status-col {% if request.user.superuser %}with-menu{% endif %}">
                                 {% if request.user.superuser %}
                                     <select class="form-control input-sm inline-demo-status-menu" demo_id="{{ demo.demo_id }}">
                                         {% for choice in common.DEMO_STATUS_CHOICES %}
@@ -46,7 +46,7 @@
                                         {% endfor %}
                                     </select>
                                 {% else %}
-                                    {{ demo.display_status }}
+                                    <span class="read-only-label">{{ demo.display_status }}</span>
                                 {% endif %}
                             </td>
                         </tr>

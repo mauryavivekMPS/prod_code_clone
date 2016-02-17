@@ -1,12 +1,12 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{% if publisher %}{{ publisher.name }}{% else %}New {% if is_demo %}Demo{% else %}Publisher{% endif %}{% endif %}{% endblock %}
+{% block title %}{% if publisher or demo %}{% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}{% else %}New {% if is_demo %}Demo{% else %}Publisher{% endif %}{% endif %}{% endblock %}
 {% block body_class %}publisher new-publisher {% if is_demo %}demo{% endif %}{% endblock %}
 
 {% block content %}
     <div class="row header-row with-breadcrumb">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <ol class="breadcrumb">
                 <li>
                     {% if is_demo %}
@@ -17,7 +17,13 @@
                 </li>
                 <li></li>
             </ol>
-            <h1>{% if publisher %}{{ publisher.name }}{% else %}New {% if is_demo %}Demo{% else %}Publisher{% endif %}{% endif %}</h1>
+            <h1>
+                {% if publisher or demo %}
+                    {% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}
+                {% else %}
+                    New {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                {% endif %}
+            </h1>
         </div>
     </div>
 
@@ -51,8 +57,8 @@
                     <div class="form-group row {% if form.name.errors %}error{% endif %}">
                         <label for="name" class="col-sm-2">{% if is_demo %}Publisher {% endif %}Name</label>
                         <div class="col-sm-6">
-                            {{ form.name }}
-                            {{ form.name.errors }}
+                                {{ form.name }}
+                                {{ form.name.errors }}
                         </div>
                     </div>
 
@@ -60,16 +66,23 @@
                         <div class="form-group row {% if form.start_date.errors %}error{% endif %}">
                             <label for="start_date" class="col-sm-2">Start Date</label>
                             <div class="col-sm-3">
-                                {{ form.start_date }}
-                                {{ form.start_date.errors }}
+                                    {{ form.start_date }}
+                                    {{ form.start_date.errors }}
                             </div>
                         </div>
-                        {% if request.user.superuser %}
+
+                        {% if request.user.superuser or demo %}
                             <div class="form-group row {% if form.status.errors %}error{% endif %}">
                                 <label for="status" class="col-sm-2">Status</label>
                                 <div class="col-sm-3">
-                                    {{ form.status }}
-                                    {{ form.status.errors }}
+                                    {% if request.user.superuser %}
+                                        {{ form.status }}
+                                        {{ form.status.errors }}
+                                    {% elif demo %}
+                                        <p class="form-control-static">
+                                            <span class="read-only-label">{{ demo.display_status }}</span>
+                                        </p>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endif %}
@@ -195,9 +208,11 @@
 
                         <div class="form-group row issn-add-row">
                             <div class="col-sm-2 col-sm-offset-2">
-                                <p class="form-control-static">
-                                    <a href="#" class="add-issn-button">+ Add Another</a>
-                                </p>
+                                {% if not read_only %}
+                                    <p class="form-control-static">
+                                        <a href="#" class="add-issn-button">+ Add Another</a>
+                                    </p>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -237,7 +252,13 @@
                             <div class="form-group row">
                                 <label class="col-sm-2">Metadata Files</label>
                                 <div class="col-sm-10">
-                                    {% include "pipelines/include/pending_files_form.html" with is_demo=True demo_id=form.i pending_files=demo_files_custom_article_data additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.published_articles pipeline=common.PIPELINE_BY_ID.custom_article_data %}
+                                    {% if read_only and not pending_files %}
+                                        <p class="form-control-static no-files-uploaded-message">
+                                            No files uploaded
+                                        </p>
+                                    {% else %}
+                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True read_only=read_only demo_id=form.i pending_files=demo_files_custom_article_data additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.published_articles pipeline=common.PIPELINE_BY_ID.custom_article_data %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -262,9 +283,15 @@
                     <div class="rejected-manuscripts-controls" style="display:none">
                         <div class="form-horizontal publisher-form demo-files-fake-form">
                             <div class="form-group row">
-                                <label class="col-sm-2">Rejected Articles Files</label>
+                                <label class="col-sm-2">Rejected Article Files</label>
                                 <div class="col-sm-10">
-                                    {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                                    {% if read_only and not pending_files %}
+                                        <p class="form-control-static no-files-uploaded-message">
+                                            No files uploaded
+                                        </p>
+                                    {% else %}
+                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -313,30 +340,31 @@
                         </div>
                     {% endif %}
 
-                    <div class="form-group submit-row">
-                        <button class="btn btn-primary submit-button save-button disabled" disabled="disabled">
-                            {% if publisher %}
-                                Save Changes
-                            {% else %}
-                                Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
-                            {% endif %}
-                        </button>
-                        {% if is_demo %}
-                            {% if request.user.superuser %}
-                                <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
-                                    Convert to Publisher
-                                </button>
-                            {% else %}
-                                {% if form.initial.status == 'creating' or not form.initial.status %}
+                    {% if request.user.superuser or not read_only %}
+                        <div class="form-group submit-row">
+                            <button class="btn btn-primary submit-button save-button disabled" disabled="disabled">
+                                {% if publisher or demo %}
+                                    Save Changes
+                                {% else %}
+                                    Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                                {% endif %}
+                            </button>
+                            {% if is_demo %}
+                                {% if request.user.superuser %}
                                     <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
-                                        {% if publisher %}Save{% else %}Add{% endif %} and Submit for Approval
+                                        Convert to Publisher
                                     </button>
+                                {% else %}
+                                    {% if form.initial.status == 'creating' or not form.initial.status %}
+                                        <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
+                                            {% if publisher or demo %}Save{% else %}Add{% endif %} and Submit for Approval
+                                        </button>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
-                        {% endif %}
-                        <span class="cancel">or <a href="../">Cancel</a></span>
-                    </div>
-
+                            <span class="cancel">or <a href="../">Cancel</a></span>
+                        </div>
+                    {% endif %}
                 </form>
             </div>
         </div>
