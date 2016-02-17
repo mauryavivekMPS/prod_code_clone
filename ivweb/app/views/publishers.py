@@ -81,7 +81,7 @@ class PublisherForm(forms.Form):
 
     # demo-specific fields
     demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}), required=False)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}), required=False)
     demo_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Add notes about the demo'}), required=False)
     status = forms.ChoiceField(choices=common.DEMO_STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
 
@@ -340,7 +340,7 @@ def edit(request, publisher_id=None):
     return render(request, 'publishers/new.html', {
         'form': form,
         'publisher': publisher,
-        'demo': False,
+        'is_demo': False,
         'issn_values_list': form.issn_values_list,
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
@@ -369,16 +369,20 @@ def edit_demo(request, demo_id=None):
         demo_files_custom_article_data = get_pending_files_for_demo(demo_id, 'published_articles', 'custom_article_data', with_lines_and_sizes=True)
         demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
 
+    if not demo:
+        demo_id = form.initial['demo_id']
+
     return render(request, 'publishers/new.html', {
         'form': form,
         'publisher': demo,
+        'demo_id': demo_id,
         'is_demo': True,
         'issn_values_list': form.issn_values_list,
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
         'demo_files_custom_article_data': demo_files_custom_article_data,
-        'demo_files_rejected_artiles': demo_files_rejected_articles,
+        'demo_files_rejected_articles': demo_files_rejected_articles,
     })
 
 
