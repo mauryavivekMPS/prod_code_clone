@@ -33,7 +33,7 @@ class CustomArticleDataValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) != 8:
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields, skipping other validation"))
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 8 required), skipping other validation" % len(line)))
                                 continue
 
                             d = {
