@@ -1147,6 +1147,10 @@ var EditPublisherPage = (function() {
         $('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
         $('#id_pilot').on('change', checkForm);
 
+        $('#id_start_date').datepicker({
+            autoclose: true
+        });
+
         if (isNew) {
             $('#id_reports_password').show();
         }

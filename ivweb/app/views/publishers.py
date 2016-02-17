@@ -81,7 +81,7 @@ class PublisherForm(forms.Form):
 
     # demo-specific fields
     demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}), required=False)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}), required=False)
     demo_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Add notes about the demo'}), required=False)
     status = forms.ChoiceField(choices=common.DEMO_STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
 
