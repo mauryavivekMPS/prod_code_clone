@@ -171,7 +171,7 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
-    demo_dir = os.path.join(common.BASE_DEMO_DIR, demo_id, product_id, pipeline_id)
+    demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
     os.makedirs(demo_dir, exist_ok=True)
     return demo_dir
 

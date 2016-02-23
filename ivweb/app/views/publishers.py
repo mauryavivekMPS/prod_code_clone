@@ -372,10 +372,13 @@ def edit(request, publisher_id=None):
             convert_from_demo = True
             demo = Demo.objects.get(demo_id=request.GET['demo_id'])
             form = PublisherForm(request.user, instance=demo, convert_from_demo=True)
+            demo_files_custom_article_data = get_pending_files_for_demo(demo.demo_id, 'published_articles', 'custom_article_data')
+            demo_files_rejected_articles = get_pending_files_for_demo(demo.demo_id, 'rejected_manuscripts', 'rejected_articles')
 
         else:
             form = PublisherForm(request.user, instance=publisher)
 
+    demo_from_publisher = None
     if publisher and publisher.demo_id:
         demo_from_publisher = Demo.objects.get(demo_id=publisher.demo_id)
 
@@ -390,6 +393,8 @@ def edit(request, publisher_id=None):
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
         'from_value': from_value,
         'demo_from_publisher': demo_from_publisher,
+        'demo_files_custom_article_data': demo_files_custom_article_data,
+        'demo_files_rejected_articles': demo_files_rejected_articles
     })
 
 
