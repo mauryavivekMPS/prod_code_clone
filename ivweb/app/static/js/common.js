@@ -497,6 +497,11 @@ var FileUploadWidget = (function() {
                             $('.loading-row.file-row-' + fileId).remove();
                             updateTable();
                             PendingFilesForm.updateSubmitForProcessing();
+
+                            if (isDemo) {
+                                EditPublisherPage.checkForm();
+                            }
+
                         });
                         IvetlWeb.hideLoading();
                     });
@@ -556,6 +561,9 @@ var FileUploadWidget = (function() {
                             picker.val('');
                             $(f).show();
                         }
+                    })
+                    .always(function() {
+                        EditPublisherPage.checkForm();
                     });
             }
         });
@@ -800,6 +808,17 @@ var EditPublisherPage = (function() {
         }
 
         if (isDemo) {
+            var atLeastOneRejectedArticlesUpload = true;
+            if (rejectedManuscriptsProduct) {
+                if ($('.rejected-manuscripts-controls table.all-files-table > tbody > tr.validated-file').length > 0) {
+                    $('.rejected-articles-upload-requirement').addClass('satisfied');
+                }
+                else {
+                    $('.rejected-articles-upload-requirement').removeClass('satisfied');
+                    atLeastOneRejectedArticlesUpload = false;
+                }
+            }
+
             if (hasName) {
                 $('.name-requirement').addClass('satisfied');
             }
@@ -849,7 +868,7 @@ var EditPublisherPage = (function() {
                 disableSubmit();
             }
 
-            if (hasBasics && hasStartDate && atLeastOneProduct && crossref && validIssns && validCohortIssns) {
+            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns) {
                 enableSubmitForApproval();
             }
             else {
@@ -1356,6 +1375,7 @@ var EditPublisherPage = (function() {
         wireUpDeleteIssnButton: wireUpDeleteIssnButton,
         wireUpIssnControls: wireUpIssnControls,
         showBuildingReportsModal: showBuildingReportsModal,
+        checkForm: checkForm,
         init: init
     };
 
