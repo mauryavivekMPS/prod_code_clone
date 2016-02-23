@@ -21,7 +21,11 @@
                 {% if publisher or demo %}
                     {% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}
                 {% else %}
-                    New {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                    {% if convert_from_demo %}
+                        Convert Demo to Publisher
+                    {% else %}
+                        New {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                    {% endif %}
                 {% endif %}
             </h1>
         </div>
@@ -32,10 +36,7 @@
             <div class="col-md-12">
                 <form class="form-horizontal publisher-form">
                     {% csrf_token %}
-
-                    {% if is_demo %}
-                        <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id }}">
-                    {% endif %}
+                    <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id }}">
 
                     {% if not is_demo %}
                         <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
@@ -122,6 +123,15 @@
                         {% endif %}
 
                         <div class="form-group row">
+                            <label class="col-sm-2">Demo</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.demo }} Enable Demo restrictions on this publisher</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label class="col-sm-2">Pilot</label>
                             <div class="col-sm-6">
                                 <div class="checkbox">
@@ -134,7 +144,7 @@
 
                     {% if not is_demo %}
                         <h2>Reporting</h2>
-                        <div class="form-group row">
+                        <div class="form-group row reports-login-controls" style="display:none">
                             <label for="reports_username" class="col-sm-2">Reports Login</label>
                             <div class="col-sm-3">
                                 {% if publisher %}
@@ -330,7 +340,21 @@
                     </div>
 
                     {% if is_demo %}
-                        <h2>Demo Notes</h2>
+                        <h2>Other</h2>
+                        <div class="form-group row requirements-row">
+                            <label for="email" class="col-sm-2">Requirements</label>
+                            <div class="col-sm-10">
+                                <ul>
+                                    <li class="name-requirement">A name for the demo <span class="lnr lnr-check checkmark"></span></li>
+                                    <li class="date-requirement">A start date <span class="lnr lnr-check checkmark"></span></li>
+                                    <li class="product-requirement">At least one product selected <span class="lnr lnr-check checkmark"></span></li>
+                                    <li class="issn-requirement published-articles-controls" style="display:none">One or more ISSNs for Published Articles <span class="lnr lnr-check checkmark"></span></li>
+                                    <li class="crossref-requirement crossref-controls" style="display:none">A valid username and password for crossref <span class="lnr lnr-check checkmark"></span></li>
+                                    <li class="cohort-issn-requirement cohort-articles-controls" style="display:none">One or more ISSNs for Cohort Articles <span class="lnr lnr-check checkmark"></span></li>
+                                    <li class="requirements-notes">All of the items listed above are required before you can submit for approval.</li>
+                                </ul>
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="email" class="col-sm-2">Notes</label>
                             <div class="col-sm-6">
@@ -351,7 +375,7 @@
                             </button>
                             {% if is_demo %}
                                 {% if request.user.superuser %}
-                                    <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
+                                    <button class="convert-to-publisher-button btn btn-primary submit-button">
                                         Convert to Publisher
                                     </button>
                                 {% else %}
@@ -365,6 +389,7 @@
                             <span class="cancel">or <a href="../">Cancel</a></span>
                         </div>
                     {% endif %}
+
                 </form>
             </div>
         </div>
@@ -404,7 +429,8 @@
                     buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
                 {% endif %}
                 csrfToken: '{{ csrf_token }}',
-                isDemo: {% if is_demo %}true{% else %}false{% endif %}
+                isDemo: {% if is_demo %}true{% else %}false{% endif %},
+                convertFromDemo: {% if convert_from_demo %}true{% else %}false{% endif %}
             });
 
             {% if from_value == 'new-publisher' %}

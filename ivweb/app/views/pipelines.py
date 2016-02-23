@@ -294,6 +294,17 @@ def get_pending_files_for_demo(demo_id, product_id, pipeline_id, with_lines_and_
     return _get_files_in_dir(demo_dir, with_lines_and_sizes, ignore)
 
 
+def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
+    demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
+    files = get_pending_files_for_demo(demo_id, product_id, pipeline_id)
+    pending_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
+    for file in files:
+        source_file_path = os.path.join(demo_dir, file['file_name'])
+        destination_file_path = os.path.join(pending_dir, file['file_name'])
+        shutil.move(source_file_path, destination_file_path)
+        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+
+
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
     pending_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
     files = get_pending_files_for_publisher(publisher_id, product_id, pipeline_id)

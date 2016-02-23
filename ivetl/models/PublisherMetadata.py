@@ -23,6 +23,8 @@ class Publisher_Metadata(Model):
     reports_setup_status = columns.Text()
     supported_products = columns.List(columns.Text())
     pilot = columns.Boolean()
+    demo = columns.Boolean()
+    demo_id = columns.Text(index=True)
     has_cohort = columns.Boolean(index=True)
     cohort_articles_issns_to_lookup = columns.List(columns.Text())
     cohort_articles_last_updated = columns.DateTime()

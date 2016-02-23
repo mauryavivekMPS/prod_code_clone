@@ -677,6 +677,7 @@ var EditPublisherPage = (function() {
     var buildingErrorUrl;
     var csrfToken;
     var isDemo;
+    var convertFromDemo;
 
     var enableSubmit = function() {
         $('.submit-button.save-button').removeClass('disabled').prop('disabled', false);
@@ -698,9 +699,10 @@ var EditPublisherPage = (function() {
         var name = $("#id_name").val();
         var hasName = name != '';
 
+        var hasStartDate = false;
         if (isDemo) {
             var startDate = $("#id_start_date").val();
-            var hasStartDate = startDate != '';
+            hasStartDate = startDate != '';
         }
 
         var publisherId = $("#id_publisher_id").val();
@@ -717,7 +719,13 @@ var EditPublisherPage = (function() {
             var reportsUsername = $('#id_reports_username').val();
             var reportsPassword = $('#id_reports_username').val();
             var reportsProject = $('#id_reports_project').val();
-            hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
+
+            if (publisherDemoMode()) {
+                hasReportsDetails = reportsProject != '';
+            }
+            else {
+                hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
+            }
         }
 
         var crossref = true;
@@ -770,10 +778,47 @@ var EditPublisherPage = (function() {
 
         if (isDemo) {
             if (hasName) {
+                $('.name-requirement').addClass('satisfied');
                 enableSubmit();
             }
             else {
+                $('.name-requirement').removeClass('satisfied');
                 disableSubmit();
+            }
+
+            if (hasStartDate) {
+                $('.date-requirement').addClass('satisfied');
+            }
+            else {
+                $('.date-requirement').removeClass('satisfied');
+            }
+
+            if (atLeastOneProduct) {
+                $('.product-requirement').addClass('satisfied');
+            }
+            else {
+                $('.product-requirement').removeClass('satisfied');
+            }
+
+            if (crossref) {
+                $('.crossref-requirement').addClass('satisfied');
+            }
+            else {
+                $('.crossref-requirement').removeClass('satisfied');
+            }
+
+            if (validIssns) {
+                $('.issns-requirement').addClass('satisfied');
+            }
+            else {
+                $('.issns-requirement').removeClass('satisfied');
+            }
+
+            if (validCohortIssns) {
+                $('.cohort-issns-requirement').addClass('satisfied');
+            }
+            else {
+                $('.cohort-issns-requirement').removeClass('satisfied');
             }
 
             if (hasBasics && hasStartDate && atLeastOneProduct && crossref && validIssns && validCohortIssns) {
@@ -858,6 +903,19 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.scopus-controls').fadeIn(100);
+        }
+    };
+
+    var publisherDemoMode = function() {
+        return $('#id_demo').is(':checked');
+    };
+
+    var updateReportsLoginControls = function() {
+        if (publisherDemoMode()) {
+            $('.reports-login-controls').fadeOut(200);
+        }
+        else {
+            $('.reports-login-controls').fadeIn(100);
         }
     };
 
@@ -1053,7 +1111,8 @@ var EditPublisherPage = (function() {
 
     var submit = function(options) {
         options = $.extend({
-            submitForApproval: false
+            submitForApproval: false,
+            convertToPublisher: false
         }, options);
 
         var issnValues = [];
@@ -1096,6 +1155,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
         f.find('input[name="crossref_password"]').val($('#id_crossref_password').val());
         f.find('input[name="hw_addl_metadata_available"]').val($('#id_hw_addl_metadata_available').is(':checked') ? 'on' : '');
+        f.find('input[name="demo"]').val($('#id_demo').is(':checked') ? 'on' : '');
         f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
         f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
         f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
@@ -1115,6 +1175,13 @@ var EditPublisherPage = (function() {
             f.find('input[name="status"]').val($('#id_status option:selected').val());
         }
 
+        if (options.convertToPublisher) {
+            f.find('input[name="convert_to_publisher"]').val('on');
+        }
+        else {
+            f.find('input[name="convert_to_publisher"]').val('');
+        }
+
         f.submit();
     };
 
@@ -1128,7 +1195,8 @@ var EditPublisherPage = (function() {
             buildingSuccessUrl: '',
             buildingErrorUrl: '',
             csrfToken: '',
-            isDemo: false
+            isDemo: false,
+            convertFromDemo: false
         }, options);
 
         publisherId = options.publisherId;
@@ -1140,6 +1208,7 @@ var EditPublisherPage = (function() {
         buildingErrorUrl = options.buildingErrorUrl;
         csrfToken = options.csrfToken;
         isDemo = options.isDemo;
+        convertFromDemo = options.convertFromDemo;
 
         isNew = publisherId == '';
 
@@ -1150,6 +1219,8 @@ var EditPublisherPage = (function() {
         $('#id_start_date').datepicker({
             autoclose: true
         });
+
+        $('#id_start_date').on('change', checkForm);
 
         if (isNew) {
             $('#id_reports_password').show();
@@ -1189,6 +1260,12 @@ var EditPublisherPage = (function() {
             checkForm();
         });
         updateCrossrefControls();
+
+        $('#id_demo').on('change', function() {
+            updateReportsLoginControls();
+            checkForm();
+        });
+        updateReportsLoginControls();
 
         if (isNew) {
             $('#id_use_scopus_api_keys_from_pool').on('change', function() {
@@ -1231,6 +1308,12 @@ var EditPublisherPage = (function() {
 
         $('.submit-button.submit-for-approval-button').on('click', function(event) {
             submit({submitForApproval: true});
+            event.preventDefault();
+            return false;
+        });
+
+        $('.submit-button.convert-to-publisher-button').on('click', function(event) {
+            submit({convertToPublisher: true});
             event.preventDefault();
             return false;
         });
