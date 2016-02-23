@@ -87,6 +87,18 @@
                                 </div>
                             </div>
                         {% endif %}
+
+                        {% if request.user.superuser and demo and publisher_from_demo %}
+                            <div class="form-group row">
+                                <label for="status" class="col-sm-2">Publisher</label>
+                                <div class="col-sm-6">
+                                    <p class="form-control-static">
+                                        <span class="lnr lnr-arrow-right demo-publisher-arrow"></span>
+                                        <a href="{% url 'publishers.edit' publisher_from_demo.publisher_id %}">{{ publisher_from_demo.display_name }}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endif %}
 
                     {% if not is_demo %}
@@ -128,6 +140,12 @@
                                 <div class="checkbox">
                                     <label>{{ form.demo }} Enable Demo restrictions on this publisher</label>
                                 </div>
+                                {% if demo_from_publisher %}
+                                    <p class="form-control-static">
+                                        <span class="lnr lnr-arrow-right demo-publisher-arrow"></span>
+                                        <a href="{% url 'publishers.edit_demo' demo_from_publisher.demo_id %}">{{ demo_from_publisher.name }}</a>
+                                    </p>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -149,7 +167,11 @@
                             <div class="col-sm-3">
                                 {% if publisher %}
                                     <p class="form-control-static">
-                                        {{ form.initial.reports_username }}
+                                        {% if not form.initial.reports_username %}
+                                            <span class="no-reports-login">(No login created)</span>
+                                        {% else %}
+                                            {{ form.initial.reports_username }}
+                                        {% endif %}
                                         <input type="hidden" name="reports_username" value="{{ form.initial.reports_username }}">
                                     </p>
                                 {% else %}
@@ -157,7 +179,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-sm-3">
-                                {% if publisher %}
+                                {% if publisher and form.initial.reports_username %}
                                     <p class="form-control-static set-reports-password-link"><a href="#">Set password...</a></p>
                                 {% endif %}
                                 {{ form.reports_password }}
@@ -373,7 +395,7 @@
                                     Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
                                 {% endif %}
                             </button>
-                            {% if is_demo %}
+                            {% if is_demo and not demo_publisher %}
                                 {% if request.user.superuser %}
                                     <button class="convert-to-publisher-button btn btn-primary submit-button">
                                         Convert to Publisher

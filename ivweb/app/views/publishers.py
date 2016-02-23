@@ -376,6 +376,9 @@ def edit(request, publisher_id=None):
         else:
             form = PublisherForm(request.user, instance=publisher)
 
+    if publisher and publisher.demo_id:
+        demo_from_publisher = Demo.objects.get(demo_id=publisher.demo_id)
+
     return render(request, 'publishers/new.html', {
         'form': form,
         'publisher': publisher,
@@ -386,6 +389,7 @@ def edit(request, publisher_id=None):
         'issn_values_cohort_list': form.issn_values_cohort_list,
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
         'from_value': from_value,
+        'demo_from_publisher': demo_from_publisher,
     })
 
 
@@ -419,11 +423,18 @@ def edit_demo(request, demo_id=None):
 
     demo_files_custom_article_data = []
     demo_files_rejected_articles = []
+    publisher_from_demo = None
+
     if demo:
         demo_files_custom_article_data = get_pending_files_for_demo(demo_id, 'published_articles', 'custom_article_data', with_lines_and_sizes=True)
         demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
 
-    if not demo:
+        try:
+            publisher_from_demo = Publisher_Metadata.objects.get(demo_id=demo_id)
+        except Publisher_Metadata.DoesNotExist:
+            pass
+
+    else:
         demo_id = form.initial['demo_id']
 
     read_only = False
@@ -446,6 +457,7 @@ def edit_demo(request, demo_id=None):
         'demo_files_custom_article_data': demo_files_custom_article_data,
         'demo_files_rejected_articles': demo_files_rejected_articles,
         'read_only': read_only,
+        'publisher_from_demo': publisher_from_demo,
     })
 
 
