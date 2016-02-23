@@ -689,10 +689,12 @@ var EditPublisherPage = (function() {
 
     var enableSubmitForApproval = function() {
         $('.submit-button.submit-for-approval-button').removeClass('disabled').prop('disabled', false);
+        $('.submit-button.convert-to-publisher-button').removeClass('disabled').prop('disabled', false);
     };
 
     var disableSubmitForApproval = function() {
         $('.submit-button.submit-for-approval-button').addClass('disabled').prop('disabled', true);
+        $('.submit-button.convert-to-publisher-button').addClass('disabled').prop('disabled', true);
     };
 
     var checkForm = function() {
@@ -733,7 +735,15 @@ var EditPublisherPage = (function() {
             var username = $('#id_crossref_username').val();
             var password = $('#id_crossref_password').val();
             var validated = $('.validate-crossref-checkmark').is(':visible');
-            crossref = username && password && validated;
+
+            if (isDemo) {
+                if (username || password) {
+                    crossref = username && password && validated;
+                }
+            }
+            else {
+                crossref = username && password && validated;
+            }
         }
 
         var validIssns = true;
