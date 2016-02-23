@@ -78,12 +78,15 @@ def list_pipelines(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
+    list_type = request.GET.get('list_type', 'all')
+
     # get all publishers that support this pipeline
     supported_publishers = []
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            supported_publishers.append(publisher)
+            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+                supported_publishers.append(publisher)
 
     supported_publishers = sorted(supported_publishers, key=lambda p: p.name.lower().lstrip('('))
 
@@ -97,6 +100,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'runs_by_publisher': recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
+        'list_type': list_type,
     })
 
 

@@ -31,19 +31,26 @@ def list_publishers(request):
         elif from_value == 'new-success':
             messages.append("Your new publisher account is created and ready to go.")
 
-    if request.user.superuser:
-        publishers = Publisher_Metadata.objects.all()
-    else:
-        publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
-        publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+    list_type = request.GET.get('list_type', 'all')
 
-    publishers = sorted(publishers, key=lambda p: p.name.lower().lstrip('('))
+    if request.user.superuser:
+        all_accessible_publishers = Publisher_Metadata.objects.all()
+    else:
+        all_accessible_publishers = request.user.get_accessible_publishers()
+
+    filtered_publishers = []
+    for publisher in all_accessible_publishers:
+        if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+            filtered_publishers.append(publisher)
+
+    filtered_publishers = sorted(filtered_publishers, key=lambda p: p.name.lower().lstrip('('))
 
     return render(request, 'publishers/list.html', {
-        'publishers': publishers,
+        'publishers': filtered_publishers,
         'alt_error_message': alt_error_message,
         'messages': messages,
         'reset_url': reverse('publishers.list'),
+        'list_type': list_type,
     })
 
 
