@@ -1663,6 +1663,10 @@ body.login {
             vertical-align: -2px;
             margin-left: 10px;
         }
+
+        .crossref-error-message {
+            margin-right: -300px;
+        }
     }
 
     #creating-publisher-modal {
@@ -1992,11 +1996,40 @@ p.uploaded-file-error-icon {
 // Demo files
 // -------------------------
 
-.requirements-row {
+.requirements-box {
+    position: fixed;
+    right: 40px;
+    top: 113px;
+    width: 272px;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 20px 25px 30px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+
+    h2 {
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 200;
+        margin-top: 0;
+        border-bottom: 1px dotted #eee;
+        padding-bottom: 12px;
+    }
+
+    ul {
+        padding-left: 0;
+        margin-bottom: 0;
+
+        li {
+            list-style-type: none;
+            font-size: 13px;
+        }
+    }
 
     .checkmark {
         margin-left: 5px;
         display: none;
+        font-size: 10px;
     }
 
     .satisfied {
@@ -2009,7 +2042,7 @@ p.uploaded-file-error-icon {
 
     .requirements-notes {
         font-size: 12px;
-        margin-top: 10px;
+        margin-top: 25px;
         color: #999;
         font-weight: 200;
     }
