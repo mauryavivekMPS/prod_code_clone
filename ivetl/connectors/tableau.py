@@ -330,18 +330,24 @@ class TableauConnector(BaseConnector):
 
         requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
-    def setup_account(self, publisher_id, username, password, project_name):
+    def setup_account(self, publisher_id, project_name, create_new_login=False, username=None, password=None):
 
-        # create project, group, user, and assign permissions
+        # create project
         project_id = self.create_project(project_name)
-        group_id = self.create_group(project_name + " User Group")
-        self.add_group_to_project(group_id, project_id)
-        user_id = self.create_user(username)
-        self.set_user_password(user_id, password)
-        self.add_user_to_group(user_id, group_id)
+
+        # create group, user, and assign permissions
+        group_id = None
+        user_id = None
+        if create_new_login:
+            group_id = self.create_group(project_name + " User Group")
+            self.add_group_to_project(group_id, project_id)
+            user_id = self.create_user(username)
+            self.set_user_password(user_id, password)
+            self.add_user_to_group(user_id, group_id)
 
         # add all data sources
         for data_source in DATA_SOURCES:
+            print('data source: %s' + data_source['id'])
             fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
             self.refresh_data_source(publisher_id, project_name, data_source['id'])
@@ -350,6 +356,7 @@ class TableauConnector(BaseConnector):
 
         # and all workbooks, regardless of the selected products
         for workbook in WORKBOOKS:
+            print('workbook: %s' % workbook['id'])
             self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
 
         return project_id, group_id, user_id

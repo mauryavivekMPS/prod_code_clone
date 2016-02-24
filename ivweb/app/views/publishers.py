@@ -13,7 +13,7 @@ from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publishe
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
-from .pipelines import get_pending_files_for_demo
+from .pipelines import get_pending_files_for_demo, move_demo_files_to_pending
 
 
 @login_required
@@ -31,24 +31,42 @@ def list_publishers(request):
         elif from_value == 'new-success':
             messages.append("Your new publisher account is created and ready to go.")
 
-    if request.user.superuser:
-        publishers = Publisher_Metadata.objects.all()
-    else:
-        publisher_id_list = [p.publisher_id for p in request.user.get_accessible_publishers()]
-        publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+    list_type = request.GET.get('list_type', 'all')
 
-    publishers = sorted(publishers, key=lambda p: p.name.lower().lstrip('('))
+    if request.user.superuser:
+        all_accessible_publishers = Publisher_Metadata.objects.all()
+    else:
+        all_accessible_publishers = request.user.get_accessible_publishers()
+
+    filtered_publishers = []
+    for publisher in all_accessible_publishers:
+        if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+            filtered_publishers.append(publisher)
+
+    filtered_publishers = sorted(filtered_publishers, key=lambda p: p.name.lower().lstrip('('))
 
     return render(request, 'publishers/list.html', {
-        'publishers': publishers,
+        'publishers': filtered_publishers,
         'alt_error_message': alt_error_message,
         'messages': messages,
         'reset_url': reverse('publishers.list'),
+        'list_type': list_type,
     })
 
 
 @login_required
 def list_demos(request):
+    messages = []
+    if 'from' in request.GET:
+        from_value = request.GET['from']
+        if from_value == 'save-success':
+            messages.append("The changes to your demo have been saved.")
+        elif from_value == 'new-success':
+            messages.append("Your new demo has been created and successfully saved.")
+        elif from_value == 'submitted-for-review':
+            messages.append("Your demo has been submitted for review! As the administrator completes the configuration "
+                            "and testing of the demo account you'll receive progress updates via email. Or you can "
+                            "check back here any time.")
     if request.user.superuser:
         demos = Demo.objects.all()
     else:
@@ -56,6 +74,8 @@ def list_demos(request):
     demos = sorted(demos, key=lambda p: p.name.lower().lstrip('('))
     return render(request, 'publishers/list_demos.html', {
         'demos': demos,
+        'messages': messages,
+        'reset_url': reverse('publishers.list_demos'),
     })
 
 
@@ -71,6 +91,8 @@ class PublisherForm(forms.Form):
     crossref_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password'}), required=False)
     hw_addl_metadata_available = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    demo = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
     published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
@@ -80,12 +102,13 @@ class PublisherForm(forms.Form):
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
 
     # demo-specific fields
-    demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}), required=False)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
     demo_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Add notes about the demo'}), required=False)
     status = forms.ChoiceField(choices=common.DEMO_STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    convert_to_publisher = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter custom message for notification email (optional)'}), required=False)
 
-    def __init__(self, creating_user, *args, instance=None, is_demo=False, **kwargs):
+    def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, **kwargs):
         self.is_demo = is_demo
         self.creating_user = creating_user
         self.issn_values_list = []
@@ -95,7 +118,7 @@ class PublisherForm(forms.Form):
             self.instance = instance
             initial = dict(instance)
 
-            if self.is_demo:
+            if self.is_demo or convert_from_demo:
                 properties = json.loads(initial.get('properties', '{}'))
                 initial['hw_addl_metadata_available'] = properties.get('hw_addl_metadata_available', False)
                 initial['use_crossref'] = properties.get('use_crossref', False)
@@ -113,7 +136,7 @@ class PublisherForm(forms.Form):
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
             initial['use_crossref'] = initial.get('use_crossref') or initial['crossref_username'] or initial['crossref_password']
 
-            if self.is_demo:
+            if self.is_demo or convert_from_demo:
                 self.issn_values_list = initial['issn_values_list']
                 initial['issn_values'] = json.dumps(self.issn_values_list)
             else:
@@ -129,7 +152,7 @@ class PublisherForm(forms.Form):
                     index += 1
                 initial['issn_values'] = json.dumps(self.issn_values_list)
 
-            if self.is_demo:
+            if self.is_demo or convert_from_demo:
                 self.issn_values_cohort_list = initial['issn_values_cohort_list']
                 initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
             else:
@@ -147,10 +170,14 @@ class PublisherForm(forms.Form):
         else:
             self.instance = None
             initial['use_scopus_api_keys_from_pool'] = True
+            initial['status'] = common.DEMO_STATUS_CREATING
 
         # pre-initialize the demo ID so that we can upload files to a known location
         if is_demo and not instance:
             initial['demo_id'] = str(uuid.uuid4())
+
+        if convert_from_demo:
+            initial['demo'] = True
 
         super(PublisherForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -194,8 +221,7 @@ class PublisherForm(forms.Form):
             if not demo:
                 demo = Demo.objects.create(
                     demo_id=demo_id,
-                    requestor_id=self.creating_user.user_id,
-                    status='creating',
+                    requestor_id=self.creating_user.user_id
                 )
 
             properties = {
@@ -209,9 +235,9 @@ class PublisherForm(forms.Form):
                 'demo_notes': self.cleaned_data['demo_notes'],
             }
 
-            status = self.cleaned_data['status']
+            status = self.cleaned_data.get('status')
             if not status:
-                status = demo.status
+                status = common.DEMO_STATUS_CREATING
 
             demo.update(
                 name=self.cleaned_data['name'],
@@ -242,6 +268,8 @@ class PublisherForm(forms.Form):
                 crossref_password=self.cleaned_data['crossref_password'],
                 supported_products=supported_products,
                 pilot=self.cleaned_data['pilot'],
+                demo=self.cleaned_data['demo'],
+                demo_id=self.cleaned_data['demo_id'],
             )
 
             publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
@@ -293,6 +321,7 @@ class PublisherForm(forms.Form):
 def edit(request, publisher_id=None):
     publisher = None
     new = True
+    convert_from_demo = False
     if publisher_id:
         new = False
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
@@ -322,6 +351,11 @@ def edit(request, publisher_id=None):
                     entity_id=publisher.publisher_id,
                 )
 
+                # move any uploaded files across if this was a conversion
+                if publisher.demo:
+                    move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'published_articles', 'custom_article_data')
+                    move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
+
                 # tableau setup takes a while, run it through celery
                 setup_reports.s(publisher.publisher_id, request.user.user_id).delay()
 
@@ -335,46 +369,100 @@ def edit(request, publisher_id=None):
         if 'from' in request.GET:
             from_value = request.GET['from']
 
-        form = PublisherForm(request.user, instance=publisher)
+        if 'demo_id' in request.GET:
+            convert_from_demo = True
+            demo = Demo.objects.get(demo_id=request.GET['demo_id'])
+            form = PublisherForm(request.user, instance=demo, convert_from_demo=True)
+            demo_files_custom_article_data = get_pending_files_for_demo(demo.demo_id, 'published_articles', 'custom_article_data')
+            demo_files_rejected_articles = get_pending_files_for_demo(demo.demo_id, 'rejected_manuscripts', 'rejected_articles')
+
+        else:
+            form = PublisherForm(request.user, instance=publisher)
+
+    demo_from_publisher = None
+    if publisher and publisher.demo_id:
+        demo_from_publisher = Demo.objects.get(demo_id=publisher.demo_id)
 
     return render(request, 'publishers/new.html', {
         'form': form,
         'publisher': publisher,
         'is_demo': False,
+        'convert_from_demo': convert_from_demo,
         'issn_values_list': form.issn_values_list,
         'issn_values_json': json.dumps(form.issn_values_list),
         'issn_values_cohort_list': form.issn_values_cohort_list,
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
         'from_value': from_value,
+        'demo_from_publisher': demo_from_publisher,
+        'demo_files_custom_article_data': demo_files_custom_article_data,
+        'demo_files_rejected_articles': demo_files_rejected_articles
     })
 
 
 @login_required
 def edit_demo(request, demo_id=None):
     demo = None
+    new = True
     if demo_id:
         demo = Demo.objects.get(demo_id=demo_id)
+        new = False
 
     if request.method == 'POST':
         form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
         if form.is_valid():
+
+            previous_status = None
+            if demo:
+                previous_status = demo.status
+
             demo = form.save()
-            return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=save-success')
+
+            if previous_status and demo.status != previous_status:
+                _notify_on_new_status(demo, request, message=form.cleaned_data['message'])
+
+            if new:
+                from_value = 'new-success'
+            else:
+                from_value = 'save-success'
+
+            if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+                from_value = 'submitted-for-review'
+
+
+            if request.user.superuser and form.cleaned_data['convert_to_publisher']:
+                return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
+
+            return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
     else:
         form = PublisherForm(request.user, instance=demo, is_demo=True)
 
     demo_files_custom_article_data = []
     demo_files_rejected_articles = []
+    publisher_from_demo = None
+
     if demo:
         demo_files_custom_article_data = get_pending_files_for_demo(demo_id, 'published_articles', 'custom_article_data', with_lines_and_sizes=True)
         demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
 
-    if not demo:
+        try:
+            publisher_from_demo = Publisher_Metadata.objects.get(demo_id=demo_id)
+        except Publisher_Metadata.DoesNotExist:
+            pass
+
+    else:
         demo_id = form.initial['demo_id']
+
+    read_only = False
+    if not form.initial.get('status', common.DEMO_STATUS_CREATING) in (common.DEMO_STATUS_CREATING, common.DEMO_STATUS_CHANGES_NEEDED):
+        if not request.user.superuser:
+            read_only = True
+            for f in form.fields:
+                form.fields[f].widget.attrs['readonly'] = True
+                form.fields[f].widget.attrs['disabled'] = True
 
     return render(request, 'publishers/new.html', {
         'form': form,
-        'publisher': demo,
+        'demo': demo,
         'demo_id': demo_id,
         'is_demo': True,
         'issn_values_list': form.issn_values_list,
@@ -383,6 +471,8 @@ def edit_demo(request, demo_id=None):
         'issn_values_cohort_json': json.dumps(form.issn_values_cohort_list),
         'demo_files_custom_article_data': demo_files_custom_article_data,
         'demo_files_rejected_articles': demo_files_rejected_articles,
+        'read_only': read_only,
+        'publisher_from_demo': publisher_from_demo,
     })
 
 
@@ -494,6 +584,84 @@ def new_issn(request):
     })
 
 
+def _notify_on_new_status(demo, request, message=None):
+
+    message_html = ''
+    if message:
+        message_html = '<p>---</p><p>' + message.replace('\n', '</p><p>') + '<p>---</p></p>'
+
+    if demo.status == common.DEMO_STATUS_ACCEPTED:
+        subject = "Impact Vizor (%s): Your demo has been accepted" % demo.name
+        body = """
+            <p>Your demo request has been accepted.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
+            <p>You'll be notified as progress updates are available.</p>
+            %s
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % (
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+            message_html,
+        )
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_CHANGES_NEEDED:
+        subject = "Impact Vizor (%s): Your demo needs changes" % demo.name
+        body = """
+            <p>Changes are needed to complete your demo request.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
+            <p>Please visit the demo page using the link below and resubmit when your changes are complete.</p>
+            %s
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % (
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+            message_html,
+        )
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_IN_PROGRESS:
+        subject = "Impact Vizor (%s): Your demo configuration is in progress" % demo.name
+        body = """
+            <p>Your demo is now marked as being in progress.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
+            <p>You'll be notified as progress updates are available.</p>
+            %s
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % (
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+            message_html
+        )
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_COMPLETED:
+        subject = "Impact Vizor (%s): Your demo is ready" % demo.name
+        body = """
+            <p>Your demo is now marked as being complete and is ready for use.</p>
+            <p>View reports at: <a href="https://login.vizors.org/">login.vizors.org</a></p>
+            %s
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % message_html
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+
+        # notify the admin, not the end user
+
+        subject = "Impact Vizor (%s): New demo submitted" % demo.name
+        body = """
+            <p>A demo was submitted for review by %s:</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a> (%s)</p>
+        """ % (
+            request.user.display_name,
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+            ", ".join([common.PRODUCT_BY_ID[product_id]['name'] for product_id in json.loads(demo.properties)['supported_products']]),
+        )
+        common.send_email(subject=subject, body=body)
+
+
 @login_required
 def update_demo_status(request):
     if request.POST:
@@ -503,4 +671,8 @@ def update_demo_status(request):
         demo.status = status
         demo.save()
 
+        message = request.POST.get('message')
+        _notify_on_new_status(demo, request, message=message)
+
     return HttpResponse('ok')
+

@@ -78,12 +78,15 @@ def list_pipelines(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
+    list_type = request.GET.get('list_type', 'all')
+
     # get all publishers that support this pipeline
     supported_publishers = []
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            supported_publishers.append(publisher)
+            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+                supported_publishers.append(publisher)
 
     supported_publishers = sorted(supported_publishers, key=lambda p: p.name.lower().lstrip('('))
 
@@ -97,6 +100,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'runs_by_publisher': recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
+        'list_type': list_type,
     })
 
 
@@ -167,7 +171,7 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
-    demo_dir = os.path.join(common.BASE_DEMO_DIR, demo_id, product_id, pipeline_id)
+    demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
     os.makedirs(demo_dir, exist_ok=True)
     return demo_dir
 
@@ -292,6 +296,17 @@ def get_queued_files_for_publisher(publisher_id, product_id, pipeline_id, with_l
 def get_pending_files_for_demo(demo_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
     return _get_files_in_dir(demo_dir, with_lines_and_sizes, ignore)
+
+
+def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
+    demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
+    files = get_pending_files_for_demo(demo_id, product_id, pipeline_id)
+    pending_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
+    for file in files:
+        source_file_path = os.path.join(demo_dir, file['file_name'])
+        destination_file_path = os.path.join(pending_dir, file['file_name'])
+        shutil.move(source_file_path, destination_file_path)
+        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
 
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):

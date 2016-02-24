@@ -18,12 +18,19 @@ def setup_reports(publisher_id, initiating_user_id):
             server=common.TABLEAU_SERVER
         )
 
-        project_id, group_id, user_id = t.setup_account(
-            publisher.publisher_id,
-            publisher.reports_username,
-            publisher.reports_password,
-            publisher.reports_project
-        )
+        if publisher.demo:
+            project_id, group_id, user_id = t.setup_account(
+                publisher.publisher_id,
+                publisher.reports_project,
+            )
+        else:
+            project_id, group_id, user_id = t.setup_account(
+                publisher.publisher_id,
+                publisher.reports_project,
+                create_new_login=True,
+                username=publisher.reports_username,
+                password=publisher.reports_password,
+            )
 
         publisher.reports_project_id = project_id
         publisher.reports_group_id = group_id

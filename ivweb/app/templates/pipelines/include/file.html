@@ -22,7 +22,7 @@
         {% endif %}
     </td>
     <td class="delete-file-col">
-        {% if not validation_errors %}
+        {% if not read_only and not validation_errors %}
             <a file_to_delete="{{ file_name }}" product_id="{{ product.id }}" pipeline_id="{{ pipeline.id }}" file_type="{% if is_demo %}demo{% else %}product{% endif %}" class="btn btn-default submit-button delete-file-button">
                 <span class="lnr lnr-trash2"></span>
             </a>

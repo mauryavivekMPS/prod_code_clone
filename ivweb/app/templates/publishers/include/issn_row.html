@@ -3,24 +3,26 @@
         <span class="issn-row-label">ISSNs</span>
     </label>
     <div class="col-sm-2">
-        <input type="text" class="form-control electronic-issn" id="id_electronic_issn_{{ index }}" placeholder="Electronic ISSN" value="{{ issn_value.electronic_issn }}">
+        <input type="text" class="form-control electronic-issn" id="id_electronic_issn_{{ index }}" placeholder="Electronic ISSN" value="{{ issn_value.electronic_issn }}" {% if read_only %}readonly disabled{% endif %}>
         <ul class="issn-error-message errorlist" style="display:none"><li>Validation failed, try again.</li></ul>
     </div>
     <div class="col-sm-2">
-        <input type="text" class="form-control print-issn" id="id_print_issn_{{ index }}" placeholder="Print ISSN" value="{{ issn_value.print_issn }}">
+        <input type="text" class="form-control print-issn" id="id_print_issn_{{ index }}" placeholder="Print ISSN" value="{{ issn_value.print_issn }}" {% if read_only %}readonly disabled{% endif %}>
         <span class="issn-divider">&mdash;</span>
     </div>
     {% if not cohort %}
         <div class="col-sm-2 highwire-controls journal-code" style="display: none">
-            <input type="text" class="form-control" id="id_journal_code_{{ index }}" placeholder="Journal Code" value="{{ issn_value.journal_code }}">
+            <input type="text" class="form-control" id="id_journal_code_{{ index }}" placeholder="Journal Code" value="{{ issn_value.journal_code }}" {% if read_only %}readonly disabled{% endif %}>
             <span class="issn-divider">&mdash;</span>
         </div>
     {% endif %}
     <div class="col-sm-2">
         <p class="form-control-static">
-            <a href="#" class="delete-issn-button"><span class="lnr lnr-cross"></span></a>
-            <a href="#" class="validate-issn-button" {% if not is_demo and issn_value %}style="display:none"{% endif %}>Validate ISSN</a>
-            <i style="display:none" class="fa fa-spinner fa-pulse validate-issn-loading"></i>
+            {% if not read_only %}
+                <a href="#" class="delete-issn-button"><span class="lnr lnr-cross"></span></a>
+                <a href="#" class="validate-issn-button" {% if not is_demo and issn_value %}style="display:none"{% endif %}>Validate ISSN</a>
+                <i style="display:none" class="fa fa-spinner fa-pulse validate-issn-loading"></i>
+            {% endif %}
             <span class="validate-issn-checkmark lnr lnr-check checkmark" {% if is_demo or not issn_value %}style="display:none"{% endif %}></span>
         </p>
     </div>

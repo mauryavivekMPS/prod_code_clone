@@ -1585,6 +1585,17 @@ body.login {
 // Publisher form
 // -------------------------
 
+.read-only-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    background-color: #00c5a7;
+    padding: 6px 11px;
+    border-radius: 5px;
+    color: white;
+    margin-top: 9px;
+}
+
+
 .new-publisher {
 
     .publisher-form {
@@ -1643,7 +1654,7 @@ body.login {
             padding-top: 50px;
             margin-bottom: 30px;
 
-            .submit-for-approval-button {
+            .submit-for-approval-button, .convert-to-publisher-button {
                 margin-left: 6px;
             }
         }
@@ -1651,6 +1662,10 @@ body.login {
         .validate-crossref-checkmark, .validate-issn-checkmark {
             vertical-align: -2px;
             margin-left: 10px;
+        }
+
+        .crossref-error-message {
+            margin-right: -300px;
         }
     }
 
@@ -1981,11 +1996,108 @@ p.uploaded-file-error-icon {
 // Demo files
 // -------------------------
 
+.requirements-box {
+    position: fixed;
+    right: 40px;
+    top: 113px;
+    width: 272px;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 20px 25px 30px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+
+    h2 {
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 200;
+        margin-top: 0;
+        border-bottom: 1px dotted #eee;
+        padding-bottom: 12px;
+    }
+
+    ul {
+        padding-left: 0;
+        margin-bottom: 0;
+
+        li {
+            list-style-type: none;
+            font-size: 13px;
+        }
+    }
+
+    .checkmark {
+        margin-left: 5px;
+        display: none;
+        font-size: 10px;
+    }
+
+    .satisfied {
+        color: @color-secondary-2-3;
+
+        .checkmark {
+            display: inline-block;
+        }
+    }
+
+    .requirements-notes {
+        font-size: 12px;
+        margin-top: 25px;
+        color: #999;
+        font-weight: 200;
+    }
+}
+
+.no-reports-login {
+    color: #aaa;
+}
+
+.demo-publisher-arrow {
+    font-size: 12px;
+    margin-right: 5px;
+    color: #aaa;
+}
+
+.status-change-details {
+    margin-left: 40px;
+    margin-bottom: 20px;
+
+    b {
+        font-weight: 600;
+    }
+
+    .lnr-arrow-right {
+        font-size: 11px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}
+
+#id_custom_status_message {
+    width: 440px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    height: 116px;
+}
+
+#id_message {
+    height: 110px;
+}
+
 .demo-table {
     > tbody > tr > td.demo-status-col {
         width: 200px;
-        padding-top: 6px;
+        padding-top: 8px;
         padding-bottom: 0;
+
+        &.with-menu {
+            padding-top: 6px;
+        }
+
+        .read-only-label {
+            font-size: 10px;
+            padding: 5px 9px;
+        }
 
         .inline-demo-status-menu {
             height: 27px;
@@ -2000,6 +2112,10 @@ p.uploaded-file-error-icon {
     .form-group {
         margin-bottom: 5px;
     }
+}
+
+.no-files-uploaded-message {
+    color: #aaa;
 }
 
 .pending-files-container.demo-files {
@@ -2046,10 +2162,16 @@ p.uploaded-file-error-icon {
             }
 
             .upload-another-col {
+                padding-left: 0;
+
                 .loading-message {
                     font-size: 12px;
                     margin-left: 5px;
                 }
+            }
+
+            .status-icon-col {
+                padding-left: 0;
             }
         }
     }

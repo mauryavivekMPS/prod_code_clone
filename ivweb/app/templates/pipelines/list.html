@@ -18,6 +18,12 @@
                 <a class="btn btn-default small run-button" href="#">Run for All Publishers</a>
                 <i class="fa fa-spinner fa-pulse run-for-all-loading-icon" style="display:none"></i>
             {% endif %}
+
+            <ul class="list-tabs">
+                <li><a href="?list_type-all" {% if list_type == 'all' %}class="active"{% endif %}>Show All</a></li>
+                <li><a href="?list_type=demos" {% if list_type == 'demos' %}class="active"{% endif %}></a></li>
+                <li><a href="?list_type=publishers" {% if list_type == 'publishers' %}class="active"{% endif %}>Publishers Only</a></li>
+            </ul>
         </div>
     </div>
 
