@@ -409,7 +409,15 @@ def edit_demo(request, demo_id=None):
     if request.method == 'POST':
         form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
         if form.is_valid():
+
+            previous_status = None
+            if demo:
+                previous_status = demo.status
+
             demo = form.save()
+
+            if previous_status and demo.status != previous_status:
+                _notify_on_new_status(demo, request)
 
             if new:
                 from_value = 'new-success'
@@ -428,7 +436,7 @@ def edit_demo(request, demo_id=None):
                     request.user.display_name,
                     request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
                     demo.name,
-                    ", ".join(common.PRODUCT_BY_ID[json.loads(demo.properties)['supported_products']]['name']),
+                    ", ".join([common.PRODUCT_BY_ID[product_id]['name'] for product_id in json.loads(demo.properties)['supported_products']]),
                 )
                 common.send_email(subject=subject, body=body)
 
@@ -587,6 +595,57 @@ def new_issn(request):
     })
 
 
+def _notify_on_new_status(demo, request, message=None):
+
+    if demo.status == common.DEMO_STATUS_ACCEPTED:
+        subject = "Impact Vizor (%s): Your demo has been accepted" % demo.name
+        body = """
+            <p>Your demo request has been accepted.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
+            <p>You'll be notified as progress updates are available.</p>
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % (
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+        )
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_CHANGES_NEEDED:
+        subject = "Impact Vizor (%s): Your demo needs changes" % demo.name
+        body = """
+            <p>Changes are needed to complete your demo request.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
+            <p>Please visit the demo page using the link below and resubmit when your changes are complete.</p>
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % (
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+        )
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_IN_PROGRESS:
+        subject = "Impact Vizor (%s): Your demo configuration is in progress" % demo.name
+        body = """
+            <p>Your demo is now marked as being in progress.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
+            <p>You'll be notified as progress updates are available.</p>
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """ % (
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+        )
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_COMPLETED:
+        subject = "Impact Vizor (%s): Your demo is ready" % demo.name
+        body = """
+            <p>Your demo is now marked as being complete and is ready for use.</p>
+            <p>View reports at: <a href="https://login.vizors.org/">login.vizors.org</a></p>
+            <p>Thank you,<br/>Impact Vizor Admin</p>
+        """
+        common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+
 @login_required
 def update_demo_status(request):
     if request.POST:
@@ -596,4 +655,8 @@ def update_demo_status(request):
         demo.status = status
         demo.save()
 
+        message = request.POST.get('message')
+        _notify_on_new_status(demo, request, message)
+
     return HttpResponse('ok')
+
