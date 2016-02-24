@@ -419,6 +419,19 @@ def edit_demo(request, demo_id=None):
             if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
                 from_value = 'submitted-for-review'
 
+                # notify the admin
+                subject = "New demo submitted by %s" % request.user.display_name
+                body = """
+                    <p>A demo was submitted for review by %s:</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a> (%s)</p>
+                """ % (
+                    request.user.display_name,
+                    request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+                    demo.name,
+                    ", ".join(common.PRODUCT_BY_ID[json.loads(demo.properties)['supported_products']]['name']),
+                )
+                common.send_email(subject=subject, body=body)
+
             if request.user.superuser and form.cleaned_data['convert_to_publisher']:
                 return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
 
