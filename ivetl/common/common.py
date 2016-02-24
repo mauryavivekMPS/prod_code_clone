@@ -259,7 +259,7 @@ def get_ftp_dir_name(product_id, pipeline_id):
 
 DEMO_STATUS_CREATING = 'creating'
 DEMO_STATUS_SUBMITTED_FOR_REVIEW = 'submitted-for-review'
-DEMO_STATUS_CHANGES_NEEDED = 'changed-needed'
+DEMO_STATUS_CHANGES_NEEDED = 'changes-needed'
 DEMO_STATUS_ACCEPTED = 'accepted'
 DEMO_STATUS_IN_PROGRESS = 'in-progress'
 DEMO_STATUS_COMPLETED = 'completed'

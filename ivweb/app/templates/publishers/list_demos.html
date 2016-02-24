@@ -40,7 +40,7 @@
                             </td>
                             <td class="demo-status-col {% if request.user.superuser %}with-menu{% endif %}">
                                 {% if request.user.superuser %}
-                                    <select class="form-control input-sm inline-demo-status-menu" demo_id="{{ demo.demo_id }}">
+                                    <select class="form-control input-sm inline-demo-status-menu" demo_id="{{ demo.demo_id }}" demo_name="{{ demo.name }}" previous_status="{{ demo.status }}">
                                         {% for choice in common.DEMO_STATUS_CHOICES %}
                                             <option value="{{ choice.0 }}" {% if demo.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
                                         {% endfor %}
@@ -55,6 +55,30 @@
             </table>
         </div>
     </div>
+
+    <div class="modal fade confirm-dialog" id="set-email-message-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close set-email-message-cancel-button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Change Demo Status</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you'd like to make the following status change?</p>
+                    <p class="status-change-details"></p>
+                    <p>Enter a custom message to include in the notification email:</p>
+                    <textarea class="form-control" id="id_custom_status_message" placeholder="Enter custom message (optional)"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary set-email-message-submit-button">Yes, Change Status</button>
+                    <span class="cancel">or <a href="#" class="set-email-message-cancel-button" data-dismiss="modal">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block page_scripts %}

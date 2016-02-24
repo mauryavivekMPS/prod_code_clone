@@ -106,6 +106,7 @@ class PublisherForm(forms.Form):
     demo_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Add notes about the demo'}), required=False)
     status = forms.ChoiceField(choices=common.DEMO_STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     convert_to_publisher = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter custom message for notification email (optional)'}), required=False)
 
     def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, **kwargs):
         self.is_demo = is_demo
@@ -417,7 +418,7 @@ def edit_demo(request, demo_id=None):
             demo = form.save()
 
             if previous_status and demo.status != previous_status:
-                _notify_on_new_status(demo, request)
+                _notify_on_new_status(demo, request, message=form.cleaned_data['message'])
 
             if new:
                 from_value = 'new-success'
@@ -427,18 +428,6 @@ def edit_demo(request, demo_id=None):
             if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
                 from_value = 'submitted-for-review'
 
-                # notify the admin
-                subject = "New demo submitted by %s" % request.user.display_name
-                body = """
-                    <p>A demo was submitted for review by %s:</p>
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a> (%s)</p>
-                """ % (
-                    request.user.display_name,
-                    request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
-                    demo.name,
-                    ", ".join([common.PRODUCT_BY_ID[product_id]['name'] for product_id in json.loads(demo.properties)['supported_products']]),
-                )
-                common.send_email(subject=subject, body=body)
 
             if request.user.superuser and form.cleaned_data['convert_to_publisher']:
                 return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
@@ -597,16 +586,22 @@ def new_issn(request):
 
 def _notify_on_new_status(demo, request, message=None):
 
+    message_html = ''
+    if message:
+        message_html = '<p>---</p><p>' + message.replace('\n', '</p><p>') + '<p>---</p></p>'
+
     if demo.status == common.DEMO_STATUS_ACCEPTED:
         subject = "Impact Vizor (%s): Your demo has been accepted" % demo.name
         body = """
             <p>Your demo request has been accepted.</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
             <p>You'll be notified as progress updates are available.</p>
+            %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
         """ % (
             request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
             demo.name,
+            message_html,
         )
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
 
@@ -616,10 +611,12 @@ def _notify_on_new_status(demo, request, message=None):
             <p>Changes are needed to complete your demo request.</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
             <p>Please visit the demo page using the link below and resubmit when your changes are complete.</p>
+            %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
         """ % (
             request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
             demo.name,
+            message_html,
         )
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
 
@@ -629,10 +626,12 @@ def _notify_on_new_status(demo, request, message=None):
             <p>Your demo is now marked as being in progress.</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
             <p>You'll be notified as progress updates are available.</p>
+            %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
         """ % (
             request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
             demo.name,
+            message_html
         )
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
 
@@ -641,9 +640,26 @@ def _notify_on_new_status(demo, request, message=None):
         body = """
             <p>Your demo is now marked as being complete and is ready for use.</p>
             <p>View reports at: <a href="https://login.vizors.org/">login.vizors.org</a></p>
+            %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
-        """
+        """ % message_html
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
+
+    elif demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+
+        # notify the admin, not the end user
+
+        subject = "Impact Vizor (%s): New demo submitted" % demo.name
+        body = """
+            <p>A demo was submitted for review by %s:</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a> (%s)</p>
+        """ % (
+            request.user.display_name,
+            request.build_absolute_uri(reverse('publishers.edit_demo', kwargs={'demo_id': demo.demo_id})),
+            demo.name,
+            ", ".join([common.PRODUCT_BY_ID[product_id]['name'] for product_id in json.loads(demo.properties)['supported_products']]),
+        )
+        common.send_email(subject=subject, body=body)
 
 
 @login_required
@@ -656,7 +672,7 @@ def update_demo_status(request):
         demo.save()
 
         message = request.POST.get('message')
-        _notify_on_new_status(demo, request, message)
+        _notify_on_new_status(demo, request, message=message)
 
     return HttpResponse('ok')
 

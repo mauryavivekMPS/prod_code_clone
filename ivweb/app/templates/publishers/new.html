@@ -100,6 +100,15 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            {% if request.user.superuser %}
+                                <div class="form-group row status-controls" style="display:none">
+                                    <label for="message" class="col-sm-2">Message</label>
+                                    <div class="col-sm-6">
+                                        {{ form.message }}
+                                        {{ form.message.errors }}
+                                    </div>
+                                </div>
+                            {% endif %}
                         {% endif %}
 
                         {% if request.user.superuser and demo and publisher_from_demo %}
@@ -486,7 +495,8 @@
                 {% endif %}
                 csrfToken: '{{ csrf_token }}',
                 isDemo: {% if is_demo %}true{% else %}false{% endif %},
-                convertFromDemo: {% if convert_from_demo %}true{% else %}false{% endif %}
+                convertFromDemo: {% if convert_from_demo %}true{% else %}false{% endif %},
+                previousStatus: '{{ form.initial.status }}'
             });
 
             {% if from_value == 'new-publisher' %}

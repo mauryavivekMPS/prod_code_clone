@@ -382,20 +382,50 @@ var ListDemosPage = (function() {
         $('.inline-demo-status-menu').on('change', function () {
             var menu = $(this);
             var status = menu.find("option:selected").val();
+            var statusName = menu.find("option:selected").text();
             var demoId = menu.attr('demo_id');
+            var demoName = menu.attr('demo_name');
+            var previousStatus = menu.attr('previous_status');
 
-            IvetlWeb.showLoading();
+            // update the modal and open it
+            var m = $('#set-email-message-modal');
+            m.find('.status-change-details').html('<b>' + demoName + '</b> <span class="lnr lnr-arrow-right"></span> <b>' + statusName + '</b>');
 
-            var data = [
-                {name: 'csrfmiddlewaretoken', value: options.csrfToken},
-                {name: 'demo_id', value: demoId},
-                {name: 'status', value: status},
-            ];
+            var submitButton = m.find('.set-email-message-submit-button');
+            submitButton.on('click', function() {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+                m.modal('hide');
 
-            $.post(options.updateDemoStatusUrl, data)
-                .always(function() {
-                    IvetlWeb.hideLoading();
-                });
+                IvetlWeb.showLoading();
+
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: options.csrfToken},
+                    {name: 'demo_id', value: demoId},
+                    {name: 'status', value: status},
+                    {name: 'message', value: $('#id_custom_status_message').val()}
+                ];
+
+                $.post(options.updateDemoStatusUrl, data)
+                    .always(function() {
+                        IvetlWeb.hideLoading();
+                    });
+
+                menu.attr('previous_status', status);
+            });
+
+            var cancelButton = m.find('.set-email-message-cancel-button');
+            cancelButton.on('click', function() {
+                $(this).off('click');
+                menu.val(previousStatus);
+            });
+
+            m.modal();
+
+            m.on('hidden.bs.modal', function () {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+            });
         });
     };
 
@@ -686,6 +716,7 @@ var EditPublisherPage = (function() {
     var csrfToken;
     var isDemo;
     var convertFromDemo;
+    var previousStatus;
 
     var enableSubmit = function() {
         $('.submit-button.save-button').removeClass('disabled').prop('disabled', false);
@@ -922,6 +953,15 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.highwire-controls').fadeOut(100);
+        }
+    };
+
+    var updateStatusControls = function() {
+        if ($('#id_status').val() != previousStatus) {
+            $('.status-controls').fadeIn(200);
+        }
+        else {
+            $('.status-controls').fadeOut(100);
         }
     };
 
@@ -1216,6 +1256,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="demo_id"]').val($('#id_demo_id').val());
         f.find('input[name="start_date"]').val($('#id_start_date').val());
         f.find('input[name="demo_notes"]').val($('#id_demo_notes').val());
+        f.find('input[name="message"]').val($('#id_message').val());
 
         if (options.submitForApproval) {
             f.find('input[name="status"]').val('submitted-for-review');
@@ -1245,7 +1286,8 @@ var EditPublisherPage = (function() {
             buildingErrorUrl: '',
             csrfToken: '',
             isDemo: false,
-            convertFromDemo: false
+            convertFromDemo: false,
+            previousStatus: ''
         }, options);
 
         publisherId = options.publisherId;
@@ -1258,6 +1300,7 @@ var EditPublisherPage = (function() {
         csrfToken = options.csrfToken;
         isDemo = options.isDemo;
         convertFromDemo = options.convertFromDemo;
+        previousStatus = options.previousStatus;
 
         isNew = publisherId == '';
 
@@ -1315,6 +1358,12 @@ var EditPublisherPage = (function() {
             checkForm();
         });
         updateReportsLoginControls();
+
+        $('#id_status').on('change', function() {
+            updateStatusControls();
+            checkForm();
+        });
+        updateStatusControls();
 
         if (isNew) {
             $('#id_use_scopus_api_keys_from_pool').on('change', function() {
