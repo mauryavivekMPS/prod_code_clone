@@ -3,3 +3,4 @@ from ivetl.connectors.scopus import ScopusConnector
 from ivetl.connectors.crossref import CrossrefConnector
 from ivetl.connectors.tableau import TableauConnector
 from ivetl.connectors.mendeley import MendeleyConnector
+from ivetl.connectors.pingdom import PingdomConnector

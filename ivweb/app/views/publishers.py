@@ -597,9 +597,8 @@ def _notify_on_new_status(demo, request, message=None):
     if demo.status == common.DEMO_STATUS_ACCEPTED:
         subject = "Impact Vizor (%s): Your demo has been accepted" % demo.name
         body = """
-            <p>Your demo request has been accepted.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
-            <p>You'll be notified as progress updates are available.</p>
+            <p>Your demo request has all of the required information. You'll be notified as progress updates are available.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;Demo details: <a href="%s">%s</a></p>
             %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
         """ % (
@@ -613,8 +612,8 @@ def _notify_on_new_status(demo, request, message=None):
         subject = "Impact Vizor (%s): Your demo needs changes" % demo.name
         body = """
             <p>Changes are needed to complete your demo request.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
-            <p>Please visit the demo page using the link below and resubmit when your changes are complete.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;Demo details: <a href="%s">%s</a></p>
+            <p>Please visit the demo page using the link above and resubmit when your changes are complete.</p>
             %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
         """ % (
@@ -625,11 +624,11 @@ def _notify_on_new_status(demo, request, message=None):
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
 
     elif demo.status == common.DEMO_STATUS_IN_PROGRESS:
-        subject = "Impact Vizor (%s): Your demo configuration is in progress" % demo.name
+        subject = "Impact Vizor (%s): Your demo is being setup" % demo.name
         body = """
-            <p>Your demo is now marked as being in progress.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p>
-            <p>You'll be notified as progress updates are available.</p>
+            <p>We are in the process of building your demo.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;Demo details: <a href="%s">%s</a></p>
+            <p>You'll be notified once setup is complete.</p>
             %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
         """ % (
@@ -640,13 +639,16 @@ def _notify_on_new_status(demo, request, message=None):
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
 
     elif demo.status == common.DEMO_STATUS_COMPLETED:
+
+        publisher = Publisher_Metadata.objects.get(demo_id=demo.demo_id)
+
         subject = "Impact Vizor (%s): Your demo is ready" % demo.name
         body = """
             <p>Your demo is now marked as being complete and is ready for use.</p>
-            <p>View reports at: <a href="https://login.vizors.org/">login.vizors.org</a></p>
+            <p>View reports at <a href="https://login.vizors.org/">login.vizors.org</a> in the %s project folder.</p>
             %s
             <p>Thank you,<br/>Impact Vizor Admin</p>
-        """ % message_html
+        """ % (publisher.reports_project, message_html)
         common.send_email(subject=subject, body=body, to=demo.requestor.email)
 
     elif demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
