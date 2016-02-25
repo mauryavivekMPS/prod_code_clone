@@ -31,20 +31,22 @@
         </div>
     </div>
 
-    <div class="requirements-box">
-        <h2>Checklist</h2>
-        <ul>
-            <li class="name-requirement">A name for the demo <span class="lnr lnr-check checkmark"></span></li>
-            <li class="date-requirement">A start date <span class="lnr lnr-check checkmark"></span></li>
-            <li class="product-requirement">One or more selected products <span class="lnr lnr-check checkmark"></span></li>
-            <li class="issns-requirement published-articles-controls" style="display:none">At least one valid publisher ISSN <span class="lnr lnr-check checkmark"></span></li>
-            <li class="crossref-requirement crossref-controls" style="display:none">A valid login for Crossref <span class="lnr lnr-check checkmark"></span></li>
-            <li class="cohort-issns-requirement cohort-articles-controls" style="display:none">At least one valid cohort ISSN<span class="lnr lnr-check checkmark"></span></li>
-            <li class="rejected-articles-upload-requirement rejected-manuscripts-controls" style="display:none">A rejected articles file <span class="lnr lnr-check checkmark"></span></li>
-            <li class="requirements-notes">All of the items listed above are required before you can submit for approval.</li>
-        </ul>
-    </div>
-
+    {% if is_demo %}
+        <div class="requirements-box">
+            <h2>Checklist</h2>
+            <ul>
+                <li class="name-requirement">A name for the demo <span class="lnr lnr-check checkmark"></span></li>
+                <li class="date-requirement">A start date <span class="lnr lnr-check checkmark"></span></li>
+                <li class="product-requirement">One or more selected products <span class="lnr lnr-check checkmark"></span></li>
+                <li class="issns-requirement published-articles-controls" style="display:none">At least one valid publisher ISSN <span class="lnr lnr-check checkmark"></span></li>
+                <li class="crossref-requirement crossref-controls" style="display:none">A valid login for Crossref <span class="lnr lnr-check checkmark"></span></li>
+                <li class="cohort-issns-requirement cohort-articles-controls" style="display:none">At least one valid cohort ISSN<span class="lnr lnr-check checkmark"></span></li>
+                <li class="rejected-articles-upload-requirement rejected-manuscripts-controls" style="display:none">A rejected articles file <span class="lnr lnr-check checkmark"></span></li>
+                <li class="requirements-notes">All of the items listed above are required before you can submit for approval.</li>
+            </ul>
+        </div>
+    {% endif %}
+    
     <div>
         <div class="row">
             <div class="col-md-12">
