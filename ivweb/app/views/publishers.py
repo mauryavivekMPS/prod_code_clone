@@ -331,6 +331,10 @@ def edit(request, publisher_id=None):
         if Scopus_Api_Key.objects.count() < 5:
             return HttpResponseRedirect(reverse('publishers.list') + '?from=no-keys')
 
+    from_value = ''
+    demo_files_custom_article_data = []
+    demo_files_rejected_articles = []
+
     if request.method == 'POST':
         form = PublisherForm(request.user, request.POST, instance=publisher)
         if form.is_valid():
