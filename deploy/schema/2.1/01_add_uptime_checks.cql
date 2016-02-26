@@ -17,7 +17,7 @@ CREATE TABLE uptime_checks (
   avg_response_ms int,
   total_up_sec int,
   total_down_sec int,
-  total_unknown_sec int
+  total_unknown_sec int,
   PRIMARY KEY ((publisher_id), check_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
