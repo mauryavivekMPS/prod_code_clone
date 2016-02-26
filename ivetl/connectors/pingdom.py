@@ -60,7 +60,7 @@ class PingdomConnector(BaseConnector):
     def get_checks(self):
         checks = []
         i = 0
-        for check in self._get_with_retry('/checks')['checks'][:10]:
+        for check in self._get_with_retry('/checks')['checks']:
             checks.append(self._get_with_retry('/checks/%s' % check['id'])['check'])
             i += 1
             time.sleep(0.2)  # to prevent the API from throttling us
@@ -125,18 +125,16 @@ def pingdom_pipeline():
         },
     )
 
+    total = 0
+    by_hostname = 0
+    by_site_code = 0
+    with_www = 0
+
     all_checks = []
     for account in pingdom_accounts:
         pingdom = PingdomConnector(account['email'], account['password'], account['api_key'])
         for check in pingdom.get_checks():
-            try:
-                check['account'] = account['name']
-            except:
-                print('error')
-                print('|' + str(check) + '|')
-                print(type(check))
-                print('|' + str(account) + '|')
-                print(type(account))
+            check['account'] = account['name']
 
             #
             # join the checks with the metadata
@@ -145,23 +143,38 @@ def pingdom_pipeline():
             hostname = check['hostname']
             hostname_with_www = 'www.' + hostname
 
+            total += 1
+
+            metadata = None
+
             if hostname in metadata_by_site_url:
                 metadata = metadata_by_site_url[hostname]
+                by_hostname += 1
+
+            elif hostname.startswith('submit'):
+                site_code_without_prefix = check['site_code'].lstrip('bp_')
+                if site_code_without_prefix in metadata_by_site_code:
+                    metadata = metadata_by_site_code[site_code_without_prefix]
+                    by_site_code += 1
 
             elif hostname_with_www in metadata_by_site_url:
                 metadata = metadata_by_site_url[hostname_with_www]
-
-            else:
-                metadata = {'site_code': 'unknown'}
-
-            check['site_name'] = metadata['name']
-            check['site_code'] = metadata['site_code']
-            check['publisher_name'] = metadata['publisher']
-            check['publisher_code'] = metadata['umbrella_code']
+                with_www += 1
 
             #
             # classify type of check
             #
+
+            if metadata:
+                check['site_name'] = metadata['name']
+                check['site_code'] = metadata['site_code']
+                check['publisher_name'] = metadata['publisher']
+                check['publisher_code'] = metadata['umbrella_code']
+            else:
+                check['site_name'] = 'Unknown'
+                check['site_code'] = 'unknown'
+                check['publisher_name'] = ''
+                check['publisher_code'] = ''
 
             name = check['name']
             url = check['type']['http']['url']
@@ -178,6 +191,40 @@ def pingdom_pipeline():
 
             check['check_type'] = check_type
 
+            #
+            # classify type of site
+            #
+
+            site_type = 'unknown'
+            if metadata:
+                if metadata['is_book'] == 'Y':
+                    site_type = 'book'
+                elif hostname.startswith('submit'):
+                    site_type = 'benchpress'
+                elif metadata['site_code'] == metadata['umbrella_code']:
+                    site_type = 'umbrella'
+                else:
+                    site_type = 'journal'
+
+            check['site_type'] = site_type
+
+            #
+            # classify platform
+            #
+
+            site_platform = 'unknown'
+            if metadata:
+                dw_site_type = metadata['dw_site_type']
+                if dw_site_type:
+                    site_platform = dw_site_type
+
+            check['site_platform'] = site_platform
+
             all_checks.append(check)
 
-            print(name, check_type)
+            print(name, check_type, site_type, site_platform)
+
+    print('total: %s' % total)
+    print('by hostname: %s' % by_hostname)
+    print('by site code: %s' % by_site_code)
+    print('with www: %s' % with_www)
