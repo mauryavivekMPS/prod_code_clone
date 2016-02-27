@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def list_users(request, publisher_id=None):
     if publisher_id:
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-        publisher_users = [u.user_id for u in Publisher_User.objects.filter(publisher_id=publisher_id)]
+        publisher_users = [u.user_id for u in Publisher_User.objects.allow_filtering().filter(publisher_id=publisher_id)]
         users = User.objects.filter(user_id__in=publisher_users)
     else:
         publisher = None
