@@ -2,7 +2,9 @@ import csv
 import time
 import re
 import requests
+import datetime
 from ivetl.connectors.base import BaseConnector, MaxTriesAPIError
+from ivetl.models import Uptime_Check
 
 
 class PingdomConnector(BaseConnector):
@@ -148,14 +150,18 @@ def pingdom_pipeline():
             metadata = None
 
             if hostname in metadata_by_site_url:
-                metadata = metadata_by_site_url[hostname]
-                by_hostname += 1
 
-            elif hostname.startswith('submit'):
-                site_code_without_prefix = check['site_code'].lstrip('bp_')
-                if site_code_without_prefix in metadata_by_site_code:
-                    metadata = metadata_by_site_code[site_code_without_prefix]
-                    by_site_code += 1
+                if hostname.startswith('submit'):
+                    submit_metadata = metadata_by_site_url[hostname]
+                    site_code_without_prefix = submit_metadata['site_code'].lstrip('bp_')
+
+                    if site_code_without_prefix in metadata_by_site_code:
+                        metadata = metadata_by_site_code[site_code_without_prefix]
+                        by_site_code += 1
+
+                else:
+                    metadata = metadata_by_site_url[hostname]
+                    by_hostname += 1
 
             elif hostname_with_www in metadata_by_site_url:
                 metadata = metadata_by_site_url[hostname_with_www]
@@ -228,3 +234,31 @@ def pingdom_pipeline():
     print('by hostname: %s' % by_hostname)
     print('by site code: %s' % by_site_code)
     print('with www: %s' % with_www)
+
+    #
+    # insert into cassandra
+    #
+
+    for check in all_checks:
+
+        # there should be a subloop here for all stat dates
+
+        Uptime_Check.objects.update(
+            publisher_id='hw',  # hard-coded for now
+            check_id=check['id'],
+            check_type=check['check_type'],
+            check_date=datetime.datetime.now(),
+            check_name=check['name'],
+            check_url=check['type']['http']['url'],
+            pingdom_account=check['account'],
+            site_code=check['site_code'],
+            site_name=check['site_name'],
+            site_type=check['site_type'],
+            site_platform=check['site_platform'],
+            publisher_name=check['publisher_name'],
+            publisher_code=check['publisher_code'],
+            avg_response_ms=0,
+            total_up_sec=0,
+            total_down_sec=0,
+            total_unknown_sec=0,
+        )
