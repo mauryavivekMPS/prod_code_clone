@@ -52,7 +52,7 @@
             <div class="col-md-12">
                 <form class="form-horizontal publisher-form">
                     {% csrf_token %}
-                    <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id }}">
+                    <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id|default:"" }}">
 
                     {% if not is_demo %}
                         <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
