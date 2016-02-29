@@ -62,7 +62,7 @@ class PingdomConnector(BaseConnector):
     def get_checks(self):
         checks = []
         i = 0
-        for check in self._get_with_retry('/checks')['checks']:
+        for check in self._get_with_retry('/checks')['checks'][:10]:
             checks.append(self._get_with_retry('/checks/%s' % check['id'])['check'])
             i += 1
             time.sleep(0.2)  # to prevent the API from throttling us
@@ -243,9 +243,10 @@ def pingdom_pipeline():
 
         # there should be a subloop here for all stat dates
 
-        Uptime_Check.objects.update(
+        Uptime_Check.objects(
             publisher_id='hw',  # hard-coded for now
             check_id=check['id'],
+        ).update(
             check_type=check['check_type'],
             check_date=datetime.datetime.now(),
             check_name=check['name'],

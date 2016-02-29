@@ -1,6 +1,6 @@
 USE impactvizor;
 
-CREATE TABLE uptime_checks (
+CREATE TABLE uptime_check (
   publisher_id text,
   check_id int,
   check_type text,
