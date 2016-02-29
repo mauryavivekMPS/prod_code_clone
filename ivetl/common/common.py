@@ -92,6 +92,24 @@ PIPELINES = [
         'validator_class': None,
         'rebuild_data_source_id': None,
     },
+    {
+        'name': 'Site Metadata',
+        'id': 'site_metadata',
+        'user_facing_display_name': 'Site metadata',
+        'class': 'ivetl.pipelines.sitemetadata.SiteMetadataPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+    },
+    {
+        'name': 'Site Uptime',
+        'id': 'site_uptime',
+        'user_facing_display_name': 'Site uptime',
+        'class': 'ivetl.pipelines.siteuptime.SiteUptimePipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -178,7 +196,7 @@ PRODUCTS = [
         'name': 'Check Rejected Manuscripts',
         'id': 'check_rejected_manuscripts',
         'is_user_facing': False,
-        'order': 4,
+        'order': 5,
         'cohort': False,
         'pipelines': [
             {
@@ -191,7 +209,7 @@ PRODUCTS = [
         'name': 'Insert Placeholder Citations',
         'id': 'insert_placeholder_citations',
         'is_user_facing': False,
-        'order': 5,
+        'order': 6,
         'cohort': False,
         'pipelines': [
             {
@@ -204,7 +222,7 @@ PRODUCTS = [
         'name': 'Update Manuscripts',
         'id': 'update_manuscripts',
         'is_user_facing': False,
-        'order': 6,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {
@@ -217,7 +235,7 @@ PRODUCTS = [
         'name': 'XREF Journal Catalog',
         'id': 'xref_journal_catalog',
         'is_user_facing': False,
-        'order': 7,
+        'order': 8,
         'cohort': False,
         'pipelines': [
             {
@@ -225,6 +243,22 @@ PRODUCTS = [
             }
         ],
         'tableau_workbooks': [],
+    },
+    {
+        'name': 'HighWire Sites',
+        'id': 'highwire_sites',
+        'is_user_facing': True,
+        'order': 4,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['site_metadata'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['site_uptime'],
+            },
+        ],
+        'tableau_workbooks': []
     },
 ]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
