@@ -181,12 +181,14 @@ def pingdom_pipeline():
             total += 1
 
             metadata = None
+            original_site_code = ''
 
             if hostname in metadata_by_site_url:
+                hostname_metadata = metadata_by_site_url[hostname]
+                original_site_code = hostname_metadata['site_code']
 
-                if hostname.startswith('submit'):
-                    submit_metadata = metadata_by_site_url[hostname]
-                    site_code_without_prefix = submit_metadata['site_code'].lstrip('bp_')
+                if original_site_code.startswith('bp_'):
+                    site_code_without_prefix = original_site_code.lstrip('bp_')
 
                     if site_code_without_prefix in metadata_by_site_code:
                         metadata = metadata_by_site_code[site_code_without_prefix]
@@ -238,9 +240,9 @@ def pingdom_pipeline():
             if metadata:
                 if metadata['is_book'] == 'Y':
                     site_type = 'book'
-                elif hostname.startswith('submit'):
+                elif original_site_code.startswith('bp_t'):
                     site_type = 'benchpress'
-                elif metadata['site_code'] == metadata['umbrella_code']:
+                elif metadata['site_code'] == metadata['counter_code']:
                     site_type = 'umbrella'
                 else:
                     site_type = 'journal'
