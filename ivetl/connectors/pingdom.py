@@ -21,13 +21,13 @@ class PingdomConnector(BaseConnector):
         self.base_url = self.SERVER + self.API_PATH
         self.tlogger = tlogger
 
-    def _get_with_retry(self, path):
+    def _get_with_retry(self, path, params={}):
         attempt = 0
         success = False
         response = None
         while not success and attempt < self.max_attempts:
             try:
-                response = requests.get(self.base_url + path, auth=(self.email, self.password), headers={'App-Key': self.api_key})
+                response = requests.get(self.base_url + path, auth=(self.email, self.password), headers={'App-Key': self.api_key}, params=params)
                 response.raise_for_status()
                 success = True
             except requests.HTTPError as http_error:
@@ -62,11 +62,44 @@ class PingdomConnector(BaseConnector):
     def get_checks(self):
         checks = []
         i = 0
-        for check in self._get_with_retry('/checks')['checks'][:10]:
-            checks.append(self._get_with_retry('/checks/%s' % check['id'])['check'])
+        for check in self._get_with_retry('/checks')['checks']:
+
+            # get check details
+            check_details_with_uptime = self._get_with_retry('/checks/%s' % check['id'])['check']
+
+            # to prevent the API from throttling us
+            time.sleep(0.2)
+
+            # get uptime stats for the given date range
+            uptime_stats = []
+
+            dates = [datetime.datetime(2016, 2, 26)]
+
+            for date in dates:
+                from_timestamp = int(date.timestamp())
+                to_timestamp = int((date + datetime.timedelta(1)).timestamp())
+
+                raw_stats = self._get_with_retry(
+                    '/summary.average/%s' % check['id'],
+                    params={'includeuptime': 'true', 'from': from_timestamp, 'to': to_timestamp}
+                )
+
+                uptime_stats.append({
+                    'date': date,
+                    'avg_response_ms': raw_stats['summary']['responsetime']['avgresponse'],
+                    'total_up_sec': raw_stats['summary']['status']['totalup'],
+                    'total_down_sec': raw_stats['summary']['status']['totaldown'],
+                    'total_unknown_sec': raw_stats['summary']['status']['totalunknown'],
+                })
+
+            check_details_with_uptime['stats'] = uptime_stats
+
+            # bag it and tag it
+            checks.append(check_details_with_uptime)
+
             i += 1
-            time.sleep(0.2)  # to prevent the API from throttling us
             print('doing check %s %s' % (i, check['id']))
+
         return checks
 
 
@@ -242,24 +275,25 @@ def pingdom_pipeline():
     for check in all_checks:
 
         # there should be a subloop here for all stat dates
+        for stat in check['stats']:
 
-        Uptime_Check.objects(
-            publisher_id='hw',  # hard-coded for now
-            check_id=check['id'],
-        ).update(
-            check_type=check['check_type'],
-            check_date=datetime.datetime.now(),
-            check_name=check['name'],
-            check_url=check['type']['http']['url'],
-            pingdom_account=check['account'],
-            site_code=check['site_code'],
-            site_name=check['site_name'],
-            site_type=check['site_type'],
-            site_platform=check['site_platform'],
-            publisher_name=check['publisher_name'],
-            publisher_code=check['publisher_code'],
-            avg_response_ms=0,
-            total_up_sec=0,
-            total_down_sec=0,
-            total_unknown_sec=0,
-        )
+            Uptime_Check.objects(
+                publisher_id='hw',  # hard-coded for now
+                check_id=check['id'],
+            ).update(
+                check_type=check['check_type'],
+                check_date=stat['date'],
+                check_name=check['name'],
+                check_url=check['hostname'] + check['type']['http']['url'],
+                pingdom_account=check['account'],
+                site_code=check['site_code'],
+                site_name=check['site_name'],
+                site_type=check['site_type'],
+                site_platform=check['site_platform'],
+                publisher_name=check['publisher_name'],
+                publisher_code=check['publisher_code'],
+                avg_response_ms=stat['avg_response_ms'],
+                total_up_sec=stat['total_up_sec'],
+                total_down_sec=stat['total_down_sec'],
+                total_unknown_sec=stat['total_unknown_sec'],
+            )
