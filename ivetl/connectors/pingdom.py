@@ -64,7 +64,6 @@ class PingdomConnector(BaseConnector):
 
     def get_checks(self):
         checks = []
-        i = 0
         for check in self._get_with_retry('/checks')['checks']:
 
             # get check details
@@ -99,9 +98,6 @@ class PingdomConnector(BaseConnector):
 
             # bag it and tag it
             checks.append(check_details_with_uptime)
-
-            i += 1
-            print('doing check %s %s' % (i, check['id']))
 
         return checks
 
@@ -163,10 +159,7 @@ def pingdom_pipeline():
         },
     )
 
-    total = 0
-    by_hostname = 0
-    by_site_code = 0
-    with_www = 0
+    count = 0
 
     all_checks = []
     for account in pingdom_accounts:
@@ -200,7 +193,7 @@ def pingdom_pipeline():
             hostname = check['hostname']
             hostname_with_www = 'www.' + hostname
 
-            total += 1
+            count += 1
 
             metadata = None
             original_site_code = ''
@@ -209,30 +202,17 @@ def pingdom_pipeline():
                 hostname_metadata = metadata_by_site_url[hostname]
                 original_site_code = hostname_metadata['site_code']
 
-                if original_site_code == 'bp_bloodjournal':
-                    print('found bp_blood')
-
                 if original_site_code.startswith('bp_'):
                     site_code_without_prefix = original_site_code[3:]
 
-                    if original_site_code == 'bp_bloodjournal':
-                        print('new sitecode is: %s' % site_code_without_prefix)
-
                     if site_code_without_prefix in metadata_by_site_code:
                         metadata = metadata_by_site_code[site_code_without_prefix]
-                        by_site_code += 1
-
-                        if original_site_code == 'bp_bloodjournal':
-                            print('found for bp_bl: %s' % metadata)
-
 
                 else:
                     metadata = metadata_by_site_url[hostname]
-                    by_hostname += 1
 
             elif hostname_with_www in metadata_by_site_url:
                 metadata = metadata_by_site_url[hostname_with_www]
-                with_www += 1
 
             #
             # classify type of check
@@ -303,13 +283,6 @@ def pingdom_pipeline():
             check['site_platform'] = site_platform
 
             all_checks.append(check)
-
-            # print(name, check_type, site_type, site_platform)
-
-    print('total: %s' % total)
-    print('by hostname: %s' % by_hostname)
-    print('by site code: %s' % by_site_code)
-    print('with www: %s' % with_www)
 
     #
     # insert into cassandra
