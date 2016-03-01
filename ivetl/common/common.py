@@ -348,6 +348,8 @@ IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 CASSANDRA_IP = os.environ.get('IVETL_CASSANDRA_IP', '127.0.0.1')
 CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor')
 
+HW_PUBLISHER_ID = 'hw'
+
 BASE_WORKING_DIR = os.environ.get('IVETL_WORKING_DIR', '/iv')
 BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
 BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")

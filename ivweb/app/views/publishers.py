@@ -40,8 +40,9 @@ def list_publishers(request):
 
     filtered_publishers = []
     for publisher in all_accessible_publishers:
-        if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
-            filtered_publishers.append(publisher)
+        if publisher.publisher_id != common.HW_PUBLISHER_ID:  # special case to exclude the HighWire publisher record
+            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+                filtered_publishers.append(publisher)
 
     filtered_publishers = sorted(filtered_publishers, key=lambda p: p.name.lower().lstrip('('))
 
