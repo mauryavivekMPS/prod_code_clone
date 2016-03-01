@@ -9,6 +9,8 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.articlecitations',
     'ivetl.pipelines.rejectedarticles',
     'ivetl.pipelines.articleusage',
+    'ivetl.pipelines.sitemetadata',
+    'ivetl.pipelines.siteuptime',
     'ivetl.tasks',
 )
 

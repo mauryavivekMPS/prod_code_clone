@@ -16,3 +16,4 @@ from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo
 from ivetl.models.UptimeCheck import Uptime_Check
+from ivetl.models.HighwireMetadata import Highwire_Metadata

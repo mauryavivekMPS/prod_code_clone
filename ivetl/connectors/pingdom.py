@@ -3,6 +3,9 @@ import time
 import re
 import requests
 import datetime
+import json
+import copy
+from dateutil.parser import parse
 from ivetl.connectors.base import BaseConnector, MaxTriesAPIError
 from ivetl.models import Uptime_Check
 
@@ -167,8 +170,27 @@ def pingdom_pipeline():
 
     all_checks = []
     for account in pingdom_accounts:
-        pingdom = PingdomConnector(account['email'], account['password'], account['api_key'])
-        for check in pingdom.get_checks():
+
+        #     pingdom = PingdomConnector(account['email'], account['password'], account['api_key'])
+        #
+        #     checks = pingdom.get_checks()
+        #
+        #     altered_checks = copy.deepcopy(checks)
+        #     for check in altered_checks:
+        #         for stat in check['stats']:
+        #             stat['date'] = stat['date'].strftime('%Y-%m-%d')
+        #
+        #     with open('/Users/john/Desktop/%s-checks.json' % account['name'], 'w') as checks_file:
+        #         checks_file.write(json.dumps(altered_checks))
+
+        with open('/Users/john/Desktop/%s-checks.json' % account['name']) as checks_file:
+            checks = json.loads(checks_file.read())
+
+        for check in checks:
+            for stat in check['stats']:
+                stat['date'] = parse(stat['date'])
+
+        for check in checks:
             check['account'] = account['name']
 
             #
@@ -187,12 +209,22 @@ def pingdom_pipeline():
                 hostname_metadata = metadata_by_site_url[hostname]
                 original_site_code = hostname_metadata['site_code']
 
+                if original_site_code == 'bp_bloodjournal':
+                    print('found bp_blood')
+
                 if original_site_code.startswith('bp_'):
-                    site_code_without_prefix = original_site_code.lstrip('bp_')
+                    site_code_without_prefix = original_site_code[3:]
+
+                    if original_site_code == 'bp_bloodjournal':
+                        print('new sitecode is: %s' % site_code_without_prefix)
 
                     if site_code_without_prefix in metadata_by_site_code:
                         metadata = metadata_by_site_code[site_code_without_prefix]
                         by_site_code += 1
+
+                        if original_site_code == 'bp_bloodjournal':
+                            print('found for bp_bl: %s' % metadata)
+
 
                 else:
                     metadata = metadata_by_site_url[hostname]
@@ -240,7 +272,7 @@ def pingdom_pipeline():
             if metadata:
                 if metadata['is_book'] == 'Y':
                     site_type = 'book'
-                elif original_site_code.startswith('bp_t'):
+                elif original_site_code.startswith('bp_'):
                     site_type = 'benchpress'
                 elif metadata['site_code'] == metadata['counter_code']:
                     site_type = 'umbrella'
@@ -263,7 +295,7 @@ def pingdom_pipeline():
 
             all_checks.append(check)
 
-            print(name, check_type, site_type, site_platform)
+            # print(name, check_type, site_type, site_platform)
 
     print('total: %s' % total)
     print('by hostname: %s' % by_hostname)
