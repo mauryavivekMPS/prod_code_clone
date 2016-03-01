@@ -100,6 +100,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
     },
     {
         'name': 'Site Uptime',
@@ -109,6 +110,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
