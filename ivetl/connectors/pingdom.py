@@ -241,8 +241,14 @@ def pingdom_pipeline():
             if metadata:
                 check['site_name'] = metadata['name']
                 check['site_code'] = metadata['site_code']
-                check['publisher_name'] = metadata['publisher']
                 check['publisher_code'] = metadata['umbrella_code']
+
+                publisher_name = metadata['publisher']
+                if not publisher_name or publisher_name == 'N/A':
+                    check['publisher_name'] = 'unknown'
+                else:
+                    check['publisher_name'] = publisher_name
+
             else:
                 check['site_name'] = 'Unknown'
                 check['site_code'] = 'unknown'
@@ -251,7 +257,7 @@ def pingdom_pipeline():
 
             name = check['name']
             url = check['type']['http']['url']
-            if name.endswith('TOC'):
+            if name.endswith('TOC') or url == '/content/current':
                 check_type = 'toc'
             elif name.endswith('Article') or ('content' in url and url != '/content/current'):
                 check_type = 'article'
@@ -278,6 +284,9 @@ def pingdom_pipeline():
                     site_type = 'umbrella'
                 else:
                     site_type = 'journal'
+            else:
+                if hostname.startswith('submit'):
+                    site_type = 'benchpress'
 
             check['site_type'] = site_type
 
@@ -314,9 +323,9 @@ def pingdom_pipeline():
             Uptime_Check.objects(
                 publisher_id='hw',  # hard-coded for now
                 check_id=check['id'],
+                check_date=stat['date'],
             ).update(
                 check_type=check['check_type'],
-                check_date=stat['date'],
                 check_name=check['name'],
                 check_url=check['hostname'] + check['type']['http']['url'],
                 pingdom_account=check['account'],

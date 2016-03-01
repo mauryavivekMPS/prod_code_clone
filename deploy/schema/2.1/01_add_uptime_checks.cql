@@ -18,7 +18,7 @@ CREATE TABLE uptime_check (
   total_up_sec int,
   total_down_sec int,
   total_unknown_sec int,
-  PRIMARY KEY ((publisher_id), check_id)
+  PRIMARY KEY ((publisher_id), check_id, check_date)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

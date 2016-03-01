@@ -6,7 +6,7 @@ class Uptime_Check(Model):
     publisher_id = columns.Text(primary_key=True)
     check_id = columns.Integer(primary_key=True)
     check_type = columns.Text()
-    check_date = columns.DateTime()
+    check_date = columns.DateTime(primary_key=True)
     check_name = columns.Text()
     check_url = columns.Text()
     pingdom_account = columns.Text()
