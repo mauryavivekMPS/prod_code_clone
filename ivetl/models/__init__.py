@@ -17,3 +17,4 @@ from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo
 from ivetl.models.UptimeCheck import Uptime_Check
 from ivetl.models.HighwireMetadata import Highwire_Metadata
+from ivetl.models.SytemGlobal import System_Global
