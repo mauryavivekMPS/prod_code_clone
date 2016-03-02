@@ -92,6 +92,26 @@ PIPELINES = [
         'validator_class': None,
         'rebuild_data_source_id': None,
     },
+    {
+        'name': 'Site Metadata',
+        'id': 'site_metadata',
+        'user_facing_display_name': 'Site metadata',
+        'class': 'ivetl.pipelines.sitemetadata.SiteMetadataPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+    },
+    {
+        'name': 'Site Uptime',
+        'id': 'site_uptime',
+        'user_facing_display_name': 'Site uptime',
+        'class': 'ivetl.pipelines.siteuptime.SiteUptimePipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -178,7 +198,7 @@ PRODUCTS = [
         'name': 'Check Rejected Manuscripts',
         'id': 'check_rejected_manuscripts',
         'is_user_facing': False,
-        'order': 4,
+        'order': 5,
         'cohort': False,
         'pipelines': [
             {
@@ -191,7 +211,7 @@ PRODUCTS = [
         'name': 'Insert Placeholder Citations',
         'id': 'insert_placeholder_citations',
         'is_user_facing': False,
-        'order': 5,
+        'order': 6,
         'cohort': False,
         'pipelines': [
             {
@@ -204,7 +224,7 @@ PRODUCTS = [
         'name': 'Update Manuscripts',
         'id': 'update_manuscripts',
         'is_user_facing': False,
-        'order': 6,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {
@@ -217,7 +237,7 @@ PRODUCTS = [
         'name': 'XREF Journal Catalog',
         'id': 'xref_journal_catalog',
         'is_user_facing': False,
-        'order': 7,
+        'order': 8,
         'cohort': False,
         'pipelines': [
             {
@@ -225,6 +245,22 @@ PRODUCTS = [
             }
         ],
         'tableau_workbooks': [],
+    },
+    {
+        'name': 'HighWire Sites',
+        'id': 'highwire_sites',
+        'is_user_facing': True,
+        'order': 4,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['site_metadata'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['site_uptime'],
+            },
+        ],
+        'tableau_workbooks': []
     },
 ]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
@@ -312,6 +348,8 @@ IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 CASSANDRA_IP = os.environ.get('IVETL_CASSANDRA_IP', '127.0.0.1')
 CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor')
 
+HW_PUBLISHER_ID = 'hw'
+
 BASE_WORKING_DIR = os.environ.get('IVETL_WORKING_DIR', '/iv')
 BASE_INCOMING_DIR = os.path.join(BASE_WORKING_DIR, "incoming")
 BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
@@ -334,6 +372,21 @@ EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
+
+PINGDOM_ACCOUNTS = [
+    {
+        'name': 'primary',
+        'email': 'pingdom@highwire.stanford.edu',
+        'password': '#hq77C;_-',
+        'api_key': '3j65ak0jedmwy1cu6u68u237a6a47quq'
+    },
+    {
+        'name': 'secondary',
+        'email': 'sysadmin@highwire.org',
+        'password': '#[~Iw&+J6',
+        'api_key': '9jl17p9dka6agqmwb6ru6e7mqt9ei8a1',
+    },
+]
 
 
 def send_email(subject, body, to=EMAIL_TO, format="html"):

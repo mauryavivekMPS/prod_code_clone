@@ -50,15 +50,17 @@
             {% endwith %}
         {% else %}
             {% if publisher_runs.pending_files or not pipeline.has_file_input %}
-                <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/" publisher_name="{{ publisher_runs.publisher.name }}">
-                    {% csrf_token %}
-                    <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
-                    <input type="hidden" name="move_pending_files" value="1">
-                    <button type="submit" class="btn btn-default submit-button run-pipeline-for-publisher-button">
-                        Run
-                    </button>
-                    <i class="fa fa-spinner fa-pulse run-loading-icon" style="display:none"></i>
-                </form>
+                {% if product.id != 'highwire_sites' %}
+                    <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/" publisher_name="{{ publisher_runs.publisher.name }}">
+                        {% csrf_token %}
+                        <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
+                        <input type="hidden" name="move_pending_files" value="1">
+                        <button type="submit" class="btn btn-default submit-button run-pipeline-for-publisher-button">
+                            Run
+                        </button>
+                        <i class="fa fa-spinner fa-pulse run-loading-icon" style="display:none"></i>
+                    </form>
+                {% endif %}
             {% endif %}
             {% if pipeline.has_file_input %}
                 <a class="btn btn-default little-upload-button" href="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_runs.publisher.publisher_id }}">+ Upload</a>

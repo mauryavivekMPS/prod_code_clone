@@ -1,0 +1,49 @@
+USE impactvizor;
+
+CREATE TABLE highwire_metadata (
+  sort_name text,
+  site_id int,
+  site_code text,
+  name text,
+  site_abbr text,
+  print_issn text,
+  online_issn text,
+  publisher text,
+  site_url text,
+  umbrella_code text,
+  umbrella_url text,
+  usage_rpts_feature text,
+  journal_info_feature text,
+  ac_machine text,
+  ac_syb_server text,
+  ac_db text,
+  ac_port text,
+  journal_doi text,
+  counter_code text,
+  dw_syb_server text,
+  dw_db text,
+  content_db text,
+  content_syb_server text,
+  subman_url text,
+  legacy_type text,
+  legacy_date text,
+  dw_site_type text,
+  is_book text,
+  has_athens text,
+  sage_subject_area text,
+  PRIMARY KEY ((site_id))
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.100000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.000000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='99.0PERCENTILE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};

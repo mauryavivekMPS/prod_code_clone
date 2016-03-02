@@ -329,6 +329,8 @@ body {
 .custom_article_data_pipeline #left-menu .custom_article_data_menu_item,
 .article_citations_pipeline #left-menu .article_citations_menu_item,
 .article_usage_pipeline #left-menu .article_usage_menu_item,
+.site_metadata_pipeline #left-menu .site_metadata_menu_item,
+.site_uptime_pipeline #left-menu .site_uptime_menu_item,
 .rejected_article_tracker_pipeline #left-menu .rejected_article_tracker_menu_item,
 .reprocess_rejected_articles_menu_item_pipeline #left-menu .reprocess_rejected_articles_menu_item,
 .published_articles_cohort_pipeline #left-menu .published_articles_cohort_menu_item,
@@ -427,7 +429,7 @@ body {
             }
         }
 
-        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-demo-button {
+        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-demo-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button {
             margin-top: 21px;
             margin-left: 20px;
             float: left;
@@ -447,7 +449,7 @@ body {
                 margin-top: 12px;
             }
 
-            .upload-button, .run-button, .add-publisher-button, .add-user-button {
+            .upload-button, .run-button, .add-publisher-button, .add-user-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button {
                 margin-top: 9px;
             }
 
@@ -1788,9 +1790,32 @@ body.login {
     margin-left: 10px;
 }
 
-.run-for-all-loading-icon {
+.run-for-all-loading-icon, .run-metadata-for-hw-loading-icon, .run-uptime-for-hw-loading-icon {
     margin-top: 15px;
     margin-left: 20px;
+}
+
+.uptime-date {
+    width: 100px;
+    margin-left: 10px;
+    margin-top: 9px;
+    float: left;
+    height: 27px;
+}
+
+.uptime-button-arrow {
+    float: left;
+    margin-top: 15px;
+    margin-left: 7px;
+    color: #aaa;
+}
+
+.uptime-last-updated-message {
+    float: left;
+    font-size: 12px;
+    margin-left: 20px;
+    margin-top: 14px;
+    color: #666;
 }
 
 // Upload page

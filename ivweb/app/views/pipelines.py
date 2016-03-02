@@ -8,6 +8,7 @@ import stat
 import shutil
 import codecs
 import uuid
+from dateutil.parser import parse
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
@@ -15,8 +16,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
-from ivweb.app import forms as ivweb_forms
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, Demo
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global
 
 log = logging.getLogger(__name__)
 
@@ -94,6 +94,13 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
+    uptime_last_updated = ''
+    if pipeline_id == 'site_uptime':
+        try:
+            uptime_last_updated = System_Global.objects.get(name='last_uptime_day_processed').date_value.strftime('%m/%d/%Y')
+        except System_Global.DoesNotExist:
+            uptime_last_updated = 'never'
+
     return render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
@@ -101,6 +108,9 @@ def list_pipelines(request, product_id, pipeline_id):
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
         'list_type': list_type,
+        'uptime_last_updated': uptime_last_updated,
+        'uptime_from_date': (datetime.datetime.now() - datetime.timedelta(2)).strftime('%m/%d/%Y'),
+        'uptime_to_date': (datetime.datetime.now() - datetime.timedelta(1)).strftime('%m/%d/%Y'),
     })
 
 
@@ -211,8 +221,23 @@ def run(request, product_id, pipeline_id):
             if form.cleaned_data['move_pending_files']:
                 move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class)
 
-            # kick the pipeline off
-            pipeline_class.s(publisher_id_list=publisher_id_list, product_id=product_id, initiating_user_email=request.user.email).delay()
+            # kick the pipeline off (special case for uptime pipeline)
+            if pipeline_id == 'site_uptime':
+                from_date = parse(request.POST['from_date'])
+                to_date = parse(request.POST['to_date'])
+                pipeline_class.s(
+                    publisher_id_list=publisher_id_list,
+                    product_id=product_id,
+                    initiating_user_email=request.user.email,
+                    from_date=from_date,
+                    to_date=to_date,
+                ).delay()
+            else:
+                pipeline_class.s(
+                    publisher_id_list=publisher_id_list,
+                    product_id=product_id,
+                    initiating_user_email=request.user.email
+                ).delay()
 
             Audit_Log.objects.create(
                 user_id=request.user.user_id,
