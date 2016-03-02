@@ -8,7 +8,7 @@ from ivetl.pipelines.siteuptime import tasks
 @app.task
 class SiteUptimePipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, initiating_user_email=None, from_date=None, to_date=None):
         pipeline_id = "site_uptime"
 
         now = datetime.datetime.now()
@@ -27,9 +27,10 @@ class SiteUptimePipeline(Pipeline):
             'pipeline_id': pipeline_id,
             'publisher_id': publisher_id,
             'product_id': product_id,
-            'pipeline_id': pipeline_id,
             'work_folder': work_folder,
             'job_id': job_id,
+            'from_date': from_date,
+            'to_date': to_date,
         }
 
         chain(

@@ -105,10 +105,10 @@ var PipelineListPage = (function() {
             }
         });
         if (somethingIsRunning) {
-            $('.run-button').hide();
+            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button').hide();
         }
         else {
-            $('.run-button').show();
+            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button').show();
         }
     };
 
@@ -347,6 +347,25 @@ var PipelineListPage = (function() {
 
             wirePublisherLinks('.publisher-link');
             wireTaskLinks('.task-link');
+
+            // special case for highwire sites
+            $('.run-metadata-for-hw-button').click(function() {
+                $(this).hide();
+                var loading = $('.run-metadata-for-hw-loading-icon');
+                loading.show();
+                setTimeout(function() {
+                    loading.hide();
+                }, 3000);
+
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: csrfToken},
+                    {name: 'publisher', value: 'hw'}
+                ];
+
+                $.post('run/', data);
+
+                return false;
+            });
         }
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');

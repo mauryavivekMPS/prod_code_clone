@@ -57,9 +57,9 @@ class PingdomConnector(BaseConnector):
             print(message)
 
     def get_checks(self):
-        return self._get_with_retry('/checks')['checks'][:20]
+        return self._get_with_retry('/checks')['checks'][:5]
 
-    def get_check_details_and_uptime(self, check_id):
+    def get_check_details_and_uptime(self, check_id, from_date, to_date):
 
         # get check details
         check_details_with_uptime = self._get_with_retry('/checks/%s' % check_id)['check']
@@ -70,9 +70,11 @@ class PingdomConnector(BaseConnector):
         # get uptime stats for the given date range
         uptime_stats = []
 
-        dates = [datetime.datetime(2016, 2, 26)]
+        def _date_range(start_date, end_date):
+            for n in range(int((end_date - start_date).days)):
+                yield start_date + datetime.timedelta(n)
 
-        for date in dates:
+        for date in _date_range(from_date, to_date):
             from_timestamp = int(date.timestamp())
             to_timestamp = int((date + datetime.timedelta(1)).timestamp())
 
@@ -80,6 +82,8 @@ class PingdomConnector(BaseConnector):
                 '/summary.average/%s' % check_id,
                 params={'includeuptime': 'true', 'from': from_timestamp, 'to': to_timestamp}
             )
+
+            self._log('getting stat %s for %s' % (check_id, date))
 
             uptime_stats.append({
                 'date': date,
