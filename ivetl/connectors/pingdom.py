@@ -63,43 +63,41 @@ class PingdomConnector(BaseConnector):
             print(message)
 
     def get_checks(self):
-        checks = []
-        for check in self._get_with_retry('/checks')['checks']:
+        return self._get_with_retry('/checks')['checks'][:20]
 
-            # get check details
-            check_details_with_uptime = self._get_with_retry('/checks/%s' % check['id'])['check']
+    def get_check_details_and_uptime(self, check_id):
 
-            # to prevent the API from throttling us
-            time.sleep(0.2)
+        # get check details
+        check_details_with_uptime = self._get_with_retry('/checks/%s' % check_id)['check']
 
-            # get uptime stats for the given date range
-            uptime_stats = []
+        # to prevent the API from throttling us
+        time.sleep(0.2)
 
-            dates = [datetime.datetime(2016, 2, 26)]
+        # get uptime stats for the given date range
+        uptime_stats = []
 
-            for date in dates:
-                from_timestamp = int(date.timestamp())
-                to_timestamp = int((date + datetime.timedelta(1)).timestamp())
+        dates = [datetime.datetime(2016, 2, 26)]
 
-                raw_stats = self._get_with_retry(
-                    '/summary.average/%s' % check['id'],
-                    params={'includeuptime': 'true', 'from': from_timestamp, 'to': to_timestamp}
-                )
+        for date in dates:
+            from_timestamp = int(date.timestamp())
+            to_timestamp = int((date + datetime.timedelta(1)).timestamp())
 
-                uptime_stats.append({
-                    'date': date,
-                    'avg_response_ms': raw_stats['summary']['responsetime']['avgresponse'],
-                    'total_up_sec': raw_stats['summary']['status']['totalup'],
-                    'total_down_sec': raw_stats['summary']['status']['totaldown'],
-                    'total_unknown_sec': raw_stats['summary']['status']['totalunknown'],
-                })
+            raw_stats = self._get_with_retry(
+                '/summary.average/%s' % check_id,
+                params={'includeuptime': 'true', 'from': from_timestamp, 'to': to_timestamp}
+            )
 
-            check_details_with_uptime['stats'] = uptime_stats
+            uptime_stats.append({
+                'date': date,
+                'avg_response_ms': raw_stats['summary']['responsetime']['avgresponse'],
+                'total_up_sec': raw_stats['summary']['status']['totalup'],
+                'total_down_sec': raw_stats['summary']['status']['totaldown'],
+                'total_unknown_sec': raw_stats['summary']['status']['totalunknown'],
+            })
 
-            # bag it and tag it
-            checks.append(check_details_with_uptime)
+        check_details_with_uptime['stats'] = uptime_stats
 
-        return checks
+        return check_details_with_uptime
 
 
 def pingdom_pipeline():

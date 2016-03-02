@@ -373,6 +373,21 @@ EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.or
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
+PINGDOM_ACCOUNTS = [
+    {
+        'name': 'primary',
+        'email': 'pingdom@highwire.stanford.edu',
+        'password': '#hq77C;_-',
+        'api_key': '3j65ak0jedmwy1cu6u68u237a6a47quq'
+    },
+    {
+        'name': 'secondary',
+        'email': 'sysadmin@highwire.org',
+        'password': '#[~Iw&+J6',
+        'api_key': '9jl17p9dka6agqmwb6ru6e7mqt9ei8a1',
+    },
+]
+
 
 def send_email(subject, body, to=EMAIL_TO, format="html"):
     try:
