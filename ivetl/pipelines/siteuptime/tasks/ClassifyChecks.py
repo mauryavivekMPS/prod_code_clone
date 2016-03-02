@@ -13,6 +13,8 @@ class ClassifyChecks(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']
+        from_date = task_args['from_date']
+        to_date = task_args['to_date']
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
@@ -143,5 +145,7 @@ class ClassifyChecks(Task):
 
         return {
             'count': count,
-            'input_file': target_file_name
+            'input_file': target_file_name,
+            'from_date': from_date,
+            'to_date': to_date,
         }

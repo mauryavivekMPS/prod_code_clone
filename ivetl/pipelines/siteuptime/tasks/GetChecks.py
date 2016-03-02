@@ -99,5 +99,7 @@ class GetChecks(Task):
 
         return {
             'count': total_count,
-            'input_file': target_file_name
+            'input_file': target_file_name,
+            'from_date': from_date,
+            'to_date': to_date,
         }

@@ -4,7 +4,7 @@ import codecs
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Uptime_Check
+from ivetl.models import Uptime_Check, System_Global
 
 
 @app.task
@@ -12,6 +12,7 @@ class InsertIntoCassandra(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']
+        to_date = task_args['to_date']
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
@@ -47,6 +48,9 @@ class InsertIntoCassandra(Task):
                         total_down_sec=stat['total_down_sec'],
                         total_unknown_sec=stat['total_unknown_sec'],
                     )
+
+        # update high water mark
+        System_Global.objects(name='last_uptime_day_processed').update(date_value=to_date)
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 

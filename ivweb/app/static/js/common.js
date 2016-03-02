@@ -105,10 +105,10 @@ var PipelineListPage = (function() {
             }
         });
         if (somethingIsRunning) {
-            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button').hide();
+            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button, .uptime-date, .uptime-last-updated-message, .uptime-button-arrow').hide();
         }
         else {
-            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button').show();
+            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button, .uptime-date, .uptime-button-arrow').show();
         }
     };
 
@@ -348,7 +348,7 @@ var PipelineListPage = (function() {
             wirePublisherLinks('.publisher-link');
             wireTaskLinks('.task-link');
 
-            // special case for highwire sites
+            // special case for highwire metadata
             $('.run-metadata-for-hw-button').click(function() {
                 $(this).hide();
                 var loading = $('.run-metadata-for-hw-loading-icon');
@@ -360,6 +360,42 @@ var PipelineListPage = (function() {
                 var data = [
                     {name: 'csrfmiddlewaretoken', value: csrfToken},
                     {name: 'publisher', value: 'hw'}
+                ];
+
+                $.post('run/', data);
+
+                return false;
+            });
+
+            // special case for highwire uptime
+            $('#id_uptime_from_date').datepicker({
+                autoclose: true
+            });
+
+            $('#id_uptime_to_date').datepicker({
+                autoclose: true
+            });
+
+            $('.run-uptime-for-hw-button').click(function() {
+                $(this).hide();
+                var fromDateWidget = $('#id_uptime_from_date');
+                var toDateWidget = $('#id_uptime_to_date');
+                fromDateWidget.hide();
+                toDateWidget.hide();
+                $('.uptime-last-updated-message').hide();
+                $('.uptime-button-arrow').hide();
+
+                var loading = $('.run-uptime-for-hw-loading-icon');
+                loading.show();
+                setTimeout(function() {
+                    loading.hide();
+                }, 3000);
+
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: csrfToken},
+                    {name: 'publisher', value: 'hw'},
+                    {name: 'from_date', value: fromDateWidget.val()},
+                    {name: 'to_date', value: toDateWidget.val()}
                 ];
 
                 $.post('run/', data);
