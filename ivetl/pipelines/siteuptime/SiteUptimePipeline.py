@@ -34,8 +34,6 @@ class SiteUptimePipeline(Pipeline):
         }
 
         chain(
-            tasks.GetChecks.s(task_args) |
-            tasks.ClassifyChecks.s() |
+            tasks.GetStats.s(task_args) |
             tasks.InsertIntoCassandra.s()
         ).delay()
-
