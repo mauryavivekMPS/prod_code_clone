@@ -30,10 +30,10 @@ class PingdomConnector(BaseConnector):
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == requests.codes.NOT_FOUND:
                     return {}
-                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
+                if http_error.response.status_code in (requests.codes.REQUEST_TIMEOUT, requests.codes.UNAUTHORIZED, 524):
                     self._log("Pingdom API timed out. Trying again...")
                     attempt += 1
-                elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
+                elif http_error.response.status_code in (requests.codes.INTERNAL_SERVER_ERROR, requests.codes.BAD_GATEWAY):
                     self._log("Pingdom API 500 error. Trying again...")
                     attempt += 1
                 else:
