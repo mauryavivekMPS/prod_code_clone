@@ -8,7 +8,7 @@ class PingdomConnector(BaseConnector):
     SERVER = 'https://api.pingdom.com'
     API_PATH = '/api/2.0'
 
-    max_attempts = 5
+    max_attempts = 10
     request_timeout = 30
 
     def __init__(self, email, password, api_key, tlogger=None):
@@ -22,9 +22,14 @@ class PingdomConnector(BaseConnector):
         attempt = 0
         success = False
         response = None
+
         while not success and attempt < self.max_attempts:
             try:
                 response = requests.get(self.base_url + path, auth=(self.email, self.password), headers={'App-Key': self.api_key}, params=params)
+
+                # to prevent the API from throttling us
+                time.sleep(0.2)
+
                 response.raise_for_status()
                 success = True
             except requests.HTTPError as http_error:
@@ -59,15 +64,7 @@ class PingdomConnector(BaseConnector):
     def get_checks(self):
         return self._get_with_retry('/checks')['checks']
 
-    def get_check_details_and_uptime(self, check_id, from_date, to_date):
-
-        # get check details
-        check_details_with_uptime = self._get_with_retry('/checks/%s' % check_id)['check']
-
-        # to prevent the API from throttling us
-        time.sleep(0.2)
-
-        # get uptime stats for the given date range
+    def get_check_stats(self, check_id, from_date, to_date):
         uptime_stats = []
 
         def _date_range(start_date, end_date):
@@ -83,8 +80,6 @@ class PingdomConnector(BaseConnector):
                 params={'includeuptime': 'true', 'from': from_timestamp, 'to': to_timestamp}
             )
 
-            self._log('getting stat %s for %s' % (check_id, date))
-
             uptime_stats.append({
                 'date': date,
                 'avg_response_ms': raw_stats['summary']['responsetime']['avgresponse'],
@@ -93,6 +88,10 @@ class PingdomConnector(BaseConnector):
                 'total_unknown_sec': raw_stats['summary']['status']['totalunknown'],
             })
 
-        check_details_with_uptime['stats'] = uptime_stats
+        return {
+            'id': check_id,
+            'stats': uptime_stats
+        }
 
-        return check_details_with_uptime
+    def get_check_details(self, check_id):
+        return self._get_with_retry('/checks/%s' % check_id)['check']

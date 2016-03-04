@@ -15,6 +15,7 @@ from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo
-from ivetl.models.UptimeCheck import Uptime_Check
+from ivetl.models.UptimeCheckMetadata import Uptime_Check_Metadata
+from ivetl.models.UptimeCheckStat import Uptime_Check_Stat
 from ivetl.models.HighwireMetadata import Highwire_Metadata
 from ivetl.models.SytemGlobal import System_Global
