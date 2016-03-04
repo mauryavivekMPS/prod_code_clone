@@ -8,7 +8,7 @@ class PingdomConnector(BaseConnector):
     SERVER = 'https://api.pingdom.com'
     API_PATH = '/api/2.0'
 
-    max_attempts = 5
+    max_attempts = 10
     request_timeout = 30
 
     def __init__(self, email, password, api_key, tlogger=None):
@@ -62,7 +62,7 @@ class PingdomConnector(BaseConnector):
             print(message)
 
     def get_checks(self):
-        return self._get_with_retry('/checks')['checks'][:10]
+        return self._get_with_retry('/checks')['checks']
 
     def get_check_stats(self, check_id, from_date, to_date):
         uptime_stats = []
