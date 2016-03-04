@@ -222,7 +222,7 @@ def run(request, product_id, pipeline_id):
                 move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class)
 
             # kick the pipeline off (special case for uptime pipeline)
-            if pipeline_id == 'site_uptime':
+            if pipeline['include_date_range_controls']:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(

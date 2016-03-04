@@ -98,7 +98,6 @@ var PipelineListPage = (function() {
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
-        console.log(publisherTaskStatus);
         $.each(publisherTaskStatus, function(publisherId) {
             if (publisherTaskStatus[publisherId] == 'in-progress') {
                 somethingIsRunning = true;
@@ -107,11 +106,9 @@ var PipelineListPage = (function() {
         });
         if (somethingIsRunning) {
             $('.run-button, .run-single-publisher-pipeline-button, .uptime-date, .uptime-last-updated-message, .uptime-button-arrow').hide();
-            console.log('something is running');
         }
         else {
             $('.run-button, .run-single-publisher-pipeline-button, .uptime-date, .uptime-button-arrow').show();
-            console.log('nothing is running');
         }
     };
 
@@ -320,7 +317,9 @@ var PipelineListPage = (function() {
             runForAllUrl: '',
             isSuperuser: false,
             csrfToken: '',
-            pipelineName: ''
+            pipelineName: '',
+            singlePublisherPipeline: false,
+            includeDateRangeControls: false
         }, options);
 
         pipelineId = options.pipelineId;
@@ -333,78 +332,59 @@ var PipelineListPage = (function() {
         pipelineName = options.pipelineName;
 
         if (isSuperuser) {
-            var m = $('#confirm-run-all-modal');
-            $('.run-button, .run-single-publisher-pipeline-button').click(function() {
-                m.modal();
-            });
+            if (options.singlePublisherPipeline) {
+                $('#id_modal_from_date').datepicker({
+                    autoclose: true
+                });
 
-            $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
-                m.modal('hide');
-                $('.run-button').hide();
-                var loading = $('.run-for-all-loading-icon');
-                loading.show();
-                setTimeout(function() {
-                    loading.hide();
-                }, 3000);
-                $('#run-pipeline-form').submit();
-                return false;
-            });
+                $('#id_modal_to_date').datepicker({
+                    autoclose: true
+                });
 
-            var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
-            $('.run-single-publisher-pipeline-button').click(function() {
-                singlePublisherPipelineModal.modal();
-            });
+                var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
+                $('.run-single-publisher-pipeline-button').click(function() {
+                    singlePublisherPipelineModal.modal();
+                });
 
-            $('#confirm-run-single-publisher-pipeline-modal .confirm-run-single-publisher-pipeline-submit-button').click(function() {
-                singlePublisherPipelineModal.modal('hide');
-                $('.run-single-publisher-pipeline-button').hide();
-                var loading = $('.run-single-publisher-pipeline-loading-icon');
-                loading.show();
-                setTimeout(function() {
-                    loading.hide();
-                }, 3000);
-                $('#run-single-publisher-pipeline-form').submit();
-                return false;
-            });
+                $('#confirm-run-single-publisher-pipeline-modal .confirm-run-single-publisher-pipeline-submit-button').click(function() {
+                    singlePublisherPipelineModal.modal('hide');
+                    $('.run-single-publisher-pipeline-button').hide();
+                    var loading = $('.run-single-publisher-pipeline-loading-icon');
+                    loading.show();
+                    setTimeout(function() {
+                        loading.hide();
+                    }, 3000);
+
+                    if (options.includeDateRangeControls) {
+                        $('#id_from_date').val($('#id_modal_from_date').val());
+                        $('#id_to_date').val($('#id_modal_to_date').val());
+                    }
+
+                    $('#run-single-publisher-pipeline-form').submit();
+                    return false;
+                });
+            }
+            else {
+                var m = $('#confirm-run-all-modal');
+                $('.run-button, .run-single-publisher-pipeline-button').click(function() {
+                    m.modal();
+                });
+
+                $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
+                    m.modal('hide');
+                    $('.run-button').hide();
+                    var loading = $('.run-for-all-loading-icon');
+                    loading.show();
+                    setTimeout(function() {
+                        loading.hide();
+                    }, 3000);
+                    $('#run-pipeline-form').submit();
+                    return false;
+                });
+            }
 
             wirePublisherLinks('.publisher-link');
             wireTaskLinks('.task-link');
-
-            // special case for highwire uptime
-            $('#id_uptime_from_date').datepicker({
-                autoclose: true
-            });
-
-            $('#id_uptime_to_date').datepicker({
-                autoclose: true
-            });
-
-            $('.run-uptime-for-hw-button').click(function() {
-                $(this).hide();
-                var fromDateWidget = $('#id_uptime_from_date');
-                var toDateWidget = $('#id_uptime_to_date');
-                fromDateWidget.hide();
-                toDateWidget.hide();
-                $('.uptime-last-updated-message').hide();
-                $('.uptime-button-arrow').hide();
-
-                var loading = $('.run-uptime-for-hw-loading-icon');
-                loading.show();
-                setTimeout(function() {
-                    loading.hide();
-                }, 3000);
-
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: 'hw'},
-                    {name: 'from_date', value: fromDateWidget.val()},
-                    {name: 'to_date', value: toDateWidget.val()}
-                ];
-
-                $.post('run/', data);
-
-                return false;
-            });
         }
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');

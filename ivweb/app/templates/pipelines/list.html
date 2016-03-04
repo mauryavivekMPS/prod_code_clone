@@ -9,6 +9,8 @@
             <form id="run-single-publisher-pipeline-form" class="hidden-form" method="post" action="run/">
                 {% csrf_token %}
                 <input type="hidden" name="publisher" value="{{ pipeline.single_publisher_id }}">
+                <input type="hidden" id="id_from_date" name="from_date">
+                <input type="hidden" id="id_to_date" name="to_date">
             </form>
         {% else %}
             <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
@@ -26,21 +28,15 @@
             <h1>{{ pipeline.name }}</h1>
 
             {% if request.user.superuser and not pipeline.has_file_input %}
-                {% if pipeline.id == 'site_uptime' %}
-                    <a class="btn btn-default small run-uptime-for-hw-button" href="#">Fetch Uptime Stats</a>
-                    <span class="lnr lnr-arrow-right uptime-button-arrow"></span>
-                    <input type="text" id="id_uptime_from_date" class="form-control input-sm uptime-date" value="{{ uptime_from_date }}">
-                    <input type="text" id="id_uptime_to_date" class="form-control input-sm uptime-date" value="{{ uptime_to_date }}">
-                    <i class="fa fa-spinner fa-pulse run-uptime-for-hw-loading-icon" style="display:none"></i>
+                {% if pipeline.single_publisher_pipeline %}
+                    <a class="btn btn-default small run-single-publisher-pipeline-button" href="#" style="display:none">
+                        {{ pipeline.pipeline_run_button_label }}{% if pipeline.include_date_range_controls %}...{% endif %}
+                    </a>
+                    <i class="fa fa-spinner fa-pulse run-single-publisher-pipeline-loading-icon" style="display:none"></i>
                     <span class="uptime-last-updated-message">Last date processed: {{ uptime_last_updated }}</span>
                 {% else %}
-                    {% if pipeline.single_publisher_pipeline %}
-                        <a class="btn btn-default small run-single-publisher-pipeline-button" href="#" style="display:none">{{ pipeline.pipeline_run_button_label }}</a>
-                        <i class="fa fa-spinner fa-pulse run-single-publisher-pipeline-loading-icon" style="display:none"></i>
-                    {% else %}
-                        <a class="btn btn-default small run-button" href="#">Run for All Publishers</a>
-                        <i class="fa fa-spinner fa-pulse run-for-all-loading-icon" style="display:none"></i>
-                    {% endif %}
+                    <a class="btn btn-default small run-button" href="#">Run for All Publishers</a>
+                    <i class="fa fa-spinner fa-pulse run-for-all-loading-icon" style="display:none"></i>
                 {% endif %}
             {% endif %}
 
@@ -110,13 +106,23 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                            <h4 class="modal-title">Run Pipeline for System</h4>
+                            <h4 class="modal-title">Run Pipeline</h4>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to run the {{ pipeline.name }} pipeline?</p>
+                            {% if pipeline.include_date_range_controls %}
+                                <p>Run the {{ pipeline.name }} pipeline for the following dates:</p>
+                                <p class="modal-indented-form">
+                                    <input type="text" id="id_modal_from_date" class="form-control date-control" value="{{ uptime_from_date }}">
+                                    to
+                                    <input type="text" id="id_modal_to_date" class="form-control date-control" value="{{ uptime_to_date }}">
+                                </p>
+                                <p class="uptime-last-updated-message">Last date processed: {{ uptime_last_updated }}</p>
+                            {% else %}
+                                <p>Are you sure you want to run the {{ pipeline.name }} pipeline?</p>
+                            {% endif %}
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary confirm-run-single-publisher-pipeline-submit-button">Yes, Run Pipeline for System</button>
+                            <button type="button" class="btn btn-primary confirm-run-single-publisher-pipeline-submit-button">Yes, Run Pipeline</button>
                             <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
                         </div>
                     </div>
@@ -159,7 +165,9 @@
                 runForAllUrl: '{% url 'pipelines.run' product.id pipeline.id %}',
                 isSuperuser: {% if request.user.superuser %}true{% else %}false{% endif %},
                 csrfToken: '{{ csrf_token }}',
-                pipelineName: '{{ pipeline.name }}'
+                pipelineName: '{{ pipeline.name }}',
+                singlePublisherPipeline: {% if pipeline.single_publisher_pipeline %}true{% else %}false{% endif %},
+                includeDateRangeControls: {% if pipeline.include_date_range_controls %}true{% else %}false{% endif %}
             });
         });
     </script>

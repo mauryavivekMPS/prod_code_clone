@@ -114,6 +114,10 @@ PIPELINES = [
         'validator_class': None,
         'rebuild_data_source_id': None,
         'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Update Site Uptime Stats',
+        'include_date_range_controls': True,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}

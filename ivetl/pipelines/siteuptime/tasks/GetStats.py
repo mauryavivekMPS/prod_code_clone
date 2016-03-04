@@ -42,8 +42,8 @@ class GetStats(Task):
         if not to_date:
             to_date = today - datetime.timedelta(1)
 
-        if to_date < from_date + datetime.timedelta(1):
-            tlogger.error('Invalid date range: The to date must be at least a day after the from date.')
+        if to_date < from_date:
+            tlogger.error('Invalid date range: The date range must be at least one day.')
             raise Exception
 
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
