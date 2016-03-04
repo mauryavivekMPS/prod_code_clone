@@ -81,7 +81,7 @@ class GetStats(Task):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                tlogger.info('Getting check details for check %s' % check['id'])
+                tlogger.info('Getting stats for check %s' % check['id'])
 
                 pingdom = pingdom_connector_by_name[check['account']]
                 check_with_stats = pingdom.get_check_stats(check['id'], from_date, to_date)

@@ -75,6 +75,8 @@ class PingdomConnector(BaseConnector):
             from_timestamp = int(date.timestamp())
             to_timestamp = int((date + datetime.timedelta(1)).timestamp())
 
+            self.tlogger.info('Getting stat for %s for %s' % (check_id, date.strftime('%Y-%m-%d')))
+
             raw_stats = self._get_with_retry(
                 '/summary.average/%s' % check_id,
                 params={'includeuptime': 'true', 'from': from_timestamp, 'to': to_timestamp}
@@ -94,4 +96,5 @@ class PingdomConnector(BaseConnector):
         }
 
     def get_check_details(self, check_id):
+        self.tlogger.info('Get stat metadata for %s' % check_id)
         return self._get_with_retry('/checks/%s' % check_id)['check']
