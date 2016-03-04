@@ -157,6 +157,7 @@
             {% if publisher_runs.recent_task.status == 'in-progress' %}
                 PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% endif %}
+            PipelineListPage.onUpdatePublisher('{{ publisher_runs.publisher.publisher_id }}');
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_row');
         });

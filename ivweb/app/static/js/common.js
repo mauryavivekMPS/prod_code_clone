@@ -98,6 +98,7 @@ var PipelineListPage = (function() {
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
+        console.log(publisherTaskStatus);
         $.each(publisherTaskStatus, function(publisherId) {
             if (publisherTaskStatus[publisherId] == 'in-progress') {
                 somethingIsRunning = true;
@@ -105,10 +106,12 @@ var PipelineListPage = (function() {
             }
         });
         if (somethingIsRunning) {
-            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button, .uptime-date, .uptime-last-updated-message, .uptime-button-arrow').hide();
+            $('.run-button, .run-single-publisher-pipeline-button, .uptime-date, .uptime-last-updated-message, .uptime-button-arrow').hide();
+            console.log('something is running');
         }
         else {
-            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button, .uptime-date, .uptime-button-arrow').show();
+            $('.run-button, .run-single-publisher-pipeline-button, .uptime-date, .uptime-button-arrow').show();
+            console.log('nothing is running');
         }
     };
 
@@ -137,11 +140,7 @@ var PipelineListPage = (function() {
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
-
-                    // store this publisher status and update the main run button
-                    var newSummaryRow = $('.' + publisherId + '_summary_row');
-                    publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
-                    updateRunButton();
+                    onUpdatePublisher(publisherId);
                 }
 
                 // update the progress bar
@@ -159,6 +158,12 @@ var PipelineListPage = (function() {
         setTimeout(function() {
             updatePublisher(publisherId);
         }, 3000);
+    };
+
+    var onUpdatePublisher = function(publisherId) {
+        var newSummaryRow = $('.' + publisherId + '_summary_row');
+        publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
+        updateRunButton();
     };
 
     var wirePublisherLinks = function(selector) {
@@ -329,7 +334,7 @@ var PipelineListPage = (function() {
 
         if (isSuperuser) {
             var m = $('#confirm-run-all-modal');
-            $('.run-button').click(function() {
+            $('.run-button, .run-single-publisher-pipeline-button').click(function() {
                 m.modal();
             });
 
@@ -345,27 +350,25 @@ var PipelineListPage = (function() {
                 return false;
             });
 
-            wirePublisherLinks('.publisher-link');
-            wireTaskLinks('.task-link');
+            var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
+            $('.run-single-publisher-pipeline-button').click(function() {
+                singlePublisherPipelineModal.modal();
+            });
 
-            // special case for highwire metadata
-            $('.run-metadata-for-hw-button').click(function() {
-                $(this).hide();
-                var loading = $('.run-metadata-for-hw-loading-icon');
+            $('#confirm-run-single-publisher-pipeline-modal .confirm-run-single-publisher-pipeline-submit-button').click(function() {
+                singlePublisherPipelineModal.modal('hide');
+                $('.run-single-publisher-pipeline-button').hide();
+                var loading = $('.run-single-publisher-pipeline-loading-icon');
                 loading.show();
                 setTimeout(function() {
                     loading.hide();
                 }, 3000);
-
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: 'hw'}
-                ];
-
-                $.post('run/', data);
-
+                $('#run-single-publisher-pipeline-form').submit();
                 return false;
             });
+
+            wirePublisherLinks('.publisher-link');
+            wireTaskLinks('.task-link');
 
             // special case for highwire uptime
             $('#id_uptime_from_date').datepicker({
@@ -416,7 +419,8 @@ var PipelineListPage = (function() {
     return {
         init: init,
         startTailForPublisher: startTailForPublisher,
-        cancelTailForPublisher: cancelTailForPublisher
+        cancelTailForPublisher: cancelTailForPublisher,
+        onUpdatePublisher: onUpdatePublisher
     };
 
 })();
