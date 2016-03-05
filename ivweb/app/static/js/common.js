@@ -170,7 +170,21 @@ var PipelineListPage = (function() {
 
     var updateHighWaterMark = function(highWaterMark) {
         $('.last-updated-message').html('Last date processed: ' + highWaterMark);
-        console.log('updating high water mark');
+        if (highWaterMark != '' && highWaterMark != 'never') {
+            var fromDate = new Date(highWaterMark);
+            fromDate.setDate(fromDate.getDate() + 1);
+            $('#id_modal_from_date').datepicker('update', fromDate);
+            var yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            var toDate;
+            if (yesterday > fromDate) {
+                toDate = yesterday;
+            }
+            else {
+                toDate = fromDate;
+            }
+            $('#id_modal_to_date').datepicker('update', toDate);
+        }
     };
 
     var wirePublisherLinks = function(selector) {

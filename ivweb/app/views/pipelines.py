@@ -94,12 +94,26 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
-    high_water_mark = ''
-    if pipeline['use_high_water_mark']:
+    from_date_label = ''
+    to_date_label = ''
+
+    high_water_mark = None
+    high_water_mark_label = ''
+    if pipeline.get('use_high_water_mark'):
         try:
-            high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+            high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
+            high_water_mark_label = high_water_mark.strftime('%m/%d/%Y')
         except System_Global.DoesNotExist:
-            high_water_mark = 'never'
+            high_water_mark_label = 'never'
+
+    if pipeline.get('include_date_range_controls'):
+        if high_water_mark:
+            from_date = to_date = high_water_mark + datetime.timedelta(1)
+        else:
+            from_date = to_date = datetime.datetime.now() - datetime.timedelta(1)
+
+        from_date_label = from_date.strftime('%m/%d/%Y')
+        to_date_label = to_date.strftime('%m/%d/%Y')
 
     return render(request, 'pipelines/list.html', {
         'product': product,
@@ -108,9 +122,9 @@ def list_pipelines(request, product_id, pipeline_id):
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
         'list_type': list_type,
-        'high_water_mark': high_water_mark,
-        'from_date': (datetime.datetime.now() - datetime.timedelta(2)).strftime('%m/%d/%Y'),
-        'to_date': (datetime.datetime.now() - datetime.timedelta(1)).strftime('%m/%d/%Y'),
+        'high_water_mark': high_water_mark_label,
+        'from_date': from_date_label,
+        'to_date': to_date_label,
     })
 
 
@@ -172,7 +186,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     return JsonResponse({
         'has_section_updates': has_section_updates,
         'publisher_details_html': publisher_details_html,
-        'has_progress_bar_updates': True,
+        'has_progress_bar_updates': has_progress_bar_updates,
         'total_record_count': total_record_count,
         'current_record_count': current_record_count,
         'percent_complete': percent_complete,
