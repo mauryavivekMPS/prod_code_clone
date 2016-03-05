@@ -35,7 +35,7 @@ class GetStats(Task):
 
             from_date = last_uptime_day_processed
 
-        if from_date > today - datetime.timedelta(2):
+        if from_date > today - datetime.timedelta(1):
             tlogger.error('Invalid date range: The from date must before yesterday.')
             raise Exception
 
