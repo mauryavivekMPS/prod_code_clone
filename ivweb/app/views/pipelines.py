@@ -94,12 +94,12 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
-    uptime_last_updated = ''
-    if pipeline_id == 'site_uptime':
+    high_water_mark = ''
+    if pipeline['use_high_water_mark']:
         try:
-            uptime_last_updated = System_Global.objects.get(name='last_uptime_day_processed').date_value.strftime('%m/%d/%Y')
+            high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
         except System_Global.DoesNotExist:
-            uptime_last_updated = 'never'
+            high_water_mark = 'never'
 
     return render(request, 'pipelines/list.html', {
         'product': product,
@@ -108,9 +108,9 @@ def list_pipelines(request, product_id, pipeline_id):
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
         'list_type': list_type,
-        'uptime_last_updated': uptime_last_updated,
-        'uptime_from_date': (datetime.datetime.now() - datetime.timedelta(2)).strftime('%m/%d/%Y'),
-        'uptime_to_date': (datetime.datetime.now() - datetime.timedelta(1)).strftime('%m/%d/%Y'),
+        'high_water_mark': high_water_mark,
+        'from_date': (datetime.datetime.now() - datetime.timedelta(2)).strftime('%m/%d/%Y'),
+        'to_date': (datetime.datetime.now() - datetime.timedelta(1)).strftime('%m/%d/%Y'),
     })
 
 
@@ -133,6 +133,8 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     total_record_count = 0
     current_record_count = 0
     percent_complete = 0
+
+    high_water_mark = ''
 
     # get the current run and task
     if publisher_runs['runs']:
@@ -160,6 +162,13 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         })
         publisher_details_html = template.render(context)
 
+        if current_task.status == 'completed':
+            if pipeline['use_high_water_mark']:
+                try:
+                    high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+                except System_Global.DoesNotExist:
+                    pass
+
     return JsonResponse({
         'has_section_updates': has_section_updates,
         'publisher_details_html': publisher_details_html,
@@ -167,6 +176,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         'total_record_count': total_record_count,
         'current_record_count': current_record_count,
         'percent_complete': percent_complete,
+        'high_water_mark': high_water_mark
     })
 
 

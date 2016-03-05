@@ -28,7 +28,7 @@ class GetStats(Task):
         if not from_date:
             try:
                 # get last processed day
-                last_uptime_day_processed = System_Global.objects.get(name='last_uptime_day_processed').date_value
+                last_uptime_day_processed = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
             except System_Global.DoesNotExist:
                 # default to two days ago
                 last_uptime_day_processed = today - datetime.timedelta(2)

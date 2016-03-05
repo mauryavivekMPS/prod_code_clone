@@ -118,6 +118,7 @@ PIPELINES = [
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Site Uptime Stats',
         'include_date_range_controls': True,
+        'use_high_water_mark': True,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}

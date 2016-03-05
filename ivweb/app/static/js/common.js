@@ -105,10 +105,10 @@ var PipelineListPage = (function() {
             }
         });
         if (somethingIsRunning) {
-            $('.run-button, .run-single-publisher-pipeline-button, .uptime-date, .uptime-last-updated-message, .uptime-button-arrow').hide();
+            $('.run-button, .run-single-publisher-pipeline-button, .last-updated-message').hide();
         }
         else {
-            $('.run-button, .run-single-publisher-pipeline-button, .uptime-date, .uptime-button-arrow').show();
+            $('.run-button, .run-single-publisher-pipeline-button, .last-updated-message').show();
         }
     };
 
@@ -149,6 +149,11 @@ var PipelineListPage = (function() {
                     progressBar.css('width', json.percent_complete + '%');
                     IvetlWeb.initTooltips('.' + publisherId + '_row');
                 }
+
+                // update the high water mark
+                if (json.high_water_mark != '') {
+                    updateHighWaterMark(json.high_water_mark);
+                }
             });
 
         // start again...
@@ -161,6 +166,11 @@ var PipelineListPage = (function() {
         var newSummaryRow = $('.' + publisherId + '_summary_row');
         publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
         updateRunButton();
+    };
+
+    var updateHighWaterMark = function(highWaterMark) {
+        $('.last-updated-message').html('Last date processed: ' + highWaterMark);
+        console.log('updating high water mark');
     };
 
     var wirePublisherLinks = function(selector) {
@@ -348,7 +358,7 @@ var PipelineListPage = (function() {
 
                 $('#confirm-run-single-publisher-pipeline-modal .confirm-run-single-publisher-pipeline-submit-button').click(function() {
                     singlePublisherPipelineModal.modal('hide');
-                    $('.run-single-publisher-pipeline-button').hide();
+                    $('.run-single-publisher-pipeline-button, .last-updated-message').hide();
                     var loading = $('.run-single-publisher-pipeline-loading-icon');
                     loading.show();
                     setTimeout(function() {
@@ -400,7 +410,8 @@ var PipelineListPage = (function() {
         init: init,
         startTailForPublisher: startTailForPublisher,
         cancelTailForPublisher: cancelTailForPublisher,
-        onUpdatePublisher: onUpdatePublisher
+        onUpdatePublisher: onUpdatePublisher,
+        updateHighWaterMark: updateHighWaterMark
     };
 
 })();

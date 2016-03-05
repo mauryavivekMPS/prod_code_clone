@@ -158,6 +158,9 @@
                 PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% endif %}
             PipelineListPage.onUpdatePublisher('{{ publisher_runs.publisher.publisher_id }}');
+            {% if high_water_mark %}
+                PipelineListPage.updateHighWaterMark('{{ high_water_mark }}');
+            {% endif %}
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_row');
         });
