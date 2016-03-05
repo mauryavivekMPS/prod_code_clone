@@ -40,7 +40,7 @@ class InsertIntoCassandra(Task):
                     )
 
         # update high water mark
-        System_Global.objects(name='last_uptime_day_processed').update(date_value=to_date)
+        System_Global.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 

@@ -28,22 +28,22 @@ class GetStats(Task):
         if not from_date:
             try:
                 # get last processed day
-                last_uptime_day_processed = System_Global.objects.get(name='last_uptime_day_processed').date_value
+                last_uptime_day_processed = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
             except System_Global.DoesNotExist:
                 # default to two days ago
                 last_uptime_day_processed = today - datetime.timedelta(2)
 
             from_date = last_uptime_day_processed
 
-        if from_date > today - datetime.timedelta(2):
+        if from_date > today - datetime.timedelta(1):
             tlogger.error('Invalid date range: The from date must before yesterday.')
             raise Exception
 
         if not to_date:
             to_date = today - datetime.timedelta(1)
 
-        if to_date < from_date + datetime.timedelta(1):
-            tlogger.error('Invalid date range: The to date must be at least a day after the from date.')
+        if to_date < from_date:
+            tlogger.error('Invalid date range: The date range must be at least one day.')
             raise Exception
 
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
@@ -81,7 +81,7 @@ class GetStats(Task):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                tlogger.info('Getting check details for check %s' % check['id'])
+                tlogger.info('Getting stats for check %s' % check['id'])
 
                 pingdom = pingdom_connector_by_name[check['account']]
                 check_with_stats = pingdom.get_check_stats(check['id'], from_date, to_date)

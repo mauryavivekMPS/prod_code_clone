@@ -105,10 +105,10 @@ var PipelineListPage = (function() {
             }
         });
         if (somethingIsRunning) {
-            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button, .uptime-date, .uptime-last-updated-message, .uptime-button-arrow').hide();
+            $('.run-button, .run-single-publisher-pipeline-button, .last-updated-message').hide();
         }
         else {
-            $('.run-button, .run-metadata-for-hw-button, .run-uptime-for-hw-button, .uptime-date, .uptime-button-arrow').show();
+            $('.run-button, .run-single-publisher-pipeline-button, .last-updated-message').show();
         }
     };
 
@@ -137,11 +137,7 @@ var PipelineListPage = (function() {
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
-
-                    // store this publisher status and update the main run button
-                    var newSummaryRow = $('.' + publisherId + '_summary_row');
-                    publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
-                    updateRunButton();
+                    onUpdatePublisher(publisherId);
                 }
 
                 // update the progress bar
@@ -153,12 +149,42 @@ var PipelineListPage = (function() {
                     progressBar.css('width', json.percent_complete + '%');
                     IvetlWeb.initTooltips('.' + publisherId + '_row');
                 }
+
+                // update the high water mark
+                if (json.high_water_mark != '') {
+                    updateHighWaterMark(json.high_water_mark);
+                }
             });
 
         // start again...
         setTimeout(function() {
             updatePublisher(publisherId);
         }, 3000);
+    };
+
+    var onUpdatePublisher = function(publisherId) {
+        var newSummaryRow = $('.' + publisherId + '_summary_row');
+        publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
+        updateRunButton();
+    };
+
+    var updateHighWaterMark = function(highWaterMark) {
+        $('.last-updated-message').html('Last date processed: ' + highWaterMark);
+        if (highWaterMark != '' && highWaterMark != 'never') {
+            var fromDate = new Date(highWaterMark);
+            fromDate.setDate(fromDate.getDate() + 1);
+            $('#id_modal_from_date').datepicker('update', fromDate);
+            var yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            var toDate;
+            if (yesterday > fromDate) {
+                toDate = yesterday;
+            }
+            else {
+                toDate = fromDate;
+            }
+            $('#id_modal_to_date').datepicker('update', toDate);
+        }
     };
 
     var wirePublisherLinks = function(selector) {
@@ -315,7 +341,9 @@ var PipelineListPage = (function() {
             runForAllUrl: '',
             isSuperuser: false,
             csrfToken: '',
-            pipelineName: ''
+            pipelineName: '',
+            singlePublisherPipeline: false,
+            includeDateRangeControls: false
         }, options);
 
         pipelineId = options.pipelineId;
@@ -328,80 +356,59 @@ var PipelineListPage = (function() {
         pipelineName = options.pipelineName;
 
         if (isSuperuser) {
-            var m = $('#confirm-run-all-modal');
-            $('.run-button').click(function() {
-                m.modal();
-            });
+            if (options.singlePublisherPipeline) {
+                $('#id_modal_from_date').datepicker({
+                    autoclose: true
+                });
 
-            $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
-                m.modal('hide');
-                $('.run-button').hide();
-                var loading = $('.run-for-all-loading-icon');
-                loading.show();
-                setTimeout(function() {
-                    loading.hide();
-                }, 3000);
-                $('#run-pipeline-form').submit();
-                return false;
-            });
+                $('#id_modal_to_date').datepicker({
+                    autoclose: true
+                });
+
+                var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
+                $('.run-single-publisher-pipeline-button').click(function() {
+                    singlePublisherPipelineModal.modal();
+                });
+
+                $('#confirm-run-single-publisher-pipeline-modal .confirm-run-single-publisher-pipeline-submit-button').click(function() {
+                    singlePublisherPipelineModal.modal('hide');
+                    $('.run-single-publisher-pipeline-button, .last-updated-message').hide();
+                    var loading = $('.run-single-publisher-pipeline-loading-icon');
+                    loading.show();
+                    setTimeout(function() {
+                        loading.hide();
+                    }, 3000);
+
+                    if (options.includeDateRangeControls) {
+                        $('#id_from_date').val($('#id_modal_from_date').val());
+                        $('#id_to_date').val($('#id_modal_to_date').val());
+                    }
+
+                    $('#run-single-publisher-pipeline-form').submit();
+                    return false;
+                });
+            }
+            else {
+                var m = $('#confirm-run-all-modal');
+                $('.run-button, .run-single-publisher-pipeline-button').click(function() {
+                    m.modal();
+                });
+
+                $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
+                    m.modal('hide');
+                    $('.run-button').hide();
+                    var loading = $('.run-for-all-loading-icon');
+                    loading.show();
+                    setTimeout(function() {
+                        loading.hide();
+                    }, 3000);
+                    $('#run-pipeline-form').submit();
+                    return false;
+                });
+            }
 
             wirePublisherLinks('.publisher-link');
             wireTaskLinks('.task-link');
-
-            // special case for highwire metadata
-            $('.run-metadata-for-hw-button').click(function() {
-                $(this).hide();
-                var loading = $('.run-metadata-for-hw-loading-icon');
-                loading.show();
-                setTimeout(function() {
-                    loading.hide();
-                }, 3000);
-
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: 'hw'}
-                ];
-
-                $.post('run/', data);
-
-                return false;
-            });
-
-            // special case for highwire uptime
-            $('#id_uptime_from_date').datepicker({
-                autoclose: true
-            });
-
-            $('#id_uptime_to_date').datepicker({
-                autoclose: true
-            });
-
-            $('.run-uptime-for-hw-button').click(function() {
-                $(this).hide();
-                var fromDateWidget = $('#id_uptime_from_date');
-                var toDateWidget = $('#id_uptime_to_date');
-                fromDateWidget.hide();
-                toDateWidget.hide();
-                $('.uptime-last-updated-message').hide();
-                $('.uptime-button-arrow').hide();
-
-                var loading = $('.run-uptime-for-hw-loading-icon');
-                loading.show();
-                setTimeout(function() {
-                    loading.hide();
-                }, 3000);
-
-                var data = [
-                    {name: 'csrfmiddlewaretoken', value: csrfToken},
-                    {name: 'publisher', value: 'hw'},
-                    {name: 'from_date', value: fromDateWidget.val()},
-                    {name: 'to_date', value: toDateWidget.val()}
-                ];
-
-                $.post('run/', data);
-
-                return false;
-            });
         }
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
@@ -416,7 +423,9 @@ var PipelineListPage = (function() {
     return {
         init: init,
         startTailForPublisher: startTailForPublisher,
-        cancelTailForPublisher: cancelTailForPublisher
+        cancelTailForPublisher: cancelTailForPublisher,
+        onUpdatePublisher: onUpdatePublisher,
+        updateHighWaterMark: updateHighWaterMark
     };
 
 })();

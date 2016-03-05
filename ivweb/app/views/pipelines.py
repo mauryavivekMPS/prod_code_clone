@@ -94,12 +94,26 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
-    uptime_last_updated = ''
-    if pipeline_id == 'site_uptime':
+    from_date_label = ''
+    to_date_label = ''
+
+    high_water_mark = None
+    high_water_mark_label = ''
+    if pipeline.get('use_high_water_mark'):
         try:
-            uptime_last_updated = System_Global.objects.get(name='last_uptime_day_processed').date_value.strftime('%m/%d/%Y')
+            high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
+            high_water_mark_label = high_water_mark.strftime('%m/%d/%Y')
         except System_Global.DoesNotExist:
-            uptime_last_updated = 'never'
+            high_water_mark_label = 'never'
+
+    if pipeline.get('include_date_range_controls'):
+        if high_water_mark:
+            from_date = to_date = high_water_mark + datetime.timedelta(1)
+        else:
+            from_date = to_date = datetime.datetime.now() - datetime.timedelta(1)
+
+        from_date_label = from_date.strftime('%m/%d/%Y')
+        to_date_label = to_date.strftime('%m/%d/%Y')
 
     return render(request, 'pipelines/list.html', {
         'product': product,
@@ -108,9 +122,9 @@ def list_pipelines(request, product_id, pipeline_id):
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
         'list_type': list_type,
-        'uptime_last_updated': uptime_last_updated,
-        'uptime_from_date': (datetime.datetime.now() - datetime.timedelta(2)).strftime('%m/%d/%Y'),
-        'uptime_to_date': (datetime.datetime.now() - datetime.timedelta(1)).strftime('%m/%d/%Y'),
+        'high_water_mark': high_water_mark_label,
+        'from_date': from_date_label,
+        'to_date': to_date_label,
     })
 
 
@@ -133,6 +147,8 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     total_record_count = 0
     current_record_count = 0
     percent_complete = 0
+
+    high_water_mark = ''
 
     # get the current run and task
     if publisher_runs['runs']:
@@ -160,13 +176,21 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         })
         publisher_details_html = template.render(context)
 
+        if current_task.status == 'completed':
+            if pipeline['use_high_water_mark']:
+                try:
+                    high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+                except System_Global.DoesNotExist:
+                    pass
+
     return JsonResponse({
         'has_section_updates': has_section_updates,
         'publisher_details_html': publisher_details_html,
-        'has_progress_bar_updates': True,
+        'has_progress_bar_updates': has_progress_bar_updates,
         'total_record_count': total_record_count,
         'current_record_count': current_record_count,
         'percent_complete': percent_complete,
+        'high_water_mark': high_water_mark
     })
 
 
@@ -222,7 +246,7 @@ def run(request, product_id, pipeline_id):
                 move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class)
 
             # kick the pipeline off (special case for uptime pipeline)
-            if pipeline_id == 'site_uptime':
+            if pipeline['include_date_range_controls']:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(
