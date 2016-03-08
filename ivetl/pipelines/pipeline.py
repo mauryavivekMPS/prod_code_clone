@@ -1,6 +1,7 @@
 import os
 import datetime
 import stat
+import json
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status
@@ -21,21 +22,23 @@ class Pipeline(BaseTask):
         pipeline_incoming_dir = os.path.join(base_incoming_dir, publisher_id, pipeline_id)
         return pipeline_incoming_dir
 
-    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=None, total_task_count=0, current_task_count=0):
+    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, params={}, initiating_user_email=None, total_task_count=0, current_task_count=0):
         start_date = datetime.datetime.today()
 
-        p = Pipeline_Status()
-        p.publisher_id = publisher_id
-        p.product_id = product_id
-        p.pipeline_id = pipeline_id
-        p.job_id = job_id
-        p.start_time = start_date
-        p.workfolder = work_folder
-        p.updated = start_date
-        p.total_task_count = total_task_count
-        p.current_task_count = current_task_count
-        p.user_email = initiating_user_email
-        p.save()
+        Pipeline_Status.objects(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+        ).update(
+            start_time=start_date,
+            workfolder=work_folder,
+            updated=start_date,
+            total_task_count=total_task_count,
+            current_task_count=current_task_count,
+            user_email=initiating_user_email,
+            params_json=json.dumps(params),
+        )
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         end_date = datetime.datetime.today()
@@ -54,26 +57,31 @@ class Pipeline(BaseTask):
 
             # TODO: Not sure what to do here if there are no args yet!?!
 
-            pts = Pipeline_Task_Status()
-            pts.publisher_id = publisher_id
-            pts.product_id = product_id
-            pts.pipeline_id = self.pipeline_name
-            pts.job_id = job_id
-            pts.task_id = self.short_name
-            pts.end_time = end_date
-            pts.status = self.PL_ERROR
-            pts.error_details = str(exc)
-            pts.updated = end_date
-            pts.update()
+            Pipeline_Task_Status.objects(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=self.pipeline_name,
+                job_id=job_id,
+                task_id=self.short_name,
+            ).update(
+                end_time=end_date,
+                status=self.PL_ERROR,
+                error_details=str(exc),
+                updated=end_date
+            )
 
             try:
-                ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id)
-                ps.update(
+                Pipeline_Status.objects(
+                    publisher_id=publisher_id,
+                    product_id=product_id,
+                    pipeline_id=pipeline_id,
+                    job_id=job_id,
+                ).update(
                     end_time=end_date,
                     duration_seconds=(end_date - ps.start_time).total_seconds(),
                     status=self.PL_ERROR,
                     error_details=str(exc),
-                    updated=end_date
+                    updated=end_date,
                 )
             except Pipeline_Status.DoesNotExist:
                 # do nothing

@@ -1,4 +1,5 @@
 import os
+from celery.schedules import crontab
 from ivetl.common import common
 
 BROKER_URL = 'amqp://guest:guest@' + common.RABBITMQ_BROKER_IP + ':5672//'
@@ -33,3 +34,13 @@ EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'estacks'
 EMAIL_HOST_PASSWORD = 'Hello123!'
+
+CELERYBEAT_SCHEDULE = {
+    'get-uptime-every-morning-at-2am': {
+        'task': 'ivetl.pipelines.siteuptime.SiteUptimePipeline.SiteUptimePipeline',
+        'schedule': crontab(hour=2, minute=0),
+        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites'},
+    },
+}
+
+CELERY_TIMEZONE = 'US/Pacific'

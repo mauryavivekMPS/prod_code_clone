@@ -245,8 +245,11 @@ def run(request, product_id, pipeline_id):
             if form.cleaned_data['move_pending_files']:
                 move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class)
 
-            # kick the pipeline off (special case for uptime pipeline)
-            if pipeline['include_date_range_controls']:
+            # look for a job_id, if found restart the job
+            job_id = request.POST.get('restart_job_id')
+
+            # kick the pipeline off (special case for date range pipelines unless restart)
+            if pipeline['include_date_range_controls'] and not job_id:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(
@@ -260,7 +263,8 @@ def run(request, product_id, pipeline_id):
                 pipeline_class.s(
                     publisher_id_list=publisher_id_list,
                     product_id=product_id,
-                    initiating_user_email=request.user.email
+                    initiating_user_email=request.user.email,
+                    job_id=job_id,
                 ).delay()
 
             Audit_Log.objects.create(
