@@ -10,7 +10,7 @@ from ivetl.common import common
 @app.task
 class XREFJournalCatalogPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, input_file=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, input_file=None, initiating_user_email=None):
         pipeline_id = "update_manuscripts"
 
         d = datetime.datetime.today()

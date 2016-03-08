@@ -8,7 +8,7 @@ from ivetl.pipelines.sitemetadata import tasks
 @app.task
 class SiteMetadataPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
         pipeline_id = "site_metadata"
 
         now = datetime.datetime.now()

@@ -18,7 +18,7 @@ class CustomArticleDataPipeline(Pipeline):
     # 4. InsertArticleData - insert non-overlapping data into pub_articles and overlapping into _values.
     # 5. ResolveArticleData - decide which data to promote from _values into pub_articles, and do the insert.
 
-    def run(self, publisher_id_list=[], product_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
         pipeline_id = 'custom_article_data'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]

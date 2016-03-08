@@ -10,7 +10,7 @@ from ivetl.common import common
 @app.task
 class UpdateArticleCitationsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
         pipeline_id = "article_citations"
 
         now = datetime.datetime.now()
