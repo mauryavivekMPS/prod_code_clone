@@ -10,7 +10,7 @@ from ivetl.common import common
 @app.task
 class CheckRejectedManuscriptsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
         pipeline_id = "check_rejected_manuscripts"
 
         d = datetime.datetime.today()

@@ -13,7 +13,7 @@ from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 @app.task
 class UpdateRejectedArticlesPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
         pipeline_id = 'rejected_articles'
 
         now = datetime.datetime.now()
