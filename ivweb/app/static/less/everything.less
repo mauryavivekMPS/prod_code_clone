@@ -1264,11 +1264,24 @@ hr {
     margin-right: 2px;
 }
 
-.little-upload-button {
+.little-upload-button, .restart-run-button {
     font-size: 10px;
     padding: 2px 8px;
     margin-left: 10px;
     vertical-align: 1px;
+}
+
+tr {
+    .restart-run-button {
+        opacity: .4;
+        transition: opacity ease-in-out .2s;
+    }
+
+    &:hover {
+        .restart-run-button {
+            opacity: 1;
+        }
+    }
 }
 
 .little-files-link {
@@ -1745,7 +1758,7 @@ body.login {
 }
 
 .publisher-summary-row {
-    .little-upload-button, .little-files-link {
+    .little-upload-button, .little-files-link, .re {
         opacity: .4;
         transition: opacity ease-in-out .2s;
     }

@@ -94,6 +94,9 @@ class GetStats(Task):
                 row = "%s\t%s\n" % (check['id'], json.dumps(check_with_stats))
                 target_file.write(row)
 
+                # if count > 3:
+                #     raise Exception('Whaaaa!')
+
         return {
             'count': total_count,
             'input_file': target_file_name,

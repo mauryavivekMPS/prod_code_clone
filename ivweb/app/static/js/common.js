@@ -136,6 +136,7 @@ var PipelineListPage = (function() {
                     summaryRow.replaceWith(json.publisher_details_html);
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
+                    wireRestartRunButtons('.' + publisherId + '_restart_run_button');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
                     onUpdatePublisher(publisherId);
                 }
@@ -220,8 +221,15 @@ var PipelineListPage = (function() {
 
             // update the modal and open it
             var m = $('#confirm-run-single-modal');
-            m.find('.modal-title').html('Run Pipeline for Publisher');
-            m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+
+            if (form.find('input[name="restart_job_id"]')) {
+                m.find('.modal-title').html('Restart Job for Publisher');
+                m.find('.modal-body').html('<p>Are you sure you want to restart the ' + pipelineName + ' job for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+            }
+            else {
+                m.find('.modal-title').html('Run Pipeline for Publisher');
+                m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+            }
 
             var submitButton = m.find('.confirm-run-single-submit-button');
             submitButton.on('click', function() {
@@ -236,6 +244,9 @@ var PipelineListPage = (function() {
                 parent.find('.little-files-link').hide();
                 $('.run-button').hide();
                 $.post(runForPublisherUrl, form.serialize());
+
+                // clear out any job IDs, this form is used by multiple buttons
+                form.find('input[name="restart_job_id"]').val('');
             });
             m.modal();
 
@@ -246,6 +257,21 @@ var PipelineListPage = (function() {
 
             event.preventDefault();
             return false;
+        });
+    };
+
+    var wireRestartRunButtons = function(selector) {
+        $(selector).each(function() {
+            var button = $(this);
+            var publisherId = button.attr('publisher_id');
+            var jobId = button.attr('job_id');
+            button.click(function() {
+                var f = $('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
+                var jobIdWidget = f.find('input[name="restart_job_id"]');
+                jobIdWidget.val(jobId);
+                f.submit();
+                return false;
+            });
         });
     };
 
@@ -412,6 +438,7 @@ var PipelineListPage = (function() {
         }
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
+        wireRestartRunButtons('.restart-run-button');
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {

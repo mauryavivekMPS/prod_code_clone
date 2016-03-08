@@ -58,21 +58,27 @@ class Task(BaseTask):
     def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, tlogger):
         start_date = datetime.datetime.today()
 
-        pts = Pipeline_Task_Status()
-        pts.publisher_id = publisher_id
-        pts.product_id = product_id
-        pts.pipeline_id = pipeline_id
-        pts.job_id = job_id
-        pts.task_id = self.short_name
-        pts.start_time = start_date
-        pts.total_record_count = 0
-        pts.current_record_count = 0
-        pts.status = self.PL_INPROGRESS
-        pts.updated = start_date
-        pts.workfolder = work_folder
-        pts.save()
+        Pipeline_Task_Status.objects(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+            task_id=self.short_name,
+        ).update(
+            start_time=start_date,
+            total_record_count=0,
+            current_record_count=0,
+            status=self.PL_INPROGRESS,
+            updated=start_date,
+            workfolder=work_folder,
+        )
 
-        Pipeline_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).update(
+        Pipeline_Status.objects(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id
+        ).update(
             current_task=self.short_name,
             current_task_count=current_task_count,
             status=self.PL_INPROGRESS,
@@ -86,17 +92,18 @@ class Task(BaseTask):
         end_date = datetime.datetime.fromtimestamp(t1)
         duration_seconds = t1 - start_time
 
-        pts = Pipeline_Task_Status()
-        pts.publisher_id = publisher_id
-        pts.product_id = product_id
-        pts.pipeline_id = pipeline_id
-        pts.job_id = job_id
-        pts.task_id = self.short_name
-        pts.end_time = end_date
-        pts.status = self.PL_COMPLETED
-        pts.updated = end_date
-        pts.duration_seconds = duration_seconds
-        pts.update()
+        Pipeline_Task_Status.objects(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+            task_id=self.short_name,
+        ).update(
+            end_time=end_date,
+            status=self.PL_COMPLETED,
+            updated=end_date,
+            duration_seconds=duration_seconds,
+        )
 
         if count:
             tlogger.info("Rows Processed: %s" % count)
@@ -111,17 +118,18 @@ class Task(BaseTask):
         product_id = task_args['product_id']
         job_id = task_args['job_id']
 
-        pts = Pipeline_Task_Status()
-        pts.publisher_id = publisher_id
-        pts.product_id = product_id
-        pts.pipeline_id = pipeline_id
-        pts.job_id = job_id
-        pts.task_id = self.short_name
-        pts.end_time = end_date
-        pts.status = self.PL_ERROR
-        pts.error_details = str(exc)
-        pts.updated = end_date
-        pts.update()
+        Pipeline_Task_Status.objects(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+            task_id=self.short_name,
+        ).update(
+            end_time=end_date,
+            status=self.PL_ERROR,
+            error_details=str(exc),
+            updated=end_date,
+        )
 
         try:
             ps = Pipeline_Status.objects.get(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id)
@@ -168,7 +176,13 @@ class Task(BaseTask):
         common.send_email(subject, body)
 
     def set_total_record_count(self, publisher_id, product_id, pipeline_id, job_id, total_count):
-        Pipeline_Task_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id, task_id=self.short_name).update(
+        Pipeline_Task_Status.objects(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+            task_id=self.short_name
+        ).update(
             total_record_count=total_count
         )
 
@@ -187,34 +201,52 @@ class Task(BaseTask):
 
         if total_count and current_count % increment == 0:
             # write out every 100 records to the db
-            Pipeline_Task_Status.objects(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id, task_id=self.short_name).update(
+            Pipeline_Task_Status.objects(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                task_id=self.short_name
+            ).update(
                 current_record_count=current_count
             )
         return current_count
 
     def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, send_notification_email=False, notification_count=None):
         end_date = datetime.datetime.today()
-        p = Pipeline_Status().objects.filter(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
-        if p is not None:
-            p.end_time = end_date
-            p.duration_seconds = (end_date - p.start_time).total_seconds()
-            p.status = self.PL_COMPLETED
-            p.updated = end_date
-            p.update()
 
-        # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
-        if send_notification_email and pipeline['has_file_input']:
-            if p.user_email:
-                subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_display_name'].title())
-                body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_display_name'].title()
 
-                if notification_count:
-                    body += '<p>%s records were processed.<p>' % notification_count
+        try:
+            p = Pipeline_Status.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            )
 
-                body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+            p.update(
+                end_time=end_date,
+                duration_seconds=(end_date - p.start_time).total_seconds(),
+                status=self.PL_COMPLETED,
+                updated=end_date,
+            )
 
-                common.send_email(subject, body, to=p.user_email)
+            # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
+            if send_notification_email and pipeline['has_file_input']:
+                if p.user_email:
+                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_display_name'].title())
+                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_display_name'].title()
+
+                    if notification_count:
+                        body += '<p>%s records were processed.<p>' % notification_count
+
+                    body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+
+                    common.send_email(subject, body, to=p.user_email)
+
+        except Pipeline_Status.DoesNotExist:
+            pass
 
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 

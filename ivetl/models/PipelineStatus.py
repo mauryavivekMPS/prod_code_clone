@@ -18,6 +18,7 @@ class Pipeline_Status(Model):
     updated = columns.DateTime()
     workfolder = columns.Text()
     user_email = columns.Text()
+    params_json = columns.Text()
 
     def display_name(self):
         return 'Run %s' % self.job_id[self.job_id.rindex('_') + 1:]
