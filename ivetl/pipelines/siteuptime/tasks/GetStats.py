@@ -2,6 +2,7 @@ import os
 import codecs
 import json
 import datetime
+import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import PingdomConnector
@@ -16,6 +17,22 @@ class GetStats(Task):
         to_date = task_args['to_date']
 
         target_file_name = os.path.join(work_folder, "%s_uptimechecks_target.tab" % publisher_id)
+
+        already_fetched = set()
+
+        # if the file exists, read it in assuming a job restart
+        if os.path.isfile(target_file_name):
+            tlogger.info('Found an existing file, looking for existing check data')
+            with codecs.open(target_file_name, encoding='utf-16') as tsv:
+                for line in csv.reader(tsv, delimiter='\t'):
+                    if line and line[0] and line[0] != 'CHECK_ID':
+                        tlogger.info('Found existing data for %s' % line[0])
+                        already_fetched.add(int(line[0]))
+
+        if already_fetched:
+            tlogger.info('The already_fetched set is: %s' % ', '.join([str(id) for id in already_fetched]))
+        else:
+            tlogger.info('No existing data to reuse.')
 
         today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
 
@@ -48,8 +65,10 @@ class GetStats(Task):
 
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
 
-        with codecs.open(target_file_name, 'w', 'utf-16') as target_file:
-            target_file.write('CHECK_ID\tDATA\n')
+        with codecs.open(target_file_name, 'a', 'utf-16') as target_file:
+
+            if not already_fetched:
+                target_file.write('CHECK_ID\tDATA\n')
 
             total_count = 0
 
@@ -81,21 +100,22 @@ class GetStats(Task):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                tlogger.info('Getting stats for check %s' % check['id'])
+                if check['id'] in already_fetched:
+                    tlogger.info('Already have data for check %s, skipping' % check['id'])
 
-                pingdom = pingdom_connector_by_name[check['account']]
-                check_with_stats = pingdom.get_check_stats(check['id'], from_date, to_date)
+                else:
+                    tlogger.info('Getting stats for check %s' % check['id'])
 
-                # stringify the dates
-                for stat in check_with_stats['stats']:
-                    stat['date'] = stat['date'].strftime('%Y-%m-%d')
+                    pingdom = pingdom_connector_by_name[check['account']]
+                    check_with_stats = pingdom.get_check_stats(check['id'], from_date, to_date)
 
-                # write out to target file
-                row = "%s\t%s\n" % (check['id'], json.dumps(check_with_stats))
-                target_file.write(row)
+                    # stringify the dates
+                    for stat in check_with_stats['stats']:
+                        stat['date'] = stat['date'].strftime('%Y-%m-%d')
 
-                # if count > 3:
-                #     raise Exception('Whaaaa!')
+                    # write out to target file
+                    row = "%s\t%s\n" % (check['id'], json.dumps(check_with_stats))
+                    target_file.write(row)
 
         return {
             'count': total_count,

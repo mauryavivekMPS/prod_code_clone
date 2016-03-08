@@ -68,7 +68,7 @@ class PingdomConnector(BaseConnector):
         uptime_stats = []
 
         def _date_range(start_date, end_date):
-            for n in range(int((end_date - start_date).days)):
+            for n in range(int((end_date - start_date).days) + 1):
                 yield start_date + datetime.timedelta(n)
 
         for date in _date_range(from_date, to_date):

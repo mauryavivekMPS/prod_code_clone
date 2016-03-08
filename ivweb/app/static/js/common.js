@@ -136,7 +136,7 @@ var PipelineListPage = (function() {
                     summaryRow.replaceWith(json.publisher_details_html);
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
-                    wireRestartRunButtons('.' + publisherId + '_restart_run_button');
+                    wireRestartRunButtons('.' + publisherId + '_restart-run-button');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
                     onUpdatePublisher(publisherId);
                 }
@@ -261,10 +261,12 @@ var PipelineListPage = (function() {
     };
 
     var wireRestartRunButtons = function(selector) {
+        console.log('wiring up restart buttons with ' + selector);
         $(selector).each(function() {
             var button = $(this);
             var publisherId = button.attr('publisher_id');
             var jobId = button.attr('job_id');
+            console.log('wiring up button ' + jobId);
             button.click(function() {
                 var f = $('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                 var jobIdWidget = f.find('input[name="restart_job_id"]');
