@@ -216,6 +216,7 @@ class Task(BaseTask):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        pipeline_title = common.get_pipeline_display_name(pipeline)
 
         try:
             p = Pipeline_Status.objects.get(
@@ -233,10 +234,10 @@ class Task(BaseTask):
             )
 
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
-            if send_notification_email and pipeline['has_file_input']:
+            if send_notification_email and pipeline.get('has_file_input'):
                 if p.user_email:
-                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_display_name'].title())
-                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_display_name'].title()
+                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline_title)
+                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline_title
 
                     if notification_count:
                         body += '<p>%s records were processed.<p>' % notification_count
@@ -258,7 +259,7 @@ class Task(BaseTask):
         )
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
-        if pipeline['rebuild_data_source_id']:
+        if pipeline.get('rebuild_data_source_id'):
             for ds in pipeline['rebuild_data_source_id']:
                 t.refresh_data_source(publisher_id, publisher.reports_project, ds)
                 t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)

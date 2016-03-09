@@ -151,6 +151,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     high_water_mark = ''
 
     # get the current run and task
+    current_task = None
     if publisher_runs['runs']:
         if current_job_id_on_client and current_task_id_on_client and current_task_status_on_client:
             current_run = publisher_runs['runs'][0]
@@ -176,12 +177,11 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         })
         publisher_details_html = template.render(context)
 
-        if current_task.status == 'completed':
-            if pipeline['use_high_water_mark']:
-                try:
-                    high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
-                except System_Global.DoesNotExist:
-                    pass
+        if current_task and current_task.status == 'completed' and pipeline.get('use_high_water_mark'):
+            try:
+                high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+            except System_Global.DoesNotExist:
+                pass
 
     return JsonResponse({
         'has_section_updates': has_section_updates,
@@ -431,7 +431,7 @@ def upload_pending_file_inline(request):
             uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
 
             # get the validator class, if any, and run validation
-            if pipeline['validator_class']:
+            if pipeline.get('validator_class'):
                 validator_class = common.get_validator_class(pipeline)
                 validator = validator_class()
 
