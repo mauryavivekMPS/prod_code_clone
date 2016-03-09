@@ -249,7 +249,7 @@ def run(request, product_id, pipeline_id):
             job_id = request.POST.get('restart_job_id')
 
             # kick the pipeline off (special case for date range pipelines unless restart)
-            if pipeline['include_date_range_controls'] and not job_id:
+            if pipeline.get('include_date_range_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(
