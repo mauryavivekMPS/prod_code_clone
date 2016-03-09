@@ -6,6 +6,7 @@ from ivetl.connectors import CrossrefConnector
 
 
 class CustomArticleDataValidator(BaseValidator):
+    
     def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
 
         # create a crossref connector
@@ -60,7 +61,7 @@ class CustomArticleDataValidator(BaseValidator):
                                     continue
 
                                 if not article['journal_issn'] in issns:
-                                    errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher"))
+                                    errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher : %s : %s" % (article['journal_issn'], issns)))
                                     continue
 
                     total_count += count-1

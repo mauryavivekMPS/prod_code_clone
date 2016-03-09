@@ -279,8 +279,17 @@ class Task(BaseTask):
         def increment_count(count):
             return self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
+        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+
         t0 = time()
-        total_count, errors = validator.validate_files(files, publisher_id, increment_count)
+        total_count, errors = validator.validate_files(
+            files,
+            issns=publisher.all_issns,
+            crossref_username=publisher.crossref_username,
+            crossref_password=publisher.crossref_password,
+            increment_count_func=increment_count
+        )
+
         t1 = time()
         tlogger.info("Rows processed:   %s" % (total_count - 1))
         tlogger.info("Time taken:       " + format(t1 - t0, '.2f') + " seconds / " + format((t1 - t0) / 60, '.2f') + " minutes")

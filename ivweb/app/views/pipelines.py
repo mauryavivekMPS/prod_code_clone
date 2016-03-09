@@ -445,7 +445,12 @@ def upload_pending_file_inline(request):
                     crossref_username = request.POST.get('crossref_username', '')
                     crossref_password = request.POST.get('crossref_password', '')
 
-                line_count, raw_errors = validator.validate_files([pending_file_path], issns, crossref_username, crossref_password)
+                line_count, raw_errors = validator.validate_files(
+                    [pending_file_path],
+                    issns=issns,
+                    crossref_username=crossref_username,
+                    crossref_password=crossref_password
+                )
                 validation_errors = validator.parse_errors(raw_errors)
 
             else:
