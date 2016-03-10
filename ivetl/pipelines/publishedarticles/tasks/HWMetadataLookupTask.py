@@ -5,12 +5,11 @@ import urllib.parse
 import urllib.request
 import re
 import requests
-from time import sleep
 from requests import HTTPError
 from lxml import etree
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.models import Publisher_Metadata, Publisher_Journal
+from ivetl.models import Publisher_Journal
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HWMetadataLookupTransform
 
