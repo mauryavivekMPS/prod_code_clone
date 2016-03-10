@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
 from ivetl.tasks import setup_reports
-from ivetl.connectors import TableauConnector
+from ivetl.connectors import TableauConnector, CrossrefConnector
 from ivetl.common import common
 from .pipelines import get_pending_files_for_demo, move_demo_files_to_pending
 
@@ -683,3 +683,67 @@ def update_demo_status(request):
 
     return HttpResponse('ok')
 
+
+def generate_match_pattern(example_doi):
+    pattern = ''
+    num_non_alphas = 0
+
+    def _non_alpha_re(n):
+        return '[^a-z]' + ('{%s}' % n if n > 1 else '')
+
+    for c in example_doi:
+        if c.isalpha():
+            if num_non_alphas:
+                pattern += _non_alpha_re(num_non_alphas)
+                num_non_alphas = 0
+            pattern += c
+        else:
+            num_non_alphas += 1
+
+    if num_non_alphas:
+        pattern += _non_alpha_re(num_non_alphas)
+
+    return pattern
+
+
+def generate_transform_spec(hw_doi):
+    spec = ''
+    for c in hw_doi:
+        if c.isalpha():
+            spec += 'L' if c.islower() else 'U'
+        else:
+            spec += '.'
+    return spec
+
+
+def transform_doi(doi, spec):
+    transformed_doi = ''
+    for i in range(len(spec)):
+        if spec[i] == 'L':
+            transformed_doi += doi[i].lower()
+        elif spec[i] == 'U':
+            transformed_doi += doi[i].upper()
+        else:
+            transformed_doi += doi[i]
+    return transformed_doi
+
+
+def get_doi_transform_for_issn(issn):
+
+    # get an example DOI from crossref
+    crossref = CrossrefConnector()
+    example_doi = crossref.get_example_doi_for_journal(issn)
+
+    # use the dx resolver to get the HW version of the DOI
+    r = requests.get('http://dx.doi.org/' + example_doi, headers={'Accept': 'application/vnd.crossref.unixref+xml'})
+    soup = BeautifulSoup(r.content, 'xml')
+    hw_doi = soup.find('doi').text
+
+    match_re = ''
+    transform_spec = ''
+
+    if hw_doi != example_doi:
+        match_re = generate_match_pattern(example_doi)
+        transform_spec = generate_transform_spec(hw_doi)
+
+    return example_doi, hw_doi, match_re, transform_spec

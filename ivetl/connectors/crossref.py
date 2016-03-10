@@ -9,12 +9,13 @@ from ivetl.connectors.base import BaseConnector, MaxTriesAPIError, Authorization
 class CrossrefConnector(BaseConnector):
     BASE_CITATION_URL = 'https://doi.crossref.org/servlet/getForwardLinks'
     BASE_ARTICLE_URL = 'http://api.crossref.org/works/'
+    BASE_WORKS_URL = 'http://api.crossref.org/journals/%s/works'
 
     connector_name = 'Crossref'
     max_attempts = 5
     request_timeout = 30
 
-    def __init__(self, username, password, tlogger=None):
+    def __init__(self, username=None, password=None, tlogger=None):
         self.username = username
         self.password = password
         self.tlogger = tlogger
@@ -25,6 +26,12 @@ class CrossrefConnector(BaseConnector):
         soup = BeautifulSoup(r.content, 'xml')
         citations = [e.text for e in soup.find_all('doi', type="journal_article")]
         return citations
+
+    def get_example_doi_for_journal(self, issn):
+        url = self.BASE_WORKS_URL % issn
+        r = self.get_with_retry(url)
+        first_doi = r.json()['message']['items'][0]['DOI']
+        return first_doi
 
     def get_article(self, doi):
         url = '%s%s' % (self.BASE_ARTICLE_URL, doi)
