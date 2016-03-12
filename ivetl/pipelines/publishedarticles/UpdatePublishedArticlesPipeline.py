@@ -60,7 +60,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             chain(
                 tasks.GetPublishedArticlesTask.s(task_args) |
                 tasks.ScopusIdLookupTask.s() |
-                tasks.HWMetadataLookupTask.s() |
+                tasks.GetHighWireMetadataTask.s() |
                 tasks.MendeleyLookupTask.s() |
                 tasks.InsertPublishedArticlesIntoCassandra.s() |
                 tasks.ResolvePublishedArticlesData.s() |

@@ -85,8 +85,8 @@ class GetPublishedArticlesTask(Task):
                         articles[i['DOI']] = (i['DOI'], issn, json.dumps(i))
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                        # TODO: Added this for testing!!
-                        if count > 5:
+                        # Use this only for testing!!
+                        if count > 20:
                             break
 
                     offset += task_args['articles_per_page']
