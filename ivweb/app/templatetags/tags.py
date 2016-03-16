@@ -37,3 +37,8 @@ def checkmark(thing):
         return '<span class="lnr lnr-check checkmark"></span>'
     else:
         return ''
+
+
+@register.simple_tag
+def sort_column(column_label, field_name, descending=False):
+    return '<i class="fa fa-sort-desc"></i>'

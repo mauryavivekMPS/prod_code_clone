@@ -38,22 +38,30 @@ def list_publishers(request):
     else:
         all_accessible_publishers = request.user.get_accessible_publishers()
 
-    # sort = request.GET.get('sort', '')
-
     filtered_publishers = []
     for publisher in all_accessible_publishers:
         if publisher.publisher_id != common.HW_PUBLISHER_ID:  # special case to exclude the HighWire publisher record
             if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
                 filtered_publishers.append(publisher)
 
-    filtered_publishers = sorted(filtered_publishers, key=lambda p: p.name.lower().lstrip('('))
+    descending = False
+    sort = request.GET.get('sort', 'name')
+    if sort.startswith('-'):
+        descending = True
+        sort_key = sort[1:]
+    else:
+        sort_key = sort
+
+    filtered_publishers = sorted(filtered_publishers, key=lambda p: p[sort_key], reverse=descending)
 
     return render(request, 'publishers/list.html', {
         'publishers': filtered_publishers,
         'alt_error_message': alt_error_message,
         'messages': messages,
-        'reset_url': reverse('publishers.list'),
+        'reset_url': reverse('publishers.list') + '?sort=' + sort,
         'list_type': list_type,
+        'sort_key': sort_key,
+        'descending': descending,
     })
 
 
