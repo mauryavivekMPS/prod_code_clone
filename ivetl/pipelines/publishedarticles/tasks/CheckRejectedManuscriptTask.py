@@ -1,6 +1,7 @@
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Published_Article, Rejected_Articles
+from ivetl.models import Published_Article, Rejected_Articles, Pipeline_Status
+from ivetl.pipelines.articlecitations import UpdateArticleCitationsPipeline
 
 
 @app.task
@@ -41,5 +42,19 @@ class CheckRejectedManuscriptTask(Task):
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=total_count)
 
-        return {'count': count}
+        if pipeline_id == "published_articles" and task_args['run_monthly_job']:
+            pipeline_status = Pipeline_Status.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            )
 
+            UpdateArticleCitationsPipeline.s(
+                publisher_id_list=[publisher_id],
+                product_id=product_id,
+                initiating_user_email=pipeline_status.user_email,
+                job_id=job_id,
+            ).delay()
+
+        return {'count': count}

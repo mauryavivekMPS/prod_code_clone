@@ -846,6 +846,27 @@ ul.errorlist {
         font-size: 12px;
         text-transform: uppercase;
 
+        a.sort {
+            display: block;
+            text-decoration: none;
+            color: #333;
+
+            .fa {
+                margin-left: 3px;
+            }
+
+            .fa-sort {
+                color: #ccc;
+                opacity: 0;
+            }
+
+            &:hover {
+                .fa-sort {
+                    opacity: 1;
+                }
+            }
+        }
+
         .checkbox-icon {
             margin-top: -16px;
             margin-left: 0;
@@ -914,7 +935,7 @@ ul.errorlist {
     }
 
     .time-col {
-        width: 100px;
+        width: 180px;
     }
 
     .duration-col {
@@ -960,48 +981,10 @@ ul.errorlist {
         text-align: right;
         padding-left: 18px;
         padding-right: 10px;
-    }
 
-    &.sortable-table {
-
-        .fa-sort,
-        .fa-sort-asc,
-        .fa-sort-desc {
-            //display: none;
-            margin-left: 5px;
-            margin-right: 5px;
-            color: #ccc;
-        }
-
-        .fa-sort-asc,
-        .fa-sort-desc {
-            color: #333;
-        }
-
-        .header {
-            cursor: pointer;
-
-            &:hover .fa-sort {
-                display: inline-block;
-            }
-        }
-
-        .headerSortDown {
-            &:hover .fa-sort {
-                display: none;
-            }
-            .fa-sort-desc {
-                display: inline-block;
-            }
-        }
-
-        .headerSortUp {
-            &:hover .fa-sort {
-                display: none;
-            }
-            .fa-sort-asc {
-                display: inline-block;
-            }
+        &.pipeline-status-col {
+            width: 56px;
+            text-align: left;
         }
     }
 

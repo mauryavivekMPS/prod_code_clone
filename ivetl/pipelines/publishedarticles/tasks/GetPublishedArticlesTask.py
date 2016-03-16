@@ -86,7 +86,7 @@ class GetPublishedArticlesTask(Task):
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                         # Use this only for testing!!
-                        if count > 20:
+                        if count > 3:
                             break
 
                     offset += task_args['articles_per_page']

@@ -57,15 +57,14 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="status-col">
+                        <th class="status-col pipeline-status-col">
                             <span class="summary-value">
-                                {% status_icon %}
+                                {% sort_column "Status" "status" sort_key sort_descending use_status_icon=True %}
                             </span>
                         </th>
-                        <th colspan="2">Publisher</th>
-                        <th class="date-col">Date</th>
-                        <th class="time-col">Start Time</th>
-                        <th class="time-col">End Time</th>
+                        <th colspan="2">{% sort_column "Publisher" "publisher" sort_key sort_descending %}</th>
+                        <th class="time-col">{% sort_column "Start Time" "start_time" sort_key sort_descending %}</th>
+                        <th class="time-col">{% sort_column "End Time" "end_time" sort_key sort_descending %}</th>
                         <th class="duration-col text-right">Duration</th>
                     </tr>
                 </thead>

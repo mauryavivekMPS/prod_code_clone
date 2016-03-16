@@ -8,6 +8,7 @@ import stat
 import shutil
 import codecs
 import uuid
+from operator import attrgetter
 from dateutil.parser import parse
 from django import forms
 from django.core.urlresolvers import reverse
@@ -16,6 +17,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
+from ivweb.app.views import utils as view_utils
 from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global
 
 log = logging.getLogger(__name__)
@@ -88,11 +90,46 @@ def list_pipelines(request, product_id, pipeline_id):
             if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
                 supported_publishers.append(publisher)
 
-    supported_publishers = sorted(supported_publishers, key=lambda p: p.name.lower().lstrip('('))
-
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
+
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default='publisher')
+
+    def _get_sort_value(item, sort_key):
+        if sort_key == 'start_time':
+            r = item.get('recent_run')
+            if r:
+                return r.start_time
+            else:
+                return datetime.datetime.min
+        elif sort_key == 'end_time':
+            r = item.get('recent_run')
+            if r:
+                return r.end_time
+            else:
+                return datetime.datetime.max
+        elif sort_key == 'publisher':
+            return item['publisher'].display_name.lower()
+        elif sort_key == 'status':
+            r = item.get('recent_run')
+            if r:
+                if r.status == 'started':
+                    return 1
+                elif r.status == 'in-progress':
+                    return 2
+                elif r.status == 'completed':
+                    return 3
+                elif r.status == 'error':
+                    return 4
+                else:
+                    return 5
+            else:
+                return 6
+        else:
+            return item['sort_key'].lower()
+
+    sorted_recent_runs_by_publisher = sorted(recent_runs_by_publisher, key=lambda r: _get_sort_value(r, sort_key), reverse=sort_descending)
 
     from_date_label = ''
     to_date_label = ''
@@ -118,13 +155,15 @@ def list_pipelines(request, product_id, pipeline_id):
     return render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
-        'runs_by_publisher': recent_runs_by_publisher,
+        'runs_by_publisher': sorted_recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
         'list_type': list_type,
         'high_water_mark': high_water_mark_label,
         'from_date': from_date_label,
         'to_date': to_date_label,
+        'sort_key': sort_key,
+        'sort_descending': sort_descending,
     })
 
 

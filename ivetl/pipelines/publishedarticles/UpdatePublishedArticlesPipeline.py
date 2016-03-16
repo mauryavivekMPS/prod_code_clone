@@ -13,7 +13,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
     COHORT_PUB_START_DATE = datetime.date(2013, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False):
         pipeline_id = "published_articles"
 
         d = datetime.datetime.today()
@@ -55,6 +55,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 tasks.GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
+                'run_monthly_job': run_monthly_job,
             }
 
             chain(

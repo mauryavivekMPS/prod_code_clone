@@ -21,8 +21,8 @@
             <table class="table table-hover sortable-table">
                 <thead>
                     <tr>
-                        <th>Name {% sort_column "name" %}</th>
-                        <th>Publisher ID</th>
+                        <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
                         <th>Users</th>
                         <th class="text-center">Products</th>
                         <th class="text-center">Customer</th>
