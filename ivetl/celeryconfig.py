@@ -41,6 +41,11 @@ CELERYBEAT_SCHEDULE = {
         'schedule': crontab(hour=2, minute=0),
         'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites'},
     },
+    'monthly-published-articles-and-article-citations': {
+        'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
+        'schedule': crontab(day_of_month=1, hour=3, minute=0),
+        'kwargs': {'publisher_id_list': ['testfoo3'], 'product_id': 'published_articles', 'run_monthly_job': True},
+    },
 }
 
 CELERY_TIMEZONE = 'US/Pacific'
