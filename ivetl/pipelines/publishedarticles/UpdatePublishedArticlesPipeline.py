@@ -23,12 +23,12 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
         product = common.PRODUCT_BY_ID[product_id]
 
-        publishers_metadata = Publisher_Metadata.objects.all()
-
         if publisher_id_list:
-            publishers_metadata = publishers_metadata.filter(publisher_id__in=publisher_id_list)
+            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+        else:
+            publishers = Publisher_Metadata.objects.all(demo=False)  # default to production pubs
 
-        for pm in publishers_metadata:
+        for pm in publishers:
 
             publisher_id = pm.publisher_id
 

@@ -18,13 +18,10 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
         today_label = now.strftime('%Y%m%d')
         job_id = now.strftime('%Y%m%d_%H%M%S%f')
 
-        product = common.PRODUCT_BY_ID[product_id]
-
-        # get the set of publishers to work on
-        if publisher_id_list and len(publisher_id_list):
-            publishers = Publisher_Metadata.filter(publisher_id__in=publisher_id_list)
+        if publisher_id_list:
+            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
-            publishers = Publisher_Metadata.objects.all()
+            publishers = Publisher_Metadata.objects.all(demo=False)  # default to production pubs
 
         for publisher in publishers:
 

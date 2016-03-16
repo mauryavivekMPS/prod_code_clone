@@ -43,8 +43,13 @@ CELERYBEAT_SCHEDULE = {
     },
     'monthly-published-articles-and-article-citations': {
         'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
-        'schedule': crontab(day_of_month=1, hour=3, minute=0),
-        'kwargs': {'publisher_id_list': ['testfoo3'], 'product_id': 'published_articles', 'run_monthly_job': True},
+        'schedule': crontab(day_of_month=1, hour=1, minute=0),
+        'kwargs': {'product_id': 'published_articles', 'run_monthly_job': True},
+    },
+    'monthly-cohort-articles-and-article-citations': {
+        'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
+        'schedule': crontab(day_of_month=1, hour=1, minute=10),
+        'kwargs': {'product_id': 'cohort_articles', 'run_monthly_job': True},
     },
 }
 

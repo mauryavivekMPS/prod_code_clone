@@ -42,7 +42,7 @@ class CheckRejectedManuscriptTask(Task):
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=total_count)
 
-        if pipeline_id == "published_articles" and task_args['run_monthly_job']:
+        if pipeline_id in ("published_articles", "cohort_articles") and task_args['run_monthly_job']:
             pipeline_status = Pipeline_Status.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
