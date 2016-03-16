@@ -71,9 +71,8 @@
             {% endif %}
         {% endif %}
     </td>
-{#    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d"|nullable_date }}</span></td>#}
-    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
     <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.end_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
+    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
     <td class="text-right"><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.duration_seconds|nullable_duration }}</span></td>
 </tr>
 {% if request.user.superuser %}
@@ -90,9 +89,8 @@
                         <a class="btn btn-default submit-button {{ publisher_runs.publisher.publisher_id }}_restart-run-button restart-run-button" href="#" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">Restart</a>
                     {% endif %}
                 </td>
-{#                <td>{{ run_item.run.start_time|date:"Y-m-d"|nullable_date }}</td>#}
-                <td>{{ run_item.run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
                 <td>{{ run_item.run.end_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
+                <td>{{ run_item.run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
                 <td class="text-right">{{ run_item.run.duration_seconds|nullable_duration }}</td>
             </tr>
             {% if forloop.first or run_item.run.status == 'in-progress' %}
@@ -113,9 +111,8 @@
                                 {% endwith %}
                             {% endif %}
                         </td>
-{#                        <td>{{ task.start_time|date:"Y-m-d"|nullable_date }}</td>#}
-                        <td>{{ task.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
                         <td>{{ task.end_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
+                        <td>{{ task.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
                         <td class="text-right">{{ task.duration_seconds|nullable_duration }}</td>
                     </tr>
                     <tr class="{{ task.publisher_id }}_row {{ task.publisher_id }}_{{ task.job_id }}_{{ task.task_id }}_row tail-row" {% if task.status != 'in-progress' or not opened %}style="display:none"{% endif %}>
@@ -132,7 +129,6 @@
                     <td class="status-col pipeline-status-col"></td>
                     <td class="opener-col"></td>
                     <td class="run-col additional-previous-runs">{{ publisher_runs.additional_previous_runs }} previous run{{ publisher_runs.additional_previous_runs|pluralize }}...</td>
-{#                    <td></td>#}
                     <td></td>
                     <td></td>
                     <td class="text-right"></td>
@@ -148,7 +144,6 @@
             </td>
             <td class="opener-col"></td>
             <td class="run-col">No recent runs</td>
-{#            <td><span class="null-value">&ndash;</span></td>#}
             <td><span class="null-value">&ndash;</span></td>
             <td><span class="null-value">&ndash;</span></td>
             <td class="text-right"><span class="null-value">&ndash;</span></td>

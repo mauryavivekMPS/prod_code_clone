@@ -4,7 +4,6 @@ from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
 from ivetl.pipelines.publishedarticles import tasks
-from ivetl.common import common
 
 
 @app.task
