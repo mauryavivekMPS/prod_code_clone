@@ -58,6 +58,9 @@
     <div id="left-menu">
         <nav>
             {% if request.user.superuser %}
+                <div class="list-title">
+                    Administration
+                </div>
                 <ul>
 {#                    <li class="all_pipelines_menu_item">#}
 {#                        <a href="{% url 'all_pipelines' %}">Pipelines</a>#}
