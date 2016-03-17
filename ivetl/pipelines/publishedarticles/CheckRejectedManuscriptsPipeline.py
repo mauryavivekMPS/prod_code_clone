@@ -20,7 +20,7 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
         if publisher_id_list:
             publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
-            publishers = Publisher_Metadata.objects.all(demo=False)  # default to production pubs
+            publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
 
         for pm in publishers:
 
