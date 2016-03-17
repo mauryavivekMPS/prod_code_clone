@@ -1,9 +1,11 @@
 import datetime
 import logging
+from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from ivetl.models import User, Publisher_User, Audit_Log, Publisher_Metadata
+from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
@@ -19,10 +21,19 @@ def list_users(request, publisher_id=None):
 
     users = sorted(users, key=lambda u: u.email)
 
-    return render(request, 'users/list.html', {
-        'users': users,
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('user-list-sort', 'email'))
+    sorted_users = sorted(users, key=attrgetter(sort_key), reverse=sort_descending)
+
+    response = render(request, 'users/list.html', {
+        'users': sorted_users,
         'publisher': publisher,
+        'sort_key': sort_key,
+        'sort_descending': sort_descending,
     })
+
+    response.set_cookie('user-list-sort', value=sort_param, max_age=30*24*60*60)
+
+    return response
 
 
 class AdminUserForm(forms.Form):
