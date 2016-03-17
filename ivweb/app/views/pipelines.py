@@ -94,7 +94,7 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
-    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default='publisher')
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('pipeline-list-sort', 'publisher'))
 
     def _get_sort_value(item, sort_key):
         if sort_key == 'start_time':
@@ -152,7 +152,7 @@ def list_pipelines(request, product_id, pipeline_id):
         from_date_label = from_date.strftime('%m/%d/%Y')
         to_date_label = to_date.strftime('%m/%d/%Y')
 
-    return render(request, 'pipelines/list.html', {
+    response = render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
         'runs_by_publisher': sorted_recent_runs_by_publisher,
@@ -165,6 +165,10 @@ def list_pipelines(request, product_id, pipeline_id):
         'sort_key': sort_key,
         'sort_descending': sort_descending,
     })
+
+    response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
+
+    return response
 
 
 @login_required

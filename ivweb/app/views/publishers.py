@@ -46,10 +46,10 @@ def list_publishers(request):
             if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
                 filtered_publishers.append(publisher)
 
-    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request)
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('publisher-list-sort', 'name'))
     filtered_publishers = sorted(filtered_publishers, key=attrgetter(sort_key), reverse=sort_descending)
 
-    return render(request, 'publishers/list.html', {
+    response = render(request, 'publishers/list.html', {
         'publishers': filtered_publishers,
         'alt_error_message': alt_error_message,
         'messages': messages,
@@ -58,6 +58,10 @@ def list_publishers(request):
         'sort_key': sort_key,
         'sort_descending': sort_descending,
     })
+
+    response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
+
+    return response
 
 
 @login_required
@@ -79,7 +83,7 @@ def list_demos(request):
     else:
         demos = Demo.objects.filter(requestor_id=request.user.user_id)
 
-    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request)
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('demo-list-sort', 'name'))
 
     def _get_sort_value(item, sort_key):
         value = getattr(item, sort_key)
@@ -113,13 +117,17 @@ def list_demos(request):
 
     sorted_demos = sorted(demos, key=lambda d: _get_sort_value(d, sort_key), reverse=sort_descending)
 
-    return render(request, 'publishers/list_demos.html', {
+    response = render(request, 'publishers/list_demos.html', {
         'demos': sorted_demos,
         'messages': messages,
         'reset_url': reverse('publishers.list_demos'),
         'sort_key': sort_key,
         'sort_descending': sort_descending,
     })
+
+    response.set_cookie('demo-list-sort', value=sort_param, max_age=30*24*60*60)
+
+    return response
 
 
 class PublisherForm(forms.Form):
