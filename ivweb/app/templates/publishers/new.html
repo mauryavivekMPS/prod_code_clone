@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{% if publisher or demo %}{% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}{% else %}New {% if is_demo %}Demo{% else %}Publisher{% endif %}{% endif %}{% endblock %}
+{% block title %}{% if publisher or demo %}{% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}{% else %}New {% if is_demo %}Demo Request{% else %}Publisher{% endif %}{% endif %}{% endblock %}
 {% block body_class %}publisher new-publisher {% if is_demo %}demo{% endif %}{% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
             <ol class="breadcrumb">
                 <li>
                     {% if is_demo %}
-                        <a href="{% url 'publishers.list_demos' %}">Demos</a>
+                        <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>
                     {% else %}
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     {% endif %}
@@ -24,7 +24,7 @@
                     {% if convert_from_demo %}
                         Convert Demo to Publisher
                     {% else %}
-                        New {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                        New {% if is_demo %}Demo Request{% else %}Publisher{% endif %}
                     {% endif %}
                 {% endif %}
             </h1>
