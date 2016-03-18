@@ -8,7 +8,6 @@ import stat
 import shutil
 import codecs
 import uuid
-from operator import attrgetter
 from dateutil.parser import parse
 from django import forms
 from django.core.urlresolvers import reverse
@@ -80,7 +79,7 @@ def list_pipelines(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-    filter_param = request.GET.get('filter', request.COOKIES.get('publisher-list-filter', 'all'))
+    filter_param = request.GET.get('filter', request.COOKIES.get('pipeline-list-filter', 'all'))
 
     # get all publishers that support this pipeline
     supported_publishers = []
@@ -164,6 +163,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'to_date': to_date_label,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
+        'filter_param': filter_param,
     })
 
     response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
