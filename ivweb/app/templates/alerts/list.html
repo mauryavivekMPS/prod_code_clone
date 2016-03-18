@@ -1,0 +1,42 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Alerts{% endblock %}
+{% block body_class %}alerts{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-12">
+            <h1>Alerts</h1>
+            <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Alert</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover sortable-table">
+                <thead>
+                    <tr>
+                        <th>{% sort_column "Alert ID" "alert_id" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Alert Type" "alert_type" sort_key sort_descending %}</th>
+                        <th class="text-center">enabled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'alerts.edit' alert.alert_id %}">
+                                    {{ alert.alert_id }}
+                                </a>
+                            </td>
+                            <td>{{ alert.publisher_id }}</td>
+                            <td>{{ alert.alert_type }}</td>
+                            <td class="text-center">{% checkmark alert.enabled %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
