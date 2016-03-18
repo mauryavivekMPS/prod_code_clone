@@ -33,33 +33,34 @@ def list_publishers(request):
         elif from_value == 'new-success':
             messages.append("Your new publisher account is created and ready to go.")
 
-    list_type = request.GET.get('list_type', 'all')
-
     if request.user.superuser:
         all_accessible_publishers = Publisher_Metadata.objects.all()
     else:
         all_accessible_publishers = request.user.get_accessible_publishers()
 
+    filter_param = request.GET.get('filter', request.COOKIES.get('publisher-list-filter', 'all'))
+
     filtered_publishers = []
     for publisher in all_accessible_publishers:
         if publisher.publisher_id != common.HW_PUBLISHER_ID:  # special case to exclude the HighWire publisher record
-            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+            if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 filtered_publishers.append(publisher)
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('publisher-list-sort', 'name'))
-    filtered_publishers = sorted(filtered_publishers, key=attrgetter(sort_key), reverse=sort_descending)
+    sorted_filtered_publishers = sorted(filtered_publishers, key=attrgetter(sort_key), reverse=sort_descending)
 
     response = render(request, 'publishers/list.html', {
-        'publishers': filtered_publishers,
+        'publishers': sorted_filtered_publishers,
         'alt_error_message': alt_error_message,
         'messages': messages,
-        'reset_url': reverse('publishers.list') + '?sort=' + sort_param,
-        'list_type': list_type,
+        'reset_url': reverse('publishers.list') + '?sort=' + sort_param + '&filter=' + filter_param,
+        'filter_param': filter_param,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
     })
 
     response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('publisher-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 

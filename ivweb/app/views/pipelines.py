@@ -80,14 +80,14 @@ def list_pipelines(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-    list_type = request.GET.get('list_type', 'all')
+    filter_param = request.GET.get('filter', request.COOKIES.get('publisher-list-filter', 'all'))
 
     # get all publishers that support this pipeline
     supported_publishers = []
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+            if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
@@ -158,7 +158,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'runs_by_publisher': sorted_recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
-        'list_type': list_type,
+        'list_type': filter_param,
         'high_water_mark': high_water_mark_label,
         'from_date': from_date_label,
         'to_date': to_date_label,
@@ -167,6 +167,7 @@ def list_pipelines(request, product_id, pipeline_id):
     })
 
     response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('pipeline-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 

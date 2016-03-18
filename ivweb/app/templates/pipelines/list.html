@@ -44,9 +44,9 @@
 
             {% if not pipeline.hide_demo_filter %}
                 <ul class="list-tabs">
-                    <li><a href="?list_type-all" {% if list_type == 'all' %}class="active"{% endif %}>Show All</a></li>
-                    <li><a href="?list_type=demos" {% if list_type == 'demos' %}class="active"{% endif %}>Publishers Demos</a></li>
-                    <li><a href="?list_type=publishers" {% if list_type == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
+                    <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                    <li><a href="?filter=demos" {% if filter_param == 'demos' %}class="active"{% endif %}>Publishers Demos</a></li>
+                    <li><a href="?filter=publishers" {% if filter_param == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
                 </ul>
             {% endif %}
         </div>
