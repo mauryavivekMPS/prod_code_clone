@@ -5,18 +5,80 @@ import urllib.parse
 import urllib.request
 import re
 import requests
-from time import sleep
 from requests import HTTPError
 from lxml import etree
+from bs4 import BeautifulSoup
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.models import Publisher_Metadata, Publisher_Journal
+from ivetl.connectors import CrossrefConnector
+from ivetl.models import Publisher_Journal, Doi_Transform_Rule
 from ivetl.pipelines.task import Task
-from ivetl.pipelines.publishedarticles.tasks.HWMetadataLookupTransform import HWMetadataLookupTransform
+
+
+def generate_match_pattern(example_doi):
+    pattern = ''
+    num_non_alphas = 0
+
+    def _non_alpha_re(n):
+        return '[^a-z]' + ('{%s}' % n if n > 1 else '')
+
+    for c in example_doi:
+        if c.isalpha():
+            if num_non_alphas:
+                pattern += _non_alpha_re(num_non_alphas)
+                num_non_alphas = 0
+            pattern += c
+        else:
+            num_non_alphas += 1
+
+    if num_non_alphas:
+        pattern += _non_alpha_re(num_non_alphas)
+
+    return pattern
+
+
+def generate_transform_spec(hw_doi):
+    spec = ''
+    for c in hw_doi:
+        if c.isalpha():
+            spec += 'L' if c.islower() else 'U'
+        else:
+            spec += '.'
+    return spec
+
+
+def transform_doi(doi, spec):
+    transformed_doi = ''
+    for i in range(len(spec)):
+        if spec[i] == 'L':
+            transformed_doi += doi[i].lower()
+        elif spec[i] == 'U':
+            transformed_doi += doi[i].upper()
+        else:
+            transformed_doi += doi[i]
+    return transformed_doi
+
+
+def get_example_doi_for_issn(issn):
+    crossref = CrossrefConnector()
+    return crossref.get_example_doi_for_journal(issn)
+
+
+def generate_doi_transform_rule(doi):
+
+    # use the dx resolver to get the HW version of the DOI
+    r = requests.get('http://dx.doi.org/' + doi, headers={'Accept': 'application/vnd.crossref.unixref+xml'})
+    soup = BeautifulSoup(r.content, 'xml')
+    hw_doi = soup.find('doi').text
+
+    match_expression = generate_match_pattern(doi)
+    transform_spec = generate_transform_spec(hw_doi)
+
+    return match_expression, transform_spec
 
 
 @app.task
-class HWMetadataLookupTask(Task):
+class GetHighWireMetadataTask(Task):
 
     SASSFS_BASE_URL = 'http://sassfs-index.highwire.org/nlm-pubid/doi?' \
                       'scheme=http%3A%2F%2Fschema.highwire.org%2FPublishing%23role&' \
@@ -48,14 +110,13 @@ class HWMetadataLookupTask(Task):
                           'ISSN\t'
                           'DATA\n')
 
-        hw_xform = HWMetadataLookupTransform()
-
         count = 0
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        with codecs.open(file, encoding="utf-16") as tsv:
+        transform_rules_by_journal_code = {}
 
+        with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
@@ -70,16 +131,39 @@ class HWMetadataLookupTask(Task):
 
                 tlogger.info(str(count-1) + ". Retrieving HW Metadata for: " + doi)
 
-                hw_journal_code = '/'
+                hw_journal_code = None
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
-                    hw_journal_code = "/" + issn_to_hw_journal_code[data['ISSN'][0]]
+                    hw_journal_code = issn_to_hw_journal_code[data['ISSN'][0]]
 
-                if hw_journal_code == '/':
+                if not hw_journal_code:
                     tlogger.info("No HW Journal Code for ISSN ... skipping record.")
                     skip = True
 
-                value = urllib.parse.urlencode({'value': hw_xform.xform_doi(publisher_id, doi)})
-                url = self.SASSFS_BASE_URL + 'under=' + hw_journal_code + '&' + value
+                # check that we have the rules loaded
+                if hw_journal_code not in transform_rules_by_journal_code:
+                    rules = Doi_Transform_Rule.objects.filter(journal_code=hw_journal_code, type='hw-doi')
+                    transform_rules_by_journal_code[hw_journal_code] = list(rules)
+
+                # find the matching rule
+                transform_spec = None
+                for rule in transform_rules_by_journal_code[hw_journal_code]:
+                    if re.match(rule.match_expression, doi):
+                        transform_spec = rule.transform_spec
+
+                if not transform_spec:
+                    # generate a new rule
+                    match_expression, transform_spec = generate_doi_transform_rule(doi)
+                    Doi_Transform_Rule.objects.create(
+                        journal_code=hw_journal_code,
+                        type='hw-doi',
+                        match_expression=match_expression,
+                        transform_spec=transform_spec,
+                    )
+
+                hw_doi = transform_doi(doi, transform_spec)
+
+                value = urllib.parse.urlencode({'value': hw_doi})
+                url = self.SASSFS_BASE_URL + 'under=/' + hw_journal_code + '&' + value
 
                 if not skip:
                     tlogger.info("Looking up HREF on SASSFS:")

@@ -97,7 +97,7 @@ class ScopusIdLookupTask(Task):
 
         target_file.close()
 
-        return {
-            'input_file': target_file_name,
-            'count': count,
-        }
+        task_args['input_file'] = target_file_name
+        task_args['count'] = count
+
+        return task_args

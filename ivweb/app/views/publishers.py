@@ -3,6 +3,7 @@ import requests
 import json
 import time
 import uuid
+from operator import attrgetter
 from bs4 import BeautifulSoup
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
@@ -13,6 +14,7 @@ from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publishe
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
+from ivweb.app.views import utils as view_utils
 from .pipelines import get_pending_files_for_demo, move_demo_files_to_pending
 
 
@@ -31,28 +33,36 @@ def list_publishers(request):
         elif from_value == 'new-success':
             messages.append("Your new publisher account is created and ready to go.")
 
-    list_type = request.GET.get('list_type', 'all')
-
     if request.user.superuser:
         all_accessible_publishers = Publisher_Metadata.objects.all()
     else:
         all_accessible_publishers = request.user.get_accessible_publishers()
 
+    filter_param = request.GET.get('filter', request.COOKIES.get('publisher-list-filter', 'all'))
+
     filtered_publishers = []
     for publisher in all_accessible_publishers:
         if publisher.publisher_id != common.HW_PUBLISHER_ID:  # special case to exclude the HighWire publisher record
-            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+            if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 filtered_publishers.append(publisher)
 
-    filtered_publishers = sorted(filtered_publishers, key=lambda p: p.name.lower().lstrip('('))
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('publisher-list-sort', 'name'))
+    sorted_filtered_publishers = sorted(filtered_publishers, key=attrgetter(sort_key), reverse=sort_descending)
 
-    return render(request, 'publishers/list.html', {
-        'publishers': filtered_publishers,
+    response = render(request, 'publishers/list.html', {
+        'publishers': sorted_filtered_publishers,
         'alt_error_message': alt_error_message,
         'messages': messages,
-        'reset_url': reverse('publishers.list'),
-        'list_type': list_type,
+        'reset_url': reverse('publishers.list') + '?sort=' + sort_param + '&filter=' + filter_param,
+        'filter_param': filter_param,
+        'sort_key': sort_key,
+        'sort_descending': sort_descending,
     })
+
+    response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('publisher-list-filter', value=filter_param, max_age=30*24*60*60)
+
+    return response
 
 
 @login_required
@@ -68,16 +78,57 @@ def list_demos(request):
             messages.append("Your demo has been submitted for review! As the administrator completes the configuration "
                             "and testing of the demo account you'll receive progress updates via email. Or you can "
                             "check back here any time.")
+
     if request.user.superuser:
         demos = Demo.objects.all()
     else:
         demos = Demo.objects.filter(requestor_id=request.user.user_id)
-    demos = sorted(demos, key=lambda p: p.name.lower().lstrip('('))
-    return render(request, 'publishers/list_demos.html', {
-        'demos': demos,
+
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('demo-list-sort', 'name'))
+
+    def _get_sort_value(item, sort_key):
+        value = getattr(item, sort_key)
+        if sort_key == 'start_date':
+            if value:
+                return value
+            else:
+                return datetime.datetime.min
+        elif sort_key == 'requestor':
+            return value.display_name.lower()
+        elif sort_key == 'status':
+            if value:
+                if value == common.DEMO_STATUS_CREATING:
+                    return 1
+                elif value == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+                    return 2
+                elif value == common.DEMO_STATUS_CHANGES_NEEDED:
+                    return 3
+                elif value == common.DEMO_STATUS_ACCEPTED:
+                    return 4
+                elif value == common.DEMO_STATUS_IN_PROGRESS:
+                    return 5
+                elif value == common.DEMO_STATUS_COMPLETED:
+                    return 6
+                else:
+                    return 7
+            else:
+                return 8
+        else:
+            return value.lower()
+
+    sorted_demos = sorted(demos, key=lambda d: _get_sort_value(d, sort_key), reverse=sort_descending)
+
+    response = render(request, 'publishers/list_demos.html', {
+        'demos': sorted_demos,
         'messages': messages,
         'reset_url': reverse('publishers.list_demos'),
+        'sort_key': sort_key,
+        'sort_descending': sort_descending,
     })
+
+    response.set_cookie('demo-list-sort', value=sort_param, max_age=30*24*60*60)
+
+    return response
 
 
 class PublisherForm(forms.Form):
@@ -682,4 +733,3 @@ def update_demo_status(request):
         _notify_on_new_status(demo, request, message=message)
 
     return HttpResponse('ok')
-

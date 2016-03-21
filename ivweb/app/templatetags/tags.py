@@ -37,3 +37,24 @@ def checkmark(thing):
         return '<span class="lnr lnr-check checkmark"></span>'
     else:
         return ''
+
+
+@register.simple_tag
+def sort_column(column_label, field_name, sort_key, sort_descending, use_status_icon=False):
+    if field_name == sort_key:
+        if sort_descending:
+            icon = 'fa-sort-asc'  # these icons make more sense reversed
+            next_sort_order = ''
+        else:
+            icon = 'fa-sort-desc'
+            next_sort_order = '-'
+    else:
+        icon = 'fa-sort'
+        next_sort_order = ''
+
+    return '<a href=".?sort=%s%s" class="sort">%s <i class="fa %s"></i></a>' % (
+        next_sort_order,
+        field_name,
+        column_label if not use_status_icon else status_icon(),
+        icon,
+    )

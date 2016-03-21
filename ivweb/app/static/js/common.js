@@ -461,6 +461,25 @@ var PipelineListPage = (function() {
 
 
 //
+// List publishers page
+//
+
+var ListPublishersPage = (function() {
+
+    var init = function() {
+        //var sortIcons = '<i class="fa fa-sort"></i><i class="fa fa-sort-asc"></i><i class="fa fa-sort-desc"></i>';
+        //$('table.sortable-table th.text-right').prepend(sortIcons);
+        //$('table.sortable-table th').not('.text-right').append(sortIcons);
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
 // List demos page
 //
 

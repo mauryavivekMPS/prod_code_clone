@@ -126,6 +126,18 @@ PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
 
+def get_pipeline_display_name(pipeline):
+    user_facing_display_name = pipeline.get('user_facing_display_name')
+    if user_facing_display_name:
+        return user_facing_display_name.title()
+    else:
+        pipeline_name = pipeline.get('name')
+        if pipeline_name:
+            return pipeline_name
+        else:
+            return pipeline['id']
+
+
 def get_pipeline_class(pipeline):
     pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
     return getattr(importlib.import_module(pipeline_module_name), class_name)

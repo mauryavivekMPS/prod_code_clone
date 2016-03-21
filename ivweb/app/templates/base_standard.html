@@ -58,6 +58,9 @@
     <div id="left-menu">
         <nav>
             {% if request.user.superuser %}
+                <div class="list-title">
+                    Administration
+                </div>
                 <ul>
 {#                    <li class="all_pipelines_menu_item">#}
 {#                        <a href="{% url 'all_pipelines' %}">Pipelines</a>#}
@@ -69,7 +72,7 @@
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
                     <li class="demo_menu_item">
-                        <a href="{% url 'publishers.list_demos' %}">Demos</a>
+                        <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>
                     </li>
                     <li class="user_menu_item">
                         <a href="{% url 'users.list' %}">Users</a>
@@ -154,7 +157,7 @@
         {% if reset_url %}
             <script>
                 $(function() {
-                    IvetlWeb.resetUrl('{{ reset_url }}');
+                    IvetlWeb.resetUrl('{{ reset_url|safe }}');
                 });
             </script>
         {% endif %}

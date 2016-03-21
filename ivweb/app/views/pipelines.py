@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
+from ivweb.app.views import utils as view_utils
 from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global
 
 log = logging.getLogger(__name__)
@@ -78,21 +79,56 @@ def list_pipelines(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-    list_type = request.GET.get('list_type', 'all')
+    filter_param = request.GET.get('filter', request.COOKIES.get('pipeline-list-filter', 'all'))
 
     # get all publishers that support this pipeline
     supported_publishers = []
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
+            if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 supported_publishers.append(publisher)
-
-    supported_publishers = sorted(supported_publishers, key=lambda p: p.name.lower().lstrip('('))
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
+
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('pipeline-list-sort', 'publisher'))
+
+    def _get_sort_value(item, sort_key):
+        if sort_key == 'start_time':
+            r = item.get('recent_run')
+            if r:
+                return r.start_time
+            else:
+                return datetime.datetime.min
+        elif sort_key == 'end_time':
+            r = item.get('recent_run')
+            if r:
+                return r.end_time
+            else:
+                return datetime.datetime.max
+        elif sort_key == 'publisher':
+            return item['publisher'].display_name.lower()
+        elif sort_key == 'status':
+            r = item.get('recent_run')
+            if r:
+                if r.status == 'started':
+                    return 1
+                elif r.status == 'in-progress':
+                    return 2
+                elif r.status == 'completed':
+                    return 3
+                elif r.status == 'error':
+                    return 4
+                else:
+                    return 5
+            else:
+                return 6
+        else:
+            return item['sort_key'].lower()
+
+    sorted_recent_runs_by_publisher = sorted(recent_runs_by_publisher, key=lambda r: _get_sort_value(r, sort_key), reverse=sort_descending)
 
     from_date_label = ''
     to_date_label = ''
@@ -115,17 +151,25 @@ def list_pipelines(request, product_id, pipeline_id):
         from_date_label = from_date.strftime('%m/%d/%Y')
         to_date_label = to_date.strftime('%m/%d/%Y')
 
-    return render(request, 'pipelines/list.html', {
+    response = render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
-        'runs_by_publisher': recent_runs_by_publisher,
+        'runs_by_publisher': sorted_recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
-        'list_type': list_type,
+        'list_type': filter_param,
         'high_water_mark': high_water_mark_label,
         'from_date': from_date_label,
         'to_date': to_date_label,
+        'sort_key': sort_key,
+        'sort_descending': sort_descending,
+        'filter_param': filter_param,
     })
+
+    response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('pipeline-list-filter', value=filter_param, max_age=30*24*60*60)
+
+    return response
 
 
 @login_required
@@ -151,6 +195,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     high_water_mark = ''
 
     # get the current run and task
+    current_task = None
     if publisher_runs['runs']:
         if current_job_id_on_client and current_task_id_on_client and current_task_status_on_client:
             current_run = publisher_runs['runs'][0]
@@ -176,12 +221,11 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         })
         publisher_details_html = template.render(context)
 
-        if current_task.status == 'completed':
-            if pipeline['use_high_water_mark']:
-                try:
-                    high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
-                except System_Global.DoesNotExist:
-                    pass
+        if current_task and current_task.status == 'completed' and pipeline.get('use_high_water_mark'):
+            try:
+                high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+            except System_Global.DoesNotExist:
+                pass
 
     return JsonResponse({
         'has_section_updates': has_section_updates,
@@ -249,7 +293,7 @@ def run(request, product_id, pipeline_id):
             job_id = request.POST.get('restart_job_id')
 
             # kick the pipeline off (special case for date range pipelines unless restart)
-            if 'include_date_range_controls' in pipeline and not job_id:
+            if pipeline.get('include_date_range_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(
@@ -431,7 +475,7 @@ def upload_pending_file_inline(request):
             uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
 
             # get the validator class, if any, and run validation
-            if pipeline['validator_class']:
+            if pipeline.get('validator_class'):
                 validator_class = common.get_validator_class(pipeline)
                 validator = validator_class()
 
@@ -445,7 +489,12 @@ def upload_pending_file_inline(request):
                     crossref_username = request.POST.get('crossref_username', '')
                     crossref_password = request.POST.get('crossref_password', '')
 
-                line_count, raw_errors = validator.validate_files([pending_file_path], issns, crossref_username, crossref_password)
+                line_count, raw_errors = validator.validate_files(
+                    [pending_file_path],
+                    issns=issns,
+                    crossref_username=crossref_username,
+                    crossref_password=crossref_password
+                )
                 validation_errors = validator.parse_errors(raw_errors)
 
             else:

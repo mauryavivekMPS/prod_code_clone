@@ -39,7 +39,7 @@ def home(request):
 
                     # only show running status if it's a file-based pipeline, otherwise green or empty
                     if recent_runs['recent_run']:
-                        if pipeline['pipeline']['has_file_input'] and recent_runs['recent_run'].status == 'in-progress':
+                        if pipeline['pipeline'].get('has_file_input') and recent_runs['recent_run'].status == 'in-progress':
                             status = recent_runs['recent_run']
                             file_based_pipeline_currently_running = True
                         else:
@@ -61,7 +61,7 @@ def home(request):
                             message = '%s not recently updated' % pipeline_name
 
                     pending_files = []
-                    if pipeline['pipeline']['has_file_input']:
+                    if pipeline['pipeline'].get('has_file_input'):
                         pending_files = get_pending_files_for_publisher(publisher.publisher_id, product_id, pipeline['pipeline']['id'], with_lines_and_sizes=False)
 
                     pipeline_stats_list.append({

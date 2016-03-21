@@ -30,9 +30,9 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Email</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
+                        <th>{% sort_column "Email" "email" sort_key sort_descending %}</th>
+                        <th>{% sort_column "First Name" "first_name" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Last Name" "last_name" sort_key sort_descending %}</th>
                         <th class="text-center">Staff</th>
                         <th class="text-center">Superuser</th>
                     </tr>

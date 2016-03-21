@@ -1,13 +1,13 @@
 {% extends "base_standard.html" %}
 {% load tags %}
-{% block title %}Demos{% endblock %}
+{% block title %}Demo Requests{% endblock %}
 {% block body_class %}demo{% endblock %}
 
 {% block content %}
     <div class="row header-row">
         <div class="col-md-8">
-            <h1>Demos</h1>
-            <a class="btn btn-default small add-demo-button show-loading" href="new/">+ Add Demo</a>
+            <h1>Demo Requests</h1>
+            <a class="btn btn-default small add-demo-button show-loading" href="new/">+ Add Demo Request</a>
         </div>
     </div>
 
@@ -16,10 +16,10 @@
             <table class="table table-hover demo-table">
                 <thead>
                     <tr>
-                        <th>Publisher Name</th>
-                        <th>Requestor</th>
-                        <th>Start Date</th>
-                        <th class="demo-status-col">Status</th>
+                        <th>{% sort_column "Publisher Name" "name" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Requestor" "requestor" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Start Date" "start_date" sort_key sort_descending %}</th>
+                        <th class="demo-status-col">{% sort_column "Status" "status" sort_key sort_descending %}</th>
                     </tr>
                 </thead>
                 <tbody>

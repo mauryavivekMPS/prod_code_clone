@@ -35,7 +35,7 @@ class IvetlAuthorizer(DummyAuthorizer):
                     product = common.PRODUCT_BY_ID[product_id]
                     if not product['cohort']:
                         for pipeline in [p['pipeline'] for p in product['pipelines']]:
-                            if pipeline['has_file_input']:
+                            if pipeline.get('has_file_input'):
                                 ftp_dir_name = common.get_ftp_dir_name(product_id, pipeline['id'])
                                 os.makedirs(os.path.join(common.BASE_FTP_DIR, user_dir_name, publisher.publisher_id, ftp_dir_name), exist_ok=True)
 
@@ -78,14 +78,14 @@ class IvetlHandler(FTPHandler):
                 pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
                 # get the validator class, if any, and run validation
-                if pipeline['validator_class']:
+                if pipeline.get('validator_class'):
                     validator_class = common.get_validator_class(pipeline)
                     validator = validator_class()
                     line_count, raw_errors = validator.validate_files([file], publisher_id)
                     validation_errors = validator.parse_errors(raw_errors)
 
                     if validation_errors:
-                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, pipeline['user_facing_display_name'].title())
+                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, common.get_pipeline_display_name(pipeline))
                         body = "<p>We found some validation errors in: <b>%s</b></p>" % file_name
                         body += "<ul>"
                         for error in validation_errors:
