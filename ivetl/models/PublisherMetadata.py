@@ -28,6 +28,7 @@ class Publisher_Metadata(Model):
     has_cohort = columns.Boolean(index=True)
     cohort_articles_issns_to_lookup = columns.List(columns.Text())
     cohort_articles_last_updated = columns.DateTime()
+    archived = columns.Boolean(default=False)
 
     @property
     def display_name(self):
