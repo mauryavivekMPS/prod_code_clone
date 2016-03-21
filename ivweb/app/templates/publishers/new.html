@@ -101,6 +101,13 @@
                                         </p>
                                     {% endif %}
                                 </div>
+                                {% if request.user.superuser %}
+                                    <div class="col-sm-2">
+                                        <p class="form-control-static">
+                                            <a href="#" class="archive-link"><span class="lnr lnr-trash2"></span> Archive</a>
+                                        </p>
+                                    </div>
+                                {% endif %}
                             </div>
                             {% if request.user.superuser %}
                                 <div class="form-group row status-controls" style="display:none">
@@ -480,6 +487,13 @@
         {% endfor %}
     </form>
 
+    {% if demo %}
+        <form id="archive-demo-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="demo_id" value="{{ form.initial.demo_id }}">
+        </form>
+    {% endif %}
+
 {% endblock %}
 
 {% block page_scripts %}
@@ -494,6 +508,9 @@
                     buildingPollUrl: '{% url 'publishers.check_reports' %}?publisher={{ publisher.publisher_id }}',
                     buildingSuccessUrl: '{% url 'publishers.list' %}?from=new-success',
                     buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
+                {% endif %}
+                {% if demo %}
+                    archiveDemoUrl: '{% url 'publishers.archive_demo' %}',
                 {% endif %}
                 csrfToken: '{{ csrf_token }}',
                 isDemo: {% if is_demo %}true{% else %}false{% endif %},

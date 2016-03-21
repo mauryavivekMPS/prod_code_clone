@@ -822,6 +822,7 @@ var EditPublisherPage = (function() {
     var validateCrossrefUrl;
     var validateIssnUrl;
     var addIssnValuesUrl;
+    var archiveDemoUrl;
     var buildingPollUrl;
     var buildingSuccessUrl;
     var buildingErrorUrl;
@@ -1393,6 +1394,7 @@ var EditPublisherPage = (function() {
             validateCrossrefUrl: '',
             validateIssnUrl: '',
             addIssnValuesUrl: '',
+            archiveDemoUrl: '',
             buildingPollUrl: '',
             buildingSuccessUrl: '',
             buildingErrorUrl: '',
@@ -1406,6 +1408,7 @@ var EditPublisherPage = (function() {
         validateCrossrefUrl = options.validateCrossrefUrl;
         validateIssnUrl = options.validateIssnUrl;
         addIssnValuesUrl = options.addIssnValuesUrl;
+        archiveDemoUrl = options.archiveDemoUrl;
         buildingPollUrl = options.buildingPollUrl;
         buildingSuccessUrl = options.buildingSuccessUrl;
         buildingErrorUrl = options.buildingErrorUrl;
@@ -1509,6 +1512,24 @@ var EditPublisherPage = (function() {
                 });
             return false;
         });
+
+        if (isDemo) {
+            $('.archive-link.archive-demo').on('click', function() {
+                IvetlWeb.showLoading();
+
+                var data = [
+                    {name: 'csrfmiddlewaretoken', value: options.csrfToken},
+                    {name: 'demo_id', value: $('#id_demo_id').val()},
+                ];
+
+                $.post(archiveDemoUrl, data)
+                    .always(function() {
+                        IvetlWeb.hideLoading();
+                    });
+
+                return false;
+            });
+        }
 
         $('.submit-button.save-button').on('click', function(event) {
             submit();

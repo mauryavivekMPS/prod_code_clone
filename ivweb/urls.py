@@ -58,6 +58,7 @@ urlpatterns = patterns(
     url(r'^newissn/$', 'publishers.new_issn', name='publishers.new_issn'),
     url(r'^setupreports/$', 'publishers.setup_reports', name='publishers.setup_reports'),
     url(r'^checkreports/$', 'publishers.check_reports', name='publishers.check_reports'),
+    url(r'^archivedemo/$', 'publishers.archive_demo', name='publishers.archive_demo'),
     url(r'^updatedemostatus/$', 'publishers.update_demo_status', name='publishers.update_demo_status'),
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),
     url(r'^deletefile/$', 'pipelines.delete_pending_file_inline', name='pipelines.delete_pending_file_inline'),
