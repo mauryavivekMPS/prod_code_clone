@@ -1,6 +1,12 @@
+#!/usr/bin/env python
+
+import os
+os.sys.path.append(os.environ['IVETL_ROOT'])
+
+import uuid
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
-from ivetl.models import Publisher_User, Publisher_Journal
+from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
 class Publisher_Metadata(Model):
@@ -30,25 +36,28 @@ class Publisher_Metadata(Model):
     cohort_articles_last_updated = columns.DateTime()
     archived = columns.Boolean(default=False, index=True)
 
-    @property
-    def display_name(self):
-        return self.name or self.publisher_id
 
-    @property
-    def supports_scopus(self):
-        return True if self.scopus_api_keys else False
+class Demo(Model):
+    demo_id = columns.UUID(primary_key=True, default=uuid.uuid4)
+    name = columns.Text()
+    requestor_id = columns.UUID(index=True)
+    start_date = columns.DateTime()
+    status = columns.Text()
+    properties = columns.Text()
+    archived = columns.Boolean(default=False, index=True)
+    ''
 
-    @property
-    def supports_crossref(self):
-        return True if self.crossref_username and self.crossref_password else False
+if __name__ == "__main__":
+    open_cassandra_connection()
 
-    @property
-    def all_issns(self):
-        all_issns = []
-        for j in Publisher_Journal.objects.filter(publisher_id=self.publisher_id, product_id='published_articles'):
-            all_issns.append(j.electronic_issn)
-            all_issns.append(j.print_issn)
-        return all_issns
+    print('Setting all publisher archived flag to false...')
+    for p in Publisher_Metadata.objects.all():
+        p.archived = False
+        p.save()
 
-    def users(self):
-        return Publisher_User.objects.allow_filtering().filter(publisher_id=self.publisher_id)
+    print('Setting all demo archived flag to false...')
+    for d in Demo.objects.all():
+        d.archived = False
+        d.save()
+
+    close_cassandra_connection()

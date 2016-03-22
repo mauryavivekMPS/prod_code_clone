@@ -78,11 +78,13 @@ def list_demos(request):
             messages.append("Your demo has been submitted for review! As the administrator completes the configuration "
                             "and testing of the demo account you'll receive progress updates via email. Or you can "
                             "check back here any time.")
+        elif from_value == 'archive-demo':
+            messages.append("The selected demo has been archived and will no longer be visible within the app.")
 
     if request.user.superuser:
-        demos = Demo.objects.all()
+        demos = Demo.objects.filter(archived=False)
     else:
-        demos = Demo.objects.filter(requestor_id=request.user.user_id)
+        demos = Demo.objects.allow_filtering().filter(archived=False, requestor_id=request.user.user_id)
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('demo-list-sort', 'name'))
 
@@ -464,31 +466,40 @@ def edit_demo(request, demo_id=None):
         new = False
 
     if request.method == 'POST':
-        form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
-        if form.is_valid():
 
-            previous_status = None
+        if request.POST.get('archive'):
+
             if demo:
-                previous_status = demo.status
+                demo.archived = True
+                demo.save()
+                return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo')
 
-            demo = form.save()
+        else:
+            form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
+            if form.is_valid():
 
-            if previous_status and demo.status != previous_status:
-                _notify_on_new_status(demo, request, message=form.cleaned_data['message'])
+                previous_status = None
+                if demo:
+                    previous_status = demo.status
 
-            if new:
-                from_value = 'new-success'
-            else:
-                from_value = 'save-success'
+                demo = form.save()
 
-            if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
-                from_value = 'submitted-for-review'
+                if previous_status and demo.status != previous_status:
+                    _notify_on_new_status(demo, request, message=form.cleaned_data['message'])
+
+                if new:
+                    from_value = 'new-success'
+                else:
+                    from_value = 'save-success'
+
+                if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+                    from_value = 'submitted-for-review'
 
 
-            if request.user.superuser and form.cleaned_data['convert_to_publisher']:
-                return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
+                if request.user.superuser and form.cleaned_data['convert_to_publisher']:
+                    return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
 
-            return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
+                return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
     else:
         form = PublisherForm(request.user, instance=demo, is_demo=True)
 
