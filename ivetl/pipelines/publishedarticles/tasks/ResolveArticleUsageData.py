@@ -103,12 +103,12 @@ class ResolveArticleUsageData(Task):
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_36 += usage.month_usage
 
-                article.month_usage_03 = month_usage_full_03
-                article.month_usage_06 = month_usage_full_06
-                article.month_usage_09 = month_usage_full_09
-                article.month_usage_12 = month_usage_full_12
-                article.month_usage_24 = month_usage_full_24
-                article.month_usage_36 = month_usage_full_36
+                article.month_usage_full_03 = month_usage_full_03
+                article.month_usage_full_06 = month_usage_full_06
+                article.month_usage_full_09 = month_usage_full_09
+                article.month_usage_full_12 = month_usage_full_12
+                article.month_usage_full_24 = month_usage_full_24
+                article.month_usage_full_36 = month_usage_full_36
                 article.month_usage_pdf_03 = month_usage_pdf_03
                 article.month_usage_pdf_06 = month_usage_pdf_06
                 article.month_usage_pdf_09 = month_usage_pdf_09
