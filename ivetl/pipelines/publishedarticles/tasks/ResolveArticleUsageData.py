@@ -41,6 +41,18 @@ class ResolveArticleUsageData(Task):
                 month_usage_12 = 0
                 month_usage_24 = 0
                 month_usage_36 = 0
+                month_usage_pdf_03 = 0
+                month_usage_pdf_06 = 0
+                month_usage_pdf_09 = 0
+                month_usage_pdf_12 = 0
+                month_usage_pdf_24 = 0
+                month_usage_pdf_36 = 0
+                month_usage_abstract_03 = 0
+                month_usage_abstract_06 = 0
+                month_usage_abstract_09 = 0
+                month_usage_abstract_12 = 0
+                month_usage_abstract_24 = 0
+                month_usage_abstract_36 = 0
                 usage_start_date = None
 
                 for usage in Article_Usage.objects.filter(publisher_id=publisher_id, article_doi=doi):
@@ -49,17 +61,47 @@ class ResolveArticleUsageData(Task):
                         usage_start_date = usage.usage_start_date
 
                     if usage.month_number <= 3:
-                        month_usage_03 += usage.month_usage
+                        if usage.usage_type == 'full':
+                            month_usage_03 += usage.month_usage
+                        elif usage.usage_type == 'pdf':
+                            month_usage_pdf_03 += usage.month_usage
+                        elif usage.usage_type == 'abstract':
+                            month_usage_abstract_03 += usage.month_usage
                     if usage.month_number <= 6:
-                        month_usage_06 += usage.month_usage
+                        if usage.usage_type == 'full':
+                            month_usage_06 += usage.month_usage
+                        elif usage.usage_type == 'pdf':
+                            month_usage_pdf_06 += usage.month_usage
+                        elif usage.usage_type == 'abstract':
+                            month_usage_abstract_06 += usage.month_usage
                     if usage.month_number <= 9:
-                        month_usage_09 += usage.month_usage
+                        if usage.usage_type == 'full':
+                            month_usage_09 += usage.month_usage
+                        elif usage.usage_type == 'pdf':
+                            month_usage_pdf_09 += usage.month_usage
+                        elif usage.usage_type == 'abstract':
+                            month_usage_abstract_09 += usage.month_usage
                     if usage.month_number <= 12:
-                        month_usage_12 += usage.month_usage
+                        if usage.usage_type == 'full':
+                            month_usage_12 += usage.month_usage
+                        elif usage.usage_type == 'pdf':
+                            month_usage_pdf_12 += usage.month_usage
+                        elif usage.usage_type == 'abstract':
+                            month_usage_abstract_12 += usage.month_usage
                     if usage.month_number <= 24:
-                        month_usage_24 += usage.month_usage
+                        if usage.usage_type == 'full':
+                            month_usage_24 += usage.month_usage
+                        elif usage.usage_type == 'pdf':
+                            month_usage_pdf_24 += usage.month_usage
+                        elif usage.usage_type == 'abstract':
+                            month_usage_abstract_24 += usage.month_usage
                     if usage.month_number <= 36:
-                        month_usage_36 += usage.month_usage
+                        if usage.usage_type == 'full':
+                            month_usage_36 += usage.month_usage
+                        elif usage.usage_type == 'pdf':
+                            month_usage_pdf_36 += usage.month_usage
+                        elif usage.usage_type == 'abstract':
+                            month_usage_abstract_36 += usage.month_usage
 
                 article.month_usage_03 = month_usage_03
                 article.month_usage_06 = month_usage_06
@@ -67,6 +109,19 @@ class ResolveArticleUsageData(Task):
                 article.month_usage_12 = month_usage_12
                 article.month_usage_24 = month_usage_24
                 article.month_usage_36 = month_usage_36
+                article.month_usage_pdf_03 = month_usage_03
+                article.month_usage_pdf_06 = month_usage_06
+                article.month_usage_pdf_09 = month_usage_09
+                article.month_usage_pdf_12 = month_usage_12
+                article.month_usage_pdf_24 = month_usage_24
+                article.month_usage_pdf_36 = month_usage_36
+                article.month_usage_abstract_03 = month_usage_03
+                article.month_usage_abstract_06 = month_usage_06
+                article.month_usage_abstract_09 = month_usage_09
+                article.month_usage_abstract_12 = month_usage_12
+                article.month_usage_abstract_24 = month_usage_24
+                article.month_usage_abstract_36 = month_usage_36
+
                 article.usage_start_date = usage_start_date
                 article.updated = now
                 article.save()
