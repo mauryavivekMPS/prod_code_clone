@@ -201,6 +201,7 @@ class PublisherForm(forms.Form):
                         'electronic_issn': code.electronic_issn,
                         'print_issn': code.print_issn,
                         'journal_code': code.journal_code,
+                        'months_until_free': code.months_until_free,
                         'index': 'pa-%s' % index,  # just needs to be unique on the page
                     })
                     index += 1
@@ -216,6 +217,7 @@ class PublisherForm(forms.Form):
                         'product_id': 'cohort_articles',
                         'electronic_issn': code.electronic_issn,
                         'print_issn': code.print_issn,
+                        'months_until_free': code.months_until_free,
                         'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
                     })
                     index += 1
@@ -358,6 +360,7 @@ class PublisherForm(forms.Form):
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
                         journal_code=issn_value['journal_code'],
+                        months_until_free=issn_value['months_until_free'],
                     )
             if self.cleaned_data['issn_values_cohort']:
                 for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
@@ -366,6 +369,7 @@ class PublisherForm(forms.Form):
                         publisher_id=publisher_id,
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
+                        months_until_free=issn_value['months_until_free'],
                     )
 
             return publisher

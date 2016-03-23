@@ -1598,7 +1598,7 @@ body.login {
 
     .publisher-form {
 
-        .issn-values-row, .issn-values-cohort-row, .issn-add-row {
+        .issn-values-row, .issn-values-cohort-row, .issn-values-months-row, .issn-values-months-cohort-row, .issn-add-row {
             border-top: none;
             padding-top: 0;
 
@@ -1646,6 +1646,17 @@ body.login {
             .issn-error-message {
                 margin-right: -300px;
                 margin-bottom: 5px;
+            }
+        }
+
+        .issn-values-months-row, .issn-values-months-cohort-row {
+            font-size: 12px;
+            margin-bottom: 25px;
+
+            .months-until-free {
+                width: 46px;
+                display: inline-block;
+                margin-left: 4px;
             }
         }
 
@@ -1934,6 +1945,7 @@ body.login {
     .replacement-file-arrow {
         vertical-align: -2px;
     }
+
     .replacement-file-picker {
         display: inline-block;
         margin-left: 10px;
@@ -2086,10 +2098,12 @@ p.uploaded-file-error-icon {
     color: #aaa;
 }
 
-.demo-publisher-arrow {
+.extra-journal-info-arrow {
     font-size: 12px;
-    margin-right: 5px;
     color: #aaa;
+    margin-left: 8px;
+    vertical-align: -1px;
+    margin-right: 10px;
 }
 
 .archive-link {

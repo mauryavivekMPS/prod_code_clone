@@ -849,6 +849,8 @@ var EditPublisherPage = (function() {
     };
 
     var checkForm = function() {
+        console.log('here');
+
         var name = $("#id_name").val();
         var hasName = name != '';
 
@@ -951,6 +953,8 @@ var EditPublisherPage = (function() {
         }
 
         if (isDemo) {
+            console.log('in demo');
+
             var atLeastOneRejectedArticlesUpload = true;
             if (rejectedManuscriptsProduct) {
                 if ($('.rejected-manuscripts-controls table.all-files-table > tbody > tr.validated-file').length > 0) {
@@ -1003,6 +1007,11 @@ var EditPublisherPage = (function() {
             else {
                 $('.cohort-issns-requirement').removeClass('satisfied');
             }
+
+            console.log('hasName: ' + hasName);
+            console.log('savableCrossref: ' + savableCrossref);
+            console.log('savableIssns: ' + savableIssns);
+            console.log('savableCohortIssns: ' + savableCohortIssns);
 
             if (hasName && savableCrossref && savableIssns && savableCohortIssns) {
                 enableSubmit();
@@ -1187,28 +1196,31 @@ var EditPublisherPage = (function() {
         return !electronicIssn && !printIssn && !journalCode;
     };
 
-    var wireUpValidateIssnButton = function(rowSelector, index, cohort) {
-        var row = $(rowSelector);
-        var button = row.find('.validate-issn-button');
+    var wireUpValidateIssnButton = function(mainRowSelector, monthsRowSelector, index, cohort) {
+        var mainRow = $(mainRowSelector);
+        var monthsRow = $(monthsRowSelector);
+        var button = mainRow.find('.validate-issn-button');
 
         button.on('click', function() {
             var usingJournal = hasHighWire() && !cohort;
-            var loading = row.find('.validate-issn-loading');
-            var checkmark = row.find('.validate-issn-checkmark');
-            var message = row.find('.issn-error-message');
+            var loading = mainRow.find('.validate-issn-loading');
+            var checkmark = mainRow.find('.validate-issn-checkmark');
+            var message = mainRow.find('.issn-error-message');
 
             button.hide();
             loading.show();
 
-            var electronicIssn = row.find('#id_electronic_issn_' + index).val();
-            var printIssn = row.find('#id_print_issn_' + index).val();
+            var electronicIssn = mainRow.find('#id_electronic_issn_' + index).val();
+            var printIssn = mainRow.find('#id_print_issn_' + index).val();
 
             if (usingJournal) {
-                var journalCode = row.find('#id_journal_code_' + index).val();
+                var journalCode = mainRow.find('#id_journal_code_' + index).val();
             }
 
+            var monthsUntilFree = monthsRow.find('#id_months_until_free_' + index).val();
+
             var setIssnError = function(error) {
-                row.addClass('error');
+                mainRow.addClass('error');
                 message.html('<li>' + error + '</li>').show();
                 button.show();
                 checkmark.hide();
@@ -1230,6 +1242,7 @@ var EditPublisherPage = (function() {
             var data = [
                 {name: 'electronic_issn', value: electronicIssn},
                 {name: 'print_issn', value: printIssn},
+                {name: 'months_until_free', value: monthsUntilFree},
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
 
@@ -1243,7 +1256,7 @@ var EditPublisherPage = (function() {
                 .done(function(json) {
                     loading.hide();
                     if (json.status == 'ok') {
-                        row.removeClass('error');
+                        mainRow.removeClass('error');
                         button.hide();
                         message.hide();
                         button.hide();
@@ -1253,7 +1266,7 @@ var EditPublisherPage = (function() {
                         setIssnError(json.error_message);
                     }
                     else if (json.status == 'warning') {
-                        row.removeClass('error');
+                        mainRow.removeClass('error');
                         setIssnWarning(json.warning_message);
                     }
                     checkForm();
@@ -1263,29 +1276,33 @@ var EditPublisherPage = (function() {
         });
     };
 
-    var wireUpIssnControls = function(rowSelector, index, cohort) {
-        var row = $(rowSelector);
-        row.find('input').on('keyup', function() {
-            row.find('.validate-issn-checkmark').hide();
-            row.find('.validate-issn-button').show();
+    var wireUpIssnControls = function(mainRowSelector, monthsRowSelector, index, cohort) {
+        var mainRow = $(mainRowSelector);
+        mainRow.find('input').on('keyup', function() {
+            mainRow.find('.validate-issn-checkmark').hide();
+            mainRow.find('.validate-issn-button').show();
             checkForm();
         });
+
+        $(monthsRowSelector).find('input').on('keyup', checkForm);
+        console.log(monthsRowSelector);
 
         if (!cohort) {
             $('#id_hw_addl_metadata_available').on('change', function () {
                 if (hasHighWire()) {
-                    row.find('.validate-issn-checkmark').hide();
-                    row.find('.validate-issn-button').show();
+                    mainRow.find('.validate-issn-checkmark').hide();
+                    mainRow.find('.validate-issn-button').show();
                 }
                 checkForm();
             });
         }
     };
 
-    var wireUpDeleteIssnButton = function(rowSelector, index, cohort) {
-        var row = $(rowSelector);
-        row.find('.delete-issn-button').on('click', function() {
-            row.remove();
+    var wireUpDeleteIssnButton = function(mainRowSelector, monthsRowSelector, index, cohort) {
+        var mainRow = $(mainRowSelector);
+        mainRow.find('.delete-issn-button').on('click', function() {
+            mainRow.remove();
+            $(monthsRowSelector).remove();
             checkForm();
             return false;
         });
@@ -1325,6 +1342,7 @@ var EditPublisherPage = (function() {
                     electronic_issn: row.find('#id_electronic_issn_' + index).val(),
                     print_issn: row.find('#id_print_issn_' + index).val(),
                     journal_code: row.find('#id_journal_code_' + index).val(),
+                    months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
                     index: index
                 });
             }
@@ -1339,6 +1357,7 @@ var EditPublisherPage = (function() {
                 issnCohortValues.push({
                     electronic_issn: row.find('#id_electronic_issn_' + index).val(),
                     print_issn: row.find('#id_print_issn_' + index).val(),
+                    months_until_free: $('.issn-values-months-cohort-row #id_months_until_free_' + index).val(),
                     index: index
                 });
             }
