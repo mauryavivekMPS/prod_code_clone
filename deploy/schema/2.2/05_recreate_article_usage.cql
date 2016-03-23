@@ -26,16 +26,30 @@ CREATE TABLE article_usage (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
-ALTER TABLE published_article ADD month_pdf_usage_03 int;
-ALTER TABLE published_article ADD month_pdf_usage_06 int;
-ALTER TABLE published_article ADD month_pdf_usage_09 int;
-ALTER TABLE published_article ADD month_pdf_usage_12 int;
-ALTER TABLE published_article ADD month_pdf_usage_24 int;
-ALTER TABLE published_article ADD month_pdf_usage_36 int;
+ALTER TABLE published_article DROP month_usage_03;
+ALTER TABLE published_article DROP month_usage_06;
+ALTER TABLE published_article DROP month_usage_09;
+ALTER TABLE published_article DROP month_usage_12;
+ALTER TABLE published_article DROP month_usage_24;
+ALTER TABLE published_article DROP month_usage_36;
 
-ALTER TABLE published_article ADD month_abstract_usage_03 int;
-ALTER TABLE published_article ADD month_abstract_usage_06 int;
-ALTER TABLE published_article ADD month_abstract_usage_09 int;
-ALTER TABLE published_article ADD month_abstract_usage_12 int;
-ALTER TABLE published_article ADD month_abstract_usage_24 int;
-ALTER TABLE published_article ADD month_abstract_usage_36 int;
+ALTER TABLE published_article ADD month_usage_full_03 int;
+ALTER TABLE published_article ADD month_usage_full_06 int;
+ALTER TABLE published_article ADD month_usage_full_09 int;
+ALTER TABLE published_article ADD month_usage_full_12 int;
+ALTER TABLE published_article ADD month_usage_full_24 int;
+ALTER TABLE published_article ADD month_usage_full_36 int;
+
+ALTER TABLE published_article ADD month_usage_pdf_03 int;
+ALTER TABLE published_article ADD month_usage_pdf_06 int;
+ALTER TABLE published_article ADD month_usage_pdf_09 int;
+ALTER TABLE published_article ADD month_usage_pdf_12 int;
+ALTER TABLE published_article ADD month_usage_pdf_24 int;
+ALTER TABLE published_article ADD month_usage_pdf_36 int;
+
+ALTER TABLE published_article ADD month_usage_abstract_03 int;
+ALTER TABLE published_article ADD month_usage_abstract_06 int;
+ALTER TABLE published_article ADD month_usage_abstract_09 int;
+ALTER TABLE published_article ADD month_usage_abstract_12 int;
+ALTER TABLE published_article ADD month_usage_abstract_24 int;
+ALTER TABLE published_article ADD month_usage_abstract_36 int;

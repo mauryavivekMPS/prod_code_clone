@@ -35,12 +35,12 @@ class ResolveArticleUsageData(Task):
                     tlogger.info("DOI does not exist in published_article table")
                     continue
 
-                month_usage_03 = 0
-                month_usage_06 = 0
-                month_usage_09 = 0
-                month_usage_12 = 0
-                month_usage_24 = 0
-                month_usage_36 = 0
+                month_usage_full_03 = 0
+                month_usage_full_06 = 0
+                month_usage_full_09 = 0
+                month_usage_full_12 = 0
+                month_usage_full_24 = 0
+                month_usage_full_36 = 0
                 month_usage_pdf_03 = 0
                 month_usage_pdf_06 = 0
                 month_usage_pdf_09 = 0
@@ -62,65 +62,65 @@ class ResolveArticleUsageData(Task):
 
                     if usage.month_number <= 3:
                         if usage.usage_type == 'full':
-                            month_usage_03 += usage.month_usage
+                            month_usage_full_03 += usage.month_usage
                         elif usage.usage_type == 'pdf':
                             month_usage_pdf_03 += usage.month_usage
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_03 += usage.month_usage
                     if usage.month_number <= 6:
                         if usage.usage_type == 'full':
-                            month_usage_06 += usage.month_usage
+                            month_usage_full_06 += usage.month_usage
                         elif usage.usage_type == 'pdf':
                             month_usage_pdf_06 += usage.month_usage
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_06 += usage.month_usage
                     if usage.month_number <= 9:
                         if usage.usage_type == 'full':
-                            month_usage_09 += usage.month_usage
+                            month_usage_full_09 += usage.month_usage
                         elif usage.usage_type == 'pdf':
                             month_usage_pdf_09 += usage.month_usage
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_09 += usage.month_usage
                     if usage.month_number <= 12:
                         if usage.usage_type == 'full':
-                            month_usage_12 += usage.month_usage
+                            month_usage_full_12 += usage.month_usage
                         elif usage.usage_type == 'pdf':
                             month_usage_pdf_12 += usage.month_usage
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_12 += usage.month_usage
                     if usage.month_number <= 24:
                         if usage.usage_type == 'full':
-                            month_usage_24 += usage.month_usage
+                            month_usage_full_24 += usage.month_usage
                         elif usage.usage_type == 'pdf':
                             month_usage_pdf_24 += usage.month_usage
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_24 += usage.month_usage
                     if usage.month_number <= 36:
                         if usage.usage_type == 'full':
-                            month_usage_36 += usage.month_usage
+                            month_usage_full_36 += usage.month_usage
                         elif usage.usage_type == 'pdf':
                             month_usage_pdf_36 += usage.month_usage
                         elif usage.usage_type == 'abstract':
                             month_usage_abstract_36 += usage.month_usage
 
-                article.month_usage_03 = month_usage_03
-                article.month_usage_06 = month_usage_06
-                article.month_usage_09 = month_usage_09
-                article.month_usage_12 = month_usage_12
-                article.month_usage_24 = month_usage_24
-                article.month_usage_36 = month_usage_36
-                article.month_usage_pdf_03 = month_usage_03
-                article.month_usage_pdf_06 = month_usage_06
-                article.month_usage_pdf_09 = month_usage_09
-                article.month_usage_pdf_12 = month_usage_12
-                article.month_usage_pdf_24 = month_usage_24
-                article.month_usage_pdf_36 = month_usage_36
-                article.month_usage_abstract_03 = month_usage_03
-                article.month_usage_abstract_06 = month_usage_06
-                article.month_usage_abstract_09 = month_usage_09
-                article.month_usage_abstract_12 = month_usage_12
-                article.month_usage_abstract_24 = month_usage_24
-                article.month_usage_abstract_36 = month_usage_36
+                article.month_usage_03 = month_usage_full_03
+                article.month_usage_06 = month_usage_full_06
+                article.month_usage_09 = month_usage_full_09
+                article.month_usage_12 = month_usage_full_12
+                article.month_usage_24 = month_usage_full_24
+                article.month_usage_36 = month_usage_full_36
+                article.month_usage_pdf_03 = month_usage_pdf_03
+                article.month_usage_pdf_06 = month_usage_pdf_06
+                article.month_usage_pdf_09 = month_usage_pdf_09
+                article.month_usage_pdf_12 = month_usage_pdf_12
+                article.month_usage_pdf_24 = month_usage_pdf_24
+                article.month_usage_pdf_36 = month_usage_pdf_36
+                article.month_usage_abstract_03 = month_usage_abstract_03
+                article.month_usage_abstract_06 = month_usage_abstract_06
+                article.month_usage_abstract_09 = month_usage_abstract_09
+                article.month_usage_abstract_12 = month_usage_abstract_12
+                article.month_usage_abstract_24 = month_usage_abstract_24
+                article.month_usage_abstract_36 = month_usage_abstract_36
 
                 article.usage_start_date = usage_start_date
                 article.updated = now
