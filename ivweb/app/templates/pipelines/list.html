@@ -97,7 +97,6 @@
         </div>
     </div>
 
-
     {% if request.user.superuser and not pipeline.has_file_input %}
         {% if pipeline.single_publisher_pipeline %}
             <div class="modal fade confirm-dialog" id="confirm-run-single-publisher-pipeline-modal">

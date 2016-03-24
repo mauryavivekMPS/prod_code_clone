@@ -1007,12 +1007,7 @@ var EditPublisherPage = (function() {
             else {
                 $('.cohort-issns-requirement').removeClass('satisfied');
             }
-
-            console.log('hasName: ' + hasName);
-            console.log('savableCrossref: ' + savableCrossref);
-            console.log('savableIssns: ' + savableIssns);
-            console.log('savableCohortIssns: ' + savableCohortIssns);
-
+            
             if (hasName && savableCrossref && savableIssns && savableCohortIssns) {
                 enableSubmit();
             }
@@ -1529,11 +1524,6 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        $('.archive-demo').on('click', function() {
-            IvetlWeb.showLoading();
-            $('#archive-demo-form').submit();
-            return false;
-        });
 
         $('.submit-button.save-button').on('click', function(event) {
             submit();
@@ -1552,6 +1542,20 @@ var EditPublisherPage = (function() {
             event.preventDefault();
             return false;
         });
+
+        if (isDemo) {
+            var m = $('#confirm-archive-demo-modal');
+
+            m.find('.confirm-archive-demo-button').on('click', function() {
+                IvetlWeb.showLoading();
+                m.modal('hide');
+                $('#archive-demo-form').submit();
+            });
+
+            $('.archive-demo').on('click', function() {
+                m.modal();
+            });
+        }
 
         checkForm();
     };
