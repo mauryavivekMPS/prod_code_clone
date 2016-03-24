@@ -104,7 +104,11 @@
                                 {% if request.user.superuser %}
                                     <div class="col-sm-2">
                                         <p class="form-control-static">
-                                            <a href="#" class="archive-link archive-demo"><span class="lnr lnr-trash2"></span> Archive</a>
+                                            {% if demo.archived %}
+                                                <a href="#" class="archive-link archive-demo">Unarchive</a>
+                                            {% else %}
+                                                <a href="#" class="archive-link archive-demo"><span class="lnr lnr-trash2"></span> Archive</a>
+                                            {% endif %}
                                         </p>
                                     </div>
                                 {% endif %}
@@ -490,7 +494,7 @@
         <form id="archive-demo-form" method="post">
             {% csrf_token %}
             <input type="hidden" name="demo_id" value="{{ form.initial.demo_id }}">
-            <input type="hidden" name="archive" value="1">
+            <input type="hidden" name="archive" value="{% if demo.archived %}0{% else %}1{% endif %}">
         </form>
     {% endif %}
 
@@ -501,13 +505,13 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title">Archive Demo Request</h4>
+                    <h4 class="modal-title">{% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to archive <b>{{ demo.name }}</b>?</p>
+                    <p>Are you sure you want to {% if demo.archived %}un{% endif %}archive <b>{{ demo.name }}</b>?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary confirm-archive-demo-button">Yes, Archive Demo Request</button>
+                    <button type="button" class="btn btn-primary confirm-archive-demo-button">Yes, {% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request</button>
                     <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
                 </div>
             </div>

@@ -82,9 +82,16 @@ def list_demos(request):
             messages.append("The selected demo has been archived and will no longer be visible within the app.")
 
     if request.user.superuser:
-        demos = Demo.objects.filter(archived=False)
+        demos = Demo.objects.all()
     else:
-        demos = Demo.objects.allow_filtering().filter(archived=False, requestor_id=request.user.user_id)
+        demos = Demo.objects.allow_filtering().filter(requestor_id=request.user.user_id)
+
+    filter_param = request.GET.get('filter', request.COOKIES.get('demo-list-filter', 'all'))
+
+    if filter_param == 'active':
+        demos = demos.filter(archived=False)
+    elif filter_param == 'archived':
+        demos = demos.filter(archived=True)
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('demo-list-sort', 'name'))
 
@@ -126,9 +133,11 @@ def list_demos(request):
         'reset_url': reverse('publishers.list_demos'),
         'sort_key': sort_key,
         'sort_descending': sort_descending,
+        'filter_param': filter_param,
     })
 
     response.set_cookie('demo-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('demo-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 
@@ -471,12 +480,17 @@ def edit_demo(request, demo_id=None):
 
     if request.method == 'POST':
 
-        if request.POST.get('archive'):
+        archive = request.POST.get('archive')
+        if archive:
 
             if demo:
-                demo.archived = True
+                demo.archived = True if archive == '1' else False
                 demo.save()
-                return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo')
+
+                if demo.archived:
+                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=archived')
+                else:
+                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=active')
 
         else:
             form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
@@ -498,7 +512,6 @@ def edit_demo(request, demo_id=None):
 
                 if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
                     from_value = 'submitted-for-review'
-
 
                 if request.user.superuser and form.cleaned_data['convert_to_publisher']:
                     return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
