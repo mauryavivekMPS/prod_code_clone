@@ -30,10 +30,10 @@
 <div class="form-group row issn-values-months{% if cohort %}-cohort{% endif %}-row issn-values-months{% if cohort %}-cohort{% endif %}-row-{{ index }}">
     <div class="col-sm-6 col-sm-offset-2">
         <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>
-        <input id="id_use_months_until_free_{{ index }}" class="use-months-until-free" type="checkbox" {% if issn_value.use_months_until_free == 'on' %}checked{% endif %}>
-        Articles are freely available after
-        <input type="text" class="form-control months-until-free input-sm" id="id_months_until_free_{{ index }}" placeholder="0" value="{% if issn_value.months_until_free %}{{ issn_value.months_until_free }}{% endif %}" {% if read_only %}readonly disabled{% endif %}>
-        months
+        <input id="id_use_months_until_free_{{ index }}" class="use-months-until-free" type="checkbox" index="{{ index }}" {% if issn_value.use_months_until_free == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
+        <span class="months-free-text">Articles are freely available after</span>
+        <input type="text" class="form-control months-until-free input-sm" id="id_months_until_free_{{ index }}" placeholder="" value="{% if issn_value.months_until_free %}{{ issn_value.months_until_free }}{% endif %}" {% if read_only %}readonly disabled{% endif %}>
+        <span class="months-free-text">months</span>
     </div>
 </div>
 
