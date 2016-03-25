@@ -363,6 +363,12 @@ class PublisherForm(forms.Form):
             for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
                 journal.delete()
 
+            def int_or_none(i):
+                try:
+                    return int(issn_value['months_until_free'])
+                except:
+                    return None
+
             if self.cleaned_data['issn_values']:
                 for issn_value in json.loads(self.cleaned_data['issn_values']):
                     Publisher_Journal.objects.create(
@@ -372,8 +378,9 @@ class PublisherForm(forms.Form):
                         print_issn=issn_value['print_issn'],
                         journal_code=issn_value['journal_code'],
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
-                        months_until_free=issn_value['months_until_free'],
+                        months_until_free=int_or_none(issn_value['months_until_free']),
                     )
+
             if self.cleaned_data['issn_values_cohort']:
                 for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
                     Publisher_Journal.objects.create(
@@ -382,7 +389,7 @@ class PublisherForm(forms.Form):
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
-                        months_until_free=issn_value['months_until_free'],
+                        months_until_free=int_or_none(issn_value['months_until_free']),
                     )
 
             return publisher

@@ -898,6 +898,7 @@ var EditPublisherPage = (function() {
 
         var validIssns = true;
         var savableIssns = true;
+        var validMonthsFree = true;
         if (publishedArticlesProduct) {
             var gotOne = false;
             $('.issn-values-row').each(function () {
@@ -919,11 +920,24 @@ var EditPublisherPage = (function() {
                         validIssns = false;
                     }
                 }
+
+                var index = row.attr('index');
+                console.log('checking ' + index);
+                if (useMonthsFree(index)) {
+                    console.log('it is USING');
+                    var months = parseInt($('.issn-values-months-row-' + index + ' .months-until-free').val());
+                    if (isNaN(months) || months <= 0) {
+                        console.log('months is ' + months);
+                        validMonthsFree = false;
+                        console.log('setting to false');
+                    }
+                }
             });
         }
 
         var validCohortIssns = true;
         var savableCohortIssns = true;
+        var validMonthsFreeCohort = true;
         if (cohortArticlesProduct) {
             var gotOne = false;
             $('.issn-values-cohort-row').each(function () {
@@ -944,6 +958,14 @@ var EditPublisherPage = (function() {
                     else {
                         validCohortIssns = false;
                         return false;
+                    }
+                }
+
+                var index = row.attr('index');
+                if (useMonthsFree(index)) {
+                    var months = parseInt($('.issn-values-months-cohort-row-' + index + ' .months-until-free').val());
+                    if (isNaN(months) || months <= 0) {
+                        validMonthsFreeCohort = false;
                     }
                 }
             });
@@ -1003,7 +1025,21 @@ var EditPublisherPage = (function() {
             else {
                 $('.cohort-issns-requirement').removeClass('satisfied');
             }
+
+            if (validMonthsFree) {
+                $('.months-free-requirement').addClass('satisfied');
+            }
+            else {
+                $('.months-free-requirement').removeClass('satisfied');
+            }
             
+            if (validMonthsFreeCohort) {
+                $('.months-free-cohort-requirement').addClass('satisfied');
+            }
+            else {
+                $('.months-free-cohort-requirement').removeClass('satisfied');
+            }
+
             if (hasName && savableCrossref && savableIssns && savableCohortIssns) {
                 enableSubmit();
             }
@@ -1011,7 +1047,7 @@ var EditPublisherPage = (function() {
                 disableSubmit();
             }
 
-            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns) {
+            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort) {
                 enableSubmitForApproval();
             }
             else {
@@ -1019,7 +1055,7 @@ var EditPublisherPage = (function() {
             }
         }
         else {
-            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns) {
+            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort) {
                 enableSubmit();
             }
             else {
@@ -1188,10 +1224,25 @@ var EditPublisherPage = (function() {
         if (useMonthsFree(index)) {
             row.find('.months-until-free').removeClass('disabled').prop('disabled', false).attr('placeholder', '0');
             row.find('.months-free-text').removeClass('disabled');
+            $('.months-free-controls').fadeIn(200);
         }
         else {
             row.find('.months-until-free').addClass('disabled').prop('disabled', true).val('').attr('placeholder', '');
             row.find('.months-free-text').addClass('disabled');
+
+            var atLeastOneMonthsFree = false;
+            $('.issn-values-months-row .use-months-until-free').each(function () {
+                if ($(this).is(':checked')) {
+                    atLeastOneMonthsFree = true;
+                    return false;
+                }
+            });
+            if (atLeastOneMonthsFree) {
+                $('.months-free-controls').fadeIn(200);
+            }
+            else {
+                $('.months-free-controls').fadeOut(100);
+            }
         }
     };
 
@@ -1204,10 +1255,25 @@ var EditPublisherPage = (function() {
         if (useMonthsFreeCohort(index)) {
             row.find('.months-until-free').removeClass('disabled').prop('disabled', false);
             row.find('.months-free-text').removeClass('disabled');
+            $('.months-free-cohort-controls').fadeIn(200);
         }
         else {
             row.find('.months-until-free').addClass('disabled').prop('disabled', true).val('');
             row.find('.months-free-text').addClass('disabled');
+
+            var atLeastOneMonthsFree = false;
+            $('.issn-values-months-cohort-row .use-months-until-free').each(function () {
+                if ($(this).is(':checked')) {
+                    atLeastOneMonthsFree = true;
+                    return false;
+                }
+            });
+            if (atLeastOneMonthsFree) {
+                $('.months-free-cohort-controls').fadeIn(200);
+            }
+            else {
+                $('.months-free-cohort-controls').fadeOut(100);
+            }
         }
     };
 
