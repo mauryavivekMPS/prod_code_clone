@@ -1212,6 +1212,7 @@ var EditPublisherPage = (function() {
                 var journalCode = mainRow.find('#id_journal_code_' + index).val();
             }
 
+            var useMonthsUntilFree = monthsRow.find('#id_use_months_until_free_' + index).is(':checked') ? 'on' : '';
             var monthsUntilFree = monthsRow.find('#id_months_until_free_' + index).val();
 
             var setIssnError = function(error) {
@@ -1237,6 +1238,8 @@ var EditPublisherPage = (function() {
             var data = [
                 {name: 'electronic_issn', value: electronicIssn},
                 {name: 'print_issn', value: printIssn},
+                {name: 'print_issn', value: printIssn},
+                {name: 'use_months_until_free', value: useMonthsUntilFree},
                 {name: 'months_until_free', value: monthsUntilFree},
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
@@ -1337,6 +1340,7 @@ var EditPublisherPage = (function() {
                     electronic_issn: row.find('#id_electronic_issn_' + index).val(),
                     print_issn: row.find('#id_print_issn_' + index).val(),
                     journal_code: row.find('#id_journal_code_' + index).val(),
+                    use_months_until_free: $('.issn-values-months-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
                     index: index
                 });
@@ -1352,6 +1356,7 @@ var EditPublisherPage = (function() {
                 issnCohortValues.push({
                     electronic_issn: row.find('#id_electronic_issn_' + index).val(),
                     print_issn: row.find('#id_print_issn_' + index).val(),
+                    use_months_until_free: $('.issn-values-months-cohort-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-cohort-row #id_months_until_free_' + index).val(),
                     index: index
                 });

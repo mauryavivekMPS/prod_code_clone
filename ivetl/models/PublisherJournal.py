@@ -11,3 +11,4 @@ class Publisher_Journal(Model):
     print_issn = columns.Text()
     journal_code = columns.Text()
     months_until_free = columns.Integer()
+    use_months_until_free = columns.Boolean()

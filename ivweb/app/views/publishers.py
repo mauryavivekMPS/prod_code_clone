@@ -210,6 +210,7 @@ class PublisherForm(forms.Form):
                         'electronic_issn': code.electronic_issn,
                         'print_issn': code.print_issn,
                         'journal_code': code.journal_code,
+                        'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
                         'index': 'pa-%s' % index,  # just needs to be unique on the page
                     })
@@ -226,6 +227,7 @@ class PublisherForm(forms.Form):
                         'product_id': 'cohort_articles',
                         'electronic_issn': code.electronic_issn,
                         'print_issn': code.print_issn,
+                        'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
                         'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
                     })
@@ -369,6 +371,7 @@ class PublisherForm(forms.Form):
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
                         journal_code=issn_value['journal_code'],
+                        use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=issn_value['months_until_free'],
                     )
             if self.cleaned_data['issn_values_cohort']:
@@ -378,6 +381,7 @@ class PublisherForm(forms.Form):
                         publisher_id=publisher_id,
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
+                        use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=issn_value['months_until_free'],
                     )
 
@@ -480,11 +484,10 @@ def edit_demo(request, demo_id=None):
 
     if request.method == 'POST':
 
-        archive = request.POST.get('archive')
-        if archive:
+        if 'archive' in request.POST:
 
             if demo:
-                demo.archived = True if archive == '1' else False
+                demo.archived = True if request.POST['archive'] == 'on' else False
                 demo.save()
 
                 if demo.archived:
