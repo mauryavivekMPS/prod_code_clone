@@ -44,13 +44,16 @@ class GetRejectedArticlesFromBenchPressTask(Task):
             for journal_code in journals_with_benchpress:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
+                tlogger.info('Looking for file for journal: %s' % journal_code)
+
                 result = shell.run([self.SCRIPT, '-b', start_date, '-e', end_date, '-j', journal_code, '-p'])
 
                 output_file_match = re.search(r'Data file: (/.*\.txt)', result.output.decode('utf-8'))
                 if output_file_match and output_file_match.groups():
 
                     output_file_path = output_file_match.groups()[0]
-                    local_file_path = os.path.join(work_folder, os.path.basename(output_file_path))
+                    output_file_name = os.path.basename(output_file_path)
+                    local_file_path = os.path.join(work_folder, output_file_name)
 
                     with shell.open(output_file_path, "r") as remote_file:
                         with open(local_file_path, "w") as local_file:
@@ -58,7 +61,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
                     files.append(local_file_path)
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=False, notification_count=total_count)
+                    tlogger.info('Retrieved file: %s' % output_file_name)
 
         return {
             'input_files': files,
