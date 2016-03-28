@@ -39,7 +39,7 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
             }
 
             chain(
-                tasks.GetRejectedArticlesTask.s(task_args)
+                tasks.GetRejectedArticlesFromBenchPressTask.s(task_args)
                 # tasks.XREFPublishedArticleSearchTask.s() |
                 # tasks.SelectPublishedArticleTask.s() |
                 # tasks.ScopusCitationLookupTask.s() |

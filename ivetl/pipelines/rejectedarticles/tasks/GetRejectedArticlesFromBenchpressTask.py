@@ -16,7 +16,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        journals_with_benchpress = [p.journal_id for p in Publisher_Journal.objects.filter(
+        journals_with_benchpress = [p.journal_code for p in Publisher_Journal.objects.filter(
             publisher_id=publisher_id,
             product_id='published_articles',
             use_benchpress=True
