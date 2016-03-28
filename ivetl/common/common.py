@@ -52,6 +52,14 @@ PIPELINES = [
         'rebuild_data_source_id': ['rejected_articles'],
     },
     {
+        'name': 'Bench Press Rejected',
+        'id': 'benchpress_rejected_articles',
+        'user_facing_display_name': 'Rejected manuscripts',
+        'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
+        'has_file_input': False,
+        'rebuild_data_source_id': ['rejected_articles'],
+    },
+    {
         'name': 'Reprocess Rejected',
         'id': 'reprocess_rejected_articles',
         'user_facing_display_name': 'Reprocess rejected manuscripts',
@@ -187,6 +195,9 @@ PRODUCTS = [
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['rejected_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['benchpress_rejected_articles'],
             },
             {
                 'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],

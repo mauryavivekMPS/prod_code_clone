@@ -8,10 +8,10 @@ from ivetl.models import Publisher_Metadata
 
 
 @app.task
-class ReprocessRejectedArticlesPipeline(Pipeline):
+class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
-        pipeline_id = "reprocess_rejected_articles"
+        pipeline_id = "benchpress_rejected_articles"
 
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
@@ -39,12 +39,12 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
             }
 
             chain(
-                tasks.GetRejectedArticlesFromBenchpressTask.s(task_args) |
-                tasks.XREFPublishedArticleSearchTask.s() |
-                tasks.SelectPublishedArticleTask.s() |
-                tasks.ScopusCitationLookupTask.s() |
-                tasks.MendeleyLookupTask.s() |
-                tasks.PrepareForDBInsertTask.s() |
-                tasks.InsertIntoCassandraDBTask.s() |
-                published_articles_tasks.CheckRejectedManuscriptTask.s()
+                tasks.GetRejectedArticlesTask.s(task_args)
+                # tasks.XREFPublishedArticleSearchTask.s() |
+                # tasks.SelectPublishedArticleTask.s() |
+                # tasks.ScopusCitationLookupTask.s() |
+                # tasks.MendeleyLookupTask.s() |
+                # tasks.PrepareForDBInsertTask.s() |
+                # tasks.InsertIntoCassandraDBTask.s() |
+                # published_articles_tasks.CheckRejectedManuscriptTask.s()
             ).delay()
