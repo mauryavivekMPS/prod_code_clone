@@ -39,12 +39,13 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
             }
 
             chain(
-                tasks.GetRejectedArticlesFromBenchPressTask.s(task_args)
-                # tasks.XREFPublishedArticleSearchTask.s() |
-                # tasks.SelectPublishedArticleTask.s() |
-                # tasks.ScopusCitationLookupTask.s() |
-                # tasks.MendeleyLookupTask.s() |
-                # tasks.PrepareForDBInsertTask.s() |
-                # tasks.InsertIntoCassandraDBTask.s() |
-                # published_articles_tasks.CheckRejectedManuscriptTask.s()
+                tasks.GetRejectedArticlesFromBenchPressTask.s(task_args) |
+                tasks.ParseBenchPressFileTask.s() |
+                tasks.XREFPublishedArticleSearchTask.s() |
+                tasks.SelectPublishedArticleTask.s() |
+                tasks.ScopusCitationLookupTask.s() |
+                tasks.MendeleyLookupTask.s() |
+                tasks.PrepareForDBInsertTask.s() |
+                tasks.InsertIntoCassandraDBTask.s() |
+                published_articles_tasks.CheckRejectedManuscriptTask.s()
             ).delay()
