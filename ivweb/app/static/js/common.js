@@ -1612,6 +1612,7 @@ var EditPublisherPage = (function() {
                 .done(function(html) {
                     $('#issn-values-container').append(html);
                     updateHighWireControls();
+                    updateRejectedManuscriptsControls();
                     checkForm();
                 });
             return false;
