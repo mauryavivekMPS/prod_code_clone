@@ -1032,7 +1032,7 @@ var EditPublisherPage = (function() {
             else {
                 $('.months-free-requirement').removeClass('satisfied');
             }
-            
+
             if (validMonthsFreeCohort) {
                 $('.months-free-cohort-requirement').addClass('satisfied');
             }
@@ -1285,9 +1285,10 @@ var EditPublisherPage = (function() {
         return !electronicIssn && !printIssn && !journalCode;
     };
 
-    var wireUpValidateIssnButton = function(mainRowSelector, monthsRowSelector, index, cohort) {
+    var wireUpValidateIssnButton = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
         var mainRow = $(mainRowSelector);
         var monthsRow = $(monthsRowSelector);
+        var benchpressRow = $(benchpressRowSelector);
         var button = mainRow.find('.validate-issn-button');
 
         button.on('click', function() {
@@ -1308,6 +1309,7 @@ var EditPublisherPage = (function() {
 
             var useMonthsUntilFree = monthsRow.find('#id_use_months_until_free_' + index).is(':checked') ? 'on' : '';
             var monthsUntilFree = monthsRow.find('#id_months_until_free_' + index).val();
+            var useBenchpress = benchpressRow.find('#id_use_benchpress_' + index).is(':checked') ? 'on' : '';
 
             var setIssnError = function(error) {
                 mainRow.addClass('error');
@@ -1335,6 +1337,7 @@ var EditPublisherPage = (function() {
                 {name: 'print_issn', value: printIssn},
                 {name: 'use_months_until_free', value: useMonthsUntilFree},
                 {name: 'months_until_free', value: monthsUntilFree},
+                {name: 'use_benchpress', value: useBenchpress},
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
 
@@ -1368,7 +1371,7 @@ var EditPublisherPage = (function() {
         });
     };
 
-    var wireUpIssnControls = function(mainRowSelector, monthsRowSelector, index, cohort) {
+    var wireUpIssnControls = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
         var mainRow = $(mainRowSelector);
         mainRow.find('input').on('keyup', function() {
             mainRow.find('.validate-issn-checkmark').hide();
@@ -1389,7 +1392,7 @@ var EditPublisherPage = (function() {
         }
     };
 
-    var wireUpDeleteIssnButton = function(mainRowSelector, monthsRowSelector, index, cohort) {
+    var wireUpDeleteIssnButton = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
         var mainRow = $(mainRowSelector);
         mainRow.find('.delete-issn-button').on('click', function() {
             mainRow.remove();
@@ -1435,6 +1438,7 @@ var EditPublisherPage = (function() {
                     journal_code: row.find('#id_journal_code_' + index).val(),
                     use_months_until_free: $('.issn-values-months-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
+                    use_benchpress: $('.issn-values-benchpress-row #id_use_benchpress_' + index).is(':checked') ? 'on' : '',
                     index: index
                 });
             }
@@ -1631,6 +1635,10 @@ var EditPublisherPage = (function() {
         $('.issn-values-row').each(function() {
             var index = $(this).attr('index');
             updateMonthsFreeControls(index);
+        });
+
+        $('.issn-values-months-row .use-benchpress').on('change', function() {
+            checkForm();
         });
 
         $('.issn-values-months-cohort-row .use-months-until-free').on('change', function() {

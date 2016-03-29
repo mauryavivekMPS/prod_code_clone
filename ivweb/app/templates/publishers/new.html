@@ -48,7 +48,7 @@
             </ul>
         </div>
     {% endif %}
-    
+
     <div>
         <div class="row">
             <div class="col-md-12">
@@ -241,6 +241,57 @@
 
                 <form class="form-horizontal publisher-form">
 
+                    <h2>Rejected Manuscripts</h2>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Product</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.rejected_manuscripts }} Enable Rejected Manuscripts</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                {% if is_demo %}
+                    <div class="rejected-manuscripts-controls" style="display:none">
+                        <div class="form-horizontal publisher-form demo-files-fake-form">
+                            <div class="form-group row">
+                                <label class="col-sm-2">Rejected Article Files</label>
+                                <div class="col-sm-10">
+                                    {% if read_only and not demo_files_rejected_articles %}
+                                        <p class="form-control-static no-files-uploaded-message">
+                                            No files uploaded
+                                        </p>
+                                    {% else %}
+                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if convert_from_demo %}
+                    <div class="form-horizontal publisher-form">
+                        <div class="form-group row">
+                            <label class="col-sm-2">Rejected Article Files</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static no-files-uploaded-message">
+                                    {% if demo_files_rejected_articles %}
+                                        {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
+                                    {% else %}
+                                        No files uploaded for demo
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                <form class="form-horizontal publisher-form">
+
                     <h2>Published Articles</h2>
                     <div class="form-group row">
                         <label class="col-sm-2">Product</label>
@@ -350,56 +401,6 @@
                         </div>
                     {% endif %}
                 </div>
-
-                <form class="form-horizontal publisher-form">
-
-                    <h2>Rejected Manuscripts</h2>
-                    <div class="form-group row">
-                        <label class="col-sm-2">Product</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.rejected_manuscripts }} Enable Rejected Manuscripts</label>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-
-                {% if is_demo %}
-                    <div class="rejected-manuscripts-controls" style="display:none">
-                        <div class="form-horizontal publisher-form demo-files-fake-form">
-                            <div class="form-group row">
-                                <label class="col-sm-2">Rejected Article Files</label>
-                                <div class="col-sm-10">
-                                    {% if read_only and not demo_files_rejected_articles %}
-                                        <p class="form-control-static no-files-uploaded-message">
-                                            No files uploaded
-                                        </p>
-                                    {% else %}
-                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
-                {% if convert_from_demo %}
-                    <div class="form-horizontal publisher-form">
-                        <div class="form-group row">
-                            <label class="col-sm-2">Rejected Article Files</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static no-files-uploaded-message">
-                                    {% if demo_files_rejected_articles %}
-                                        {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
-                                    {% else %}
-                                        No files uploaded for demo
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
 
                 <form class="form-horizontal publisher-form">
 

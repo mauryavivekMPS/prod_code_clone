@@ -28,23 +28,6 @@ class ParseBenchPressFileTask(Task):
         with codecs.open(target_file_name, 'w', 'utf-16') as target_file:
             target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
 
-            fieldnames = (
-                'MANUSCRIPT_ID',
-                'DATE_OF_REJECTION',
-                'REJECT_REASON',
-                'TITLE',
-                'FIRST_AUTHOR',
-                'CORRESPONDING_AUTHOR',
-                'CO_AUTHORS',
-                'SUBJECT_CATEGORY',
-                'EDITOR',
-                'SUBMITTED_JOURNAL',
-                'ARTICLE_TYPE',
-                'KEYWORDS',
-                'CUSTOM',
-                'FUNDERS',
-            )
-
             for file in files:
 
                 tlogger.info('Parsing file: %s' % file)

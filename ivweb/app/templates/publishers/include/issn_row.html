@@ -36,15 +36,24 @@
         <span class="months-free-text">months</span>
     </div>
 </div>
-
+{% if not cohort %}
+    <div class="form-group row issn-values-benchpress-row issn-values-row-{{ index }} rejected-manuscripts-controls" style="display:none">
+        <div class="col-sm-6 col-sm-offset-2">
+            <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>
+            <input id="id_use_benchpress_{{ index }}" class="use-benchpress" type="checkbox" index="{{ index }}" {% if issn_value.use_benchpress == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
+            <span class="use-benchpress-text">Use benchpress for Rejected Articles</span>
+        </div>
+    </div>
+{% endif %}
 <script>
     $(function() {
         var mainRowSelector = '.issn-values{% if cohort %}-cohort{% endif %}-row-{{ index }}';
         var monthsRowSelector = '.issn-values-months{% if cohort %}-cohort{% endif %}-row-{{ index }}';
+        var benchpressRowSelector = '.issn-values-benchpress-row-{{ index }}';
         var index = '{{ index }}';
         var cohort = {% if cohort %}true{% else %}false{% endif %};
-        EditPublisherPage.wireUpValidateIssnButton(mainRowSelector, monthsRowSelector, index, cohort);
-        EditPublisherPage.wireUpDeleteIssnButton(mainRowSelector, monthsRowSelector, index, cohort);
-        EditPublisherPage.wireUpIssnControls(mainRowSelector, monthsRowSelector, index, cohort);
+        EditPublisherPage.wireUpValidateIssnButton(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort);
+        EditPublisherPage.wireUpDeleteIssnButton(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort);
+        EditPublisherPage.wireUpIssnControls(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort);
     });
 </script>
