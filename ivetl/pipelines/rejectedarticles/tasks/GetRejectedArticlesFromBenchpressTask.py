@@ -47,8 +47,9 @@ class GetRejectedArticlesFromBenchPressTask(Task):
                 tlogger.info('Looking for file for journal: %s' % journal_code)
 
                 result = shell.run([self.SCRIPT, '-b', start_date, '-e', end_date, '-j', journal_code, '-p'])
+                result_text = result.output.decode('utf-8')
 
-                output_file_match = re.search(r'Data file: (/.*\.txt)', result.output.decode('utf-8'))
+                output_file_match = re.search(r'Data file: (/.*\.txt)', result_text)
                 if output_file_match and output_file_match.groups():
 
                     output_file_path = output_file_match.groups()[0]
@@ -62,6 +63,9 @@ class GetRejectedArticlesFromBenchPressTask(Task):
                     files.append(local_file_path)
 
                     tlogger.info('Retrieved file: %s' % output_file_name)
+
+                else:
+                    tlogger.error('Unexpected output from benchpress script: %s' % result_text)
 
         return {
             'input_files': files,
