@@ -79,7 +79,9 @@ def list_demos(request):
                             "and testing of the demo account you'll receive progress updates via email. Or you can "
                             "check back here any time.")
         elif from_value == 'archive-demo':
-            messages.append("The selected demo has been archived and will no longer be visible within the app.")
+            messages.append("The selected demo has been archived.")
+        elif from_value == 'unarchive-demo':
+            messages.append("The selected demo has been restored to active.")
 
     if request.user.superuser:
         demos = Demo.objects.all()
@@ -504,7 +506,7 @@ def edit_demo(request, demo_id=None):
                 if demo.archived:
                     return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=archived')
                 else:
-                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=active')
+                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=unarchive-demo&filter=active')
 
         else:
             form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
