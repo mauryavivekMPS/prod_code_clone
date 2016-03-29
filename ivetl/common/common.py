@@ -58,6 +58,8 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': ['rejected_articles'],
+        'include_date_range_controls': True,
+        'filter_for_benchpress_support': True,
     },
     {
         'name': 'Reprocess Rejected',

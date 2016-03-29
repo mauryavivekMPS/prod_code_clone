@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global, Publisher_Journal
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +87,18 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
             if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
-                supported_publishers.append(publisher)
+
+                # special support for other pipeline-level filters
+                if pipeline.get('filter_for_benchpress_support'):
+                    benchpress_journals = Publisher_Journal.objects.filter(
+                        publisher_id=publisher.publisher_id,
+                        product_id='published_articles',
+                        use_benchpress=True
+                    )
+                    if benchpress_journals.count():
+                        supported_publishers.append(publisher)
+                else:
+                    supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
