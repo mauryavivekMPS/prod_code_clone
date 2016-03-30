@@ -232,7 +232,6 @@ class PublisherForm(forms.Form):
                         'print_issn': code.print_issn,
                         'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
-                        'use_benchpress': 'on' if code.use_benchpress else '',
                         'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
                     })
                     index += 1
@@ -395,7 +394,6 @@ class PublisherForm(forms.Form):
                         print_issn=issn_value['print_issn'],
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=int_or_none(issn_value['months_until_free']),
-                        use_benchpress=issn_value['use_benchpress'] == 'on',
                     )
 
             return publisher

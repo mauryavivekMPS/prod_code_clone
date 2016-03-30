@@ -92,7 +92,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
                     local_file_path = os.path.join(work_folder, output_file_name)
 
                     with shell.open(output_file_path, "r") as remote_file:
-                        with open(local_file_path, "w") as local_file:
+                        with open(local_file_path, "w", encoding='utf-8') as local_file:
                             shutil.copyfileobj(remote_file, local_file)
 
                     files.append(local_file_path)
