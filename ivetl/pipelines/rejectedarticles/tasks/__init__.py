@@ -8,4 +8,5 @@ from ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask import MendeleyLo
 from ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask import PrepareForDBInsertTask
 from ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
 from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask import GetRejectedArticlesTask
-
+from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchpressTask import GetRejectedArticlesFromBenchPressTask
+from ivetl.pipelines.rejectedarticles.tasks.ParseBenchPressFileTask import ParseBenchPressFileTask

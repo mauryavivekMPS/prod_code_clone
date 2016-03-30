@@ -79,7 +79,9 @@ def list_demos(request):
                             "and testing of the demo account you'll receive progress updates via email. Or you can "
                             "check back here any time.")
         elif from_value == 'archive-demo':
-            messages.append("The selected demo has been archived and will no longer be visible within the app.")
+            messages.append("The selected demo has been archived.")
+        elif from_value == 'unarchive-demo':
+            messages.append("The selected demo has been restored to active.")
 
     if request.user.superuser:
         demos = Demo.objects.all()
@@ -212,6 +214,7 @@ class PublisherForm(forms.Form):
                         'journal_code': code.journal_code,
                         'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
+                        'use_benchpress': 'on' if code.use_benchpress else '',
                         'index': 'pa-%s' % index,  # just needs to be unique on the page
                     })
                     index += 1
@@ -229,6 +232,7 @@ class PublisherForm(forms.Form):
                         'print_issn': code.print_issn,
                         'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
+                        'use_benchpress': 'on' if code.use_benchpress else '',
                         'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
                     })
                     index += 1
@@ -379,6 +383,7 @@ class PublisherForm(forms.Form):
                         journal_code=issn_value['journal_code'],
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=int_or_none(issn_value['months_until_free']),
+                        use_benchpress=issn_value['use_benchpress'] == 'on',
                     )
 
             if self.cleaned_data['issn_values_cohort']:
@@ -390,6 +395,7 @@ class PublisherForm(forms.Form):
                         print_issn=issn_value['print_issn'],
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=int_or_none(issn_value['months_until_free']),
+                        use_benchpress=issn_value['use_benchpress'] == 'on',
                     )
 
             return publisher
@@ -500,7 +506,7 @@ def edit_demo(request, demo_id=None):
                 if demo.archived:
                     return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=archived')
                 else:
-                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=active')
+                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=unarchive-demo&filter=active')
 
         else:
             form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)

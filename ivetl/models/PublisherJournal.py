@@ -12,3 +12,4 @@ class Publisher_Journal(Model):
     journal_code = columns.Text()
     months_until_free = columns.Integer()
     use_months_until_free = columns.Boolean()
+    use_benchpress = columns.Boolean()

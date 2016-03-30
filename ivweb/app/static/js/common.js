@@ -85,16 +85,19 @@ var IvetlWeb = (function() {
 //
 
 var PipelineListPage = (function() {
-    var pipelineId = '';
-    var csrfToken = '';
-    var updatePublisherUrl = '';
-    var tailUrl = '';
-    var runForPublisherUrl = '';
-    var runForAllUrl = '';
-    var isSuperuser = false;
+    var pipelineId;
+    var csrfToken;
+    var updatePublisherUrl;
+    var tailUrl;
+    var runForPublisherUrl;
+    var runForAllUrl;
+    var isSuperuser;
     var tailIntervalIds = {};
     var publisherTaskStatus = {};
-    var pipelineName = '';
+    var pipelineName;
+    var singlePublisherPipeline;
+    var includeDateRangeControls;
+    var supportsRestart;
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
@@ -220,18 +223,24 @@ var PipelineListPage = (function() {
             var publisherName = form.attr('publisher_name');
 
             // update the modal and open it
-            var m = $('#confirm-run-single-modal');
+            var m = $('#confirm-run-one-modal');
 
-            if (form.find('input[name="restart_job_id"]')) {
+            if (supportsRestart && form.find('input[name="restart_job_id"]').val()) {
                 m.find('.modal-title').html('Restart Job for Publisher');
-                m.find('.modal-body').html('<p>Are you sure you want to restart the ' + pipelineName + ' job for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+                m.find('.modal-body .confirm-run-one-modal-content').html('<p>Are you sure you want to restart the ' + pipelineName + ' job for <span style="font-weight:600">' + publisherName + '</span>?</p>');
             }
             else {
-                m.find('.modal-title').html('Run Pipeline for Publisher');
-                m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+                if (includeDateRangeControls) {
+                    m.find('.modal-title').html('Run Pipeline for Publisher');
+                    m.find('.modal-body .confirm-run-one-modal-content').html('<p>Run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span> for the following dates:</p>');
+                }
+                else {
+                    m.find('.modal-title').html('Run Pipeline for Publisher');
+                    m.find('.modal-body .confirm-run-one-modal-content').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+                }
             }
 
-            var submitButton = m.find('.confirm-run-single-submit-button');
+            var submitButton = m.find('.confirm-run-one-submit-button');
             submitButton.on('click', function() {
                 submitButton.off('click');
                 m.off('hidden.bs.modal');
@@ -243,9 +252,15 @@ var PipelineListPage = (function() {
                 parent.find('.little-upload-button').hide();
                 parent.find('.little-files-link').hide();
                 $('.run-button').hide();
+
+                if (includeDateRangeControls) {
+                    form.find('input[name="from_date"]').val($('#id_run_one_modal_from_date').val());
+                    form.find('input[name="to_date"]').val($('#id_run_one_modal_to_date').val());
+                }
+
                 $.post(runForPublisherUrl, form.serialize());
 
-                // clear out any job IDs, this form is used by multiple buttons
+                // clear out any job IDs, this form is used by multiple buttons (i.e. run and multiple restart)
                 form.find('input[name="restart_job_id"]').val('');
             });
             m.modal();
@@ -369,7 +384,8 @@ var PipelineListPage = (function() {
             csrfToken: '',
             pipelineName: '',
             singlePublisherPipeline: false,
-            includeDateRangeControls: false
+            includeDateRangeControls: false,
+            supportsRestart: false
         }, options);
 
         pipelineId = options.pipelineId;
@@ -380,16 +396,20 @@ var PipelineListPage = (function() {
         tailUrl = options.tailUrl;
         isSuperuser = options.isSuperuser;
         pipelineName = options.pipelineName;
+        singlePublisherPipeline = options.singlePublisherPipeline;
+        includeDateRangeControls = options.includeDateRangeControls;
 
         if (isSuperuser) {
-            if (options.singlePublisherPipeline) {
-                $('#id_modal_from_date').datepicker({
-                    autoclose: true
-                });
+            if (singlePublisherPipeline) {
+                if (includeDateRangeControls) {
+                    $('#id_run_single_publisher_pipeline_modal_from_date').datepicker({
+                        autoclose: true
+                    });
 
-                $('#id_modal_to_date').datepicker({
-                    autoclose: true
-                });
+                    $('#id_run_single_publisher_pipeline_modal_to_date').datepicker({
+                        autoclose: true
+                    });
+                }
 
                 var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
                 $('.run-single-publisher-pipeline-button').click(function() {
@@ -405,9 +425,9 @@ var PipelineListPage = (function() {
                         loading.hide();
                     }, 3000);
 
-                    if (options.includeDateRangeControls) {
-                        $('#id_from_date').val($('#id_modal_from_date').val());
-                        $('#id_to_date').val($('#id_modal_to_date').val());
+                    if (includeDateRangeControls) {
+                        $('#id_run_single_publisher_pipeline_modal_from_date').val($('#id_modal_from_date').val());
+                        $('#id_run_single_publisher_pipeline_modal_to_date').val($('#id_modal_to_date').val());
                     }
 
                     $('#run-single-publisher-pipeline-form').submit();
@@ -415,8 +435,26 @@ var PipelineListPage = (function() {
                 });
             }
             else {
+                if (includeDateRangeControls) {
+                    $('#id_run_one_modal_from_date').datepicker({
+                        autoclose: true
+                    });
+
+                    $('#id_run_one_modal_to_date').datepicker({
+                        autoclose: true
+                    });
+
+                    $('#id_run_all_modal_from_date').datepicker({
+                        autoclose: true
+                    });
+
+                    $('#id_run_all_modal_to_date').datepicker({
+                        autoclose: true
+                    });
+                }
+
                 var m = $('#confirm-run-all-modal');
-                $('.run-button, .run-single-publisher-pipeline-button').click(function() {
+                $('.run-button').click(function() {
                     m.modal();
                 });
 
@@ -428,6 +466,12 @@ var PipelineListPage = (function() {
                     setTimeout(function() {
                         loading.hide();
                     }, 3000);
+
+                    if (includeDateRangeControls) {
+                        $('#id_run_all_modal_from_date').val($('#id_modal_from_date').val());
+                        $('#id_run_all_modal_to_date').val($('#id_modal_to_date').val());
+                    }
+
                     $('#run-pipeline-form').submit();
                     return false;
                 });
@@ -453,25 +497,6 @@ var PipelineListPage = (function() {
         cancelTailForPublisher: cancelTailForPublisher,
         onUpdatePublisher: onUpdatePublisher,
         updateHighWaterMark: updateHighWaterMark
-    };
-
-})();
-
-
-//
-// List publishers page
-//
-
-var ListPublishersPage = (function() {
-
-    var init = function() {
-        //var sortIcons = '<i class="fa fa-sort"></i><i class="fa fa-sort-asc"></i><i class="fa fa-sort-desc"></i>';
-        //$('table.sortable-table th.text-right').prepend(sortIcons);
-        //$('table.sortable-table th').not('.text-right').append(sortIcons);
-    };
-
-    return {
-        init: init
     };
 
 })();
@@ -1032,7 +1057,7 @@ var EditPublisherPage = (function() {
             else {
                 $('.months-free-requirement').removeClass('satisfied');
             }
-            
+
             if (validMonthsFreeCohort) {
                 $('.months-free-cohort-requirement').addClass('satisfied');
             }
@@ -1285,9 +1310,10 @@ var EditPublisherPage = (function() {
         return !electronicIssn && !printIssn && !journalCode;
     };
 
-    var wireUpValidateIssnButton = function(mainRowSelector, monthsRowSelector, index, cohort) {
+    var wireUpValidateIssnButton = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
         var mainRow = $(mainRowSelector);
         var monthsRow = $(monthsRowSelector);
+        var benchpressRow = $(benchpressRowSelector);
         var button = mainRow.find('.validate-issn-button');
 
         button.on('click', function() {
@@ -1308,6 +1334,7 @@ var EditPublisherPage = (function() {
 
             var useMonthsUntilFree = monthsRow.find('#id_use_months_until_free_' + index).is(':checked') ? 'on' : '';
             var monthsUntilFree = monthsRow.find('#id_months_until_free_' + index).val();
+            var useBenchpress = benchpressRow.find('#id_use_benchpress_' + index).is(':checked') ? 'on' : '';
 
             var setIssnError = function(error) {
                 mainRow.addClass('error');
@@ -1335,6 +1362,7 @@ var EditPublisherPage = (function() {
                 {name: 'print_issn', value: printIssn},
                 {name: 'use_months_until_free', value: useMonthsUntilFree},
                 {name: 'months_until_free', value: monthsUntilFree},
+                {name: 'use_benchpress', value: useBenchpress},
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
 
@@ -1368,7 +1396,7 @@ var EditPublisherPage = (function() {
         });
     };
 
-    var wireUpIssnControls = function(mainRowSelector, monthsRowSelector, index, cohort) {
+    var wireUpIssnControls = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
         var mainRow = $(mainRowSelector);
         mainRow.find('input').on('keyup', function() {
             mainRow.find('.validate-issn-checkmark').hide();
@@ -1389,7 +1417,7 @@ var EditPublisherPage = (function() {
         }
     };
 
-    var wireUpDeleteIssnButton = function(mainRowSelector, monthsRowSelector, index, cohort) {
+    var wireUpDeleteIssnButton = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
         var mainRow = $(mainRowSelector);
         mainRow.find('.delete-issn-button').on('click', function() {
             mainRow.remove();
@@ -1435,6 +1463,7 @@ var EditPublisherPage = (function() {
                     journal_code: row.find('#id_journal_code_' + index).val(),
                     use_months_until_free: $('.issn-values-months-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
+                    use_benchpress: $('.issn-values-benchpress-row #id_use_benchpress_' + index).is(':checked') ? 'on' : '',
                     index: index
                 });
             }
@@ -1608,6 +1637,7 @@ var EditPublisherPage = (function() {
                 .done(function(html) {
                     $('#issn-values-container').append(html);
                     updateHighWireControls();
+                    updateRejectedManuscriptsControls();
                     checkForm();
                 });
             return false;
@@ -1631,6 +1661,10 @@ var EditPublisherPage = (function() {
         $('.issn-values-row').each(function() {
             var index = $(this).attr('index');
             updateMonthsFreeControls(index);
+        });
+
+        $('.issn-values-months-row .use-benchpress').on('change', function() {
+            checkForm();
         });
 
         $('.issn-values-months-cohort-row .use-months-until-free').on('change', function() {

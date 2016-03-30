@@ -258,11 +258,11 @@ class Task(BaseTask):
             server=common.TABLEAU_SERVER
         )
 
-        pipeline = common.PIPELINE_BY_ID[pipeline_id]
-        if pipeline.get('rebuild_data_source_id'):
-            for ds in pipeline['rebuild_data_source_id']:
-                t.refresh_data_source(publisher_id, publisher.reports_project, ds)
-                t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
+        # pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        # if pipeline.get('rebuild_data_source_id'):
+        #     for ds in pipeline['rebuild_data_source_id']:
+        #         t.refresh_data_source(publisher_id, publisher.reports_project, ds)
+        #         t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']
