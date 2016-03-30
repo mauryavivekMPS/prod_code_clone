@@ -1,6 +1,7 @@
 import re
 import os
 import shutil
+import datetime
 import spur
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -16,14 +17,48 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
+        from_date = task_args['from_date']
+        to_date = task_args['to_date']
+
+        today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+
+        if from_date:
+            from_date = datetime.datetime.combine(from_date, datetime.time.min)
+
+        if to_date:
+            to_date = datetime.datetime.combine(to_date, datetime.time.min)
+
+        def _previous_quarter(ref):
+            if ref.month < 4:
+                return datetime.datetime(ref.year - 1, 10, 1), datetime.datetime(ref.year - 1, 12, 31)
+            elif ref.month < 7:
+                return datetime.datetime(ref.year, 1, 1), datetime.datetime(ref.year, 3, 31)
+            elif ref.month < 10:
+                return datetime.datetime(ref.year, 4, 1), datetime.datetime(ref.year, 6, 30)
+            else:
+                return datetime.datetime(ref.year, 7, 1), datetime.datetime(ref.year, 9, 30)
+
+        if not (from_date or to_date):
+            from_date, to_date = _previous_quarter(today)
+
+        if from_date > today - datetime.timedelta(1):
+            tlogger.error('Invalid date range: The from date must be before yesterday.')
+            raise Exception
+
+        if not to_date:
+            to_date = today - datetime.timedelta(1)
+
+        if to_date < from_date:
+            tlogger.error('Invalid date range: The date range must be at least one day.')
+            raise Exception
+
+        tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
+
         journals_with_benchpress = [p.journal_code for p in Publisher_Journal.objects.filter(
             publisher_id=publisher_id,
             product_id='published_articles',
             use_benchpress=True
         )]
-
-        start_date = '01/01/2016'
-        end_date = '01/31/2016'
 
         total_count = len(journals_with_benchpress)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -46,7 +81,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
                 tlogger.info('Looking for file for journal: %s' % journal_code)
 
-                result = shell.run([self.SCRIPT, '-b', start_date, '-e', end_date, '-j', journal_code, '-p'])
+                result = shell.run([self.SCRIPT, '-b', from_date.strftime('%m/%d/%Y'), '-e', to_date.strftime('%m/%d/%Y'), '-j', journal_code, '-p'])
                 result_text = result.output.decode('utf-8')
 
                 output_file_match = re.search(r'Data file: (/.*\.txt)', result_text)
@@ -66,6 +101,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
                 else:
                     tlogger.error('Unexpected output from benchpress script: %s' % result_text)
+                    raise Exception
 
         return {
             'input_files': files,
