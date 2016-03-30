@@ -27,7 +27,7 @@ class ArticleUsageValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 42:
+                            if len(line) != 5:
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 

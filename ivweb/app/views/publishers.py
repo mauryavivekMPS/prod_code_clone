@@ -78,11 +78,22 @@ def list_demos(request):
             messages.append("Your demo has been submitted for review! As the administrator completes the configuration "
                             "and testing of the demo account you'll receive progress updates via email. Or you can "
                             "check back here any time.")
+        elif from_value == 'archive-demo':
+            messages.append("The selected demo has been archived.")
+        elif from_value == 'unarchive-demo':
+            messages.append("The selected demo has been restored to active.")
 
     if request.user.superuser:
         demos = Demo.objects.all()
     else:
-        demos = Demo.objects.filter(requestor_id=request.user.user_id)
+        demos = Demo.objects.allow_filtering().filter(requestor_id=request.user.user_id)
+
+    filter_param = request.GET.get('filter', request.COOKIES.get('demo-list-filter', 'all'))
+
+    if filter_param == 'active':
+        demos = demos.filter(archived=False)
+    elif filter_param == 'archived':
+        demos = demos.filter(archived=True)
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('demo-list-sort', 'name'))
 
@@ -124,9 +135,11 @@ def list_demos(request):
         'reset_url': reverse('publishers.list_demos'),
         'sort_key': sort_key,
         'sort_descending': sort_descending,
+        'filter_param': filter_param,
     })
 
     response.set_cookie('demo-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('demo-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 
@@ -199,6 +212,9 @@ class PublisherForm(forms.Form):
                         'electronic_issn': code.electronic_issn,
                         'print_issn': code.print_issn,
                         'journal_code': code.journal_code,
+                        'use_months_until_free': 'on' if code.use_months_until_free else '',
+                        'months_until_free': code.months_until_free,
+                        'use_benchpress': 'on' if code.use_benchpress else '',
                         'index': 'pa-%s' % index,  # just needs to be unique on the page
                     })
                     index += 1
@@ -214,6 +230,9 @@ class PublisherForm(forms.Form):
                         'product_id': 'cohort_articles',
                         'electronic_issn': code.electronic_issn,
                         'print_issn': code.print_issn,
+                        'use_months_until_free': 'on' if code.use_months_until_free else '',
+                        'months_until_free': code.months_until_free,
+                        'use_benchpress': 'on' if code.use_benchpress else '',
                         'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
                     })
                     index += 1
@@ -348,6 +367,12 @@ class PublisherForm(forms.Form):
             for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
                 journal.delete()
 
+            def int_or_none(i):
+                try:
+                    return int(issn_value['months_until_free'])
+                except:
+                    return None
+
             if self.cleaned_data['issn_values']:
                 for issn_value in json.loads(self.cleaned_data['issn_values']):
                     Publisher_Journal.objects.create(
@@ -356,7 +381,11 @@ class PublisherForm(forms.Form):
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
                         journal_code=issn_value['journal_code'],
+                        use_months_until_free=issn_value['use_months_until_free'] == 'on',
+                        months_until_free=int_or_none(issn_value['months_until_free']),
+                        use_benchpress=issn_value['use_benchpress'] == 'on',
                     )
+
             if self.cleaned_data['issn_values_cohort']:
                 for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
                     Publisher_Journal.objects.create(
@@ -364,6 +393,9 @@ class PublisherForm(forms.Form):
                         publisher_id=publisher_id,
                         electronic_issn=issn_value['electronic_issn'],
                         print_issn=issn_value['print_issn'],
+                        use_months_until_free=issn_value['use_months_until_free'] == 'on',
+                        months_until_free=int_or_none(issn_value['months_until_free']),
+                        use_benchpress=issn_value['use_benchpress'] == 'on',
                     )
 
             return publisher
@@ -464,31 +496,43 @@ def edit_demo(request, demo_id=None):
         new = False
 
     if request.method == 'POST':
-        form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
-        if form.is_valid():
 
-            previous_status = None
+        if 'archive' in request.POST:
+
             if demo:
-                previous_status = demo.status
+                demo.archived = True if request.POST['archive'] == 'on' else False
+                demo.save()
 
-            demo = form.save()
+                if demo.archived:
+                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=archived')
+                else:
+                    return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=unarchive-demo&filter=active')
 
-            if previous_status and demo.status != previous_status:
-                _notify_on_new_status(demo, request, message=form.cleaned_data['message'])
+        else:
+            form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
+            if form.is_valid():
 
-            if new:
-                from_value = 'new-success'
-            else:
-                from_value = 'save-success'
+                previous_status = None
+                if demo:
+                    previous_status = demo.status
 
-            if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
-                from_value = 'submitted-for-review'
+                demo = form.save()
 
+                if previous_status and demo.status != previous_status:
+                    _notify_on_new_status(demo, request, message=form.cleaned_data['message'])
 
-            if request.user.superuser and form.cleaned_data['convert_to_publisher']:
-                return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
+                if new:
+                    from_value = 'new-success'
+                else:
+                    from_value = 'save-success'
 
-            return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
+                if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+                    from_value = 'submitted-for-review'
+
+                if request.user.superuser and form.cleaned_data['convert_to_publisher']:
+                    return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
+
+                return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
     else:
         form = PublisherForm(request.user, instance=demo, is_demo=True)
 

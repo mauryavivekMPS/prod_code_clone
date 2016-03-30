@@ -39,14 +39,16 @@
                 <li class="date-requirement">A start date <span class="lnr lnr-check checkmark"></span></li>
                 <li class="product-requirement">One or more selected products <span class="lnr lnr-check checkmark"></span></li>
                 <li class="issns-requirement published-articles-controls" style="display:none">At least one valid publisher ISSN <span class="lnr lnr-check checkmark"></span></li>
+                <li class="months-free-requirement months-free-controls" style="display:none">Specify free period for ISSNs <span class="lnr lnr-check checkmark"></span></li>
                 <li class="crossref-requirement crossref-controls" style="display:none">A valid login for Crossref <span class="lnr lnr-check checkmark"></span></li>
                 <li class="cohort-issns-requirement cohort-articles-controls" style="display:none">At least one valid cohort ISSN<span class="lnr lnr-check checkmark"></span></li>
+                <li class="months-free-cohort-requirement months-free-cohort-controls" style="display:none">Specify free period for cohort ISSNs <span class="lnr lnr-check checkmark"></span></li>
                 <li class="rejected-articles-upload-requirement rejected-manuscripts-controls" style="display:none">A rejected articles file <span class="lnr lnr-check checkmark"></span></li>
                 <li class="requirements-notes">All of the items listed above are required before you can submit for approval.</li>
             </ul>
         </div>
     {% endif %}
-    
+
     <div>
         <div class="row">
             <div class="col-md-12">
@@ -101,6 +103,17 @@
                                         </p>
                                     {% endif %}
                                 </div>
+                                {% if request.user.superuser %}
+                                    <div class="col-sm-2">
+                                        <p class="form-control-static">
+                                            {% if demo.archived %}
+                                                <a href="#" class="archive-link archive-demo">Unarchive</a>
+                                            {% else %}
+                                                <a href="#" class="archive-link archive-demo"><span class="lnr lnr-trash2"></span> Archive</a>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                {% endif %}
                             </div>
                             {% if request.user.superuser %}
                                 <div class="form-group row status-controls" style="display:none">
@@ -118,7 +131,6 @@
                                 <label for="status" class="col-sm-2">Publisher</label>
                                 <div class="col-sm-6">
                                     <p class="form-control-static">
-                                        <span class="lnr lnr-arrow-right demo-publisher-arrow"></span>
                                         <a href="{% url 'publishers.edit' publisher_from_demo.publisher_id %}">{{ publisher_from_demo.display_name }}</a>
                                     </p>
                                 </div>
@@ -226,6 +238,57 @@
                     {% endif %}
 
                 </form>
+
+                <form class="form-horizontal publisher-form">
+
+                    <h2>Rejected Manuscripts</h2>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Product</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.rejected_manuscripts }} Enable Rejected Manuscripts</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                {% if is_demo %}
+                    <div class="rejected-manuscripts-controls" style="display:none">
+                        <div class="form-horizontal publisher-form demo-files-fake-form">
+                            <div class="form-group row">
+                                <label class="col-sm-2">Rejected Article Files</label>
+                                <div class="col-sm-10">
+                                    {% if read_only and not demo_files_rejected_articles %}
+                                        <p class="form-control-static no-files-uploaded-message">
+                                            No files uploaded
+                                        </p>
+                                    {% else %}
+                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if convert_from_demo %}
+                    <div class="form-horizontal publisher-form">
+                        <div class="form-group row">
+                            <label class="col-sm-2">Rejected Article Files</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static no-files-uploaded-message">
+                                    {% if demo_files_rejected_articles %}
+                                        {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
+                                    {% else %}
+                                        No files uploaded for demo
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
 
                 <form class="form-horizontal publisher-form">
 
@@ -341,56 +404,6 @@
 
                 <form class="form-horizontal publisher-form">
 
-                    <h2>Rejected Manuscripts</h2>
-                    <div class="form-group row">
-                        <label class="col-sm-2">Product</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.rejected_manuscripts }} Enable Rejected Manuscripts</label>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-
-                {% if is_demo %}
-                    <div class="rejected-manuscripts-controls" style="display:none">
-                        <div class="form-horizontal publisher-form demo-files-fake-form">
-                            <div class="form-group row">
-                                <label class="col-sm-2">Rejected Article Files</label>
-                                <div class="col-sm-10">
-                                    {% if read_only and not demo_files_rejected_articles %}
-                                        <p class="form-control-static no-files-uploaded-message">
-                                            No files uploaded
-                                        </p>
-                                    {% else %}
-                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
-                {% if convert_from_demo %}
-                    <div class="form-horizontal publisher-form">
-                        <div class="form-group row">
-                            <label class="col-sm-2">Rejected Article Files</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static no-files-uploaded-message">
-                                    {% if demo_files_rejected_articles %}
-                                        {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
-                                    {% else %}
-                                        No files uploaded for demo
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
-                <form class="form-horizontal publisher-form">
-
                     <h2>Cohort Articles</h2>
                     <div class="form-group row">
                         <label class="col-sm-2">Product</label>
@@ -479,6 +492,34 @@
             <input type="hidden" name="{{ field }}">
         {% endfor %}
     </form>
+
+    {% if demo %}
+        <form id="archive-demo-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="demo_id" value="{{ form.initial.demo_id }}">
+            <input type="hidden" name="archive" value="{% if demo.archived %}0{% else %}1{% endif %}">
+        </form>
+    {% endif %}
+
+    <div class="modal fade confirm-archive-demo" id="confirm-archive-demo-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">{% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to {% if demo.archived %}un{% endif %}archive <b>{{ demo.name }}</b>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary confirm-archive-demo-button">Yes, {% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request</button>
+                    <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 

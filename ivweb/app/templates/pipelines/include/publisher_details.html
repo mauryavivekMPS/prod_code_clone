@@ -54,7 +54,13 @@
                     {% csrf_token %}
                     <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
                     <input type="hidden" name="move_pending_files" value="1">
-                    <input type="hidden" name="restart_job_id" value="">
+                    {% if pipeline.supports_restart %}
+                        <input type="hidden" name="restart_job_id" value="">
+                    {% endif %}
+                    {% if pipeline.include_date_range_controls %}
+                        <input type="hidden" name="from_date">
+                        <input type="hidden" name="to_date">
+                    {% endif %}
                     {% if not pipeline.single_publisher_pipeline %}
                         <button type="submit" class="btn btn-default submit-button run-pipeline-for-publisher-button">
                             Run

@@ -12,6 +12,7 @@ class Demo(Model):
     start_date = columns.DateTime()
     status = columns.Text()
     properties = columns.Text()
+    archived = columns.Boolean(default=False, index=True)
 
     @property
     def requestor(self):

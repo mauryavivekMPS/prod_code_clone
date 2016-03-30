@@ -29,18 +29,24 @@ class InsertArticleUsageIntoCassandra(Task):
 
                     doi = line['Article DOI'].lower()
                     usage_start_date = parser.parse(line['Pub Date'])
+                    usage_type = line['Type']
+                    month_number = int(line['Month Number'])
 
-                    for n in range(1, 37):
-                        usage_string = line['Month %s' % n]
-                        if usage_string:
-                            usage = int(usage_string)
-                        else:
-                            usage = 0
+                    usage_string = line['Usage Count']
+                    if usage_string:
+                        usage = int(usage_string)
+                    else:
+                        usage = 0
 
-                        Article_Usage.objects(article_doi=doi, publisher_id=publisher_id, month_number=n).update(
-                            month_usage=usage,
-                            usage_start_date=usage_start_date,
-                        )
+                    Article_Usage.objects(
+                        article_doi=doi,
+                        publisher_id=publisher_id,
+                        usage_type=usage_type,
+                        month_number=month_number,
+                    ).update(
+                        month_usage=usage,
+                        usage_start_date=usage_start_date,
+                    )
 
                     # add a record of modified files for next task
                     modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
