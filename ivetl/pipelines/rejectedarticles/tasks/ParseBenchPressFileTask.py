@@ -32,7 +32,7 @@ class ParseBenchPressFileTask(Task):
 
                 tlogger.info('Parsing file: %s' % file)
 
-                with open(file) as tsv:
+                with open(file, encoding='utf-8') as tsv:
                     reader = csv.DictReader(tsv, delimiter='\t')
                     source_file_name = os.path.basename(file)
                     for row in reader:
