@@ -50,8 +50,8 @@ class SiteUptimePipeline(Pipeline):
             job_id = now.strftime('%Y%m%d_%H%M%S%f')
 
             params = {
-                'from_date': from_date.strftime('%Y-%m-%d'),
-                'to_date': to_date.strftime('%Y-%m-%d'),
+                'from_date': from_date.strftime('%Y-%m-%d') if from_date else None,
+                'to_date': to_date.strftime('%Y-%m-%d') if to_date else None,
             }
 
         # create work folder, signal the start of the pipeline
