@@ -10,7 +10,7 @@ from lxml import etree
 from bs4 import BeautifulSoup
 from ivetl.common import common
 from ivetl.celery import app
-from ivetl.connectors import CrossrefConnector
+from ivetl.connectors import CrossrefConnector, DoiProxyConnector
 from ivetl.models import Publisher_Journal, Doi_Transform_Rule
 from ivetl.pipelines.task import Task
 
@@ -65,15 +65,10 @@ def get_example_doi_for_issn(issn):
 
 
 def generate_doi_transform_rule(doi):
-
-    # use the dx resolver to get the HW version of the DOI
-    r = requests.get('http://dx.doi.org/' + doi, headers={'Accept': 'application/vnd.crossref.unixref+xml'})
-    soup = BeautifulSoup(r.content, 'xml')
-    hw_doi = soup.find('doi').text
-
+    doi_proxy = DoiProxyConnector()
+    hw_doi = doi_proxy.get_hw_doi(doi)
     match_expression = generate_match_pattern(doi)
     transform_spec = generate_transform_spec(hw_doi)
-
     return match_expression, transform_spec
 
 
