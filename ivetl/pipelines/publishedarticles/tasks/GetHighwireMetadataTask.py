@@ -7,7 +7,6 @@ import re
 import requests
 from requests import HTTPError
 from lxml import etree
-from bs4 import BeautifulSoup
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector
