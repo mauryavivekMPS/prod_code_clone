@@ -12,7 +12,7 @@ from ivetl.models import Publisher_Journal
 class GetRejectedArticlesFromBenchPressTask(Task):
     HOSTNAME = 'hw-bp-cron-dev-1.highwire.org'
     USERNAME = 'netsite'
-    PASSWORD = 'Pch33br@in'
+    PASSWORD = 'F!b57g0v'
     SCRIPT = '/mstr/maint/vizor/vizor_request.pl'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):

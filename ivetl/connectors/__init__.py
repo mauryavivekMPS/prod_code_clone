@@ -4,3 +4,4 @@ from ivetl.connectors.crossref import CrossrefConnector
 from ivetl.connectors.tableau import TableauConnector
 from ivetl.connectors.mendeley import MendeleyConnector
 from ivetl.connectors.pingdom import PingdomConnector
+from ivetl.connectors.doi_proxy import DoiProxyConnector
