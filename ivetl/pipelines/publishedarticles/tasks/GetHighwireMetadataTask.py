@@ -147,12 +147,17 @@ class GetHighWireMetadataTask(Task):
                 if not transform_spec:
                     # generate a new rule
                     match_expression, transform_spec = generate_doi_transform_rule(doi)
-                    Doi_Transform_Rule.objects.create(
+
+                    # save it to the db
+                    new_rule = Doi_Transform_Rule.objects.create(
                         journal_code=hw_journal_code,
                         type='hw-doi',
                         match_expression=match_expression,
                         transform_spec=transform_spec,
                     )
+
+                    # whack it in the local cache
+                    transform_rules_by_journal_code[hw_journal_code].append(new_rule)
 
                 hw_doi = transform_doi(doi, transform_spec)
 
