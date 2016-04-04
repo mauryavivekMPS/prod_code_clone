@@ -154,10 +154,13 @@ def list_pipelines(request, product_id, pipeline_id):
             high_water_mark_label = 'never'
 
     if pipeline.get('include_date_range_controls'):
+        yesterday = datetime.datetime.now() - datetime.timedelta(1)
         if high_water_mark:
-            from_date = to_date = high_water_mark + datetime.timedelta(1)
+            from_date = high_water_mark + datetime.timedelta(1)
         else:
-            from_date = to_date = datetime.datetime.now() - datetime.timedelta(1)
+            from_date = yesterday
+
+        to_date = yesterday
 
         from_date_label = from_date.strftime('%m/%d/%Y')
         to_date_label = to_date.strftime('%m/%d/%Y')
