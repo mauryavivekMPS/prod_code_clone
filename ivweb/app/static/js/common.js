@@ -284,7 +284,7 @@ var PipelineListPage = (function() {
                 var f = $('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                 var jobIdWidget = f.find('input[name="restart_job_id"]');
                 jobIdWidget.val(jobId);
-                f.submit();
+                f[0].submit();
                 return false;
             });
         });
