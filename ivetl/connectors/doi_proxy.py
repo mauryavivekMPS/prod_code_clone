@@ -31,6 +31,8 @@ class DoiProxyConnector(BaseConnector):
 
                 if not doi_element:
                     self.log('DOI Proxy return a seemlingly valid response, but no DOI is found. Trying again...')
+                    self.log(r.content)
+                    self.log('Trying again...')
                     attempt += 1
                 else:
                     hw_doi = doi_element.text
