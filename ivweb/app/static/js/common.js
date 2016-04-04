@@ -426,8 +426,8 @@ var PipelineListPage = (function() {
                     }, 3000);
 
                     if (includeDateRangeControls) {
-                        $('#id_run_single_publisher_pipeline_modal_from_date').val($('#id_modal_from_date').val());
-                        $('#id_run_single_publisher_pipeline_modal_to_date').val($('#id_modal_to_date').val());
+                        $('#id_from_date').val($('#id_run_single_publisher_pipeline_modal_from_date').val());
+                        $('#id_to_date').val($('#id_run_single_publisher_pipeline_modal_to_date').val());
                     }
 
                     $('#run-single-publisher-pipeline-form').submit();
@@ -468,8 +468,8 @@ var PipelineListPage = (function() {
                     }, 3000);
 
                     if (includeDateRangeControls) {
-                        $('#id_run_all_modal_from_date').val($('#id_modal_from_date').val());
-                        $('#id_run_all_modal_to_date').val($('#id_modal_to_date').val());
+                        $('#id_from_date').val($('#id_run_all_modal_from_date').val());
+                        $('#id_to_date').val($('#id_run_all_modal_to_date').val());
                     }
 
                     $('#run-pipeline-form').submit();
