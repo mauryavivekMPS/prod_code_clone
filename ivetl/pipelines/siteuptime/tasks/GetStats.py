@@ -27,7 +27,7 @@ class GetStats(Task):
                 for line in csv.reader(tsv, delimiter='\t'):
                     if line and line[0] and line[0] != 'CHECK_ID':
                         tlogger.info('Found existing data for %s' % line[0])
-                        already_fetched.add(int(line[0]))
+                        already_fetched.add(int(line[0].replace(u'\ufeff', '')))
 
         if already_fetched:
             tlogger.info('The already_fetched set is: %s' % ', '.join([str(id) for id in already_fetched]))
@@ -53,7 +53,7 @@ class GetStats(Task):
             from_date = last_uptime_day_processed
 
         if from_date > today - datetime.timedelta(1):
-            tlogger.error('Invalid date range: The from date must before yesterday.')
+            tlogger.error('Invalid date range: The from date must be before yesterday.')
             raise Exception
 
         if not to_date:

@@ -27,14 +27,33 @@
         </p>
     </div>
 </div>
-
+<div class="form-group row issn-values-months{% if cohort %}-cohort{% endif %}-row issn-values-months{% if cohort %}-cohort{% endif %}-row-{{ index }}">
+    <div class="col-sm-6 col-sm-offset-2">
+        <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>
+        <input id="id_use_months_until_free_{{ index }}" class="use-months-until-free" type="checkbox" index="{{ index }}" {% if issn_value.use_months_until_free == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
+        <span class="months-free-text">Articles are freely available after</span>
+        <input type="text" class="form-control months-until-free input-sm" id="id_months_until_free_{{ index }}" placeholder="" value="{% if issn_value.months_until_free %}{{ issn_value.months_until_free }}{% endif %}" {% if read_only %}readonly disabled{% endif %}>
+        <span class="months-free-text">months</span>
+    </div>
+</div>
+{% if not cohort %}
+    <div class="form-group row issn-values-benchpress-row issn-values-row-{{ index }} rejected-manuscripts-controls" style="display:none">
+        <div class="col-sm-6 col-sm-offset-2">
+            <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>
+            <input id="id_use_benchpress_{{ index }}" class="use-benchpress" type="checkbox" index="{{ index }}" {% if issn_value.use_benchpress == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
+            <span class="use-benchpress-text">Use Bench Press for Rejected Articles</span>
+        </div>
+    </div>
+{% endif %}
 <script>
     $(function() {
-        var row = '.issn-values{% if cohort %}-cohort{% endif %}-row-{{ index }}';
+        var mainRowSelector = '.issn-values{% if cohort %}-cohort{% endif %}-row-{{ index }}';
+        var monthsRowSelector = '.issn-values-months{% if cohort %}-cohort{% endif %}-row-{{ index }}';
+        var benchpressRowSelector = '.issn-values-benchpress-row-{{ index }}';
         var index = '{{ index }}';
         var cohort = {% if cohort %}true{% else %}false{% endif %};
-        EditPublisherPage.wireUpValidateIssnButton(row, index, cohort);
-        EditPublisherPage.wireUpDeleteIssnButton(row, index, cohort);
-        EditPublisherPage.wireUpIssnControls(row, index, cohort);
+        EditPublisherPage.wireUpValidateIssnButton(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort);
+        EditPublisherPage.wireUpDeleteIssnButton(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort);
+        EditPublisherPage.wireUpIssnControls(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort);
     });
 </script>

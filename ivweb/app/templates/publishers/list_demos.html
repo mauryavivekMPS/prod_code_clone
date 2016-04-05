@@ -1,13 +1,18 @@
 {% extends "base_standard.html" %}
 {% load tags %}
-{% block title %}Demos{% endblock %}
+{% block title %}Demo Requests{% endblock %}
 {% block body_class %}demo{% endblock %}
 
 {% block content %}
     <div class="row header-row">
         <div class="col-md-8">
-            <h1>Demos</h1>
-            <a class="btn btn-default small add-demo-button show-loading" href="new/">+ Add Demo</a>
+            <h1>Demo Requests</h1>
+            <a class="btn btn-default small add-demo-button show-loading" href="new/">+ Add Demo Request</a>
+            <ul class="list-tabs">
+                <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                <li><a href="?filter=active" {% if filter_param == 'active' %}class="active"{% endif %}>Active</a></li>
+                <li><a href="?filter=archived" {% if filter_param == 'archived' %}class="active"{% endif %}>Archived</a></li>
+            </ul>
         </div>
     </div>
 

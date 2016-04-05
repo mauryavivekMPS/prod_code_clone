@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+
+import os
+os.sys.path.append(os.environ['IVETL_ROOT'])
+
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
-from ivetl.models import Publisher_User, Publisher_Journal
+from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
 class Publisher_Metadata(Model):
@@ -30,25 +35,13 @@ class Publisher_Metadata(Model):
     cohort_articles_last_updated = columns.DateTime()
     archived = columns.Boolean(default=False, index=True)
 
-    @property
-    def display_name(self):
-        return self.name or self.publisher_id
+if __name__ == "__main__":
+    open_cassandra_connection()
 
-    @property
-    def supports_scopus(self):
-        return True if self.scopus_api_keys else False
+    print('Setting all publisher demo flags to false...')
+    for p in Publisher_Metadata.objects.all():
+        if not p.demo:
+            p.demo = False
+            p.save()
 
-    @property
-    def supports_crossref(self):
-        return True if self.crossref_username and self.crossref_password else False
-
-    @property
-    def all_issns(self):
-        all_issns = []
-        for j in Publisher_Journal.objects.filter(publisher_id=self.publisher_id, product_id='published_articles'):
-            all_issns.append(j.electronic_issn)
-            all_issns.append(j.print_issn)
-        return all_issns
-
-    def users(self):
-        return Publisher_User.objects.allow_filtering().filter(publisher_id=self.publisher_id)
+    close_cassandra_connection()

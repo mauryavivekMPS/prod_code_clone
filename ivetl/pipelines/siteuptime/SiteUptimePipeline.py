@@ -21,7 +21,6 @@ class SiteUptimePipeline(Pipeline):
         today_label = ''
 
         if job_id:
-            print('found a job id')
             try:
                 ps = Pipeline_Status.objects.get(
                     publisher_id=publisher_id,
@@ -30,7 +29,6 @@ class SiteUptimePipeline(Pipeline):
                     job_id=job_id,
                 )
 
-                print('found a corresponding status')
                 job_id = ps.job_id
                 today_label = job_id.split("_")[0]
 
@@ -44,7 +42,6 @@ class SiteUptimePipeline(Pipeline):
                         to_date = parse(params['to_date'])
 
             except Pipeline_Status.DoesNotExist:
-                print('could not find status!')
                 pass
 
         if not job_id:
@@ -53,11 +50,9 @@ class SiteUptimePipeline(Pipeline):
             job_id = now.strftime('%Y%m%d_%H%M%S%f')
 
             params = {
-                'from_date': from_date.strftime('%Y-%m-%d'),
-                'to_date': to_date.strftime('%Y-%m-%d'),
+                'from_date': from_date.strftime('%Y-%m-%d') if from_date else None,
+                'to_date': to_date.strftime('%Y-%m-%d') if to_date else None,
             }
-
-        print('running for dates %s and %s' % (from_date, to_date))
 
         # create work folder, signal the start of the pipeline
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)

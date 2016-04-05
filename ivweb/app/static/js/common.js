@@ -85,16 +85,19 @@ var IvetlWeb = (function() {
 //
 
 var PipelineListPage = (function() {
-    var pipelineId = '';
-    var csrfToken = '';
-    var updatePublisherUrl = '';
-    var tailUrl = '';
-    var runForPublisherUrl = '';
-    var runForAllUrl = '';
-    var isSuperuser = false;
+    var pipelineId;
+    var csrfToken;
+    var updatePublisherUrl;
+    var tailUrl;
+    var runForPublisherUrl;
+    var runForAllUrl;
+    var isSuperuser;
     var tailIntervalIds = {};
     var publisherTaskStatus = {};
-    var pipelineName = '';
+    var pipelineName;
+    var singlePublisherPipeline;
+    var includeDateRangeControls;
+    var supportsRestart;
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
@@ -220,18 +223,24 @@ var PipelineListPage = (function() {
             var publisherName = form.attr('publisher_name');
 
             // update the modal and open it
-            var m = $('#confirm-run-single-modal');
+            var m = $('#confirm-run-one-modal');
 
-            if (form.find('input[name="restart_job_id"]')) {
+            if (supportsRestart && form.find('input[name="restart_job_id"]').val()) {
                 m.find('.modal-title').html('Restart Job for Publisher');
-                m.find('.modal-body').html('<p>Are you sure you want to restart the ' + pipelineName + ' job for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+                m.find('.modal-body .confirm-run-one-modal-content').html('<p>Are you sure you want to restart the ' + pipelineName + ' job for <span style="font-weight:600">' + publisherName + '</span>?</p>');
             }
             else {
-                m.find('.modal-title').html('Run Pipeline for Publisher');
-                m.find('.modal-body').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+                if (includeDateRangeControls) {
+                    m.find('.modal-title').html('Run Pipeline for Publisher');
+                    m.find('.modal-body .confirm-run-one-modal-content').html('<p>Run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span> for the following dates:</p>');
+                }
+                else {
+                    m.find('.modal-title').html('Run Pipeline for Publisher');
+                    m.find('.modal-body .confirm-run-one-modal-content').html('<p>Are you sure you want to run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span>?</p>');
+                }
             }
 
-            var submitButton = m.find('.confirm-run-single-submit-button');
+            var submitButton = m.find('.confirm-run-one-submit-button');
             submitButton.on('click', function() {
                 submitButton.off('click');
                 m.off('hidden.bs.modal');
@@ -243,9 +252,15 @@ var PipelineListPage = (function() {
                 parent.find('.little-upload-button').hide();
                 parent.find('.little-files-link').hide();
                 $('.run-button').hide();
+
+                if (includeDateRangeControls) {
+                    form.find('input[name="from_date"]').val($('#id_run_one_modal_from_date').val());
+                    form.find('input[name="to_date"]').val($('#id_run_one_modal_to_date').val());
+                }
+
                 $.post(runForPublisherUrl, form.serialize());
 
-                // clear out any job IDs, this form is used by multiple buttons
+                // clear out any job IDs, this form is used by multiple buttons (i.e. run and multiple restart)
                 form.find('input[name="restart_job_id"]').val('');
             });
             m.modal();
@@ -261,17 +276,15 @@ var PipelineListPage = (function() {
     };
 
     var wireRestartRunButtons = function(selector) {
-        console.log('wiring up restart buttons with ' + selector);
         $(selector).each(function() {
             var button = $(this);
             var publisherId = button.attr('publisher_id');
             var jobId = button.attr('job_id');
-            console.log('wiring up button ' + jobId);
             button.click(function() {
                 var f = $('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                 var jobIdWidget = f.find('input[name="restart_job_id"]');
                 jobIdWidget.val(jobId);
-                f.submit();
+                f[0].submit();
                 return false;
             });
         });
@@ -371,7 +384,8 @@ var PipelineListPage = (function() {
             csrfToken: '',
             pipelineName: '',
             singlePublisherPipeline: false,
-            includeDateRangeControls: false
+            includeDateRangeControls: false,
+            supportsRestart: false
         }, options);
 
         pipelineId = options.pipelineId;
@@ -382,16 +396,20 @@ var PipelineListPage = (function() {
         tailUrl = options.tailUrl;
         isSuperuser = options.isSuperuser;
         pipelineName = options.pipelineName;
+        singlePublisherPipeline = options.singlePublisherPipeline;
+        includeDateRangeControls = options.includeDateRangeControls;
 
         if (isSuperuser) {
-            if (options.singlePublisherPipeline) {
-                $('#id_modal_from_date').datepicker({
-                    autoclose: true
-                });
+            if (singlePublisherPipeline) {
+                if (includeDateRangeControls) {
+                    $('#id_run_single_publisher_pipeline_modal_from_date').datepicker({
+                        autoclose: true
+                    });
 
-                $('#id_modal_to_date').datepicker({
-                    autoclose: true
-                });
+                    $('#id_run_single_publisher_pipeline_modal_to_date').datepicker({
+                        autoclose: true
+                    });
+                }
 
                 var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
                 $('.run-single-publisher-pipeline-button').click(function() {
@@ -407,9 +425,9 @@ var PipelineListPage = (function() {
                         loading.hide();
                     }, 3000);
 
-                    if (options.includeDateRangeControls) {
-                        $('#id_from_date').val($('#id_modal_from_date').val());
-                        $('#id_to_date').val($('#id_modal_to_date').val());
+                    if (includeDateRangeControls) {
+                        $('#id_from_date').val($('#id_run_single_publisher_pipeline_modal_from_date').val());
+                        $('#id_to_date').val($('#id_run_single_publisher_pipeline_modal_to_date').val());
                     }
 
                     $('#run-single-publisher-pipeline-form').submit();
@@ -417,8 +435,26 @@ var PipelineListPage = (function() {
                 });
             }
             else {
+                if (includeDateRangeControls) {
+                    $('#id_run_one_modal_from_date').datepicker({
+                        autoclose: true
+                    });
+
+                    $('#id_run_one_modal_to_date').datepicker({
+                        autoclose: true
+                    });
+
+                    $('#id_run_all_modal_from_date').datepicker({
+                        autoclose: true
+                    });
+
+                    $('#id_run_all_modal_to_date').datepicker({
+                        autoclose: true
+                    });
+                }
+
                 var m = $('#confirm-run-all-modal');
-                $('.run-button, .run-single-publisher-pipeline-button').click(function() {
+                $('.run-button').click(function() {
                     m.modal();
                 });
 
@@ -430,6 +466,12 @@ var PipelineListPage = (function() {
                     setTimeout(function() {
                         loading.hide();
                     }, 3000);
+
+                    if (includeDateRangeControls) {
+                        $('#id_from_date').val($('#id_run_all_modal_from_date').val());
+                        $('#id_to_date').val($('#id_run_all_modal_to_date').val());
+                    }
+
                     $('#run-pipeline-form').submit();
                     return false;
                 });
@@ -830,6 +872,7 @@ var EditPublisherPage = (function() {
     };
 
     var checkForm = function() {
+
         var name = $("#id_name").val();
         var hasName = name != '';
 
@@ -880,6 +923,7 @@ var EditPublisherPage = (function() {
 
         var validIssns = true;
         var savableIssns = true;
+        var validMonthsFree = true;
         if (publishedArticlesProduct) {
             var gotOne = false;
             $('.issn-values-row').each(function () {
@@ -901,11 +945,24 @@ var EditPublisherPage = (function() {
                         validIssns = false;
                     }
                 }
+
+                var index = row.attr('index');
+                console.log('checking ' + index);
+                if (useMonthsFree(index)) {
+                    console.log('it is USING');
+                    var months = parseInt($('.issn-values-months-row-' + index + ' .months-until-free').val());
+                    if (isNaN(months) || months <= 0) {
+                        console.log('months is ' + months);
+                        validMonthsFree = false;
+                        console.log('setting to false');
+                    }
+                }
             });
         }
 
         var validCohortIssns = true;
         var savableCohortIssns = true;
+        var validMonthsFreeCohort = true;
         if (cohortArticlesProduct) {
             var gotOne = false;
             $('.issn-values-cohort-row').each(function () {
@@ -928,10 +985,19 @@ var EditPublisherPage = (function() {
                         return false;
                     }
                 }
+
+                var index = row.attr('index');
+                if (useMonthsFree(index)) {
+                    var months = parseInt($('.issn-values-months-cohort-row-' + index + ' .months-until-free').val());
+                    if (isNaN(months) || months <= 0) {
+                        validMonthsFreeCohort = false;
+                    }
+                }
             });
         }
 
         if (isDemo) {
+
             var atLeastOneRejectedArticlesUpload = true;
             if (rejectedManuscriptsProduct) {
                 if ($('.rejected-manuscripts-controls table.all-files-table > tbody > tr.validated-file').length > 0) {
@@ -985,6 +1051,20 @@ var EditPublisherPage = (function() {
                 $('.cohort-issns-requirement').removeClass('satisfied');
             }
 
+            if (validMonthsFree) {
+                $('.months-free-requirement').addClass('satisfied');
+            }
+            else {
+                $('.months-free-requirement').removeClass('satisfied');
+            }
+
+            if (validMonthsFreeCohort) {
+                $('.months-free-cohort-requirement').addClass('satisfied');
+            }
+            else {
+                $('.months-free-cohort-requirement').removeClass('satisfied');
+            }
+
             if (hasName && savableCrossref && savableIssns && savableCohortIssns) {
                 enableSubmit();
             }
@@ -992,7 +1072,7 @@ var EditPublisherPage = (function() {
                 disableSubmit();
             }
 
-            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns) {
+            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort) {
                 enableSubmitForApproval();
             }
             else {
@@ -1000,7 +1080,7 @@ var EditPublisherPage = (function() {
             }
         }
         else {
-            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns) {
+            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort) {
                 enableSubmit();
             }
             else {
@@ -1160,6 +1240,68 @@ var EditPublisherPage = (function() {
         return false;
     };
 
+    var useMonthsFree = function(index) {
+        return $('.issn-values-months-row-' + index + ' .use-months-until-free').is(':checked');
+    };
+
+    var updateMonthsFreeControls = function(index) {
+        var row = $('.issn-values-months-row-' + index);
+        if (useMonthsFree(index)) {
+            row.find('.months-until-free').removeClass('disabled').prop('disabled', false).attr('placeholder', '0');
+            row.find('.months-free-text').removeClass('disabled');
+            $('.months-free-controls').fadeIn(200);
+        }
+        else {
+            row.find('.months-until-free').addClass('disabled').prop('disabled', true).val('').attr('placeholder', '');
+            row.find('.months-free-text').addClass('disabled');
+
+            var atLeastOneMonthsFree = false;
+            $('.issn-values-months-row .use-months-until-free').each(function () {
+                if ($(this).is(':checked')) {
+                    atLeastOneMonthsFree = true;
+                    return false;
+                }
+            });
+            if (atLeastOneMonthsFree) {
+                $('.months-free-controls').fadeIn(200);
+            }
+            else {
+                $('.months-free-controls').fadeOut(100);
+            }
+        }
+    };
+
+    var useMonthsFreeCohort = function(index) {
+        return $('.issn-values-months-cohort-row-' + index + ' .use-months-until-free').is(':checked');
+    };
+
+    var updateMonthsFreeCohortControls = function(index) {
+        var row = $('.issn-values-months-cohort-row-' + index);
+        if (useMonthsFreeCohort(index)) {
+            row.find('.months-until-free').removeClass('disabled').prop('disabled', false);
+            row.find('.months-free-text').removeClass('disabled');
+            $('.months-free-cohort-controls').fadeIn(200);
+        }
+        else {
+            row.find('.months-until-free').addClass('disabled').prop('disabled', true).val('');
+            row.find('.months-free-text').addClass('disabled');
+
+            var atLeastOneMonthsFree = false;
+            $('.issn-values-months-cohort-row .use-months-until-free').each(function () {
+                if ($(this).is(':checked')) {
+                    atLeastOneMonthsFree = true;
+                    return false;
+                }
+            });
+            if (atLeastOneMonthsFree) {
+                $('.months-free-cohort-controls').fadeIn(200);
+            }
+            else {
+                $('.months-free-cohort-controls').fadeOut(100);
+            }
+        }
+    };
+
     var isIssnRowEmpty = function(row) {
         var index = row.attr('index');
         var electronicIssn = row.find('#id_electronic_issn_' + index).val();
@@ -1168,28 +1310,34 @@ var EditPublisherPage = (function() {
         return !electronicIssn && !printIssn && !journalCode;
     };
 
-    var wireUpValidateIssnButton = function(rowSelector, index, cohort) {
-        var row = $(rowSelector);
-        var button = row.find('.validate-issn-button');
+    var wireUpValidateIssnButton = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
+        var mainRow = $(mainRowSelector);
+        var monthsRow = $(monthsRowSelector);
+        var benchpressRow = $(benchpressRowSelector);
+        var button = mainRow.find('.validate-issn-button');
 
         button.on('click', function() {
             var usingJournal = hasHighWire() && !cohort;
-            var loading = row.find('.validate-issn-loading');
-            var checkmark = row.find('.validate-issn-checkmark');
-            var message = row.find('.issn-error-message');
+            var loading = mainRow.find('.validate-issn-loading');
+            var checkmark = mainRow.find('.validate-issn-checkmark');
+            var message = mainRow.find('.issn-error-message');
 
             button.hide();
             loading.show();
 
-            var electronicIssn = row.find('#id_electronic_issn_' + index).val();
-            var printIssn = row.find('#id_print_issn_' + index).val();
+            var electronicIssn = mainRow.find('#id_electronic_issn_' + index).val();
+            var printIssn = mainRow.find('#id_print_issn_' + index).val();
 
             if (usingJournal) {
-                var journalCode = row.find('#id_journal_code_' + index).val();
+                var journalCode = mainRow.find('#id_journal_code_' + index).val();
             }
 
+            var useMonthsUntilFree = monthsRow.find('#id_use_months_until_free_' + index).is(':checked') ? 'on' : '';
+            var monthsUntilFree = monthsRow.find('#id_months_until_free_' + index).val();
+            var useBenchpress = benchpressRow.find('#id_use_benchpress_' + index).is(':checked') ? 'on' : '';
+
             var setIssnError = function(error) {
-                row.addClass('error');
+                mainRow.addClass('error');
                 message.html('<li>' + error + '</li>').show();
                 button.show();
                 checkmark.hide();
@@ -1211,6 +1359,10 @@ var EditPublisherPage = (function() {
             var data = [
                 {name: 'electronic_issn', value: electronicIssn},
                 {name: 'print_issn', value: printIssn},
+                {name: 'print_issn', value: printIssn},
+                {name: 'use_months_until_free', value: useMonthsUntilFree},
+                {name: 'months_until_free', value: monthsUntilFree},
+                {name: 'use_benchpress', value: useBenchpress},
                 {name: 'csrfmiddlewaretoken', value: csrfToken}
             ];
 
@@ -1224,7 +1376,7 @@ var EditPublisherPage = (function() {
                 .done(function(json) {
                     loading.hide();
                     if (json.status == 'ok') {
-                        row.removeClass('error');
+                        mainRow.removeClass('error');
                         button.hide();
                         message.hide();
                         button.hide();
@@ -1234,7 +1386,7 @@ var EditPublisherPage = (function() {
                         setIssnError(json.error_message);
                     }
                     else if (json.status == 'warning') {
-                        row.removeClass('error');
+                        mainRow.removeClass('error');
                         setIssnWarning(json.warning_message);
                     }
                     checkForm();
@@ -1244,29 +1396,32 @@ var EditPublisherPage = (function() {
         });
     };
 
-    var wireUpIssnControls = function(rowSelector, index, cohort) {
-        var row = $(rowSelector);
-        row.find('input').on('keyup', function() {
-            row.find('.validate-issn-checkmark').hide();
-            row.find('.validate-issn-button').show();
+    var wireUpIssnControls = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
+        var mainRow = $(mainRowSelector);
+        mainRow.find('input').on('keyup', function() {
+            mainRow.find('.validate-issn-checkmark').hide();
+            mainRow.find('.validate-issn-button').show();
             checkForm();
         });
+
+        $(monthsRowSelector).find('input').on('keyup', checkForm);
 
         if (!cohort) {
             $('#id_hw_addl_metadata_available').on('change', function () {
                 if (hasHighWire()) {
-                    row.find('.validate-issn-checkmark').hide();
-                    row.find('.validate-issn-button').show();
+                    mainRow.find('.validate-issn-checkmark').hide();
+                    mainRow.find('.validate-issn-button').show();
                 }
                 checkForm();
             });
         }
     };
 
-    var wireUpDeleteIssnButton = function(rowSelector, index, cohort) {
-        var row = $(rowSelector);
-        row.find('.delete-issn-button').on('click', function() {
-            row.remove();
+    var wireUpDeleteIssnButton = function(mainRowSelector, monthsRowSelector, benchpressRowSelector, index, cohort) {
+        var mainRow = $(mainRowSelector);
+        mainRow.find('.delete-issn-button').on('click', function() {
+            mainRow.remove();
+            $(monthsRowSelector).remove();
             checkForm();
             return false;
         });
@@ -1306,6 +1461,9 @@ var EditPublisherPage = (function() {
                     electronic_issn: row.find('#id_electronic_issn_' + index).val(),
                     print_issn: row.find('#id_print_issn_' + index).val(),
                     journal_code: row.find('#id_journal_code_' + index).val(),
+                    use_months_until_free: $('.issn-values-months-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
+                    months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
+                    use_benchpress: $('.issn-values-benchpress-row #id_use_benchpress_' + index).is(':checked') ? 'on' : '',
                     index: index
                 });
             }
@@ -1320,6 +1478,8 @@ var EditPublisherPage = (function() {
                 issnCohortValues.push({
                     electronic_issn: row.find('#id_electronic_issn_' + index).val(),
                     print_issn: row.find('#id_print_issn_' + index).val(),
+                    use_months_until_free: $('.issn-values-months-cohort-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
+                    months_until_free: $('.issn-values-months-cohort-row #id_months_until_free_' + index).val(),
                     index: index
                 });
             }
@@ -1477,6 +1637,7 @@ var EditPublisherPage = (function() {
                 .done(function(html) {
                     $('#issn-values-container').append(html);
                     updateHighWireControls();
+                    updateRejectedManuscriptsControls();
                     checkForm();
                 });
             return false;
@@ -1489,6 +1650,32 @@ var EditPublisherPage = (function() {
                     checkForm();
                 });
             return false;
+        });
+
+        $('.issn-values-months-row .use-months-until-free').on('change', function() {
+            var index = $(this).attr('index');
+            updateMonthsFreeControls(index);
+            checkForm();
+        });
+
+        $('.issn-values-row').each(function() {
+            var index = $(this).attr('index');
+            updateMonthsFreeControls(index);
+        });
+
+        $('.issn-values-months-row .use-benchpress').on('change', function() {
+            checkForm();
+        });
+
+        $('.issn-values-months-cohort-row .use-months-until-free').on('change', function() {
+            var index = $(this).attr('index');
+            updateMonthsFreeCohortControls(index);
+            checkForm();
+        });
+
+        $('.issn-values-cohort-row').each(function() {
+            var index = $(this).attr('index');
+            updateMonthsFreeCohortControls(index);
         });
 
         $('.submit-button.save-button').on('click', function(event) {
@@ -1508,6 +1695,20 @@ var EditPublisherPage = (function() {
             event.preventDefault();
             return false;
         });
+
+        if (isDemo) {
+            var m = $('#confirm-archive-demo-modal');
+
+            m.find('.confirm-archive-demo-button').on('click', function() {
+                IvetlWeb.showLoading();
+                m.modal('hide');
+                $('#archive-demo-form').submit();
+            });
+
+            $('.archive-demo').on('click', function() {
+                m.modal();
+            });
+        }
 
         checkForm();
     };

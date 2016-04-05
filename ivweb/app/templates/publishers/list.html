@@ -9,9 +9,9 @@
             <h1>Publishers</h1>
             <a class="btn btn-default small add-publisher-button show-loading" href="new/">+ Add Publisher</a>
             <ul class="list-tabs">
-                <li><a href="?list_type-all" {% if list_type == 'all' %}class="active"{% endif %}>Show All</a></li>
-                <li><a href="?list_type=demos" {% if list_type == 'demos' %}class="active"{% endif %}>Publisher Demos</a></li>
-                <li><a href="?list_type=publishers" {% if list_type == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
+                <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                <li><a href="?filter=demos" {% if filter_param == 'demos' %}class="active"{% endif %}>Publisher Demos</a></li>
+                <li><a href="?filter=publishers" {% if filter_param == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
             </ul>
         </div>
     </div>
@@ -25,7 +25,7 @@
                         <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
                         <th>Users</th>
                         <th class="text-center">Products</th>
-                        <th class="text-center">Customer</th>
+                        <th class="text-center">Demo</th>
                         <th class="text-center">Pilot</th>
                     </tr>
                 </thead>
@@ -40,7 +40,7 @@
                             <td>{{ publisher.publisher_id }}</td>
                             <td><a href="{% url 'publishers.users' publisher.publisher_id %}">{{ publisher.users|length }} users</a></td>
                             <td class="text-center">{{ publisher.supported_products|length }}</td>
-                            <td class="text-center">{% checkmark publisher.hw_addl_metadata_available %}</td>
+                            <td class="text-center">{% checkmark publisher.demo %}</td>
                             <td class="text-center">{% checkmark publisher.pilot %}</td>
                         </tr>
                     {% endfor %}

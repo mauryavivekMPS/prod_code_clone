@@ -9,12 +9,18 @@
             <form id="run-single-publisher-pipeline-form" class="hidden-form" method="post" action="run/">
                 {% csrf_token %}
                 <input type="hidden" name="publisher" value="{{ pipeline.single_publisher_id }}">
-                <input type="hidden" id="id_from_date" name="from_date">
-                <input type="hidden" id="id_to_date" name="to_date">
+                {% if pipeline.include_date_range_controls %}
+                    <input type="hidden" id="id_from_date" name="from_date">
+                    <input type="hidden" id="id_to_date" name="to_date">
+                {% endif %}
             </form>
         {% else %}
             <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
                 {% csrf_token %}
+                {% if pipeline.include_date_range_controls %}
+                    <input type="hidden" id="id_from_date" name="from_date">
+                    <input type="hidden" id="id_to_date" name="to_date">
+                {% endif %}
             </form>
         {% endif %}
     {% endif %}
@@ -44,9 +50,9 @@
 
             {% if not pipeline.hide_demo_filter %}
                 <ul class="list-tabs">
-                    <li><a href="?list_type-all" {% if list_type == 'all' %}class="active"{% endif %}>Show All</a></li>
-                    <li><a href="?list_type=demos" {% if list_type == 'demos' %}class="active"{% endif %}>Publishers Demos</a></li>
-                    <li><a href="?list_type=publishers" {% if list_type == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
+                    <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                    <li><a href="?filter=demos" {% if filter_param == 'demos' %}class="active"{% endif %}>Publishers Demos</a></li>
+                    <li><a href="?filter=publishers" {% if filter_param == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
                 </ul>
             {% endif %}
         </div>
@@ -77,30 +83,38 @@
         </div>
     </div>
 
-    <div class="modal fade confirm-dialog" id="confirm-run-single-modal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title" id="confirm-run-single-modal-label"></h4>
-                </div>
-                <div class="modal-body">
-                    <p id="confirm-run-single-modal-label"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary confirm-run-single-submit-button">Yes, Run Pipeline</button>
-                    <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+    {% if not pipeline.single_publisher_pipeline %}
+        <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %}" id="confirm-run-one-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="confirm-run-one-modal-label"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="confirm-run-one-modal-content"></div>
+                        {% if pipeline.include_date_range_controls %}
+                            <p class="modal-indented-form">
+                                <input type="text" id="id_run_one_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                to
+                                <input type="text" id="id_run_one_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary confirm-run-one-submit-button">Yes, Run Pipeline</button>
+                        <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
+    {% endif %}
 
     {% if request.user.superuser and not pipeline.has_file_input %}
         {% if pipeline.single_publisher_pipeline %}
-            <div class="modal fade confirm-dialog" id="confirm-run-single-publisher-pipeline-modal">
+            <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %}" id="confirm-run-single-publisher-pipeline-modal">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -113,9 +127,9 @@
                             {% if pipeline.include_date_range_controls %}
                                 <p>Run the {{ pipeline.name }} pipeline for the following dates:</p>
                                 <p class="modal-indented-form">
-                                    <input type="text" id="id_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                    <input type="text" id="id_run_single_publisher_pipeline_modal_from_date" class="form-control date-control" value="{{ from_date }}">
                                     to
-                                    <input type="text" id="id_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                                    <input type="text" id="id_run_single_publisher_pipeline_modal_to_date" class="form-control date-control" value="{{ to_date }}">
                                 </p>
                                 <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
                             {% else %}
@@ -140,7 +154,19 @@
                             <h4 class="modal-title">Run Pipeline for All Publishers</h4>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to run the {{ pipeline.name }} pipeline for all publishers?</p>
+                            {% if pipeline.include_date_range_controls %}
+                                <p>Run the {{ pipeline.name }} pipeline for the following dates:</p>
+                                <p class="modal-indented-form">
+                                    <input type="text" id="id_run_all_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                    to
+                                    <input type="text" id="id_run_all_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                                </p>
+                                {% if pipeline.use_high_water_mark %}
+                                    <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
+                                {% endif %}
+                            {% else %}
+                                <p>Are you sure you want to run the {{ pipeline.name }} pipeline for all publishers?</p>
+                            {% endif %}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary confirm-run-all-submit-button">Yes, Run for All Publishers</button>
@@ -168,7 +194,8 @@
                 csrfToken: '{{ csrf_token }}',
                 pipelineName: '{{ pipeline.name }}',
                 singlePublisherPipeline: {% if pipeline.single_publisher_pipeline %}true{% else %}false{% endif %},
-                includeDateRangeControls: {% if pipeline.include_date_range_controls %}true{% else %}false{% endif %}
+                includeDateRangeControls: {% if pipeline.include_date_range_controls %}true{% else %}false{% endif %},
+                supportsRestart: {% if pipeline.supports_restart %}true{% else %}false{% endif %}
             });
         });
     </script>

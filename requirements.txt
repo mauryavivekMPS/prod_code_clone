@@ -16,3 +16,4 @@ django-easy-pjax>=1.2.0
 django-cassandra-engine>=0.5.2
 untangle>=1.1.0
 mendeley>=0.3.2
+spur>=0.3.15

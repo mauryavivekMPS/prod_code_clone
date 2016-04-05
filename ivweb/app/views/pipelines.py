@@ -8,7 +8,6 @@ import stat
 import shutil
 import codecs
 import uuid
-from operator import attrgetter
 from dateutil.parser import parse
 from django import forms
 from django.core.urlresolvers import reverse
@@ -18,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global, Publisher_Journal
 
 log = logging.getLogger(__name__)
 
@@ -80,21 +79,32 @@ def list_pipelines(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-    list_type = request.GET.get('list_type', 'all')
+    filter_param = request.GET.get('filter', request.COOKIES.get('pipeline-list-filter', 'all'))
 
     # get all publishers that support this pipeline
     supported_publishers = []
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            if list_type == 'all' or (list_type == 'demos' and publisher.demo) or (list_type == 'publishers' and not publisher.demo):
-                supported_publishers.append(publisher)
+            if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
+
+                # special support for other pipeline-level filters
+                if pipeline.get('filter_for_benchpress_support'):
+                    benchpress_journals = Publisher_Journal.objects.filter(
+                        publisher_id=publisher.publisher_id,
+                        product_id='published_articles',
+                        use_benchpress=True
+                    )
+                    if benchpress_journals.count():
+                        supported_publishers.append(publisher)
+                else:
+                    supported_publishers.append(publisher)
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
         recent_runs_by_publisher.append(get_recent_runs_for_publisher(pipeline_id, product_id, publisher))
 
-    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default='publisher')
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('pipeline-list-sort', 'publisher'))
 
     def _get_sort_value(item, sort_key):
         if sort_key == 'start_time':
@@ -144,27 +154,36 @@ def list_pipelines(request, product_id, pipeline_id):
             high_water_mark_label = 'never'
 
     if pipeline.get('include_date_range_controls'):
+        yesterday = datetime.datetime.now() - datetime.timedelta(1)
         if high_water_mark:
-            from_date = to_date = high_water_mark + datetime.timedelta(1)
+            from_date = high_water_mark + datetime.timedelta(1)
         else:
-            from_date = to_date = datetime.datetime.now() - datetime.timedelta(1)
+            from_date = yesterday
+
+        to_date = yesterday
 
         from_date_label = from_date.strftime('%m/%d/%Y')
         to_date_label = to_date.strftime('%m/%d/%Y')
 
-    return render(request, 'pipelines/list.html', {
+    response = render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
         'runs_by_publisher': sorted_recent_runs_by_publisher,
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
-        'list_type': list_type,
+        'list_type': filter_param,
         'high_water_mark': high_water_mark_label,
         'from_date': from_date_label,
         'to_date': to_date_label,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
+        'filter_param': filter_param,
     })
+
+    response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('pipeline-list-filter', value=filter_param, max_age=30*24*60*60)
+
+    return response
 
 
 @login_required
