@@ -33,7 +33,7 @@ def generate_match_pattern(example_doi):
     if num_non_alphas:
         pattern += _non_alpha_re(num_non_alphas)
 
-    return pattern
+    return '^' + pattern + '$'
 
 
 def generate_transform_spec(hw_doi):
