@@ -58,9 +58,12 @@ class IvetlHandler(FTPHandler):
 
     def on_file_received(self, file):
         self.uploaded_files.append(file)
+        self.log('foo')
 
     def on_disconnect(self):
         """Called when connection is closed."""
+
+        self.log('inside on_disconnect handler')
 
         files_to_process = defaultdict(dict)  # indexed by pub then by ftp_dir_name
 
@@ -68,6 +71,8 @@ class IvetlHandler(FTPHandler):
 
         for file in self.uploaded_files:
             file_name = os.path.basename(file)
+
+            self.log('Validing file: %s' % file)
 
             # get the pipeline and publisher from the path
             m = re.search('.*/(\w+)/(\w+)/.*$', file)
@@ -95,12 +100,12 @@ class IvetlHandler(FTPHandler):
                         body += '<p>Thank you,<br/>Impact Vizor Team</p>'
                         common.send_email(subject, body, to=user.email)
 
-                        print('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
+                        self.log('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
 
                         continue
 
                 os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
-                print('Validated file and successfully chmod: %s' % file)
+                self.log('Validated file and successfully chmod: %s' % file)
 
                 files_by_publisher = files_to_process[publisher_id]
                 if pipeline_ftp_dir_name not in files_by_publisher:
@@ -112,9 +117,9 @@ class IvetlHandler(FTPHandler):
 
                 files_by_publisher[pipeline_ftp_dir_name]['files'].append(file)
 
-                print('Appended file to files_by_publisher, organized by pipeline')
+                self.log('Appended file to files_by_publisher, organized by pipeline')
 
-        print('Collected all the files by pipeline, now running...')
+        self.log('Collected all the files by pipeline, now running...')
 
         for publisher_id, files_by_pipeline in files_to_process.items():
             for pipeline_ftp_dir_name, pipeline_files in files_by_pipeline.items():
@@ -123,12 +128,12 @@ class IvetlHandler(FTPHandler):
                 pipeline = pipeline_files['pipeline']
                 files = pipeline_files['files']
 
-                print('product: %s, pipeline: %s, files: %s' % (product_id, pipeline['id'], files))
+                self.log('product: %s, pipeline: %s, files: %s' % (product_id, pipeline['id'], files))
 
                 # kick the pipeline off with an explicit file list
                 pipeline_class = common.get_pipeline_class(pipeline)
 
-                print('Starting pipeline: %s' % pipeline['id'])
+                self.log('Starting pipeline: %s' % pipeline['id'])
 
                 pipeline_class.s(
                     publisher_id_list=[publisher_id],
@@ -138,7 +143,7 @@ class IvetlHandler(FTPHandler):
                     initiating_user_email=user.email,
                 ).delay()
 
-                print('Finished starting pipeline: %s' % pipeline['id'])
+                self.log('Finished starting pipeline: %s' % pipeline['id'])
 
                 Audit_Log.objects.create(
                     user_id=user.user_id,
@@ -148,7 +153,7 @@ class IvetlHandler(FTPHandler):
                     entity_id=pipeline['id'],
                 )
 
-                print('Written audit log')
+                self.log('Written audit log')
 
 if __name__ == '__main__':
     # initialize the database
