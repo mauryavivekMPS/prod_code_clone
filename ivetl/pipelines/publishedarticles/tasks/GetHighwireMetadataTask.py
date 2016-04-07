@@ -33,7 +33,7 @@ def generate_match_pattern(example_doi):
     if num_non_alphas:
         pattern += _non_alpha_re(num_non_alphas)
 
-    return pattern
+    return '^' + pattern + '$'
 
 
 def generate_transform_spec(hw_doi):
@@ -186,91 +186,95 @@ class GetHighWireMetadataTask(Task):
                                 tlogger.info(url)
 
                                 r = requests.get(url, timeout=30)
-                                r.raise_for_status()
 
-                                root = etree.fromstring(r.content)
-
-                                # is open access
-                                oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
-                                if len(oa) > 0:
-                                    oa = 'Yes'
+                                if r.status_code == 404:
+                                    tlogger.info('404 Not Found response from SASS for %s, skipping...' % href)
                                 else:
-                                    oa = 'No'
+                                    r.raise_for_status()
 
-                                data['is_open_access'] = oa
-                                print(oa)
+                                    root = etree.fromstring(r.content)
 
-                                # Article Type
-                                article_type = None
-                                sub_article_type = None
-
-                                at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="leader"]/nlm:subject', namespaces=common.ns)
-
-                                if len(at) == 0:
-                                    at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
-
-                                if len(at) == 0:
-                                    at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
-
-                                if len(at) == 0:
-                                    at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="display-singular"]', namespaces=common.ns)
-
-                                if len(at) != 0:
-                                    article_type = at[0].text
-                                    article_type = re.sub("<.*?>", "", article_type)
-                                    article_type = article_type.strip(' \t\r\n')
-                                    article_type = article_type.replace('\n', ' ')
-                                    article_type = article_type.replace('\t', ' ')
-                                    article_type = article_type.replace('\r', ' ')
-                                    article_type = article_type.title()
-
-                                if len(at) != 0:
-                                    sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subject', namespaces=common.ns)
-
-                                    if len(sub_at) == 0:
-                                        sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
-
-                                    if len(sub_at) != 0:
-                                        sub_article_type = sub_at[0].text
-                                        sub_article_type = re.sub("<.*?>", "", sub_article_type)
-                                        sub_article_type = sub_article_type.strip(' \t\r\n')
-                                        sub_article_type = sub_article_type.replace('\n', ' ')
-                                        sub_article_type = sub_article_type.replace('\t', ' ')
-                                        sub_article_type = sub_article_type.replace('\r', ' ')
-                                        sub_article_type = sub_article_type.title()
-
-                                if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
-
-                                    if publisher_id == 'rup':
-                                        article_type = sub_article_type
+                                    # is open access
+                                    oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
+                                    if len(oa) > 0:
+                                        oa = 'Yes'
                                     else:
-                                        article_type += ": " + sub_article_type
+                                        oa = 'No'
 
-                                    tlogger.info("Article Type with Sub Type: " + article_type)
+                                    data['is_open_access'] = oa
+                                    print(oa)
 
-                                if article_type is None or article_type == '':
-                                    article_type = "None"
+                                    # Article Type
+                                    article_type = None
+                                    sub_article_type = None
 
-                                data['article_type'] = article_type
-                                tlogger.info("Article Type: " + article_type)
+                                    at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="leader"]/nlm:subject', namespaces=common.ns)
 
-                                subject_category = None
-                                sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
+                                    if len(at) == 0:
+                                        at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
 
-                                if len(sc) != 0:
-                                    subject_category = sc[0].text
-                                    subject_category = re.sub("<.*?>", "", subject_category)
-                                    subject_category = subject_category.strip(' \t\r\n')
-                                    subject_category = subject_category.replace('\n', ' ')
-                                    subject_category = subject_category.replace('\t', ' ')
-                                    subject_category = subject_category.replace('\r', ' ')
-                                    subject_category = subject_category.title()
+                                    if len(at) == 0:
+                                        at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
 
-                                if subject_category is None or subject_category == '':
-                                    subject_category = "None"
+                                    if len(at) == 0:
+                                        at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="display-singular"]', namespaces=common.ns)
 
-                                data['subject_category'] = subject_category
-                                tlogger.info("Subject Category: " + subject_category)
+                                    if len(at) != 0:
+                                        article_type = at[0].text
+                                        article_type = re.sub("<.*?>", "", article_type)
+                                        article_type = article_type.strip(' \t\r\n')
+                                        article_type = article_type.replace('\n', ' ')
+                                        article_type = article_type.replace('\t', ' ')
+                                        article_type = article_type.replace('\r', ' ')
+                                        article_type = article_type.title()
+
+                                    if len(at) != 0:
+                                        sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subject', namespaces=common.ns)
+
+                                        if len(sub_at) == 0:
+                                            sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
+
+                                        if len(sub_at) != 0:
+                                            sub_article_type = sub_at[0].text
+                                            sub_article_type = re.sub("<.*?>", "", sub_article_type)
+                                            sub_article_type = sub_article_type.strip(' \t\r\n')
+                                            sub_article_type = sub_article_type.replace('\n', ' ')
+                                            sub_article_type = sub_article_type.replace('\t', ' ')
+                                            sub_article_type = sub_article_type.replace('\r', ' ')
+                                            sub_article_type = sub_article_type.title()
+
+                                    if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
+
+                                        if publisher_id == 'rup':
+                                            article_type = sub_article_type
+                                        else:
+                                            article_type += ": " + sub_article_type
+
+                                        tlogger.info("Article Type with Sub Type: " + article_type)
+
+                                    if article_type is None or article_type == '':
+                                        article_type = "None"
+
+                                    data['article_type'] = article_type
+                                    tlogger.info("Article Type: " + article_type)
+
+                                    subject_category = None
+                                    sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
+
+                                    if len(sc) != 0:
+                                        subject_category = sc[0].text
+                                        subject_category = re.sub("<.*?>", "", subject_category)
+                                        subject_category = subject_category.strip(' \t\r\n')
+                                        subject_category = subject_category.replace('\n', ' ')
+                                        subject_category = subject_category.replace('\t', ' ')
+                                        subject_category = subject_category.replace('\r', ' ')
+                                        subject_category = subject_category.title()
+
+                                    if subject_category is None or subject_category == '':
+                                        subject_category = "None"
+
+                                    data['subject_category'] = subject_category
+                                    tlogger.info("Subject Category: " + subject_category)
 
                             else:
                                 tlogger.info("No SASS HREF found for DOI: " + doi)
