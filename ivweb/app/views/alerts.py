@@ -1,9 +1,10 @@
-import datetime
 import logging
+from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from ivetl.models import Alert, Publisher_Metadata
+from ivetl.models import Alert
+from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
@@ -14,11 +15,18 @@ def list_alerts(request, publisher_id=None):
     else:
         alerts = Alert.objects.all()
 
-    sorted_alerts = alerts
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
+    sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
-    return render(request, 'alerts/list.html', {
+    response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,
+        'sort_key': sort_key,
+        'sort_descending': sort_descending,
     })
+
+    response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
+
+    return response
 
 
 # class AdminUserForm(forms.Form):

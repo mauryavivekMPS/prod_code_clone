@@ -5,6 +5,7 @@ from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import MendeleyConnector
+from ivetl.alerts import run_alert
 
 
 @app.task
@@ -39,7 +40,13 @@ class MendeleyLookupTask(Task):
                 tlogger.info(str(count-1) + ". Retrieving Mendelez saves for: " + doi)
 
                 try:
-                    data['mendeley_saves'] = mendeley.get_saves(doi)
+                    new_saves_value = mendeley.get_saves(doi)
+                    data['mendeley_saves'] = new_saves_value
+                    run_alert(
+                        check_id='mendeley-saves-exceeds-value',
+                        publisher_id=publisher_id,
+                        new_value=new_saves_value,
+                    )
                 except:
                     tlogger.info("General Exception - Mendelez API failed. Moving to next article...")
 

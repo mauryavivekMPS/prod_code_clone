@@ -21,3 +21,4 @@ from ivetl.models.HighwireMetadata import Highwire_Metadata
 from ivetl.models.SytemGlobal import System_Global
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.Alert import Alert
+from ivetl.models.Notification import Notification
