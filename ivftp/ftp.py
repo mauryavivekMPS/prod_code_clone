@@ -136,7 +136,6 @@ class IvetlHandler(FTPHandler):
                     files=files,
                     preserve_incoming_files=True,
                     initiating_user_email=user.email,
-                    foo='bar',
                 ).delay()
 
                 print('Finished starting pipeline: %s' % pipeline['id'])
