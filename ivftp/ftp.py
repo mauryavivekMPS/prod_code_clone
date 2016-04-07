@@ -100,6 +100,7 @@ class IvetlHandler(FTPHandler):
                         continue
 
                 os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                print('Validated file and successfully chmod: %s' % file)
 
                 files_by_publisher = files_to_process[publisher_id]
                 if pipeline_ftp_dir_name not in files_by_publisher:
@@ -111,6 +112,10 @@ class IvetlHandler(FTPHandler):
 
                 files_by_publisher[pipeline_ftp_dir_name]['files'].append(file)
 
+                print('Appended file to files_by_publisher, organized by pipeline')
+
+        print('Collected all the files by pipeline, now running...')
+
         for publisher_id, files_by_pipeline in files_to_process.items():
             for pipeline_ftp_dir_name, pipeline_files in files_by_pipeline.items():
 
@@ -118,15 +123,23 @@ class IvetlHandler(FTPHandler):
                 pipeline = pipeline_files['pipeline']
                 files = pipeline_files['files']
 
+                print('product: %s, pipeline: %s, files: %s' % (product_id, pipeline['id'], files))
+
                 # kick the pipeline off with an explicit file list
                 pipeline_class = common.get_pipeline_class(pipeline)
+
+                print('Starting pipeline: %s' % pipeline['id'])
+
                 pipeline_class.s(
                     publisher_id_list=[publisher_id],
                     product_id=product_id,
                     files=files,
                     preserve_incoming_files=True,
                     initiating_user_email=user.email,
+                    foo='bar',
                 ).delay()
+
+                print('Finished starting pipeline: %s' % pipeline['id'])
 
                 Audit_Log.objects.create(
                     user_id=user.user_id,
@@ -135,6 +148,8 @@ class IvetlHandler(FTPHandler):
                     entity_type='pipeline',
                     entity_id=pipeline['id'],
                 )
+
+                print('Written audit log')
 
 if __name__ == '__main__':
     # initialize the database
