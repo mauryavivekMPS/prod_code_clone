@@ -110,6 +110,8 @@ class GetHighWireMetadataTask(Task):
 
         transform_rules_by_journal_code = {}
 
+        doi_proxy = DoiProxyConnector()
+
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
 
@@ -145,157 +147,167 @@ class GetHighWireMetadataTask(Task):
                             transform_spec = rule.transform_spec
 
                     if not transform_spec:
-                        # generate a new rule
-                        match_expression, transform_spec = generate_doi_transform_rule(doi)
+                        hw_doi = doi_proxy.get_hw_doi(doi)
 
-                        # save it to the db
-                        new_rule = Doi_Transform_Rule.objects.create(
-                            journal_code=hw_journal_code,
-                            type='hw-doi',
-                            match_expression=match_expression,
-                            transform_spec=transform_spec,
-                        )
+                        if len(doi) != len(hw_doi):
+                            tlogger.info('Found DOI length mismatch, will not create transform spec: %s and %s' % (doi, hw_doi))
+                        else:
+                            match_expression = generate_match_pattern(doi)
+                            transform_spec = generate_transform_spec(hw_doi)
 
-                        # whack it in the local cache
-                        transform_rules_by_journal_code[hw_journal_code].append(new_rule)
+                            # save it to the db
+                            new_rule = Doi_Transform_Rule.objects.create(
+                                journal_code=hw_journal_code,
+                                type='hw-doi',
+                                match_expression=match_expression,
+                                transform_spec=transform_spec,
+                            )
 
-                    hw_doi = transform_doi(doi, transform_spec)
+                            # whack it in the local cache
+                            transform_rules_by_journal_code[hw_journal_code].append(new_rule)
 
-                    value = urllib.parse.urlencode({'value': hw_doi})
-                    url = self.SASSFS_BASE_URL + 'under=/' + hw_journal_code + '&' + value
+                    if not transform_spec:
+                        tlogger.info('Could not find or create a transform spec, skipping record: %s' + doi)
+                    else:
+                        if len(transform_spec) != len(doi):
+                            tlogger.info('Found DOI length mismatch with spec, skipping record: %s and %s' % (doi, transform_spec))
+                        else:
+                            hw_doi = transform_doi(doi, transform_spec)
 
-                    tlogger.info("Looking up HREF on SASSFS:")
-                    tlogger.info(url)
+                            value = urllib.parse.urlencode({'value': hw_doi})
+                            url = self.SASSFS_BASE_URL + 'under=/' + hw_journal_code + '&' + value
 
-                    attempt = 0
-                    max_attempts = 3
-                    while attempt < max_attempts:
-                        try:
+                            tlogger.info("Looking up HREF on SASSFS:")
+                            tlogger.info(url)
 
-                            r = requests.get(url, timeout=30)
+                            attempt = 0
+                            max_attempts = 3
+                            while attempt < max_attempts:
+                                try:
 
-                            root = etree.fromstring(r.content)
-                            n = root.xpath('//results:results/results:result/results:result-set/results:row/results:atom.href', namespaces=common.ns)
-
-                            if len(n) != 0:
-                                href = n[0].text
-
-                                url = self.SASS_BASE_URL + href
-
-                                tlogger.info("Looking up details on SASS:")
-                                tlogger.info(url)
-
-                                r = requests.get(url, timeout=30)
-
-                                if r.status_code == 404:
-                                    tlogger.info('404 Not Found response from SASS for %s, skipping...' % href)
-                                else:
-                                    r.raise_for_status()
+                                    r = requests.get(url, timeout=30)
 
                                     root = etree.fromstring(r.content)
+                                    n = root.xpath('//results:results/results:result/results:result-set/results:row/results:atom.href', namespaces=common.ns)
 
-                                    # is open access
-                                    oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
-                                    if len(oa) > 0:
-                                        oa = 'Yes'
-                                    else:
-                                        oa = 'No'
+                                    if len(n) != 0:
+                                        href = n[0].text
 
-                                    data['is_open_access'] = oa
-                                    print(oa)
+                                        url = self.SASS_BASE_URL + href
 
-                                    # Article Type
-                                    article_type = None
-                                    sub_article_type = None
+                                        tlogger.info("Looking up details on SASS:")
+                                        tlogger.info(url)
 
-                                    at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="leader"]/nlm:subject', namespaces=common.ns)
+                                        r = requests.get(url, timeout=30)
 
-                                    if len(at) == 0:
-                                        at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
-
-                                    if len(at) == 0:
-                                        at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
-
-                                    if len(at) == 0:
-                                        at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="display-singular"]', namespaces=common.ns)
-
-                                    if len(at) != 0:
-                                        article_type = at[0].text
-                                        article_type = re.sub("<.*?>", "", article_type)
-                                        article_type = article_type.strip(' \t\r\n')
-                                        article_type = article_type.replace('\n', ' ')
-                                        article_type = article_type.replace('\t', ' ')
-                                        article_type = article_type.replace('\r', ' ')
-                                        article_type = article_type.title()
-
-                                    if len(at) != 0:
-                                        sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subject', namespaces=common.ns)
-
-                                        if len(sub_at) == 0:
-                                            sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
-
-                                        if len(sub_at) != 0:
-                                            sub_article_type = sub_at[0].text
-                                            sub_article_type = re.sub("<.*?>", "", sub_article_type)
-                                            sub_article_type = sub_article_type.strip(' \t\r\n')
-                                            sub_article_type = sub_article_type.replace('\n', ' ')
-                                            sub_article_type = sub_article_type.replace('\t', ' ')
-                                            sub_article_type = sub_article_type.replace('\r', ' ')
-                                            sub_article_type = sub_article_type.title()
-
-                                    if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
-
-                                        if publisher_id == 'rup':
-                                            article_type = sub_article_type
+                                        if r.status_code == 404:
+                                            tlogger.info('404 Not Found response from SASS for %s, skipping...' % href)
                                         else:
-                                            article_type += ": " + sub_article_type
+                                            r.raise_for_status()
 
-                                        tlogger.info("Article Type with Sub Type: " + article_type)
+                                            root = etree.fromstring(r.content)
 
-                                    if article_type is None or article_type == '':
-                                        article_type = "None"
+                                            # is open access
+                                            oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
+                                            if len(oa) > 0:
+                                                oa = 'Yes'
+                                            else:
+                                                oa = 'No'
 
-                                    data['article_type'] = article_type
-                                    tlogger.info("Article Type: " + article_type)
+                                            data['is_open_access'] = oa
+                                            print(oa)
 
-                                    subject_category = None
-                                    sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
+                                            # Article Type
+                                            article_type = None
+                                            sub_article_type = None
 
-                                    if len(sc) != 0:
-                                        subject_category = sc[0].text
-                                        subject_category = re.sub("<.*?>", "", subject_category)
-                                        subject_category = subject_category.strip(' \t\r\n')
-                                        subject_category = subject_category.replace('\n', ' ')
-                                        subject_category = subject_category.replace('\t', ' ')
-                                        subject_category = subject_category.replace('\r', ' ')
-                                        subject_category = subject_category.title()
+                                            at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="leader"]/nlm:subject', namespaces=common.ns)
 
-                                    if subject_category is None or subject_category == '':
-                                        subject_category = "None"
+                                            if len(at) == 0:
+                                                at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subject', namespaces=common.ns)
 
-                                    data['subject_category'] = subject_category
-                                    tlogger.info("Subject Category: " + subject_category)
+                                            if len(at) == 0:
+                                                at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
 
-                            else:
-                                tlogger.info("No SASS HREF found for DOI: " + doi)
+                                            if len(at) == 0:
+                                                at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]//nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="display-singular"]', namespaces=common.ns)
 
-                            break
+                                            if len(at) != 0:
+                                                article_type = at[0].text
+                                                article_type = re.sub("<.*?>", "", article_type)
+                                                article_type = article_type.strip(' \t\r\n')
+                                                article_type = article_type.replace('\n', ' ')
+                                                article_type = article_type.replace('\t', ' ')
+                                                article_type = article_type.replace('\r', ' ')
+                                                article_type = article_type.title()
 
-                        except HTTPError as he:
-                            if he.response.status_code == requests.codes.BAD_GATEWAY or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
-                                tlogger.info("HTTP 401/408/502 - HW API failed. Trying Again")
-                                attempt += 1
-                            else:
-                                raise
+                                            if len(at) != 0:
+                                                sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subject', namespaces=common.ns)
 
-                        except Exception:
-                            tlogger.info("General Exception - HW API failed. Trying Again")
-                            attempt += 1
+                                                if len(sub_at) == 0:
+                                                    sub_at = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="heading"]/nlm:subj-group[not(@subj-group-type)]/nlm:subj-group[@subj-group-type="display-group"]/nlm:subject[@content-type="original"]', namespaces=common.ns)
 
-                row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
+                                                if len(sub_at) != 0:
+                                                    sub_article_type = sub_at[0].text
+                                                    sub_article_type = re.sub("<.*?>", "", sub_article_type)
+                                                    sub_article_type = sub_article_type.strip(' \t\r\n')
+                                                    sub_article_type = sub_article_type.replace('\n', ' ')
+                                                    sub_article_type = sub_article_type.replace('\t', ' ')
+                                                    sub_article_type = sub_article_type.replace('\r', ' ')
+                                                    sub_article_type = sub_article_type.title()
 
-                target_file.write(row)
-                target_file.flush()
+                                            if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
+
+                                                if publisher_id == 'rup':
+                                                    article_type = sub_article_type
+                                                else:
+                                                    article_type += ": " + sub_article_type
+
+                                                tlogger.info("Article Type with Sub Type: " + article_type)
+
+                                            if article_type is None or article_type == '':
+                                                article_type = "None"
+
+                                            data['article_type'] = article_type
+                                            tlogger.info("Article Type: " + article_type)
+
+                                            subject_category = None
+                                            sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
+
+                                            if len(sc) != 0:
+                                                subject_category = sc[0].text
+                                                subject_category = re.sub("<.*?>", "", subject_category)
+                                                subject_category = subject_category.strip(' \t\r\n')
+                                                subject_category = subject_category.replace('\n', ' ')
+                                                subject_category = subject_category.replace('\t', ' ')
+                                                subject_category = subject_category.replace('\r', ' ')
+                                                subject_category = subject_category.title()
+
+                                            if subject_category is None or subject_category == '':
+                                                subject_category = "None"
+
+                                            data['subject_category'] = subject_category
+                                            tlogger.info("Subject Category: " + subject_category)
+
+                                    else:
+                                        tlogger.info("No SASS HREF found for DOI: " + doi)
+
+                                    break
+
+                                except HTTPError as he:
+                                    if he.response.status_code == requests.codes.BAD_GATEWAY or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                                        tlogger.info("HTTP 401/408/502 - HW API failed. Trying Again")
+                                        attempt += 1
+                                    else:
+                                        raise
+
+                                except Exception:
+                                    tlogger.info("General Exception - HW API failed. Trying Again")
+                                    attempt += 1
+
+                        row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
+
+                        target_file.write(row)
 
             tsv.close()
 
