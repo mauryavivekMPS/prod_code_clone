@@ -16,8 +16,9 @@ class ResolveArticleUsageData(Task):
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
+        count = 0
+
         with open(file, encoding='utf-8') as tsv:
-            count = 0
             for line in csv.reader(tsv, delimiter='\t'):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)

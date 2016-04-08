@@ -20,11 +20,14 @@ class InsertArticleUsageIntoCassandra(Task):
         modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
         modified_articles_file.write('PUBLISHER_ID\tDOI\n')  # ..and here? we're already in a pub folder
 
+        all_dois = set()
+
+        count = 0
+
         for f in files:
             with open(f, encoding='utf-8') as tsv:
-                count = 0
-
                 for line in csv.DictReader(tsv, delimiter='\t'):
+
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     doi = line['Article DOI'].lower()
@@ -48,11 +51,14 @@ class InsertArticleUsageIntoCassandra(Task):
                         usage_start_date=usage_start_date,
                     )
 
-                    # add a record of modified files for next task
-                    modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
-                    modified_articles_file.flush()  # why is this needed?
+                    all_dois.add(doi)
+
+        # add a record of modified files for next task
+        for doi in all_dois:
+            modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
 
         modified_articles_file.close()
+
         return {
             'count': count,
             'input_file': modified_articles_file_name,
