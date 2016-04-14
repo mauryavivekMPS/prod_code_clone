@@ -1,6 +1,7 @@
 import csv
 import json
 import codecs
+import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -39,8 +40,14 @@ class InsertIntoCassandra(Task):
                         total_unknown_sec=stat['total_unknown_sec'],
                     )
 
-        # update high water mark
-        System_Global.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
+        # update high water mark if the new data is more recent
+        try:
+            current_high_water = System_Global.objects(name=pipeline_id + '_high_water').date_value
+        except:
+            current_high_water = datetime.min
+
+        if to_date > current_high_water:
+            System_Global.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
