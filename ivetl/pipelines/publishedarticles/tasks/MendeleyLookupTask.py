@@ -5,7 +5,7 @@ from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import MendeleyConnector
-from ivetl.alerts import run_alert
+from ivetl.alerts import run_alert, send_alert_notifications
 
 
 @app.task
@@ -45,6 +45,9 @@ class MendeleyLookupTask(Task):
                     run_alert(
                         check_id='mendeley-saves-exceeds-value',
                         publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
                         new_value=new_saves_value,
                     )
                 except:
@@ -53,9 +56,16 @@ class MendeleyLookupTask(Task):
                 row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
 
                 target_file.write(row)
-                target_file.flush()
 
         target_file.close()
+
+        send_alert_notifications(
+            check_id='mendeley-saves-exceeds-value',
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+        )
 
         task_args['input_file'] = target_file_name
         task_args['count'] = count

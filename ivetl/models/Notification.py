@@ -5,8 +5,11 @@ from cassandra.cqlengine.models import Model
 
 class Notification(Model):
     notification_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    notification_date = columns.DateTime(index=True)
-    alert_id = columns.UUID(index=True)
-    publisher_id = columns.Text(index=True)
-    notes = columns.Text()
-    dismissed = columns.Boolean(index=True)
+    alert_id = columns.UUID(primary_key=True)
+    publisher_id = columns.Text(partition_key=True)
+    product_id = columns.Text(primary_key=True)
+    pipeline_id = columns.Text(primary_key=True)
+    job_id = columns.Text(primary_key=True)
+    value = columns.Text()
+    notification_date = columns.DateTime()
+    dismissed = columns.Boolean()

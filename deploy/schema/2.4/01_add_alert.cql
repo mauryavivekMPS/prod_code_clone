@@ -7,7 +7,7 @@ CREATE TABLE alert (
   check_id text,
   check_params text,
   enabled boolean,
-  PRIMARY KEY ((alert_id), publisher_id)
+  PRIMARY KEY ((publisher_id), check_id, alert_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
@@ -24,17 +24,17 @@ CREATE TABLE alert (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
-CREATE INDEX alert_check_id_index ON alert(check_id);
-CREATE INDEX alert_enabled_index ON alert(enabled);
-
 CREATE TABLE notification (
   notification_id uuid,
-  notification_date timestamp,
   alert_id uuid,
   publisher_id text,
-  notes text,
+  product_id text,
+  pipeline_id text,
+  job_id text,
+  value text,
+  notification_date timestamp,
   dismissed boolean,
-  PRIMARY KEY ((notification_id))
+  PRIMARY KEY ((publisher_id), alert_id, product_id, pipeline_id, job_id, notification_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

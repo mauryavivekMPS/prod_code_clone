@@ -38,7 +38,7 @@ checks = {
 }
 
 
-def run_alert(check_id=None, publisher_id=None, new_value=None, old_value=None):
+def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None):
 
     now = datetime.datetime.now()
 
@@ -47,21 +47,38 @@ def run_alert(check_id=None, publisher_id=None, new_value=None, old_value=None):
     check_function = check['check_type']['function']
 
     # get all alerts for this publisher for this check
-    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id, enabled=True):
+    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
 
-        params = json.loads(alert.params)
+        if alert.enabled:
+            params = json.loads(alert.params)
 
-        # run the test
-        if check_function(new_value=new_value, old_value=old_value, params=params):
+            # run the test
+            if check_function(new_value=new_value, old_value=old_value, params=params):
 
-            # add a notification
-            Notification.objects.create(
-                notification_date=now,
-                alert_id=alert.alert_id,
-                publisher_id=publisher_id,
-                notes='Here are some notes!',
-                dismissed=False,
-            )
+                # add a notification
+                Notification.objects.create(
+                    alert_id=alert.alert_id,
+                    publisher_id=publisher_id,
+                    product_id=product_id,
+                    pipeline_id=pipeline_id,
+                    job_id=job_id,
+                    value='foo = 8',
+                    notification_date=now,
+                    dismissed=False,
+                )
 
-            # send an email
+
+def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None):
+
+    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
+
+        notifications_for_alert = Notification.objects.filter(
+            publisher_id=publisher_id,
+            alert_id=alert.alert_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+        )
+
+        for notification in notifications_for_alert:
             pass
