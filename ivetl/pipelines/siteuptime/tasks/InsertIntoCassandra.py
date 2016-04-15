@@ -44,7 +44,7 @@ class InsertIntoCassandra(Task):
         try:
             current_high_water = System_Global.objects(name=pipeline_id + '_high_water').date_value
         except:
-            current_high_water = datetime.min
+            current_high_water = datetime.datetime.min
 
         if to_date > current_high_water:
             System_Global.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
