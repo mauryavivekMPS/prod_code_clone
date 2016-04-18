@@ -1,12 +1,14 @@
 import logging
 from operator import attrgetter
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from ivetl.models import Notification_Summary
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
 
+@login_required
 def list_notifications(request, publisher_id=None):
     if publisher_id:
         notifications = Notification_Summary.objects.filter(publisher_id=publisher_id)

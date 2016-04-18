@@ -69,5 +69,6 @@ urlpatterns = patterns(
     url(r'^updatedemostatus/$', 'publishers.update_demo_status', name='publishers.update_demo_status'),
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),
     url(r'^deletefile/$', 'pipelines.delete_pending_file_inline', name='pipelines.delete_pending_file_inline'),
+    url(r'^includealertparams/$', 'alerts.include_alert_params', name='alerts.include_alert_params'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -17,13 +17,13 @@ check_types = {
     'exceeds-integer': {
         'function': exceeds_integer,
         'params': [
-            ('threshold', 'integer'),
+            {'name': 'threshold', 'label': 'Threshold', 'type': 'integer'},
         ]
     },
     'percentage-change': {
         'function': percentage_change,
         'params': [
-            ('threshold', 'percentage'),
+            {'name': 'threshold', 'label': 'Threshold', 'type': 'percentage'},
         ]
     },
 }
@@ -39,7 +39,7 @@ checks = {
     },
 }
 
-checks_choices = [(check_id, checks[check_id]['name']) for check_id in checks]
+check_choices = [(check_id, checks[check_id]['name']) for check_id in checks]
 
 
 def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None):
