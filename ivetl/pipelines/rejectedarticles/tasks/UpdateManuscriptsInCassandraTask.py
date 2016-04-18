@@ -6,12 +6,12 @@ from datetime import datetime
 import cassandra.util
 from cassandra.cqlengine.query import BatchQuery
 from ivetl.celery import app
-from ivetl.common.BaseTask import BaseTask
+from ivetl.pipelines.task import Task
 from ivetl.models import Rejected_Articles
 
 
 @app.task
-class UpdateManuscriptsInCassandraTask(BaseTask):
+class UpdateManuscriptsInCassandraTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
