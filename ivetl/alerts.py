@@ -1,6 +1,6 @@
 import json
 import datetime
-from ivetl.models import Alert, Notification
+from ivetl.models import Alert, Notification, Notification_Summary
 
 
 def exceeds_integer(new_value=None, old_value=None, params=None):
@@ -63,8 +63,6 @@ def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=Non
                     pipeline_id=pipeline_id,
                     job_id=job_id,
                     value='foo = 8',
-                    notification_date=now,
-                    dismissed=False,
                 )
 
 
@@ -80,5 +78,14 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
             job_id=job_id,
         )
 
-        for notification in notifications_for_alert:
-            pass
+        message = "\n".join([n.message for n in notifications_for_alert])
+
+        Notification_Summary.objects.create(
+            publisher_id=publisher_id,
+            alert_id=alert.alert_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+            message=message,
+            dismissed=False,
+        )
