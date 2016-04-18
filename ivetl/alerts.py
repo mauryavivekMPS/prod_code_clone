@@ -30,12 +30,16 @@ check_types = {
 
 checks = {
     'mendeley-saves-exceeds-integer': {
+        'name': 'Mendeley Saves Exceeds Integer',
         'check_type': check_types['exceeds-integer'],
     },
-    'citation-percentage-page': {
+    'citation-percentage-change': {
+        'name': 'Citation Percentage Change',
         'check_type': check_types['percentage-change'],
     },
 }
+
+checks_choices = [(check_id, checks[check_id]['name']) for check_id in checks]
 
 
 def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None):

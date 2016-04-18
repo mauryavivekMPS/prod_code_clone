@@ -617,6 +617,23 @@ var PendingFilesForm = (function() {
 
 
 //
+// Edit alert page
+//
+
+var EditAlertPage = (function() {
+
+    var init = function(options) {
+        // nothing yet
+    };
+
+    return {
+        init: init
+    };
+
+})();
+
+
+//
 // File upload widget
 //
 

@@ -31,6 +31,9 @@ urlpatterns = patterns(
     url(r'^alerts/new/$', 'alerts.edit', name='alerts.new'),
     url(r'^alerts/(?P<alert_id>[\w\-\.]+)/$', 'alerts.edit', name='alerts.edit'),
 
+    # notifications
+    url(r'^notifications/$', 'notifications.list_notifications', name='notifications.list'),
+
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
     url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),

@@ -4,7 +4,7 @@ from cassandra.cqlengine.models import Model
 
 
 class Alert(Model):
-    alert_id = columns.UUID(primary_key=True, default=uuid.uuid4)
+    alert_id = columns.UUID(primary_key=True, default=uuid.uuid4, index=True)
     publisher_id = columns.Text(partition_key=True)
     name = columns.Text()
     check_id = columns.Text(primary_key=True)

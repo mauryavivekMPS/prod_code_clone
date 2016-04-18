@@ -24,6 +24,8 @@ CREATE TABLE alert (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
+CREATE INDEX alert_alert_id_index ON alert(alert_id);
+
 CREATE TABLE notification (
   notification_id uuid,
   alert_id uuid,

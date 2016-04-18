@@ -1,0 +1,33 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Notifications{% endblock %}
+{% block body_class %}notifications{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-12">
+            <h1>Notifications</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover sortable-table">
+                <thead>
+                    <tr>
+                        <th>{% sort_column "Alert" "alert_id" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                        <tr>
+                            <td>{{ notification.alert_id }}</td>
+                            <td>{{ notification.publisher_id }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
