@@ -61,7 +61,9 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
             recent_run = tasks_by_run[0]
 
         if recent_run['tasks']:
-            recent_task = recent_run['tasks'][len(recent_run['tasks']) - 1]
+            num_tasks = len(recent_run['tasks'])
+            if num_tasks > 0:
+                recent_task = recent_run['tasks'][num_tasks - 1]
 
     return {
         'publisher': publisher,
@@ -213,7 +215,10 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     if publisher_runs['runs']:
         if current_job_id_on_client and current_task_id_on_client and current_task_status_on_client:
             current_run = publisher_runs['runs'][0]
-            current_task = current_run['tasks'][len(current_run['tasks']) - 1]
+
+            num_tasks = len(current_run['tasks'])
+            if num_tasks > 0:
+                current_task = current_run['tasks'][num_tasks - 1]
             if current_run['run'].job_id == current_job_id_on_client and current_task.task_id == current_task_id_on_client and current_task.status == current_task_status_on_client:
                 has_section_updates = False
             if current_task.status == 'in-progress':
