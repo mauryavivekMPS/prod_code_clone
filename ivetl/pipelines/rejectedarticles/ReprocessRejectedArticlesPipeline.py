@@ -2,8 +2,7 @@ import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchpressTask import GetRejectedArticlesFromBenchPressTask
-from ivetl.pipelines.rejectedarticles.tasks.ParseBenchPressFileTask import ParseBenchPressFileTask
+from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask import GetRejectedArticlesTask
 from ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask import XREFPublishedArticleSearchTask
 from ivetl.pipelines.rejectedarticles.tasks.SelectPublishedArticleTask import SelectPublishedArticleTask
 from ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask import ScopusCitationLookupTask
@@ -46,8 +45,7 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
             }
 
             chain(
-                GetRejectedArticlesFromBenchPressTask.s(task_args) |
-                ParseBenchPressFileTask.s() |
+                GetRejectedArticlesTask.s(task_args) |
                 XREFPublishedArticleSearchTask.s() |
                 SelectPublishedArticleTask.s() |
                 ScopusCitationLookupTask.s() |
