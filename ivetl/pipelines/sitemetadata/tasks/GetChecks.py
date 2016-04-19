@@ -8,7 +8,7 @@ from ivetl.common import common
 
 
 @app.task
-class GetChecks(Task):
+class GetChecksTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         target_file_name = os.path.join(work_folder, "%s_uptimechecks_target.tab" % publisher_id)
 

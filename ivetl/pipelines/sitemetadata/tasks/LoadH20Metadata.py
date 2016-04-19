@@ -5,7 +5,7 @@ from ivetl.models import Highwire_Metadata
 
 
 @app.task
-class LoadMetadataFromFile(Task):
+class LoadH20MetadataTask(Task):
     METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
@@ -44,10 +44,14 @@ class LoadMetadataFromFile(Task):
         )
 
         count = 0
+        total_count = 1000  # just a guess
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
         with open(self.METADATA_FILE) as highwire_metadata_file:
             reader = csv.DictReader(highwire_metadata_file, delimiter='\t', fieldnames=fieldnames)
             for row in reader:
-                count += 1
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
                 Highwire_Metadata.objects(site_id=row['site_id']).update(
                     sort_name=row['sort_name'],
                     site_code=row['site_code'],
@@ -79,8 +83,6 @@ class LoadMetadataFromFile(Task):
                     has_athens=row['has_athens'],
                     sage_subject_area=row['sage_subject_area'],
                 )
-
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
         return {
             'count': count
