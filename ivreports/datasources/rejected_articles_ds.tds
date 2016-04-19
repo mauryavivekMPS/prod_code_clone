@@ -2,7 +2,7 @@
 
 <datasource formatted-name='rejected_articles_ds' inline='true' source-platform='win' version='9.0' xmlns:user='http://www.tableausoftware.com/xml/user'>
   <!-- build 9000.15.0318.1720                                -->
-  <repository-location id='rejected_articles_ds' path='datasources' revision='1.2' />
+  <repository-location id='rejected_articles_ds_0' path='datasources' revision='1.0' />
   <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' server='' server-oauth='' username='' workgroup-auth-mode='as-is'>
     <relation name='rejected_articles' type='text'>SELECT * from impactvizor.rejected_articles WHERE publisher_id=&apos;blood&apos;;</relation>
     <refresh increment-key='' incremental-updates='false'>
@@ -459,12 +459,46 @@
         </attributes>
       </metadata-record>
       <metadata-record class='column'>
+        <remote-name>mendeley_saves</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[mendeley_saves]</local-name>
+        <parent-name>[rejected_articles]</parent-name>
+        <remote-alias>mendeley_saves</remote-alias>
+        <ordinal>20</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>preprint_doi</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[preprint_doi]</local-name>
+        <parent-name>[rejected_articles]</parent-name>
+        <remote-alias>preprint_doi</remote-alias>
+        <ordinal>21</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
         <remote-name>published_co_authors</remote-name>
         <remote-type>129</remote-type>
         <local-name>[published_co_authors]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>published_co_authors</remote-alias>
-        <ordinal>20</ordinal>
+        <ordinal>22</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -482,7 +516,7 @@
         <local-name>[published_first_author]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>published_first_author</remote-alias>
-        <ordinal>21</ordinal>
+        <ordinal>23</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -500,7 +534,7 @@
         <local-name>[published_journal]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>published_journal</remote-alias>
-        <ordinal>22</ordinal>
+        <ordinal>24</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -518,7 +552,7 @@
         <local-name>[published_journal_issn]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>published_journal_issn</remote-alias>
-        <ordinal>23</ordinal>
+        <ordinal>25</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -536,7 +570,7 @@
         <local-name>[published_publisher]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>published_publisher</remote-alias>
-        <ordinal>24</ordinal>
+        <ordinal>26</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -554,7 +588,7 @@
         <local-name>[published_title]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>published_title</remote-alias>
-        <ordinal>25</ordinal>
+        <ordinal>27</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -572,7 +606,7 @@
         <local-name>[reject_reason]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>reject_reason</remote-alias>
-        <ordinal>26</ordinal>
+        <ordinal>28</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -590,7 +624,7 @@
         <local-name>[scopus_doi_status]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>scopus_doi_status</remote-alias>
-        <ordinal>27</ordinal>
+        <ordinal>29</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -608,7 +642,7 @@
         <local-name>[scopus_id]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>scopus_id</remote-alias>
-        <ordinal>28</ordinal>
+        <ordinal>30</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -626,7 +660,7 @@
         <local-name>[source_file_name]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>source_file_name</remote-alias>
-        <ordinal>29</ordinal>
+        <ordinal>31</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -644,7 +678,7 @@
         <local-name>[status]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>status</remote-alias>
-        <ordinal>30</ordinal>
+        <ordinal>32</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -662,7 +696,7 @@
         <local-name>[subject_category]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>subject_category</remote-alias>
-        <ordinal>31</ordinal>
+        <ordinal>33</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -680,7 +714,7 @@
         <local-name>[submitted_journal]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>submitted_journal</remote-alias>
-        <ordinal>32</ordinal>
+        <ordinal>34</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>4000</width>
@@ -698,7 +732,7 @@
         <local-name>[updated]</local-name>
         <parent-name>[rejected_articles]</parent-name>
         <remote-alias>updated</remote-alias>
-        <ordinal>33</ordinal>
+        <ordinal>35</ordinal>
         <local-type>datetime</local-type>
         <aggregation>Year</aggregation>
         <contains-null>true</contains-null>
@@ -744,6 +778,8 @@
   </column>
   <column caption='Manuscript Title' datatype='string' name='[manuscript_title]' role='dimension' type='nominal'>
   </column>
+  <column caption='Mendeley Saves' datatype='integer' name='[mendeley_saves]' role='measure' type='quantitative'>
+  </column>
   <column caption='Published Co-Authors' datatype='string' name='[published_co_authors]' role='dimension' type='nominal'>
   </column>
   <column caption='Published First Author' datatype='string' name='[published_first_author]' role='dimension' type='nominal'>
@@ -780,10 +816,10 @@
   <column caption='Updated' datatype='datetime' name='[updated]' role='dimension' type='ordinal'>
   </column>
   <extract count='-1' enabled='true' units='records'>
-    <connection class='dataengine' dbname='D:\dummy_extracts\rejected_articles.tde' schema='Extract' tablename='Extract' update-time='06/03/2015 06:57:59 PM'>
+    <connection class='dataengine' dbname='D:\dummy_extracts\rejected_articles.tde' schema='Extract' tablename='Extract' update-time='02/29/2016 09:24:36 PM'>
       <relation name='Extract' table='[Extract].[Extract]' type='table' />
       <refresh increment-key='' incremental-updates='false'>
-        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='7163' timestamp-start='2015-06-03 18:57:59.803' />
+        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='21772' timestamp-start='2016-02-29 21:24:36.798' />
       </refresh>
       <metadata-records>
         <metadata-record class='column'>
@@ -796,13 +832,13 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>13</approx-count>
+          <approx-count>16</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;Blood Forum&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;Blood Consult&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;e-Blood&quot;</statistic>
           </statistics>
           <attributes>
@@ -811,7 +847,9 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>10</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
         </metadata-record>
@@ -825,10 +863,10 @@
           <family>rejected_articles</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>19</approx-count>
+          <approx-count>32</approx-count>
           <contains-null>true</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='real'>0.81000000000000005</statistic>
+            <statistic aggregation='Min' datatype='real'>0.69999999999999996</statistic>
             <statistic aggregation='Max' datatype='real'>1.0</statistic>
           </statistics>
           <attributes>
@@ -865,13 +903,15 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>5</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
           <remote-name>citations</remote-name>
-          <remote-type>16</remote-type>
+          <remote-type>2</remote-type>
           <local-name>[citations]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>citations</remote-alias>
@@ -879,15 +919,19 @@
           <family>rejected_articles</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>29</approx-count>
+          <approx-count>118</approx-count>
           <contains-null>true</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='integer'>0</statistic>
-            <statistic aggregation='Max' datatype='integer'>37</statistic>
+            <statistic aggregation='Max' datatype='integer'>260</statistic>
           </statistics>
           <attributes>
-            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
-            <attribute datatype='string' name='DebugRemoteType'>&quot;sint8&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>2</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;sint16&quot;</attribute>
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
@@ -900,14 +944,14 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>7090</approx-count>
+          <approx-count>21522</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;ADAM, Fr_d_ric; LOPEZ-BARBA, Jose-Javier; VATIER, Camille; TURPIN, Sabrina; MUSCAT, Adeline; LALOU, Claude; ARIES, Anne; JARD&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;østgÎrd, Lene Sofie Granfeldt; NÀrgaard, Jan Maxwell; SengelÀv, Henrik; Severinsen, Marianne; Friis, Lone Smidstrup; Marcher,&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;ADAM, Frédéric; Casari, Caterina; Prevost, Nicolas; Kauskot, Alexandre; Loubière, Cécile; Legendre, Paulette; Reperant, Chris&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;østgÎrd, Lene Sofie Granfeldt; NÀrgaard, Jan Maxwell; SengelÀv, Henrik; Holm, Mette Skov; Jensen, Morten Krogh; Kallenbach, M&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -915,6 +959,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>23</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -929,13 +975,13 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>5734</approx-count>
+          <approx-count>14031</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;AHMED,Syed Osman&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;&amp;\#268;oki&amp;\#263;,Vladan&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;østgÎrd,Lene Sofie&quot;</statistic>
           </statistics>
           <attributes>
@@ -944,6 +990,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>21</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -958,17 +1006,20 @@
           <family>rejected_articles</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>7163</approx-count>
+          <approx-count>5158</approx-count>
           <contains-null>false</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='datetime'>#2015-06-04 21:16:11.014#</statistic>
-            <statistic aggregation='Max' datatype='datetime'>#2015-06-04 21:16:33.081#</statistic>
+            <statistic aggregation='Min' datatype='datetime'>#2015-07-15 04:02:16.476#</statistic>
+            <statistic aggregation='Max' datatype='datetime'>#2016-02-10 06:54:21.670#</statistic>
           </statistics>
           <attributes>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
-            <attribute datatype='boolean' name='DebugRemoteMetadata (unique)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;datetime&quot;</attribute>
           </attributes>
         </metadata-record>
@@ -982,14 +1033,14 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3762</approx-count>
+          <approx-count>12474</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;10.1001/jamaoncol.2015.0245&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;10.7554/elife.06376&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;10.1001/jamainternmed.2015.6599&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;10.9734/bjmmr/2015/17743&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -997,6 +1048,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>20</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1011,11 +1064,11 @@
           <family>rejected_articles</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>3859</approx-count>
+          <approx-count>12729</approx-count>
           <contains-null>true</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='real'>0.25431722000000001</statistic>
-            <statistic aggregation='Max' datatype='real'>6.2445984000000001</statistic>
+            <statistic aggregation='Min' datatype='real'>0.24825968000000001</statistic>
+            <statistic aggregation='Max' datatype='real'>6.7160149999999996</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
@@ -1062,11 +1115,11 @@
           <family>rejected_articles</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>631</approx-count>
+          <approx-count>1735</approx-count>
           <contains-null>true</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='datetime'>#2013-01-01 00:00:00#</statistic>
-            <statistic aggregation='Max' datatype='datetime'>#2015-09-01 00:00:00#</statistic>
+            <statistic aggregation='Min' datatype='datetime'>#2010-01-01 00:00:00#</statistic>
+            <statistic aggregation='Max' datatype='datetime'>#2016-12-01 00:00:00#</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
@@ -1090,11 +1143,11 @@
           <family>rejected_articles</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>729</approx-count>
+          <approx-count>2222</approx-count>
           <contains-null>false</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='datetime'>#2013-01-01 00:00:00#</statistic>
-            <statistic aggregation='Max' datatype='datetime'>#2014-12-31 00:00:00#</statistic>
+            <statistic aggregation='Min' datatype='datetime'>#2010-01-01 00:00:00#</statistic>
+            <statistic aggregation='Max' datatype='datetime'>#2016-02-09 00:00:00#</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
@@ -1117,13 +1170,13 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>35</approx-count>
+          <approx-count>46</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;Bagby, Grover C&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;Abramson, Neil&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Vogelsang, Georgia B&quot;</statistic>
           </statistics>
           <attributes>
@@ -1132,6 +1185,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>11</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1146,13 +1201,13 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>6442</approx-count>
+          <approx-count>17722</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;ADAM,Fr_d_ric&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;ADAM,Frédéric&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;østgÎrd,Lene Sofie&quot;</statistic>
           </statistics>
           <attributes>
@@ -1161,6 +1216,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>22</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1175,14 +1232,14 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>4392</approx-count>
+          <approx-count>11472</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;AIDS&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;von Willebrand Disease&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;von Willebrand Disease, Other hemoglobinopathies&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1190,6 +1247,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>16</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1204,14 +1263,14 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>7163</approx-count>
+          <approx-count>21772</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;BLOOD/2011/355941&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;BLOOD/2014/619858&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;BLOOD/2009/203794&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;BLOOD/2016/698779&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1234,14 +1293,14 @@
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>7098</approx-count>
+          <approx-count>21546</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;&amp;\#916;dblGATA mice carrying a Gata1 mutation show numerical and functional anomaly in basophils besides eosinophil deficiency&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;ñOrphan nuclear receptor NR2F6 acts as an essential gatekeeper of Th17 CD4+ T cell effector functions&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;“Runx1-IRES-GFP knock-in mice” lack expression of Runx1a: a versatile tool for hematopoietic stem cell analysis&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1249,7 +1308,55 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>24</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>mendeley_saves</remote-name>
+          <remote-type>16</remote-type>
+          <local-name>[mendeley_saves]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>mendeley_saves</remote-alias>
+          <ordinal>17</ordinal>
+          <family>rejected_articles</family>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <approx-count>9</approx-count>
+          <contains-null>true</contains-null>
+          <statistics>
+            <statistic aggregation='Max' datatype='integer'>7</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;sint8&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>preprint_doi</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[preprint_doi]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>preprint_doi</remote-alias>
+          <ordinal>18</ordinal>
+          <family>rejected_articles</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>1</approx-count>
+          <scale>1</scale>
+          <width>4000</width>
+          <contains-null>true</contains-null>
+          <collation flag='0' name='binary' />
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
         </metadata-record>
@@ -1259,17 +1366,17 @@
           <local-name>[published_co_authors]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>published_co_authors</remote-alias>
-          <ordinal>17</ordinal>
+          <ordinal>19</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3738</approx-count>
+          <approx-count>12417</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;Abdel-Mohsen,M.;Holditch,S. J.;Kuebler,P. J.;Cheng,R. G.;Eriksson,E. M.;Liao,W.;Pillai,S. K.;Nixon,D. F.&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;AGENO,W.;REZOAGLI,E.;RANCAN,E.;SQUIZZATO,A.;MIDDELDORP,S.;MARGAGLIONE,M.;GRANDONE,E.&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Ünal,Şule;Gümrük,Fatma&quot;</statistic>
           </statistics>
           <attributes>
@@ -1278,6 +1385,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>18</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1288,17 +1397,17 @@
           <local-name>[published_first_author]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>published_first_author</remote-alias>
-          <ordinal>18</ordinal>
+          <ordinal>20</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3634</approx-count>
+          <approx-count>11511</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;Aalbers,A M&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;AGERSØ,H.&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Štikarová,Jana&quot;</statistic>
           </statistics>
           <attributes>
@@ -1307,7 +1416,9 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>17</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
         </metadata-record>
@@ -1317,17 +1428,17 @@
           <local-name>[published_journal]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>published_journal</remote-alias>
-          <ordinal>19</ordinal>
+          <ordinal>21</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>497</approx-count>
+          <approx-count>950</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;ACS Chemical Biology&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;\&quot;Cellular Reprogramming (Formerly \&quot;\&quot;Cloning and Stem Cells\&quot;\&quot;)\&quot;&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;mBio&quot;</statistic>
           </statistics>
           <attributes>
@@ -1336,6 +1447,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>14</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1346,11 +1459,11 @@
           <local-name>[published_journal_issn]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>published_journal_issn</remote-alias>
-          <ordinal>20</ordinal>
+          <ordinal>22</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>502</approx-count>
+          <approx-count>938</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
@@ -1365,6 +1478,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>13</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1375,18 +1490,18 @@
           <local-name>[published_publisher]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>published_publisher</remote-alias>
-          <ordinal>21</ordinal>
+          <ordinal>23</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>91</approx-count>
+          <approx-count>153</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;\&quot;8872147 Canada, Inc.\&quot;&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;Wiley Blackwell (Physiological Reports)&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;Wiley-Blackwell&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1394,6 +1509,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>12</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1404,18 +1521,18 @@
           <local-name>[published_title]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>published_title</remote-alias>
-          <ordinal>22</ordinal>
+          <ordinal>24</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3762</approx-count>
+          <approx-count>12473</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot; A CD40/CD40L feedback loop drives the breakdown of CD8 + T-cell tolerance following depletion of suppressive CD4 + T cells &quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;γδ T Cells Confer Protection against Murine Cytomegalovirus (MCMV)&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot; 18 F-fluorodeoxyglucose Positron Emission Tomography in Kaposi Sarcoma Herpesvirus–Associated Multicentric Castleman Disease&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;“Do-it-yourself in vitro vasculature that recapitulates in vivo geometries for investigating endothelial-blood cell interacti&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1423,6 +1540,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>19</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1433,7 +1552,7 @@
           <local-name>[publisher_id]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>publisher_id</remote-alias>
-          <ordinal>23</ordinal>
+          <ordinal>25</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1463,7 +1582,7 @@
           <local-name>[reject_reason]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>reject_reason</remote-alias>
-          <ordinal>24</ordinal>
+          <ordinal>26</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1482,6 +1601,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>7</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1492,18 +1613,18 @@
           <local-name>[rejected_article_id]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>rejected_article_id</remote-alias>
-          <ordinal>25</ordinal>
+          <ordinal>27</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>7163</approx-count>
+          <approx-count>21772</approx-count>
           <scale>1</scale>
           <width>40</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;EC7B505C-0AFE-11E5-85F5-022CAB0CE4B5&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;F9A28FB6-0AFE-11E5-9B6A-1DDBE4653DAB&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;1CFED4A4-CFC3-11E5-8000-A6C27F1C0A16&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;9274A83E-2AA6-11E5-8B35-B94C30A1D1D3&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1522,7 +1643,7 @@
           <local-name>[scopus_doi_status]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>scopus_doi_status</remote-alias>
-          <ordinal>26</ordinal>
+          <ordinal>28</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1541,6 +1662,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>6</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1551,18 +1674,18 @@
           <local-name>[scopus_id]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>scopus_id</remote-alias>
-          <ordinal>27</ordinal>
+          <ordinal>29</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3223</approx-count>
+          <approx-count>11403</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;2-s2.0-84876157061&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;2-s2.0-84929692126&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;2-s2.0-77951453409&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;2-s2.0-84955740448&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1570,7 +1693,9 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>15</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
         </metadata-record>
@@ -1580,27 +1705,28 @@
           <local-name>[source_file_name]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>source_file_name</remote-alias>
-          <ordinal>28</ordinal>
+          <ordinal>30</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>1</approx-count>
+          <approx-count>2</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;vizor_rat_blood_01_01_2013_to_12_31_2014.tab&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;vizor_rat_blood_01_01_2013_to_12_31_2014.tab&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;/iv/working/20150715/blood/rejected_article_tracker/20150715_005511772641/MonitorIncomingFile/vizor_rat_blood_01_01_2013_to_1&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;/iv/working/20160209/blood/rejected_articles/20160209_212428968717/GetRejectedArticlesDataFiles/blood_rat_Jan_2016_to_Feb_201&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>4</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
         </metadata-record>
@@ -1610,7 +1736,7 @@
           <local-name>[status]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>status</remote-alias>
-          <ordinal>29</ordinal>
+          <ordinal>31</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1629,6 +1755,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>8</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1639,7 +1767,7 @@
           <local-name>[subject_category]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>subject_category</remote-alias>
-          <ordinal>30</ordinal>
+          <ordinal>32</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1658,6 +1786,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>9</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1668,7 +1798,7 @@
           <local-name>[submitted_journal]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>submitted_journal</remote-alias>
-          <ordinal>31</ordinal>
+          <ordinal>33</ordinal>
           <family>rejected_articles</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1698,21 +1828,24 @@
           <local-name>[updated]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>updated</remote-alias>
-          <ordinal>32</ordinal>
+          <ordinal>34</ordinal>
           <family>rejected_articles</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>7163</approx-count>
+          <approx-count>5158</approx-count>
           <contains-null>false</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='datetime'>#2015-06-04 21:16:11.014#</statistic>
-            <statistic aggregation='Max' datatype='datetime'>#2015-06-04 21:16:33.081#</statistic>
+            <statistic aggregation='Min' datatype='datetime'>#2015-07-15 04:02:16.476#</statistic>
+            <statistic aggregation='Max' datatype='datetime'>#2016-02-10 06:54:21.670#</statistic>
           </statistics>
           <attributes>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>3</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
-            <attribute datatype='boolean' name='DebugRemoteMetadata (unique)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;datetime&quot;</attribute>
           </attributes>
         </metadata-record>
