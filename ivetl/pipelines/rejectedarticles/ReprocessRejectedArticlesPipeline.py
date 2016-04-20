@@ -2,8 +2,14 @@ import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles import tasks
-from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
+from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask import GetRejectedArticlesTask
+from ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask import XREFPublishedArticleSearchTask
+from ivetl.pipelines.rejectedarticles.tasks.SelectPublishedArticleTask import SelectPublishedArticleTask
+from ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask import ScopusCitationLookupTask
+from ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask import MendeleyLookupTask
+from ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask import PrepareForDBInsertTask
+from ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
+from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
 from ivetl.models import Publisher_Metadata
 
 
@@ -39,12 +45,12 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
             }
 
             chain(
-                tasks.GetRejectedArticlesFromBenchpressTask.s(task_args) |
-                tasks.XREFPublishedArticleSearchTask.s() |
-                tasks.SelectPublishedArticleTask.s() |
-                tasks.ScopusCitationLookupTask.s() |
-                tasks.MendeleyLookupTask.s() |
-                tasks.PrepareForDBInsertTask.s() |
-                tasks.InsertIntoCassandraDBTask.s() |
-                published_articles_tasks.CheckRejectedManuscriptTask.s()
+                GetRejectedArticlesTask.s(task_args) |
+                XREFPublishedArticleSearchTask.s() |
+                SelectPublishedArticleTask.s() |
+                ScopusCitationLookupTask.s() |
+                MendeleyLookupTask.s() |
+                PrepareForDBInsertTask.s() |
+                InsertIntoCassandraDBTask.s() |
+                CheckRejectedManuscriptTask.s()
             ).delay()

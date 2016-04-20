@@ -18,6 +18,7 @@ from ivetl.models.Demo import Demo
 from ivetl.models.UptimeCheckMetadata import Uptime_Check_Metadata
 from ivetl.models.UptimeCheckStat import Uptime_Check_Stat
 from ivetl.models.HighwireMetadata import Highwire_Metadata
+from ivetl.models.DrupalMetadata import Drupal_Metadata
 from ivetl.models.SytemGlobal import System_Global
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.Alert import Alert
