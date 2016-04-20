@@ -1,14 +1,13 @@
 import csv
 import json
 import codecs
-from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Uptime_Check_Metadata, System_Global
+from ivetl.models import Uptime_Check_Metadata
 
 
 @app.task
-class InsertIntoCassandra(Task):
+class InsertIntoCassandraTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']

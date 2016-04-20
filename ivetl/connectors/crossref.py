@@ -123,7 +123,7 @@ class CrossrefConnector(BaseConnector):
                 else:
                     raise http_error
             except Exception:
-                    self.log("General Exception - CrossRef API failed. Trying Again")
+                    self.log("General Exception - CrossRef API failed. Trying again...")
                     attempt += 1
 
         if not success:

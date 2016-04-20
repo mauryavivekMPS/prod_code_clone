@@ -67,7 +67,7 @@ class PingdomConnector(BaseConnector):
             print(message)
 
     def get_checks(self):
-        return self._get_with_retry('/checks')['checks'][:20]
+        return self._get_with_retry('/checks')['checks']
 
     def get_check_stats(self, check_id, from_date, to_date):
         uptime_stats = []

@@ -33,8 +33,9 @@ class SiteMetadataPipeline(Pipeline):
         }
 
         chain(
-            tasks.LoadMetadataFromFile.s(task_args) |
-            tasks.GetChecks.s() |
-            tasks.ClassifyChecks.s() |
-            tasks.InsertIntoCassandra.s()
+            tasks.LoadH20MetadataTask.s(task_args) |
+            tasks.LoadDrupalMetadataTask.s() |
+            tasks.GetChecksTask.s() |
+            tasks.ClassifyChecksTask.s() |
+            tasks.InsertIntoCassandraTask.s()
         ).delay()
