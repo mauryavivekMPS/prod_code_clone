@@ -3,7 +3,7 @@ from ivetl.connectors.base import BaseConnector, MaxTriesAPIError
 
 
 class SmartConnector(BaseConnector):
-    METADATA_URL = 'https://devops.highwire.org/api/cluster.json?environment=production'
+    METADATA_URL = 'https://smart.highwire.org/api/cluster.json?environment=production'
     max_attempts = 3
     request_timeout = 30
 
