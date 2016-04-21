@@ -42,13 +42,15 @@ class MendeleyLookupTask(Task):
                 try:
                     new_saves_value = mendeley.get_saves(doi)
                     data['mendeley_saves'] = new_saves_value
+
                     run_alert(
-                        check_id='mendeley-saves-exceeds-value',
+                        check_id='mendeley-saves-exceeds-integer',
                         publisher_id=publisher_id,
                         product_id=product_id,
                         pipeline_id=pipeline_id,
                         job_id=job_id,
                         new_value=new_saves_value,
+                        extra_values={'doi': doi, 'issn': issn}
                     )
                 except:
                     tlogger.info("General Exception - Mendelez API failed. Moving to next article...")
@@ -60,7 +62,7 @@ class MendeleyLookupTask(Task):
         target_file.close()
 
         send_alert_notifications(
-            check_id='mendeley-saves-exceeds-value',
+            check_id='mendeley-saves-exceeds-integer',
             publisher_id=publisher_id,
             product_id=product_id,
             pipeline_id=pipeline_id,

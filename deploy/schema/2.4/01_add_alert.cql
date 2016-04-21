@@ -33,7 +33,7 @@ CREATE TABLE notification (
   product_id text,
   pipeline_id text,
   job_id text,
-  value text,
+  values_json text,
   PRIMARY KEY ((publisher_id), alert_id, product_id, pipeline_id, job_id, notification_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
@@ -58,7 +58,7 @@ CREATE TABLE notification_summary (
   product_id text,
   pipeline_id text,
   job_id text,
-  message text,
+  values_list_json text,
   notification_date timestamp,
   dismissed boolean,
   PRIMARY KEY ((publisher_id), alert_id, product_id, pipeline_id, job_id, notification_summary_id)

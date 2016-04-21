@@ -10,6 +10,6 @@ class Notification_Summary(Model):
     product_id = columns.Text(primary_key=True)
     pipeline_id = columns.Text(primary_key=True)
     job_id = columns.Text(primary_key=True)
-    message = columns.Text()
+    values_list_json = columns.Text()
     notification_date = columns.DateTime()
     dismissed = columns.Boolean(index=True)

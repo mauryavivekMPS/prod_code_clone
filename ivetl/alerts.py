@@ -4,14 +4,24 @@ from ivetl.models import Alert, Notification, Notification_Summary
 
 
 def exceeds_integer(new_value=None, old_value=None, params=None):
-    return new_value > params['threshold']
+    print('new value in exceeds integer: %s' % new_value)
+    delta = new_value - params['threshold']
+    print('delta: %s' % delta)
+    if delta > 0:
+        return True, {'delta': delta}
+    else:
+        return False, {}
 
 
 def percentage_change(new_value=None, old_value=None, params=None):
     if not old_value:
-        return False  # not too sure this is correct??
+        return False, {}
     else:
-        return (new_value - old_value) / old_value * 100 > params['threshold']
+        percentage_delta = (new_value - old_value) / old_value * 100
+        if percentage_delta > params['threshold']:
+            return True, {'percentage_increase': percentage_delta}
+        else:
+            return False, {}
 
 check_types = {
     'exceeds-integer': {
@@ -32,19 +42,19 @@ checks = {
     'mendeley-saves-exceeds-integer': {
         'name': 'Mendeley Saves Exceeds Integer',
         'check_type': check_types['exceeds-integer'],
+        'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
     },
     'citation-percentage-change': {
         'name': 'Citation Percentage Change',
         'check_type': check_types['percentage-change'],
+        'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations (from %(old_value), up %(percentage_increase))',
     },
 }
 
 check_choices = [(check_id, checks[check_id]['name']) for check_id in checks]
 
 
-def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None):
-
-    now = datetime.datetime.now()
+def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None, extra_values=None):
 
     # get the check metadata
     check = checks[check_id]
@@ -54,10 +64,16 @@ def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=Non
     for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
 
         if alert.enabled:
-            params = json.loads(alert.params)
+            check_params = json.loads(alert.check_params)
+
+            passed, values_from_check_function = check_function(new_value=new_value, old_value=old_value, params=check_params)
 
             # run the test
-            if check_function(new_value=new_value, old_value=old_value, params=params):
+            if passed:
+                all_values = {'new_value': new_value, 'old_value': old_value}
+                all_values.update(extra_values)
+                all_values.update(values_from_check_function)
+                all_values.update(check_params)
 
                 # add a notification
                 Notification.objects.create(
@@ -66,13 +82,15 @@ def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=Non
                     product_id=product_id,
                     pipeline_id=pipeline_id,
                     job_id=job_id,
-                    value='foo = 8',
+                    values_json=json.dumps(all_values),
                 )
 
 
 def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None):
 
-    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
+    now = datetime.datetime.now()
+
+    for alert in Alert.objects.filter(publisher_id=publisher_id, check_id=check_id):
 
         notifications_for_alert = Notification.objects.filter(
             publisher_id=publisher_id,
@@ -82,7 +100,7 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
             job_id=job_id,
         )
 
-        message = "\n".join([n.message for n in notifications_for_alert])
+        values_list = [json.loads(n.values_json) for n in notifications_for_alert]
 
         Notification_Summary.objects.create(
             publisher_id=publisher_id,
@@ -90,6 +108,7 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
             product_id=product_id,
             pipeline_id=pipeline_id,
             job_id=job_id,
-            message=message,
+            values_list_json=json.dumps(values_list),
+            notification_date=now,
             dismissed=False,
         )
