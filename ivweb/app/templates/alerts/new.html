@@ -75,8 +75,7 @@
         $(function() {
             EditAlertPage.init({
                 alertParamsUrl: '{% url 'alerts.include_alert_params' %}',
-                selectedCheck: '{{ form.initial.check_id }}',
-                params: {{ check.check_type.params|safe }}
+                selectedCheck: '{{ form.initial.check_id }}'
             });
         });
     </script>

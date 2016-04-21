@@ -1,5 +1,5 @@
 var EditAlertPage = (function() {
-    var params;
+    var params = [];
 
     var checkForm = function() {
         var checkId = $("#id_check_id option:selected").val();
@@ -21,15 +21,21 @@ var EditAlertPage = (function() {
         }
     };
 
+    var setParams = function(newParams) {
+        console.log(newParams);
+        params = newParams;
+        $.each(params, function(index, param) {
+            $('#id_param_' + param.name).on('keyup', function() {
+                checkForm();
+            });
+        });
+    };
 
     var init = function(options) {
         options = $.extend({
             alertParamsUrl: '',
-            selectedCheck: null,
-            params: {}
+            selectedCheck: null
         }, options);
-
-        params = options.params;
 
         var nullCheckItem = $('#id_check_id option:first-child');
         nullCheckItem.attr('disabled', 'disabled');
@@ -71,15 +77,11 @@ var EditAlertPage = (function() {
         $('#id_enabled').on('change', function() {
             checkForm();
         });
-
-        $.each(params, function(index, param) {
-            $('#id_param_' + param.name).on('keyup', function() {
-                checkForm();
-            });
-        });
     };
 
     return {
+        setParams: setParams,
+        checkForm: checkForm,
         init: init
     };
 
