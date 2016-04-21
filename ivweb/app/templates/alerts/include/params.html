@@ -11,7 +11,7 @@
             {% elif param.type == 'percentage' %}
                 <div class="col-sm-2">
                     <div class="input-group">
-                        <input id="id_param_{{ param.name }}" class="form-control" value="{% if alert %}{% get_alert_param_value alert param.name %}{% endif %}">
+                        <input id="id_param_{{ param.name }}" name="threshold" class="form-control" value="{% if alert %}{% get_alert_param_value alert param.name %}{% endif %}">
                         <span class="input-group-addon">%</span>
                     </div>
                 </div>

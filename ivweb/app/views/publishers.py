@@ -447,7 +447,7 @@ def edit(request, publisher_id=None):
 
                 return HttpResponseRedirect(reverse("publishers.edit", kwargs={
                     'publisher_id': publisher.publisher_id,
-                }) + '?from=new-publisher')
+                }) + '?from=new-success')
 
             return HttpResponseRedirect(reverse('publishers.list') + '?from=save-success')
     else:

@@ -21,6 +21,7 @@
                 <form id="user-form" class="form-horizontal" method="post">
                     {% csrf_token %}
                     {{ form.alert_id }}
+                    {{ form.check_params }}
 
                     <div class="form-group row">
                         <label for="check_id" class="col-sm-2">Check</label>
@@ -55,7 +56,7 @@
 
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button {% if not alert %}disabled{% endif %}" {% if not alert %}disabled="disabled"{% endif %}>
-                            {% if user %}
+                            {% if alert %}
                                 Save Changes
                             {% else %}
                                 Add Alert
@@ -74,7 +75,8 @@
         $(function() {
             EditAlertPage.init({
                 alertParamsUrl: '{% url 'alerts.include_alert_params' %}',
-                selectedCheck: '{{ form.initial.check_id }}'
+                selectedCheck: '{{ form.initial.check_id }}',
+                params: {{ check.check_type.params|safe }}
             });
         });
     </script>

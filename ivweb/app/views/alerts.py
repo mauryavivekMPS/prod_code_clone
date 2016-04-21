@@ -1,4 +1,5 @@
 import logging
+import json
 from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
@@ -13,6 +14,15 @@ log = logging.getLogger(__name__)
 
 @login_required
 def list_alerts(request, publisher_id=None):
+
+    messages = []
+    if 'from' in request.GET:
+        from_value = request.GET['from']
+        if from_value == 'save-success':
+            messages.append("Changes to your alert have been saved.")
+        elif from_value == 'new-success':
+            messages.append("Your new alert is created and ready to go.")
+
     if publisher_id:
         alerts = Alert.objects.filter(publisher_id=publisher_id)
     else:
@@ -23,6 +33,8 @@ def list_alerts(request, publisher_id=None):
 
     response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,
+        'messages': messages,
+        'reset_url': reverse('alerts.list') + '?sort=' + sort_param,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
     })
@@ -37,7 +49,7 @@ class AlertForm(forms.Form):
     publisher_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
     check_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
-    params = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '{}'}), required=False)
+    check_params = forms.CharField(widget=forms.HiddenInput, required=False)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
     def __init__(self, *args, instance=None, user=None, **kwargs):
@@ -60,6 +72,7 @@ class AlertForm(forms.Form):
 
     def save(self):
         alert_id = self.cleaned_data['alert_id']
+        check_id = self.cleaned_data['check_id']
         if alert_id:
             alert = Alert.objects.get(
                 alert_id=alert_id,
@@ -67,12 +80,26 @@ class AlertForm(forms.Form):
         else:
             alert = Alert.objects.create(
                 publisher_id=self.cleaned_data['publisher_id'],
-                check_id=self.cleaned_data['check_id'],
+                check_id=check_id,
             )
+
+        check = checks[check_id]
+        params = {}
+        for param in check['check_type']['params']:
+            param_name = param['name']
+            param_value = self.data[param['name']]
+
+            param_type = param['type']
+            if param_type == 'integer':
+                param_value = int(param_value)
+            elif param_type == 'percentage':
+                param_value = float(param_value)
+
+            params[param_name] = param_value
 
         alert.update(
             name=self.cleaned_data['name'],
-            check_params='{}',
+            check_params=json.dumps(params),
             enabled=self.cleaned_data['enabled'],
         )
 
@@ -84,14 +111,20 @@ def edit(request, alert_id=None):
 
     if alert_id:
         alert = Alert.objects.get(alert_id=alert_id)
+        new = False
     else:
         alert = None
+        new = True
 
     if request.method == 'POST':
         form = AlertForm(request.POST, instance=alert, user=request.user)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('alerts.list'))
+
+            if new:
+                return HttpResponseRedirect(reverse('alerts.list') + '?from=new-success')
+            else:
+                return HttpResponseRedirect(reverse('alerts.list') + '?from=save-success')
     else:
         form = AlertForm(instance=alert, user=request.user)
 

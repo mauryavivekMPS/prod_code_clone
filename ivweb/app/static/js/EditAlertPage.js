@@ -1,11 +1,19 @@
 var EditAlertPage = (function() {
+    var params;
 
     var checkForm = function() {
         var checkId = $("#id_check_id option:selected").val();
         var publisherId = $("#id_publisher_id option:selected").val();
         var name = $('#id_name').val()
 
-        if (publisherId && checkId && name) {
+        var gotParamValues = true;
+        $.each(params, function(index, param) {
+            if (!$('#id_param_' + param.name).val()) {
+                gotParamValues = false;
+            }
+        });
+
+        if (publisherId && checkId && name && gotParamValues) {
             $('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
@@ -17,8 +25,11 @@ var EditAlertPage = (function() {
     var init = function(options) {
         options = $.extend({
             alertParamsUrl: '',
-            selectedCheck: null
+            selectedCheck: null,
+            params: {}
         }, options);
+
+        params = options.params;
 
         var nullCheckItem = $('#id_check_id option:first-child');
         nullCheckItem.attr('disabled', 'disabled');
@@ -61,6 +72,11 @@ var EditAlertPage = (function() {
             checkForm();
         });
 
+        $.each(params, function(index, param) {
+            $('#id_param_' + param.name).on('keyup', function() {
+                checkForm();
+            });
+        });
     };
 
     return {
