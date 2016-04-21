@@ -50,7 +50,7 @@ class AlertForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
     check_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     check_params = forms.CharField(widget=forms.HiddenInput, required=False)
-    enabled = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
 
     def __init__(self, *args, instance=None, user=None, **kwargs):
         initial = {}
@@ -87,7 +87,7 @@ class AlertForm(forms.Form):
         params = {}
         for param in check['check_type']['params']:
             param_name = param['name']
-            param_value = self.data[param['name']]
+            param_value = self.data[param_name]
 
             param_type = param['type']
             if param_type == 'integer':
