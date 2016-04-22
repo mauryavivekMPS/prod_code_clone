@@ -1,7 +1,9 @@
 import csv
+import os
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Highwire_Metadata
+
 
 
 @app.task
@@ -46,6 +48,9 @@ class LoadH20MetadataTask(Task):
         count = 0
         total_count = 1000  # just a guess
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        # Using S3 fuse, need to set permissions on file
+        os.system('chmod +r ' + self.METADATA_FILE)
 
         with open(self.METADATA_FILE) as highwire_metadata_file:
             reader = csv.DictReader(highwire_metadata_file, delimiter='\t', fieldnames=fieldnames)
