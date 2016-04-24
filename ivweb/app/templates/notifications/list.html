@@ -22,7 +22,7 @@
                 </thead>
                 <tbody>
                     {% for notification in notifications %}
-                        <tr>
+                        <tr class="notification-summary-row notification-summary-{{ notification.notification_summary_id }}" >
                             <td><a href="#" class="open-notification-details-link" notification_summary_id="{{ notification.notification_summary_id }}" publisher_id="{{ notification.publisher_id }}">{{ notification.alert_name }}</a></td>
                             <td>{{ notification.publisher_id }}</td>
                             <td>{{ notification.notification_date }}</td>
@@ -40,7 +40,7 @@
         $(function() {
             ListNotificationsPage.init({
                 notificationDetailsUrl: '{% url 'notifications.include_notification_details' %}',
-                dismissNotificationUrl: '',
+                dismissNotificationUrl: '{% url 'notifications.dismiss_notification' %}',
                 csrfToken: '{{ csrf_token }}'
             });
         });

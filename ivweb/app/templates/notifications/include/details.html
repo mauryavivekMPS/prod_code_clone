@@ -1,25 +1,29 @@
 <td colspan="3">
     <p class="notification-details-summary">
-        {{ results|length }} result{{ results|pluralize }} for {{ product.name }}
+        <span class="lnr lnr-arrow-right notification-details-arrow"></span>
+        {{ values_list|length }} result{{ values_list|pluralize }} from {{ product.name }}
     </p>
     <table class="table">
         <thead>
             <tr>
-                <th>foo</th>
-                <th>bar</th>
-                <th>baz</th>
-                <th>blurg</th>
+                {% for col in check.table_order %}
+                    <th class="{{ col.key }}-col">{{ col.name }}</th>
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for result in results %}
+            {% for row in values_list %}
                 <tr>
-                    <td>{{ result }}</td>
-                    <td>1222.8</td>
-                    <td>asdkfllk.ousdfnm</td>
-                    <td>AAB</td>
+                    {% for value in row %}
+                        <td class="{{ value.key }}-col">{{ value.value }}</td>
+                    {% endfor %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <p>
+        <span class="lnr lnr-cross dismiss-notification-cross"></span>
+        <a href="#" class="dismiss-notification-link">Dismiss Notification</a>
+    </p>
 </td>

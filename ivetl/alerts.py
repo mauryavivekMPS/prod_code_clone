@@ -43,7 +43,12 @@ checks = {
         'name': 'Mendeley Saves Exceeds Integer',
         'check_type': check_types['exceeds-integer'],
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
-        'table_order': [('doi', 'DOI'),]
+        'table_order': [
+            {'key': 'issn', 'name': 'ISSN'},
+            {'key': 'doi', 'name': 'DOI'},
+            {'key': 'new_value', 'name': 'Saves', 'align': 'right'},
+            {'key': 'delta', 'name': 'Increase', 'align': 'right'},
+        ]
     },
 
     # set up example for threshold = 100
