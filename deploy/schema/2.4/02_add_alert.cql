@@ -78,4 +78,5 @@ CREATE TABLE notification_summary (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
+CREATE INDEX notification_summary_notification_id_index ON notification_summary(notification_summary_id);
 CREATE INDEX notification_summary_dismissed_index ON notification_summary(dismissed);

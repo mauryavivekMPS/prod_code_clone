@@ -4,9 +4,7 @@ from ivetl.models import Alert, Notification, Notification_Summary
 
 
 def exceeds_integer(new_value=None, old_value=None, params=None):
-    print('new value in exceeds integer: %s' % new_value)
     delta = new_value - params['threshold']
-    print('delta: %s' % delta)
     if delta > 0:
         return True, {'delta': delta}
     else:
@@ -38,12 +36,28 @@ check_types = {
     },
 }
 
+# associate checks with pipelines so that they can be hidden in the UI when appropriate
+
 checks = {
     'mendeley-saves-exceeds-integer': {
         'name': 'Mendeley Saves Exceeds Integer',
         'check_type': check_types['exceeds-integer'],
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
+        'table_order': [('doi', 'DOI'),]
     },
+
+    # set up example for threshold = 100
+    # trigger only when it crosses, i.e. old_value < threshold
+
+    # add citation exceeds integer
+    # example threshold = 2000
+
+    # add uptime percentage increase vs 5 days ago
+    # add filtering for check metadata, e.g. site_type == homepage
+    # looking at avg_response_ms from checkstat
+
+    # remove citation percentage
+
     'citation-percentage-change': {
         'name': 'Citation Percentage Change',
         'check_type': check_types['percentage-change'],

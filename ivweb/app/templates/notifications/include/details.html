@@ -1,0 +1,25 @@
+<td colspan="3">
+    <p class="notification-details-summary">
+        {{ results|length }} result{{ results|pluralize }} for {{ product.name }}
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>foo</th>
+                <th>bar</th>
+                <th>baz</th>
+                <th>blurg</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result }}</td>
+                    <td>1222.8</td>
+                    <td>asdkfllk.ousdfnm</td>
+                    <td>AAB</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</td>
