@@ -7,6 +7,10 @@
     <div class="row header-row">
         <div class="col-md-12">
             <h1>Notifications</h1>
+            <ul class="list-tabs">
+                <li><a href="?filter=active" {% if filter_param == 'active' %}class="active"{% endif %}>Active</a></li>
+                <li><a href="?filter=dismissed" {% if filter_param == 'dismissed' %}class="active"{% endif %}>Dismissed</a></li>
+            </ul>
         </div>
     </div>
 

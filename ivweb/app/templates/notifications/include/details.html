@@ -21,9 +21,10 @@
             {% endfor %}
         </tbody>
     </table>
-
-    <p>
-        <span class="lnr lnr-cross dismiss-notification-cross"></span>
-        <a href="#" class="dismiss-notification-link">Dismiss Notification</a>
-    </p>
+    {% if not notification.dismissed %}
+        <p>
+            <span class="lnr lnr-cross dismiss-notification-cross"></span>
+            <a href="#" class="dismiss-notification-link">Dismiss Notification</a>
+        </p>
+    {% endif %}
 </td>
