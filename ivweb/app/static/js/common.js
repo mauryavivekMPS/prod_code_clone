@@ -1214,7 +1214,7 @@ var EditPublisherPage = (function() {
 
         var data = [
             {name: 'username', value: username.val()},
-            {name: 'password', value: password.val()},
+            {name: 'password', value: password.val()}
         ];
 
         $.get(validateCrossrefUrl, data)

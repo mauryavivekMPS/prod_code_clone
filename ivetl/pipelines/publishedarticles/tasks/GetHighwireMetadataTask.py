@@ -215,7 +215,7 @@ class GetHighWireMetadataTask(Task):
                                                 oa = 'No'
 
                                             data['is_open_access'] = oa
-                                            print(oa)
+                                            # print(oa)
 
                                             # Article Type
                                             article_type = None

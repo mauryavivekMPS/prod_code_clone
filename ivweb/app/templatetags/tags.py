@@ -1,3 +1,4 @@
+import json
 from django import template
 from django.utils.safestring import SafeText
 
@@ -58,3 +59,9 @@ def sort_column(column_label, field_name, sort_key, sort_descending, use_status_
         column_label if not use_status_icon else status_icon(),
         icon,
     )
+
+
+@register.simple_tag
+def get_alert_param_value(alert, param_name):
+    params = json.loads(alert.check_params)
+    return params.get(param_name, '')
