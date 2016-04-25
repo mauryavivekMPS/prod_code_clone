@@ -50,6 +50,7 @@ class AlertForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
     check_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     check_params = forms.CharField(widget=forms.HiddenInput, required=False)
+    comma_separated_emails = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=True)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
 
     def __init__(self, *args, instance=None, user=None, **kwargs):
@@ -58,6 +59,7 @@ class AlertForm(forms.Form):
         if instance:
             self.instance = instance
             initial = dict(instance)
+            initial['comma_separated_emails'] = ", ".join(instance.emails)
         else:
             self.instance = None
 
@@ -97,9 +99,12 @@ class AlertForm(forms.Form):
 
             params[param_name] = param_value
 
+        emails = [email.strip() for email in self.cleaned_data['comma_separated_emails'].split(",")]
+
         alert.update(
             name=self.cleaned_data['name'],
             check_params=json.dumps(params),
+            emails=emails,
             enabled=self.cleaned_data['enabled'],
         )
 

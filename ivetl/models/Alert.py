@@ -9,4 +9,5 @@ class Alert(Model):
     name = columns.Text()
     check_id = columns.Text(primary_key=True)
     check_params = columns.Text()
+    emails = columns.List(columns.Text())
     enabled = columns.Boolean()

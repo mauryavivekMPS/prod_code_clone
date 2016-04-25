@@ -141,3 +141,5 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
             notification_date=now,
             dismissed=False,
         )
+
+        # send notification email with a link to the notification page with notification open
