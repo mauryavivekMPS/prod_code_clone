@@ -3,7 +3,8 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations
+from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, Published_Article
+from ivetl.alerts import run_alert, send_alert_notifications
 
 
 @app.task
@@ -37,14 +38,19 @@ class UpdateArticleCitationsWithCrossref(Task):
 
         for article in articles:
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+            doi = article.article_doi
+
+
             tlogger.info("---")
-            tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
+            tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, doi))
+
             citations = []
 
             try:
-                citations = crossref.get_citations(article.article_doi)
+                citations = crossref.get_citations(doi)
             except MaxTriesAPIError:
-                tlogger.info("Crossref API failed for %s" % article.article_doi)
+                tlogger.info("Crossref API failed for %s" % doi)
                 error_count += 1
 
             for citation_doi in citations:
@@ -54,7 +60,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                 try:
                     existing_citation = Article_Citations.objects.get(
                         publisher_id=publisher_id,
-                        article_doi=article.article_doi,
+                        article_doi=doi,
                         citation_doi=citation_doi
                     )
 
@@ -82,7 +88,7 @@ class UpdateArticleCitationsWithCrossref(Task):
 
                         Article_Citations.create(
                             publisher_id=publisher_id,
-                            article_doi=article.article_doi,
+                            article_doi=doi,
                             citation_doi=data['doi'],
                             citation_scopus_id=data.get('scopus_id', None),
                             citation_date=data['date'],
@@ -100,6 +106,34 @@ class UpdateArticleCitationsWithCrossref(Task):
                         )
                     else:
                         tlogger.info("No crossref data found for citation %s, skipping" % citation_doi)
+
+            published_article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+            old_citation_count = published_article.citation_count
+            new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).count()
+            issn = published_article.article_journal_issn
+
+            run_alert(
+                check_id='citations-exceeds-integer',
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                old_value=old_citation_count,
+                new_value=new_citation_count,
+                extra_values={'doi': doi, 'issn': issn}
+            )
+
+            # update the count *after* we've compared the new to old
+            published_article.update(citation_count=new_citation_count)
+
+
+        send_alert_notifications(
+            check_id='citations-exceeds-integer',
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+        )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 

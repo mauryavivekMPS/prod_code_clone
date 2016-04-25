@@ -3,7 +3,7 @@ import json
 import codecs
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort
+from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, Published_Article
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 
@@ -15,7 +15,6 @@ class GetScopusArticleCitations(Task):
     MAX_ERROR_COUNT = 100
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        reprocesserrorsonly = task_args[GetScopusArticleCitations.REPROCESS_ERRORS]
         product = common.PRODUCT_BY_ID[product_id]
 
         target_file_name = os.path.join(work_folder, "%s_articlecitations_target.tab" % publisher_id)
@@ -41,8 +40,11 @@ class GetScopusArticleCitations(Task):
         for article in articles:
 
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+            doi = article.article_doi
+
             tlogger.info("---")
-            tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, article.article_doi))
+            tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, doi))
 
             if article.article_scopus_id is None or article.article_scopus_id == '':
                 tlogger.info("Skipping - No Scopus Id")
@@ -59,12 +61,11 @@ class GetScopusArticleCitations(Task):
             if error_count >= self.MAX_ERROR_COUNT:
                     raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
 
-            row = "%s\t%s\t%s\n" % (publisher_id, article.article_doi, json.dumps(citations))
+            new_citations_count = len(citations)
+            tlogger.info("%s citations retrieved from Scopus." % new_citations_count)
 
+            row = "%s\t%s\t%s\n" % (publisher_id, doi, json.dumps(citations))
             target_file.write(row)
-            target_file.flush()
-
-            tlogger.info("%s citations retrieved." % len(citations))
 
         target_file.close()
 
@@ -72,12 +73,3 @@ class GetScopusArticleCitations(Task):
             'count': total_count,
             'input_file': target_file_name
         }
-
-
-
-
-
-
-
-
-

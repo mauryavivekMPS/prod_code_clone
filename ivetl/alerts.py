@@ -48,25 +48,35 @@ checks = {
             {'key': 'doi', 'name': 'DOI'},
             {'key': 'new_value', 'name': 'Saves', 'align': 'right'},
             {'key': 'delta', 'name': 'Increase', 'align': 'right'},
-        ]
+        ],
+        # set up example for threshold = 100
     },
 
-    # set up example for threshold = 100
-    # trigger only when it crosses, i.e. old_value < threshold
+    'citations-exceeds-integer': {
+        'name': 'Citations Exceeds Integer',
+        'check_type': check_types['exceeds-integer'],
+        'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations',
+        'table_order': [
+            {'key': 'issn', 'name': 'ISSN'},
+            {'key': 'doi', 'name': 'DOI'},
+            {'key': 'new_value', 'name': 'Citations', 'align': 'right'},
+            {'key': 'delta', 'name': 'Increase', 'align': 'right'},
+        ]
+        # example threshold = 2000
+    },
 
-    # add citation exceeds integer
-    # example threshold = 2000
-
-    # add uptime percentage increase vs 5 days ago
-    # add filtering for check metadata, e.g. site_type == homepage
-    # looking at avg_response_ms from checkstat
-
-    # remove citation percentage
-
-    'citation-percentage-change': {
-        'name': 'Citation Percentage Change',
+    'uptime-percentage-decrease-over-five-days': {
+        'name': 'Site Uptime Percentage Increase Over Five Days',
         'check_type': check_types['percentage-change'],
-        'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations (from %(old_value), up %(percentage_increase))',
+        'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
+        'table_order': [
+            {'key': 'site_code', 'name': 'Site Code'},
+            {'key': 'old_value', 'name': 'Previous Uptime', 'align': 'right'},
+            {'key': 'new_value', 'name': 'Current Uptime', 'align': 'right'},
+            {'key': 'percentage_increase', 'name': 'Increase', 'align': 'right'},
+        ]
+        # add filtering for check metadata, e.g. site_type == homepage
+        # looking at avg_response_ms from checkstat
     },
 }
 
