@@ -65,6 +65,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 tasks.MendeleyLookupTask.s() |
                 tasks.InsertPublishedArticlesIntoCassandra.s() |
                 tasks.ResolvePublishedArticlesData.s() |
+                tasks.UpdateAttributeValuesCacheTask.s() |
                 tasks.ResolveArticleUsageData.s() |
                 tasks.CheckRejectedManuscriptTask.s()
             ).delay()

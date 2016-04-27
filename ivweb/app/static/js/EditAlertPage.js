@@ -1,5 +1,8 @@
 var EditAlertPage = (function() {
+    var alertParamsUrl;
+    var alertFiltesUrl;
     var params = [];
+    var filters = [];
 
     var checkForm = function() {
         var checkId = $("#id_check_id option:selected").val();
@@ -22,7 +25,6 @@ var EditAlertPage = (function() {
     };
 
     var setParams = function(newParams) {
-        console.log(newParams);
         params = newParams;
         $.each(params, function(index, param) {
             $('#id_param_' + param.name).on('keyup', function() {
@@ -31,11 +33,64 @@ var EditAlertPage = (function() {
         });
     };
 
+    var setFilters = function(newFilters) {
+        filters = newFilters;
+        $.each(filters, function(index, filter) {
+            $('#id_filter_' + filter.name).on('keyup', function() {
+                checkForm();
+            });
+        });
+    };
+
+    var updateFilters = function() {
+        var checkId = $('#id_check_id option:selected').val();
+        var publisherId = $("#id_publisher_id option:selected").val();
+
+        var data = [
+            {name: 'check_id', value: checkId},
+            {name: 'publisher_id', value: publisherId}
+        ];
+
+        IvetlWeb.showLoading();
+
+        $.get(alertFiltersUrl, data)
+            .done(function(html) {
+                $('.alert-filters').html(html);
+            })
+            .always(function() {
+                IvetlWeb.hideLoading();
+            });
+    };
+
+    var updateParams = function() {
+        var checkId = $('#id_check_id option:selected').val();
+        var publisherId = $("#id_publisher_id option:selected").val();
+
+        $(this).removeClass('placeholder');
+
+        var data = [
+            {name: 'check_id', value: checkId}
+        ];
+
+        IvetlWeb.showLoading();
+        $.get(alertParamsUrl, data)
+            .done(function(html) {
+                $('.alert-params').html(html);
+            })
+            .always(function() {
+                IvetlWeb.hideLoading();
+            });
+    };
+
     var init = function(options) {
         options = $.extend({
             alertParamsUrl: '',
+            alertFiltersUrl: '',
             selectedCheck: null
         }, options);
+
+        alertParamsUrl = options.alertParamsUrl;
+        alertFiltersUrl = options.alertFiltersUrl;
 
         var nullCheckItem = $('#id_check_id option:first-child');
         nullCheckItem.attr('disabled', 'disabled');
@@ -45,28 +100,15 @@ var EditAlertPage = (function() {
         }
 
         $('#id_check_id').on('change', function() {
-            var checkId = $('#id_check_id option:selected').val();
-
             $(this).removeClass('placeholder');
-
-            var data = [
-                {name: 'check_id', value: checkId}
-            ];
-
-            IvetlWeb.showLoading();
-            $.get(options.alertParamsUrl, data)
-                .done(function(html) {
-                    $('.alert-params').html(html);
-                })
-                .always(function() {
-                    IvetlWeb.hideLoading();
-                });
+            updateParams();
         });
 
         $('#id_check_id, #id_publisher_id').on('change', function() {
             var selectedCheck = $('#id_check_id option:selected');
             var selectedPublisher = $('#id_publisher_id option:selected');
             $('#id_name').val(selectedCheck.text() + ' for ' + selectedPublisher.text());
+            updateFilters();
             checkForm();
         });
 
@@ -81,6 +123,7 @@ var EditAlertPage = (function() {
 
     return {
         setParams: setParams,
+        setFilters: setFilters,
         checkForm: checkForm,
         init: init
     };

@@ -70,6 +70,7 @@ urlpatterns = patterns(
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),
     url(r'^deletefile/$', 'pipelines.delete_pending_file_inline', name='pipelines.delete_pending_file_inline'),
     url(r'^includealertparams/$', 'alerts.include_alert_params', name='alerts.include_alert_params'),
+    url(r'^includealertfilters/$', 'alerts.include_alert_filters', name='alerts.include_alert_filters'),
     url(r'^includenotificationdetails/$', 'notifications.include_notification_details', name='notifications.include_notification_details'),
     url(r'^dismissnotification/$', 'notifications.dismiss_notification', name='notifications.dismiss_notification'),
 

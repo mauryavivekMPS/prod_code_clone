@@ -69,7 +69,8 @@ class CustomArticleDataPipeline(Pipeline):
                     tasks.GetArticleDataFiles.s(task_args) |
                     tasks.ValidateArticleDataFiles.s() |
                     tasks.InsertCustomArticleDataIntoCassandra.s() |
-                    published_articles_tasks.ResolvePublishedArticlesData.s()
+                    published_articles_tasks.ResolvePublishedArticlesData.s() |
+                    published_articles_tasks.UpdateAttributeValuesCacheTask.s()
                 ).delay()
 
             else:

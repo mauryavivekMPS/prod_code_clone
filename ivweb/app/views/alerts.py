@@ -5,7 +5,7 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Alert, Publisher_Metadata
+from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
 from ivetl.alerts import checks, check_choices
 from ivweb.app.views import utils as view_utils
 
@@ -50,6 +50,7 @@ class AlertForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
     check_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     check_params = forms.CharField(widget=forms.HiddenInput, required=False)
+    filter_params = forms.CharField(widget=forms.HiddenInput, required=False)
     comma_separated_emails = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=True)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
 
@@ -87,11 +88,11 @@ class AlertForm(forms.Form):
 
         check = checks[check_id]
         params = {}
-        for param in check['check_type']['params']:
-            param_name = param['name']
+        for check_param in check['check_type']['params']:
+            param_name = check_param['name']
             param_value = self.data[param_name]
 
-            param_type = param['type']
+            param_type = check_param['type']
             if param_type == 'integer':
                 param_value = int(param_value)
             elif param_type == 'percentage':
@@ -99,16 +100,36 @@ class AlertForm(forms.Form):
 
             params[param_name] = param_value
 
+        filters = {}
+        for check_filter in check['filters']:
+            filter_name = check_filter['name']
+            filter_value = self.data[filter_name]
+
+            if filter_value:
+                filters[filter_name] = filter_value
+
         emails = [email.strip() for email in self.cleaned_data['comma_separated_emails'].split(",")]
 
         alert.update(
             name=self.cleaned_data['name'],
             check_params=json.dumps(params),
+            filter_params=json.dumps(filters),
             emails=emails,
             enabled=self.cleaned_data['enabled'],
         )
 
         return alert
+
+
+def _add_filter_values(publisher_id, check):
+    for check_filter in check.get('filters', []):
+        filter_name = check_filter['name']
+        try:
+            values = json.loads(Attribute_Values.objects.get(publisher_id=publisher_id, name=filter_name).values_json)
+        except Attribute_Values.DoesNotExist:
+            values = []
+
+        check_filter['filter_values'] = values
 
 
 @login_required
@@ -133,10 +154,16 @@ def edit(request, alert_id=None):
     else:
         form = AlertForm(instance=alert, user=request.user)
 
+    if alert:
+        check = checks[alert.check_id]
+        _add_filter_values(alert.publisher_id, check)
+    else:
+        check = None
+
     return render(request, 'alerts/new.html', {
         'form': form,
         'alert': alert,
-        'check': checks[alert.check_id] if alert else None,
+        'check': check,
     })
 
 
@@ -145,5 +172,18 @@ def include_alert_params(request):
     check_id = request.GET['check_id']
     return render(request, 'alerts/include/params.html', {
         'check': checks[check_id],
+        'is_include': True,
+    })
+
+
+@login_required
+def include_alert_filters(request):
+    check_id = request.GET['check_id']
+    publisher_id = request.GET['publisher_id']
+    check = checks[check_id]
+    _add_filter_values(publisher_id, check)
+
+    return render(request, 'alerts/include/filters.html', {
+        'check': check,
         'is_include': True,
     })

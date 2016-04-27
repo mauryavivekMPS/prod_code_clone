@@ -45,6 +45,14 @@ checks = {
     'mendeley-saves-exceeds-integer': {
         'name': 'Mendeley Saves Exceeds Integer',
         'check_type': check_types['exceeds-integer'],
+        'filters': [
+            {'name': 'article_type', 'label': 'Article Type', 'values_cache': 'article_type'},
+            {'name': 'subject_category', 'label': 'Subject Category', 'values_cache': 'subject_category'},
+            {'name': 'is_open_access', 'label': 'Open Access', 'values_cache': 'is_open_access'},
+            {'name': 'custom', 'label': 'Custom 1', 'values_cache': 'custom'},
+            {'name': 'custom', 'label': 'Custom 2', 'values_cache': 'custom_2'},
+            {'name': 'custom', 'label': 'Custom 3', 'values_cache': 'custom_3'},
+        ],
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
         'table_order': [
             {'key': 'issn', 'name': 'ISSN'},
@@ -97,25 +105,35 @@ def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=Non
 
         if alert.enabled:
             check_params = json.loads(alert.check_params)
+            check_filters = json.loads(alert.check_filters)
 
-            passed, values_from_check_function = check_function(new_value=new_value, old_value=old_value, params=check_params)
+            # run the instance through filters
+            passed_filters = True
+            if check_filters:
+                for check_filter in check_filters:
+                    # TODO: rework this for multiple
+                    pass
 
-            # run the test
-            if passed:
-                all_values = {'new_value': new_value, 'old_value': old_value}
-                all_values.update(extra_values)
-                all_values.update(values_from_check_function)
-                all_values.update(check_params)
+            if passed_filters:
 
-                # add a notification
-                Notification.objects.create(
-                    alert_id=alert.alert_id,
-                    publisher_id=publisher_id,
-                    product_id=product_id,
-                    pipeline_id=pipeline_id,
-                    job_id=job_id,
-                    values_json=json.dumps(all_values),
-                )
+                # run the test
+                passed_test, values_from_check_function = check_function(new_value=new_value, old_value=old_value, params=check_params)
+
+                if passed_test:
+                    all_values = {'new_value': new_value, 'old_value': old_value}
+                    all_values.update(extra_values)
+                    all_values.update(values_from_check_function)
+                    all_values.update(check_params)
+
+                    # add a notification
+                    Notification.objects.create(
+                        alert_id=alert.alert_id,
+                        publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
+                        values_json=json.dumps(all_values),
+                    )
 
 
 def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None):
