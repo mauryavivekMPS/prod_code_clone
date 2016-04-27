@@ -6,6 +6,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import MendeleyConnector
 from ivetl.alerts import run_alert, send_alert_notifications
+from ivetl.models import Published_Article
 
 
 @app.task
@@ -43,12 +44,19 @@ class MendeleyLookupTask(Task):
                     new_saves_value = mendeley.get_saves(doi)
                     data['mendeley_saves'] = new_saves_value
 
+                    try:
+                        article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                        old_saves_value = article.mendeley_saves
+                    except Published_Article.DoesNotExist:
+                        old_saves_value = 0
+
                     run_alert(
                         check_id='mendeley-saves-exceeds-integer',
                         publisher_id=publisher_id,
                         product_id=product_id,
                         pipeline_id=pipeline_id,
                         job_id=job_id,
+                        old_value=old_saves_value,
                         new_value=new_saves_value,
                         extra_values={'doi': doi, 'issn': issn}
                     )

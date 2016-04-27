@@ -6,9 +6,12 @@ from ivetl.models import Alert, Notification, Notification_Summary
 def exceeds_integer(new_value=None, old_value=None, params=None):
     delta = new_value - params['threshold']
     if delta > 0:
-        return True, {'delta': delta}
-    else:
-        return False, {}
+
+        # if an old_value is supplied, it must be lower than the threshold to trigger
+        if (not old_value) or (old_value and old_value <= params['threshold']):
+            return True, {'delta': delta}
+
+    return False, {}
 
 
 def percentage_change(new_value=None, old_value=None, params=None):
