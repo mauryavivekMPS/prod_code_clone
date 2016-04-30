@@ -149,9 +149,8 @@ var PipelineListPage = (function() {
                     var progressBarContainer = $('.' + publisherId + '_row .task-progress');
                     var progressBar = progressBarContainer.find('.progress-bar');
                     var newTitle = 'Processing ' + json.current_record_count + ' of ' + json.total_record_count + ' records';
-                    progressBarContainer.attr('data-original-title', newTitle);
+                    progressBarContainer.attr('data-original-title', newTitle).tooltip('show');
                     progressBar.css('width', json.percent_complete + '%');
-                    IvetlWeb.initTooltips('.' + publisherId + '_row');
                 }
 
                 // update the high water mark
