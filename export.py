@@ -6,6 +6,7 @@ django.setup()
 import sys
 import os
 import datetime
+import uuid
 from ivetl.models import *
 
 
@@ -45,7 +46,7 @@ def format_value(value):
     else:
         value_type = type(value)
 
-        if value_type in [int, float, bool]:
+        if value_type in [int, float, bool, uuid.UUID]:
             return str(value)
         elif value_type is datetime.datetime:
             return "'%s'" % value.strftime('%Y-%m-%d %H:%M:%S%z')
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     else:
         output_dir = '.'
 
-    for model_name in models[:4]:
+    for model_name in models:
         model_class = getattr(sys.modules[__name__], model_name)
         table_name = model_class.column_family_name()
         cols = list(model_class._columns.keys())
