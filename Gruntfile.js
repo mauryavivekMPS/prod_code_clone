@@ -32,6 +32,7 @@ module.exports = function(grunt) {
               'bower_components/bootstrap/dist/js/bootstrap.min.js',
               'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css',
               'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+              'bower_components/bootstrap3-typeahead/bootstrap3-typeahead.min.js',
               'bower_components/moment/min/moment.min.js',
               'bower_components/jquery/dist/jquery.min.js',
               'bower_components/jquery/dist/jquery.min.map',

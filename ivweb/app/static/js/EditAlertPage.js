@@ -36,7 +36,14 @@ var EditAlertPage = (function() {
     var setFilters = function(newFilters) {
         filters = newFilters;
         $.each(filters, function(index, filter) {
-            $('#id_filter_' + filter.name).on('keyup', function() {
+            filterElement = $('#id_filter_' + filter.name);
+
+            filterElement.typeahead({
+                source: filter.filter_values,
+                autoSelect: true
+            });
+
+            filterElement.on('keyup', function() {
                 checkForm();
             });
         });

@@ -21,6 +21,7 @@
         "jquery-number": "latest",
         "moment": "latest",
         "nvd3": "~1.8.1",
-        "bootstrap-datepicker": "~1.6.0"
+        "bootstrap-datepicker": "~1.6.0",
+        "bootstrap3-typeahead": "~4.0.1"
     }
 }
