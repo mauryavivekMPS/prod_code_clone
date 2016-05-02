@@ -13,13 +13,13 @@ app.config_from_object('ivetl.celeryconfig')
 def open_cassandra_connection():
     if common.IS_LOCAL:
         connection.setup(
-            [common.CASSANDRA_IP],
+            common.CASSANDRA_IP_LIST,
             common.CASSANDRA_KEYSPACE_IV,
             # protocol_version=3
         )
     else:
         connection.setup(
-            [common.CASSANDRA_IP],
+            common.CASSANDRA_IP_LIST,
             common.CASSANDRA_KEYSPACE_IV
         )
 
