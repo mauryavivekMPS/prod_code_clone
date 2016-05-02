@@ -4,8 +4,10 @@ import django
 django.setup()
 
 import sys
+import os
 import datetime
 from ivetl.models import *
+
 
 models = [
     'Published_Article',
@@ -52,18 +54,25 @@ def format_value(value):
         elif value_type is dict:
             return "{%s}" % ','.join(['%s:%s' % (format_value(k), format_value(v)) for k, v in value.items()])
 
-    return "'%s'" % value
+    return "'%s'" % value.replace("'", "''")
+
 
 if __name__ == "__main__":
 
-    for model_name in models:
-        print('Exporting %s' % model_name)
+    if len(sys.argv) == 2:
+        output_dir = sys.argv[1]
+    else:
+        output_dir = '.'
 
+    for model_name in models[:4]:
         model_class = getattr(sys.modules[__name__], model_name)
         table_name = model_class.column_family_name()
         cols = list(model_class._columns.keys())
+        output_path = os.path.join(output_dir, table_name + '.csv')
 
-        with open(table_name + '.csv', 'w') as f:
+        print('Exporting %s to %s' % (model_name, output_path))
+
+        with open(output_path, 'w') as f:
             f.write(','.join(cols) + '\n')
             for instance in model_class.objects.all():
                 col_values = [format_value(instance[col]) for col in cols]
