@@ -36,10 +36,11 @@ var EditAlertPage = (function() {
     var setFilters = function(newFilters) {
         filters = newFilters;
         $.each(filters, function(index, filter) {
-            filterElement = $('#id_filter_' + filter.name);
+            var filterElement = $('#id_filter_' + filter.name);
 
             filterElement.typeahead({
                 source: filter.filter_values,
+                showHintOnFocus: true,
                 autoSelect: true
             });
 

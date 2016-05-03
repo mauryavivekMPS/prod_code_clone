@@ -2454,3 +2454,22 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 //    padding-left: 40px;
 //}
 
+
+// Typeahead styling
+.typeahead.dropdown-menu {
+    min-width: 300px;
+
+    > li:first-of-type {
+        padding-top: 0;
+    }
+    a:hover, .active a:hover, .active a {
+        background-color: @gray-lighter;
+        color: #333;
+    }
+
+    strong {
+        color: @brand-danger;
+        font-weight: normal;
+    }
+}
+
