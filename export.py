@@ -7,6 +7,7 @@ import sys
 import os
 import datetime
 import uuid
+import decimal
 from ivetl.models import *
 
 
@@ -46,7 +47,7 @@ def format_value(value):
     else:
         value_type = type(value)
 
-        if value_type in [int, float, bool, uuid.UUID]:
+        if value_type in [int, float, bool, uuid.UUID, decimal.Decimal]:
             return str(value)
         elif value_type is datetime.datetime:
             return "'%s'" % value.strftime('%Y-%m-%d %H:%M:%S%z')
@@ -75,6 +76,6 @@ if __name__ == "__main__":
 
         with open(output_path, 'w') as f:
             f.write(','.join(cols) + '\n')
-            for instance in model_class.objects.all():
+            for instance in model_class.objects.all().limit(10000000):
                 col_values = [format_value(instance[col]) for col in cols]
                 f.write(','.join(col_values) + '\n')
