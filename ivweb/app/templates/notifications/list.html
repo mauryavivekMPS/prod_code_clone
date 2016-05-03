@@ -20,7 +20,9 @@
                 <thead>
                     <tr>
                         <th>{% sort_column "Alert Name" "alert_name" sort_key sort_descending %}</th>
-                        <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                        {% if not single_publisher_user %}
+                            <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                        {% endif %}
                         <th>{% sort_column "Date" "notification_date" sort_key sort_descending %}</th>
                     </tr>
                 </thead>
@@ -28,7 +30,9 @@
                     {% for notification in notifications %}
                         <tr class="notification-summary-row notification-summary-{{ notification.notification_summary_id }}" >
                             <td><a href="#" class="open-notification-details-link" notification_summary_id="{{ notification.notification_summary_id }}" publisher_id="{{ notification.publisher_id }}">{{ notification.alert_name }}</a></td>
-                            <td>{{ notification.publisher_id }}</td>
+                            {% if not single_publisher_user %}
+                                <td>{{ notification.publisher_id }}</td>
+                            {% endif %}
                             <td>{{ notification.notification_date }}</td>
                         </tr>
                         <tr class="notification-details-row notification-details-{{ notification.notification_summary_id }}" style="display:none"></tr>

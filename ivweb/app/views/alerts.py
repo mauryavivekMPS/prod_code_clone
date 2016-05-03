@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 
 @login_required
-def list_alerts(request, publisher_id=None):
+def list_alerts(request):
 
     messages = []
     if 'from' in request.GET:
@@ -23,10 +23,14 @@ def list_alerts(request, publisher_id=None):
         elif from_value == 'new-success':
             messages.append("Your new alert is created and ready to go.")
 
-    if publisher_id:
-        alerts = Alert.objects.filter(publisher_id=publisher_id)
-    else:
+    single_publisher_user = False
+    if request.user.superuser:
         alerts = Alert.objects.all()
+    else:
+        accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+        alerts = Alert.objects.filter(publisher_id__in=accessible_publisher_ids)
+        if len(accessible_publisher_ids) == 1:
+            single_publisher_user = True
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
@@ -37,6 +41,7 @@ def list_alerts(request, publisher_id=None):
         'reset_url': reverse('alerts.list') + '?sort=' + sort_param,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
+        'single_publisher_user': single_publisher_user,
     })
 
     response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
@@ -68,10 +73,10 @@ class AlertForm(forms.Form):
 
         self.fields['check_id'].choices = [('', 'Select a check')] + check_choices
 
-        if user:
-            self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
-        else:
+        if user.superuser:
             self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in Publisher_Metadata.objects.all()]
+        else:
+            self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
 
     def save(self):
         alert_id = self.cleaned_data['alert_id']
@@ -88,7 +93,7 @@ class AlertForm(forms.Form):
 
         check = checks[check_id]
         params = {}
-        for check_param in check['check_type']['params']:
+        for check_param in check['check_type'].get('params', []):
             param_name = check_param['name']
             param_value = self.data[param_name]
 
@@ -101,7 +106,7 @@ class AlertForm(forms.Form):
             params[param_name] = param_value
 
         filters = {}
-        for check_filter in check['filters']:
+        for check_filter in check.get('filters', []):
             filter_name = check_filter['name']
             filter_value = self.data[filter_name]
 
@@ -142,6 +147,12 @@ def edit(request, alert_id=None):
         alert = None
         new = True
 
+    single_publisher_user = False
+    if not request.user.superuser:
+        accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+        if len(accessible_publisher_ids) == 1:
+            single_publisher_user = True
+
     if request.method == 'POST':
         form = AlertForm(request.POST, instance=alert, user=request.user)
         if form.is_valid():
@@ -164,6 +175,7 @@ def edit(request, alert_id=None):
         'form': form,
         'alert': alert,
         'check': check,
+        'single_publisher_user': single_publisher_user,
     })
 
 

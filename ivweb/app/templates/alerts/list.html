@@ -17,7 +17,9 @@
                 <thead>
                     <tr>
                         <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
-                        <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                        {% if not single_publisher_user %}
+                            <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                        {% endif %}
                         <th>{% sort_column "Check" "check_id" sort_key sort_descending %}</th>
                         <th class="text-center">enabled</th>
                     </tr>
@@ -30,7 +32,9 @@
                                     {{ alert.name }}
                                 </a>
                             </td>
-                            <td>{{ alert.publisher_id }}</td>
+                            {% if not single_publisher_user %}
+                                <td>{{ alert.publisher_id }}</td>
+                            {% endif %}
                             <td>{{ alert.check_id }}</td>
                             <td class="text-center">{% checkmark alert.enabled %}</td>
                         </tr>

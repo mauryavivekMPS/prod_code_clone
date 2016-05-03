@@ -1,6 +1,7 @@
 {% load tags %}
 
-{% if check %}
+{% if check and check.check_type.params %}
+    <h2>Parameters</h2>
     {% for check_param in check.check_type.params %}
         <div class="form-group row">
             <label for="{{ check_param.name }}" class="col-sm-2">{{ check_param.label }}</label>

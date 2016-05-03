@@ -1,11 +1,12 @@
 {% load tags %}
 
-{% if check %}
+{% if check and check.filters %}
+    <h2>Filters</h2>
     {% for check_filter in check.filters %}
         <div class="form-group row">
             <label for="{{ check_filter.name }}" class="col-sm-2">{{ check_filter.label }}</label>
             <div class="col-sm-4">
-                <input id="id_filter_{{ check_filter.name }}" name="{{ check_filter.name }}" class="form-control">
+                <input id="id_filter_{{ check_filter.name }}" name="{{ check_filter.name }}" class="form-control" value="{% if alert %}{% get_alert_filter_value alert check_filter.name %}{% endif %}">
             </div>
         </div>
     {% endfor %}

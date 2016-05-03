@@ -18,7 +18,7 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-                <form id="user-form" class="form-horizontal" method="post">
+                <form class="form-horizontal alert-form" method="post">
                     {% csrf_token %}
                     {{ form.alert_id }}
                     {{ form.check_params }}
@@ -29,27 +29,20 @@
                             {{ form.check_id }}
                         </div>
                     </div>
-                    <div class="form-group row">
+
+                    <div class="form-group row" {% if single_publisher_user %}style="display:none"{% endif %}>
                         <label for="publisher_id" class="col-sm-2">Publisher</label>
                         <div class="col-sm-4">
                             {{ form.publisher_id }}
                         </div>
                     </div>
+
                     <div class="form-group row">
                         <label for="name" class="col-sm-2">Name</label>
                         <div class="col-sm-6">
                             {{ form.name }}
                         </div>
                     </div>
-
-                    <div class="alert-params">
-                        {% include "alerts/include/params.html" %}
-                    </div>
-
-                    <div class="alert-filters">
-                        {% include "alerts/include/filters.html" %}
-                    </div>
-
                     <div class="form-group row">
                         <label for="comma_separated_emails" class="col-sm-2">Emails</label>
                         <div class="col-sm-6">
@@ -62,6 +55,14 @@
                                 <label>{{ form.enabled }} Enabled</label>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="alert-params">
+                        {% include "alerts/include/params.html" %}
+                    </div>
+
+                    <div class="alert-filters">
+                        {% include "alerts/include/filters.html" %}
                     </div>
 
                     <div class="form-group submit-row">

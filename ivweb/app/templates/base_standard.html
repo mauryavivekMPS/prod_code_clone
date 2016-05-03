@@ -112,6 +112,12 @@
                             <a href="{% url 'home' %}">Dashboard</a>
                         </li>
                     {% endif %}
+                    <li class="alert_menu_item">
+                        <a href="{% url 'alerts.list' %}">Alerts</a>
+                    </li>
+                    <li class="notification_menu_item">
+                        <a href="{% url 'notifications.list' %}">Notifications</a>
+                    </li>
                     <li class="reports_menu_item">
                         <a class="external-link" href="http://login.vizors.org" target="_blank">Reports <span class="lnr lnr-launch"></span></a>
                     </li>

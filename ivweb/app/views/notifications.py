@@ -14,23 +14,32 @@ log = logging.getLogger(__name__)
 
 
 @login_required
-def list_notifications(request, publisher_id=None):
-    if publisher_id:
-        all_notifications = Notification_Summary.objects.filter(publisher_id=publisher_id)
-        alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.filter(publisher_id=publisher_id)}
-    else:
-        all_notifications = Notification_Summary.objects.all()
-        alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.all()}
-
+def list_notifications(request):
     filter_param = request.GET.get('filter', request.COOKIES.get('notification-list-filter', 'active'))
-
     show_dismissed = filter_param == 'dismissed'
-    filtered_notifications = all_notifications.filter(dismissed=show_dismissed)
+
+    single_publisher_user = False
+    if request.user.superuser:
+        filtered_notifications = Notification_Summary.objects.filter(dismissed=show_dismissed)
+        alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.all()}
+    else:
+        accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+
+        # need to do this the long way because cassandra does not support IN for partition keys in certain situations
+        filtered_notifications = []
+        for publisher_id in accessible_publisher_ids:
+            for notification in Notification_Summary.objects.filter(publisher_id=publisher_id, dismissed=show_dismissed):
+                filtered_notifications.append(notification)
+
+        alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.filter(publisher_id__in=accessible_publisher_ids)}
+
+        if len(accessible_publisher_ids) == 1:
+            single_publisher_user = True
 
     for notification in filtered_notifications:
         setattr(notification, 'alert_name', alerts_by_alert_id[notification.alert_id].name)
 
-    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('notification-list-sort', 'publisher_id'))
+    sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('notification-list-sort', 'alert_name'))
     sorted_notifications = sorted(filtered_notifications, key=attrgetter(sort_key), reverse=sort_descending)
 
     response = render(request, 'notifications/list.html', {
@@ -39,6 +48,7 @@ def list_notifications(request, publisher_id=None):
         'filter_param': filter_param,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
+        'single_publisher_user': single_publisher_user,
     })
 
     response.set_cookie('notification-list-sort', value=sort_param, max_age=30*24*60*60)
