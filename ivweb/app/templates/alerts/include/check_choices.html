@@ -1,0 +1,5 @@
+<select name="check_id" id="id_check_id" class="form-control">
+    {% for choice in check_choices %}
+        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+    {% endfor %}
+</select>

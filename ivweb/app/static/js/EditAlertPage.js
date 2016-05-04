@@ -1,6 +1,7 @@
 var EditAlertPage = (function() {
     var alertParamsUrl;
     var alertFiltesUrl;
+    var checkChoicesUrl;
     var params = [];
     var filters = [];
 
@@ -70,9 +71,31 @@ var EditAlertPage = (function() {
             });
     };
 
+    var onPublisherOrCheckChange = function() {
+        updateAlertName();
+        updateParams();
+        updateFilters();
+        checkForm();
+    };
+
+    var updateCheckChoices = function() {
+        var data = [
+            {name: 'publisher_id', value: $('#id_publisher_id option:selected').val()}
+        ];
+
+        $.get(checkChoicesUrl, data)
+            .done(function(html) {
+                $('.check-control-container').html(html);
+                $('#id_check_id').on('change', function() {
+                    $(this).removeClass('placeholder');
+                    onPublisherOrCheckChange();
+                });
+                onPublisherOrCheckChange();
+            });
+    };
+
     var updateParams = function() {
         var checkId = $('#id_check_id option:selected').val();
-        var publisherId = $("#id_publisher_id option:selected").val();
 
         $(this).removeClass('placeholder');
 
@@ -90,35 +113,28 @@ var EditAlertPage = (function() {
             });
     };
 
+    var updateAlertName = function() {
+        var selectedCheck = $('#id_check_id option:selected');
+        var selectedPublisher = $('#id_publisher_id option:selected');
+        $('#id_name').val(selectedCheck.text() + ' for ' + selectedPublisher.text());
+    };
+
     var init = function(options) {
         options = $.extend({
             alertParamsUrl: '',
             alertFiltersUrl: '',
+            checkChoicesUrl: '',
             selectedCheck: null
         }, options);
 
         alertParamsUrl = options.alertParamsUrl;
         alertFiltersUrl = options.alertFiltersUrl;
+        checkChoicesUrl = options.checkChoicesUrl;
 
-        var nullCheckItem = $('#id_check_id option:first-child');
-        nullCheckItem.attr('disabled', 'disabled');
-        if (!options.selectedCheck) {
-            $('#id_check_id').addClass('placeholder');
-            nullCheckItem.attr('selected', 'selected');
-        }
-
-        $('#id_check_id').on('change', function() {
-            $(this).removeClass('placeholder');
-            updateParams();
+        $('#id_publisher_id').on('change', function() {
+            updateCheckChoices();
         });
-
-        $('#id_check_id, #id_publisher_id').on('change', function() {
-            var selectedCheck = $('#id_check_id option:selected');
-            var selectedPublisher = $('#id_publisher_id option:selected');
-            $('#id_name').val(selectedCheck.text() + ' for ' + selectedPublisher.text());
-            updateFilters();
-            checkForm();
-        });
+        updateCheckChoices();
 
         $('#id_name').on('keyup', function() {
             checkForm();

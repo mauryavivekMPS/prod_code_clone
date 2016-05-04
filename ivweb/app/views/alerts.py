@@ -3,10 +3,12 @@ import json
 from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
+from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
-from ivetl.alerts import checks, check_choices
+from ivetl.alerts import checks
+from ivetl.common import common
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -71,12 +73,12 @@ class AlertForm(forms.Form):
 
         super(AlertForm, self).__init__(initial=initial, *args, **kwargs)
 
-        self.fields['check_id'].choices = [('', 'Select a check')] + check_choices
-
         if user.superuser:
             self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in Publisher_Metadata.objects.all()]
         else:
             self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
+
+        # self.fields['check_id'].choices = [('', 'Select a check')] + check_choices
 
     def save(self):
         alert_id = self.cleaned_data['alert_id']
@@ -198,4 +200,21 @@ def include_alert_filters(request):
     return render(request, 'alerts/include/filters.html', {
         'check': check,
         'is_include': True,
+    })
+
+
+@login_required
+def include_check_choices(request):
+    publisher_id = request.GET['publisher_id']
+    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    supported_checks = set()
+    for check_id, check in checks.items():
+        for product in check['products']:
+            if product in publisher.supported_products:
+                supported_checks.add(check_id)
+
+    check_choices = [(check_id, checks[check_id]['name']) for check_id in supported_checks]
+
+    return render(request, 'alerts/include/check_choices.html', {
+        'check_choices': check_choices,
     })

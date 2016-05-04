@@ -71,6 +71,7 @@ urlpatterns = patterns(
     url(r'^deletefile/$', 'pipelines.delete_pending_file_inline', name='pipelines.delete_pending_file_inline'),
     url(r'^includealertparams/$', 'alerts.include_alert_params', name='alerts.include_alert_params'),
     url(r'^includealertfilters/$', 'alerts.include_alert_filters', name='alerts.include_alert_filters'),
+    url(r'^includecheckchoices/$', 'alerts.include_check_choices', name='alerts.include_check_choices'),
     url(r'^includenotificationdetails/$', 'notifications.include_notification_details', name='notifications.include_notification_details'),
     url(r'^dismissnotification/$', 'notifications.dismiss_notification', name='notifications.dismiss_notification'),
 

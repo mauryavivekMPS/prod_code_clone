@@ -1,6 +1,7 @@
 import json
 import datetime
 from ivetl.models import Alert, Notification, Notification_Summary
+from ivetl.common import common
 
 
 def exceeds_integer(new_value=None, old_value=None, params=None):
@@ -60,6 +61,9 @@ checks = {
             {'key': 'new_value', 'name': 'Saves', 'align': 'right'},
             {'key': 'delta', 'name': 'Increase', 'align': 'right'},
         ],
+        'products': [
+            'published_articles',
+        ]
         # set up example for threshold = 100
     },
 
@@ -72,6 +76,9 @@ checks = {
             {'key': 'doi', 'name': 'DOI'},
             {'key': 'new_value', 'name': 'Citations', 'align': 'right'},
             {'key': 'delta', 'name': 'Increase', 'align': 'right'},
+        ],
+        'products': [
+            'article_citations',
         ]
         # example threshold = 2000
     },
@@ -85,13 +92,14 @@ checks = {
             {'key': 'old_value', 'name': 'Previous Uptime', 'align': 'right'},
             {'key': 'new_value', 'name': 'Current Uptime', 'align': 'right'},
             {'key': 'percentage_increase', 'name': 'Increase', 'align': 'right'},
+        ],
+        'products': [
+            'highwire_sites',
         ]
         # add filtering for check metadata, e.g. site_type == homepage
         # looking at avg_response_ms from checkstat
     },
 }
-
-check_choices = [(check_id, checks[check_id]['name']) for check_id in checks]
 
 
 def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None, extra_values=None):

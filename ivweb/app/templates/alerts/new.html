@@ -23,17 +23,17 @@
                     {{ form.alert_id }}
                     {{ form.check_params }}
 
-                    <div class="form-group row">
-                        <label for="check_id" class="col-sm-2">Check</label>
-                        <div class="col-sm-4">
-                            {{ form.check_id }}
+                    <div class="form-group row" {% if single_publisher_user %}style="display:none"{% endif %}>
+                        <label for="publisher_id" class="col-sm-2">Publisher</label>
+                        <div class="col-sm-6">
+                            {{ form.publisher_id }}
                         </div>
                     </div>
 
-                    <div class="form-group row" {% if single_publisher_user %}style="display:none"{% endif %}>
-                        <label for="publisher_id" class="col-sm-2">Publisher</label>
-                        <div class="col-sm-4">
-                            {{ form.publisher_id }}
+                    <div class="form-group row">
+                        <label for="check_id" class="col-sm-2">Check</label>
+                        <div class="col-sm-6 check-control-container">
+                            <select class="form-control"></select>
                         </div>
                     </div>
 
@@ -87,6 +87,7 @@
             EditAlertPage.init({
                 alertParamsUrl: '{% url 'alerts.include_alert_params' %}',
                 alertFiltersUrl: '{% url 'alerts.include_alert_filters' %}',
+                checkChoicesUrl: '{% url 'alerts.include_check_choices' %}',
                 selectedCheck: '{{ form.initial.check_id }}'
             });
         });
