@@ -30,7 +30,7 @@ if __name__ == "__main__":
             cols = f.readline().strip()
 
             for line in f.readlines():
-                s = 'insert into %s (%s) values (%s);' % (table_name, cols, line.strip())
+                s = 'insert into %s (%s) values (%s);' % (table_name, cols, line.strip().replace("\\n", "\n"))
                 connection.execute(s)
                 line_count += 1
 
