@@ -11,5 +11,3 @@ class Notification(Model):
     pipeline_id = columns.Text(primary_key=True)
     job_id = columns.Text(primary_key=True)
     values_json = columns.Text()
-    notification_date = columns.DateTime()
-    dismissed = columns.Boolean()
