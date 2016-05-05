@@ -49,6 +49,7 @@
             ListNotificationsPage.init({
                 notificationDetailsUrl: '{% url 'notifications.include_notification_details' %}',
                 dismissNotificationUrl: '{% url 'notifications.dismiss_notification' %}',
+                openNotification: '{{ open_notification }}',
                 csrfToken: '{{ csrf_token }}'
             });
         });

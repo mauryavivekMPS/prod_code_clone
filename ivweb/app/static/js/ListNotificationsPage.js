@@ -4,6 +4,7 @@ var ListNotificationsPage = (function() {
         options = $.extend({
             notificationDetailsUrl: '',
             dismissNotificationUrl: '',
+            openNotification: null,
             csrfToken: ''
         }, options);
 
@@ -44,9 +45,12 @@ var ListNotificationsPage = (function() {
                     });
             }
 
-
             return false;
         });
+
+        if (options.openNotification) {
+            $('.notification-summary-' + options.openNotification + ' .open-notification-details-link').click();
+        }
     };
 
     return {

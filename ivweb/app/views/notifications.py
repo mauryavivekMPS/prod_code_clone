@@ -42,6 +42,8 @@ def list_notifications(request):
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('notification-list-sort', 'alert_name'))
     sorted_notifications = sorted(filtered_notifications, key=attrgetter(sort_key), reverse=sort_descending)
 
+    open_notification = request.GET.get('notification_summary_id')
+
     response = render(request, 'notifications/list.html', {
         'notifications': sorted_notifications,
         'reset_url': reverse('notifications.list') + '?sort=' + sort_param + '&filter=' + filter_param,
@@ -49,6 +51,7 @@ def list_notifications(request):
         'sort_key': sort_key,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
+        'open_notification': open_notification,
     })
 
     response.set_cookie('notification-list-sort', value=sort_param, max_age=30*24*60*60)
