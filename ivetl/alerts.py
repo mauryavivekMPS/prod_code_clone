@@ -1,7 +1,6 @@
 import json
 import datetime
 from ivetl.models import Alert, Notification, Notification_Summary
-from ivetl.common import common
 
 
 def exceeds_integer(new_value=None, old_value=None, params=None):
@@ -113,14 +112,17 @@ def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=Non
 
         if alert.enabled:
             check_params = json.loads(alert.check_params)
-            check_filters = json.loads(alert.check_filters)
+            filter_params = json.loads(alert.filter_params)
 
             # run the instance through filters
             passed_filters = True
-            if check_filters:
-                for check_filter in check_filters:
-                    # TODO: rework this for multiple
-                    pass
+            if filter_params:
+                for param_name, param_value in filter_params.items():
+                    required_value = param_value.lower()
+                    given_value = extra_values.get(param_name, '').lower()
+                    if not required_value == given_value:
+                        passed_filters = False
+                        break
 
             if passed_filters:
 

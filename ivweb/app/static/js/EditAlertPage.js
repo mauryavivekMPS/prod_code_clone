@@ -1,6 +1,6 @@
 var EditAlertPage = (function() {
     var alertParamsUrl;
-    var alertFiltesUrl;
+    var alertFiltersUrl;
     var checkChoicesUrl;
     var params = [];
     var filters = [];
@@ -138,7 +138,9 @@ var EditAlertPage = (function() {
         $('#id_publisher_id').on('change', function() {
             updateCheckChoices();
         });
-        updateCheckChoices();
+        if (!options.selectedCheck) {
+            updateCheckChoices();
+        }
 
         $('#id_name').on('keyup', function() {
             checkForm();

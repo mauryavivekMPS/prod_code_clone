@@ -55,10 +55,10 @@ class AlertForm(forms.Form):
     alert_id = forms.CharField(widget=forms.HiddenInput, required=False)
     publisher_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
-    check_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
+    check_id = forms.CharField(required=True)
     check_params = forms.CharField(widget=forms.HiddenInput, required=False)
     filter_params = forms.CharField(widget=forms.HiddenInput, required=False)
-    comma_separated_emails = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=True)
+    comma_separated_emails = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
 
     def __init__(self, *args, instance=None, user=None, **kwargs):
@@ -170,13 +170,16 @@ def edit(request, alert_id=None):
     if alert:
         check = checks[alert.check_id]
         _add_filter_values(alert.publisher_id, check)
+        check_choices = get_check_choices_for_publisher(alert.publisher_id)
     else:
         check = None
+        check_choices = []
 
     return render(request, 'alerts/new.html', {
         'form': form,
         'alert': alert,
         'check': check,
+        'check_choices': check_choices,
         'single_publisher_user': single_publisher_user,
     })
 
@@ -203,9 +206,7 @@ def include_alert_filters(request):
     })
 
 
-@login_required
-def include_check_choices(request):
-    publisher_id = request.GET['publisher_id']
+def get_check_choices_for_publisher(publisher_id):
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
     supported_checks = set()
     for check_id, check in checks.items():
@@ -213,8 +214,13 @@ def include_check_choices(request):
             if product in publisher.supported_products:
                 supported_checks.add(check_id)
 
-    check_choices = [(check_id, checks[check_id]['name']) for check_id in supported_checks]
+    return [(check_id, checks[check_id]['name']) for check_id in supported_checks]
 
+
+@login_required
+def include_check_choices(request):
+    publisher_id = request.GET['publisher_id']
+    check_choices = get_check_choices_for_publisher(publisher_id)
     return render(request, 'alerts/include/check_choices.html', {
         'check_choices': check_choices,
     })
