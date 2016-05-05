@@ -379,6 +379,8 @@ IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
 IS_QA = os.environ.get('IVETL_QA', '0') == '1'
 IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 
+IVETL_WEB_ADDRESS = os.environ.get('IVETL_WEB_ADDRESS', 'http://localhost:8000')
+
 CASSANDRA_IP_LIST = os.environ.get('IVETL_CASSANDRA_IP', '127.0.0.1').split(',')
 CASSANDRA_KEYSPACE_IV = os.environ.get('IVETL_CASSANDRA_KEYSPACE', 'impactvizor')
 

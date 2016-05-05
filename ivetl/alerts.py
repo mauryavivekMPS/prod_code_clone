@@ -1,6 +1,8 @@
 import json
 import datetime
-from ivetl.models import Alert, Notification, Notification_Summary
+from django.core.urlresolvers import reverse
+from ivetl.models import Alert, Notification, Notification_Summary, Publisher_Metadata
+from ivetl.common import common
 
 
 def exceeds_integer(new_value=None, old_value=None, params=None):
@@ -162,7 +164,7 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
 
         values_list = [json.loads(n.values_json) for n in notifications_for_alert]
 
-        Notification_Summary.objects.create(
+        notification_summary = Notification_Summary.objects.create(
             publisher_id=publisher_id,
             alert_id=alert.alert_id,
             product_id=product_id,
@@ -174,3 +176,16 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
         )
 
         # send notification email with a link to the notification page with notification open
+        num_notifications = len(values_list)
+        subject = 'Impact Vizor (%s): %s notifications for %s' % (publisher_id, num_notifications, alert.name)
+        body = '<p>There are <b>%s</b> new notifications for <br>%s</b>:</p>' % (num_notifications, alert.name)
+        body += '<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s?notification_summary_id=%s">View notification details</a></p>' % (reverse('notifications.list'), notification_summary)
+        body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+
+        if alert.emails:
+            to = ",".join(alert.emails)
+        else:
+            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+            to = publisher.email
+
+        common.send_email(subject, body, to=to)
