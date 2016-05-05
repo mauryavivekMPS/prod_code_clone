@@ -72,9 +72,14 @@ var EditAlertPage = (function() {
     };
 
     var onPublisherOrCheckChange = function() {
-        updateAlertName();
-        updateParams();
-        updateFilters();
+        if ($('#id_check_id option').length > 0) {
+            updateAlertName();
+            updateParams();
+            updateFilters();
+        }
+        else {
+            $('#id_name').val('');
+        }
         checkForm();
     };
 
@@ -87,7 +92,6 @@ var EditAlertPage = (function() {
             .done(function(html) {
                 $('.check-control-container').html(html);
                 $('#id_check_id').on('change', function() {
-                    $(this).removeClass('placeholder');
                     onPublisherOrCheckChange();
                 });
                 onPublisherOrCheckChange();
