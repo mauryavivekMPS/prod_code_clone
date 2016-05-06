@@ -59,6 +59,10 @@ class SassConnector(BaseConnector):
 
                         # is open access
                         oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
+                        if len(oa) > 0:
+                            oa = 'Yes'
+                        else:
+                            oa = 'No'
                         metadata['is_open_access'] = oa
 
                         # Article Type

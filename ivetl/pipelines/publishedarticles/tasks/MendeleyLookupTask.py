@@ -61,7 +61,7 @@ class MendeleyLookupTask(Task):
                         extra_values={'doi': doi, 'issn': issn}
                     )
                 except:
-                    tlogger.info("General Exception - Mendelez API failed. Moving to next article...")
+                    tlogger.info("General Exception - Mendelez API failed for %s. Moving to next article..." % doi)
 
                 row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
 

@@ -29,7 +29,10 @@
                 <tbody>
                     {% for notification in notifications %}
                         <tr class="notification-summary-row notification-summary-{{ notification.notification_summary_id }}" >
-                            <td><a href="#" class="open-notification-details-link" notification_summary_id="{{ notification.notification_summary_id }}" publisher_id="{{ notification.publisher_id }}">{{ notification.alert_name }}</a></td>
+                            <td>
+                                <a href="#" class="open-notification-details-link" notification_summary_id="{{ notification.notification_summary_id }}" publisher_id="{{ notification.publisher_id }}">{{ notification.alert_name }}</a>
+                                <a id="notification-{{ notification.notification_summary_id }}" class="tweaky-notification-anchor"></a>
+                            </td>
                             {% if not single_publisher_user %}
                                 <td>{{ notification.publisher_id }}</td>
                             {% endif %}

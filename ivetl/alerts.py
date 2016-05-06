@@ -162,30 +162,41 @@ def send_alert_notifications(check_id=None, publisher_id=None, product_id=None, 
             job_id=job_id,
         )
 
-        values_list = [json.loads(n.values_json) for n in notifications_for_alert]
+        if notifications_for_alert:
 
-        notification_summary = Notification_Summary.objects.create(
-            publisher_id=publisher_id,
-            alert_id=alert.alert_id,
-            product_id=product_id,
-            pipeline_id=pipeline_id,
-            job_id=job_id,
-            values_list_json=json.dumps(values_list),
-            notification_date=now,
-            dismissed=False,
-        )
+            values_list = [json.loads(n.values_json) for n in notifications_for_alert]
 
-        # send notification email with a link to the notification page with notification open
-        num_notifications = len(values_list)
-        subject = 'Impact Vizor (%s): %s notifications for %s' % (publisher_id, num_notifications, alert.name)
-        body = '<p>There are <b>%s</b> new notifications for <br>%s</b>:</p>' % (num_notifications, alert.name)
-        body += '<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s?notification_summary_id=%s">View notification details</a></p>' % (reverse('notifications.list'), notification_summary)
-        body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+            notification_summary = Notification_Summary.objects.create(
+                publisher_id=publisher_id,
+                alert_id=alert.alert_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                values_list_json=json.dumps(values_list),
+                notification_date=now,
+                dismissed=False,
+            )
 
-        if alert.emails:
-            to = ",".join(alert.emails)
-        else:
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-            to = publisher.email
+            # send notification email with a link to the notification page with notification open
+            num_notifications = len(values_list)
+            subject = 'Impact Vizor (%s): %s notifications for %s' % (publisher_id, num_notifications, alert.name)
+            body = """
+                <p>There are <b>%s</b> new notifications for <b>%s</b>:</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s%s?notification_summary_id=%s#notification-%s">View notification details</a></p>
+                <p>Thank you,<br/>Impact Vizor Team</p>
+            """ % (
+                num_notifications,
+                alert.name,
+                common.IVETL_WEB_ADDRESS,
+                reverse('notifications.list'),
+                notification_summary.notification_summary_id,
+                notification_summary.notification_summary_id,
+            )
 
-        common.send_email(subject, body, to=to)
+            if alert.emails:
+                to = ",".join(alert.emails)
+            else:
+                publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+                to = publisher.email
+
+            common.send_email(subject, body, to=to)
