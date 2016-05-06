@@ -27,9 +27,23 @@ class LoadDrupalMetadataTask(Task):
 
                             if 'instances' in site:
                                 if site_key + '_production' in site['instances']:
-                                    site_url = site['instances'][site_key + '_production'].get('primary_url')
+                                    if 'production_url' in site['instances'][site_key + '_production']:
+                                        site_url = site['instances'][site_key + '_production'].get('production_url')
+                                    else:
+                                        site_url = site['instances'][site_key + '_production'].get('primary_url')
                                 elif 'production_' + site_key in site['instances']:
-                                    site_url = site['instances']['production_' + site_key].get('primary_url')
+                                    if 'production_url' in site['instances']['production_' + site_key]:
+                                        site_url = site['instances']['production_' + site_key].get('production_url')
+                                    else:
+                                        site_url = site['instances']['production_' + site_key].get('primary_url')
+                                elif list(site['instances'].values())[0]:
+                                    if 'production_url' in list(site['instances'].values())[0]:
+                                        site_url = list(site['instances'].values())[0].get('production_url')
+                                    else:
+                                        site_url = list(site['instances'].values())[0].get('primary_url')
+                                else:
+                                    site_url = ""
+                                    tlogger.info("\n No site_url found for " + site_id)
 
                             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 

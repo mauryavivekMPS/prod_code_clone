@@ -9,7 +9,7 @@ unset IVETL_QA
 IVETL_ROOT=/iv/impactvizor-pipeline
 export IVETL_ROOT
 
-IVETL_CASSANDRA_IP=10.0.1.12
+IVETL_CASSANDRA_IP=10.0.1.59
 export IVETL_CASSANDRA_IP
 
 DJANGO_SETTINGS_MODULE=ivweb.settings.prod

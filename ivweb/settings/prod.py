@@ -8,7 +8,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django_cassandra_engine',
         'NAME': 'impactvizor',
-        'HOST': '10.0.1.12',
+        'HOST': '10.0.1.59',
     }
 }
 
