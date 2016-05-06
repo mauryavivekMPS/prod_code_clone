@@ -178,7 +178,7 @@ class GetHighWireMetadataTask(Task):
                             if not metadata:
                                 metadata = sass.get_metadata(publisher_id, hw_journal_code, doi, tlogger)
 
-                            data.join(metadata)
+                            data.update(metadata)
 
                         row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
                         target_file.write(row)
