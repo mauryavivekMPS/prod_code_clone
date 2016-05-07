@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from ivetl.models import Notification_Summary, Alert
-from ivetl.alerts import checks
+from ivetl.alerts import CHECKS
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
 
@@ -66,7 +66,7 @@ def include_notification_details(request):
     publisher_id = request.GET['publisher_id']
     notification_summary = Notification_Summary.objects.get(publisher_id=publisher_id, notification_summary_id=notification_summary_id)
     alert = Alert.objects.get(alert_id=notification_summary.alert_id)
-    check = checks[alert.check_id]
+    check = CHECKS[alert.check_id]
     values_list = json.loads(notification_summary.values_list_json)
 
     ordered_values_list = []

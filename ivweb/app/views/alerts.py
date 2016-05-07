@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
-from ivetl.alerts import checks
+from ivetl.alerts import CHECKS
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
 
@@ -93,7 +93,7 @@ class AlertForm(forms.Form):
                 check_id=check_id,
             )
 
-        check = checks[check_id]
+        check = CHECKS[check_id]
         params = {}
         for check_param in check['check_type'].get('params', []):
             param_name = check_param['name']
@@ -130,7 +130,7 @@ class AlertForm(forms.Form):
 
 def _add_filter_values(publisher_id, check):
     for check_filter in check.get('filters', []):
-        filter_name = check_filter['name']
+        filter_name = check_filter['table'] + '.' + check_filter['name']
         try:
             values = json.loads(Attribute_Values.objects.get(publisher_id=publisher_id, name=filter_name).values_json)
         except Attribute_Values.DoesNotExist:
@@ -168,7 +168,7 @@ def edit(request, alert_id=None):
         form = AlertForm(instance=alert, user=request.user)
 
     if alert:
-        check = checks[alert.check_id]
+        check = CHECKS[alert.check_id]
         _add_filter_values(alert.publisher_id, check)
         check_choices = get_check_choices_for_publisher(alert.publisher_id)
     else:
@@ -188,7 +188,7 @@ def edit(request, alert_id=None):
 def include_alert_params(request):
     check_id = request.GET['check_id']
     return render(request, 'alerts/include/params.html', {
-        'check': checks[check_id],
+        'check': CHECKS[check_id],
         'is_include': True,
     })
 
@@ -197,7 +197,7 @@ def include_alert_params(request):
 def include_alert_filters(request):
     check_id = request.GET['check_id']
     publisher_id = request.GET['publisher_id']
-    check = checks[check_id]
+    check = CHECKS[check_id]
     _add_filter_values(publisher_id, check)
 
     return render(request, 'alerts/include/filters.html', {
@@ -209,12 +209,12 @@ def include_alert_filters(request):
 def get_check_choices_for_publisher(publisher_id):
     publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
     supported_checks = set()
-    for check_id, check in checks.items():
+    for check_id, check in CHECKS.items():
         for product in check['products']:
             if product in publisher.supported_products:
                 supported_checks.add(check_id)
 
-    return [(check_id, checks[check_id]['name']) for check_id in supported_checks]
+    return [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
 
 
 @login_required

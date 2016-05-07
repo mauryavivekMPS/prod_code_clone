@@ -26,7 +26,7 @@ def percentage_change(new_value=None, old_value=None, params=None):
         else:
             return False, {}
 
-check_types = {
+CHECK_TYPES = {
     'exceeds-integer': {
         'function': exceeds_integer,
         'params': [
@@ -41,17 +41,17 @@ check_types = {
     },
 }
 
-checks = {
+CHECKS = {
     'mendeley-saves-exceeds-integer': {
         'name': 'Mendeley Saves Exceeds Integer',
-        'check_type': check_types['exceeds-integer'],
+        'check_type': CHECK_TYPES['exceeds-integer'],
         'filters': [
-            {'name': 'article_type', 'label': 'Article Type', 'values_cache': 'article_type'},
-            {'name': 'subject_category', 'label': 'Subject Category', 'values_cache': 'subject_category'},
-            {'name': 'is_open_access', 'label': 'Open Access', 'values_cache': 'is_open_access'},
-            {'name': 'custom', 'label': 'Custom 1', 'values_cache': 'custom'},
-            {'name': 'custom', 'label': 'Custom 2', 'values_cache': 'custom_2'},
-            {'name': 'custom', 'label': 'Custom 3', 'values_cache': 'custom_3'},
+            {'name': 'article_type', 'label': 'Article Type', 'table': 'published_article'},
+            {'name': 'subject_category', 'label': 'Subject Category', 'table': 'published_article'},
+            {'name': 'is_open_access', 'label': 'Open Access', 'table': 'published_article'},
+            {'name': 'custom', 'label': 'Custom 1', 'table': 'published_article'},
+            {'name': 'custom', 'label': 'Custom 2', 'table': 'published_article'},
+            {'name': 'custom', 'label': 'Custom 3', 'table': 'published_article'},
         ],
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
         'table_order': [
@@ -68,14 +68,14 @@ checks = {
 
     'citations-exceeds-integer': {
         'name': 'Citations Exceeds Integer',
-        'check_type': check_types['exceeds-integer'],
+        'check_type': CHECK_TYPES['exceeds-integer'],
         'filters': [
-            {'name': 'article_type', 'label': 'Article Type', 'values_cache': 'article_type'},
-            {'name': 'subject_category', 'label': 'Subject Category', 'values_cache': 'subject_category'},
-            {'name': 'is_open_access', 'label': 'Open Access', 'values_cache': 'is_open_access'},
-            {'name': 'custom', 'label': 'Custom 1', 'values_cache': 'custom'},
-            {'name': 'custom', 'label': 'Custom 2', 'values_cache': 'custom_2'},
-            {'name': 'custom', 'label': 'Custom 3', 'values_cache': 'custom_3'},
+            {'name': 'article_type', 'label': 'Article Type', 'table': 'published_article'},
+            {'name': 'subject_category', 'label': 'Subject Category', 'table': 'published_article'},
+            {'name': 'is_open_access', 'label': 'Open Access', 'table': 'published_article'},
+            {'name': 'custom', 'label': 'Custom 1', 'table': 'published_article'},
+            {'name': 'custom', 'label': 'Custom 2', 'table': 'published_article'},
+            {'name': 'custom', 'label': 'Custom 3', 'table': 'published_article'},
         ],
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations',
         'table_order': [
@@ -85,14 +85,19 @@ checks = {
             {'key': 'delta', 'name': 'Increase', 'align': 'right'},
         ],
         'products': [
-            'article_citations',
+            'published_articles',
         ]
         # example threshold = 2000
     },
 
     'uptime-percentage-decrease-over-five-days': {
         'name': 'Site Uptime Percentage Increase Over Five Days',
-        'check_type': check_types['percentage-change'],
+        'check_type': CHECK_TYPES['percentage-change'],
+        'filters': [
+            {'name': 'check_type', 'label': 'Check Type', 'table': 'uptime_check_metadata'},
+            {'name': 'site_type', 'label': 'Site Type', 'table': 'uptime_check_metadata'},
+            {'name': 'site_platform', 'label': 'Site Platform', 'table': 'uptime_check_metadata'},
+        ],
         'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
         'table_order': [
             {'key': 'site_code', 'name': 'Site Code'},
@@ -103,7 +108,6 @@ checks = {
         'products': [
             'highwire_sites',
         ]
-        # add filtering for check metadata, e.g. site_type == homepage
         # looking at avg_response_ms from checkstat
     },
 }
@@ -112,7 +116,7 @@ checks = {
 def run_alert(check_id=None, publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None, extra_values=None):
 
     # get the check metadata
-    check = checks[check_id]
+    check = CHECKS[check_id]
     check_function = check['check_type']['function']
 
     # get all alerts for this publisher for this check

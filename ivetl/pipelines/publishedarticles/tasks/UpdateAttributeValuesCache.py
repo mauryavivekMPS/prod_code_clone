@@ -2,6 +2,7 @@ import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Published_Article, Attribute_Values
+from ivetl.alerts import CHECKS
 
 
 @app.task
@@ -11,7 +12,13 @@ class UpdateAttributeValuesCacheTask(Task):
 
         all_articles = Published_Article.objects.filter(publisher_id=publisher_id)
 
-        value_names = ['article_type', 'is_open_access', 'subject_category', 'custom', 'custom_2', 'custom_3']
+        value_names = set()
+
+        # look through all the alerts for published_article values
+        for check_id, check in CHECKS.items():
+            for f in check.get('filters', []):
+                if f['table'] == 'published_article':
+                    value_names.add(f['name'])
 
         total_count = len(all_articles) * len(value_names)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -27,7 +34,7 @@ class UpdateAttributeValuesCacheTask(Task):
 
             Attribute_Values.objects(
                 publisher_id=publisher_id,
-                name=name,
+                name='published_article.' + name,
             ).update(
                 values_json=json.dumps(list(values))
             )
