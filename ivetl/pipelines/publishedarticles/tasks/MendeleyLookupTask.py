@@ -58,7 +58,15 @@ class MendeleyLookupTask(Task):
                         job_id=job_id,
                         old_value=old_saves_value,
                         new_value=new_saves_value,
-                        extra_values={'doi': doi, 'issn': issn}
+                        extra_values={
+                            'doi': doi,
+                            'issn': issn,
+                            'article_type': article.article_type,
+                            'subject_category': article.subject_category,
+                            'custom': article.custom,
+                            'custom_2': article.custom_2,
+                            'custom_3': article.custom_3,
+                        }
                     )
                 except:
                     tlogger.info("General Exception - Mendelez API failed for %s. Moving to next article..." % doi)

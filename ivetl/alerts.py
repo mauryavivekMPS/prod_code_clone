@@ -41,8 +41,6 @@ check_types = {
     },
 }
 
-# associate checks with pipelines so that they can be hidden in the UI when appropriate
-
 checks = {
     'mendeley-saves-exceeds-integer': {
         'name': 'Mendeley Saves Exceeds Integer',
@@ -71,6 +69,14 @@ checks = {
     'citations-exceeds-integer': {
         'name': 'Citations Exceeds Integer',
         'check_type': check_types['exceeds-integer'],
+        'filters': [
+            {'name': 'article_type', 'label': 'Article Type', 'values_cache': 'article_type'},
+            {'name': 'subject_category', 'label': 'Subject Category', 'values_cache': 'subject_category'},
+            {'name': 'is_open_access', 'label': 'Open Access', 'values_cache': 'is_open_access'},
+            {'name': 'custom', 'label': 'Custom 1', 'values_cache': 'custom'},
+            {'name': 'custom', 'label': 'Custom 2', 'values_cache': 'custom_2'},
+            {'name': 'custom', 'label': 'Custom 3', 'values_cache': 'custom_3'},
+        ],
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations',
         'table_order': [
             {'key': 'issn', 'name': 'ISSN'},

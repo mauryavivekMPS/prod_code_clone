@@ -120,7 +120,15 @@ class UpdateArticleCitationsWithCrossref(Task):
                 job_id=job_id,
                 old_value=old_citation_count,
                 new_value=new_citation_count,
-                extra_values={'doi': doi, 'issn': issn}
+                extra_values={
+                    'doi': doi,
+                    'issn': issn,
+                    'article_type': published_article.article_type,
+                    'subject_category': published_article.subject_category,
+                    'custom': published_article.custom,
+                    'custom_2': published_article.custom_2,
+                    'custom_3': published_article.custom_3,
+                }
             )
 
             # update the count *after* we've compared the new to old
