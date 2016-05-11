@@ -27,23 +27,33 @@ class LoadDrupalMetadataTask(Task):
 
                             if 'instances' in site:
                                 if site_key + '_production' in site['instances']:
+                                    pre_production_site = site['instances'][site_key + '_production'].get('pre_production')
                                     if 'production_url' in site['instances'][site_key + '_production']:
                                         site_url = site['instances'][site_key + '_production'].get('production_url')
                                     else:
                                         site_url = site['instances'][site_key + '_production'].get('primary_url')
+
                                 elif 'production_' + site_key in site['instances']:
+                                    pre_production_site = site['instances']['production_' + site_key].get('pre_production')
                                     if 'production_url' in site['instances']['production_' + site_key]:
                                         site_url = site['instances']['production_' + site_key].get('production_url')
                                     else:
                                         site_url = site['instances']['production_' + site_key].get('primary_url')
+
                                 elif list(site['instances'].values())[0]:
+                                    pre_production_site = list(site['instances'].values())[0].get('pre_production')
                                     if 'production_url' in list(site['instances'].values())[0]:
                                         site_url = list(site['instances'].values())[0].get('production_url')
                                     else:
                                         site_url = list(site['instances'].values())[0].get('primary_url')
                                 else:
                                     site_url = ""
+                                    pre_production_site = 1
                                     tlogger.info("\n No site_url found for " + site_id)
+
+                                if pre_production_site == 1:
+                                    tlogger.info("\n Preproduction Site, skipping: " + site_id)
+                                    continue
 
                             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
