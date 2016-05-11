@@ -9,7 +9,8 @@ from ivetl.alerts import run_alert, send_alert_notifications
 
 @app.task
 class UpdateArticleCitationsWithCrossref(Task):
-    QUERY_LIMIT = 50000000
+    PUBLISHED_ARTICLE_QUERY_LIMIT = 50000000
+    ARTICLE_CITATION_QUERY_LIMIT = 50000000
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         total_count = task_args['count']
@@ -33,7 +34,7 @@ class UpdateArticleCitationsWithCrossref(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
-        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.QUERY_LIMIT)
+        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.PUBLISHED_ARTICLE_QUERY_LIMIT)
         updated_date = datetime.datetime.today()
 
         for article in articles:
@@ -109,7 +110,7 @@ class UpdateArticleCitationsWithCrossref(Task):
 
             published_article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
             old_citation_count = published_article.citation_count
-            new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).count()
+            new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
             issn = published_article.article_journal_issn
 
             run_alert(
