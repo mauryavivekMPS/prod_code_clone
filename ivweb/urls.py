@@ -26,6 +26,14 @@ urlpatterns = patterns(
     url(r'^users/new/$', 'users.edit', name='users.new'),
     url(r'^users/(?P<user_id>[\w\-\.]+)/$', 'users.edit', name='users.edit'),
 
+    # alerts
+    url(r'^alerts/$', 'alerts.list_alerts', name='alerts.list'),
+    url(r'^alerts/new/$', 'alerts.edit', name='alerts.new'),
+    url(r'^alerts/(?P<alert_id>[\w\-\.]+)/$', 'alerts.edit', name='alerts.edit'),
+
+    # notifications
+    url(r'^notifications/$', 'notifications.list_notifications', name='notifications.list'),
+
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
     url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),
@@ -61,5 +69,10 @@ urlpatterns = patterns(
     url(r'^updatedemostatus/$', 'publishers.update_demo_status', name='publishers.update_demo_status'),
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),
     url(r'^deletefile/$', 'pipelines.delete_pending_file_inline', name='pipelines.delete_pending_file_inline'),
+    url(r'^includealertparams/$', 'alerts.include_alert_params', name='alerts.include_alert_params'),
+    url(r'^includealertfilters/$', 'alerts.include_alert_filters', name='alerts.include_alert_filters'),
+    url(r'^includecheckchoices/$', 'alerts.include_check_choices', name='alerts.include_check_choices'),
+    url(r'^includenotificationdetails/$', 'notifications.include_notification_details', name='notifications.include_notification_details'),
+    url(r'^dismissnotification/$', 'notifications.dismiss_notification', name='notifications.dismiss_notification'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,0 +1,60 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Notifications{% endblock %}
+{% block body_class %}notifications{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-12">
+            <h1>Notifications</h1>
+            <ul class="list-tabs">
+                <li><a href="?filter=active" {% if filter_param == 'active' %}class="active"{% endif %}>Active</a></li>
+                <li><a href="?filter=dismissed" {% if filter_param == 'dismissed' %}class="active"{% endif %}>Dismissed</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table sortable-table">
+                <thead>
+                    <tr>
+                        <th>{% sort_column "Alert Name" "alert_name" sort_key sort_descending %}</th>
+                        {% if not single_publisher_user %}
+                            <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                        {% endif %}
+                        <th>{% sort_column "Date" "notification_date" sort_key sort_descending %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                        <tr class="notification-summary-row notification-summary-{{ notification.notification_summary_id }}" >
+                            <td>
+                                <a href="#" class="open-notification-details-link" notification_summary_id="{{ notification.notification_summary_id }}" publisher_id="{{ notification.publisher_id }}">{{ notification.alert_name }}</a>
+                                <a id="notification-{{ notification.notification_summary_id }}" class="tweaky-notification-anchor"></a>
+                            </td>
+                            {% if not single_publisher_user %}
+                                <td>{{ notification.publisher_id }}</td>
+                            {% endif %}
+                            <td>{{ notification.notification_date }}</td>
+                        </tr>
+                        <tr class="notification-details-row notification-details-{{ notification.notification_summary_id }}" style="display:none"></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            ListNotificationsPage.init({
+                notificationDetailsUrl: '{% url 'notifications.include_notification_details' %}',
+                dismissNotificationUrl: '{% url 'notifications.dismiss_notification' %}',
+                openNotification: '{{ open_notification }}',
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

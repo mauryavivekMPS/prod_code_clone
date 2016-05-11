@@ -21,3 +21,7 @@ from ivetl.models.HighwireMetadata import Highwire_Metadata
 from ivetl.models.DrupalMetadata import Drupal_Metadata
 from ivetl.models.SytemGlobal import System_Global
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
+from ivetl.models.Alert import Alert
+from ivetl.models.Notification import Notification
+from ivetl.models.NotificationSummary import Notification_Summary
+from ivetl.models.AttributeValues import Attribute_Values

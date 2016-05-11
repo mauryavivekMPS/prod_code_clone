@@ -68,4 +68,5 @@ class Published_Article(Model):
     month_usage_abstract_60 = columns.Integer()
     usage_start_date = columns.DateTime()
     mendeley_saves = columns.Integer()
+    citation_count = columns.Integer()
     updated = columns.DateTime()

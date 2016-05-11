@@ -9,7 +9,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django_cassandra_engine',
         'NAME': common.CASSANDRA_KEYSPACE_IV,
-        'HOST': common.CASSANDRA_IP,
+        'HOST': ",".join(common.CASSANDRA_IP_LIST),
         'OPTIONS': {
             'replication': {
                 'strategy_class': 'SimpleStrategy',

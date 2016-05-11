@@ -324,6 +324,8 @@ body {
 .publisher:not(.demo) #left-menu .publisher_menu_item,
 .demo #left-menu .demo_menu_item,
 .user #left-menu .user_menu_item,
+.alerts #left-menu .alert_menu_item,
+.notifications #left-menu .notification_menu_item,
 .audit #left-menu .audit_menu_item,
 .published_articles_pipeline #left-menu .published_articles_menu_item,
 .custom_article_data_pipeline #left-menu .custom_article_data_menu_item,
@@ -429,7 +431,7 @@ body {
             }
         }
 
-        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-demo-button, .run-single-publisher-pipeline-button {
+        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
             margin-top: 21px;
             margin-left: 20px;
             float: left;
@@ -449,7 +451,7 @@ body {
                 margin-top: 12px;
             }
 
-            .upload-button, .run-button, .add-publisher-button, .add-user-button, .run-single-publisher-pipeline-button {
+            .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-alert-button, .run-single-publisher-pipeline-button {
                 margin-top: 9px;
             }
 
@@ -2394,4 +2396,92 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             background-color: #FFFAEA;
         }
     }
+}
+
+
+// Notifications list
+// -------------------------
+
+.table > tbody > tr.notification-details-row > td {
+    font-size: 12px;
+    padding-left: 40px;
+
+    .table {
+        width: auto;
+    }
+
+    .notification-details-summary {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 8px;
+
+        .notification-details-arrow {
+            margin-right: 8px;
+            margin-left: -22px;
+            font-size: 11px;
+        }
+    }
+
+    th {
+        text-transform: none;
+        border-bottom: 1px dotted #ddd;
+    }
+
+    td {
+        border-top: 1px dotted #eee;
+        width: 130px;
+    }
+
+    .doi-col {
+        width: 180px;
+    }
+
+    .new_value-col, .delta-col {
+        text-align: right;
+    }
+
+    .dismiss-notification-cross {
+        color: @brand-danger;
+        font-size: 9px;
+        margin-left: 7px;
+    }
+    .dismiss-notification-link {
+        color: @brand-danger;
+    }
+}
+
+//.table > tbody > tr.notification-details-row > td {
+//    padding-left: 40px;
+//}
+
+
+// Typeahead styling
+.typeahead.dropdown-menu {
+    min-width: 300px;
+
+    > li:first-of-type {
+        padding-top: 0;
+    }
+    a:hover, .active a:hover, .active a {
+        background-color: @gray-lighter;
+        color: #333;
+    }
+
+    strong {
+        color: @brand-danger;
+        font-weight: normal;
+    }
+}
+
+
+// Alert page
+.alert-form .submit-row {
+    padding-top: 50px;
+    margin-bottom: 30px;
+}
+
+.tweaky-notification-anchor {
+    display: block;
+    position: relative;
+    top: -90px;
 }

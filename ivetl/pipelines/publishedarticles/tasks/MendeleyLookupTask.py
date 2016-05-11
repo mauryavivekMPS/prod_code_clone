@@ -5,6 +5,8 @@ from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import MendeleyConnector
+from ivetl.alerts import run_alert, send_alert_notifications
+from ivetl.models import Published_Article
 
 
 @app.task
@@ -39,16 +41,49 @@ class MendeleyLookupTask(Task):
                 tlogger.info(str(count-1) + ". Retrieving Mendelez saves for: " + doi)
 
                 try:
-                    data['mendeley_saves'] = mendeley.get_saves(doi)
+                    new_saves_value = mendeley.get_saves(doi)
+                    data['mendeley_saves'] = new_saves_value
+
+                    try:
+                        article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+                        old_saves_value = article.mendeley_saves
+                    except Published_Article.DoesNotExist:
+                        old_saves_value = 0
+
+                    run_alert(
+                        check_id='mendeley-saves-exceeds-integer',
+                        publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
+                        old_value=old_saves_value,
+                        new_value=new_saves_value,
+                        extra_values={
+                            'doi': doi,
+                            'issn': issn,
+                            'article_type': article.article_type,
+                            'subject_category': article.subject_category,
+                            'custom': article.custom,
+                            'custom_2': article.custom_2,
+                            'custom_3': article.custom_3,
+                        }
+                    )
                 except:
-                    tlogger.info("General Exception - Mendelez API failed. Moving to next article...")
+                    tlogger.info("General Exception - Mendelez API failed for %s. Moving to next article..." % doi)
 
                 row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
 
                 target_file.write(row)
-                target_file.flush()
 
         target_file.close()
+
+        send_alert_notifications(
+            check_id='mendeley-saves-exceeds-integer',
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id,
+        )
 
         task_args['input_file'] = target_file_name
         task_args['count'] = count

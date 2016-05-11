@@ -1,0 +1,29 @@
+{% load tags %}
+
+{% if check and check.check_type.params %}
+    <h2>Parameters</h2>
+    {% for check_param in check.check_type.params %}
+        <div class="form-group row">
+            <label for="{{ check_param.name }}" class="col-sm-2">{{ check_param.label }}</label>
+            {% if check_param.type == 'integer' %}
+                <div class="col-sm-2">
+                    <input id="id_param_{{ check_param.name }}" name="{{ check_param.name }}" class="form-control" value="{% if alert %}{% get_alert_param_value alert check_param.name %}{% endif %}">
+                </div>
+            {% elif check_param.type == 'percentage' %}
+                <div class="col-sm-2">
+                    <div class="input-group">
+                        <input id="id_param_{{ check_param.name }}" name="{{ check_param.name }}" class="form-control" value="{% if alert %}{% get_alert_param_value alert check_param.name %}{% endif %}">
+                        <span class="input-group-addon">%</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<script>
+    $(function() {
+        EditAlertPage.setParams({{ check.check_type.params|safe|default:"{}" }});
+        EditAlertPage.checkForm();
+    });
+</script>

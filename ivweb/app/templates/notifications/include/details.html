@@ -1,0 +1,30 @@
+<td colspan="3">
+    <p class="notification-details-summary">
+        <span class="lnr lnr-arrow-right notification-details-arrow"></span>
+        {{ values_list|length }} result{{ values_list|pluralize }} from {{ product.name }}
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                {% for col in check.table_order %}
+                    <th class="{{ col.key }}-col">{{ col.name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in values_list %}
+                <tr>
+                    {% for value in row %}
+                        <td class="{{ value.key }}-col">{{ value.value }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if not notification.dismissed %}
+        <p>
+            <span class="lnr lnr-cross dismiss-notification-cross"></span>
+            <a href="#" class="dismiss-notification-link">Dismiss Notification</a>
+        </p>
+    {% endif %}
+</td>
