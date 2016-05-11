@@ -1,3 +1,4 @@
+from ivetl.common import common
 from ivweb.settings.base import *
 
 LOCAL = False
@@ -8,7 +9,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django_cassandra_engine',
         'NAME': 'impactvizor',
-        'HOST': '10.0.0.115',
+        'HOST': ",".join(common.CASSANDRA_IP_LIST),
     }
 }
 
