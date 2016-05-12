@@ -27,8 +27,13 @@ var EditAlertPage = (function() {
 
         var gotParamValues = true;
         $.each(params, function(index, param) {
+            var requirement = $('.' + param.name + '-requirement');
             if (!$('#id_param_' + param.name).val()) {
+                requirement.removeClass('satisfied');
                 gotParamValues = false;
+            }
+            else {
+                requirement.addClass('satisfied');
             }
         });
 
@@ -43,6 +48,8 @@ var EditAlertPage = (function() {
     var setParams = function(newParams) {
         params = newParams;
         $.each(params, function(index, param) {
+            $('.requirements-items .param-requirement').remove();
+            $('.requirements-items').append('<li class="' + param.name + '-requirement param-requirement">' + param.requirement_text + '<span class="lnr lnr-check checkmark"></span></li>');
             $('#id_param_' + param.name).on('keyup', function() {
                 checkForm();
             });
@@ -97,6 +104,12 @@ var EditAlertPage = (function() {
         checkForm();
     };
 
+    var wireUpCheckChoices = function() {
+        $('#id_check_id').on('change', function() {
+            onPublisherOrCheckChange();
+        });
+    };
+
     var updateCheckChoices = function() {
         var data = [
             {name: 'publisher_id', value: $('#id_publisher_id option:selected').val()}
@@ -105,9 +118,7 @@ var EditAlertPage = (function() {
         $.get(checkChoicesUrl, data)
             .done(function(html) {
                 $('.check-control-container').html(html);
-                $('#id_check_id').on('change', function() {
-                    onPublisherOrCheckChange();
-                });
+                wireUpCheckChoices();
                 onPublisherOrCheckChange();
             });
     };
@@ -149,6 +160,7 @@ var EditAlertPage = (function() {
         if (!options.selectedCheck) {
             updateCheckChoices();
         }
+        wireUpCheckChoices();
 
         $('#id_name, #id_comma_separated_emails').on('keyup', function() {
             checkForm();

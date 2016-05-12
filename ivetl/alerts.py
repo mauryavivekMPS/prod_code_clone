@@ -30,13 +30,23 @@ CHECK_TYPES = {
     'exceeds-integer': {
         'function': exceeds_integer,
         'params': [
-            {'name': 'threshold', 'label': 'Threshold', 'type': 'integer'},
+            {
+                'name': 'threshold',
+                'label': 'Threshold',
+                'type': 'integer',
+                'requirement_text': 'An integer value for threshold'
+            },
         ]
     },
     'percentage-change': {
         'function': percentage_change,
         'params': [
-            {'name': 'percentage_change', 'label': 'Percentage Change', 'type': 'percentage'},
+            {
+                'name': 'percentage_change',
+                'label': 'Percentage Change',
+                'type': 'percentage',
+                'requirement_text': 'A percentage change value'
+            },
         ]
     },
 }
