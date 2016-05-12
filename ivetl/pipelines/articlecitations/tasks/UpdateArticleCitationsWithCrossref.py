@@ -129,6 +129,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                     'custom': published_article.custom,
                     'custom_2': published_article.custom_2,
                     'custom_3': published_article.custom_3,
+                    'article_title': published_article.article_title,
                 }
             )
 

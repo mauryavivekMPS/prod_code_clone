@@ -15,7 +15,7 @@
             {% for row in values_list %}
                 <tr>
                     {% for value in row %}
-                        <td class="{{ value.key }}-col">{{ value.value }}</td>
+                        <td class="{{ value.key }}-col">{{ value.value|safe }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}

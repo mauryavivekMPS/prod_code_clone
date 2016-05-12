@@ -66,6 +66,7 @@ class MendeleyLookupTask(Task):
                             'custom': article.custom,
                             'custom_2': article.custom_2,
                             'custom_3': article.custom_3,
+                            'article_title': article.article_title,
                         }
                     )
                 except:

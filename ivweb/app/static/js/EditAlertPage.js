@@ -8,7 +8,8 @@ var EditAlertPage = (function() {
     var checkForm = function() {
         var checkId = $("#id_check_id option:selected").val();
         var publisherId = $("#id_publisher_id option:selected").val();
-        var name = $('#id_name').val()
+        var name = $('#id_name').val();
+        var emails = $('#id_comma_separated_emails').val();
 
         var gotParamValues = true;
         $.each(params, function(index, param) {
@@ -17,7 +18,7 @@ var EditAlertPage = (function() {
             }
         });
 
-        if (publisherId && checkId && name && gotParamValues) {
+        if (publisherId && checkId && name && emails && gotParamValues) {
             $('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
@@ -73,7 +74,6 @@ var EditAlertPage = (function() {
 
     var onPublisherOrCheckChange = function() {
         if ($('#id_check_id option').length > 0) {
-            updateAlertName();
             updateParams();
             updateFilters();
         }
@@ -115,12 +115,6 @@ var EditAlertPage = (function() {
             .always(function() {
                 IvetlWeb.hideLoading();
             });
-    };
-
-    var updateAlertName = function() {
-        var selectedCheck = $('#id_check_id option:selected');
-        var selectedPublisher = $('#id_publisher_id option:selected');
-        $('#id_name').val(selectedCheck.text() + ' for ' + selectedPublisher.text());
     };
 
     var init = function(options) {

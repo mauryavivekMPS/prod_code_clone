@@ -37,6 +37,9 @@ def list_alerts(request):
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
+    for alert in sorted_alerts:
+        setattr(alert, 'check_name', CHECKS[alert.check_id]['name'])
+
     response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,
         'messages': messages,
@@ -70,6 +73,7 @@ class AlertForm(forms.Form):
             initial['comma_separated_emails'] = ", ".join(instance.emails)
         else:
             self.instance = None
+            initial['comma_separated_emails'] = user.email
 
         super(AlertForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -214,7 +218,10 @@ def get_check_choices_for_publisher(publisher_id):
             if product in publisher.supported_products:
                 supported_checks.add(check_id)
 
-    return [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
+    check_choices =  [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
+    sorted_check_choices = sorted(check_choices, key=lambda c: c[1])
+
+    return sorted_check_choices
 
 
 @login_required
