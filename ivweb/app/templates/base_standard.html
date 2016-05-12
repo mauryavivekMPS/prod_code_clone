@@ -59,7 +59,7 @@
         <nav>
             {% if request.user.superuser %}
                 <div class="list-title">
-                    Administration
+                    <span class="non-link-title">Administration</span>
                 </div>
                 <ul>
 {#                    <li class="all_pipelines_menu_item">#}
@@ -92,7 +92,7 @@
                         <div class="list-title">
                             <a href="#" class="product-nav-item" product_id="{{ product.id }}">{{ product.name }}</a>
                         </div>
-                        <ul class="product-nav-menu-{{ product.id }}">
+                        <ul class="product-nav-menu-{{ product.id }}" style="display:none">
                             {% for pipeline_entry in product.pipelines %}
                                 <li class="{{ pipeline_entry.pipeline.id }}{% if product.cohort %}_cohort{% endif %}_menu_item">
                                     <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>

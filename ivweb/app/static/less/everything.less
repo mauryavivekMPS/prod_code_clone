@@ -277,17 +277,23 @@ body {
     width: @left-menu-width;
     position: fixed;
     top: @navbar-height;
-    //padding-top: 20px;
     padding-top: 24px;
 
     .list-title {
         margin-bottom: 6px;
 
-        a {
+        a, .non-link-title {
             font-size: 11px;
             color: #aaa;
             text-transform: uppercase;
+        }
+
+        a {
             text-decoration: none;
+
+            &:hover {
+                color: #666;
+            }
         }
     }
 
