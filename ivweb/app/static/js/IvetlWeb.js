@@ -34,7 +34,15 @@ var IvetlWeb = (function() {
     var initLeftNav = function(baseSelector) {
         $('.product-nav-item').click(function() {
             var productId = $(this).attr('product_id');
-            $('.product-nav-menu-' + productId).toggle();
+            var productMenu = $('.product-nav-menu-' + productId);
+            if (productMenu.is(':visible')) {
+                productMenu.hide();
+                $.cookie('product-menu-' + productId, 'closed', {path: '/'});
+            }
+            else {
+                productMenu.show();
+                $.cookie('product-menu-' + productId, 'open', {path: '/'});
+            }
             return false;
         });
     };
