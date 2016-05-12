@@ -474,10 +474,10 @@ def upload_pending_file_inline(request):
         all_uploaded_files = request.FILES.getlist('files')
         all_processed_files = []
 
-        for uploaded_file in all_uploaded_files:
+        publisher_id = None
+        demo_id = None
 
-            publisher_id = None
-            demo_id = None
+        for uploaded_file in all_uploaded_files:
 
             if file_type == 'publisher':
                 publisher_id = request.POST['publisher_id']

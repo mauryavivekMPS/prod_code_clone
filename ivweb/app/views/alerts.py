@@ -3,12 +3,10 @@ import json
 from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
-from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
 from ivetl.alerts import CHECKS
-from ivetl.common import common
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
