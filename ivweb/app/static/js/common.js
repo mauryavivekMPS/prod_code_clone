@@ -35,6 +35,14 @@ var IvetlWeb = (function() {
         $(baseSelector + ' ' + '[data-toggle="tooltip"]').tooltip();
     };
 
+    var initLeftNav = function(baseSelector) {
+        $('.product-nav-item').click(function() {
+            var productId = $(this).attr('product_id');
+            $('.product-nav-menu-' + productId).toggle();
+            return false;
+        });
+    };
+
     var setPageClasses = function(htmlClass, bodyClass) {
         $('html').removeClass().addClass(htmlClass);
         $('body').removeClass().addClass('meerkat ' + bodyClass);
@@ -69,6 +77,7 @@ var IvetlWeb = (function() {
         showLoading: showLoading,
         hideLoading: hideLoading,
         initTooltips: initTooltips,
+        initLeftNav: initLeftNav,
         setPageClasses: setPageClasses,
         resetUrl: resetUrl,
         hideMessagesAfterDelay: hideMessagesAfterDelay,
