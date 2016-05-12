@@ -11,6 +11,20 @@ var EditAlertPage = (function() {
         var name = $('#id_name').val();
         var emails = $('#id_comma_separated_emails').val();
 
+        if (name) {
+            $('.name-requirement').addClass('satisfied');
+        }
+        else {
+            $('.name-requirement').removeClass('satisfied');
+        }
+
+        if (emails) {
+            $('.email-requirement').addClass('satisfied');
+        }
+        else {
+            $('.email-requirement').removeClass('satisfied');
+        }
+
         var gotParamValues = true;
         $.each(params, function(index, param) {
             if (!$('#id_param_' + param.name).val()) {
@@ -136,7 +150,7 @@ var EditAlertPage = (function() {
             updateCheckChoices();
         }
 
-        $('#id_name').on('keyup', function() {
+        $('#id_name, #id_comma_separated_emails').on('keyup', function() {
             checkForm();
         });
 

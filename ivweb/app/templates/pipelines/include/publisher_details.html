@@ -160,13 +160,13 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            PipelineListPage.cancelTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
+            PipelinePage.cancelTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% if publisher_runs.recent_task.status == 'in-progress' %}
-                PipelineListPage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
+                PipelinePage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% endif %}
-            PipelineListPage.onUpdatePublisher('{{ publisher_runs.publisher.publisher_id }}');
+            PipelinePage.onUpdatePublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% if high_water_mark %}
-                PipelineListPage.updateHighWaterMark('{{ high_water_mark }}');
+                PipelinePage.updateHighWaterMark('{{ high_water_mark }}');
             {% endif %}
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_row');
