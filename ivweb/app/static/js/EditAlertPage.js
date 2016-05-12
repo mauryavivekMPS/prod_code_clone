@@ -5,6 +5,14 @@ var EditAlertPage = (function() {
     var params = [];
     var filters = [];
 
+    var isIntegerValue = function(value) {
+        return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10)) && parseInt(value) > 0;
+    };
+
+    var isPercentageValue = function(value) {
+        return isIntegerValue(value) && parseInt(value) > 0;
+    };
+
     var checkForm = function() {
         var checkId = $("#id_check_id option:selected").val();
         var publisherId = $("#id_publisher_id option:selected").val();
@@ -28,12 +36,24 @@ var EditAlertPage = (function() {
         var gotParamValues = true;
         $.each(params, function(index, param) {
             var requirement = $('.' + param.name + '-requirement');
-            if (!$('#id_param_' + param.name).val()) {
-                requirement.removeClass('satisfied');
-                gotParamValues = false;
+            var value = $('#id_param_' + param.name).val();
+
+            var isValid = false;
+            if (value) {
+                if (param.type == 'integer') {
+                    isValid = isIntegerValue(value);
+                }
+                else if (param.type == 'percentage') {
+                    isValid = isPercentageValue(value);
+                }
+            }
+
+            if (value && isValid) {
+                requirement.addClass('satisfied');
             }
             else {
-                requirement.addClass('satisfied');
+                requirement.removeClass('satisfied');
+                gotParamValues = false;
             }
         });
 
