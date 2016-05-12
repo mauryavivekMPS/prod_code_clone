@@ -56,7 +56,7 @@ CHECKS = {
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
         'table_order': [
             {'key': 'issn', 'name': 'ISSN'},
-            {'key': 'article_title', 'name': 'Article'},
+            {'key': 'article_title', 'name': 'Article', 'type': 'article-link'},
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
@@ -79,7 +79,7 @@ CHECKS = {
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s saves',
         'table_order': [
             {'key': 'issn', 'name': 'ISSN'},
-            {'key': 'article_title', 'name': 'Article'},
+            {'key': 'article_title', 'name': 'Article', 'type': 'article-link'},
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
@@ -102,7 +102,7 @@ CHECKS = {
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations',
         'table_order': [
             {'key': 'issn', 'name': 'ISSN'},
-            {'key': 'article_title', 'name': 'Article'},
+            {'key': 'article_title', 'name': 'Article', 'type': 'article-link'},
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
@@ -125,7 +125,7 @@ CHECKS = {
         'format_string': 'Article %(doi)s (%(issn)s): %(new_value)s citations',
         'table_order': [
             {'key': 'issn', 'name': 'ISSN'},
-            {'key': 'article_title', 'name': 'Article'},
+            {'key': 'article_title', 'name': 'Article', 'type': 'article-link'},
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
