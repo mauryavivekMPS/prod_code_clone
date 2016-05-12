@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
     print('Populating citation_count and attriute value cache for all publishers...')
     for p in Publisher_Metadata.objects.all():
-        articles = Published_Article_By_Cohort.objects.filter(publisher_id=p.publisher_id, is_cohort=False).limit(500000)
+        articles = Published_Article_By_Cohort.objects.filter(publisher_id=p.publisher_id).limit(500000)
         for a in articles:
             citation_count = Article_Citations.objects.filter(publisher_id=p.publisher_id, article_doi=a.article_doi).limit(500000).count()
             Published_Article.objects(publisher_id=p.publisher_id, article_doi=a.article_doi).update(
@@ -157,7 +157,6 @@ if __name__ == "__main__":
             )
 
         all_articles = Published_Article.objects.filter(publisher_id=p.publisher_id)
-
         value_names = set()
 
         # look through all the alerts for published_article values

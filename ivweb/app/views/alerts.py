@@ -38,7 +38,24 @@ def list_alerts(request):
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     for alert in sorted_alerts:
-        setattr(alert, 'check_name', CHECKS[alert.check_id]['name'])
+        check = CHECKS[alert.check_id]
+        setattr(alert, 'check_name', check['name'])
+
+        # build neat little param display strings
+        check_params = json.loads(alert.check_params)
+        param_strings = []
+        for p in check['check_type']['params']:
+            if p['name'] in check_params:
+                param_strings.append('%s = %s' % (p['label'], check_params[p['name']]))
+        setattr(alert, 'param_display_string', ", ".join(param_strings))
+
+        # build neat little filter display strings
+        filter_params = json.loads(alert.filter_params)
+        filter_strings = []
+        for f in check['filters']:
+            if f['name'] in filter_params:
+                filter_strings.append('%s = %s' % (f['label'], filter_params[f['name']]))
+        setattr(alert, 'filter_display_string', ", ".join(filter_strings))
 
     response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,

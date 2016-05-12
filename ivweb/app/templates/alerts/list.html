@@ -13,7 +13,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <table class="table table-hover sortable-table">
+            <table class="table sortable-table alerts-table">
                 <thead>
                     <tr>
                         <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
@@ -28,9 +28,16 @@
                     {% for alert in alerts %}
                         <tr>
                             <td>
-                                <a href="{% url 'alerts.edit' alert.alert_id %}">
+                                <a href="{% url 'alerts.edit' alert.alert_id %}" class="alert-name">
                                     {{ alert.name }}
                                 </a>
+                                <div class="alert-details"><b>Email:</b> {{ alert.emails|join:", " }}</div>
+                                {% if alert.param_display_string %}
+                                    <div class="alert-details"><b>Parameters:</b> {{ alert.param_display_string }}</div>
+                                {% endif %}
+                                {% if alert.filter_display_string %}
+                                    <div class="alert-details"><b>Filters:</b> {{ alert.filter_display_string }}</div>
+                                {% endif %}
                             </td>
                             {% if not single_publisher_user %}
                                 <td>{{ alert.publisher_id }}</td>
