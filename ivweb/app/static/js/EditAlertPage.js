@@ -5,19 +5,59 @@ var EditAlertPage = (function() {
     var params = [];
     var filters = [];
 
+    var isIntegerValue = function(value) {
+        return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10)) && parseInt(value) > 0;
+    };
+
+    var isPercentageValue = function(value) {
+        return isIntegerValue(value) && parseInt(value) > 0;
+    };
+
     var checkForm = function() {
         var checkId = $("#id_check_id option:selected").val();
         var publisherId = $("#id_publisher_id option:selected").val();
-        var name = $('#id_name').val()
+        var name = $('#id_name').val();
+        var emails = $('#id_comma_separated_emails').val();
+
+        if (name) {
+            $('.name-requirement').addClass('satisfied');
+        }
+        else {
+            $('.name-requirement').removeClass('satisfied');
+        }
+
+        if (emails) {
+            $('.email-requirement').addClass('satisfied');
+        }
+        else {
+            $('.email-requirement').removeClass('satisfied');
+        }
 
         var gotParamValues = true;
         $.each(params, function(index, param) {
-            if (!$('#id_param_' + param.name).val()) {
+            var requirement = $('.' + param.name + '-requirement');
+            var value = $('#id_param_' + param.name).val();
+
+            var isValid = false;
+            if (value) {
+                if (param.type == 'integer') {
+                    isValid = isIntegerValue(value);
+                }
+                else if (param.type == 'percentage') {
+                    isValid = isPercentageValue(value);
+                }
+            }
+
+            if (value && isValid) {
+                requirement.addClass('satisfied');
+            }
+            else {
+                requirement.removeClass('satisfied');
                 gotParamValues = false;
             }
         });
 
-        if (publisherId && checkId && name && gotParamValues) {
+        if (publisherId && checkId && name && emails && gotParamValues) {
             $('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
@@ -28,6 +68,8 @@ var EditAlertPage = (function() {
     var setParams = function(newParams) {
         params = newParams;
         $.each(params, function(index, param) {
+            $('.requirements-items .param-requirement').remove();
+            $('.requirements-items').append('<li class="' + param.name + '-requirement param-requirement">' + param.requirement_text + '<span class="lnr lnr-check checkmark"></span></li>');
             $('#id_param_' + param.name).on('keyup', function() {
                 checkForm();
             });
@@ -73,7 +115,6 @@ var EditAlertPage = (function() {
 
     var onPublisherOrCheckChange = function() {
         if ($('#id_check_id option').length > 0) {
-            updateAlertName();
             updateParams();
             updateFilters();
         }
@@ -81,6 +122,12 @@ var EditAlertPage = (function() {
             $('#id_name').val('');
         }
         checkForm();
+    };
+
+    var wireUpCheckChoices = function() {
+        $('#id_check_id').on('change', function() {
+            onPublisherOrCheckChange();
+        });
     };
 
     var updateCheckChoices = function() {
@@ -91,9 +138,7 @@ var EditAlertPage = (function() {
         $.get(checkChoicesUrl, data)
             .done(function(html) {
                 $('.check-control-container').html(html);
-                $('#id_check_id').on('change', function() {
-                    onPublisherOrCheckChange();
-                });
+                wireUpCheckChoices();
                 onPublisherOrCheckChange();
             });
     };
@@ -117,12 +162,6 @@ var EditAlertPage = (function() {
             });
     };
 
-    var updateAlertName = function() {
-        var selectedCheck = $('#id_check_id option:selected');
-        var selectedPublisher = $('#id_publisher_id option:selected');
-        $('#id_name').val(selectedCheck.text() + ' for ' + selectedPublisher.text());
-    };
-
     var init = function(options) {
         options = $.extend({
             alertParamsUrl: '',
@@ -141,8 +180,9 @@ var EditAlertPage = (function() {
         if (!options.selectedCheck) {
             updateCheckChoices();
         }
+        wireUpCheckChoices();
 
-        $('#id_name').on('keyup', function() {
+        $('#id_name, #id_comma_separated_emails').on('keyup', function() {
             checkForm();
         });
 

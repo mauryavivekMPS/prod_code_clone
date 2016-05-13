@@ -3,12 +3,10 @@ import json
 from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
-from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
 from ivetl.alerts import CHECKS
-from ivetl.common import common
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -36,6 +34,26 @@ def list_alerts(request):
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
+
+    for alert in sorted_alerts:
+        check = CHECKS[alert.check_id]
+        setattr(alert, 'check_name', check['name'])
+
+        # build neat little param display strings
+        check_params = json.loads(alert.check_params)
+        param_strings = []
+        for p in check['check_type']['params']:
+            if p['name'] in check_params:
+                param_strings.append('%s = %s' % (p['label'], check_params[p['name']]))
+        setattr(alert, 'param_display_string', ", ".join(param_strings))
+
+        # build neat little filter display strings
+        filter_params = json.loads(alert.filter_params)
+        filter_strings = []
+        for f in check['filters']:
+            if f['name'] in filter_params:
+                filter_strings.append('%s = %s' % (f['label'], filter_params[f['name']]))
+        setattr(alert, 'filter_display_string', ", ".join(filter_strings))
 
     response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,
@@ -70,6 +88,7 @@ class AlertForm(forms.Form):
             initial['comma_separated_emails'] = ", ".join(instance.emails)
         else:
             self.instance = None
+            initial['comma_separated_emails'] = user.email
 
         super(AlertForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -214,7 +233,10 @@ def get_check_choices_for_publisher(publisher_id):
             if product in publisher.supported_products:
                 supported_checks.add(check_id)
 
-    return [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
+    check_choices =  [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
+    sorted_check_choices = sorted(check_choices, key=lambda c: c[1])
+
+    return sorted_check_choices
 
 
 @login_required

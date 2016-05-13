@@ -59,7 +59,7 @@
         <nav>
             {% if request.user.superuser %}
                 <div class="list-title">
-                    Administration
+                    <span class="non-link-title">Administration</span>
                 </div>
                 <ul>
 {#                    <li class="all_pipelines_menu_item">#}
@@ -90,15 +90,21 @@
                 {% for product in common.PRODUCTS %}
                     {% if product.is_user_facing %}
                         <div class="list-title">
-                            {{ product.name }}
+                            <a href="#" class="product-nav-item" product_id="{{ product.id }}">{{ product.name }}</a>
                         </div>
-                        <ul>
+                        <ul class="product-nav-menu-{{ product.id }}" id="product-nav-menu-id-{{ product.id }}" style="display:none">
                             {% for pipeline_entry in product.pipelines %}
                                 <li class="{{ pipeline_entry.pipeline.id }}{% if product.cohort %}_cohort{% endif %}_menu_item">
                                     <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
+                        <script>
+                            {# quick and dirty non-jquery way to initialize the menu (done for speed) #}
+                            if (document.cookie.indexOf('product-menu-{{ product.id }}=open') != -1) {
+                                document.getElementById('product-nav-menu-id-{{ product.id }}').style.display = 'block';
+                            }
+                        </script>
                     {% endif %}
                 {% endfor %}
             {% else %}
@@ -176,7 +182,8 @@
         {% block content %}Empty{% endblock %}
         <script>
             $(function() {
-                $('#left-menu a:not(.external-link), .show-loading, .submit-row button, .submit-row a, .user-dropdown .dropdown-menu a').click(IvetlWeb.showLoading);
+                $('#left-menu a:not(.external-link, .product-nav-item), .show-loading, .submit-row button, .submit-row a, .user-dropdown .dropdown-menu a').click(IvetlWeb.showLoading);
+                IvetlWeb.initLeftNav();
             });
         </script>
     </div>

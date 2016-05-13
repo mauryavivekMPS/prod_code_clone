@@ -1,6 +1,7 @@
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 from ivetl.models import User
 
 
@@ -54,6 +55,7 @@ class UserSettingsForm(forms.Form):
         return self.instance
 
 
+@login_required
 def settings(request):
     if request.method == 'POST':
         form = UserSettingsForm(request.POST, instance=request.user)

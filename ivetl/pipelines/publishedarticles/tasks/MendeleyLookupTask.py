@@ -5,7 +5,7 @@ from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import MendeleyConnector
-from ivetl.alerts import run_alert, send_alert_notifications
+from ivetl.alerts import run_alerts, send_alert_notifications
 from ivetl.models import Published_Article
 
 
@@ -50,8 +50,8 @@ class MendeleyLookupTask(Task):
                     except Published_Article.DoesNotExist:
                         old_saves_value = 0
 
-                    run_alert(
-                        check_id='mendeley-saves-exceeds-integer',
+                    run_alerts(
+                        check_ids=['mendeley-saves-exceeds-integer', 'mendeley-saves-percentage-change'],
                         publisher_id=publisher_id,
                         product_id=product_id,
                         pipeline_id=pipeline_id,
@@ -66,6 +66,7 @@ class MendeleyLookupTask(Task):
                             'custom': article.custom,
                             'custom_2': article.custom_2,
                             'custom_3': article.custom_3,
+                            'article_title': article.article_title,
                         }
                     )
                 except:
@@ -78,7 +79,7 @@ class MendeleyLookupTask(Task):
         target_file.close()
 
         send_alert_notifications(
-            check_id='mendeley-saves-exceeds-integer',
+            check_ids=['mendeley-saves-exceeds-integer', 'mendeley-saves-percentage-change'],
             publisher_id=publisher_id,
             product_id=product_id,
             pipeline_id=pipeline_id,

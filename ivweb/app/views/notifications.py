@@ -76,7 +76,11 @@ def include_notification_details(request):
             row.append({
                 'value': values[col['key']],
                 'key': col['key'],
-
+                'type': col.get('type', 'raw'),
+                'align': col.get('align', 'left'),
+                'width': col.get('width', 'normal'),
+                'doi': values['doi'],
+                'article_title': values['article_title'],
             })
         ordered_values_list.append(row)
 

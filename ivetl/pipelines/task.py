@@ -249,20 +249,21 @@ class Task(BaseTask):
         except Pipeline_Status.DoesNotExist:
             pass
 
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
+            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
 
-        # update the data in tableau
-        t = TableauConnector(
-            username=common.TABLEAU_USERNAME,
-            password=common.TABLEAU_PASSWORD,
-            server=common.TABLEAU_SERVER
-        )
+            # update the data in tableau
+            t = TableauConnector(
+                username=common.TABLEAU_USERNAME,
+                password=common.TABLEAU_PASSWORD,
+                server=common.TABLEAU_SERVER
+            )
 
-        pipeline = common.PIPELINE_BY_ID[pipeline_id]
-        if pipeline.get('rebuild_data_source_id'):
-            for ds in pipeline['rebuild_data_source_id']:
-                t.refresh_data_source(publisher_id, publisher.reports_project, ds)
-                t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
+            pipeline = common.PIPELINE_BY_ID[pipeline_id]
+            if pipeline.get('rebuild_data_source_id'):
+                for ds in pipeline['rebuild_data_source_id']:
+                    t.refresh_data_source(publisher_id, publisher.reports_project, ds)
+                    t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']

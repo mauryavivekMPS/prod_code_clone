@@ -7,7 +7,9 @@
         <thead>
             <tr>
                 {% for col in check.table_order %}
-                    <th class="{{ col.key }}-col">{{ col.name }}</th>
+                    <th class="{{ col.key }}-col {% if col.align == 'right' %}align-right{% endif %} {% if col.width == 'wide' %}wide{% endif %}">
+                        {{ col.name }}
+                    </th>
                 {% endfor %}
             </tr>
         </thead>
@@ -15,7 +17,13 @@
             {% for row in values_list %}
                 <tr>
                     {% for value in row %}
-                        <td class="{{ value.key }}-col">{{ value.value }}</td>
+                        <td class="{{ value.key }}-col {% if value.align == 'right' %}align-right{% endif %} {% if value.width == 'wide' %}wide{% endif %}">
+                            {% if value.type == 'article-link' %}
+                                <a href="http://dx.doi.org/{{ value.doi }}" target="_blank">{{ value.article_title|truncatechars:44 }}</a>
+                            {% else %}
+                                {{ value.value|safe }}
+                            {% endif %}
+                        </td>
                     {% endfor %}
                 </tr>
             {% endfor %}

@@ -277,14 +277,24 @@ body {
     width: @left-menu-width;
     position: fixed;
     top: @navbar-height;
-    //padding-top: 20px;
     padding-top: 24px;
 
     .list-title {
-        font-size: 11px;
-        color: #ccc;
-        text-transform: uppercase;
         margin-bottom: 6px;
+
+        a, .non-link-title {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        a {
+            text-decoration: none;
+
+            &:hover {
+                color: #666;
+            }
+        }
     }
 
     nav ul {
@@ -2422,6 +2432,18 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 
+    th, td {
+        width: 130px;
+
+        &.align-right {
+            text-align: right;
+        }
+
+        &.wide {
+            width: 300px;
+        }
+    }
+
     th {
         text-transform: none;
         border-bottom: 1px dotted #ddd;
@@ -2434,10 +2456,6 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
     .doi-col {
         width: 180px;
-    }
-
-    .new_value-col, .delta-col {
-        text-align: right;
     }
 
     .dismiss-notification-cross {
@@ -2485,3 +2503,30 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     position: relative;
     top: -90px;
 }
+
+.alerts-table {
+    .alert-details, .alert-name {
+        display: block;
+        float: left;
+        clear: left;
+    }
+
+    .alert-name {
+        margin-bottom: 3px;
+    }
+
+    .alert-details {
+        font-size: 12px;
+        color: #999;
+
+        &:last-of-type {
+            margin-bottom: 7px;
+        }
+
+        b {
+            color: #333;
+            font-weight: normal;
+        }
+    }
+}
+

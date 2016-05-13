@@ -183,7 +183,7 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            PipelineListPage.init({
+            PipelinePage.init({
                 piplineId: '{{ pipeline.id }}',
                 publishers: {{ publisher_id_list_as_json|safe }},
                 tailUrl: '{% url 'pipelines.tail' product.id pipeline.id %}',

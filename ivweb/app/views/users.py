@@ -4,12 +4,14 @@ from operator import attrgetter
 from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 from ivetl.models import User, Publisher_User, Audit_Log, Publisher_Metadata
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
 
+@login_required
 def list_users(request, publisher_id=None):
     if publisher_id:
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
@@ -114,6 +116,7 @@ class AdminUserForm(forms.Form):
         return user
 
 
+@login_required
 def edit(request, publisher_id=None, user_id=None):
     if publisher_id:
         publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
