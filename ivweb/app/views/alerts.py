@@ -122,7 +122,7 @@ class AlertForm(forms.Form):
             if param_type == 'integer':
                 param_value = int(param_value)
             elif param_type == 'percentage':
-                param_value = float(param_value)
+                param_value = int(param_value)
 
             params[param_name] = param_value
 
