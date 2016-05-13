@@ -42,7 +42,7 @@ module.exports = function(grunt) {
               'bower_components/html5shiv/dist/html5shiv.min.js',
               'bower_components/respond/dest/respond.min.js',
               'bower_components/jquery-number/jquery.number.min.js',
-              'bower_components/jquery.cookie/jquery.cookie.js',
+              'bower_components/jquery-cookie/jquery.cookie.js',
               'bower_components/d3/d3.min.js',
               'bower_components/nvd3/build/nv.d3.min.js',
               'bower_components/nvd3/build/nv.d3.css',
