@@ -3,7 +3,6 @@ import json
 import requests
 from requests import HTTPError
 from ivetl.celery import app
-from ivetl.common import common
 from ivetl.pipelines.task import Task
 
 
@@ -85,8 +84,8 @@ class GetPublishedArticlesTask(Task):
                         articles[i['DOI']] = (i['DOI'], issn, json.dumps(i))
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                        # Use this only for testing!!
-                        # if count > 10:
+                        # Just for testing!!
+                        # if count > 30:
                         #     break
 
                     offset += task_args['articles_per_page']

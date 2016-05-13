@@ -73,14 +73,14 @@ def include_notification_details(request):
     for values in values_list:
         row = []
         for col in check['table_order']:
-            if col.get('type') == 'article-link':
-                rendered_value = '<a href="%s">%s</a>' % (values['doi'], values['article_title'])
-            else:
-                rendered_value = values[col['key']]
             row.append({
-                'value': rendered_value,
+                'value': values[col['key']],
                 'key': col['key'],
-
+                'type': col.get('type', 'raw'),
+                'align': col.get('align', 'left'),
+                'width': col.get('width', 'normal'),
+                'doi': values['doi'],
+                'article_title': values['article_title'],
             })
         ordered_values_list.append(row)
 

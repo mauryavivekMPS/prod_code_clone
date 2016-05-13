@@ -4,7 +4,7 @@ from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
 from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, Published_Article
-from ivetl.alerts import run_alert, send_alert_notifications
+from ivetl.alerts import run_alerts, send_alert_notifications
 
 
 @app.task
@@ -113,8 +113,11 @@ class UpdateArticleCitationsWithCrossref(Task):
             new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
             issn = published_article.article_journal_issn
 
-            run_alert(
-                check_id='citations-exceeds-integer',
+            # Just for testing!!
+            # new_citation_count += int(old_citation_count * 1.4)
+
+            run_alerts(
+                check_ids=['citations-exceeds-integer', 'citations-percentage-change'],
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=pipeline_id,
@@ -137,7 +140,7 @@ class UpdateArticleCitationsWithCrossref(Task):
             published_article.update(citation_count=new_citation_count)
 
         send_alert_notifications(
-            check_id='citations-exceeds-integer',
+            check_ids=['citations-exceeds-integer', 'citations-percentage-change'],
             publisher_id=publisher_id,
             product_id=product_id,
             pipeline_id=pipeline_id,
