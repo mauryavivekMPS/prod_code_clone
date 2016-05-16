@@ -32,6 +32,13 @@ def list_alerts(request):
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
+    filter_param = request.GET.get('filter', request.COOKIES.get('alert-list-filter', 'all'))
+
+    if filter_param == 'active':
+        alerts = alerts.filter(archived=False)
+    elif filter_param == 'archived':
+        alerts = alerts.filter(archived=True)
+
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
@@ -62,9 +69,11 @@ def list_alerts(request):
         'sort_key': sort_key,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
+        'filter_param': filter_param,
     })
 
-    response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('alert-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('alert-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 
