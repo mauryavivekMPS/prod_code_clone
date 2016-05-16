@@ -34,10 +34,15 @@ def list_alerts(request):
 
     filter_param = request.GET.get('filter', request.COOKIES.get('alert-list-filter', 'all'))
 
+    filtered_alerts = []
     if filter_param == 'active':
-        alerts = alerts.filter(archived=False)
+        for alert in alerts:
+            if not alert.archived:
+                filtered_alerts.append(alert)
     elif filter_param == 'archived':
-        alerts = alerts.filter(archived=True)
+        for alert in alerts:
+            if alert.archived:
+                filtered_alerts.append(alert)
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
