@@ -189,6 +189,18 @@ var EditAlertPage = (function() {
         $('#id_enabled').on('change', function() {
             checkForm();
         });
+
+        var m = $('#confirm-archive-alert-modal');
+
+        m.find('.confirm-archive-alert-button').on('click', function() {
+            IvetlWeb.showLoading();
+            m.modal('hide');
+            $('#archive-alert-form').submit();
+        });
+
+        $('.archive-alert').on('click', function() {
+            m.modal();
+        });
     };
 
     return {

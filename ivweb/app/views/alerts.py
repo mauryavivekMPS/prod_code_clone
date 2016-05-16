@@ -184,6 +184,21 @@ def edit(request, alert_id=None):
             single_publisher_user = True
 
     if request.method == 'POST':
+        if 'archive' in request.POST:
+            if alert:
+                alert.archived = True if request.POST['archive'] == 'on' else False
+
+                # for disabled for archived alerts
+                if alert.archived:
+                    alert.enabled = False
+
+                alert.save()
+
+                if alert.archived:
+                    return HttpResponseRedirect(reverse('alerts.list') + '?from=archive-alert&filter=archived')
+                else:
+                    return HttpResponseRedirect(reverse('alerts.list') + '?from=unarchive-alert&filter=active')
+
         form = AlertForm(request.POST, instance=alert, user=request.user)
         if form.is_valid():
             form.save()
