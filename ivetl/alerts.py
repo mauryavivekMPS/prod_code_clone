@@ -56,6 +56,8 @@ CHECKS = {
         'name': 'Mendeley Saves for Article Greater Than Threshold',
         'check_type': CHECK_TYPES['exceeds-integer'],
         'filters': [
+            {'name': 'article_journal', 'label': 'Journal', 'table': 'published_article'},
+            {'name': 'article_journal_issn', 'label': 'ISSN', 'table': 'published_article'},
             {'name': 'article_type', 'label': 'Article Type', 'table': 'published_article'},
             {'name': 'subject_category', 'label': 'Subject Category', 'table': 'published_article'},
             {'name': 'is_open_access', 'label': 'Open Access', 'table': 'published_article'},
@@ -79,6 +81,8 @@ CHECKS = {
         'name': 'Mendeley Saves for Article Increases By Percentage',
         'check_type': CHECK_TYPES['percentage-change'],
         'filters': [
+            {'name': 'article_journal', 'label': 'Journal', 'table': 'published_article'},
+            {'name': 'article_journal_issn', 'label': 'ISSN', 'table': 'published_article'},
             {'name': 'article_type', 'label': 'Article Type', 'table': 'published_article'},
             {'name': 'subject_category', 'label': 'Subject Category', 'table': 'published_article'},
             {'name': 'is_open_access', 'label': 'Open Access', 'table': 'published_article'},
@@ -102,6 +106,8 @@ CHECKS = {
         'name': 'Citations for Article Greater Than Threshold',
         'check_type': CHECK_TYPES['exceeds-integer'],
         'filters': [
+            {'name': 'article_journal', 'label': 'Journal', 'table': 'published_article'},
+            {'name': 'article_journal_issn', 'label': 'ISSN', 'table': 'published_article'},
             {'name': 'article_type', 'label': 'Article Type', 'table': 'published_article'},
             {'name': 'subject_category', 'label': 'Subject Category', 'table': 'published_article'},
             {'name': 'is_open_access', 'label': 'Open Access', 'table': 'published_article'},
@@ -125,6 +131,8 @@ CHECKS = {
         'name': 'Citations for Article Increases By Percentage',
         'check_type': CHECK_TYPES['percentage-change'],
         'filters': [
+            {'name': 'article_journal', 'label': 'Journal', 'table': 'published_article'},
+            {'name': 'article_journal_issn', 'label': 'ISSN', 'table': 'published_article'},
             {'name': 'article_type', 'label': 'Article Type', 'table': 'published_article'},
             {'name': 'subject_category', 'label': 'Subject Category', 'table': 'published_article'},
             {'name': 'is_open_access', 'label': 'Open Access', 'table': 'published_article'},
