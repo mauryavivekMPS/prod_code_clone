@@ -11,7 +11,7 @@ class CrossrefConnector(BaseConnector):
     BASE_WORKS_URL = 'http://api.crossref.org/journals/%s/works'
 
     connector_name = 'Crossref'
-    max_attempts = 5
+    max_attempts = 20
     request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
