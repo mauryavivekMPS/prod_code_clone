@@ -64,7 +64,7 @@ class InsertIntoCassandra(Task):
                     #     continue
 
                     if date in stats_by_date:
-                        uptimes.append(stat['total_up_sec'])
+                        uptimes.append(stat['total_up_sec'] + stat['total_unknown_sec'])
                     else:
                         try:
                             stat = Uptime_Check_Stat.objects.get(
