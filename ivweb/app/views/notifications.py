@@ -73,14 +73,24 @@ def include_notification_details(request):
     for values in values_list:
         row = []
         for col in check['table_order']:
+
+            value_type = col.get('type', 'raw')
+            if value_type == 'article-link':
+                article_title = values.get('article_title')
+                if article_title:
+                    article_title = article_title[:44]
+                else:
+                    article_title = ''
+                rendered_value = '<a href="http://dx.doi.org/%s" target="_blank">%s</a>' % (values['doi'], article_title)
+            else:
+                rendered_value = values[col['key']]
+
             row.append({
-                'value': values[col['key']],
+                'value': rendered_value,
                 'key': col['key'],
-                'type': col.get('type', 'raw'),
+                'type': value_type,
                 'align': col.get('align', 'left'),
                 'width': col.get('width', 'normal'),
-                'doi': values['doi'],
-                'article_title': values['article_title'],
             })
         ordered_values_list.append(row)
 

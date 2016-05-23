@@ -18,11 +18,7 @@
                 <tr>
                     {% for value in row %}
                         <td class="{{ value.key }}-col {% if value.align == 'right' %}align-right{% endif %} {% if value.width == 'wide' %}wide{% endif %}">
-                            {% if value.type == 'article-link' %}
-                                <a href="http://dx.doi.org/{{ value.doi }}" target="_blank">{{ value.article_title|truncatechars:44 }}</a>
-                            {% else %}
-                                {{ value.value|safe }}
-                            {% endif %}
+                            {{ value.value|safe }}
                         </td>
                     {% endfor %}
                 </tr>

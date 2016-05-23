@@ -5,11 +5,11 @@
     {% for check_param in check.check_type.params %}
         <div class="form-group row">
             <label for="{{ check_param.name }}" class="col-sm-2">{{ check_param.label }}</label>
-            {% if check_param.type == 'integer' %}
+            {% if check_param.type == 'integer' or check_param.type == 'float' %}
                 <div class="col-sm-2">
                     <input id="id_param_{{ check_param.name }}" name="{{ check_param.name }}" class="form-control" value="{% if alert %}{% get_alert_param_value alert check_param.name %}{% endif %}">
                 </div>
-            {% elif check_param.type == 'percentage' %}
+            {% elif check_param.type == 'percentage-integer' or check_param.type == 'percentage-float' %}
                 <div class="col-sm-2">
                     <div class="input-group">
                         <input id="id_param_{{ check_param.name }}" name="{{ check_param.name }}" class="form-control" value="{% if alert %}{% get_alert_param_value alert check_param.name %}{% endif %}">

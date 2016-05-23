@@ -133,10 +133,10 @@ class AlertForm(forms.Form):
             param_value = self.data[param_name]
 
             param_type = check_param['type']
-            if param_type == 'integer':
+            if param_type in ['integer', 'percentage-integer']:
                 param_value = int(param_value)
-            elif param_type == 'percentage':
-                param_value = int(param_value)
+            elif param_type in ['float', 'percentage-float']:
+                param_value = float(param_value)
 
             params[param_name] = param_value
 

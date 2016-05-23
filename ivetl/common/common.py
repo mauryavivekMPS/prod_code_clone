@@ -438,7 +438,7 @@ def send_email(subject, body, to=EMAIL_TO, format="html"):
         elif format == 'test':
             message.set_text(body)
         message.set_from(EMAIL_FROM)
-        sg.send(message)
+        # sg.send(message)
     except:
         # do nothing
         print("sending of email failed")

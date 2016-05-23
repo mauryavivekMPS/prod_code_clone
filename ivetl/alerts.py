@@ -5,7 +5,7 @@ from ivetl.models import Alert, Notification, Notification_Summary, Publisher_Me
 from ivetl.common import common
 
 
-def exceeds_integer(new_value=None, old_value=None, params=None):
+def exceeds_integer(new_value=None, old_value=None, params=None, extra_values=None):
     delta = new_value - params['threshold']
     if delta > 0:
 
@@ -16,7 +16,7 @@ def exceeds_integer(new_value=None, old_value=None, params=None):
     return False, {}
 
 
-def percentage_change(new_value=None, old_value=None, params=None):
+def percentage_change(new_value=None, old_value=None, params=None, extra_values=None):
     if not old_value:
         return False, {}
     else:
@@ -25,6 +25,74 @@ def percentage_change(new_value=None, old_value=None, params=None):
             return True, {'percentage_increase': percentage_delta}
         else:
             return False, {}
+
+def below_threshold_in_window(new_value=None, old_value=None, params=None, extra_values=None):
+    days_below_threshold = 0
+    lowest_uptime = 100
+    threshold_seconds = 60 * 60 * 24 * (params['threshold_uptime'] / 100)
+    for uptime in extra_values['uptimes'][-params['window_days']:]:
+
+        if uptime < threshold_seconds:
+            days_below_threshold += 1
+        if uptime < lowest_uptime:
+            lowest_uptime = uptime
+
+    if days_below_threshold >= params['threshold_days']:
+        return True, {
+            'days_below_threshold': days_below_threshold,
+            'lowest_uptime': lowest_uptime
+        }
+
+    return False, {}
+
+
+def generate_article_alert_email(values):
+    if values['num_notifications'] == 1:
+        notification_subject = '1 article exceeded threshold for %s' % values['alert_name']
+        notification_intro = '<p>There is <b>1</b> article that exceeded the threshold for <b>%s</a>' % values['alert_name']
+    else:
+        notification_subject = '%s articles exceeded threshold for %s' % (values['num_notifications'], values['alert_name'])
+        notification_intro = '<p>There were %s articles that exceeded threshold for %s' % (values['num_notifications'], values['alert_name'])
+
+    subject = 'Impact Vizor (%s): %s' % (values['publisher_id'], notification_subject)
+    body = """
+        %s
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s%s?notification_summary_id=%s#notification-%s">View notification details</a></p>
+        <p>Thank you,<br/>Impact Vizor Team</p>
+    """ % (
+        notification_intro,
+        common.IVETL_WEB_ADDRESS,
+        reverse('notifications.list'),
+        values['notification_summary'].notification_summary_id,
+        values['notification_summary'].notification_summary_id,
+    )
+
+    return subject, body
+
+
+def generate_site_check_email(values):
+    if values['num_notifications'] == 1:
+        notification_subject = '1 site below uptime threshold for %s' % values['alert_name']
+        notification_intro = '<p>There was <b>1</b> site that fell below the uptime threshold for <b>%s</a>' % values['alert_name']
+    else:
+        notification_subject = '%s sites below threshold for %s' % (values['num_notifications'], values['alert_name'])
+        notification_intro = '<p>There were %s sites that fell below the uptime threshold for %s' % (values['num_notifications'], values['alert_name'])
+
+    subject = 'Impact Vizor (internal): %s' % notification_subject
+    body = """
+        %s
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s%s?notification_summary_id=%s#notification-%s">View notification details</a></p>
+        <p>Thank you,<br/>Impact Vizor Team</p>
+    """ % (
+        notification_intro,
+        common.IVETL_WEB_ADDRESS,
+        reverse('notifications.list'),
+        values['notification_summary'].notification_summary_id,
+        values['notification_summary'].notification_summary_id,
+    )
+
+    return subject, body
+
 
 CHECK_TYPES = {
     'exceeds-integer': {
@@ -44,11 +112,34 @@ CHECK_TYPES = {
             {
                 'name': 'percentage_change',
                 'label': 'Percentage Change',
-                'type': 'percentage',
+                'type': 'percentage-integer',
                 'requirement_text': 'A percentage change value'
             },
         ]
     },
+    'below-threshold-in-window': {
+        'function': below_threshold_in_window,
+        'params': [
+            {
+                'name': 'window_days',
+                'label': 'Window Length',
+                'type': 'integer',
+                'requirement_text': 'A window length in days'
+            },
+            {
+                'name': 'threshold_days',
+                'label': 'Days Below',
+                'type': 'integer',
+                'requirement_text': 'A number of days below'
+            },
+            {
+                'name': 'threshold_uptime',
+                'label': 'Uptime Percentage',
+                'type': 'percentage-float',
+                'requirement_text': 'A percentage threshold'
+            },
+        ]
+    }
 }
 
 CHECKS = {
@@ -72,6 +163,7 @@ CHECKS = {
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
+        'email_generator_function': generate_article_alert_email,
         'products': [
             'published_articles',
         ]
@@ -97,6 +189,7 @@ CHECKS = {
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
+        'email_generator_function': generate_article_alert_email,
         'products': [
             'published_articles',
         ]
@@ -122,6 +215,7 @@ CHECKS = {
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
+        'email_generator_function': generate_article_alert_email,
         'products': [
             'published_articles',
         ]
@@ -147,31 +241,29 @@ CHECKS = {
             {'key': 'old_value', 'name': 'Previous Value', 'align': 'right'},
             {'key': 'new_value', 'name': 'New Value', 'align': 'right'},
         ],
+        'email_generator_function': generate_article_alert_email,
         'products': [
             'published_articles',
         ]
     },
 
-    # 'uptime-percentage-decrease-over-five-days': {
-    #     'name': 'Site Uptime Percentage Increase Over Five Days',
-    #     'check_type': CHECK_TYPES['percentage-change'],
-    #     'filters': [
-    #         {'name': 'check_type', 'label': 'Check Type', 'table': 'uptime_check_metadata'},
-    #         {'name': 'site_type', 'label': 'Site Type', 'table': 'uptime_check_metadata'},
-    #         {'name': 'site_platform', 'label': 'Site Platform', 'table': 'uptime_check_metadata'},
-    #     ],
-    #     'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
-    #     'table_order': [
-    #         {'key': 'site_code', 'name': 'Site Code'},
-    #         {'key': 'old_value', 'name': 'Previous Uptime', 'align': 'right'},
-    #         {'key': 'new_value', 'name': 'Current Uptime', 'align': 'right'},
-    #         {'key': 'percentage_increase', 'name': 'Increase', 'align': 'right'},
-    #     ],
-    #     'products': [
-    #         'highwire_sites',
-    #     ]
-    #     # looking at avg_response_ms from checkstat
-    # },
+    'site-uptime-below-threshold': {
+        'name': 'Site Uptime Below Threshold',
+        'check_type': CHECK_TYPES['below-threshold-in-window'],
+        'filters': [],
+        'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
+        'table_order': [
+            {'key': 'check_name', 'name': 'Check Name'},
+            {'key': 'check_id', 'name': 'Check ID'},
+            {'key': 'check_type', 'name': 'Check Type'},
+            {'key': 'site_code', 'name': 'Site Code'},
+            {'key': 'site_type', 'name': 'Site Type'},
+        ],
+        'email_generator_function': generate_site_check_email,
+        'products': [
+            'highwire_sites',
+        ]
+    },
 }
 
 
@@ -206,7 +298,12 @@ def run_alerts(check_ids=[], publisher_id=None, product_id=None, pipeline_id=Non
                 if passed_filters:
 
                     # run the test
-                    passed_test, values_from_check_function = check_function(new_value=new_value, old_value=old_value, params=check_params)
+                    passed_test, values_from_check_function = check_function(
+                        new_value=new_value,
+                        old_value=old_value,
+                        params=check_params,
+                        extra_values=extra_values,
+                    )
 
                     if passed_test:
                         all_values = {'new_value': new_value, 'old_value': old_value}
@@ -223,6 +320,16 @@ def run_alerts(check_ids=[], publisher_id=None, product_id=None, pipeline_id=Non
                             job_id=job_id,
                             values_json=json.dumps(all_values),
                         )
+
+
+def get_all_params_for_check(check_id=None, publisher_id=None):
+    all_params = []
+    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
+        if alert.enabled:
+            check_params = json.loads(alert.check_params)
+            all_params.append(check_params)
+
+    return all_params
 
 
 def send_alert_notifications(check_ids=[], publisher_id=None, product_id=None, pipeline_id=None, job_id=None):
@@ -258,25 +365,17 @@ def send_alert_notifications(check_ids=[], publisher_id=None, product_id=None, p
                 # send notification email with a link to the notification page with notification open
                 num_notifications = len(values_list)
 
-                if num_notifications == 1:
-                    notification_subject = '1 article exceeded threshold for %s' % alert.name
-                    notification_intro = '<p>There is <b>1</b> article that exceeded the threshold for <b>%s</a>' % alert.name
-                else:
-                    notification_subject = '%s articles exceeded threshold for %s' % (num_notifications, alert.name)
-                    notification_intro = '<p>There were %s articles that exceeded threshold for %s' % (num_notifications, alert.name)
+                subject, body = CHECKS[check_id]['email_generator_function']({
+                    'alert_name': alert.name,
+                    'num_notifications': num_notifications,
+                    'publisher_id': publisher_id,
+                    'notification_summary': notification_summary,
+                })
 
-                subject = 'Impact Vizor (%s): %s' % (publisher_id, notification_subject)
-                body = """
-                    %s
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s%s?notification_summary_id=%s#notification-%s">View notification details</a></p>
-                    <p>Thank you,<br/>Impact Vizor Team</p>
-                """ % (
-                    notification_intro,
-                    common.IVETL_WEB_ADDRESS,
-                    reverse('notifications.list'),
-                    notification_summary.notification_summary_id,
-                    notification_summary.notification_summary_id,
-                )
+                with open('/Users/john/email.txt', 'w') as f:
+                    f.write(subject)
+                    f.write('\n\n')
+                    f.write(body)
 
                 if alert.emails:
                     to = ",".join(alert.emails)
