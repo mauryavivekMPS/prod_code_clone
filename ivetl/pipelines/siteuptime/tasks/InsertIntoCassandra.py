@@ -59,9 +59,9 @@ class InsertIntoCassandra(Task):
                 for date in utils.date_range(alert_from_date, to_date):
 
                     # for testing
-                    if len(uptimes) in [2, 3]:
-                        uptimes.append(70000)
-                        continue
+                    # if len(uptimes) in [2, 3]:
+                    #     uptimes.append(70000)
+                    #     continue
 
                     if date in stats_by_date:
                         uptimes.append(stat['total_up_sec'])

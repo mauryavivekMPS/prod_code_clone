@@ -253,7 +253,7 @@ CHECKS = {
         'filters': [],
         'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
         'table_order': [
-            {'key': 'check_name', 'name': 'Check Name'},
+            {'key': 'check_name', 'name': 'Check Name', 'width': 'wide'},
             {'key': 'check_id', 'name': 'Check ID'},
             {'key': 'check_type', 'name': 'Check Type'},
             {'key': 'site_code', 'name': 'Site Code'},
