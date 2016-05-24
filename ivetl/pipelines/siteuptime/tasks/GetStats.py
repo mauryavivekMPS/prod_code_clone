@@ -117,9 +117,9 @@ class GetStats(Task):
                     row = "%s\t%s\n" % (check['id'], json.dumps(check_with_stats))
                     target_file.write(row)
 
-        return {
-            'count': total_count,
-            'input_file': target_file_name,
-            'from_date': from_date,
-            'to_date': to_date,
-        }
+        task_args['input_file'] = target_file_name
+        task_args['count'] = total_count
+        task_args['from_date'] = from_date
+        task_args['to_date'] = to_date
+
+        return task_args

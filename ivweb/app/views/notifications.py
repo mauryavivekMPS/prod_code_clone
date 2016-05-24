@@ -80,8 +80,15 @@ def include_notification_details(request):
                 if article_title:
                     article_title = article_title[:44]
                 else:
-                    article_title = ''
+                    article_title = 'Untitled'
                 rendered_value = '<a href="http://dx.doi.org/%s" target="_blank">%s</a>' % (values['doi'], article_title)
+            elif value_type == 'check-link':
+                check_name = values.get('check_name')
+                if check_name:
+                    check_name = check_name[:44]
+                else:
+                    check_name = 'Untitled'
+                rendered_value = '<a href="https://my.pingdom.com/reports/responsetime#check=%s&daterange=1462172400-1462690799&tab=result_tab" target="_blank">%s</a>' % (values['check_id'], check_name)
             else:
                 rendered_value = values[col['key']]
 

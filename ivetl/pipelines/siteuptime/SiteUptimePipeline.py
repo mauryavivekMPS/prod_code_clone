@@ -11,7 +11,7 @@ from ivetl.models import Pipeline_Status
 @app.task
 class SiteUptimePipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None, run_daily_uptime_alerts=False):
         pipeline_id = "site_uptime"
 
         # this pipeline operates on the global publisher ID
@@ -67,6 +67,7 @@ class SiteUptimePipeline(Pipeline):
             'job_id': job_id,
             'from_date': from_date,
             'to_date': to_date,
+            'run_daily_uptime_alerts': run_daily_uptime_alerts,
         }
 
         chain(

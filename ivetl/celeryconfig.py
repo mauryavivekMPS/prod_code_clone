@@ -44,7 +44,7 @@ CELERYBEAT_SCHEDULE = {
     'get-uptime-every-morning-at-4am': {
         'task': 'ivetl.pipelines.siteuptime.SiteUptimePipeline.SiteUptimePipeline',
         'schedule': crontab(hour=4, minute=0),
-        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites'},
+        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites', 'run_daily_uptime_alerts': True},
     },
     'monthly-published-articles-and-article-citations': {
         'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',

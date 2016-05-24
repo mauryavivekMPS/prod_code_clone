@@ -54,49 +54,53 @@ class InsertIntoCassandra(Task):
                         total_unknown_sec=stat['total_unknown_sec'],
                     )
 
-                # collect uptime for previous n days
-                uptimes = []
-                for date in utils.date_range(alert_from_date, to_date):
+                if task_args['run_daily_uptime_alerts']:
 
-                    # for testing
-                    # if len(uptimes) in [2, 3]:
-                    #     uptimes.append(70000)
-                    #     continue
+                    # collect uptime for previous n days
+                    uptimes = []
+                    for date in utils.date_range(alert_from_date, to_date):
 
-                    if date in stats_by_date:
-                        uptimes.append(stat['total_up_sec'] + stat['total_unknown_sec'])
-                    else:
-                        try:
-                            stat = Uptime_Check_Stat.objects.get(
-                                publisher_id=publisher_id,
-                                check_id=check['id'],
-                                check_date=date,
-                            )
-                            uptimes.append(stat.total_up_sec)
-                        except Uptime_Check_Stat.DoesNotExist:
-                            uptimes.append(None)
+                        # for testing
+                        if len(uptimes) in [2, 3]:
+                            uptimes.append(70000)
+                            continue
 
-                # get metadata for check
-                check_metadata = Uptime_Check_Metadata.objects.get(
-                    publisher_id=publisher_id,
-                    check_id=check['id'],
-                )
+                        if date in stats_by_date:
+                            uptimes.append(stat['total_up_sec'] + stat['total_unknown_sec'])
+                        else:
+                            try:
+                                stat = Uptime_Check_Stat.objects.get(
+                                    publisher_id=publisher_id,
+                                    check_id=check['id'],
+                                    check_date=date,
+                                )
+                                uptimes.append(stat.total_up_sec)
+                            except Uptime_Check_Stat.DoesNotExist:
+                                uptimes.append(None)
 
-                run_alerts(
-                    check_ids=['site-uptime-below-threshold'],
-                    publisher_id=publisher_id,
-                    product_id=product_id,
-                    pipeline_id=pipeline_id,
-                    job_id=job_id,
-                    extra_values={
-                        'uptimes': uptimes,
-                        'check_id': check['id'],
-                        'check_name': check_metadata.check_name,
-                        'check_type': check_metadata.check_type,
-                        'site_code': check_metadata.site_code,
-                        'site_type': check_metadata.site_type,
-                    }
-                )
+                    # get metadata for check
+                    check_metadata = Uptime_Check_Metadata.objects.get(
+                        publisher_id=publisher_id,
+                        check_id=check['id'],
+                    )
+
+                    run_alerts(
+                        check_ids=['site-uptime-below-threshold'],
+                        publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
+                        extra_values={
+                            'uptimes': uptimes,
+                            'check_id': check['id'],
+                            'check_name': check_metadata.check_name,
+                            'check_type': check_metadata.check_type,
+                            'site_code': check_metadata.site_code,
+                            'site_type': check_metadata.site_type,
+                            'site_platform': check_metadata.site_platform,
+                            'pingdom_account': check_metadata.pingdom_account,
+                        }
+                    )
 
         # update high water mark if the new data is more recent
         try:
@@ -107,13 +111,14 @@ class InsertIntoCassandra(Task):
         if to_date > current_high_water:
             System_Global.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
 
-        send_alert_notifications(
-            check_ids=['site-uptime-below-threshold'],
-            publisher_id=publisher_id,
-            product_id=product_id,
-            pipeline_id=pipeline_id,
-            job_id=job_id,
-        )
+        if task_args['run_daily_uptime_alerts']:
+            send_alert_notifications(
+                check_ids=['site-uptime-below-threshold'],
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 

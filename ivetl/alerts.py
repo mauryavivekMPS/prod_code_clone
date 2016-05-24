@@ -253,11 +253,11 @@ CHECKS = {
         'filters': [],
         'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
         'table_order': [
-            {'key': 'check_name', 'name': 'Check Name', 'width': 'wide'},
-            {'key': 'check_id', 'name': 'Check ID'},
-            {'key': 'check_type', 'name': 'Check Type'},
+            {'key': 'check_name', 'name': 'Check', 'type': 'check-link', 'width': 'wide'},
             {'key': 'site_code', 'name': 'Site Code'},
             {'key': 'site_type', 'name': 'Site Type'},
+            {'key': 'site_platform', 'name': 'Site Platform'},
+            {'key': 'pingdom_account', 'name': 'Pingdom Account'},
         ],
         'email_generator_function': generate_site_check_email,
         'products': [
