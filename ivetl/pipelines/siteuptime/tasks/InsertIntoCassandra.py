@@ -61,9 +61,9 @@ class InsertIntoCassandra(Task):
                     for date in utils.date_range(alert_from_date, to_date):
 
                         # for testing
-                        if len(uptimes) in [2, 3]:
-                            uptimes.append(70000)
-                            continue
+                        # if len(uptimes) in [2, 3]:
+                        #     uptimes.append(70000)
+                        #     continue
 
                         if date in stats_by_date:
                             uptimes.append(stat['total_up_sec'] + stat['total_unknown_sec'])
@@ -92,6 +92,8 @@ class InsertIntoCassandra(Task):
                         job_id=job_id,
                         extra_values={
                             'uptimes': uptimes,
+                            'from_date': alert_from_date.strftime('%Y-%m-%d'),
+                            'to_date': to_date.strftime('%Y-%m-%d'),
                             'check_id': check['id'],
                             'check_name': check_metadata.check_name,
                             'check_type': check_metadata.check_type,

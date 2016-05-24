@@ -1,12 +1,13 @@
 import logging
 import json
 from operator import attrgetter
+from dateutil.parser import parse
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from ivetl.models import Notification_Summary, Alert
-from ivetl.alerts import CHECKS
+from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
 
@@ -81,14 +82,24 @@ def include_notification_details(request):
                     article_title = article_title[:44]
                 else:
                     article_title = 'Untitled'
-                rendered_value = '<a href="http://dx.doi.org/%s" target="_blank">%s</a>' % (values['doi'], article_title)
+                rendered_value = '<a href="http://dx.doi.org/%s" target="_blank">%s</a>' % (
+                    values['doi'],
+                    article_title
+                )
             elif value_type == 'check-link':
                 check_name = values.get('check_name')
                 if check_name:
                     check_name = check_name[:44]
                 else:
                     check_name = 'Untitled'
-                rendered_value = '<a href="https://my.pingdom.com/reports/responsetime#check=%s&daterange=1462172400-1462690799&tab=result_tab" target="_blank">%s</a>' % (values['check_id'], check_name)
+                from_timestamp = int(parse(values['from_date']).timestamp())
+                to_timestamp = int(parse(values['to_date']).timestamp())
+                rendered_value = '<a href="https://my.pingdom.com/reports/responsetime#check=%s&daterange=%s-%s&tab=result_tab" target="_blank">%s</a>' % (
+                    values['check_id'],
+                    from_timestamp,
+                    to_timestamp,
+                    check_name
+                )
             else:
                 rendered_value = values[col['key']]
 
@@ -101,9 +112,13 @@ def include_notification_details(request):
             })
         ordered_values_list.append(row)
 
+    setattr(alert, 'param_display_string', get_check_params_display_string(alert))
+    setattr(alert, 'filter_display_string', get_filter_params_display_string(alert))
+
     return render(request, 'notifications/include/details.html', {
         'notification': notification_summary,
         'values_list': ordered_values_list,
+        'alert': alert,
         'check': check,
         'product': common.PRODUCT_BY_ID[notification_summary.product_id],
         'is_include': True,

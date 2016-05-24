@@ -76,15 +76,19 @@ def generate_site_check_email(values):
         notification_intro = '<p>There was <b>1</b> site that fell below the uptime threshold for <b>%s</a>' % values['alert_name']
     else:
         notification_subject = '%s sites below threshold for %s' % (values['num_notifications'], values['alert_name'])
-        notification_intro = '<p>There were %s sites that fell below the uptime threshold for %s' % (values['num_notifications'], values['alert_name'])
+        notification_intro = '<p>There were %s sites below the uptime threshold for %s' % (values['num_notifications'], values['alert_name'])
 
-    subject = 'Impact Vizor (internal): %s' % notification_subject
+    subject = 'Impact Vizor: %s' % notification_subject
     body = """
         %s
+        <p>Params: %s</p>
+        <p>Filters: %s</p>
         <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="%s%s?notification_summary_id=%s#notification-%s">View notification details</a></p>
         <p>Thank you,<br/>Impact Vizor Team</p>
     """ % (
         notification_intro,
+        get_check_params_display_string(values['alert']),
+        get_filter_params_display_string(values['alert']),
         common.IVETL_WEB_ADDRESS,
         reverse('notifications.list'),
         values['notification_summary'].notification_summary_id,
@@ -122,19 +126,19 @@ CHECK_TYPES = {
         'params': [
             {
                 'name': 'window_days',
-                'label': 'Window Length',
+                'label': 'Window',
                 'type': 'integer',
                 'requirement_text': 'A window length in days'
             },
             {
                 'name': 'threshold_days',
-                'label': 'Days Below',
+                'label': 'Days',
                 'type': 'integer',
                 'requirement_text': 'A number of days below'
             },
             {
                 'name': 'threshold_uptime',
-                'label': 'Uptime Percentage',
+                'label': 'Threshold',
                 'type': 'percentage-float',
                 'requirement_text': 'A percentage threshold'
             },
@@ -256,8 +260,10 @@ CHECKS = {
             {'key': 'check_name', 'name': 'Check', 'type': 'check-link', 'width': 'wide'},
             {'key': 'site_code', 'name': 'Site Code'},
             {'key': 'site_type', 'name': 'Site Type'},
-            {'key': 'site_platform', 'name': 'Site Platform'},
-            {'key': 'pingdom_account', 'name': 'Pingdom Account'},
+            {'key': 'site_platform', 'name': 'Platform'},
+            {'key': 'pingdom_account', 'name': 'Account'},
+            {'key': 'from_date', 'name': 'From Date'},
+            {'key': 'to_date', 'name': 'To Date'},
         ],
         'email_generator_function': generate_site_check_email,
         'products': [
@@ -265,6 +271,34 @@ CHECKS = {
         ]
     },
 }
+
+
+def get_check_params_display_string(alert):
+    check_params = json.loads(alert.check_params)
+    param_strings = []
+    for p in CHECKS[alert.check_id]['check_type']['params']:
+        if p['name'] in check_params:
+            param_strings.append('%s = %s' % (p['label'], check_params[p['name']]))
+    return ", ".join(param_strings)
+
+
+def get_filter_params_display_string(alert):
+    filter_params = json.loads(alert.filter_params)
+    filter_strings = []
+    for f in CHECKS[alert.check_id]['filters']:
+        if f['name'] in filter_params:
+            filter_strings.append('%s = %s' % (f['label'], filter_params[f['name']]))
+    return ", ".join(filter_strings)
+
+
+def get_all_params_for_check(check_id=None, publisher_id=None):
+    all_params = []
+    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
+        if alert.enabled:
+            check_params = json.loads(alert.check_params)
+            all_params.append(check_params)
+
+    return all_params
 
 
 def run_alerts(check_ids=[], publisher_id=None, product_id=None, pipeline_id=None, job_id=None, new_value=None, old_value=None, extra_values=None):
@@ -322,16 +356,6 @@ def run_alerts(check_ids=[], publisher_id=None, product_id=None, pipeline_id=Non
                         )
 
 
-def get_all_params_for_check(check_id=None, publisher_id=None):
-    all_params = []
-    for alert in Alert.objects.allow_filtering().filter(publisher_id=publisher_id, check_id=check_id):
-        if alert.enabled:
-            check_params = json.loads(alert.check_params)
-            all_params.append(check_params)
-
-    return all_params
-
-
 def send_alert_notifications(check_ids=[], publisher_id=None, product_id=None, pipeline_id=None, job_id=None):
 
     now = datetime.datetime.now()
@@ -366,16 +390,17 @@ def send_alert_notifications(check_ids=[], publisher_id=None, product_id=None, p
                 num_notifications = len(values_list)
 
                 subject, body = CHECKS[check_id]['email_generator_function']({
+                    'alert': alert,
                     'alert_name': alert.name,
                     'num_notifications': num_notifications,
                     'publisher_id': publisher_id,
                     'notification_summary': notification_summary,
                 })
 
-                with open('/Users/john/email.txt', 'w') as f:
-                    f.write(subject)
-                    f.write('\n\n')
-                    f.write(body)
+                # with open('/Users/john/email.txt', 'w') as f:
+                #     f.write(subject)
+                #     f.write('\n\n')
+                #     f.write(body)
 
                 if alert.emails:
                     to = ",".join(alert.emails)

@@ -2,6 +2,12 @@
     <p class="notification-details-summary">
         <span class="lnr lnr-arrow-right notification-details-arrow"></span>
         {{ values_list|length }} result{{ values_list|pluralize }} from {{ product.name }}
+        {% if alert.param_display_string %}
+            <div class="alert-details"><b>Parameters:</b> {{ alert.param_display_string }}</div>
+        {% endif %}
+        {% if alert.filter_display_string %}
+            <div class="alert-details"><b>Filters:</b> {{ alert.filter_display_string }}</div>
+        {% endif %}
     </p>
     <table class="table">
         <thead>

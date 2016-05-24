@@ -6,7 +6,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
-from ivetl.alerts import CHECKS
+from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -50,22 +50,8 @@ def list_alerts(request):
     for alert in sorted_alerts:
         check = CHECKS[alert.check_id]
         setattr(alert, 'check_name', check['name'])
-
-        # build neat little param display strings
-        check_params = json.loads(alert.check_params)
-        param_strings = []
-        for p in check['check_type']['params']:
-            if p['name'] in check_params:
-                param_strings.append('%s = %s' % (p['label'], check_params[p['name']]))
-        setattr(alert, 'param_display_string', ", ".join(param_strings))
-
-        # build neat little filter display strings
-        filter_params = json.loads(alert.filter_params)
-        filter_strings = []
-        for f in check['filters']:
-            if f['name'] in filter_params:
-                filter_strings.append('%s = %s' % (f['label'], filter_params[f['name']]))
-        setattr(alert, 'filter_display_string', ", ".join(filter_strings))
+        setattr(alert, 'param_display_string', get_check_params_display_string(alert))
+        setattr(alert, 'filter_display_string', get_filter_params_display_string(alert))
 
     response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,
