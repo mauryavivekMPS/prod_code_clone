@@ -8,6 +8,11 @@
         <div class="col-md-12">
             <h1>Alerts</h1>
             <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Alert</a>
+            <ul class="list-tabs">
+                <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                <li><a href="?filter=active" {% if filter_param == 'active' %}class="active"{% endif %}>Active</a></li>
+                <li><a href="?filter=archived" {% if filter_param == 'archived' %}class="active"{% endif %}>Archived</a></li>
+            </ul>
         </div>
     </div>
 

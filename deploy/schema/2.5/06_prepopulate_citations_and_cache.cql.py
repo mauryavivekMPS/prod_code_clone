@@ -147,8 +147,11 @@ class Attribute_Values(Model):
 if __name__ == "__main__":
     open_cassandra_connection()
 
-    print('Populating citation_count and attriute value cache for all publishers...')
     for p in Publisher_Metadata.objects.all():
+        print('Looking at publisher: %s' % p.publisher_id)
+
+        print('Counting citations...')
+
         articles = Published_Article_By_Cohort.objects.filter(publisher_id=p.publisher_id).limit(500000)
         for a in articles:
             citation_count = Article_Citations.objects.filter(publisher_id=p.publisher_id, article_doi=a.article_doi).limit(500000).count()
@@ -156,6 +159,9 @@ if __name__ == "__main__":
                 citation_count=citation_count,
             )
 
+        print('Done')
+
+        print('Collecting attribute values...')
         all_articles = Published_Article.objects.filter(publisher_id=p.publisher_id)
         value_names = set()
 
@@ -171,12 +177,17 @@ if __name__ == "__main__":
                 if article[name]:
                     values.add(article[name])
 
+            if len(values):
+                print('\t%s: %s' % (name, len(values)))
+
             Attribute_Values.objects(
                 publisher_id=p.publisher_id,
                 name='published_article.' + name,
             ).update(
                 values_json=json.dumps(list(values))
             )
+
+        print('Done')
 
     close_cassandra_connection()
 

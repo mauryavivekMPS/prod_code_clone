@@ -9,8 +9,16 @@ var EditAlertPage = (function() {
         return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10)) && parseInt(value) > 0;
     };
 
-    var isPercentageValue = function(value) {
+    var isFloatValue = function(value) {
+      return !isNaN(parseFloat(value)) && isFinite(value);
+    };
+
+    var isPercentageIntegerValue = function(value) {
         return isIntegerValue(value) && parseInt(value) > 0;
+    };
+
+    var isPercentageFloatValue = function(value) {
+        return isFloatValue(value) && parseFloat(value) > 0;
     };
 
     var checkForm = function() {
@@ -43,8 +51,14 @@ var EditAlertPage = (function() {
                 if (param.type == 'integer') {
                     isValid = isIntegerValue(value);
                 }
-                else if (param.type == 'percentage') {
-                    isValid = isPercentageValue(value);
+                else if (param.type == 'float') {
+                    isValid = isFloatValue(value);
+                }
+                else if (param.type == 'percentage-integer') {
+                    isValid = isPercentageIntegerValue(value);
+                }
+                else if (param.type == 'percentage-float') {
+                    isValid = isPercentageFloatValue(value);
                 }
             }
 
@@ -188,6 +202,18 @@ var EditAlertPage = (function() {
 
         $('#id_enabled').on('change', function() {
             checkForm();
+        });
+
+        var m = $('#confirm-archive-alert-modal');
+
+        m.find('.confirm-archive-alert-button').on('click', function() {
+            IvetlWeb.showLoading();
+            m.modal('hide');
+            $('#archive-alert-form').submit();
+        });
+
+        $('.archive-alert').on('click', function() {
+            m.modal();
         });
     };
 

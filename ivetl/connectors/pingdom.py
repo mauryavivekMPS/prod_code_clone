@@ -2,6 +2,7 @@ import time
 import requests
 import datetime
 from ivetl.connectors.base import BaseConnector, MaxTriesAPIError
+from ivetl import utils
 
 
 class PingdomConnector(BaseConnector):
@@ -72,11 +73,7 @@ class PingdomConnector(BaseConnector):
     def get_check_stats(self, check_id, from_date, to_date):
         uptime_stats = []
 
-        def _date_range(start_date, end_date):
-            for n in range(int((end_date - start_date).days) + 1):
-                yield start_date + datetime.timedelta(n)
-
-        for date in _date_range(from_date, to_date):
+        for date in utils.date_range(from_date, to_date):
             from_timestamp = int(date.timestamp())
             to_timestamp = int((date + datetime.timedelta(1)).timestamp())
 

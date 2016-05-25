@@ -66,7 +66,7 @@ class AdminUserForm(forms.Form):
             self.fields['password'].widget.attrs['style'] = 'display:none'
 
     def clean_email(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data['email'].strip()
         if not self.instance or email != self.instance.email:
             if User.objects.filter(email=email).count():
                 raise forms.ValidationError("This email address is already in use.")

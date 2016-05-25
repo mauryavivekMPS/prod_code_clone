@@ -6,7 +6,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
-from ivetl.alerts import CHECKS
+from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -32,28 +32,26 @@ def list_alerts(request):
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
+    filter_param = request.GET.get('filter', request.COOKIES.get('alert-list-filter', 'all'))
+
+    filtered_alerts = []
+    if filter_param == 'active':
+        for alert in alerts:
+            if not alert.archived:
+                filtered_alerts.append(alert)
+    elif filter_param == 'archived':
+        for alert in alerts:
+            if alert.archived:
+                filtered_alerts.append(alert)
+
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     for alert in sorted_alerts:
         check = CHECKS[alert.check_id]
         setattr(alert, 'check_name', check['name'])
-
-        # build neat little param display strings
-        check_params = json.loads(alert.check_params)
-        param_strings = []
-        for p in check['check_type']['params']:
-            if p['name'] in check_params:
-                param_strings.append('%s = %s' % (p['label'], check_params[p['name']]))
-        setattr(alert, 'param_display_string', ", ".join(param_strings))
-
-        # build neat little filter display strings
-        filter_params = json.loads(alert.filter_params)
-        filter_strings = []
-        for f in check['filters']:
-            if f['name'] in filter_params:
-                filter_strings.append('%s = %s' % (f['label'], filter_params[f['name']]))
-        setattr(alert, 'filter_display_string', ", ".join(filter_strings))
+        setattr(alert, 'param_display_string', get_check_params_display_string(alert))
+        setattr(alert, 'filter_display_string', get_filter_params_display_string(alert))
 
     response = render(request, 'alerts/list.html', {
         'alerts': sorted_alerts,
@@ -62,9 +60,11 @@ def list_alerts(request):
         'sort_key': sort_key,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
+        'filter_param': filter_param,
     })
 
-    response.set_cookie('publisher-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('alert-list-sort', value=sort_param, max_age=30*24*60*60)
+    response.set_cookie('alert-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 
@@ -119,10 +119,10 @@ class AlertForm(forms.Form):
             param_value = self.data[param_name]
 
             param_type = check_param['type']
-            if param_type == 'integer':
+            if param_type in ['integer', 'percentage-integer']:
                 param_value = int(param_value)
-            elif param_type == 'percentage':
-                param_value = int(param_value)
+            elif param_type in ['float', 'percentage-float']:
+                param_value = float(param_value)
 
             params[param_name] = param_value
 
@@ -175,6 +175,21 @@ def edit(request, alert_id=None):
             single_publisher_user = True
 
     if request.method == 'POST':
+        if 'archive' in request.POST:
+            if alert:
+                alert.archived = True if request.POST['archive'] == 'on' else False
+
+                # for disabled for archived alerts
+                if alert.archived:
+                    alert.enabled = False
+
+                alert.save()
+
+                if alert.archived:
+                    return HttpResponseRedirect(reverse('alerts.list') + '?from=archive-alert&filter=archived')
+                else:
+                    return HttpResponseRedirect(reverse('alerts.list') + '?from=unarchive-alert&filter=active')
+
         form = AlertForm(request.POST, instance=alert, user=request.user)
         if form.is_valid():
             form.save()
