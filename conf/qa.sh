@@ -9,7 +9,7 @@ unset IVETL_PROD
 IVETL_ROOT=/iv/impactvizor-pipeline
 export IVETL_ROOT
 
-IVETL_CASSANDRA_IP=10.0.1.23
+IVETL_CASSANDRA_IP=10.0.0.21
 export IVETL_CASSANDRA_IP
 
 IVETL_EMAIL_TO_ADDRESS=john@hyperplane.io
