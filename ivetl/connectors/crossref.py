@@ -1,3 +1,4 @@
+import re
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -7,7 +8,7 @@ from ivetl.connectors.base import BaseConnector, MaxTriesAPIError, Authorization
 
 class CrossrefConnector(BaseConnector):
     BASE_CITATION_URL = 'https://doi.crossref.org/servlet/getForwardLinks'
-    BASE_ARTICLE_URL = 'http://api.crossref.org/works/'
+    BASE_ARTICLE_URL = 'http://api.crossref.org/works'
     BASE_WORKS_URL = 'http://api.crossref.org/journals/%s/works'
 
     connector_name = 'Crossref'
@@ -33,7 +34,7 @@ class CrossrefConnector(BaseConnector):
         return first_doi
 
     def get_article(self, doi):
-        url = '%s%s' % (self.BASE_ARTICLE_URL, doi)
+        url = '%s/%s' % (self.BASE_ARTICLE_URL, doi)
         r = self.get_with_retry(url)
 
         try:
@@ -101,6 +102,26 @@ class CrossrefConnector(BaseConnector):
 
         return article
 
+    def search_article(self, publish_date, title, authors):
+        title_search_term = self.solr_encode(self.remove_hex(title))
+        author_search_term = self.solr_encode(' '.join(authors))
+        date_search_term = publish_date.strftime('%Y-%m')
+
+        url = '%s?rows=4&filter=from-pub-date:%s&query.title=%s&query.author=%s' % (
+            self.BASE_ARTICLE_URL,
+            date_search_term,
+            title_search_term,
+            author_search_term,
+        )
+        r = self.get_with_retry(url)
+
+        try:
+            search_results_json = r.json()
+        except ValueError:
+            search_results_json = None
+
+        return search_results_json
+
     def get_with_retry(self, url):
         attempt = 0
         success = False
@@ -136,6 +157,7 @@ class CrossrefConnector(BaseConnector):
             self.tlogger.info(message)
 
     def date_string_from_parts(self, date_parts_list):
+        parts = None
         if type(date_parts_list) is list:
             if len(date_parts_list) == 1 and type(date_parts_list[0]) is list:
                 date_parts = date_parts_list[0]
@@ -172,3 +194,27 @@ class CrossrefConnector(BaseConnector):
     def check_for_auth_error(self, r):
         if 'Incorrect password for username' in r.text:
             raise AuthorizationAPIError(r.text)
+
+    def remove_hex(self, s):
+        return re.sub('&.*;', '', s)
+
+    def solr_encode(self, url_fragment):
+        return url_fragment.replace(' ', '+')\
+            .replace(':', '\\:')\
+            .replace('-', '\\-')\
+            .replace('!', '\\!')\
+            .replace('(', '\\(')\
+            .replace(')', '\\)')\
+            .replace('^', '\\^')\
+            .replace('[', '\\[')\
+            .replace(']', '\\]')\
+            .replace('\"', '\\\"')\
+            .replace('{', '\\{')\
+            .replace('}', '\\}')\
+            .replace('~', '\\~')\
+            .replace('*', '\\*')\
+            .replace('?', '\\?')\
+            .replace('|', '\\|')\
+            .replace('&', '')\
+            .replace(';', '\\;')\
+            .replace('/', '\\/')

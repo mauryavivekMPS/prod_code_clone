@@ -1,14 +1,13 @@
 import csv
 import codecs
 import json
-import re
-import requests
 from datetime import timedelta
 from datetime import date
 from ivetl.pipelines.rejectedarticles.tasks.CRArticle import CRArticle
 from ivetl.models.IssnJournal import Issn_Journal
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
+from ivetl.connectors import CrossrefConnector
 
 
 @app.task
@@ -49,13 +48,20 @@ class XREFPublishedArticleSearchTask(Task):
                 tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + publisher + " / " + manuscript_id)
 
                 date_of_rejection = data['date_of_rejection']
-                title = data['title']
 
+                title = data['title']
                 if title is None or title.strip == "":
                     tlogger.info("No title, skipping record")
                     continue
 
-                data['status'] = ''
+                def _get_last_names(s):
+                    if s and type(s) == str:
+                        return [full_name.split(',')[0].strip() for full_name in s.split(';')]
+
+                author_last_names = []
+                author_last_names.extend(_get_last_names(data['first_author']))
+                author_last_names.extend(_get_last_names(data['corresponding_author']))
+                author_last_names.extend(_get_last_names(data['co_authors']))
 
                 if '-' in date_of_rejection:
                     dor_parts = date_of_rejection.split('-')
@@ -69,67 +75,35 @@ class XREFPublishedArticleSearchTask(Task):
                 if dor_year < 99:
                     dor_year += 2000
 
-                # date (y, m, d)
                 dor_date = date(dor_year, dor_month, dor_day)
                 dop_date = dor_date + timedelta(days=1)
 
-                dop_date_param = "filter=from-pub-date:" + dop_date.strftime('%Y-%m')
+                data['status'] = ''
 
-                title = self.remove_hex(title)
-                title = self.solr_encode(title)
+                crossref = CrossrefConnector(tlogger=tlogger)
+                search_results = crossref.search_article(dop_date, title, author_last_names)
 
-                attempt = 0
-                max_attempts = 3
+                if search_results and 'ok' in search_results['status'] and len(search_results['message']['items']) > 0:
+                    data['status'] = "Match found"
 
-                while attempt < max_attempts:
+                    for i in search_results['message']['items']:
 
-                    try:
-                        url = 'http://api.crossref.org/works?rows=4&' + dop_date_param + '&query=' + title
-                        tlogger.info("Searching CrossRef for: " + url)
-                        r = requests.get(url, timeout=30)
+                        article = CRArticle()
+                        article.setxrefdetails(i, issn_journals)
 
-                        if "Internal Server Error" in str(r.content):
-                            print("No match found")
-                            data['status'] = "No match found"
+                        i["xref_journal"] = article.journal
+                        i["xref_publisher"] = article.publisher
+                        i["xref_publishdate"] = article.publishdate
+                        i["xref_first_author"] = article.author_last_name + ',' + article.author_first_name
+                        i["xref_co_authors_ln_fn"] = ';'.join(article.xrefcoauthors)
+                        i["xref_title"] = article.bptitle
+                        i["xref_doi"] = article.doi
+                        i["doi_lookup_status"] = "Match found"
 
-                        else:
+                    data['xref_results'] = search_results
 
-                            xrefdata = r.json()
-
-                            if 'ok' in xrefdata['status'] and len(xrefdata['message']['items']) > 0:
-
-                                data['status'] = "Match found"
-
-                                for i in xrefdata['message']['items']:
-
-                                    article = CRArticle()
-                                    article.setxrefdetails(i, issn_journals)
-
-                                    i["xref_journal"] = article.journal
-                                    i["xref_publisher"] = article.publisher
-                                    i["xref_publishdate"] = article.publishdate
-                                    i["xref_first_author"] = article.author_last_name + ',' + article.author_first_name
-                                    i["xref_co_authors_ln_fn"] = ';'.join(article.xrefcoauthors)
-                                    i["xref_title"] = article.bptitle
-                                    i["xref_doi"] = article.doi
-                                    i["doi_lookup_status"] = "Match found"
-
-                                data['xref_results'] = xrefdata
-
-                            else:
-                                data['status'] = "No match found"
-
-                            break
-
-                    except Exception:
-                        tlogger.info("XREF Search failed. Trying Again")
-                        tlogger.info(Exception, exc_info=True)
-                        data['status'] = "No match found"
-
-                        attempt += 1
-
-                if attempt >= max_attempts:
-                    tlogger.error("!!! XREF Search failed max times !!!")
+                else:
+                    data['status'] = "No match found"
 
                 row = """%s\t%s\t%s\n""" % (
                     publisher,
@@ -146,27 +120,3 @@ class XREFPublishedArticleSearchTask(Task):
             'input_file': target_file_name,
             'count': count,
         }
-
-    def remove_hex(self, str):
-        return re.sub('&.*;', '', str)
-
-    def solr_encode(self, url):
-        return url.replace(' ', '+')\
-            .replace(':', '\\:')\
-            .replace('-', '\\-')\
-            .replace('!', '\\!')\
-            .replace('(', '\\(')\
-            .replace(')', '\\)')\
-            .replace('^', '\\^')\
-            .replace('[', '\\[')\
-            .replace(']', '\\]')\
-            .replace('\"', '\\\"')\
-            .replace('{', '\\{')\
-            .replace('}', '\\}')\
-            .replace('~', '\\~')\
-            .replace('*', '\\*')\
-            .replace('?', '\\?')\
-            .replace('|', '\\|')\
-            .replace('&', '')\
-            .replace(';', '\\;')\
-            .replace('/', '\\/')
