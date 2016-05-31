@@ -368,7 +368,7 @@ class PublisherForm(forms.Form):
 
             def int_or_none(i):
                 try:
-                    return int(issn_value['months_until_free'])
+                    return int(i)
                 except:
                     return None
 
