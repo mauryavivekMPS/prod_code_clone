@@ -1,0 +1,1 @@
+from ivetl.pipelines.institutionmetadata.InstitutionMetadataPipeline import InstitutionMetadataPipeline
