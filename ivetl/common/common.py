@@ -131,6 +131,31 @@ PIPELINES = [
         'use_high_water_mark': True,
         'supports_restart': True,
     },
+    {
+        'name': 'Institution Metadata',
+        'id': 'institution_metadata',
+        'user_facing_display_name': 'Institution metadata',
+        'class': 'ivetl.pipelines.institutionmetadata.InstitutionMetadataPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Update Site and Check Metadata',
+    },
+    {
+        'name': 'Institution Usage',
+        'id': 'institution_usage',
+        'user_facing_display_name': 'Institution usage',
+        'class': 'ivetl.pipelines.institutionusage.InstitutionUsagePipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'rebuild_data_source_id': [],
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -281,10 +306,26 @@ PRODUCTS = [
         'tableau_workbooks': [],
     },
     {
+        'name': 'Institutions',
+        'id': 'institutions',
+        'is_user_facing': True,
+        'order': 4,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['institution_metadata'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['institution_usage'],
+            },
+        ],
+        'tableau_workbooks': [],
+    },
+    {
         'name': 'HighWire Sites',
         'id': 'highwire_sites',
         'is_user_facing': True,
-        'order': 4,
+        'order': 5,
         'cohort': False,
         'pipelines': [
             {
@@ -294,7 +335,7 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['site_uptime'],
             },
         ],
-        'tableau_workbooks': []
+        'tableau_workbooks': [],
     },
 ]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
