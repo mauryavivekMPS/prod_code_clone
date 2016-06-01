@@ -1,5 +1,6 @@
 import logging
 import json
+import requests
 from operator import attrgetter
 from dateutil.parser import parse
 from django.shortcuts import render
@@ -59,6 +60,18 @@ def list_notifications(request):
     response.set_cookie('notification-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
+
+
+def external(request):
+    # url = 'http://10.0.0.143/trusted'
+    # data = {'username': 'admin'}
+    # response = requests.post(url, data=data)
+
+    token = 'xo7rzQo0jiG2kd70HW0uiF5r'
+
+    return render(request, 'notifications/external.html', {
+        'token': token,
+    })
 
 
 @login_required

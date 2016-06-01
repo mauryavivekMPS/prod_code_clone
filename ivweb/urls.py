@@ -33,6 +33,7 @@ urlpatterns = patterns(
 
     # notifications
     url(r'^notifications/$', 'notifications.list_notifications', name='notifications.list'),
+    url(r'^external/$', 'notifications.external', name='notifications.external'),
 
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
