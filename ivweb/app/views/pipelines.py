@@ -88,7 +88,7 @@ def list_pipelines(request, product_id, pipeline_id):
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            if filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
+            if pipeline.get('single_publisher_pipeline') or filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
 
                 # special support for other pipeline-level filters
                 if pipeline.get('filter_for_benchpress_support'):
