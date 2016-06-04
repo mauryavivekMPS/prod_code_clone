@@ -68,13 +68,12 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                     tasks.GetRejectedArticlesDataFiles.s(task_args) |
                     tasks.ValidateInputFileTask.s() |
                     tasks.PrepareInputFileTask.s() |
-                    tasks.XREFPublishedArticleSearchTask.s()
-                    # tasks.SelectPublishedArticleTask.s()
-                    # tasks.ScopusCitationLookupTask.s() |
-                    # tasks.MendeleyLookupTask.s() |
-                    # tasks.PrepareForDBInsertTask.s() |
-                    # tasks.InsertIntoCassandraDBTask.s() |
-                    # published_articles_tasks.CheckRejectedManuscriptTask.s()
+                    tasks.XREFPublishedArticleSearchTask.s() |
+                    tasks.ScopusCitationLookupTask.s() |
+                    tasks.MendeleyLookupTask.s() |
+                    tasks.PrepareForDBInsertTask.s() |
+                    tasks.InsertIntoCassandraDBTask.s() |
+                    published_articles_tasks.CheckRejectedManuscriptTask.s()
                 ).delay()
 
             else:
