@@ -102,17 +102,19 @@ class CrossrefConnector(BaseConnector):
 
         return article
 
-    def search_article(self, publish_date, title, authors):
-        title_search_term = self.solr_encode(self.remove_hex(title))
-        author_search_term = self.solr_encode(' '.join(authors))
+    def search_article(self, publish_date, title, authors=None):
         date_search_term = publish_date.strftime('%Y-%m')
+        title_search_term = self.solr_encode(self.remove_hex(title))
 
-        url = '%s?rows=4&filter=from-pub-date:%s&query.title=%s&query.author=%s' % (
+        url = '%s?rows=4&filter=from-pub-date:%s&query.title=%s' % (
             self.BASE_ARTICLE_URL,
             date_search_term,
             title_search_term,
-            author_search_term,
         )
+
+        if authors:
+            url += '&query.author=%s' % self.solr_encode(' '.join(authors))
+
         r = self.get_with_retry(url)
 
         try:

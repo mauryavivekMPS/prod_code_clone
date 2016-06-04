@@ -1,4 +1,4 @@
-class CRArticle:
+class CrossrefArticle:
 
     def __init__(self):
         self.cites = 0
@@ -79,8 +79,3 @@ class CRArticle:
                     continue
 
                 self.xrefcoauthors.append(a['family'] + "," + a['given'])
-
-
-
-
-
