@@ -154,8 +154,8 @@ class XREFPublishedArticleSearchTask(Task):
                     continue  # ignore the header
 
                 # debug titles
-                if count > 20:
-                    break
+                # if count > 20:
+                #     break
 
                 publisher = line[0]
                 manuscript_id = line[1]
