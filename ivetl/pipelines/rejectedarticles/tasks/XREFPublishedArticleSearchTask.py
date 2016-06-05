@@ -263,10 +263,10 @@ class XREFPublishedArticleSearchTask(Task):
                                     tlogger=tlogger
                                 )
 
-                            is_50_50_match = True
+                            is_50_50_match = False
                             if strategy['allow_50_50_match']:
-                                if author_score < 0.5 or title_score < 0.5:
-                                    is_50_50_match = False
+                                if author_score >= 0.5 and title_score >= 0.5:
+                                    is_50_50_match = True
 
                             # debug titles
                             if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match:
@@ -290,7 +290,7 @@ class XREFPublishedArticleSearchTask(Task):
 
                             fifty_match_string = ''
                             if strategy['allow_50_50_match']:
-                                if is_title_match:
+                                if is_50_50_match:
                                     fifty_match_string = 'match-50-50'
                                 else:
                                     fifty_match_string = 'no-50-50'
