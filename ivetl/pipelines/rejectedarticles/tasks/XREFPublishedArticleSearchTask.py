@@ -297,7 +297,7 @@ class XREFPublishedArticleSearchTask(Task):
 
                             title_csv.writerow([manuscript_id, strategy['name'], match_string, article.bptitle, ','.join(crossref_last_names), author_match_string, author_score, title_match_string, title_score, fifty_match_string])
 
-                            if is_author_match and is_title_match:
+                            if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match:
                                 _add_crossref_properties_to_result(result, article)
                                 matching_result = result
                                 break
