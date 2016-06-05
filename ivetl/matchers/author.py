@@ -1,5 +1,4 @@
 from fuzzywuzzy import fuzz
-from decimal import Decimal
 
 
 def match_authors(rejected_last_names, crossref_last_names, tlogger=None):
@@ -16,10 +15,18 @@ def match_authors(rejected_last_names, crossref_last_names, tlogger=None):
                 break
 
     num_rejected = len(rejected_last_names)
+    num_crossref = len(crossref_last_names)
+
+    if num_rejected > num_crossref:
+        largest_list_size = num_rejected
+    else:
+        largest_list_size = num_crossref
+
     if num_rejected <= 0:
         ratio_match = 0.0
     else:
-        ratio_match = Decimal(num_match) / Decimal(num_rejected)
+        ratio_match = num_match / largest_list_size
+
     author_match_score = ratio_match
 
     if tlogger:
@@ -27,11 +34,11 @@ def match_authors(rejected_last_names, crossref_last_names, tlogger=None):
         tlogger.info("Rejected Authors: " + ','.join(rejected_last_names))
         tlogger.info("CrossRef Authors: " + ','.join(crossref_last_names))
 
-    if num_rejected >= 5 and ratio_match >= 0.70:
+    if largest_list_size >= 5 and ratio_match >= 0.70:
         authors_match = True
-    elif num_rejected == 4 and ratio_match >= 0.75:
+    elif largest_list_size == 4 and ratio_match >= 0.75:
         authors_match = True
-    elif num_rejected == 3 and ratio_match >= 0.66:
+    elif largest_list_size == 3 and ratio_match >= 0.66:
         authors_match = True
     elif ratio_match == 1.0:
         authors_match = True
