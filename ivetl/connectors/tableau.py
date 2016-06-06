@@ -347,7 +347,7 @@ class TableauConnector(BaseConnector):
 
         # add all data sources
         for data_source in DATA_SOURCES:
-            print('data source: %s' + data_source['id'])
+            print('data source: %s' % data_source['id'])
             fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
             self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
             self.refresh_data_source(publisher_id, project_name, data_source['id'])
