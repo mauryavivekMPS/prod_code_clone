@@ -173,7 +173,19 @@ class XREFPublishedArticleSearchTask(Task):
                 author_last_names = get_last_names([data['first_author'], data['corresponding_author'], data['co_authors']])
 
                 # debug titles
-                title_csv.writerow([manuscript_id, 'original', '', data['title'], ','.join(author_last_names), '', '', '', '', ''])
+                title_csv.writerow([
+                    manuscript_id,
+                    'original',
+                    '',
+                    data['title'],
+                    ','.join(author_last_names),
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                ])
 
                 if '-' in date_of_rejection:
                     dor_parts = date_of_rejection.split('-')
@@ -209,8 +221,10 @@ class XREFPublishedArticleSearchTask(Task):
                         'name': 'title-only-search',
                         'include_author_in_search': False,
                         'match_author': True,
-                        'match_title': False,
+                        'match_title': True,
                         'allow_50_50_match': True,
+                        'allow_10_80_match': True,
+                        'strict_single_author_title_match': True,
                     },
                     {
                         'name': 'title-and-author-search',
@@ -218,6 +232,8 @@ class XREFPublishedArticleSearchTask(Task):
                         'match_author': True,
                         'match_title': True,
                         'allow_50_50_match': True,
+                        'allow_10_80_match': True,
+                        'strict_single_author_title_match': True,
                     },
                 ]
 
@@ -263,10 +279,18 @@ class XREFPublishedArticleSearchTask(Task):
                                     tlogger=tlogger
                                 )
 
+                                if strategy['strict_single_author_title_match'] and len(author_last_names) <= 1:
+                                    is_title_match = title_score >= 0.5
+
                             is_50_50_match = False
                             if strategy['allow_50_50_match']:
                                 if author_score >= 0.5 and title_score >= 0.5:
                                     is_50_50_match = True
+
+                            is_10_80_match = False
+                            if strategy['allow_10_80_match']:
+                                if author_score >= 0.1 and title_score >= 0.8:
+                                    is_10_80_match = True
 
                             # debug titles
                             if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match:
@@ -288,14 +312,33 @@ class XREFPublishedArticleSearchTask(Task):
                                 else:
                                     title_match_string = 'no-title'
 
-                            fifty_match_string = ''
+                            fifty_fifty_match_string = ''
                             if strategy['allow_50_50_match']:
                                 if is_50_50_match:
-                                    fifty_match_string = 'match-50-50'
+                                    fifty_fifty_match_string = 'match-50-50'
                                 else:
-                                    fifty_match_string = 'no-50-50'
+                                    fifty_fifty_match_string = 'no-50-50'
 
-                            title_csv.writerow([manuscript_id, strategy['name'], match_string, article.bptitle, ','.join(crossref_last_names), author_match_string, author_score, title_match_string, title_score, fifty_match_string])
+                            ten_eighty_match_string = ''
+                            if strategy['allow_10_80_match']:
+                                if is_10_80_match:
+                                    ten_eighty_match_string = 'match-10-80'
+                                else:
+                                    ten_eighty_match_string = 'no-10-80'
+
+                            title_csv.writerow([
+                                manuscript_id,
+                                strategy['name'],
+                                match_string,
+                                article.bptitle,
+                                ','.join(crossref_last_names),
+                                author_match_string,
+                                author_score,
+                                title_match_string,
+                                title_score,
+                                fifty_fifty_match_string,
+                                ten_eighty_match_string,
+                            ])
 
                             if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match:
                                 _add_crossref_properties_to_result(result, article)
