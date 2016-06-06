@@ -340,7 +340,7 @@ class XREFPublishedArticleSearchTask(Task):
                                 ten_eighty_match_string,
                             ])
 
-                            if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match:
+                            if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match or strategy['allow_10_80_match'] and is_10_80_match:
                                 _add_crossref_properties_to_result(result, article)
                                 matching_result = result
                                 break
