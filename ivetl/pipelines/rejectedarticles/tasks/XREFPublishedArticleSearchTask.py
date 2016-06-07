@@ -21,15 +21,15 @@ def is_valid_journal(doi):
     return True
 
 
-def remove_non_ascii(s):
-    return ''.join(i for i in s if ord(i) < 128)
+def remove_disallowed_chars(s):
+    return ''.join(c for c in s if ord(c) < 128 or c in ['?', '%', '\r', '\n'])
 
 
 def get_last_names(name_strings):
     unique_names = set()
     for s in name_strings:
         if s and type(s) == str:
-            unique_names.update([remove_non_ascii(full_name.split(',')[0].strip().lower()) for full_name in s.split(';')])
+            unique_names.update([remove_disallowed_chars(full_name.split(',')[0].strip().lower()) for full_name in s.split(';')])
     return list(unique_names)
 
 
@@ -70,7 +70,7 @@ class CrossrefArticle:
         self.doi = j['DOI']
 
         if len(j['title']) > 0:
-            self.bptitle = j['title'][0].replace("\n", "").replace("\r", "")
+            self.bptitle = remove_disallowed_chars(j['title'][0])
         else:
             self.bptitle = ""
 
@@ -165,7 +165,7 @@ class XREFPublishedArticleSearchTask(Task):
 
                 date_of_rejection = data['date_of_rejection']
 
-                title = data['title']
+                title = remove_disallowed_chars(data['title'])
                 if title is None or title.strip == "":
                     tlogger.info("No title, skipping record")
                     continue
