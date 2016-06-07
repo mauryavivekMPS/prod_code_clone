@@ -1,5 +1,6 @@
 import re
 import requests
+import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 
@@ -12,7 +13,7 @@ class CrossrefConnector(BaseConnector):
     BASE_WORKS_URL = 'http://api.crossref.org/journals/%s/works'
 
     connector_name = 'Crossref'
-    max_attempts = 20
+    max_attempts = 7
     request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
@@ -128,6 +129,15 @@ class CrossrefConnector(BaseConnector):
         attempt = 0
         success = False
         r = None
+
+        def _pause_for_retry():
+            if attempt == self.max_attempts - 2:
+                time.sleep(30)
+            elif attempt == self.max_attempts - 1:
+                time.sleep(300)
+            else:
+                time.sleep(0.2)
+
         while not success and attempt < self.max_attempts:
             try:
                 r = requests.get(url, timeout=self.request_timeout)
@@ -139,14 +149,17 @@ class CrossrefConnector(BaseConnector):
                     return r
                 if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
                     self.log("Crossref API timed out. Trying again...")
+                    _pause_for_retry()
                     attempt += 1
                 elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
                     self.log("Crossref API 500 error. Trying again...")
+                    _pause_for_retry()
                     attempt += 1
                 else:
                     raise http_error
             except Exception:
                     self.log("General Exception - CrossRef API failed. Trying again...")
+                    _pause_for_retry()
                     attempt += 1
 
         if not success:
