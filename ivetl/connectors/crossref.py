@@ -131,10 +131,12 @@ class CrossrefConnector(BaseConnector):
         r = None
 
         def _pause_for_retry():
-            if attempt == self.max_attempts - 2:
+            if attempt == self.max_attempts - 3:
                 time.sleep(30)
-            elif attempt == self.max_attempts - 1:
+            elif attempt == self.max_attempts - 2:
                 time.sleep(300)
+            elif attempt == self.max_attempts - 1:
+                time.sleep(600)
             else:
                 time.sleep(0.2)
 
