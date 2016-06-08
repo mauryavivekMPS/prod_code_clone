@@ -114,7 +114,7 @@ class CrossrefConnector(BaseConnector):
         )
 
         if authors:
-            url += '&query.author=%s' % self.solr_encode(' '.join(authors))
+            url += '&query.author=%s' % self.solr_encode(self.remove_hex(' '.join(authors)))
 
         r = self.get_with_retry(url)
 
