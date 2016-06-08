@@ -105,7 +105,7 @@ class CrossrefConnector(BaseConnector):
 
     def search_article(self, publish_date, title, authors=None):
         date_search_term = publish_date.strftime('%Y-%m')
-        title_search_term = self.solr_encode(self.remove_hex(title))
+        title_search_term = self.solr_encode(title)
 
         url = '%s?rows=4&filter=from-pub-date:%s&query.title=%s' % (
             self.BASE_ARTICLE_URL,
@@ -114,7 +114,7 @@ class CrossrefConnector(BaseConnector):
         )
 
         if authors:
-            url += '&query.author=%s' % self.solr_encode(self.remove_hex(' '.join(authors)))
+            url += '&query.author=%s' % self.solr_encode(' '.join(authors))
 
         r = self.get_with_retry(url)
 
@@ -211,9 +211,6 @@ class CrossrefConnector(BaseConnector):
     def check_for_auth_error(self, r):
         if 'Incorrect password for username' in r.text:
             raise AuthorizationAPIError(r.text)
-
-    def remove_hex(self, s):
-        return re.sub('&.*;', '', s)
 
     def solr_encode(self, url_fragment):
         return url_fragment.replace(' ', '+')\

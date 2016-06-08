@@ -1,6 +1,7 @@
 import csv
 import codecs
 import json
+import re
 from datetime import timedelta
 from datetime import date
 from ivetl.models.IssnJournal import Issn_Journal
@@ -14,6 +15,7 @@ EXCLUDED_JOURNALS = [
     "10.1002/ange"
 ]
 
+
 def is_valid_journal(doi):
     for j in EXCLUDED_JOURNALS:
         if doi.startswith(j):
@@ -23,6 +25,10 @@ def is_valid_journal(doi):
 
 def remove_disallowed_chars(s):
     return ''.join(c for c in s if ord(c) < 128 and c not in ['?', '%', '\r', '\n'])
+
+
+def remove_hex(s):
+    return re.sub('&.*;', '', s)
 
 
 def get_last_names(name_strings):
@@ -165,12 +171,16 @@ class XREFPublishedArticleSearchTask(Task):
 
                 date_of_rejection = data['date_of_rejection']
 
-                title = remove_disallowed_chars(data['title'])
+                title = remove_disallowed_chars(remove_hex(data['title']))
                 if title is None or title.strip == "":
                     tlogger.info("No title, skipping record")
                     continue
 
-                author_last_names = get_last_names([data['first_author'], data['corresponding_author'], data['co_authors']])
+                author_last_names = get_last_names([
+                    remove_disallowed_chars(remove_hex(data['first_author'])),
+                    remove_disallowed_chars(remove_hex(data['corresponding_author'])),
+                    remove_disallowed_chars(remove_hex(data['co_authors']))
+                ])
 
                 # debug titles
                 title_csv.writerow([
@@ -203,7 +213,7 @@ class XREFPublishedArticleSearchTask(Task):
                 publish_date = reject_date + timedelta(days=1)
 
                 def _has_results(r):
-                   return r and 'ok' in r['status'] and len(r['message']['items']) > 0
+                    return r and 'ok' in r['status'] and len(r['message']['items']) > 0
 
                 def _add_crossref_properties_to_result(r, article):
                     r["xref_journal"] = article.journal
@@ -372,7 +382,6 @@ class XREFPublishedArticleSearchTask(Task):
                 )
 
                 target_file.write(row)
-
 
         target_file.close()
         title_file.close()
