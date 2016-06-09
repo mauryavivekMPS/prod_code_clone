@@ -1,126 +1,74 @@
 import csv
-import json
 import codecs
-import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsage
-from ivetl.alerts import run_alerts, send_alert_notifications, get_all_params_for_check
-from ivetl import utils
+from ivetl.models import InstitutionUsageStat
 
 
 @app.task
 class InsertJR1IntoCassandra(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        file = task_args['input_file']
+        files = task_args['input_files']
         total_count = task_args['count']
-        to_date = task_args['to_date']
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
-        with codecs.open(file, encoding="utf-16") as tsv:
-            for line in csv.reader(tsv, delimiter="\t"):
+        for file in files:
 
-                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-                if count == 1:
-                    continue
+            tlogger.info('Processing %s' % file)
 
-                # f.publisher_id = [publisher file has been applied to]
-                # counter_type = 'jr1'
-                # journal = take print and online issn and do a lookup against Issn_Journal(Model), to get name.
-                # journal_print_issn = file.Print ISSN
-                # journal_online_issn = file.Online ISSN
-                # usage_category = 'full text'
+            date_cols = []
+            with codecs.open(file, encoding="utf-8") as tsv:
+                for line in csv.reader(tsv, delimiter="\t"):
 
-                check = json.loads(line[1])
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+                    if count == 1:
 
-                stats_by_date = {stat['date'] for stat in check['stats']}
+                        # date cols start here
+                        col = 5
 
-                for stat in check['stats']:
+                        # collect all of them (we support any number of them)
+                        while line[col] != 'YTD Total':
+                            date = parse(line[col])
+                            date_cols.append((col, date))
+                            col += 1
 
-                    date = parse(stat['date'])
+                        tlogger.info('Found %s date columns' % len(date_cols))
+                        continue
 
-                    Uptime_Check_Stat.objects(
-                        publisher_id=publisher_id,
-                        check_id=check['id'],
-                        check_date=date,
-                    ).update(
-                        avg_response_ms=stat['avg_response_ms'],
-                        total_up_sec=stat['total_up_sec'],
-                        total_down_sec=stat['total_down_sec'],
-                        total_unknown_sec=stat['total_unknown_sec'],
-                    )
+                    try:
+                        subscriber_id = int(line[0])
+                    except ValueError:
+                        subscriber_id = 0
 
-                if task_args['run_daily_uptime_alerts']:
+                    institution_name = line[1]
+                    journal = line[2]
+                    journal_print_issn = line[3]
+                    journal_online_issn = line[4]
 
-                    # collect uptime for previous n days
-                    uptimes = []
-                    for date in utils.date_range(alert_from_date, to_date):
+                    for col, date in date_cols:
 
-                        # for testing
-                        # if len(uptimes) in [2, 3]:
-                        #     uptimes.append(70000)
-                        #     continue
+                        try:
+                            usage = int(line[col])
+                        except ValueError:
+                            usage = 0
 
-                        if date in stats_by_date:
-                            uptimes.append(stat['total_up_sec'] + stat['total_unknown_sec'])
-                        else:
-                            try:
-                                stat = Uptime_Check_Stat.objects.get(
-                                    publisher_id=publisher_id,
-                                    check_id=check['id'],
-                                    check_date=date,
-                                )
-                                uptimes.append(stat.total_up_sec)
-                            except Uptime_Check_Stat.DoesNotExist:
-                                uptimes.append(None)
-
-                    # get metadata for check
-                    check_metadata = Uptime_Check_Metadata.objects.get(
-                        publisher_id=publisher_id,
-                        check_id=check['id'],
-                    )
-
-                    run_alerts(
-                        check_ids=['site-uptime-below-threshold'],
-                        publisher_id=publisher_id,
-                        product_id=product_id,
-                        pipeline_id=pipeline_id,
-                        job_id=job_id,
-                        extra_values={
-                            'uptimes': uptimes,
-                            'from_date': alert_from_date.strftime('%Y-%m-%d'),
-                            'to_date': to_date.strftime('%Y-%m-%d'),
-                            'check_id': check['id'],
-                            'check_name': check_metadata.check_name,
-                            'check_type': check_metadata.check_type,
-                            'site_code': check_metadata.site_code,
-                            'site_type': check_metadata.site_type,
-                            'site_platform': check_metadata.site_platform,
-                            'pingdom_account': check_metadata.pingdom_account,
-                        }
-                    )
-
-        # update high water mark if the new data is more recent
-        try:
-            current_high_water = System_Global.objects(name=pipeline_id + '_high_water').date_value
-        except:
-            current_high_water = datetime.datetime.min
-
-        if to_date > current_high_water:
-            System_Global.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
-
-        if task_args['run_daily_uptime_alerts']:
-            send_alert_notifications(
-                check_ids=['site-uptime-below-threshold'],
-                publisher_id=publisher_id,
-                product_id=product_id,
-                pipeline_id=pipeline_id,
-                job_id=job_id,
-            )
+                        InstitutionUsageStat.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr1',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category='full text',
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 

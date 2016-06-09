@@ -28,4 +28,4 @@ from ivetl.models.AttributeValues import Attribute_Values
 from ivetl.models.InstitutionMetadata import Institution_Metadata
 
 # new style naming...
-from ivetl.models.institution_usage import InstitutionUsage
+from ivetl.models.institution_usage import InstitutionUsageStat
