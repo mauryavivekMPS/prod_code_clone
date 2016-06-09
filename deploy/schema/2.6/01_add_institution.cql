@@ -5,7 +5,7 @@ UPDATE publisher_metadata SET
 WHERE
   publisher_id = 'hw';
 
-CREATE TABLE institition_usage_stat (
+CREATE TABLE institution_usage_stat (
   publisher_id text,
   counter_type text,
   journal text,
