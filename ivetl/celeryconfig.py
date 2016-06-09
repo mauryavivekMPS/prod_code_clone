@@ -12,6 +12,7 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.articleusage',
     'ivetl.pipelines.sitemetadata',
     'ivetl.pipelines.siteuptime',
+    'ivetl.pipelines.institutionusage',
     'ivetl.tasks',
 )
 
