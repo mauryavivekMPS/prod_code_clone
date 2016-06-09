@@ -1,3 +1,5 @@
 from ivetl.validators.customarticledata import CustomArticleDataValidator
 from ivetl.validators.rejectedarticles import RejectedArticlesValidator
 from ivetl.validators.articleusage import ArticleUsageValidator
+from ivetl.validators.jr1 import JR1Validator
+from ivetl.validators.jr2 import JR2Validator
