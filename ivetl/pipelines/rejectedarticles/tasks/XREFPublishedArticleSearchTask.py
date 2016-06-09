@@ -31,11 +31,19 @@ def remove_hex(s):
     return re.sub('&.*;', '', s)
 
 
+def remove_disallowed_words(s):
+    return re.sub('or|and|not', '', s, flags=re.IGNORECASE)
+
+
+def clean_crossref_input(s):
+    return remove_disallowed_chars(remove_disallowed_words(remove_hex(s)))
+
+
 def get_last_names(name_strings):
     unique_names = set()
     for s in name_strings:
         if s and type(s) == str:
-            unique_names.update([remove_disallowed_chars(full_name.split(',')[0].strip().lower()) for full_name in s.split(';')])
+            unique_names.update([full_name.split(',')[0].strip().lower() for full_name in s.split(';')])
     return list(unique_names)
 
 
@@ -76,7 +84,7 @@ class CrossrefArticle:
         self.doi = j['DOI']
 
         if len(j['title']) > 0:
-            self.bptitle = remove_disallowed_chars(j['title'][0])
+            self.bptitle = j['title'][0]
         else:
             self.bptitle = ""
 
@@ -171,15 +179,15 @@ class XREFPublishedArticleSearchTask(Task):
 
                 date_of_rejection = data['date_of_rejection']
 
-                title = remove_disallowed_chars(remove_hex(data['title']))
+                title = clean_crossref_input(data['title'])
                 if title is None or title.strip == "":
                     tlogger.info("No title, skipping record")
                     continue
 
                 author_last_names = get_last_names([
-                    remove_disallowed_chars(remove_hex(data['first_author'])),
-                    remove_disallowed_chars(remove_hex(data['corresponding_author'])),
-                    remove_disallowed_chars(remove_hex(data['co_authors']))
+                    clean_crossref_input(data['first_author']),
+                    clean_crossref_input(data['corresponding_author']),
+                    clean_crossref_input(data['co_authors'])
                 ])
 
                 # debug titles
@@ -215,14 +223,14 @@ class XREFPublishedArticleSearchTask(Task):
                 def _has_results(r):
                     return r and 'ok' in r['status'] and len(r['message']['items']) > 0
 
-                def _add_crossref_properties_to_result(r, article):
-                    r["xref_journal"] = article.journal
-                    r["xref_publisher"] = article.publisher
-                    r["xref_publishdate"] = article.publishdate
-                    r["xref_first_author"] = article.first_author
-                    r["xref_co_authors_ln_fn"] = article.co_authors
-                    r["xref_title"] = article.bptitle
-                    r["xref_doi"] = article.doi
+                def _add_crossref_properties_to_result(r, a):
+                    r["xref_journal"] = a.journal
+                    r["xref_publisher"] = a.publisher
+                    r["xref_publishdate"] = a.publishdate
+                    r["xref_first_author"] = a.first_author
+                    r["xref_co_authors_ln_fn"] = a.co_authors
+                    r["xref_title"] = a.bptitle
+                    r["xref_doi"] = a.doi
 
                 data['status'] = ''
 
