@@ -26,4 +26,6 @@ from ivetl.models.Notification import Notification
 from ivetl.models.NotificationSummary import Notification_Summary
 from ivetl.models.AttributeValues import Attribute_Values
 from ivetl.models.InstitutionMetadata import Institution_Metadata
-from ivetl.models.InstitutionUsage import Institution_Usage
+
+# new style naming...
+from ivetl.models.institution_usage import InstitutionUsage
