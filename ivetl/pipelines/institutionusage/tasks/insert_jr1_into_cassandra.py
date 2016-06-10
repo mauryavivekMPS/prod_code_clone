@@ -39,11 +39,7 @@ class InsertJR1IntoCassandra(Task):
                         tlogger.info('Found %s date columns' % len(date_cols))
                         continue
 
-                    try:
-                        subscriber_id = int(line[0])
-                    except ValueError:
-                        subscriber_id = 0
-
+                    subscriber_id = line[0]
                     institution_name = line[1]
                     journal = line[2]
                     journal_print_issn = line[3]
