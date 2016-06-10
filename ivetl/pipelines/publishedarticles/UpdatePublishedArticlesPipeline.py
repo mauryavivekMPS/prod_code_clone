@@ -28,6 +28,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
         else:
             publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
 
+        publishers = [p for p in publishers if product_id in p.supported_products]
+
         for pm in publishers:
 
             publisher_id = pm.publisher_id
