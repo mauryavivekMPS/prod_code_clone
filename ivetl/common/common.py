@@ -137,7 +137,7 @@ PIPELINES = [
         'user_facing_display_name': 'JR1 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR1InstitutionUsagePipeline',
         'has_file_input': True,
-        'validator_class': None,
+        'validator_class': 'ivetl.validators.JR1Validator',
         'rebuild_data_source_id': None,
         'hide_demo_filter': True,
         'single_publisher_pipeline': True,
@@ -150,7 +150,7 @@ PIPELINES = [
         'user_facing_display_name': 'JR2 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR2InstitutionUsagePipeline',
         'has_file_input': True,
-        'validator_class': None,
+        'validator_class': 'ivetl.validators.JR2Validator',
         'hide_demo_filter': True,
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
@@ -356,6 +356,16 @@ FTP_DIRS = [
         'product_id': 'rejected_manuscripts',
         'pipeline_id': 'rejected_articles',
         'ftp_dir_name': 'rejected_manuscripts',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'jr1_institution_usage',
+        'ftp_dir_name': 'jr1_institution_usage',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'jr2_institution_usage',
+        'ftp_dir_name': 'jr2_institution_usage',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}

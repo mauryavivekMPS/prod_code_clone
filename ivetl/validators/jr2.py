@@ -7,7 +7,6 @@ from ivetl.validators.base import BaseValidator
 class JR2Validator(BaseValidator):
 
     def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
-
         errors = []
         total_count = 0
         for f in files:
@@ -22,14 +21,24 @@ class JR2Validator(BaseValidator):
                             else:
                                 count += 1
 
-                            # skip header row
                             if count == 1:
-                                continue
+                                expected_fields = [
+                                    (0, 'Subscriber ID'),
+                                    (1, 'Institution Name'),
+                                    (2, 'Journal Title'),
+                                    (3, 'Print ISSN'),
+                                    (4, 'Online ISSN'),
+                                    (5, 'Access Denied Category'),
+                                ]
 
-                            # check for number of fields
-                            # if len(line) != 6:
-                            #     errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
-                            #     continue
+                                found_unexpected_fields = False
+                                for index, title in expected_fields:
+                                    if line[index] != title:
+                                        found_unexpected_fields = True
+                                        errors.append(self.format_error(file_name, 0, "Expected field %s in column %s" % (title, index + 1)))
+
+                                if found_unexpected_fields:
+                                    break
 
                     total_count += count
 
