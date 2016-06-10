@@ -5,7 +5,6 @@ from ivetl.pipelines.task import Task
 from ivetl.models import Highwire_Metadata
 
 
-
 @app.task
 class LoadH20MetadataTask(Task):
     METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'

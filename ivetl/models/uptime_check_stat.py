@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Uptime_Check_Stat(Model):
+class UptimeCheckStat(Model):
     publisher_id = columns.Text(primary_key=True)
     check_id = columns.Integer(primary_key=True)
     check_date = columns.DateTime(primary_key=True)

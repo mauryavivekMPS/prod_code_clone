@@ -132,6 +132,22 @@ PIPELINES = [
         'supports_restart': True,
     },
     {
+        'name': 'Weekly Alerts',
+        'id': 'weekly_site_uptime_alerts',
+        'user_facing_display_name': 'Weekly Site Uptime Alerts',
+        'class': 'ivetl.pipelines.siteuptime.WeeklyAlertsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Run Weekly Uptime Alerts',
+        'include_date_range_controls': False,
+        'use_high_water_mark': False,
+        'supports_restart': False,
+    },
+    {
         'name': 'JR1 Institution Usage',
         'id': 'jr1_institution_usage',
         'user_facing_display_name': 'JR1 institution usage',
@@ -333,6 +349,9 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['site_uptime'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['weekly_site_uptime_alerts'],
             },
         ],
         'tableau_workbooks': [],

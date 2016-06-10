@@ -11,7 +11,7 @@ from ivetl.models import System_Global
 
 
 @app.task
-class GetStats(Task):
+class GetUptimeStatsTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         from_date = task_args['from_date']
         to_date = task_args['to_date']

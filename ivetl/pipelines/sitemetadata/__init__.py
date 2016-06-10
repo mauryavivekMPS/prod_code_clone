@@ -1,1 +1,1 @@
-from ivetl.pipelines.sitemetadata.SiteMetadataPipeline import SiteMetadataPipeline
+from ivetl.pipelines.sitemetadata.site_metadata_pipeline import SiteMetadataPipeline
