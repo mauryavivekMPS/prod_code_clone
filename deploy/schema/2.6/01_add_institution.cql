@@ -11,7 +11,7 @@ CREATE TABLE institution_usage_stat (
   journal text,
   journal_print_issn text,
   journal_online_issn text,
-  subscriber_id int,
+  subscriber_id text,
   institution_name text,
   usage_date timestamp,
   usage_category text,
