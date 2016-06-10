@@ -37,6 +37,8 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 if benchpress_journals.count():
                     publishers.append(publisher)
 
+        publishers = [p for p in publishers if product_id in p.supported_products]
+
         for publisher in publishers:
 
             # create work folder, signal the start of the pipeline

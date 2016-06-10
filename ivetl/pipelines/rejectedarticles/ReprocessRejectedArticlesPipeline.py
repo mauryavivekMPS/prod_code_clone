@@ -27,6 +27,8 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
         else:
             publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
 
+        publishers = [p for p in publishers if product_id in p.supported_products]
+
         for publisher in publishers:
 
             # create work folder, signal the start of the pipeline

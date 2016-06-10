@@ -28,6 +28,8 @@ class CustomArticleDataPipeline(Pipeline):
         else:
             publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
 
+        publishers = [p for p in publishers if product_id in p.supported_products]
+
         # figure out which publisher has a non-empty incoming dir
         for publisher in publishers:
 
