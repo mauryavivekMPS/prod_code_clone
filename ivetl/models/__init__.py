@@ -15,8 +15,6 @@ from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo
-from ivetl.models.UptimeCheckMetadata import Uptime_Check_Metadata
-from ivetl.models.UptimeCheckStat import Uptime_Check_Stat
 from ivetl.models.HighwireMetadata import Highwire_Metadata
 from ivetl.models.DrupalMetadata import Drupal_Metadata
 from ivetl.models.SytemGlobal import System_Global
@@ -29,3 +27,5 @@ from ivetl.models.InstitutionMetadata import Institution_Metadata
 
 # new style naming...
 from ivetl.models.institution_usage import InstitutionUsageStat
+from ivetl.models.uptime_check_metadata import UptimeCheckMetadata
+from ivetl.models.uptime_check_stat import UptimeCheckStat

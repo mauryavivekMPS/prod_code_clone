@@ -5,12 +5,13 @@ import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Uptime_Check_Stat, Uptime_Check_Metadata, System_Global
+from ivetl.models import UptimeCheckStat, UptimeCheckMetadata, System_Global
 from ivetl.alerts import run_alerts, send_alert_notifications, get_all_params_for_check
 from ivetl import utils
 
+
 @app.task
-class InsertIntoCassandra(Task):
+class InsertStatsIntoCassandraTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']
@@ -43,7 +44,7 @@ class InsertIntoCassandra(Task):
 
                     date = parse(stat['date'])
 
-                    Uptime_Check_Stat.objects(
+                    UptimeCheckStat.objects(
                         publisher_id=publisher_id,
                         check_id=check['id'],
                         check_date=date,
@@ -69,17 +70,17 @@ class InsertIntoCassandra(Task):
                             uptimes.append(stat['total_up_sec'] + stat['total_unknown_sec'])
                         else:
                             try:
-                                stat = Uptime_Check_Stat.objects.get(
+                                stat = UptimeCheckStat.objects.get(
                                     publisher_id=publisher_id,
                                     check_id=check['id'],
                                     check_date=date,
                                 )
                                 uptimes.append(stat.total_up_sec)
-                            except Uptime_Check_Stat.DoesNotExist:
+                            except UptimeCheckStat.DoesNotExist:
                                 uptimes.append(None)
 
                     # get metadata for check
-                    check_metadata = Uptime_Check_Metadata.objects.get(
+                    check_metadata = UptimeCheckMetadata.objects.get(
                         publisher_id=publisher_id,
                         check_id=check['id'],
                     )

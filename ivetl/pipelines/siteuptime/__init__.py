@@ -1,1 +1,2 @@
-from ivetl.pipelines.siteuptime.SiteUptimePipeline import SiteUptimePipeline
+from ivetl.pipelines.siteuptime.site_uptime_pipeline import SiteUptimePipeline
+from ivetl.pipelines.siteuptime.weekly_alerts_pipeline import WeeklyAlertsPipeline
