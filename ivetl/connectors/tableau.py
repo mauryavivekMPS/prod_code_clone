@@ -120,6 +120,9 @@ class TableauConnector(BaseConnector):
         if not self.signed_in:
             self.sign_in()
 
+    def _tabcmd_login_params(self):
+        return ['-s', self.server, '-u', self.username, '-p', self.password]
+
     def create_project(self, project_name):
         self._check_authentication()
         url = self.server_url + "/api/2.0/sites/%s/projects" % self.site_id
@@ -364,5 +367,7 @@ class TableauConnector(BaseConnector):
     def refresh_data_source(self, publisher_id, project_name, data_source_id):
         data_source = DATA_SOURCES_BY_ID[data_source_id]
         data_source_name = data_source['template_name'] + '_' + publisher_id
-        login_params = ['-s', self.server, '-u', self.username, '-p', self.password]
-        subprocess.call([TABCMD, 'refreshextracts', '--datasource', data_source_name, '--project', project_name] + login_params)
+        subprocess.call([TABCMD, 'refreshextracts', '--datasource', data_source_name, '--project', project_name] + self._tabcmd_login_params())
+
+    def generate_png_report(self, view_url):
+        subprocess.call([TABCMD, 'get', view_url, '-f', '/tmp/image-test.png'] + self._tabcmd_login_params())
