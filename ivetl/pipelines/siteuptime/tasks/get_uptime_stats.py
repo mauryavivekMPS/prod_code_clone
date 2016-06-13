@@ -83,6 +83,10 @@ class GetUptimeStatsTask(Task):
                 tlogger.info('Loaded pingdom connector for account: %s' % account['name'])
 
                 account_checks = pingdom.get_checks()
+
+                # for testing...
+                # account_checks = account_checks[:200]
+
                 for check in account_checks:
                     check['account'] = account['name']
                     all_checks.append(check)

@@ -20,13 +20,22 @@ class RunWeeklyAlertsTask(Task):
 
         alert_from_date = to_date - datetime.timedelta(longest_window)
 
-        for check in UptimeCheckMetadata.objects.filter(publisher_id=publisher_id):
+        all_checks = UptimeCheckMetadata.objects.filter(publisher_id=publisher_id)
+
+        count = 0
+        total_count = len(all_checks)
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        for check in all_checks:
+
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
             # collect uptime for previous n days
             uptimes = []
             for date in utils.date_range(alert_from_date, to_date):
 
-                # for testing
+                # for testing...
                 # if len(uptimes) in [2, 3]:
                 #     uptimes.append(70000)
                 #     continue
@@ -34,7 +43,7 @@ class RunWeeklyAlertsTask(Task):
                 try:
                     stat = UptimeCheckStat.objects.get(
                         publisher_id=publisher_id,
-                        check_id=check['id'],
+                        check_id=check.check_id,
                         check_date=date,
                     )
                     uptimes.append(stat.total_up_sec)
@@ -44,7 +53,7 @@ class RunWeeklyAlertsTask(Task):
             # get metadata for check
             check_metadata = UptimeCheckMetadata.objects.get(
                 publisher_id=publisher_id,
-                check_id=check['id'],
+                check_id=check.check_id,
             )
 
             run_alerts(
@@ -57,7 +66,7 @@ class RunWeeklyAlertsTask(Task):
                     'uptimes': uptimes,
                     'from_date': alert_from_date.strftime('%Y-%m-%d'),
                     'to_date': to_date.strftime('%Y-%m-%d'),
-                    'check_id': check['id'],
+                    'check_id': check.check_id,
                     'check_name': check_metadata.check_name,
                     'check_type': check_metadata.check_type,
                     'site_code': check_metadata.site_code,
@@ -74,3 +83,9 @@ class RunWeeklyAlertsTask(Task):
             pipeline_id=pipeline_id,
             job_id=job_id,
         )
+
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+
+        return {
+            'count': count,
+        }
