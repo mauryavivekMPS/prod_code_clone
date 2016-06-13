@@ -26,16 +26,18 @@ def percentage_change(new_value=None, old_value=None, params=None, extra_values=
         else:
             return False, {}
 
+
 def below_threshold_in_window(new_value=None, old_value=None, params=None, extra_values=None):
     days_below_threshold = 0
     lowest_uptime = 100
     threshold_seconds = 60 * 60 * 24 * (params['threshold_uptime'] / 100)
     for uptime in extra_values['uptimes'][-params['window_days']:]:
 
-        if uptime < threshold_seconds:
-            days_below_threshold += 1
-        if uptime < lowest_uptime:
-            lowest_uptime = uptime
+        if uptime is not None:
+            if uptime < threshold_seconds:
+                days_below_threshold += 1
+            if uptime < lowest_uptime:
+                lowest_uptime = uptime
 
     if days_below_threshold >= params['threshold_days']:
         return True, {
