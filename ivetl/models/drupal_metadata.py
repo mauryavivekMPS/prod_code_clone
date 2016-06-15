@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Drupal_Metadata(Model):
+class DrupalMetadata(Model):
     site_id = columns.Text(primary_key=True)
     site_code = columns.Text()
     name = columns.Text()

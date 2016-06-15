@@ -1,4 +1,3 @@
-from ivetl.models.PublishedArticle import Published_Article
 from ivetl.models.PublishedArticleValues import Published_Article_Values
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 from ivetl.models.ArticleCitations import Article_Citations
@@ -15,8 +14,6 @@ from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo
-from ivetl.models.HighwireMetadata import Highwire_Metadata
-from ivetl.models.DrupalMetadata import Drupal_Metadata
 from ivetl.models.SytemGlobal import System_Global
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.Alert import Alert
@@ -26,6 +23,11 @@ from ivetl.models.AttributeValues import Attribute_Values
 from ivetl.models.InstitutionMetadata import Institution_Metadata
 
 # new style naming...
+from ivetl.models.published_article import PublishedArticle
 from ivetl.models.institution_usage import InstitutionUsageStat
 from ivetl.models.uptime_check_metadata import UptimeCheckMetadata
 from ivetl.models.uptime_check_stat import UptimeCheckStat
+from ivetl.models.drupal_metadata import DrupalMetadata
+from ivetl.models.highwire_metadata import HighwireMetadata
+from ivetl.models.altmetrics_social_data import AltmetricsSocialData
+from ivetl.models.f1000_social_data import F1000SocialData

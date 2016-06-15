@@ -5,7 +5,7 @@ import codecs
 import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Highwire_Metadata, Drupal_Metadata
+from ivetl.models import HighwireMetadata, DrupalMetadata
 
 
 @app.task
@@ -20,12 +20,12 @@ class ClassifyChecksTask(Task):
 
         h20_metadata_by_site_url = {}
         h20_metadata_by_site_code = {}
-        for journal in Highwire_Metadata.objects.all():
+        for journal in HighwireMetadata.objects.all():
             h20_metadata_by_site_url[journal.site_url[7:]] = journal
             h20_metadata_by_site_code[journal.site_code] = journal
 
         drupal_metadata_by_site_url = {}
-        for journal in Drupal_Metadata.objects.all():
+        for journal in DrupalMetadata.objects.all():
             drupal_metadata_by_site_url[journal.site_url] = journal
 
         target_file_name = os.path.join(work_folder, "%s_uptimechecks_target.tab" % publisher_id)

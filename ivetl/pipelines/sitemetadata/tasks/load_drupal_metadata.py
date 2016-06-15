@@ -1,7 +1,7 @@
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import SmartConnector
-from ivetl.models import Drupal_Metadata
+from ivetl.models import DrupalMetadata
 
 
 @app.task
@@ -57,7 +57,7 @@ class LoadDrupalMetadataTask(Task):
 
                             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                            Drupal_Metadata.objects(
+                            DrupalMetadata.objects(
                                 site_id=site_id
                             ).update(
                                 site_code=site_id,

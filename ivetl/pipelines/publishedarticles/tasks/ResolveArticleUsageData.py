@@ -2,7 +2,7 @@ import csv
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Published_Article, Article_Usage
+from ivetl.models import PublishedArticle, Article_Usage
 
 
 @app.task
@@ -31,8 +31,8 @@ class ResolveArticleUsageData(Task):
                 tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                 try:
-                    article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
-                except Published_Article.DoesNotExist:
+                    article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
+                except PublishedArticle.DoesNotExist:
                     tlogger.info("DOI does not exist in published_article table")
                     continue
 

@@ -2,7 +2,7 @@ import csv
 import os
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Highwire_Metadata
+from ivetl.models import HighwireMetadata
 
 
 @app.task
@@ -56,7 +56,7 @@ class LoadH20MetadataTask(Task):
             for row in reader:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                Highwire_Metadata.objects(site_id=row['site_id']).update(
+                HighwireMetadata.objects(site_id=row['site_id']).update(
                     sort_name=row['sort_name'],
                     site_code=row['site_code'],
                     name=row['name'],

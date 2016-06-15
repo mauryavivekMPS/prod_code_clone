@@ -1,6 +1,6 @@
 import os
 from ivetl.common import common
-from ivetl.models import Published_Article
+from ivetl.models import PublishedArticle
 from ivetl.pipelines.test_pipelines import PipelineTestCase
 from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
 
@@ -28,8 +28,8 @@ class CustomArticleDataTestCase(PipelineTestCase):
         self.poll_and_timeout('test', CustomArticleDataPipeline.pipeline_name, run_pipeline)
 
         # pull the articles and check for the overridden values
-        article1 = Published_Article.objects.get(publisher_id='test', article_doi='10.1182/blood-2012-11-427765')
-        article2 = Published_Article.objects.get(publisher_id='test', article_doi='10.1182/blood-2012-11-464685')
+        article1 = PublishedArticle.objects.get(publisher_id='test', article_doi='10.1182/blood-2012-11-427765')
+        article2 = PublishedArticle.objects.get(publisher_id='test', article_doi='10.1182/blood-2012-11-464685')
 
         # check basic overrides
         self.assertEqual(article1.subject_category, 'Oncology Foo')

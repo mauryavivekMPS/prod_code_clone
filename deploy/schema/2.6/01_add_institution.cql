@@ -1,7 +1,7 @@
 USE impactvizor;
 
 UPDATE publisher_metadata SET
-  supported_products = ['highwire_sites', 'institutions']
+  supported_products = ['highwire_sites', 'institutions', 'social']
 WHERE
   publisher_id = 'hw';
 

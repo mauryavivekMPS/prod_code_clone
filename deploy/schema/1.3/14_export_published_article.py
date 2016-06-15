@@ -5,7 +5,7 @@ from datetime import datetime
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
-from ivetl.models import Published_Article, Published_Article_By_Cohort, Publisher_Metadata
+from ivetl.models import PublishedArticle, Published_Article_By_Cohort, Publisher_Metadata
 
 
 if __name__ == "__main__":
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
         print("\nAdding publisher: " + p.publisher_id)
 
-        for a in Published_Article.objects.filter(publisher_id=p.publisher_id).limit(5000000):
+        for a in PublishedArticle.objects.filter(publisher_id=p.publisher_id).limit(5000000):
 
             print('.', end='')
             Published_Article_By_Cohort.create(

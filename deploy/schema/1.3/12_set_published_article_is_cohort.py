@@ -8,7 +8,7 @@ from cassandra.cqlengine.models import Model
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
-class Published_Article(Model):
+class PublishedArticle(Model):
     publisher_id = columns.Text(primary_key=True)
     article_doi = columns.Text(primary_key=True)
     article_issue = columns.Text()
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     for p in publishers:
 
         print("\nUpdating publisher: " + p.publisher_id)
-        for a in Published_Article.objects.filter(publisher_id=p.publisher_id).limit(5000000):
+        for a in PublishedArticle.objects.filter(publisher_id=p.publisher_id).limit(5000000):
 
             print('.', end="")
             if a.is_cohort is True:
