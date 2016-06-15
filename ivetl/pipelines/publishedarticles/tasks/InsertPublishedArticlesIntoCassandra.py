@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.models import Published_Article, Published_Article_By_Cohort, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
+from ivetl.models import PublishedArticle, Published_Article_By_Cohort, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
 from ivetl.pipelines.task import Task
 
 
@@ -49,8 +49,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 data = json.loads(line[3])
 
                 # first, add the non-overlapping values straight to the published article table
-                pa = Published_Article()
-                existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
+                pa = PublishedArticle()
+                existing_record = PublishedArticle.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
                 if existing_record:
                     pa = existing_record

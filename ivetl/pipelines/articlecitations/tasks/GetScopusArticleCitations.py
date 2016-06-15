@@ -3,7 +3,7 @@ import json
 import codecs
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, Published_Article
+from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 

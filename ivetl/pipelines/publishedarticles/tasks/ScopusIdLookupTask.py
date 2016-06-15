@@ -4,7 +4,7 @@ import json
 from ivetl.celery import app
 from ivetl.connectors.base import MaxTriesAPIError
 from ivetl.connectors.scopus import ScopusConnector
-from ivetl.models import Publisher_Metadata, Published_Article
+from ivetl.models import Publisher_Metadata, PublishedArticle
 from ivetl.pipelines.task import Task
 
 
@@ -45,7 +45,7 @@ class ScopusIdLookupTask(Task):
                 tlogger.info(str(count-1) + ". Retrieving Scopus Id for: " + doi)
 
                 # If its already in the database, we don't have to check with scopus
-                existing_record = Published_Article.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
+                existing_record = PublishedArticle.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
                 if existing_record and existing_record.article_scopus_id is not None:
                     data['scopus_id_status'] = "DOI in Scopus"

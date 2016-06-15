@@ -2,7 +2,7 @@ import csv
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Published_Article, Published_Article_Values
+from ivetl.models import PublishedArticle, Published_Article_Values
 
 
 @app.task
@@ -31,8 +31,8 @@ class ResolvePublishedArticlesData(Task):
 
                 # grab the canonical article record that we're operating on
                 try:
-                    article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
-                except Published_Article.DoesNotExist:
+                    article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
+                except PublishedArticle.DoesNotExist:
                     tlogger.info("DOI does not exist in published_article table")
                     continue
 

@@ -3,7 +3,7 @@ import codecs
 import json
 import datetime
 from ivetl.celery import app
-from ivetl.models import Published_Article, Article_Citations, Publisher_Vizor_Updates
+from ivetl.models import PublishedArticle, Article_Citations, Publisher_Vizor_Updates
 from ivetl.pipelines.task import Task
 
 
@@ -53,7 +53,7 @@ class InsertScopusIntoCassandra(Task):
                         is_cohort=data['is_cohort']
                     )
 
-                Published_Article.objects(publisher_id=publisher_id, article_doi=doi).update(citations_updated_on=updated_date)
+                PublishedArticle.objects(publisher_id=publisher_id, article_doi=doi).update(citations_updated_on=updated_date)
 
                 tlogger.info("---")
                 tlogger.info(str(count-1) + ". " + publisher_id + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")

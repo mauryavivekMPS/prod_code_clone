@@ -68,7 +68,7 @@ class Publisher_Metadata(Model):
     archived = columns.Boolean(default=False, index=True)
 
 
-class Published_Article(Model):
+class PublishedArticle(Model):
     publisher_id = columns.Text(primary_key=True)
     article_doi = columns.Text(primary_key=True)
     article_issue = columns.Text()
@@ -155,14 +155,14 @@ if __name__ == "__main__":
         articles = Published_Article_By_Cohort.objects.filter(publisher_id=p.publisher_id).limit(500000)
         for a in articles:
             citation_count = Article_Citations.objects.filter(publisher_id=p.publisher_id, article_doi=a.article_doi).limit(500000).count()
-            Published_Article.objects(publisher_id=p.publisher_id, article_doi=a.article_doi).update(
+            PublishedArticle.objects(publisher_id=p.publisher_id, article_doi=a.article_doi).update(
                 citation_count=citation_count,
             )
 
         print('Done')
 
         print('Collecting attribute values...')
-        all_articles = Published_Article.objects.filter(publisher_id=p.publisher_id)
+        all_articles = PublishedArticle.objects.filter(publisher_id=p.publisher_id)
         value_names = set()
 
         # look through all the alerts for published_article values
