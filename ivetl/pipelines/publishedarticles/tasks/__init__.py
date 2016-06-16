@@ -8,3 +8,4 @@ from ivetl.pipelines.publishedarticles.tasks.ResolveArticleUsageData import Reso
 from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
 from ivetl.pipelines.publishedarticles.tasks.InsertPlaceholderCitationsIntoCassandraTask import InsertPlaceholderCitationsIntoCassandraTask
 from ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCache import UpdateAttributeValuesCacheTask
+from ivetl.pipelines.publishedarticles.tasks.get_social_metrics import GetSocialMetricsTask
