@@ -53,6 +53,11 @@ class InsertIntoCassandraDBTask(Task):
                     elif data['status'] == 'Published & Not Cited':
                         if existing_record['status'] == "Published & Not Cited" and data['xref_doi'] == existing_record['crossref_doi']:
                             tlogger.info("No change from previous run (Published & Not Cited), skipping")
+
+                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
+                                existing_record['mendeley_saves'] = int(data['mendeley_saves'])
+                                existing_record.save()
+
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
@@ -61,6 +66,11 @@ class InsertIntoCassandraDBTask(Task):
                     elif data['status'] == 'Published & Citation Info Unavailable':
                         if existing_record['status'] == "Published & Citation Info Unavailable" and data['xref_doi'] == existing_record['crossref_doi']:
                             tlogger.info("No change from previous run (Published & Citation Info Unavailable), skipping")
+
+                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
+                                existing_record['mendeley_saves'] = int(data['mendeley_saves'])
+                                existing_record.save()
+
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
@@ -69,8 +79,12 @@ class InsertIntoCassandraDBTask(Task):
                     elif data['status'] == "Published & Cited":
                         if existing_record['status'] == "Published & Cited" and data['xref_doi'] == existing_record['crossref_doi']:
                             tlogger.info("Matched (Published & Cited) in previous run, updating citation count")
+
                             existing_record['citations'] = int(data['citations'])
+                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
+                                existing_record['mendeley_saves'] = int(data['mendeley_saves'])
                             existing_record.save()
+
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
