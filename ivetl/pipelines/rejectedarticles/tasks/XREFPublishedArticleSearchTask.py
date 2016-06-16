@@ -24,7 +24,7 @@ def is_valid_journal(doi):
 
 
 def remove_disallowed_chars(s):
-    return ''.join(c for c in s if ord(c) < 128 and c not in ['?', '%', '\r', '\n'])
+    return ''.join(c for c in s if ord(c) < 128 and c not in ['?', '%', '\r', '\n', '-'])
 
 
 def remove_hex(s):
