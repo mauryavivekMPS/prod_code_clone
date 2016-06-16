@@ -48,19 +48,24 @@ CELERYBEAT_SCHEDULE = {
         'schedule': crontab(hour=4, minute=0),
         'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites', 'run_daily_uptime_alerts': False},
     },
-    # 'run-weekly-uptime-alerts': {
-    #     'task': 'ivetl.pipelines.siteuptime.weekly_alerts_pipeline.WeeklyAlertsPipeline',
-    #     'schedule': crontab(day_of_week=1, hour=7, minute=0),
-    #     'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites', 'run_daily_uptime_alerts': False},
-    # },
+    'run-weekly-uptime-alerts': {
+        'task': 'ivetl.pipelines.siteuptime.weekly_alerts_pipeline.WeeklyAlertsPipeline',
+        'schedule': crontab(day_of_week=1, hour=7, minute=0),
+        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites'},
+    },
+    'monthly-social-metrics': {
+        'task': 'ivetl.pipelines.socialmetrics.social_metrics_pipeline.SocialMetricsPipeline',
+        'schedule': crontab(day_of_month=1, hour=0, minute=1),
+        'kwargs': {'product_id': 'published_articles', 'run_monthly_job': True},
+    },
     'monthly-published-articles-and-article-citations': {
         'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
-        'schedule': crontab(day_of_month=1, hour=1, minute=0),
+        'schedule': crontab(day_of_month=1, hour=2, minute=0),
         'kwargs': {'product_id': 'published_articles', 'run_monthly_job': True},
     },
     'monthly-cohort-articles-and-article-citations': {
         'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
-        'schedule': crontab(day_of_month=5, hour=1, minute=0),
+        'schedule': crontab(day_of_month=5, hour=2, minute=0),
         'kwargs': {'product_id': 'cohort_articles', 'run_monthly_job': True},
     },
     'q1-benchpress-rejected-articles': {
