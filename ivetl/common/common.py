@@ -42,6 +42,19 @@ PIPELINES = [
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
     },
     {
+        'name': 'Social Metrics',
+        'id': 'social_metrics',
+        'user_facing_display_name': 'Social metrics',
+        'class': 'ivetl.pipelines.socialmetrics.SocialMetricsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Get Latest Social Metrics',
+    },
+    {
         'name': 'Upload Rejected',
         'id': 'rejected_articles',
         'user_facing_display_name': 'Rejected manuscripts',
@@ -352,6 +365,19 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['weekly_site_uptime_alerts'],
+            },
+        ],
+        'tableau_workbooks': [],
+    },
+    {
+        'name': 'Social',
+        'id': 'social',
+        'is_user_facing': True,
+        'order': 6,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['social_metrics'],
             },
         ],
         'tableau_workbooks': [],

@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Highwire_Metadata(Model):
+class HighwireMetadata(Model):
     sort_name = columns.Text()
     site_id = columns.Integer(primary_key=True)
     site_code = columns.Text()

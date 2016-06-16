@@ -1,7 +1,7 @@
 import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Published_Article, Attribute_Values
+from ivetl.models import PublishedArticle, Attribute_Values
 from ivetl.alerts import CHECKS
 
 
@@ -10,7 +10,7 @@ class UpdateAttributeValuesCacheTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        all_articles = Published_Article.objects.filter(publisher_id=publisher_id)
+        all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id)
 
         value_names = set()
 
