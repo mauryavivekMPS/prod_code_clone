@@ -56,3 +56,16 @@ CREATE TABLE f1000_social_data (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+
+ALTER TABLE published_article ADD altmetrics_facebook int;
+ALTER TABLE published_article ADD altmetrics_blogs int;
+ALTER TABLE published_article ADD altmetrics_twitter int;
+ALTER TABLE published_article ADD altmetrics_gplus int;
+ALTER TABLE published_article ADD altmetrics_news_outlets int;
+ALTER TABLE published_article ADD altmetrics_wikipedia int;
+ALTER TABLE published_article ADD altmetrics_video int;
+ALTER TABLE published_article ADD altmetrics_policy_docs int;
+ALTER TABLE published_article ADD altmetrics_reddit int;
+ALTER TABLE published_article ADD f1000_total_score int;
+ALTER TABLE published_article ADD f1000_num_recommendations int;
+ALTER TABLE published_article ADD f1000_average_score decimal;
