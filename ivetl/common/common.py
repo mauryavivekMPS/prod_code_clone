@@ -161,29 +161,22 @@ PIPELINES = [
         'supports_restart': False,
     },
     {
-        'name': 'JR1 Institution Usage',
-        'id': 'jr1_institution_usage',
-        'user_facing_display_name': 'JR1 institution usage',
-        'class': 'ivetl.pipelines.institutionusage.JR1InstitutionUsagePipeline',
-        'has_file_input': True,
-        'validator_class': 'ivetl.validators.JR1Validator',
-        'rebuild_data_source_id': None,
-        'hide_demo_filter': True,
-        'single_publisher_pipeline': True,
-        'single_publisher_id': 'hw',
-        'pipeline_run_button_label': 'Update Site and Check Metadata',
-    },
-    {
         'name': 'JR2 Institution Usage',
         'id': 'jr2_institution_usage',
         'user_facing_display_name': 'JR2 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR2InstitutionUsagePipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.JR2Validator',
-        'hide_demo_filter': True,
-        'single_publisher_pipeline': True,
-        'single_publisher_id': 'hw',
-        'rebuild_data_source_id': [],
+        'rebuild_data_source_id': None,
+    },
+    {
+        'name': 'JR3 Institution Usage',
+        'id': 'jr3_institution_usage',
+        'user_facing_display_name': 'JR3 institution usage',
+        'class': 'ivetl.pipelines.institutionusage.JR3InstitutionUsagePipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.JR3Validator',
+        'rebuild_data_source_id': None,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
@@ -342,10 +335,10 @@ PRODUCTS = [
         'cohort': False,
         'pipelines': [
             {
-                'pipeline': PIPELINE_BY_ID['jr1_institution_usage'],
+                'pipeline': PIPELINE_BY_ID['jr2_institution_usage'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['jr2_institution_usage'],
+                'pipeline': PIPELINE_BY_ID['jr3_institution_usage'],
             },
         ],
         'tableau_workbooks': [],

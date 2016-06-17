@@ -8,7 +8,7 @@ from ivetl.models import F1000SocialData
 
 @app.task
 class LoadF1000DataTask(Task):
-    REMOTE_FILE_URL = 'https://dl.dropboxusercontent.com/u/17066303/f1000-small-example.xml'
+    REMOTE_FILE_URL = 'http://linkout.export.f1000.com.s3.amazonaws.com/linkout/intermediate.xml'
     LOCAL_FILE_PATH = '/iv/social-metadata/f1000.xml'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):

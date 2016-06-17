@@ -7,7 +7,7 @@ from ivetl.models import InstitutionUsageStat
 
 
 @app.task
-class InsertJR1IntoCassandra(Task):
+class InsertJR3IntoCassandra(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']
@@ -28,7 +28,7 @@ class InsertJR1IntoCassandra(Task):
                     if count == 1:
 
                         # date cols start here
-                        col = 5
+                        col = 6
 
                         # collect all of them (we support any number of them)
                         while line[col] != 'YTD Total':
@@ -44,6 +44,7 @@ class InsertJR1IntoCassandra(Task):
                     journal = line[2]
                     journal_print_issn = line[3]
                     journal_online_issn = line[4]
+                    usage_category = line[5]
 
                     for col, date in date_cols:
 
@@ -54,11 +55,11 @@ class InsertJR1IntoCassandra(Task):
 
                         InstitutionUsageStat.objects(
                             publisher_id=publisher_id,
-                            counter_type='jr1',
+                            counter_type='jr3',
                             journal=journal,
                             subscriber_id=subscriber_id,
                             usage_date=date,
-                            usage_category='full text',
+                            usage_category=usage_category,
                         ).update(
                             journal_print_issn=journal_print_issn,
                             journal_online_issn=journal_online_issn,

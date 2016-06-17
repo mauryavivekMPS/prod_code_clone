@@ -4,7 +4,7 @@ import codecs
 from ivetl.validators.base import BaseValidator
 
 
-class JR1Validator(BaseValidator):
+class JR3Validator(BaseValidator):
 
     def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
         errors = []
@@ -28,6 +28,7 @@ class JR1Validator(BaseValidator):
                                     (2, 'Journal Title'),
                                     (3, 'Print ISSN'),
                                     (4, 'Online ISSN'),
+                                    (5, 'Page Type'),
                                 ]
 
                                 found_unexpected_fields = False
