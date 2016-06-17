@@ -24,21 +24,20 @@ def _get_wordnet_pos(pos_tag):
         return pos_tag[0], wordnet.NOUN
 
 
-def match_titles(a, b, threshold=0.25, tlogger=None):
+def match_titles(a, b, threshold=0.20, tlogger=None):
     pos_a = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(a)))
     pos_b = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(b)))
 
-    lemmae_a = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_a \
+    lemmae_a = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_a
         if pos == wordnet.NOUN and token.lower().strip(string.punctuation) not in stopwords]
 
-    lemmae_b = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_b \
+    lemmae_b = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_b
         if pos == wordnet.NOUN and token.lower().strip(string.punctuation) not in stopwords]
 
-    print(set(lemmae_a))
-    print(set(lemmae_b))
+    unique_a = set(lemmae_a)
 
-    intersection = len(set(lemmae_a).intersection(lemmae_b))
-    union = len(set(lemmae_a).union(lemmae_b))
+    intersection = len(unique_a.intersection(lemmae_b))
+    union = len(unique_a.union(lemmae_b))
 
     # calculate Jaccard similarity
     if union:
@@ -46,4 +45,10 @@ def match_titles(a, b, threshold=0.25, tlogger=None):
     else:
         ratio = 0.0
 
-    return ratio > threshold, ratio, intersection / len(set(lemmae_a))
+    new_denominator = len(unique_a)
+    if new_denominator:
+        new_ratio = intersection / new_denominator
+    else:
+        new_ratio = 0.0
+
+    return ratio > threshold, ratio, new_ratio

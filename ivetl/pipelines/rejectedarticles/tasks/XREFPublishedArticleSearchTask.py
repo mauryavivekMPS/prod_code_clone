@@ -191,19 +191,19 @@ class XREFPublishedArticleSearchTask(Task):
                 ])
 
                 # debug titles
-                title_csv.writerow([
-                    manuscript_id,
-                    'original',
-                    '',
-                    data['title'],
-                    ','.join(author_last_names),
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                ])
+                # title_csv.writerow([
+                #     manuscript_id,
+                #     'original',
+                #     '',
+                #     data['title'],
+                #     ','.join(author_last_names),
+                #     '',
+                #     '',
+                #     '',
+                #     '',
+                #     '',
+                #     '',
+                # ])
 
                 if '-' in date_of_rejection:
                     dor_parts = date_of_rejection.split('-')
@@ -259,6 +259,7 @@ class XREFPublishedArticleSearchTask(Task):
                 matching_result = {}
                 author_score = 0.0
                 title_score = 0.0
+                new_title_score = 0.0
 
                 for strategy in match_strategy:
 
@@ -291,7 +292,7 @@ class XREFPublishedArticleSearchTask(Task):
 
                             is_title_match = True
                             if strategy['match_title']:
-                                is_title_match, title_score = match_titles(
+                                is_title_match, title_score, new_title_score = match_titles(
                                     title,
                                     article.bptitle,
                                     tlogger=tlogger
@@ -348,7 +349,9 @@ class XREFPublishedArticleSearchTask(Task):
                                 manuscript_id,
                                 strategy['name'],
                                 match_string,
+                                data['title'],
                                 article.bptitle,
+                                ','.join(author_last_names),
                                 ','.join(crossref_last_names),
                                 author_match_string,
                                 author_score,
@@ -356,6 +359,7 @@ class XREFPublishedArticleSearchTask(Task):
                                 title_score,
                                 fifty_fifty_match_string,
                                 ten_eighty_match_string,
+                                new_title_score,
                             ])
 
                             if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match or strategy['allow_10_80_match'] and is_10_80_match:
