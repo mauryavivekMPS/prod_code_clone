@@ -34,6 +34,9 @@ def match_titles(a, b, threshold=0.25, tlogger=None):
     lemmae_b = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_b \
         if pos == wordnet.NOUN and token.lower().strip(string.punctuation) not in stopwords]
 
+    print(set(lemmae_a))
+    print(set(lemmae_b))
+
     intersection = len(set(lemmae_a).intersection(lemmae_b))
     union = len(set(lemmae_a).union(lemmae_b))
 
@@ -43,4 +46,4 @@ def match_titles(a, b, threshold=0.25, tlogger=None):
     else:
         ratio = 0.0
 
-    return ratio > threshold, ratio
+    return ratio > threshold, ratio, intersection / len(set(lemmae_a))

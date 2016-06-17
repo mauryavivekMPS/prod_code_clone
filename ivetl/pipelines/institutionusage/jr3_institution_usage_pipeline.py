@@ -9,10 +9,10 @@ from ivetl.models import Pipeline_Status, Publisher_Metadata
 
 
 @app.task
-class JR2InstitutionUsagePipeline(Pipeline):
+class JR3InstitutionUsagePipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'jr2_institution_usage'
+        pipeline_id = 'jr3_institution_usage'
         now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
@@ -57,9 +57,9 @@ class JR2InstitutionUsagePipeline(Pipeline):
 
                 # and run the pipeline!
                 chain(
-                    tasks.GetJR2Files.s(task_args) |
-                    tasks.ValidateJR2Files.s() |
-                    tasks.InsertJR2IntoCassandra.s()
+                    tasks.GetJR3Files.s(task_args) |
+                    tasks.ValidateJR3Files.s() |
+                    tasks.InsertJR3IntoCassandra.s()
                 ).delay()
 
             else:
