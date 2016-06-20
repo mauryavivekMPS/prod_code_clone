@@ -397,13 +397,13 @@ FTP_DIRS = [
     },
     {
         'product_id': 'institutions',
-        'pipeline_id': 'jr1_institution_usage',
-        'ftp_dir_name': 'jr1_institution_usage_files',
+        'pipeline_id': 'jr2_institution_usage',
+        'ftp_dir_name': 'jr2_institution_usage_files',
     },
     {
         'product_id': 'institutions',
-        'pipeline_id': 'jr2_institution_usage',
-        'ftp_dir_name': 'jr2_institution_usage_files',
+        'pipeline_id': 'jr3_institution_usage',
+        'ftp_dir_name': 'jr3_institution_usage_files',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}
