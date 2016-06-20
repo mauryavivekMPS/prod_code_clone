@@ -271,7 +271,7 @@ class Task(BaseTask):
         # note: removed temporarily because this is being used with multiple encodings (the JR's in particular)
 
         # just count the lines
-        # total_count = 0
+        total_count = 0
         # for file in files:
         #     with open(file) as f:
         #         for i, l in enumerate(f):
