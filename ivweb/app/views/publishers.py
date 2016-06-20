@@ -161,6 +161,7 @@ class PublisherForm(forms.Form):
     published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    institutions = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     reports_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
@@ -199,6 +200,7 @@ class PublisherForm(forms.Form):
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
+            initial['institutions'] = 'institutions' in initial['supported_products']
             initial['use_crossref'] = initial.get('use_crossref') or initial['crossref_username'] or initial['crossref_password']
 
             if self.is_demo or convert_from_demo:
@@ -277,6 +279,8 @@ class PublisherForm(forms.Form):
             supported_products.append('rejected_manuscripts')
         if self.cleaned_data['cohort_articles']:
             supported_products.append('cohort_articles')
+        if self.cleaned_data['institutions']:
+            supported_products.append('institutions')
 
         if self.is_demo:
             demo_id = self.cleaned_data['demo_id']
