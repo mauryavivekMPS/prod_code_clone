@@ -20,7 +20,7 @@ class InsertJR3IntoCassandra(Task):
             tlogger.info('Processing %s' % file)
 
             date_cols = []
-            with open(file, 'r') as tsv:
+            with open(file, 'r', encoding='windows-1252') as tsv:
                 for line in csv.reader(tsv, delimiter="\t"):
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
