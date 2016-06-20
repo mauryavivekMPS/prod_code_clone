@@ -3,7 +3,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, Published_Article
+from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
 from ivetl.alerts import run_alerts, send_alert_notifications
 
 
@@ -108,7 +108,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                     else:
                         tlogger.info("No crossref data found for citation %s, skipping" % citation_doi)
 
-            published_article = Published_Article.objects.get(publisher_id=publisher_id, article_doi=doi)
+            published_article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
             old_citation_count = published_article.citation_count
             new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
             issn = published_article.article_journal_issn

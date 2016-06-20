@@ -27,7 +27,7 @@ os.environ["IVETL_ROOT"] = "/iv/impactvizor-pipeline"
 os.environ["IVETL_TABLEAU_SERVER"] = "10.0.0.143"
 os.environ["IVETL_TABLEAU_USERNAME"] = "admin"
 os.environ["IVETL_TABLEAU_PASSWORD"] = "admin"
-os.environ["IVETL_CASSANDRA_IP"] = "10.0.0.115"
+os.environ["IVETL_CASSANDRA_IP"] = "10.0.0.21"
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION

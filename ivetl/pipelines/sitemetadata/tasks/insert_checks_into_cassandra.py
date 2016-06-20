@@ -3,11 +3,11 @@ import json
 import codecs
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Uptime_Check_Metadata
+from ivetl.models import UptimeCheckMetadata
 
 
 @app.task
-class InsertIntoCassandraTask(Task):
+class InsertChecksIntoCassandraTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']
@@ -24,7 +24,7 @@ class InsertIntoCassandraTask(Task):
 
                 check = json.loads(line[1])
 
-                Uptime_Check_Metadata.objects(
+                UptimeCheckMetadata.objects(
                     publisher_id=publisher_id,
                     check_id=check['id'],
                 ).update(

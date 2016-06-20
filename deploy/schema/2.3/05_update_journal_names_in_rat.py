@@ -49,7 +49,7 @@ if __name__ == "__main__":
     open_cassandra_connection()
 
     print('Updating ASBMB ...')
-    for ra in Rejected_Articles.objects.filter("asbmb").limit(1000000):
+    for ra in Rejected_Articles.objects.filter(publisher_id="asbmb").limit(1000000):
         if ra.submitted_journal == 'JBC':
             ra.submitted_journal = 'Journal of Biological Chemistry'
             ra.save()

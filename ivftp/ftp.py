@@ -58,7 +58,6 @@ class IvetlHandler(FTPHandler):
 
     def on_file_received(self, file):
         self.uploaded_files.append(file)
-        self.log('foo')
 
     def on_disconnect(self):
         """Called when connection is closed."""

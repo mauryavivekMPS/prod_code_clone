@@ -2,7 +2,7 @@ import time
 import unittest
 import datetime
 from dateutil import parser
-from ivetl.models import (Publisher_Metadata, Pipeline_Status, Published_Article, Article_Citations,
+from ivetl.models import (Publisher_Metadata, Pipeline_Status, PublishedArticle, Article_Citations,
                           Publisher_Vizor_Updates, Published_Article_Values, Pipeline_Task_Status)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
@@ -62,7 +62,7 @@ class PipelineTestCase(unittest.TestCase):
     def remove_all_test_publisher_data(self):
         try:
             publisher = Publisher_Metadata.objects.get(publisher_id='test')
-            Published_Article.objects(publisher_id='test').delete()
+            PublishedArticle.objects(publisher_id='test').delete()
             Published_Article_Values.objects(publisher_id='test').delete()
             Article_Citations.objects(publisher_id='test').delete()
             Pipeline_Status.objects(publisher_id='test').delete()
@@ -78,7 +78,7 @@ class PipelineTestCase(unittest.TestCase):
         # the articles
         #
 
-        Published_Article.create(
+        PublishedArticle.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-427765',
             article_issue='6',
@@ -107,7 +107,7 @@ class PipelineTestCase(unittest.TestCase):
             updated=parser.parse('2015-09-07 13:04:46-0700'),
         )
 
-        Published_Article.create(
+        PublishedArticle.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             article_issue='6',

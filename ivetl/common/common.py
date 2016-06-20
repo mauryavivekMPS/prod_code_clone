@@ -42,6 +42,19 @@ PIPELINES = [
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
     },
     {
+        'name': 'Social Metrics',
+        'id': 'social_metrics',
+        'user_facing_display_name': 'Social metrics',
+        'class': 'ivetl.pipelines.socialmetrics.SocialMetricsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Get Latest Social Metrics',
+    },
+    {
         'name': 'Upload Rejected',
         'id': 'rejected_articles',
         'user_facing_display_name': 'Rejected manuscripts',
@@ -130,6 +143,40 @@ PIPELINES = [
         'include_date_range_controls': True,
         'use_high_water_mark': True,
         'supports_restart': True,
+    },
+    {
+        'name': 'Weekly Alerts',
+        'id': 'weekly_site_uptime_alerts',
+        'user_facing_display_name': 'Weekly Site Uptime Alerts',
+        'class': 'ivetl.pipelines.siteuptime.WeeklyAlertsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Run Weekly Uptime Alerts',
+        'include_date_range_controls': False,
+        'use_high_water_mark': False,
+        'supports_restart': False,
+    },
+    {
+        'name': 'JR2 Institution Usage',
+        'id': 'jr2_institution_usage',
+        'user_facing_display_name': 'JR2 institution usage',
+        'class': 'ivetl.pipelines.institutionusage.JR2InstitutionUsagePipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.JR2Validator',
+        'rebuild_data_source_id': None,
+    },
+    {
+        'name': 'JR3 Institution Usage',
+        'id': 'jr3_institution_usage',
+        'user_facing_display_name': 'JR3 institution usage',
+        'class': 'ivetl.pipelines.institutionusage.JR3InstitutionUsagePipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.JR3Validator',
+        'rebuild_data_source_id': None,
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
@@ -281,10 +328,26 @@ PRODUCTS = [
         'tableau_workbooks': [],
     },
     {
+        'name': 'Institutions',
+        'id': 'institutions',
+        'is_user_facing': True,
+        'order': 4,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['jr2_institution_usage'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['jr3_institution_usage'],
+            },
+        ],
+        'tableau_workbooks': [],
+    },
+    {
         'name': 'HighWire Sites',
         'id': 'highwire_sites',
         'is_user_facing': True,
-        'order': 4,
+        'order': 5,
         'cohort': False,
         'pipelines': [
             {
@@ -293,8 +356,24 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['site_uptime'],
             },
+            {
+                'pipeline': PIPELINE_BY_ID['weekly_site_uptime_alerts'],
+            },
         ],
-        'tableau_workbooks': []
+        'tableau_workbooks': [],
+    },
+    {
+        'name': 'Social',
+        'id': 'social',
+        'is_user_facing': True,
+        'order': 6,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['social_metrics'],
+            },
+        ],
+        'tableau_workbooks': [],
     },
 ]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
@@ -315,6 +394,16 @@ FTP_DIRS = [
         'product_id': 'rejected_manuscripts',
         'pipeline_id': 'rejected_articles',
         'ftp_dir_name': 'rejected_manuscripts',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'jr1_institution_usage',
+        'ftp_dir_name': 'jr1_institution_usage_files',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'jr2_institution_usage',
+        'ftp_dir_name': 'jr2_institution_usage_files',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}
