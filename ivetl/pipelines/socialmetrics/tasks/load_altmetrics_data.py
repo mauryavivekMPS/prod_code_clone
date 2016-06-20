@@ -32,7 +32,7 @@ class LoadAltmetricsDataTask(Task):
 
         # count lines
         total_count = 0
-        with open(self.LOCAL_FILE_RENAMED_PATH, 'r') as f:
+        with open(self.LOCAL_FILE_RENAMED_PATH, 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 total_count += 1
 
@@ -44,7 +44,7 @@ class LoadAltmetricsDataTask(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
-        with open(self.LOCAL_FILE_RENAMED_PATH) as f:
+        with open(self.LOCAL_FILE_RENAMED_PATH, encoding='utf-8') as f:
             reader = csv.DictReader(f, delimiter='\t')
             for row in reader:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
