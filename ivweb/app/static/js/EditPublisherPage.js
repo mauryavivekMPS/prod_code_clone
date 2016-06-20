@@ -48,7 +48,8 @@ var EditPublisherPage = (function() {
         var publishedArticlesProduct = $('#id_published_articles').is(':checked');
         var rejectedManuscriptsProduct = $('#id_rejected_manuscripts').is(':checked');
         var cohortArticlesProduct = $('#id_cohort_articles').is(':checked');
-        var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct;
+        var institutionsProduct = $('#id_institutions').is(':checked');
+        var atLeastOneProduct = publishedArticlesProduct || rejectedManuscriptsProduct || cohortArticlesProduct || institutionsProduct;
 
         var hasReportsDetails = true;
         if (isNew) {
@@ -661,6 +662,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
         f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
         f.find('input[name="cohort_articles"]').val($('#id_cohort_articles').is(':checked') ? 'on' : '');
+        f.find('input[name="institutions"]').val($('#id_institutions').is(':checked') ? 'on' : '');
         f.find('input[name="issn_values_cohort"]').val($('#id_issn_values_cohort').val());
         f.find('input[name="reports_username"]').val($('#id_reports_username').val());
         f.find('input[name="reports_password"]').val($('#id_reports_password').val());
@@ -752,6 +754,8 @@ var EditPublisherPage = (function() {
             checkForm();
         });
         updateCohortArticlesControls();
+
+        $('#id_institutions').on('change', checkForm);
 
         $('#id_hw_addl_metadata_available').on('change', function() {
             updateHighWireControls();
