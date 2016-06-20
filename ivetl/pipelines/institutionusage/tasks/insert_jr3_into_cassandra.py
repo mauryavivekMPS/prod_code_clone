@@ -1,5 +1,4 @@
 import csv
-import codecs
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -21,7 +20,7 @@ class InsertJR3IntoCassandra(Task):
             tlogger.info('Processing %s' % file)
 
             date_cols = []
-            with codecs.open(file, encoding="utf-8") as tsv:
+            with open(file, 'r') as tsv:
                 for line in csv.reader(tsv, delimiter="\t"):
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
