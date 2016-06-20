@@ -268,13 +268,15 @@ class Task(BaseTask):
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']
 
+        # note: removed temporarily because this is being used with multiple encodings (the JR's in particular)
+
         # just count the lines
-        total_count = 0
-        for file in files:
-            with codecs.open(file, encoding='utf-8') as f:
-                for i, l in enumerate(f):
-                    pass
-                total_count = i + 1
+        # total_count = 0
+        # for file in files:
+        #     with open(file) as f:
+        #         for i, l in enumerate(f):
+        #             pass
+        #         total_count = i + 1
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
