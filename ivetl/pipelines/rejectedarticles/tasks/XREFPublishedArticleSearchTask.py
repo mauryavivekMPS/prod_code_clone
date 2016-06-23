@@ -32,7 +32,10 @@ def remove_hex(s):
 
 
 def remove_disallowed_words(s):
-    return re.sub('or|and|not', '', s, flags=re.IGNORECASE)
+    s = re.sub('(\s|^)or(\s|$)', ' ', s, flags=re.IGNORECASE)
+    s = re.sub('(\s|^)and(\s|$)', ' ', s, flags=re.IGNORECASE)
+    s = re.sub('(\s|^)not(\s|$)', ' ', s, flags=re.IGNORECASE)
+    return s
 
 
 def clean_crossref_input(s):
