@@ -120,8 +120,10 @@ class CrossrefConnector(BaseConnector):
                 title_search_term,
             )
 
-        if authors:
-            url += '&query.author=%s' % self.solr_encode(' '.join(authors))
+            if authors:
+                url += '&query.author=%s' % self.solr_encode(' '.join(authors))
+
+        self.log('search url: %s' % url)
 
         r = self.get_with_retry(url)
 

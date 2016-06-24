@@ -38,6 +38,23 @@ class ParseBenchPressFileTask(Task):
                     for row in reader:
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
+                        # blood
+                        # if '275073' not in row['MANUSCRIPT_ID']:
+                        #     continue
+
+                        # cob
+                        # if '046896' not in row['MANUSCRIPT_ID']:
+                        #     continue
+
+                        # cob
+                        # got_one = False
+                        # for m in ['072678', '076752', '078675', '076141', '088013', '090597']:
+                        #     if m in row['MANUSCRIPT_ID']:
+                        #         got_one = True
+                        #
+                        # if not got_one:
+                        #     continue
+
                         # the date in the BP file is d/m/y and the rest of the pipeline expects m/d/y
                         day, month, year = row['DATE_OF_REJECTION'].split('/')
                         fixed_date_of_rejection = '/'.join([month, day, year])

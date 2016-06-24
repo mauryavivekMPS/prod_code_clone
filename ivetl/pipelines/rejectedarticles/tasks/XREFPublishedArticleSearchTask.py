@@ -46,7 +46,7 @@ def get_last_names(name_strings):
     unique_names = set()
     for s in name_strings:
         if s and type(s) == str:
-            unique_names.update([full_name.split(',')[0].strip().lower() for full_name in s.split(';')])
+            unique_names.update([full_name.split(',')[0].strip().lower() for full_name in s.split(';') if full_name.strip()])
     return list(unique_names)
 
 
