@@ -24,7 +24,7 @@ def _get_wordnet_pos(pos_tag):
         return pos_tag[0], wordnet.NOUN
 
 
-def match_titles(a, b, threshold=0.20, tlogger=None):
+def match_titles(a, b, threshold=0.2, tlogger=None):
     pos_a = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(a)))
     pos_b = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(b)))
 
@@ -51,4 +51,4 @@ def match_titles(a, b, threshold=0.20, tlogger=None):
     else:
         new_ratio = 0.0
 
-    return ratio > threshold, ratio, new_ratio
+    return ratio >= threshold, ratio, new_ratio

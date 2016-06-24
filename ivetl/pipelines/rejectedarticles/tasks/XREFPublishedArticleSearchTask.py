@@ -239,7 +239,18 @@ class XREFPublishedArticleSearchTask(Task):
 
                 match_strategy = [
                     {
+                        'name': 'generic-query-search',
+                        'use_generic_query_param': True,
+                        'include_author_in_search': False,
+                        'match_author': True,
+                        'match_title': True,
+                        'allow_50_50_match': True,
+                        'allow_10_80_match': True,
+                        'strict_single_author_title_match': True,
+                    },
+                    {
                         'name': 'title-only-search',
+                        'use_generic_query_param': True,
                         'include_author_in_search': False,
                         'match_author': True,
                         'match_title': True,
@@ -249,6 +260,7 @@ class XREFPublishedArticleSearchTask(Task):
                     },
                     {
                         'name': 'title-and-author-search',
+                        'use_generic_query_param': True,
                         'include_author_in_search': True,
                         'match_author': True,
                         'match_title': True,
@@ -274,7 +286,13 @@ class XREFPublishedArticleSearchTask(Task):
                     else:
                         author_param = None
 
-                    search_results = crossref.search_article(publish_date, title, authors=author_param)
+                    search_results = crossref.search_article(
+                        publish_date,
+                        title,
+                        authors=author_param,
+                        use_generic_query_param=strategy['use_generic_query_param']
+                    )
+
                     if _has_results(search_results):
                         for result in search_results['message']['items']:
 

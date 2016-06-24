@@ -103,15 +103,22 @@ class CrossrefConnector(BaseConnector):
 
         return article
 
-    def search_article(self, publish_date, title, authors=None):
+    def search_article(self, publish_date, title, authors=None, use_generic_query_param=False):
         date_search_term = publish_date.strftime('%Y-%m')
         title_search_term = self.solr_encode(title)
 
-        url = '%s?rows=4&filter=from-pub-date:%s&query.title=%s' % (
-            self.BASE_ARTICLE_URL,
-            date_search_term,
-            title_search_term,
-        )
+        if use_generic_query_param:
+            url = '%s?rows=4&filter=from-pub-date:%s&query=%s' % (
+                self.BASE_ARTICLE_URL,
+                date_search_term,
+                title_search_term,
+            )
+        else:
+            url = '%s?rows=4&filter=from-pub-date:%s&query.title=%s' % (
+                self.BASE_ARTICLE_URL,
+                date_search_term,
+                title_search_term,
+            )
 
         if authors:
             url += '&query.author=%s' % self.solr_encode(' '.join(authors))
