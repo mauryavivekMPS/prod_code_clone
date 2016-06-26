@@ -163,7 +163,7 @@ class XREFPublishedArticleSearchTask(Task):
         title_csv = csv.writer(title_file)
 
         with codecs.open(file, encoding="utf-16") as tsv:
-            for line in csv.reader(tsv, delimiter="\t"):
+            for line in csv.reader(tsv, delimiter="\t", quotechar=None):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
@@ -192,21 +192,6 @@ class XREFPublishedArticleSearchTask(Task):
                     clean_crossref_input(data['corresponding_author']),
                     clean_crossref_input(data['co_authors'])
                 ])
-
-                # debug titles
-                # title_csv.writerow([
-                #     manuscript_id,
-                #     'original',
-                #     '',
-                #     data['title'],
-                #     ','.join(author_last_names),
-                #     '',
-                #     '',
-                #     '',
-                #     '',
-                #     '',
-                #     '',
-                # ])
 
                 if '-' in date_of_rejection:
                     dor_parts = date_of_rejection.split('-')
