@@ -32,9 +32,9 @@ def remove_hex(s):
 
 
 def remove_disallowed_words(s):
-    s = re.sub('(\s|^)or(\s|$)', ' ', s, flags=re.IGNORECASE)
-    s = re.sub('(\s|^)and(\s|$)', ' ', s, flags=re.IGNORECASE)
-    s = re.sub('(\s|^)not(\s|$)', ' ', s, flags=re.IGNORECASE)
+    s = re.sub('(\W|^)or(\W|$)', ' ', s, flags=re.IGNORECASE)
+    s = re.sub('(\W|^)and(\W|$)', ' ', s, flags=re.IGNORECASE)
+    s = re.sub('(\W|^)not(\W|$)', ' ', s, flags=re.IGNORECASE)
     return s
 
 
