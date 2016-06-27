@@ -235,7 +235,7 @@ class XREFPublishedArticleSearchTask(Task):
                     },
                     {
                         'name': 'title-only-search',
-                        'use_generic_query_param': True,
+                        'use_generic_query_param': False,
                         'include_author_in_search': False,
                         'match_author': True,
                         'match_title': True,
@@ -245,7 +245,7 @@ class XREFPublishedArticleSearchTask(Task):
                     },
                     {
                         'name': 'title-and-author-search',
-                        'use_generic_query_param': True,
+                        'use_generic_query_param': False,
                         'include_author_in_search': True,
                         'match_author': True,
                         'match_title': True,
