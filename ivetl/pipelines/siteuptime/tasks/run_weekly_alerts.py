@@ -49,7 +49,7 @@ class RunWeeklyAlertsTask(Task):
                         check_id=check.check_id,
                         check_date=date,
                     )
-                    uptimes.append(stat.total_up_sec)
+                    uptimes.append(stat.total_up_sec + stat.total_unknown_sec)
                 except UptimeCheckStat.DoesNotExist:
                     uptimes.append(None)
 
@@ -76,6 +76,7 @@ class RunWeeklyAlertsTask(Task):
                     'site_type': check_metadata.site_type,
                     'site_platform': check_metadata.site_platform,
                     'pingdom_account': check_metadata.pingdom_account,
+                    'publisher_name': check_metadata.publisher_name,
                 }
             )
 
