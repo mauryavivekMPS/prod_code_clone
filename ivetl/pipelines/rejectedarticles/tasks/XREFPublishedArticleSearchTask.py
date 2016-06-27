@@ -163,7 +163,7 @@ class XREFPublishedArticleSearchTask(Task):
         title_csv = csv.writer(title_file)
 
         with codecs.open(file, encoding="utf-16") as tsv:
-            for line in csv.reader(tsv, delimiter="\t", quotechar=None):
+            for line in csv.reader(tsv, delimiter="\t"):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
