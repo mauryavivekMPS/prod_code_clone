@@ -18,6 +18,9 @@ class RunWeeklyAlertsTask(Task):
             if window > longest_window:
                 longest_window = window
 
+        if type(to_date) == datetime.datetime:
+            to_date = to_date.date()
+
         alert_from_date = to_date - datetime.timedelta(longest_window)
 
         all_checks = UptimeCheckMetadata.objects.filter(publisher_id=publisher_id)
