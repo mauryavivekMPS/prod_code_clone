@@ -193,6 +193,10 @@ class XREFPublishedArticleSearchTask(Task):
                     clean_crossref_input(data['co_authors'])
                 ])
 
+                if not author_last_names:
+                    tlogger.info('No authors, skipping record')
+                    continue
+
                 if '-' in date_of_rejection:
                     dor_parts = date_of_rejection.split('-')
                 else:
