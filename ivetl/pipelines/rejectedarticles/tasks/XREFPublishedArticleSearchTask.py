@@ -1,3 +1,4 @@
+import os
 import csv
 import codecs
 import json
@@ -9,6 +10,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import CrossrefConnector
 from ivetl.matchers import match_authors, match_titles
+from ivetl.common import common
 
 EXCLUDED_JOURNALS = [
     "10.1002/chin",
@@ -46,7 +48,7 @@ def get_last_names(name_strings):
     unique_names = set()
     for s in name_strings:
         if s and type(s) == str:
-            unique_names.update([full_name.split(',')[0].strip().lower() for full_name in s.split(';') if full_name.strip()])
+            unique_names.update([full_name.split(',')[0].strip().lower() for full_name in s.split(';') if full_name.split(',')[0].strip()])
     return list(unique_names)
 
 
@@ -159,8 +161,8 @@ class XREFPublishedArticleSearchTask(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         # debug titles
-        title_file = codecs.open('/tmp/%s_%s.csv' % (publisher_id, job_id), 'w', 'utf-16')
-        title_csv = csv.writer(title_file)
+        matcher_debug_file = codecs.open(os.path.join(common.TMP_DIR, '%s_%s.csv' % (publisher_id, job_id)), 'w', 'utf-16')
+        matcher_debug_csv = csv.writer(matcher_debug_file)
 
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
@@ -187,11 +189,17 @@ class XREFPublishedArticleSearchTask(Task):
                     tlogger.info("No title, skipping record")
                     continue
 
+                tlogger.info('first: %s' % data['first_author'])
+                tlogger.info('corresponding_author: %s' % data['corresponding_author'])
+                tlogger.info('co_authors: %s' % data['co_authors'])
+
                 author_last_names = get_last_names([
                     clean_crossref_input(data['first_author']),
                     clean_crossref_input(data['corresponding_author']),
                     clean_crossref_input(data['co_authors'])
                 ])
+
+                tlogger.info('author_last_names: %s' % author_last_names)
 
                 if not author_last_names:
                     tlogger.info('No authors, skipping record')
@@ -365,7 +373,7 @@ class XREFPublishedArticleSearchTask(Task):
                                 else:
                                     ten_eighty_match_string = 'no-10-80'
 
-                            title_csv.writerow([
+                            matcher_debug_csv.writerow([
                                 manuscript_id,
                                 strategy['name'],
                                 match_string,
@@ -418,9 +426,7 @@ class XREFPublishedArticleSearchTask(Task):
                 target_file.write(row)
 
         target_file.close()
-        title_file.close()
-
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=total_count)
+        matcher_debug_file.close()
 
         return {
             'input_file': target_file_name,
