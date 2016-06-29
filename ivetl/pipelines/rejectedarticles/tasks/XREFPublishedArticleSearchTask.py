@@ -236,6 +236,7 @@ class XREFPublishedArticleSearchTask(Task):
                         'allow_50_50_match': True,
                         'allow_10_80_match': True,
                         'strict_single_author_title_match': True,
+                        'easy_title_match_on_perfect_author': True,
                     },
                     {
                         'name': 'title-only-search',
@@ -246,6 +247,7 @@ class XREFPublishedArticleSearchTask(Task):
                         'allow_50_50_match': True,
                         'allow_10_80_match': True,
                         'strict_single_author_title_match': True,
+                        'easy_title_match_on_perfect_author': True,
                     },
                     {
                         'name': 'title-and-author-search',
@@ -256,6 +258,7 @@ class XREFPublishedArticleSearchTask(Task):
                         'allow_50_50_match': True,
                         'allow_10_80_match': True,
                         'strict_single_author_title_match': True,
+                        'easy_title_match_on_perfect_author': True,
                     },
                 ]
 
@@ -264,6 +267,8 @@ class XREFPublishedArticleSearchTask(Task):
                 author_score = 0.0
                 title_score = 0.0
                 new_title_score = 0.0
+                strict_match = False
+                easy_match = False
 
                 for strategy in match_strategy:
 
@@ -310,6 +315,11 @@ class XREFPublishedArticleSearchTask(Task):
 
                                 if strategy['strict_single_author_title_match'] and len(author_last_names) <= 1:
                                     is_title_match = title_score >= 0.5
+                                    strict_match = True
+
+                                if strategy['easy_title_match_on_perfect_author'] and len(author_last_names) >= 3 and author_score >= 1.0:
+                                    is_title_match = title_score >= 0.14
+                                    easy_match = True
 
                             is_50_50_match = False
                             if strategy['allow_50_50_match']:
@@ -370,6 +380,8 @@ class XREFPublishedArticleSearchTask(Task):
                                 fifty_fifty_match_string,
                                 ten_eighty_match_string,
                                 new_title_score,
+                                'strict' if strict_match else 'no',
+                                'easy' if easy_match else 'no',
                             ])
 
                             if is_author_match and is_title_match or strategy['allow_50_50_match'] and is_50_50_match or strategy['allow_10_80_match'] and is_10_80_match:
