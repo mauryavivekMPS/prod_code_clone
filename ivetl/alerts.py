@@ -256,7 +256,12 @@ CHECKS = {
     'site-uptime-below-threshold': {
         'name': 'Site Uptime Below Threshold',
         'check_type': CHECK_TYPES['below-threshold-in-window'],
-        'filters': [],
+        'filters': [
+            {'name': 'check_type', 'label': 'Check Type', 'table': 'uptime_check_metadata'},
+            {'name': 'site_platform', 'label': 'Platform', 'table': 'uptime_check_metadata'},
+            {'name': 'site_type', 'label': 'Site Type', 'table': 'uptime_check_metadata'},
+            {'name': 'publisher_name', 'label': 'Publisher Name', 'table': 'uptime_check_metadata'},
+        ],
         'format_string': 'Site %(site_code)s: %(new_value)s citations (from %(old_value), up %(percentage_increase))',
         'table_order': [
             {'key': 'check_name', 'name': 'Check', 'type': 'check-link', 'width': 'wide'},

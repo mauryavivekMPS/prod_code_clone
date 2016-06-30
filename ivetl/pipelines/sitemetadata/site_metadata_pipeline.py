@@ -36,5 +36,6 @@ class SiteMetadataPipeline(Pipeline):
             tasks.LoadDrupalMetadataTask.s() |
             tasks.GetChecksTask.s() |
             tasks.ClassifyChecksTask.s() |
-            tasks.InsertChecksIntoCassandraTask.s()
+            tasks.InsertChecksIntoCassandraTask.s() |
+            tasks.UpdateAttributeValuesCacheTask.s()
         ).delay()

@@ -5,7 +5,6 @@ from ivetl.pipelines.pipeline import Pipeline
 from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchpressTask import GetRejectedArticlesFromBenchPressTask
 from ivetl.pipelines.rejectedarticles.tasks.ParseBenchPressFileTask import ParseBenchPressFileTask
 from ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask import XREFPublishedArticleSearchTask
-from ivetl.pipelines.rejectedarticles.tasks.SelectPublishedArticleTask import SelectPublishedArticleTask
 from ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask import ScopusCitationLookupTask
 from ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask import MendeleyLookupTask
 from ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask import PrepareForDBInsertTask
@@ -51,7 +50,6 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'publisher_id': publisher.publisher_id,
                 'product_id': product_id,
-                'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'from_date': from_date,
@@ -62,7 +60,6 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 GetRejectedArticlesFromBenchPressTask.s(task_args) |
                 ParseBenchPressFileTask.s() |
                 XREFPublishedArticleSearchTask.s() |
-                SelectPublishedArticleTask.s() |
                 ScopusCitationLookupTask.s() |
                 MendeleyLookupTask.s() |
                 PrepareForDBInsertTask.s() |

@@ -18,6 +18,9 @@ class RunWeeklyAlertsTask(Task):
             if window > longest_window:
                 longest_window = window
 
+        if type(to_date) == datetime.datetime:
+            to_date = to_date.date()
+
         alert_from_date = to_date - datetime.timedelta(longest_window)
 
         all_checks = UptimeCheckMetadata.objects.filter(publisher_id=publisher_id)
@@ -46,7 +49,7 @@ class RunWeeklyAlertsTask(Task):
                         check_id=check.check_id,
                         check_date=date,
                     )
-                    uptimes.append(stat.total_up_sec)
+                    uptimes.append(stat.total_up_sec + stat.total_unknown_sec)
                 except UptimeCheckStat.DoesNotExist:
                     uptimes.append(None)
 
@@ -73,6 +76,7 @@ class RunWeeklyAlertsTask(Task):
                     'site_type': check_metadata.site_type,
                     'site_platform': check_metadata.site_platform,
                     'pingdom_account': check_metadata.pingdom_account,
+                    'publisher_name': check_metadata.publisher_name,
                 }
             )
 

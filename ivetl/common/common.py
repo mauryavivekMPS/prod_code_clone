@@ -73,6 +73,7 @@ PIPELINES = [
         'rebuild_data_source_id': ['rejected_articles'],
         'include_date_range_controls': True,
         'filter_for_benchpress_support': True,
+        'supports_restart': True,
     },
     {
         'name': 'Reprocess Rejected',

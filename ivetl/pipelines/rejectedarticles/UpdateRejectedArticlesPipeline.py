@@ -71,7 +71,6 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                     tasks.ValidateInputFileTask.s() |
                     tasks.PrepareInputFileTask.s() |
                     tasks.XREFPublishedArticleSearchTask.s() |
-                    tasks.SelectPublishedArticleTask.s() |
                     tasks.ScopusCitationLookupTask.s() |
                     tasks.MendeleyLookupTask.s() |
                     tasks.PrepareForDBInsertTask.s() |

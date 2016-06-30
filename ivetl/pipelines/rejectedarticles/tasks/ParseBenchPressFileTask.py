@@ -33,10 +33,30 @@ class ParseBenchPressFileTask(Task):
                 tlogger.info('Parsing file: %s' % file)
 
                 with open(file, encoding='utf-8') as tsv:
-                    reader = csv.DictReader(tsv, delimiter='\t')
+                    reader = csv.DictReader(tsv, delimiter='\t', quoting=csv.QUOTE_NONE)
                     source_file_name = os.path.basename(file)
                     for row in reader:
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                        # blood
+                        # if '275073' not in row['MANUSCRIPT_ID']:
+                        #     continue
+
+                        # cob
+                        # if '046896' not in row['MANUSCRIPT_ID']:
+                        #     continue
+
+                        # cob
+                        # got_one = False
+                        # for m in ['072678', '076752', '078675', '076141', '088013', '090597']:
+                        #     if m in row['MANUSCRIPT_ID']:
+                        #         got_one = True
+                        #
+                        # if not got_one:
+                        #     continue
+
+                        # if '074864' not in row['MANUSCRIPT_ID']:
+                        #     continue
 
                         # the date in the BP file is d/m/y and the rest of the pipeline expects m/d/y
                         day, month, year = row['DATE_OF_REJECTION'].split('/')
@@ -46,7 +66,7 @@ class ParseBenchPressFileTask(Task):
                             'manuscript_id': row['MANUSCRIPT_ID'],
                             'date_of_rejection': fixed_date_of_rejection,
                             'reject_reason': row['REJECT_REASON'],
-                            'title': row['TITLE'],
+                            'title': row['TITLE'].replace('"', ''),
                             'first_author': row['FIRST_AUTHOR'],
                             'corresponding_author': row['CORRESPONDING_AUTHOR'],
                             'co_authors': row['CO_AUTHORS'],
