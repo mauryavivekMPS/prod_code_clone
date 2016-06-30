@@ -25,7 +25,7 @@ class LoadF1000DataTask(Task):
 
         # count lines
         total_count = 0
-        with open(self.LOCAL_FILE_PATH, 'r') as f:
+        with open(self.LOCAL_FILE_PATH, 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 total_count += 1
 
@@ -37,7 +37,7 @@ class LoadF1000DataTask(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
-        with open(self.LOCAL_FILE_PATH) as f:
+        with open(self.LOCAL_FILE_PATH, encoding='utf-8') as f:
 
             for line in f.readlines():
 
@@ -57,10 +57,20 @@ class LoadF1000DataTask(Task):
                 if not doi:
                     continue
 
-                f1000_id = soup.find('Id').text
+                f1000_id_element = soup.find('Id')
+                if not f1000_id_element:
+                    continue
+
+                f1000_id = f1000_id_element.text
+                if not f1000_id:
+                    continue
+
+                total_score_element = soup.find('TotalScore')
+                if not total_score_element:
+                    continue
 
                 try:
-                    total_score = int(soup.find('TotalScore').text)
+                    total_score = int(total_score_element.text)
                 except ValueError:
                     total_score = 0
 

@@ -1,6 +1,5 @@
 import os
 import csv
-import codecs
 from ivetl.validators.base import BaseValidator
 
 
@@ -11,38 +10,34 @@ class JR2Validator(BaseValidator):
         total_count = 0
         for f in files:
             file_name = os.path.basename(f)
-            try:
-                with codecs.open(f, encoding='utf-8') as tsv:
-                    count = 0
-                    for line in csv.reader(tsv, delimiter='\t'):
-                        if line:
-                            if increment_count_func:
-                                count = increment_count_func(count)
-                            else:
-                                count += 1
+            with open(f, 'r', encoding='windows-1252') as tsv:
+                count = 0
+                for line in csv.reader(tsv, delimiter='\t'):
+                    if line:
+                        if increment_count_func:
+                            count = increment_count_func(count)
+                        else:
+                            count += 1
 
-                            if count == 1:
-                                expected_fields = [
-                                    (0, 'Subscriber ID'),
-                                    (1, 'Institution Name'),
-                                    (2, 'Journal Title'),
-                                    (3, 'Print ISSN'),
-                                    (4, 'Online ISSN'),
-                                    (5, 'Access Denied Category'),
-                                ]
+                        if count == 1:
+                            expected_fields = [
+                                (0, 'Subscriber ID'),
+                                (1, 'Institution Name'),
+                                (2, 'Journal Title'),
+                                (3, 'Print ISSN'),
+                                (4, 'Online ISSN'),
+                                (5, 'Access Denied Category'),
+                            ]
 
-                                found_unexpected_fields = False
-                                for index, title in expected_fields:
-                                    if line[index] != title:
-                                        found_unexpected_fields = True
-                                        errors.append(self.format_error(file_name, 0, "Expected field %s in column %s" % (title, index + 1)))
+                            found_unexpected_fields = False
+                            for index, title in expected_fields:
+                                if line[index] != title:
+                                    found_unexpected_fields = True
+                                    errors.append(self.format_error(file_name, 0, "Expected field %s in column %s" % (title, index + 1)))
 
-                                if found_unexpected_fields:
-                                    break
+                            if found_unexpected_fields:
+                                break
 
-                    total_count += count
-
-            except UnicodeDecodeError:
-                errors.append(self.format_error(file_name, 0, "This file is not UTF-8, skipping further validation"))
+                total_count += count
 
         return total_count, errors
