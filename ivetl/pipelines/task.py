@@ -163,8 +163,9 @@ class Task(BaseTask):
         today_label = job_id.split('_')[0]
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
         task_work_folder, tlogger = self.setup_task(work_folder)
-        tlogger.error(str(exc))
-        tlogger.error(einfo.traceback)
+        tlogger.error('Exception: %s' % exc)
+        tlogger.error('Traceback:\n %s' % einfo.traceback)
+        tlogger.error('Args:\n %s' % args)
 
     def on_success(self, retval, task_id, args, kwargs):
         task_args = args[0]
