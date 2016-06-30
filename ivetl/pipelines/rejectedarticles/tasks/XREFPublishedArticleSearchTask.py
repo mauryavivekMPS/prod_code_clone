@@ -323,11 +323,13 @@ class XREFPublishedArticleSearchTask(Task):
 
                                 if strategy['strict_single_author_title_match'] and len(author_last_names) <= 1:
                                     is_title_match = title_score >= 0.5
-                                    strict_match = True
+                                    if is_title_match:
+                                        strict_match = True
 
                                 if strategy['easy_title_match_on_perfect_author'] and len(author_last_names) >= 3 and author_score >= 1.0:
                                     is_title_match = title_score >= 0.14
-                                    easy_match = True
+                                    if is_title_match:
+                                        easy_match = True
 
                             is_50_50_match = False
                             if strategy['allow_50_50_match']:
