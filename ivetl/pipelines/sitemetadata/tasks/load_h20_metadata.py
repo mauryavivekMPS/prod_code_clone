@@ -51,7 +51,7 @@ class LoadH20MetadataTask(Task):
         # Using S3 fuse, need to set permissions on file
         os.system('chmod +r ' + self.METADATA_FILE)
 
-        with open(self.METADATA_FILE) as highwire_metadata_file:
+        with open(self.METADATA_FILE, encoding='utf-8') as highwire_metadata_file:
             reader = csv.DictReader(highwire_metadata_file, delimiter='\t', fieldnames=fieldnames)
             for row in reader:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
