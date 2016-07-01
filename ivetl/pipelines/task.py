@@ -4,6 +4,7 @@ import csv
 import sys
 import shutil
 import codecs
+import json
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
@@ -38,7 +39,7 @@ class Task(BaseTask):
 
         # run the task
         t0 = time()
-        self.on_task_started(publisher_id, product_id, pipeline_id, job_id, task_work_folder, current_task_count, tlogger)
+        self.on_task_started(publisher_id, product_id, pipeline_id, job_id, task_work_folder, current_task_count, task_args, tlogger)
         task_result = self.run_task(publisher_id, product_id, pipeline_id, job_id, task_work_folder, tlogger, new_task_args)
         self.on_task_ended(publisher_id, product_id, pipeline_id, job_id, t0, tlogger, task_result.get('count'))
 
@@ -55,7 +56,7 @@ class Task(BaseTask):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
 
-    def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, tlogger):
+    def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, task_args, tlogger):
         start_date = datetime.datetime.today()
 
         Pipeline_Task_Status.objects(
@@ -71,6 +72,7 @@ class Task(BaseTask):
             status=self.PL_INPROGRESS,
             updated=start_date,
             workfolder=work_folder,
+            params_json=json.dumps(task_args),
         )
 
         Pipeline_Status.objects(
