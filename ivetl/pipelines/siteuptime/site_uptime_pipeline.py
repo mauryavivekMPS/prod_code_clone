@@ -45,9 +45,7 @@ class SiteUptimePipeline(Pipeline):
                 pass
 
         if not job_id:
-            now = datetime.datetime.now()
-            today_label = now.strftime('%Y%m%d')
-            job_id = now.strftime('%Y%m%d_%H%M%S%f')
+            now, today_label, job_id = self.generate_job_id()
 
             params = {
                 'from_date': from_date.strftime('%Y-%m-%d') if from_date else None,

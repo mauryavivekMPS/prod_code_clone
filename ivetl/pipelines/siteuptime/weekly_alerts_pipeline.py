@@ -13,9 +13,7 @@ class WeeklyAlertsPipeline(Pipeline):
         # this pipeline operates on the global publisher ID
         publisher_id = 'hw'
 
-        now = datetime.datetime.now()
-        today_label = now.strftime('%Y%m%d')
-        job_id = now.strftime('%Y%m%d_%H%M%S%f')
+        now, today_label, job_id = self.generate_job_id()
 
         # create work folder, signal the start of the pipeline
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
