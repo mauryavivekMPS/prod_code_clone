@@ -9,3 +9,4 @@ from ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask import Ins
 from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask import GetRejectedArticlesTask
 from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchpressTask import GetRejectedArticlesFromBenchPressTask
 from ivetl.pipelines.rejectedarticles.tasks.ParseBenchPressFileTask import ParseBenchPressFileTask
+from ivetl.pipelines.rejectedarticles.tasks.UpdateManuscriptsInCassandraTask import UpdateManuscriptsInCassandraTask

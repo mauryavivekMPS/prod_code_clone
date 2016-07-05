@@ -12,12 +12,6 @@ from ivetl.models import Publisher_Metadata, Pipeline_Status
 @app.task
 class CustomArticleDataPipeline(Pipeline):
 
-    # 1. Pipeline - setup job and iterate over pubs that have non-empty directories.
-    # 2. GetIncomingFiles - move the files across into work folder.
-    # 3. ValidateFile - run through each file, checking for a variety of errors. If found, exit.
-    # 4. InsertArticleData - insert non-overlapping data into pub_articles and overlapping into _values.
-    # 5. ResolveArticleData - decide which data to promote from _values into pub_articles, and do the insert.
-
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
         pipeline_id = 'custom_article_data'
         now, today_label, job_id = self.generate_job_id()

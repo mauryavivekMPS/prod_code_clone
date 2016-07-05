@@ -2,6 +2,7 @@ import os
 import datetime
 import stat
 import json
+import uuid
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status
@@ -125,5 +126,5 @@ class Pipeline(BaseTask):
     def generate_job_id(self):
         now = datetime.datetime.now()
         today_label = now.strftime('%Y%m%d')
-        job_id = now.strftime('%Y%m%d_%H%M%S%f')
+        job_id = '%s_%s' % (now.strftime('%Y%m%d_%H%M%S%f'), str(uuid.uuid4()).split('-')[0])
         return now, today_label, job_id

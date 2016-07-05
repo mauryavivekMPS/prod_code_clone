@@ -16,10 +16,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
     def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False):
         pipeline_id = "published_articles"
 
-        d = datetime.datetime.today()
-        today = d.strftime('%Y%m%d')
-        time = d.strftime('%H%M%S%f')
-        job_id = today + "_" + time
+        now, today_label, job_id = self.generate_job_id()
 
         product = common.PRODUCT_BY_ID[product_id]
 
@@ -44,7 +41,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 start_publication_date = self.PUB_START_DATE
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
-            work_folder = self.get_work_folder(today, publisher_id, product_id, pipeline_id, job_id)
+            work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
             self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=6, current_task_count=0)
 
             task_args = {
