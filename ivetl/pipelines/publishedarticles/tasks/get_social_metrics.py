@@ -53,7 +53,7 @@ class GetSocialMetricsTask(Task):
                     f1000_data = F1000SocialData.objects.get(doi=doi)
                     data['f1000_total_score'] = f1000_data.total_score
                     data['f1000_num_recommendations'] = f1000_data.num_recommendations
-                    data['f1000_average_score'] = f1000_data.average_score
+                    data['f1000_average_score'] = float(f1000_data.average_score)
                 except F1000SocialData.DoesNotExist:
                     tlogger.info('No F1000 data for %s' % doi)
 
