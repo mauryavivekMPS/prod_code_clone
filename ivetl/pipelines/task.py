@@ -120,6 +120,15 @@ class Task(BaseTask):
         product_id = task_args['product_id']
         job_id = task_args['job_id']
 
+        today_label = job_id.split('_')[0]
+        work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
+        task_work_folder = self.get_task_work_folder(work_folder)
+        tlogger = self.get_task_logger(task_work_folder)
+
+        tlogger.error('Exception: %s' % exc)
+        tlogger.error('Traceback:\n %s' % einfo.traceback)
+        tlogger.error('Args:\n %s' % args)
+
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,
             product_id=product_id,
@@ -161,13 +170,6 @@ class Task(BaseTask):
         body += "<br><br><b>Command To Rerun Task:</b> <br>"
         body += self.__class__.__name__ + ".s" + str(args) + ".delay()"
         common.send_email(subject, body)
-
-        today_label = job_id.split('_')[0]
-        work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-        task_work_folder, tlogger = self.setup_task(work_folder)
-        tlogger.error('Exception: %s' % exc)
-        tlogger.error('Traceback:\n %s' % einfo.traceback)
-        tlogger.error('Args:\n %s' % args)
 
     def on_success(self, retval, task_id, args, kwargs):
         task_args = args[0]

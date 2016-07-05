@@ -1,4 +1,3 @@
-import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
@@ -18,9 +17,7 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
         pipeline_id = "reprocess_rejected_articles"
 
-        now = datetime.datetime.now()
-        today_label = now.strftime('%Y%m%d')
-        job_id = now.strftime('%Y%m%d_%H%M%S%f')
+        now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
             publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
@@ -40,7 +37,6 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'publisher_id': publisher.publisher_id,
                 'product_id': product_id,
-                'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
             }

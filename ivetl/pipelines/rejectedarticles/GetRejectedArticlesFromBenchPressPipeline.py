@@ -1,4 +1,3 @@
-import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
@@ -19,9 +18,7 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None):
         pipeline_id = "benchpress_rejected_articles"
 
-        now = datetime.datetime.now()
-        today_label = now.strftime('%Y%m%d')
-        job_id = now.strftime('%Y%m%d_%H%M%S%f')
+        now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
             publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)

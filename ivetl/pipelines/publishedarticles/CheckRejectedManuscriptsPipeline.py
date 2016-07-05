@@ -1,4 +1,3 @@
-import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
@@ -12,10 +11,7 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
     def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
         pipeline_id = "check_rejected_manuscripts"
 
-        d = datetime.datetime.today()
-        today = d.strftime('%Y%m%d')
-        time = d.strftime('%H%M%S%f')
-        job_id = today + "_" + time
+        now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
             publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
@@ -29,7 +25,7 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
             publisher_id = pm.publisher_id
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
-            work_folder = self.get_work_folder(today, publisher_id, product_id, pipeline_id, job_id)
+            work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
             self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=1, current_task_count=0)
 
             task_args = {

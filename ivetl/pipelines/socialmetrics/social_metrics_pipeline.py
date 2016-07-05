@@ -1,4 +1,3 @@
-import datetime
 from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
@@ -11,9 +10,7 @@ class SocialMetricsPipeline(Pipeline):
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
         pipeline_id = "social_metrics"
 
-        now = datetime.datetime.now()
-        today_label = now.strftime('%Y%m%d')
-        job_id = now.strftime('%Y%m%d_%H%M%S%f')
+        now, today_label, job_id = self.generate_job_id()
 
         # this pipeline operates on the global publisher ID
         publisher_id = 'hw'
