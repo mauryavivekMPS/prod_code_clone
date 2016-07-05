@@ -1,23 +1,20 @@
 import os
-import os.path
 import datetime
 from celery import chain
-from ivetl.common import common
 from ivetl.celery import app
+from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles import tasks
-from ivetl.models import Publisher_Metadata, Pipeline_Status
+from ivetl.pipelines.articleusage import tasks
 from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
+from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
 @app.task
-class UpdateRejectedArticlesPipeline(Pipeline):
+class ArticleUsagePipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'rejected_articles'
-
+        pipeline_id = 'article_usage'
         now, today_label, job_id = self.generate_job_id()
-
         product = common.PRODUCT_BY_ID[product_id]
 
         if publisher_id_list:
@@ -49,7 +46,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
 
             # create work folder, signal the start of the pipeline
             work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=9, current_task_count=0)
+            self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=4, current_task_count=0)
 
             if files:
                 # construct the first task args with all of the standard bits + the list of files
@@ -65,15 +62,10 @@ class UpdateRejectedArticlesPipeline(Pipeline):
 
                 # and run the pipeline!
                 chain(
-                    tasks.GetRejectedArticlesDataFiles.s(task_args) |
-                    tasks.ValidateInputFileTask.s() |
-                    tasks.PrepareInputFileTask.s() |
-                    tasks.XREFPublishedArticleSearchTask.s() |
-                    tasks.ScopusCitationLookupTask.s() |
-                    tasks.MendeleyLookupTask.s() |
-                    tasks.PrepareForDBInsertTask.s() |
-                    tasks.InsertIntoCassandraDBTask.s() |
-                    published_articles_tasks.CheckRejectedManuscriptTask.s()
+                    tasks.GetArticleUsageFiles.s(task_args) |
+                    tasks.ValidateArticleUsageFiles.s() |
+                    tasks.InsertArticleUsageIntoCassandra.s() |
+                    published_articles_tasks.ResolveArticleUsageData.s()
                 ).delay()
 
             else:
@@ -83,6 +75,6 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                 if p is not None:
                     p.end_time = end_date
                     p.duration_seconds = (end_date - p.start_time).total_seconds()
-                    p.status = self.PL_COMPLETED
+                    p.status = self.PIPELINE_STATUS_COMPLETED
                     p.updated = end_date
                     p.update()

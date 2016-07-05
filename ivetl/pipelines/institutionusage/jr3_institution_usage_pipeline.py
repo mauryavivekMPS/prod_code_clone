@@ -69,6 +69,6 @@ class JR3InstitutionUsagePipeline(Pipeline):
                 if p is not None:
                     p.end_time = end_date
                     p.duration_seconds = (end_date - p.start_time).total_seconds()
-                    p.status = self.PL_COMPLETED
+                    p.status = self.PIPELINE_STATUS_COMPLETED
                     p.updated = end_date
                     p.update()

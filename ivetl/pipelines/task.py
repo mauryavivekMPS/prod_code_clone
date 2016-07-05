@@ -59,6 +59,8 @@ class Task(BaseTask):
     def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, task_args, tlogger):
         start_date = datetime.datetime.today()
 
+        task_args_json = self.params_to_json(task_args)
+
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,
             product_id=product_id,
@@ -69,10 +71,10 @@ class Task(BaseTask):
             start_time=start_date,
             total_record_count=0,
             current_record_count=0,
-            status=self.PL_INPROGRESS,
+            status=self.PIPELINE_STATUS_IN_PROGRESS,
             updated=start_date,
             workfolder=work_folder,
-            params_json=json.dumps(task_args),
+            task_args_json=task_args_json,
         )
 
         Pipeline_Status.objects(
@@ -83,7 +85,7 @@ class Task(BaseTask):
         ).update(
             current_task=self.short_name,
             current_task_count=current_task_count,
-            status=self.PL_INPROGRESS,
+            status=self.PIPELINE_STATUS_IN_PROGRESS,
             updated=start_date,
         )
 
@@ -102,7 +104,7 @@ class Task(BaseTask):
             task_id=self.short_name,
         ).update(
             end_time=end_date,
-            status=self.PL_COMPLETED,
+            status=self.PIPELINE_STATUS_COMPLETED,
             updated=end_date,
             duration_seconds=duration_seconds,
         )
@@ -137,7 +139,7 @@ class Task(BaseTask):
             task_id=self.short_name,
         ).update(
             end_time=end_date,
-            status=self.PL_ERROR,
+            status=self.PIPELINE_STATUS_ERROR,
             error_details=str(exc),
             updated=end_date,
         )
@@ -147,7 +149,7 @@ class Task(BaseTask):
             ps.update(
                 end_time=end_date,
                 duration_seconds=(end_date - ps.start_time).total_seconds(),
-                status=self.PL_ERROR,
+                status=self.PIPELINE_STATUS_ERROR,
                 error_details=str(exc),
                 updated=end_date
             )
@@ -240,7 +242,7 @@ class Task(BaseTask):
             p.update(
                 end_time=end_date,
                 duration_seconds=(end_date - p.start_time).total_seconds(),
-                status=self.PL_COMPLETED,
+                status=self.PIPELINE_STATUS_COMPLETED,
                 updated=end_date,
             )
 

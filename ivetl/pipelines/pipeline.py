@@ -26,6 +26,8 @@ class Pipeline(BaseTask):
     def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, params={}, initiating_user_email=None, total_task_count=0, current_task_count=0):
         start_date = datetime.datetime.today()
 
+        params_json = self.params_to_json(params)
+
         Pipeline_Status.objects(
             publisher_id=publisher_id,
             product_id=product_id,
@@ -38,17 +40,14 @@ class Pipeline(BaseTask):
             total_task_count=total_task_count,
             current_task_count=current_task_count,
             user_email=initiating_user_email,
-            params_json=json.dumps(params),
+            params_json=params_json,
         )
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         end_date = datetime.datetime.today()
 
         # sometimes a pipeline will fail before there are a full set of task args
-        publisher_id = ''
         pipeline_id = ''
-        product_id = ''
-        job_id = ''
         if args and type(args[0]) == dict:
             task_args = args[0]
             publisher_id = task_args.get('publisher_id', '')
@@ -66,21 +65,22 @@ class Pipeline(BaseTask):
                 task_id=self.short_name,
             ).update(
                 end_time=end_date,
-                status=self.PL_ERROR,
+                status=self.PIPELINE_STATUS_ERROR,
                 error_details=str(exc),
                 updated=end_date
             )
 
             try:
-                Pipeline_Status.objects(
+                ps = Pipeline_Status.objects(
                     publisher_id=publisher_id,
                     product_id=product_id,
                     pipeline_id=pipeline_id,
                     job_id=job_id,
-                ).update(
+                )
+                ps.update(
                     end_time=end_date,
                     duration_seconds=(end_date - ps.start_time).total_seconds(),
-                    status=self.PL_ERROR,
+                    status=self.PIPELINE_STATUS_ERROR,
                     error_details=str(exc),
                     updated=end_date,
                 )

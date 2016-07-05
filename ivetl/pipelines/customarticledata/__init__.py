@@ -1,1 +1,1 @@
-from ivetl.pipelines.customarticledata.CustomArticleDataPipeline import CustomArticleDataPipeline
+from ivetl.pipelines.customarticledata.custom_article_data_pipeline import CustomArticleDataPipeline

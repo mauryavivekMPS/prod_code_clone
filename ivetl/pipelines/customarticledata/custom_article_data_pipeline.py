@@ -4,16 +4,16 @@ from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.articleusage import tasks
+from ivetl.pipelines.customarticledata import tasks
 from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
 @app.task
-class ArticleUsagePipeline(Pipeline):
+class CustomArticleDataPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'article_usage'
+        pipeline_id = 'custom_article_data'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]
 
@@ -62,10 +62,11 @@ class ArticleUsagePipeline(Pipeline):
 
                 # and run the pipeline!
                 chain(
-                    tasks.GetArticleUsageFiles.s(task_args) |
-                    tasks.ValidateArticleUsageFiles.s() |
-                    tasks.InsertArticleUsageIntoCassandra.s() |
-                    published_articles_tasks.ResolveArticleUsageData.s()
+                    tasks.GetArticleDataFiles.s(task_args) |
+                    tasks.ValidateArticleDataFiles.s() |
+                    tasks.InsertCustomArticleDataIntoCassandra.s() |
+                    published_articles_tasks.ResolvePublishedArticlesData.s() |
+                    published_articles_tasks.UpdateAttributeValuesCacheTask.s()
                 ).delay()
 
             else:
@@ -75,6 +76,6 @@ class ArticleUsagePipeline(Pipeline):
                 if p is not None:
                     p.end_time = end_date
                     p.duration_seconds = (end_date - p.start_time).total_seconds()
-                    p.status = self.PL_COMPLETED
+                    p.status = self.PIPELINE_STATUS_COMPLETED
                     p.updated = end_date
                     p.update()

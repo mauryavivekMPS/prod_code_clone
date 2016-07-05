@@ -1,1 +1,1 @@
-from ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline import UpdateArticleCitationsPipeline
+from ivetl.pipelines.articlecitations.update_article_citations_pipeline import UpdateArticleCitationsPipeline
