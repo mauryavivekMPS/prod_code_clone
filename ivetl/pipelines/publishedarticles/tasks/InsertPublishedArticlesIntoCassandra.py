@@ -141,6 +141,19 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if 'mendeley_saves' in data:
                     pa.mendeley_saves = data['mendeley_saves']
 
+                pa.altmetrics_facebook = data.get('altmetrics_facebook', None)
+                pa.altmetrics_blogs = data.get('altmetrics_blogs', None)
+                pa.altmetrics_twitter = data.get('altmetrics_twitter', None)
+                pa.altmetrics_gplus = data.get('altmetrics_gplus', None)
+                pa.altmetrics_news_outlets = data.get('altmetrics_news_outlets', None)
+                pa.altmetrics_wikipedia = data.get('altmetrics_wikipedia', None)
+                pa.altmetrics_video = data.get('altmetrics_video', None)
+                pa.altmetrics_policy_docs = data.get('altmetrics_policy_docs', None)
+                pa.altmetrics_reddit = data.get('altmetrics_reddit', None)
+                pa.f1000_total_score = data.get('f1000_total_score', None)
+                pa.f1000_num_recommendations = data.get('f1000_num_recommendations', None)
+                pa.f1000_average_score = data.get('f1000_average_score', None)
+
                 if product['cohort']:
                     pa.is_cohort = True
                 else:
