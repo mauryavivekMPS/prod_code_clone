@@ -41,7 +41,10 @@ def remove_disallowed_words(s):
 
 
 def clean_crossref_input(s):
-    return remove_disallowed_chars(remove_disallowed_words(remove_hex(s)))
+    if s:
+        return remove_disallowed_chars(remove_disallowed_words(remove_hex(s)))
+    else:
+        return ''
 
 
 def get_last_names(name_strings):
