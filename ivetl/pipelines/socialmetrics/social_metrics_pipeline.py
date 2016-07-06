@@ -1,7 +1,5 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.socialmetrics import tasks
 
 
 @app.task
@@ -28,7 +26,4 @@ class SocialMetricsPipeline(Pipeline):
             'job_id': job_id,
         }
 
-        chain(
-            tasks.LoadAltmetricsDataTask.s(task_args) |
-            tasks.LoadF1000DataTask.s()
-        ).delay()
+        self.chain_tasks(pipeline_id, task_args)

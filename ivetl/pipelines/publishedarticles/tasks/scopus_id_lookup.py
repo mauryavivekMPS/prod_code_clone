@@ -18,10 +18,7 @@ class ScopusIdLookupTask(Task):
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "scopuscitationlookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\t'
-                          'DOI\t'
-                          'ISSN\t'
-                          'DATA\n')
+        target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
 
         pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
         connector = ScopusConnector(pm.scopus_api_keys)

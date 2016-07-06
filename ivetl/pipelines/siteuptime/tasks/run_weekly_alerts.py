@@ -9,7 +9,7 @@ from ivetl import utils
 @app.task
 class RunWeeklyAlertsTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        to_date = task_args['to_date']
+        to_date = self.from_json_date(task_args['to_date'])
 
         # figure out what the longest window is so we can get data for alerts
         all_params = get_all_params_for_check(check_id='site-uptime-below-threshold', publisher_id=publisher_id)

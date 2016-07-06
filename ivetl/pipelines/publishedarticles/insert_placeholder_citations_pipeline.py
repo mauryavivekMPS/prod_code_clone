@@ -1,15 +1,13 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
-from ivetl.pipelines.publishedarticles import tasks
 
 
 @app.task
-class CheckRejectedManuscriptsPipeline(Pipeline):
+class InsertPlaceholderCitationsPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
-        pipeline_id = "check_rejected_manuscripts"
+        pipeline_id = "placeholder_citations"
 
         now, today_label, job_id = self.generate_job_id()
 
@@ -37,6 +35,4 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
                 'max_articles_to_process': max_articles_to_process,
             }
 
-            chain(
-                tasks.CheckRejectedManuscriptTask(task_args)
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

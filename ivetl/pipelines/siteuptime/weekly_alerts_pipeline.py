@@ -1,7 +1,6 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.siteuptime import tasks
 
 
 @app.task
@@ -26,7 +25,7 @@ class WeeklyAlertsPipeline(Pipeline):
             'product_id': product_id,
             'work_folder': work_folder,
             'job_id': job_id,
-            'to_date': now - datetime.timedelta(days=1),
+            'to_date': self.to_json_date(now - datetime.timedelta(days=1)),
         }
 
-        tasks.RunWeeklyAlertsTask.s(task_args).delay()
+        self.chain_tasks(pipeline_id, task_args)

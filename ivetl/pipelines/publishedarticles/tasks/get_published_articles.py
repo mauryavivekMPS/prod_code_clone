@@ -9,22 +9,14 @@ from ivetl.pipelines.task import Task
 @app.task
 class GetPublishedArticlesTask(Task):
 
-    ISSNS = 'GetPublishedArticlesTask.ISSNs'
-    START_PUB_DATE = 'GetPublishedArticlesTask.StartPubDate'
-    WORK_FOLDER = 'GetPublishedArticlesTask.WorkFolder'
-
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        issns = task_args[GetPublishedArticlesTask.ISSNS]
-        start_publication_date = task_args[GetPublishedArticlesTask.START_PUB_DATE]
-        from_pub_date_str = start_publication_date.strftime('%Y-%m-%d')
+        issns = task_args['issns']
+        from_pub_date_str = self.from_json_date(task_args['start_pub_date']).strftime('%Y-%m-%d')
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "xrefpublishedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\t'
-                          'DOI\t'
-                          'ISSN\t'
-                          'DATA\n')
+        target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
 
         articles = {}
         count = 0
@@ -85,8 +77,8 @@ class GetPublishedArticlesTask(Task):
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                         # Just for testing!!
-                        # if count > 5:
-                        #     break
+                        if count > 1:
+                            break
 
                     offset += task_args['articles_per_page']
 
@@ -94,12 +86,7 @@ class GetPublishedArticlesTask(Task):
                     offset = -1
 
         for a in articles.values():
-            row = """%s\t%s\t%s\t%s\n""" % (
-                            publisher_id,
-                            a[0],
-                            a[1],
-                            a[2])
-
+            row = "%s\t%s\t%s\t%s\n" % (publisher_id, a[0], a[1], a[2])
             target_file.write(row)
 
         target_file.close()

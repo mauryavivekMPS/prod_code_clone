@@ -1,19 +1,16 @@
 import os
 import datetime
-from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.customarticledata import tasks
-from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
 @app.task
-class CustomArticleDataPipeline(Pipeline):
+class ArticleUsagePipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'custom_article_data'
+        pipeline_id = 'article_usage'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]
 
@@ -61,13 +58,7 @@ class CustomArticleDataPipeline(Pipeline):
                 }
 
                 # and run the pipeline!
-                chain(
-                    tasks.GetArticleDataFiles.s(task_args) |
-                    tasks.ValidateArticleDataFiles.s() |
-                    tasks.InsertCustomArticleDataIntoCassandra.s() |
-                    published_articles_tasks.ResolvePublishedArticlesData.s() |
-                    published_articles_tasks.UpdateAttributeValuesCacheTask.s()
-                ).delay()
+                self.chain_tasks(pipeline_id, task_args)
 
             else:
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
@@ -76,6 +67,6 @@ class CustomArticleDataPipeline(Pipeline):
                 if p is not None:
                     p.end_time = end_date
                     p.duration_seconds = (end_date - p.start_time).total_seconds()
-                    p.status = self.PL_COMPLETED
+                    p.status = self.PIPELINE_STATUS_COMPLETED
                     p.updated = end_date
                     p.update()

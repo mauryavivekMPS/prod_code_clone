@@ -1,22 +1,13 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask import GetRejectedArticlesTask
-from ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask import XREFPublishedArticleSearchTask
-from ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask import ScopusCitationLookupTask
-from ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask import MendeleyLookupTask
-from ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask import PrepareForDBInsertTask
-from ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
-from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
 from ivetl.models import Publisher_Metadata
 
 
 @app.task
-class ReprocessRejectedArticlesPipeline(Pipeline):
+class UpdateArticleCitationsPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
-        pipeline_id = "reprocess_rejected_articles"
-
+        pipeline_id = "article_citations"
         now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
@@ -39,14 +30,7 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
                 'product_id': product_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
+                'reprocess_errors': False,
             }
 
-            chain(
-                GetRejectedArticlesTask.s(task_args) |
-                XREFPublishedArticleSearchTask.s() |
-                ScopusCitationLookupTask.s() |
-                MendeleyLookupTask.s() |
-                PrepareForDBInsertTask.s() |
-                InsertIntoCassandraDBTask.s() |
-                CheckRejectedManuscriptTask.s()
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

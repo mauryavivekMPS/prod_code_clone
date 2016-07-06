@@ -1,14 +1,5 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchpressTask import GetRejectedArticlesFromBenchPressTask
-from ivetl.pipelines.rejectedarticles.tasks.ParseBenchPressFileTask import ParseBenchPressFileTask
-from ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask import XREFPublishedArticleSearchTask
-from ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask import ScopusCitationLookupTask
-from ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask import MendeleyLookupTask
-from ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask import PrepareForDBInsertTask
-from ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask import InsertIntoCassandraDBTask
-from ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask import CheckRejectedManuscriptTask
 from ivetl.models import Publisher_Metadata, Publisher_Journal
 
 
@@ -53,13 +44,4 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 'to_date': to_date,
             }
 
-            chain(
-                GetRejectedArticlesFromBenchPressTask.s(task_args) |
-                ParseBenchPressFileTask.s() |
-                XREFPublishedArticleSearchTask.s() |
-                ScopusCitationLookupTask.s() |
-                MendeleyLookupTask.s() |
-                PrepareForDBInsertTask.s() |
-                InsertIntoCassandraDBTask.s() |
-                CheckRejectedManuscriptTask.s()
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

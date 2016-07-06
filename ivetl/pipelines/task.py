@@ -3,7 +3,6 @@ import datetime
 import csv
 import sys
 import shutil
-import codecs
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
@@ -38,7 +37,7 @@ class Task(BaseTask):
 
         # run the task
         t0 = time()
-        self.on_task_started(publisher_id, product_id, pipeline_id, job_id, task_work_folder, current_task_count, tlogger)
+        self.on_task_started(publisher_id, product_id, pipeline_id, job_id, task_work_folder, current_task_count, task_args, tlogger)
         task_result = self.run_task(publisher_id, product_id, pipeline_id, job_id, task_work_folder, tlogger, new_task_args)
         self.on_task_ended(publisher_id, product_id, pipeline_id, job_id, t0, tlogger, task_result.get('count'))
 
@@ -55,8 +54,10 @@ class Task(BaseTask):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
 
-    def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, tlogger):
+    def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, task_args, tlogger):
         start_date = datetime.datetime.today()
+
+        task_args_json = self.params_to_json(task_args)
 
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,
@@ -68,9 +69,10 @@ class Task(BaseTask):
             start_time=start_date,
             total_record_count=0,
             current_record_count=0,
-            status=self.PL_INPROGRESS,
+            status=self.PIPELINE_STATUS_IN_PROGRESS,
             updated=start_date,
             workfolder=work_folder,
+            task_args_json=task_args_json,
         )
 
         Pipeline_Status.objects(
@@ -81,7 +83,7 @@ class Task(BaseTask):
         ).update(
             current_task=self.short_name,
             current_task_count=current_task_count,
-            status=self.PL_INPROGRESS,
+            status=self.PIPELINE_STATUS_IN_PROGRESS,
             updated=start_date,
         )
 
@@ -100,7 +102,7 @@ class Task(BaseTask):
             task_id=self.short_name,
         ).update(
             end_time=end_date,
-            status=self.PL_COMPLETED,
+            status=self.PIPELINE_STATUS_COMPLETED,
             updated=end_date,
             duration_seconds=duration_seconds,
         )
@@ -125,7 +127,9 @@ class Task(BaseTask):
 
         tlogger.error('Exception: %s' % exc)
         tlogger.error('Traceback:\n %s' % einfo.traceback)
-        tlogger.error('Args:\n %s' % args)
+        tlogger.error('Type: %s' % type(args))
+        tlogger.error('Type: %s' % type(kwargs))
+        # tlogger.error('Args:\n %s' % args)
 
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,
@@ -135,7 +139,7 @@ class Task(BaseTask):
             task_id=self.short_name,
         ).update(
             end_time=end_date,
-            status=self.PL_ERROR,
+            status=self.PIPELINE_STATUS_ERROR,
             error_details=str(exc),
             updated=end_date,
         )
@@ -145,7 +149,7 @@ class Task(BaseTask):
             ps.update(
                 end_time=end_date,
                 duration_seconds=(end_date - ps.start_time).total_seconds(),
-                status=self.PL_ERROR,
+                status=self.PIPELINE_STATUS_ERROR,
                 error_details=str(exc),
                 updated=end_date
             )
@@ -238,7 +242,7 @@ class Task(BaseTask):
             p.update(
                 end_time=end_date,
                 duration_seconds=(end_date - p.start_time).total_seconds(),
-                status=self.PL_COMPLETED,
+                status=self.PIPELINE_STATUS_COMPLETED,
                 updated=end_date,
             )
 

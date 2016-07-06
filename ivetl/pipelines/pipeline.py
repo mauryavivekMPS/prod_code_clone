@@ -1,8 +1,8 @@
 import os
 import datetime
 import stat
-import json
 import uuid
+from celery import chain
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status
@@ -26,6 +26,8 @@ class Pipeline(BaseTask):
     def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, params={}, initiating_user_email=None, total_task_count=0, current_task_count=0):
         start_date = datetime.datetime.today()
 
+        params_json = self.params_to_json(params)
+
         Pipeline_Status.objects(
             publisher_id=publisher_id,
             product_id=product_id,
@@ -38,17 +40,14 @@ class Pipeline(BaseTask):
             total_task_count=total_task_count,
             current_task_count=current_task_count,
             user_email=initiating_user_email,
-            params_json=json.dumps(params),
+            params_json=params_json,
         )
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         end_date = datetime.datetime.today()
 
         # sometimes a pipeline will fail before there are a full set of task args
-        publisher_id = ''
         pipeline_id = ''
-        product_id = ''
-        job_id = ''
         if args and type(args[0]) == dict:
             task_args = args[0]
             publisher_id = task_args.get('publisher_id', '')
@@ -66,21 +65,22 @@ class Pipeline(BaseTask):
                 task_id=self.short_name,
             ).update(
                 end_time=end_date,
-                status=self.PL_ERROR,
+                status=self.PIPELINE_STATUS_ERROR,
                 error_details=str(exc),
                 updated=end_date
             )
 
             try:
-                Pipeline_Status.objects(
+                ps = Pipeline_Status.objects(
                     publisher_id=publisher_id,
                     product_id=product_id,
                     pipeline_id=pipeline_id,
                     job_id=job_id,
-                ).update(
+                )
+                ps.update(
                     end_time=end_date,
                     duration_seconds=(end_date - ps.start_time).total_seconds(),
-                    status=self.PL_ERROR,
+                    status=self.PIPELINE_STATUS_ERROR,
                     error_details=str(exc),
                     updated=end_date,
                 )
@@ -128,3 +128,18 @@ class Pipeline(BaseTask):
         today_label = now.strftime('%Y%m%d')
         job_id = '%s_%s' % (now.strftime('%Y%m%d_%H%M%S%f'), str(uuid.uuid4()).split('-')[0])
         return now, today_label, job_id
+
+    def chain_tasks(self, pipeline_id, task_args):
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+
+        tasks = []
+        first_task = True
+        for task_class_path in pipeline['tasks']:
+            task_class = common.get_task_class(task_class_path)
+            if first_task:
+                tasks.append(task_class.s(task_args))
+                first_task = False
+            else:
+                tasks.append(task_class.s())
+
+        chain(*tasks).delay()

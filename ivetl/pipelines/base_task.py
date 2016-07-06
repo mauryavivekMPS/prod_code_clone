@@ -1,22 +1,24 @@
 import os
+import json
 import logging
+from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
+
+
+class TaskParamsEncodingError(Exception):
+    def __init__(self, type_error):
+        message = "Task params must be JSON serializable: %s" % type_error
+        super(TaskParamsEncodingError, self).__init__(message)
 
 
 class BaseTask(Task):
     abstract = True
 
-    PUBLISHER_ID = 'BaseTask.PublisherId'
-    INPUT_FILE = 'BaseTask.InputFile'
-    WORK_FOLDER = 'BaseTask.WorkFolder'
-    JOB_ID = 'BaseTask.JobId'
-    COUNT = 'BaseTask.Count'
-
-    PL_STARTED = "started"
-    PL_INPROGRESS = "in-progress"
-    PL_COMPLETED = "completed"
-    PL_ERROR = "error"
+    PIPELINE_STATUS_STARTED = "started"
+    PIPELINE_STATUS_IN_PROGRESS = "in-progress"
+    PIPELINE_STATUS_COMPLETED = "completed"
+    PIPELINE_STATUS_ERROR = "error"
 
     @property
     def short_name(self):
@@ -46,3 +48,23 @@ class BaseTask(Task):
 
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
+
+    def params_to_json(self, params):
+        try:
+            params_json = json.dumps(params)
+        except TypeError as type_error:
+            raise TaskParamsEncodingError(type_error)
+
+        return params_json
+
+    def to_json_date(self, d):
+        return d.strftime('%Y-%m-%d')
+
+    def from_json_date(self, s):
+        return parse(s).date()
+
+    def to_json_datetime(self, d):
+        return d.isoformat()
+
+    def from_json_datetime(self, s):
+        return parse(s)

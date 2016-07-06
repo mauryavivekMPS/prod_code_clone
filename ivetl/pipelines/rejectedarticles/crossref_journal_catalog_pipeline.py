@@ -1,12 +1,10 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
-from ivetl.pipelines.publishedarticles import tasks
 
 
 @app.task
-class UpdateManuscriptsPipeline(Pipeline):
+class XREFJournalCatalogPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, input_file=None, initiating_user_email=None):
         pipeline_id = "update_manuscripts"
@@ -37,6 +35,4 @@ class UpdateManuscriptsPipeline(Pipeline):
                 'input_file': input_file,
             }
 
-            chain(
-                tasks.UpdateManuscriptsInCassandraTask(task_args)
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

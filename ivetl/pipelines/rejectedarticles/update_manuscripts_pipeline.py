@@ -1,14 +1,13 @@
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
-from ivetl.pipelines.publishedarticles import tasks
 
 
 @app.task
-class InsertPlaceholderCitationsPipeline(Pipeline):
+class UpdateManuscriptsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
-        pipeline_id = "placeholder_citations"
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, input_file=None, initiating_user_email=None):
+        pipeline_id = "update_manuscripts"
 
         now, today_label, job_id = self.generate_job_id()
 
@@ -33,7 +32,7 @@ class InsertPlaceholderCitationsPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                'max_articles_to_process': max_articles_to_process,
+                'input_file': input_file,
             }
 
-            tasks.InsertPlaceholderCitationsIntoCassandraTask.s(task_args).delay()
+            self.chain_tasks(pipeline_id, task_args)

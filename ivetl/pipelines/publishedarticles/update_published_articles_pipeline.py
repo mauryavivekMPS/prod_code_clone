@@ -1,9 +1,7 @@
 import datetime
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata, Publisher_Journal
-from ivetl.pipelines.publishedarticles import tasks
 from ivetl.common import common
 
 
@@ -50,22 +48,11 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                tasks.GetPublishedArticlesTask.ISSNS: issns,
-                tasks.GetPublishedArticlesTask.START_PUB_DATE: start_publication_date,
+                'issns': issns,
+                'start_pub_date': self.to_json_date(start_publication_date),
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
                 'run_monthly_job': run_monthly_job,
             }
 
-            chain(
-                tasks.GetPublishedArticlesTask.s(task_args) |
-                tasks.ScopusIdLookupTask.s() |
-                tasks.GetHighWireMetadataTask.s() |
-                tasks.GetSocialMetricsTask.s() |
-                tasks.MendeleyLookupTask.s() |
-                tasks.InsertPublishedArticlesIntoCassandra.s() |
-                tasks.ResolvePublishedArticlesData.s() |
-                tasks.UpdateAttributeValuesCacheTask.s() |
-                tasks.ResolveArticleUsageData.s() |
-                tasks.CheckRejectedManuscriptTask.s()
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

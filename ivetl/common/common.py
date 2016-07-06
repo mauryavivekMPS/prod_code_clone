@@ -12,6 +12,18 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
+        'tasks': [
+            'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
+            'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
+            'ivetl.pipelines.publishedarticles.tasks.GetHighWireMetadataTask',
+            'ivetl.pipelines.publishedarticles.tasks.GetSocialMetricsTask',
+            'ivetl.pipelines.publishedarticles.tasks.MendeleyLookupTask',
+            'ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra',
+            'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
+            'ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCacheTask',
+            'ivetl.pipelines.publishedarticles.tasks.ResolveArticleUsageData',
+            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
+        ],
     },
     {
         'name': 'Custom Article Data',
@@ -22,6 +34,13 @@ PIPELINES = [
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
         'rebuild_data_source_id': ['article_citations'],
+        'tasks': [
+            'ivetl.pipelines.customarticledata.tasks.GetArticleDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.InsertCustomArticleDataIntoCassandra',
+            'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
+            'ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCacheTask',
+        ],
     },
     {
         'name': 'Article Citations',
@@ -31,6 +50,11 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['article_citations'],
+        'tasks': [
+            'ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations',
+            'ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra',
+            'ivetl.pipelines.articlecitations.tasks.UpdateArticleCitationsWithCrossref',
+        ],
     },
     {
         'name': 'Article Usage',
@@ -40,6 +64,12 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.ArticleUsageValidator',
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
+        'tasks': [
+            'ivetl.pipelines.articleusage.tasks.GetArticleUsageFiles',
+            'ivetl.pipelines.articleusage.tasks.ValidateArticleUsageFiles',
+            'ivetl.pipelines.articleusage.tasks.InsertArticleUsageIntoCassandra',
+            'ivetl.pipelines.publishedarticles.tasks.ResolveArticleUsageData',
+        ],
     },
     {
         'name': 'Social Metrics',
@@ -53,6 +83,10 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Get Latest Social Metrics',
+        'tasks': [
+            'ivetl.pipelines.socialmetrics.tasks.LoadAltmetricsDataTask',
+            'ivetl.pipelines.socialmetrics.tasks.LoadF1000DataTask',
+        ],
     },
     {
         'name': 'Upload Rejected',
@@ -63,6 +97,17 @@ PIPELINES = [
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
         'rebuild_data_source_id': ['rejected_articles'],
+        'tasks': [
+            'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesDataFiles',
+            'ivetl.pipelines.rejectedarticles.tasks.ValidateInputFileTask',
+            'ivetl.pipelines.rejectedarticles.tasks.PrepareInputFileTask',
+            'ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask',
+            'ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask',
+            'ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask',
+            'ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask',
+            'ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask',
+            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
+        ],
     },
     {
         'name': 'Bench Press Rejected',
@@ -74,6 +119,16 @@ PIPELINES = [
         'include_date_range_controls': True,
         'filter_for_benchpress_support': True,
         'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchPressTask',
+            'ivetl.pipelines.rejectedarticles.tasks.ParseBenchPressFileTask',
+            'ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask',
+            'ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask',
+            'ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask',
+            'ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask',
+            'ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask',
+            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
+        ],
     },
     {
         'name': 'Reprocess Rejected',
@@ -83,6 +138,15 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['rejected_articles'],
+        'tasks': [
+            'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask',
+            'ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask',
+            'ivetl.pipelines.rejectedarticles.tasks.ScopusCitationLookupTask',
+            'ivetl.pipelines.rejectedarticles.tasks.MendeleyLookupTask',
+            'ivetl.pipelines.rejectedarticles.tasks.PrepareForDBInsertTask',
+            'ivetl.pipelines.rejectedarticles.tasks.InsertIntoCassandraDBTask',
+            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
+        ],
     },
     {
         'name': 'Check Rejected Manuscripts',
@@ -91,6 +155,9 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
+        ],
     },
     {
         'name': 'Insert Placeholder Citations',
@@ -99,6 +166,9 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.publishedarticles.tasks.InsertPlaceholderCitationsIntoCassandraTask',
+        ],
     },
     {
         'name': 'Update Manuscripts',
@@ -107,6 +177,9 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.rejectedarticles.tasks.UpdateManuscriptsInCassandraTask',
+        ],
     },
     {
         'name': 'XREF Journal Catalog',
@@ -115,6 +188,9 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.rejectedarticles.tasks.UpdateManuscriptsInCassandraTask',
+        ],
     },
     {
         'name': 'Site Metadata',
@@ -128,6 +204,14 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Site and Check Metadata',
+        'tasks': [
+            'ivetl.pipelines.sitemetadata.tasks.LoadH20MetadataTask',
+            'ivetl.pipelines.sitemetadata.tasks.LoadDrupalMetadataTask',
+            'ivetl.pipelines.sitemetadata.tasks.GetChecksTask',
+            'ivetl.pipelines.sitemetadata.tasks.ClassifyChecksTask',
+            'ivetl.pipelines.sitemetadata.tasks.InsertChecksIntoCassandraTask',
+            'ivetl.pipelines.sitemetadata.tasks.UpdateAttributeValuesCacheTask',
+        ],
     },
     {
         'name': 'Site Uptime',
@@ -144,6 +228,10 @@ PIPELINES = [
         'include_date_range_controls': True,
         'use_high_water_mark': True,
         'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.siteuptime.tasks.GetUptimeStatsTask',
+            'ivetl.pipelines.siteuptime.tasks.InsertStatsIntoCassandraTask',
+        ],
     },
     {
         'name': 'Weekly Alerts',
@@ -160,6 +248,9 @@ PIPELINES = [
         'include_date_range_controls': False,
         'use_high_water_mark': False,
         'supports_restart': False,
+        'tasks': [
+            'ivetl.pipelines.siteuptime.tasks.RunWeeklyAlertsTask',
+        ],
     },
     {
         'name': 'JR2 Institution Usage',
@@ -169,6 +260,11 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.JR2Validator',
         'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.institutionusage.tasks.GetJR2Files',
+            'ivetl.pipelines.institutionusage.tasks.ValidateJR2Files',
+            'ivetl.pipelines.institutionusage.tasks.InsertJR2IntoCassandra',
+        ],
     },
     {
         'name': 'JR3 Institution Usage',
@@ -178,6 +274,11 @@ PIPELINES = [
         'has_file_input': True,
         'validator_class': 'ivetl.validators.JR3Validator',
         'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.institutionusage.tasks.GetJR3Files',
+            'ivetl.pipelines.institutionusage.tasks.ValidateJR3Files',
+            'ivetl.pipelines.institutionusage.tasks.InsertJR3IntoCassandra',
+        ],
     },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
@@ -199,6 +300,11 @@ def get_pipeline_display_name(pipeline):
 def get_pipeline_class(pipeline):
     pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
     return getattr(importlib.import_module(pipeline_module_name), class_name)
+
+
+def get_task_class(task_class_path):
+    task_module_name, class_name = task_class_path.rsplit('.', 1)
+    return getattr(importlib.import_module(task_module_name), class_name)
 
 
 def get_validator_class(pipeline):
