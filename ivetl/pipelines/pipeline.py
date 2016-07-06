@@ -1,8 +1,8 @@
 import os
 import datetime
 import stat
-import json
 import uuid
+from celery import chain
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.models import Pipeline_Status, Pipeline_Task_Status
@@ -128,3 +128,18 @@ class Pipeline(BaseTask):
         today_label = now.strftime('%Y%m%d')
         job_id = '%s_%s' % (now.strftime('%Y%m%d_%H%M%S%f'), str(uuid.uuid4()).split('-')[0])
         return now, today_label, job_id
+
+    def chain_tasks(self, pipeline_id, task_args):
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+
+        tasks = []
+        first_task = True
+        for task_class_path in pipeline['tasks']:
+            task_class = common.get_task_class(task_class_path)
+            if first_task:
+                tasks.append(task_class.s(task_args))
+                first_task = False
+            else:
+                tasks.append(task_class.s())
+
+        chain(*tasks).delay()

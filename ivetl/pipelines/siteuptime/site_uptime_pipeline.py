@@ -1,10 +1,7 @@
 import json
-import datetime
 from dateutil.parser import parse
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.siteuptime import tasks
 from ivetl.models import Pipeline_Status
 
 
@@ -68,7 +65,4 @@ class SiteUptimePipeline(Pipeline):
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
         }
 
-        chain(
-            tasks.GetUptimeStatsTask.s(task_args) |
-            tasks.InsertStatsIntoCassandraTask.s()
-        ).delay()
+        self.chain_tasks(pipeline_id, task_args)

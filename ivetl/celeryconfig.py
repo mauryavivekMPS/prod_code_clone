@@ -6,14 +6,23 @@ BROKER_URL = 'amqp://guest:guest@' + common.RABBITMQ_BROKER_IP + ':5672//'
 
 CELERY_IMPORTS = (
     'ivetl.pipelines.publishedarticles',
+    'ivetl.pipelines.publishedarticles.tasks',
     'ivetl.pipelines.customarticledata',
+    'ivetl.pipelines.customarticledata.tasks',
     'ivetl.pipelines.articlecitations',
+    'ivetl.pipelines.articlecitations.tasks',
     'ivetl.pipelines.rejectedarticles',
+    'ivetl.pipelines.rejectedarticles.tasks',
     'ivetl.pipelines.articleusage',
+    'ivetl.pipelines.articleusage.tasks',
     'ivetl.pipelines.sitemetadata',
+    'ivetl.pipelines.sitemetadata.tasks',
     'ivetl.pipelines.siteuptime',
+    'ivetl.pipelines.siteuptime.tasks',
     'ivetl.pipelines.institutionusage',
+    'ivetl.pipelines.institutionusage.tasks',
     'ivetl.pipelines.socialmetrics',
+    'ivetl.pipelines.socialmetrics.tasks',
     'ivetl.tasks',
 )
 

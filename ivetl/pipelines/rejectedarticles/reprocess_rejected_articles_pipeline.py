@@ -1,8 +1,5 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles import tasks
-from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata
 
 
@@ -36,12 +33,4 @@ class ReprocessRejectedArticlesPipeline(Pipeline):
                 'job_id': job_id,
             }
 
-            chain(
-                tasks.GetRejectedArticlesTask.s(task_args) |
-                tasks.XREFPublishedArticleSearchTask.s() |
-                tasks.ScopusCitationLookupTask.s() |
-                tasks.MendeleyLookupTask.s() |
-                tasks.PrepareForDBInsertTask.s() |
-                tasks.InsertIntoCassandraDBTask.s() |
-                published_articles_tasks.CheckRejectedManuscriptTask.s()
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

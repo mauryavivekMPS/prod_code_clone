@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
 
@@ -55,3 +56,15 @@ class BaseTask(Task):
             raise TaskParamsEncodingError(type_error)
 
         return params_json
+
+    def to_json_date(self, d):
+        return d.strftime('%Y-%m-%d')
+
+    def from_json_date(self, s):
+        return parse(s).date()
+
+    def to_json_datetime(self, d):
+        return d.isoformat()
+
+    def from_json_datetime(self, s):
+        return parse(s)

@@ -1,9 +1,6 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.articlecitations import tasks
 from ivetl.models import Publisher_Metadata
-from ivetl.common import common
 
 
 @app.task
@@ -12,8 +9,6 @@ class UpdateArticleCitationsPipeline(Pipeline):
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
         pipeline_id = "article_citations"
         now, today_label, job_id = self.generate_job_id()
-
-        product = common.PRODUCT_BY_ID[product_id]
 
         if publisher_id_list:
             publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
@@ -33,15 +28,9 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'publisher_id': publisher.publisher_id,
                 'product_id': product_id,
-                'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
-                tasks.GetScopusArticleCitations.REPROCESS_ERRORS: False,
+                'reprocess_errors': False,
             }
 
-            chain(
-                tasks.GetScopusArticleCitations.s(task_args) |
-                tasks.InsertScopusIntoCassandra.s() |
-                tasks.UpdateArticleCitationsWithCrossref.s()
-            ).delay()
-
+            self.chain_tasks(pipeline_id, task_args)

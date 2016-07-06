@@ -3,8 +3,6 @@ import datetime
 import csv
 import sys
 import shutil
-import codecs
-import json
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
@@ -129,7 +127,9 @@ class Task(BaseTask):
 
         tlogger.error('Exception: %s' % exc)
         tlogger.error('Traceback:\n %s' % einfo.traceback)
-        tlogger.error('Args:\n %s' % args)
+        tlogger.error('Type: %s' % type(args))
+        tlogger.error('Type: %s' % type(kwargs))
+        # tlogger.error('Args:\n %s' % args)
 
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,

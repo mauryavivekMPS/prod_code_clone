@@ -1,11 +1,8 @@
 import os
 import datetime
-from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.customarticledata import tasks
-from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
@@ -61,13 +58,7 @@ class CustomArticleDataPipeline(Pipeline):
                 }
 
                 # and run the pipeline!
-                chain(
-                    tasks.GetArticleDataFiles.s(task_args) |
-                    tasks.ValidateArticleDataFiles.s() |
-                    tasks.InsertCustomArticleDataIntoCassandra.s() |
-                    published_articles_tasks.ResolvePublishedArticlesData.s() |
-                    published_articles_tasks.UpdateAttributeValuesCacheTask.s()
-                ).delay()
+                self.chain_tasks(pipeline_id, task_args)
 
             else:
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better

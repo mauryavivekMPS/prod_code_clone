@@ -1,13 +1,10 @@
 import os
 import os.path
 import datetime
-from celery import chain
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles import tasks
 from ivetl.models import Publisher_Metadata, Pipeline_Status
-from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 
 
 @app.task
@@ -64,17 +61,7 @@ class UpdateRejectedArticlesPipeline(Pipeline):
                 }
 
                 # and run the pipeline!
-                chain(
-                    tasks.GetRejectedArticlesDataFiles.s(task_args) |
-                    tasks.ValidateInputFileTask.s() |
-                    tasks.PrepareInputFileTask.s() |
-                    tasks.XREFPublishedArticleSearchTask.s() |
-                    tasks.ScopusCitationLookupTask.s() |
-                    tasks.MendeleyLookupTask.s() |
-                    tasks.PrepareForDBInsertTask.s() |
-                    tasks.InsertIntoCassandraDBTask.s() |
-                    published_articles_tasks.CheckRejectedManuscriptTask.s()
-                ).delay()
+                self.chain_tasks(pipeline_id, task_args)
 
             else:
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better

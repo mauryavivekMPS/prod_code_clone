@@ -42,7 +42,6 @@ class UpdateArticleCitationsWithCrossref(Task):
 
             doi = article.article_doi
 
-
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, doi))
 

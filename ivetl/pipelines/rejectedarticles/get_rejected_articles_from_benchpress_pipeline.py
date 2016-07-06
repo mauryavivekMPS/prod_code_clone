@@ -1,8 +1,5 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.rejectedarticles import tasks
-from ivetl.pipelines.publishedarticles import tasks as published_articles_tasks
 from ivetl.models import Publisher_Metadata, Publisher_Journal
 
 
@@ -47,13 +44,4 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 'to_date': to_date,
             }
 
-            chain(
-                tasks.GetRejectedArticlesFromBenchPressTask.s(task_args) |
-                tasks.ParseBenchPressFileTask.s() |
-                tasks.XREFPublishedArticleSearchTask.s() |
-                tasks.ScopusCitationLookupTask.s() |
-                tasks.MendeleyLookupTask.s() |
-                tasks.PrepareForDBInsertTask.s() |
-                tasks.InsertIntoCassandraDBTask.s() |
-                published_articles_tasks.CheckRejectedManuscriptTask.s()
-            ).delay()
+            self.chain_tasks(pipeline_id, task_args)

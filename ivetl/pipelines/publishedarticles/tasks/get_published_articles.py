@@ -12,7 +12,7 @@ class GetPublishedArticlesTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
         issns = task_args['issns']
-        from_pub_date_str = task_args['start_pub_date']
+        from_pub_date_str = self.from_json_date(task_args['start_pub_date']).strftime('%Y-%m-%d')
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "xrefpublishedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -77,7 +77,7 @@ class GetPublishedArticlesTask(Task):
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                         # Just for testing!!
-                        if count > 5:
+                        if count > 1:
                             break
 
                     offset += task_args['articles_per_page']

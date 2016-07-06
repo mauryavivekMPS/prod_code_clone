@@ -1,10 +1,8 @@
 import os
 import datetime
-from celery import chain
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.institutionusage import tasks
 from ivetl.models import Pipeline_Status, Publisher_Metadata
 
 
@@ -56,11 +54,7 @@ class JR2InstitutionUsagePipeline(Pipeline):
                 }
 
                 # and run the pipeline!
-                chain(
-                    tasks.GetJR2Files.s(task_args) |
-                    tasks.ValidateJR2Files.s() |
-                    tasks.InsertJR2IntoCassandra.s()
-                ).delay()
+                self.chain_tasks(pipeline_id, task_args)
 
             else:
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better

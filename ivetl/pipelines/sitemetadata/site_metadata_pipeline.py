@@ -1,7 +1,5 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.sitemetadata import tasks
 
 
 @app.task
@@ -28,11 +26,4 @@ class SiteMetadataPipeline(Pipeline):
             'job_id': job_id,
         }
 
-        chain(
-            tasks.LoadH20MetadataTask.s(task_args) |
-            tasks.LoadDrupalMetadataTask.s() |
-            tasks.GetChecksTask.s() |
-            tasks.ClassifyChecksTask.s() |
-            tasks.InsertChecksIntoCassandraTask.s() |
-            tasks.UpdateAttributeValuesCacheTask.s()
-        ).delay()
+        self.chain_tasks(pipeline_id, task_args)

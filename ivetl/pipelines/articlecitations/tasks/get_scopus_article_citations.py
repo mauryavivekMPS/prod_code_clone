@@ -10,7 +10,6 @@ from ivetl.common import common
 
 @app.task
 class GetScopusArticleCitations(Task):
-    REPROCESS_ERRORS = 'GetScopusArticleCitations.ReprocessErrors'
     QUERY_LIMIT = 50000000
     MAX_ERROR_COUNT = 100
 

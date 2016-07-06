@@ -1,7 +1,6 @@
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Publisher_Metadata
-from ivetl.pipelines.publishedarticles import tasks
 
 
 @app.task
@@ -36,4 +35,4 @@ class InsertPlaceholderCitationsPipeline(Pipeline):
                 'max_articles_to_process': max_articles_to_process,
             }
 
-            tasks.InsertPlaceholderCitationsIntoCassandraTask.s(task_args).delay()
+            self.chain_tasks(pipeline_id, task_args)
