@@ -33,6 +33,7 @@ class PublishedArticle(Model):
     rejected_manuscript_editor = columns.Text()
     rejected_manuscript_id = columns.Text()
     scopus_citation_count = columns.Integer()
+    scopus_subtype = columns.Text()
     subject_category = columns.Text()
     month_usage_03 = columns.Integer()
     month_usage_06 = columns.Integer()

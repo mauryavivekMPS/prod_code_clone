@@ -44,16 +44,16 @@ class ScopusIdLookupTask(Task):
                 # If its already in the database, we don't have to check with scopus
                 existing_record = PublishedArticle.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
 
-                if existing_record and existing_record.article_scopus_id is not None:
+                if existing_record and existing_record.article_scopus_id and existing_record.scopus_subtype:
                     data['scopus_id_status'] = "DOI in Scopus"
                     data['scopus_id'] = existing_record.article_scopus_id
                     data['scopus_citation_count'] = existing_record.scopus_citation_count
-
+                    data['scopus_subtype'] = existing_record.scopus_subtype
                     tlogger.info("Scopus Id already retrieved in previous run")
 
                 else:
                     try:
-                        scopus_id, scopus_cited_by = connector.get_entry(
+                        scopus_id, scopus_cited_by, scopus_subtype = connector.get_entry(
                             doi,
                             tlogger,
                             data.get('ISSN'),
@@ -62,13 +62,12 @@ class ScopusIdLookupTask(Task):
                             data.get('page')
                         )
 
-                        if scopus_id is not None and scopus_cited_by is not None:
-
+                        if scopus_id and scopus_cited_by is not None:
                             data['scopus_id_status'] = "DOI in Scopus"
                             data['scopus_id'] = scopus_id
                             data['scopus_citation_count'] = scopus_cited_by
+                            data['scopus_subtype'] = scopus_subtype
                         else:
-
                             tlogger.info("No Scopus Id found for DOI: " + doi)
                             data['scopus_id_status'] = "No DOI in Scopus"
                             data['scopus_id'] = ''
@@ -79,18 +78,13 @@ class ScopusIdLookupTask(Task):
                         data['scopus_id_status'] = "Scopus API failed"
                         error_count += 1
 
-                row = """%s\t%s\t%s\t%s\n""" % (publisher_id,
-                                            doi,
-                                            issn,
-                                            json.dumps(data))
+                row = "%s\t%s\t%s\t%s\n" % (publisher_id, doi, issn, json.dumps(data))
 
                 target_file.write(row)
                 target_file.flush()
 
                 if error_count >= self.MAX_ERROR_COUNT:
                     raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
-
-            tsv.close()
 
         target_file.close()
 

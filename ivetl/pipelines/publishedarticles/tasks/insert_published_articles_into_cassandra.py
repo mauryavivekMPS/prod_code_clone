@@ -131,9 +131,12 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     pa['is_open_access'] = 'No'
 
                 if 'scopus_citation_count' in data and (data['scopus_citation_count'] != ''):
-                    pa['scopus_citation_count'] = data['scopus_citation_count']
+                    pa.scopus_citation_count = data['scopus_citation_count']
                 else:
-                    pa['scopus_citation_count'] = 0
+                    pa.scopus_citation_count = 0
+
+                if 'scopus_subtype' in data:
+                    pa.scopus_subtype = data['scopus_subtype']
 
                 if pa.hw_metadata_retrieved is None:
                     pa.hw_metadata_retrieved = False
@@ -240,11 +243,3 @@ def to_date_time(month, day, year):
     # date (y, m, d)
     date = datetime(year, month, day)
     return date
-
-
-
-
-
-
-
-

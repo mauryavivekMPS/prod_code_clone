@@ -23,7 +23,7 @@ class ScopusConnector(BaseConnector):
     def get_entry(self, doi, tlogger, issns=None, volume=None, issue=None, page=None):
         scopus_id = None
         scopus_cited_by_count = None
-        has_abstract = True
+        scopus_subtype = None
 
         attempt = 0
         success = False
@@ -45,7 +45,7 @@ class ScopusConnector(BaseConnector):
                 self.check_for_auth_error(root)
 
                 n = root.xpath('//entry/eid', namespaces=common.ns)
-                if len(n) == 0 and issns is not None and volume is not None and issue is not None and page is not None:
+                if len(n) == 0 and issns and volume and issue and page:
 
                     query = ''
                     for i in range(len(issns)):
@@ -70,26 +70,16 @@ class ScopusConnector(BaseConnector):
 
                     n = root.xpath('//entry/eid', namespaces=common.ns)
 
-                if len(n) != 0:
+                if len(n):
                     scopus_id = n[0].text
 
-                    c = root.xpath('//entry/citedby-count', namespaces=common.ns)
-                    if len(c) != 0:
-                        scopus_cited_by_count = c[0].text
+                    cited_by_element = root.xpath('//entry/citedby-count', namespaces=common.ns)
+                    if len(cited_by_element):
+                        scopus_cited_by_count = cited_by_element[0].text
 
-                    #Check if article has abstract
-                    # abstract_url = self.ABSTRACT_SCOPUS_URL_JSON + scopus_cited_by_count + \
-                    #                '?httpAccept=application%2Fjson&apiKey=' + \
-                    #                self.apikeys[self.count % len(self.apikeys)]
-                    # r = requests.get(abstract_url, timeout=30)
-                    # r.raise_for_status()
-                    #
-                    # has_abstract = False
-                    # abstract_data = r.json()
-                    #
-                    # # if response does not have top tag, assume there is an abstract
-                    # if 'abstracts-retrieval-response' not in abstract_data:
-                    #     has_abstract = True
+                    subtype_element = root.xpath('//entry/subtypedescription', namespaces=common.ns)
+                    if len(subtype_element):
+                        scopus_subtype = subtype_element[0].text
 
                 success = True
 
@@ -110,7 +100,7 @@ class ScopusConnector(BaseConnector):
         if not success:
             raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
-        return scopus_id, scopus_cited_by_count
+        return scopus_id, scopus_cited_by_count, scopus_subtype
 
     def get_citations(self, article_scopus_id, is_cohort, tlogger):
         offset = 0

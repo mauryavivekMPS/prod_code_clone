@@ -43,7 +43,7 @@ class ScopusCitationLookupTask(Task):
                     doi = data['xref_doi']
 
                     try:
-                        scopus_id, scopus_cited_by = connector.get_entry(doi, tlogger)
+                        scopus_id, scopus_cited_by, subtype = connector.get_entry(doi, tlogger)
 
                     except MaxTriesAPIError:
                         tlogger.info("Scopus API failed. Trying Again")
