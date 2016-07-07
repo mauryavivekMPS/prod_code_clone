@@ -1,4 +1,3 @@
-import datetime
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 

@@ -105,14 +105,7 @@ class InsertStatsIntoCassandraTask(Task):
                         }
                     )
 
-        # update high water mark if the new data is more recent
-        try:
-            current_high_water = SystemGlobal.objects(name=pipeline_id + '_high_water').date_value
-        except:
-            current_high_water = datetime.datetime.min
-
-        if to_date > current_high_water:
-            SystemGlobal.objects(name=pipeline_id + '_high_water').update(date_value=to_date)
+        utils.update_high_water(pipeline_id, to_date)
 
         if task_args['run_daily_uptime_alerts']:
             send_alert_notifications(

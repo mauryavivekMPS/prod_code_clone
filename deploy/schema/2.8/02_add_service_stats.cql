@@ -34,14 +34,14 @@ CREATE TABLE service_response_time (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
-CREATE TABLE service_response_codes (
+CREATE TABLE service_response_code (
   publisher_id text,
   name text,
   from_date timestamp,
   until_date timestamp,
   sample int,
   status_code text,
-  number int,
+  count int,
   PRIMARY KEY ((publisher_id), name, from_date, until_date)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND

@@ -30,6 +30,6 @@ from ivetl.models.drupal_metadata import DrupalMetadata
 from ivetl.models.highwire_metadata import HighwireMetadata
 from ivetl.models.altmetrics_social_data import AltmetricsSocialData
 from ivetl.models.f1000_social_data import F1000SocialData
-from ivetl.models.service_response_codes import ServiceResponseCode
+from ivetl.models.service_response_code import ServiceResponseCode
 from ivetl.models.service_response_time import ServiceResponseTime
 from ivetl.models.system_global import SystemGlobal

@@ -9,4 +9,4 @@ class ServiceResponseCode(Model):
     until_date = columns.DateTime(primary_key=True)
     sample = columns.Integer()
     status_code = columns.Text()
-    number = columns.Integer()
+    count = columns.Integer()

@@ -1,11 +1,9 @@
-import re
 import os
 import shutil
-import datetime
 import spur
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import SystemGlobal
+from ivetl import utils
 
 
 @app.task
@@ -14,88 +12,20 @@ class GetStatsFilesTask(Task):
     USERNAME = 'netsite'
     PASSWORD = 'F!b57g0v'
     LOG_FILE_DIR = '/var/log/logstat'
+    LOG_FILE_EXTENSION = '.log'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
         from_date = self.from_json_date(task_args.get('from_date'))
         to_date = self.from_json_date(task_args.get('to_date'))
-
-        today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
-
-        if from_date:
-            from_date = datetime.datetime.combine(from_date, datetime.time.min)
-
-        if to_date:
-            to_date = datetime.datetime.combine(to_date, datetime.time.min)
-
-        if not from_date:
-            try:
-                # get last processed day
-                last_uptime_day_processed = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value
-            except SystemGlobal.DoesNotExist:
-                # default to two days ago
-                last_uptime_day_processed = today - datetime.timedelta(2)
-
-            from_date = last_uptime_day_processed
-
-        if from_date > today - datetime.timedelta(1):
-            tlogger.error('Invalid date range: The from date must be before yesterday.')
-            raise Exception
-
-        if not to_date:
-            to_date = today - datetime.timedelta(1)
-
-        if to_date < from_date:
-            tlogger.error('Invalid date range: The date range must be at least one day.')
-            raise Exception
-
+        from_date, to_date = utils.get_from_to_dates_with_high_water(from_date, to_date, pipeline_id)
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
 
+        all_file_names = [d.strftime('%Y-%m-%d' + self.LOG_FILE_EXTENSION) for d in utils.date_range(from_date, to_date)]
 
-        # today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
-        #
-        # if from_date:
-        #     from_date = datetime.datetime.combine(from_date, datetime.time.min)
-        #
-        # if to_date:
-        #     to_date = datetime.datetime.combine(to_date, datetime.time.min)
-        #
-        # def _previous_quarter(ref):
-        #     if ref.month < 4:
-        #         return datetime.datetime(ref.year - 1, 10, 1), datetime.datetime(ref.year - 1, 12, 31)
-        #     elif ref.month < 7:
-        #         return datetime.datetime(ref.year, 1, 1), datetime.datetime(ref.year, 3, 31)
-        #     elif ref.month < 10:
-        #         return datetime.datetime(ref.year, 4, 1), datetime.datetime(ref.year, 6, 30)
-        #     else:
-        #         return datetime.datetime(ref.year, 7, 1), datetime.datetime(ref.year, 9, 30)
-        #
-        # if not (from_date or to_date):
-        #     from_date, to_date = _previous_quarter(today)
-        #
-        # if from_date > today - datetime.timedelta(1):
-        #     tlogger.error('Invalid date range: The from date must be before yesterday.')
-        #     raise Exception
-        #
-        # if not to_date:
-        #     to_date = today - datetime.timedelta(1)
-        #
-        # if to_date < from_date:
-        #     tlogger.error('Invalid date range: The date range must be at least one day.')
-        #     raise Exception
-        #
-        # tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
-
-        # journals_with_benchpress = [p.journal_code for p in Publisher_Journal.objects.filter(
-        #     publisher_id=publisher_id,
-        #     product_id='published_articles',
-        #     use_benchpress=True
-        # )]
-
-        # total_count = len(journals_with_benchpress)
-        # self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
-        #
-        # files = []
+        total_count = len(all_file_names)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+        count = 0
 
         shell = spur.SshShell(
             hostname=self.HOSTNAME,
@@ -110,7 +40,14 @@ class GetStatsFilesTask(Task):
 
         files = []
 
-        for file_name in all_remote_files:
+        for file_name in all_file_names:
+
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+            if file_name not in all_remote_files:
+                tlogger.info('Could not find file for date %s on remote server' % file_name.split('.')[0])
+                continue
+
             remote_file_path = os.path.join(self.LOG_FILE_DIR, file_name)
             local_file_path = os.path.join(work_folder, file_name)
             with shell.open(remote_file_path, "rb") as remote_file:
@@ -119,11 +56,9 @@ class GetStatsFilesTask(Task):
 
             files.append(local_file_path)
 
-            tlogger.info('Retrieved file: %s' % local_file_path)
+            tlogger.info('Retrieved file: %s' % file_name)
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        task_args['input_files'] = files
+        task_args['count'] = total_count
 
-        return {
-            'input_files': files,
-            # 'count': total_count,
-        }
+        return task_args
