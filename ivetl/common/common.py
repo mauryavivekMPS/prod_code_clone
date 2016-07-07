@@ -280,6 +280,25 @@ PIPELINES = [
             'ivetl.pipelines.institutionusage.tasks.InsertJR3IntoCassandra',
         ],
     },
+    {
+        'name': 'Service Stats',
+        'id': 'service_stats',
+        'user_facing_display_name': 'Service stats',
+        'class': 'ivetl.pipelines.servicestats.ServiceStatsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Update Service Stats',
+        'include_date_range_controls': True,
+        'use_high_water_mark': True,
+        'tasks': [
+            'ivetl.pipelines.servicestats.tasks.GetStatsFilesTask',
+        ],
+    },
+
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -462,6 +481,9 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['site_uptime'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['service_stats'],
             },
             {
                 'pipeline': PIPELINE_BY_ID['weekly_site_uptime_alerts'],

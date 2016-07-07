@@ -23,6 +23,8 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.institutionusage.tasks',
     'ivetl.pipelines.socialmetrics',
     'ivetl.pipelines.socialmetrics.tasks',
+    'ivetl.pipelines.servicestats',
+    'ivetl.pipelines.servicestats.tasks',
     'ivetl.tasks',
 )
 
