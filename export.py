@@ -36,7 +36,7 @@ models = [
     'UptimeCheckStat',
     'HighwireMetadata',
     'DrupalMetadata',
-    'System_Global',
+    'SystemGlobal',
     'Doi_Transform_Rule',
     'Alert',
     'Notification',

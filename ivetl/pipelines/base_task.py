@@ -58,13 +58,25 @@ class BaseTask(Task):
         return params_json
 
     def to_json_date(self, d):
-        return d.strftime('%Y-%m-%d')
+        if d:
+            return d.strftime('%Y-%m-%d')
+        else:
+            return None
 
     def from_json_date(self, s):
-        return parse(s).date()
+        if s:
+            return parse(s).date()
+        else:
+            return None
 
     def to_json_datetime(self, d):
-        return d.isoformat()
+        if d:
+            return d.isoformat()
+        else:
+            return None
 
     def from_json_datetime(self, s):
-        return parse(s)
+        if s:
+            return parse(s)
+        else:
+            return None

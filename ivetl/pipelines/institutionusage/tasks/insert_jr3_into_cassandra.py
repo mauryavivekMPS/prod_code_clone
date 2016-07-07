@@ -6,7 +6,7 @@ from ivetl.models import InstitutionUsageStat
 
 
 @app.task
-class InsertJR3IntoCassandra(Task):
+class InsertJR3IntoCassandraTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']

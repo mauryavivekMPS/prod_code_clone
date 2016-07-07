@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global, Publisher_Journal
+from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
 
 log = logging.getLogger(__name__)
 
@@ -150,9 +150,9 @@ def list_pipelines(request, product_id, pipeline_id):
     high_water_mark_label = ''
     if pipeline.get('use_high_water_mark'):
         try:
-            high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
+            high_water_mark = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value
             high_water_mark_label = high_water_mark.strftime('%m/%d/%Y')
-        except System_Global.DoesNotExist:
+        except SystemGlobal.DoesNotExist:
             high_water_mark_label = 'never'
 
     if pipeline.get('include_date_range_controls'):
@@ -242,8 +242,8 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
         if current_task and current_task.status == 'completed' and pipeline.get('use_high_water_mark'):
             try:
-                high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
-            except System_Global.DoesNotExist:
+                high_water_mark = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+            except SystemGlobal.DoesNotExist:
                 pass
 
     return JsonResponse({
