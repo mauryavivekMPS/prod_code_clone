@@ -14,7 +14,6 @@ from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.Demo import Demo
-from ivetl.models.SytemGlobal import System_Global
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.Alert import Alert
 from ivetl.models.Notification import Notification
@@ -33,3 +32,4 @@ from ivetl.models.altmetrics_social_data import AltmetricsSocialData
 from ivetl.models.f1000_social_data import F1000SocialData
 from ivetl.models.service_response_codes import ServiceResponseCode
 from ivetl.models.service_response_time import ServiceResponseTime
+from ivetl.models.system_global import SystemGlobal

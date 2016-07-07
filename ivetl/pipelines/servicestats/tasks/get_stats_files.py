@@ -5,7 +5,7 @@ import datetime
 import spur
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import System_Global
+from ivetl.models import SystemGlobal
 
 
 @app.task
@@ -31,8 +31,8 @@ class GetStatsFilesTask(Task):
         if not from_date:
             try:
                 # get last processed day
-                last_uptime_day_processed = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
-            except System_Global.DoesNotExist:
+                last_uptime_day_processed = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value
+            except SystemGlobal.DoesNotExist:
                 # default to two days ago
                 last_uptime_day_processed = today - datetime.timedelta(2)
 
