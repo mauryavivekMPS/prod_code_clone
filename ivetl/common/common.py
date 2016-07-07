@@ -261,9 +261,9 @@ PIPELINES = [
         'validator_class': 'ivetl.validators.JR2Validator',
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.institutionusage.tasks.GetJR2Files',
-            'ivetl.pipelines.institutionusage.tasks.ValidateJR2Files',
-            'ivetl.pipelines.institutionusage.tasks.InsertJR2IntoCassandra',
+            'ivetl.pipelines.institutionusage.tasks.GetJR2FilesTask',
+            'ivetl.pipelines.institutionusage.tasks.ValidateJR2FilesTask',
+            'ivetl.pipelines.institutionusage.tasks.InsertJR2IntoCassandraTask',
         ],
     },
     {
@@ -275,9 +275,9 @@ PIPELINES = [
         'validator_class': 'ivetl.validators.JR3Validator',
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.institutionusage.tasks.GetJR3Files',
-            'ivetl.pipelines.institutionusage.tasks.ValidateJR3Files',
-            'ivetl.pipelines.institutionusage.tasks.InsertJR3IntoCassandra',
+            'ivetl.pipelines.institutionusage.tasks.GetJR3FilesTask',
+            'ivetl.pipelines.institutionusage.tasks.ValidateJR3FilesTask',
+            'ivetl.pipelines.institutionusage.tasks.InsertJR3IntoCassandraTask',
         ],
     },
     {
@@ -296,6 +296,7 @@ PIPELINES = [
         'use_high_water_mark': True,
         'tasks': [
             'ivetl.pipelines.servicestats.tasks.GetStatsFilesTask',
+            'ivetl.pipelines.servicestats.tasks.InsertStatsIntoCassandraTask',
         ],
     },
 
