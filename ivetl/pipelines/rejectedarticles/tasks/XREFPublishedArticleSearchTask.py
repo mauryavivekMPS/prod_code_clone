@@ -26,7 +26,7 @@ def is_valid_journal(doi):
 
 
 def remove_disallowed_chars(s):
-    return ''.join(c for c in s if ord(c) < 128 and c not in ['?', '%', '\r', '\n', '-'])
+    return ''.join(c for c in s if ord(c) < 128 and c not in ['?', '%', '\r', '\n', '-', '~', '#'])
 
 
 def remove_hex(s):
@@ -188,7 +188,7 @@ class XREFPublishedArticleSearchTask(Task):
                 date_of_rejection = data['date_of_rejection']
 
                 title = clean_crossref_input(data['title'])
-                if title is None or title.strip == "":
+                if title is None or not title.strip():
                     tlogger.info("No title, skipping record")
                     continue
 
