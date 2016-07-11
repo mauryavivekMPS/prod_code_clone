@@ -19,7 +19,7 @@ class CustomSubscriberDataPipeline(Pipeline):
             else:
                 base_incoming_dir = common.BASE_INCOMING_DIR
 
-            publisher_dir = self.get_incoming_dir_for_publisher(base_incoming_dir, publisher.publisher_id, pipeline_id)
+            publisher_dir = self.get_incoming_dir_for_publisher(base_incoming_dir, publisher_id, pipeline_id)
 
             # grab all files from the directory
             files = [f for f in os.listdir(publisher_dir) if os.path.isfile(os.path.join(publisher_dir, f))]
