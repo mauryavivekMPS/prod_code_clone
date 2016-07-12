@@ -23,9 +23,10 @@ class Pipeline(BaseTask):
         pipeline_incoming_dir = os.path.join(base_incoming_dir, publisher_id, pipeline_id)
         return pipeline_incoming_dir
 
-    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, params={}, initiating_user_email=None, total_task_count=0, current_task_count=0):
+    def on_pipeline_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, params={}, initiating_user_email=None, current_task_count=0):
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        total_task_count = len(pipeline['tasks'])
         start_date = datetime.datetime.today()
-
         params_json = self.params_to_json(params)
 
         Pipeline_Status.objects(

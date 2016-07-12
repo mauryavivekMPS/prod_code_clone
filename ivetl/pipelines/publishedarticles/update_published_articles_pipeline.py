@@ -40,7 +40,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=6, current_task_count=0)
+            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, current_task_count=0)
 
             task_args = {
                 'product_id': product_id,
