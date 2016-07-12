@@ -89,6 +89,6 @@ class LoadF1000DataTask(Task):
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
-        return {
-            'count': count
-        }
+        task_args['count'] = total_count
+
+        return task_args

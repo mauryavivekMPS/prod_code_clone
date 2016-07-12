@@ -1,5 +1,6 @@
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
+from ivetl.common import common
 
 
 @app.task
@@ -9,13 +10,14 @@ class ServiceStatsPipeline(Pipeline):
         pipeline_id = "service_stats"
 
         # this pipeline operates on the global publisher ID
-        publisher_id = 'hw'
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        publisher_id = pipeline.get('single_publisher_id', 'hw')
 
         now, today_label, job_id = self.generate_job_id()
 
         # create work folder, signal the start of the pipeline
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, current_task_count=0)
+        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email)
 
         # construct the first task args with all of the standard bits + the list of files
         task_args = {

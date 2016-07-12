@@ -3,6 +3,7 @@ from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import Pipeline_Status
+from ivetl.common import common
 
 
 @app.task
@@ -12,7 +13,8 @@ class SiteUptimePipeline(Pipeline):
         pipeline_id = "site_uptime"
 
         # this pipeline operates on the global publisher ID
-        publisher_id = 'hw'
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        publisher_id = pipeline.get('single_publisher_id', 'hw')
 
         params = {}
         today_label = ''

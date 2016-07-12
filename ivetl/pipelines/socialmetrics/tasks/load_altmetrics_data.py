@@ -65,6 +65,6 @@ class LoadAltmetricsDataTask(Task):
                     reddit=row['REDDIT'],
                 )
 
-        return {
-            'count': count
-        }
+        task_args['count'] = total_count
+
+        return task_args
