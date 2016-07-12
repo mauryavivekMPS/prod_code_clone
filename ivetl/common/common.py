@@ -300,7 +300,7 @@ PIPELINES = [
         ],
     },
     {
-        'name': 'Subscriber and Subscriptions',
+        'name': 'Subscription Data',
         'id': 'subscribers_and_subscriptions',
         'user_facing_display_name': 'Subscriber and subscription data',
         'class': 'ivetl.pipelines.servicestats.SubscribersAndSubscriptionsPipeline',
@@ -313,6 +313,21 @@ PIPELINES = [
         'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
         'tasks': [
             'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberData',
+        ],
+    },
+    {
+        'name': 'Custom Subscriber Data',
+        'id': 'custom_subscriber_data',
+        'user_facing_display_name': 'Additional subscriber data',
+        'class': 'ivetl.pipelines.customarticledata.CustomSubscriberDataPipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.CustomSubscriberDataValidator',
+        'format_file': 'AdditionalSubscriberData-Format.pdf',
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.customarticledata.tasks.GetSubscriberDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.ValidateSubscriberDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.InsertCustomSubscriberDataIntoCassandra',
         ],
     },
 ]
@@ -495,9 +510,9 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['subscribers_and_subscriptions'],
             },
-            # {
-            #     'pipeline': PIPELINE_BY_ID['custom_subscriber_data'],
-            # },
+            {
+                'pipeline': PIPELINE_BY_ID['custom_subscriber_data'],
+            },
         ],
         'tableau_workbooks': [],
     },
