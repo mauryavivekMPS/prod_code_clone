@@ -52,10 +52,10 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
                     # add a record of modified files for next task
                     modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
-                    modified_articles_file.flush()  # why is this needed?
 
         modified_articles_file.close()
-        return {
-            'count': count,
-            'input_file': modified_articles_file_name,
-        }
+
+        task_args['count'] = total_count
+        task_args['input_file'] = modified_articles_file_name
+
+        return task_args
