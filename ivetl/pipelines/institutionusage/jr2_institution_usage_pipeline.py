@@ -3,7 +3,7 @@ import datetime
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Pipeline_Status, Publisher_Metadata
+from ivetl.models import Pipeline_Status, PublisherMetadata
 
 
 @app.task
@@ -14,9 +14,9 @@ class JR2InstitutionUsagePipeline(Pipeline):
         now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
-            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+            publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
-            publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
+            publishers = PublisherMetadata.objects.filter(demo=False)  # default to production pubs
 
         publishers = [p for p in publishers if product_id in p.supported_products]
 

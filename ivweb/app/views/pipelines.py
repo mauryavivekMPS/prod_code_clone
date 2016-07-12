@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import loader, RequestContext
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
+from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
 
 log = logging.getLogger(__name__)
 
@@ -198,7 +198,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     current_task_status_on_client = request.GET.get('current_task_status')
     opened = True if request.GET.get('opened') == '1' and request.user.superuser else False
 
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher_runs = get_recent_runs_for_publisher(pipeline_id, product_id, publisher)
 
     has_section_updates = True
@@ -449,7 +449,7 @@ def pending_files(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher']
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     return render(request, 'pipelines/pending_files.html', {
         'product': product,
@@ -499,7 +499,7 @@ def upload_pending_file_inline(request):
                 validator = validator_class()
 
                 if file_type == 'publisher':
-                    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+                    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
                     issns = publisher.all_issns
                     crossref_username = publisher.crossref_username
                     crossref_password = publisher.crossref_password

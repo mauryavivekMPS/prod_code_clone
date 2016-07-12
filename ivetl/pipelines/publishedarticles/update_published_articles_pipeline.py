@@ -1,7 +1,7 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Publisher_Metadata, Publisher_Journal
+from ivetl.models import PublisherMetadata, Publisher_Journal
 from ivetl.common import common
 
 
@@ -19,9 +19,9 @@ class UpdatePublishedArticlesPipeline(Pipeline):
         product = common.PRODUCT_BY_ID[product_id]
 
         if publisher_id_list:
-            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+            publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
-            publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
+            publishers = PublisherMetadata.objects.filter(demo=False)  # default to production pubs
 
         publishers = [p for p in publishers if product_id in p.supported_products]
 

@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
 from ivetl.connectors import TableauConnector
-from ivetl.models import Publisher_Metadata, Pipeline_Status
+from ivetl.models import PublisherMetadata, Pipeline_Status
 
 
 class TaskParamsEncodingError(Exception):
@@ -90,7 +90,7 @@ class BaseTask(Task):
             pass
 
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+            publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
             # update the data in tableau
             t = TableauConnector(

@@ -1,6 +1,6 @@
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Publisher_Metadata, Publisher_Journal
+from ivetl.models import PublisherMetadata, Publisher_Journal
 
 
 @app.task
@@ -12,11 +12,11 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
         now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
-            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+            publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
             # default to production pubs with benchpress support
             publishers = []
-            for publisher in Publisher_Metadata.objects.filter(demo=False):
+            for publisher in PublisherMetadata.objects.filter(demo=False):
                 benchpress_journals = Publisher_Journal.objects.filter(
                     publisher_id=publisher.publisher_id,
                     product_id='published_articles',

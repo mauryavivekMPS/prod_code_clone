@@ -2,7 +2,7 @@ import time
 import unittest
 import datetime
 from dateutil import parser
-from ivetl.models import (Publisher_Metadata, Pipeline_Status, PublishedArticle, Article_Citations,
+from ivetl.models import (PublisherMetadata, Pipeline_Status, PublishedArticle, Article_Citations,
                           Publisher_Vizor_Updates, Published_Article_Values, Pipeline_Task_Status)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
@@ -41,7 +41,7 @@ class PipelineTestCase(unittest.TestCase):
         self.assertTrue(got_complete_status, "The pipeline didn't complete after 5 minutes - no status message found.")
 
     def add_test_publisher(self):
-        Publisher_Metadata.objects.create(
+        PublisherMetadata.objects.create(
             publisher_id='test',
             name='Test Publisher',
             hw_addl_metadata_available=True,
@@ -61,7 +61,7 @@ class PipelineTestCase(unittest.TestCase):
 
     def remove_all_test_publisher_data(self):
         try:
-            publisher = Publisher_Metadata.objects.get(publisher_id='test')
+            publisher = PublisherMetadata.objects.get(publisher_id='test')
             PublishedArticle.objects(publisher_id='test').delete()
             Published_Article_Values.objects(publisher_id='test').delete()
             Article_Citations.objects(publisher_id='test').delete()
@@ -69,7 +69,7 @@ class PipelineTestCase(unittest.TestCase):
             Publisher_Vizor_Updates.objects(publisher_id='test').delete()
             publisher.delete()
 
-        except Publisher_Metadata.DoesNotExist:
+        except PublisherMetadata.DoesNotExist:
             # it wasn't there, that's ok
             pass
 
@@ -232,7 +232,7 @@ class PipelineTestCase(unittest.TestCase):
         # add a number of test publishers
         #
 
-        Publisher_Metadata.objects.create(
+        PublisherMetadata.objects.create(
             publisher_id='blood',
             name='Blood',
             supported_pipelines=[
@@ -243,7 +243,7 @@ class PipelineTestCase(unittest.TestCase):
             ],
         )
 
-        Publisher_Metadata.objects.create(
+        PublisherMetadata.objects.create(
             publisher_id='theoncologist',
             name='The Oncologist',
             supported_pipelines=[
@@ -253,7 +253,7 @@ class PipelineTestCase(unittest.TestCase):
             ],
         )
 
-        Publisher_Metadata.objects.create(
+        PublisherMetadata.objects.create(
             publisher_id='neuro',
             name='Journal of Neuroscience',
             supported_pipelines=[
@@ -263,7 +263,7 @@ class PipelineTestCase(unittest.TestCase):
             ],
         )
 
-        Publisher_Metadata.objects.create(
+        PublisherMetadata.objects.create(
             publisher_id='sagan',
             name='Cosmology Journal',
             supported_pipelines=[

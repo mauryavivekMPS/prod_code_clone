@@ -5,7 +5,7 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Alert, Publisher_Metadata, Attribute_Values
+from ivetl.models import Alert, PublisherMetadata, Attribute_Values
 from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
 
@@ -93,7 +93,7 @@ class AlertForm(forms.Form):
         super(AlertForm, self).__init__(initial=initial, *args, **kwargs)
 
         if user.superuser:
-            self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in Publisher_Metadata.objects.all()]
+            self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
             self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
 
@@ -241,7 +241,7 @@ def include_alert_filters(request):
 
 
 def get_check_choices_for_publisher(publisher_id):
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     supported_checks = set()
     for check_id, check in CHECKS.items():
         for product in check['products']:

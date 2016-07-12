@@ -299,7 +299,22 @@ PIPELINES = [
             'ivetl.pipelines.servicestats.tasks.InsertStatsIntoCassandraTask',
         ],
     },
-
+    {
+        'name': 'Subscriber and Subscriptions',
+        'id': 'subscribers_and_subscriptions',
+        'user_facing_display_name': 'Subscriber and subscription data',
+        'class': 'ivetl.pipelines.servicestats.SubscribersAndSubscriptionsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
+        'tasks': [
+            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberData',
+        ],
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -471,10 +486,26 @@ PRODUCTS = [
         'tableau_workbooks': [],
     },
     {
+        'name': 'Subscriptions',
+        'id': 'subscriptions',
+        'is_user_facing': True,
+        'order': 5,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['subscribers_and_subscriptions'],
+            },
+            # {
+            #     'pipeline': PIPELINE_BY_ID['custom_subscriber_data'],
+            # },
+        ],
+        'tableau_workbooks': [],
+    },
+    {
         'name': 'HighWire Sites',
         'id': 'highwire_sites',
         'is_user_facing': True,
-        'order': 5,
+        'order': 6,
         'cohort': False,
         'pipelines': [
             {
@@ -496,7 +527,7 @@ PRODUCTS = [
         'name': 'Social',
         'id': 'social',
         'is_user_facing': True,
-        'order': 6,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {

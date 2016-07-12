@@ -6,7 +6,7 @@ import shutil
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
-from ivetl.models import Pipeline_Status, Pipeline_Task_Status, Publisher_Metadata
+from ivetl.models import Pipeline_Status, Pipeline_Task_Status, PublisherMetadata
 
 
 class Task(BaseTask):
@@ -242,7 +242,7 @@ class Task(BaseTask):
         def increment_count(count):
             return self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
         t0 = time()
         total_count, errors = validator.validate_files(

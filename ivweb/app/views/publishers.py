@@ -10,7 +10,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
+from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -34,7 +34,7 @@ def list_publishers(request):
             messages.append("Your new publisher account is created and ready to go.")
 
     if request.user.superuser:
-        all_accessible_publishers = Publisher_Metadata.objects.all()
+        all_accessible_publishers = PublisherMetadata.objects.all()
     else:
         all_accessible_publishers = request.user.get_accessible_publishers()
 
@@ -266,7 +266,7 @@ class PublisherForm(forms.Form):
             if self.instance:
                 return self.instance.publisher_id  # can't change this
             else:
-                if Publisher_Metadata.objects.filter(publisher_id=publisher_id).count():
+                if PublisherMetadata.objects.filter(publisher_id=publisher_id).count():
                     raise forms.ValidationError("This publisher ID is already in use.")
 
         return publisher_id
@@ -333,7 +333,7 @@ class PublisherForm(forms.Form):
                     key.delete()
 
             publisher_id = self.cleaned_data['publisher_id']
-            Publisher_Metadata.objects(publisher_id=publisher_id).update(
+            PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
                 email=self.cleaned_data['email'],
                 hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
@@ -346,7 +346,7 @@ class PublisherForm(forms.Form):
                 demo_id=self.cleaned_data['demo_id'],
             )
 
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+            publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
             if self.instance:
                 new_password = self.cleaned_data['reports_password']
@@ -410,7 +410,7 @@ def edit(request, publisher_id=None):
     convert_from_demo = False
     if publisher_id:
         new = False
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     # bail quickly if there are no API keys
     if new:
@@ -547,8 +547,8 @@ def edit_demo(request, demo_id=None):
         demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
 
         try:
-            publisher_from_demo = Publisher_Metadata.objects.get(demo_id=demo_id)
-        except Publisher_Metadata.DoesNotExist:
+            publisher_from_demo = PublisherMetadata.objects.get(demo_id=demo_id)
+        except PublisherMetadata.DoesNotExist:
             pass
 
     else:
@@ -581,7 +581,7 @@ def edit_demo(request, demo_id=None):
 @login_required
 def check_reports(request):
     publisher_id = request.GET['publisher']
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     return JsonResponse({
         'status': publisher.reports_setup_status,
     })
@@ -738,7 +738,7 @@ def _notify_on_new_status(demo, request, message=None):
 
     elif demo.status == common.DEMO_STATUS_COMPLETED:
 
-        publisher = Publisher_Metadata.objects.get(demo_id=demo.demo_id)
+        publisher = PublisherMetadata.objects.get(demo_id=demo.demo_id)
 
         subject = "Impact Vizor (%s): Your demo is ready" % demo.name
         body = """

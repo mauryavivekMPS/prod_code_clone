@@ -26,7 +26,7 @@ models = [
     'Rejected_Articles',
     'Publisher_Journal',
     'Publisher_User',
-    'Publisher_Metadata',
+    'PublisherMetadata',
     'Audit_Log',
     'Published_Article_By_Cohort',
     'Scopus_Api_Key',

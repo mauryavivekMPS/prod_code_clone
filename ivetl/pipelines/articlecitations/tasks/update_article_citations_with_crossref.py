@@ -3,7 +3,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
+from ivetl.models import PublisherMetadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
 from ivetl.alerts import run_alerts, send_alert_notifications
 
 
@@ -15,7 +15,7 @@ class UpdateArticleCitationsWithCrossref(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         total_count = task_args['count']
 
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
         count = 0
         error_count = 0

@@ -6,7 +6,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors.base import MaxTriesAPIError
 from ivetl.connectors.scopus import ScopusConnector
-from ivetl.models import Publisher_Metadata
+from ivetl.models import PublisherMetadata
 
 
 @app.task
@@ -23,7 +23,7 @@ class ScopusCitationLookupTask(Task):
         count = 0
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
+        pm = PublisherMetadata.objects.filter(publisher_id=publisher_id).first()
         connector = ScopusConnector(pm.scopus_api_keys)
 
         with codecs.open(file, encoding="utf-16") as tsv:
