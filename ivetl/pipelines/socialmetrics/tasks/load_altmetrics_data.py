@@ -5,6 +5,7 @@ from requests.auth import HTTPBasicAuth
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import AltmetricsSocialData
+from ivetl import utils
 
 
 @app.task
@@ -27,18 +28,9 @@ class LoadAltmetricsDataTask(Task):
 
         os.system('gunzip ' + self.LOCAL_FILE_ZIPPED_PATH)
         os.rename(self.LOCAL_FILE_UNZIPPED_PATH, self.LOCAL_FILE_RENAMED_PATH)
-
         tlogger.info('Unzipped and renamed to: %s' % self.LOCAL_FILE_RENAMED_PATH)
 
-        # count lines
-        total_count = 0
-        with open(self.LOCAL_FILE_RENAMED_PATH, 'r', encoding='utf-8') as f:
-            for line in f.readlines():
-                total_count += 1
-
-        # ignore the header
-        total_count -= 1
-
+        total_count = utils.file_len(self.LOCAL_FILE_RENAMED_PATH) - 1  # ignore the header
         tlogger.info('Found %s records' % total_count)
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
