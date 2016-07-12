@@ -1,1 +1,2 @@
 from ivetl.pipelines.subscriberdata.tasks.load_subscriber_data import LoadSubscriberDataTask
+from ivetl.pipelines.subscriberdata.tasks.load_subscription_data import LoadSubscriptionDataTask
