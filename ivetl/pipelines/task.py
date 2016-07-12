@@ -264,10 +264,10 @@ class Task(BaseTask):
         else:
             tlogger.info("No errors found")
 
-        return {
-            'input_files': files,
-            'count': total_count,
-        }
+        task_args['input_files'] = files
+        task_args['count'] = total_count
+
+        return task_args
 
     def run_get_files_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         preserve_incoming_files = task_args.get('preserve_incoming_files', False)
@@ -291,7 +291,7 @@ class Task(BaseTask):
             # compile a list of files for the next task
             files.append(os.path.join(work_folder, os.path.basename(source_file)))
 
-        return {
-            'input_files': files,
-            'count': count,
-        }
+        task_args['input_files'] = files
+        task_args['count'] = total_count
+
+        return task_args
