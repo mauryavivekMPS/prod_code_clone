@@ -659,6 +659,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="hw_addl_metadata_available"]').val($('#id_hw_addl_metadata_available').is(':checked') ? 'on' : '');
         f.find('input[name="demo"]').val($('#id_demo').is(':checked') ? 'on' : '');
         f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
+        f.find('input[name="ac_databases"]').val($('#id_ac_databases').val());
         f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
         f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
         f.find('input[name="cohort_articles"]').val($('#id_cohort_articles').is(':checked') ? 'on' : '');

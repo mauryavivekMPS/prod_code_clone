@@ -197,6 +197,13 @@
 
                     {% endif %}
 
+                    <div class="form-group row">
+                        <label for="scopus_api_keys" class="col-sm-2">AC Databases</label>
+                        <div class="col-sm-6">
+                            {{ form.ac_databases }}
+                        </div>
+                    </div>
+
                     {% if not is_demo %}
                         <h2>Reporting</h2>
                         <div class="form-group row reports-login-controls" style="display:none">
