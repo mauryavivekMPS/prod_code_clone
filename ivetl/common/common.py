@@ -313,6 +313,9 @@ PIPELINES = [
         'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
         'tasks': [
             'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberData',
+            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriptionData',
+            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberData',
+            'ivetl.pipelines.subscriberdata.tasks.UpdateAttributeValuesCacheTask',
         ],
     },
     {
@@ -328,6 +331,8 @@ PIPELINES = [
             'ivetl.pipelines.customarticledata.tasks.GetSubscriberDataFiles',
             'ivetl.pipelines.customarticledata.tasks.ValidateSubscriberDataFiles',
             'ivetl.pipelines.customarticledata.tasks.InsertCustomSubscriberDataIntoCassandra',
+            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberData',
+            'ivetl.pipelines.subscriberdata.tasks.UpdateAttributeValuesCacheTask',
         ],
     },
 ]

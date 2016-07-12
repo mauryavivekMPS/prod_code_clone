@@ -10,7 +10,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
+from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, demo
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -84,9 +84,9 @@ def list_demos(request):
             messages.append("The selected demo has been restored to active.")
 
     if request.user.superuser:
-        demos = Demo.objects.all()
+        demos = demo.objects.all()
     else:
-        demos = Demo.objects.allow_filtering().filter(requestor_id=request.user.user_id)
+        demos = demo.objects.allow_filtering().filter(requestor_id=request.user.user_id)
 
     filter_param = request.GET.get('filter', request.COOKIES.get('demo-list-filter', 'all'))
 
@@ -288,12 +288,12 @@ class PublisherForm(forms.Form):
             demo = None
             if demo_id:
                 try:
-                    demo = Demo.objects.get(demo_id=demo_id)
-                except Demo.DoesNotExist:
+                    demo = demo.objects.get(demo_id=demo_id)
+                except demo.DoesNotExist:
                     pass
 
             if not demo:
-                demo = Demo.objects.create(
+                demo = demo.objects.create(
                     demo_id=demo_id,
                     requestor_id=self.creating_user.user_id
                 )
@@ -461,7 +461,7 @@ def edit(request, publisher_id=None):
 
         if 'demo_id' in request.GET:
             convert_from_demo = True
-            demo = Demo.objects.get(demo_id=request.GET['demo_id'])
+            demo = demo.objects.get(demo_id=request.GET['demo_id'])
             form = PublisherForm(request.user, instance=demo, convert_from_demo=True)
             demo_files_custom_article_data = get_pending_files_for_demo(demo.demo_id, 'published_articles', 'custom_article_data')
             demo_files_rejected_articles = get_pending_files_for_demo(demo.demo_id, 'rejected_manuscripts', 'rejected_articles')
@@ -471,7 +471,7 @@ def edit(request, publisher_id=None):
 
     demo_from_publisher = None
     if publisher and publisher.demo_id:
-        demo_from_publisher = Demo.objects.get(demo_id=publisher.demo_id)
+        demo_from_publisher = demo.objects.get(demo_id=publisher.demo_id)
 
     return render(request, 'publishers/new.html', {
         'form': form,
@@ -494,7 +494,7 @@ def edit_demo(request, demo_id=None):
     demo = None
     new = True
     if demo_id:
-        demo = Demo.objects.get(demo_id=demo_id)
+        demo = demo.objects.get(demo_id=demo_id)
         new = False
 
     if request.method == 'POST':
@@ -770,7 +770,7 @@ def _notify_on_new_status(demo, request, message=None):
 def update_demo_status(request):
     if request.POST:
         demo_id = request.POST['demo_id']
-        demo = Demo.objects.get(demo_id=demo_id)
+        demo = demo.objects.get(demo_id=demo_id)
         status = request.POST['status']
         demo.status = status
         demo.save()

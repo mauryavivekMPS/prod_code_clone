@@ -3,7 +3,7 @@ from ivetl.models.PublisherUser import Publisher_User
 from ivetl.models.publisher_metadata import PublisherMetadata
 from ivetl.models.User import User, Anonymous_User
 from ivetl.models.demo import Demo
-from ivetl.models.PublishedArticleValues import Published_Article_Values
+from ivetl.models.published_article_values import PublishedArticleValues
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 from ivetl.models.ArticleCitations import Article_Citations
 from ivetl.models.IssnJournal import Issn_Journal
@@ -31,4 +31,5 @@ from ivetl.models.f1000_social_data import F1000SocialData
 from ivetl.models.service_response_code import ServiceResponseCode
 from ivetl.models.service_response_time import ServiceResponseTime
 from ivetl.models.subscriber import Subscriber
+from ivetl.models.subscriber_values import SubscriberValues
 from ivetl.models.system_global import SystemGlobal

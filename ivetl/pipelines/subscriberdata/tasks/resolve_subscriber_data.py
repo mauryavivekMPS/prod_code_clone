@@ -6,11 +6,13 @@ from ivetl.models import PublishedArticle, PublishedArticleValues
 
 
 @app.task
-class ResolvePublishedArticlesData(Task):
+class ResolveSubscriberData(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']
+
+        # TODO: update this with details!!
 
         now = datetime.datetime.now()
 

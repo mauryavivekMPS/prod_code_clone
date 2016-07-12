@@ -3,7 +3,7 @@ import unittest
 import datetime
 from dateutil import parser
 from ivetl.models import (PublisherMetadata, Pipeline_Status, PublishedArticle, Article_Citations,
-                          Publisher_Vizor_Updates, Published_Article_Values, Pipeline_Task_Status)
+                          Publisher_Vizor_Updates, PublishedArticleValues, Pipeline_Task_Status)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
@@ -63,7 +63,7 @@ class PipelineTestCase(unittest.TestCase):
         try:
             publisher = PublisherMetadata.objects.get(publisher_id='test')
             PublishedArticle.objects(publisher_id='test').delete()
-            Published_Article_Values.objects(publisher_id='test').delete()
+            PublishedArticleValues.objects(publisher_id='test').delete()
             Article_Citations.objects(publisher_id='test').delete()
             Pipeline_Status.objects(publisher_id='test').delete()
             Publisher_Vizor_Updates.objects(publisher_id='test').delete()
@@ -140,7 +140,7 @@ class PipelineTestCase(unittest.TestCase):
         # their override values
         #
 
-        Published_Article_Values.create(
+        PublishedArticleValues.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-427765',
             source='pa',
@@ -148,7 +148,7 @@ class PipelineTestCase(unittest.TestCase):
             value_text='Review Article',
         )
 
-        Published_Article_Values.create(
+        PublishedArticleValues.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-427765',
             source='pa',
@@ -156,7 +156,7 @@ class PipelineTestCase(unittest.TestCase):
             value_text='Red Cells, Iron, And Erythropoiesis',
         )
 
-        Published_Article_Values.create(
+        PublishedArticleValues.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             source='pa',
@@ -164,7 +164,7 @@ class PipelineTestCase(unittest.TestCase):
             value_text='Immunobiology',
         )
 
-        Published_Article_Values.create(
+        PublishedArticleValues.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             source='pa',

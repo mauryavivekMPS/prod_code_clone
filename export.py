@@ -17,7 +17,7 @@ from ivetl.common import common
 
 models = [
     'PublishedArticle',
-    'Published_Article_Values',
+    'PublishedArticleValues',
     'Publisher_Vizor_Updates',
     'Article_Citations',
     'Issn_Journal',
