@@ -299,7 +299,34 @@ PIPELINES = [
             'ivetl.pipelines.servicestats.tasks.InsertStatsIntoCassandraTask',
         ],
     },
-
+    {
+        'name': 'Custom Bundle Definitions',
+        'id': 'custom_bundle_definitions',
+        'user_facing_display_name': 'Custom bundle definitions',
+        'class': 'ivetl.pipelines.customproductbundle.BundleDefinitionPipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.BundleDefinition',
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.customproductbundle.tasks.GetBundleDefinitionFilesTask',
+            'ivetl.pipelines.customproductbundle.tasks.ValidateBundleDefinitionFilesTask',
+            'ivetl.pipelines.customproductbundle.tasks.InsertBundleDefinitionIntoCassandraTask',
+        ],
+    },
+    {
+        'name': 'Custom Subscription Pricing',
+        'id': 'custom_subscription_pricing',
+        'user_facing_display_name': 'Custom subscription pricing',
+        'class': 'ivetl.pipelines.customproductbundle.SubscriptionPricePipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.SubscriptionPrice',
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.customproductbundle.tasks.GetSubscriptionPriceFilesTask',
+            'ivetl.pipelines.customproductbundle.tasks.ValidateSubscriptionPriceFilesTask',
+            'ivetl.pipelines.customproductbundle.tasks.InsertSubscriptionPriceIntoCassandraTask',
+        ],
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]

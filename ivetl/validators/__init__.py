@@ -3,3 +3,5 @@ from ivetl.validators.rejectedarticles import RejectedArticlesValidator
 from ivetl.validators.articleusage import ArticleUsageValidator
 from ivetl.validators.jr3 import JR3Validator
 from ivetl.validators.jr2 import JR2Validator
+from ivetl.validators.bundle_definition import BundleDefinitionValidator
+from ivetl.validators.subscription_price import SubscriptionPriceValidator
