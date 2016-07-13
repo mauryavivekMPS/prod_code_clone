@@ -3,9 +3,8 @@ from cassandra.cqlengine.models import Model
 
 
 class SubscriberValues(Model):
-    # TODO: update this
-    publisher_id = columns.Text(primary_key=True)
-    article_doi = columns.Text(primary_key=True)
+    publisher_id = columns.Text(partition_key=True)
+    membership_no = columns.Text(primary_key=True)
     source = columns.Text(primary_key=True)
     name = columns.Text(primary_key=True)
     value_text = columns.Text()

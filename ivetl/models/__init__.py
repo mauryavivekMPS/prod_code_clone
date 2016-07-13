@@ -31,5 +31,6 @@ from ivetl.models.f1000_social_data import F1000SocialData
 from ivetl.models.service_response_code import ServiceResponseCode
 from ivetl.models.service_response_time import ServiceResponseTime
 from ivetl.models.subscriber import Subscriber
+from ivetl.models.subscription import Subscription
 from ivetl.models.subscriber_values import SubscriberValues
 from ivetl.models.system_global import SystemGlobal

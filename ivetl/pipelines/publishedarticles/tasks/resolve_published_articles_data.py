@@ -59,8 +59,6 @@ class ResolvePublishedArticlesData(Task):
                 article.updated = now
                 article.save()
 
-            tsv.close()
-
         if pipeline_id == 'custom_article_data':
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=count)
 
