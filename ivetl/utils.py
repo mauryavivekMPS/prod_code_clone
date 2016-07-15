@@ -1,4 +1,10 @@
+import codecs
 import datetime
+import os
+import uuid
+
+import humanize
+
 from ivetl.models import SystemGlobal
 
 
@@ -58,3 +64,20 @@ def file_len(file_path, encoding='utf-8'):
         for i, l in enumerate(f):
             pass
     return i + 1
+
+
+def list_dir(path, with_lines_and_sizes=False, ignore=[], encoding='utf-8'):
+    files = [{'file_name': n} for n in os.listdir(path) if not ignore or ignore and n not in ignore]
+    if with_lines_and_sizes:
+        for file in files:
+            file_path = os.path.join(path, file['file_name'])
+            i = 0
+            line_count = 0
+            with codecs.open(file_path, encoding=encoding) as f:
+                for i, l in enumerate(f):
+                    pass
+                line_count = i + 1
+            file['line_count'] = line_count
+            file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
+            file['file_id'] = uuid.uuid4()
+    return files

@@ -1,3 +1,4 @@
+import os
 import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -7,9 +8,9 @@ from ivetl import utils
 
 @app.task
 class LoadSubscriptionDataTask(Task):
-    FILE_PATHS = [
-        '/iv/hwdw-metadata/instadmin.tsv',
-        '/iv/hwdw-metadata/individual_subscriptions.tsv',
+    FILE_DIRS = [
+        '/iv/hwdw-metadata/instadmin/',
+        '/iv/hwdw-metadata/individual_subscriptions/',
     ]
 
     FIELD_NAMES = [
@@ -50,14 +51,19 @@ class LoadSubscriptionDataTask(Task):
     ]
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+
+        all_files = []
+        for dir_path in self.FILE_DIRS:
+            all_files.append([os.path.join(dir_path, n) for n in os.listdir(dir_path) if not n.startswith('.')])
+
         total_count = 0
-        for file_path in self.FILE_PATHS:
+        for file_path in all_files:
             total_count += utils.file_len(file_path)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
         tlogger.info('Found %s records' % total_count)
 
         count = 0
-        for file_path in self.FILE_PATHS:
+        for file_path in all_files:
             with open(file_path, encoding='utf-8') as f:
                 reader = csv.DictReader(f, delimiter='\t', fieldnames=self.FIELD_NAMES)
                 for row in reader:

@@ -1,23 +1,26 @@
-import os
-import humanize
-import subprocess
+import codecs
+import datetime
 import json
 import logging
-import datetime
-import stat
+import os
 import shutil
-import codecs
+import stat
+import subprocess
 import uuid
+
+import humanize
 from dateutil.parser import parse
 from django import forms
-from django.core.urlresolvers import reverse
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import JsonResponse
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.template import loader, RequestContext
+
 from ivetl.common import common
-from ivweb.app.views import utils as view_utils
+from ivetl import utils
 from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
+from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
@@ -381,37 +384,21 @@ def tail(request, product_id, pipeline_id):
     })
 
 
-def _get_files_in_dir(dir, with_lines_and_sizes=False, ignore=[]):
-    files = [{'file_name': n} for n in os.listdir(dir) if not ignore or ignore and n not in ignore]
-    if with_lines_and_sizes:
-        for file in files:
-            file_path = os.path.join(dir, file['file_name'])
-            line_count = 0
-            with codecs.open(file_path, encoding='utf-8') as f:
-                for i, l in enumerate(f):
-                    pass
-                line_count = i + 1
-            file['line_count'] = line_count
-            file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
-            file['file_id'] = uuid.uuid4()
-    return files
-
-
 def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     pub_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
-    return _get_files_in_dir(pub_dir, with_lines_and_sizes, ignore)
+    return utils.list_dir(pub_dir, with_lines_and_sizes, ignore)
 
 
 def get_queued_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     pipeline_class = common.get_pipeline_class(pipeline)
     incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
-    return _get_files_in_dir(incoming_dir, with_lines_and_sizes, ignore)
+    return utils.list_dir(incoming_dir, with_lines_and_sizes, ignore)
 
 
 def get_pending_files_for_demo(demo_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
-    return _get_files_in_dir(demo_dir, with_lines_and_sizes, ignore)
+    return utils.list_dir(demo_dir, with_lines_and_sizes, ignore)
 
 
 def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
