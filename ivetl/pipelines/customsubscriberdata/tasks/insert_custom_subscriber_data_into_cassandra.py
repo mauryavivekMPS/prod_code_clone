@@ -6,7 +6,7 @@ from ivetl.models import SubscriberValues
 
 
 @app.task
-class InsertCustomSubscriberDataIntoCassandra(Task):
+class InsertCustomSubscriberDataIntoCassandraTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         files = task_args['input_files']

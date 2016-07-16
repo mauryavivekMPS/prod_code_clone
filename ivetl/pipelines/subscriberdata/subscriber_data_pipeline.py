@@ -4,10 +4,10 @@ from ivetl.common import common
 
 
 @app.task
-class SubscriberDataPipeline(Pipeline):
+class SubscribersAndSubscriptionsPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
-        pipeline_id = "subscriptions"
+        pipeline_id = "subscribers_and_subscriptions"
 
         now, today_label, job_id = self.generate_job_id()
 

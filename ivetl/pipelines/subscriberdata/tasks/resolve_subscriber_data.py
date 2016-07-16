@@ -6,7 +6,7 @@ from ivetl.models import PublishedArticle, PublishedArticleValues
 
 
 @app.task
-class ResolveSubscriberData(Task):
+class ResolveSubscriberDataTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']

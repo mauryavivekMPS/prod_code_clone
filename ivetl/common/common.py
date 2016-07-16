@@ -303,7 +303,7 @@ PIPELINES = [
         'name': 'Subscription Data',
         'id': 'subscribers_and_subscriptions',
         'user_facing_display_name': 'Subscriber and subscription data',
-        'class': 'ivetl.pipelines.servicestats.SubscribersAndSubscriptionsPipeline',
+        'class': 'ivetl.pipelines.subscriberdata.SubscribersAndSubscriptionsPipeline',
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
@@ -312,9 +312,9 @@ PIPELINES = [
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
         'tasks': [
-            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberData',
-            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriptionData',
-            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberData',
+            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberDataTask',
+            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriptionDataTask',
+            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
             'ivetl.pipelines.subscriberdata.tasks.UpdateAttributeValuesCacheTask',
         ],
     },
@@ -328,10 +328,10 @@ PIPELINES = [
         'format_file': 'AdditionalSubscriberData-Format.pdf',
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.customarticledata.tasks.GetSubscriberDataFiles',
-            'ivetl.pipelines.customarticledata.tasks.ValidateSubscriberDataFiles',
-            'ivetl.pipelines.customarticledata.tasks.InsertCustomSubscriberDataIntoCassandra',
-            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberData',
+            'ivetl.pipelines.customarticledata.tasks.GetSubscriberDataFilesTask',
+            'ivetl.pipelines.customarticledata.tasks.ValidateSubscriberDataFilesTask',
+            'ivetl.pipelines.customarticledata.tasks.InsertCustomSubscriberDataIntoCassandraTask',
+            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
             'ivetl.pipelines.subscriberdata.tasks.UpdateAttributeValuesCacheTask',
         ],
     },
@@ -502,16 +502,6 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['jr3_institution_usage'],
             },
-        ],
-        'tableau_workbooks': [],
-    },
-    {
-        'name': 'Subscriptions',
-        'id': 'subscriptions',
-        'is_user_facing': True,
-        'order': 5,
-        'cohort': False,
-        'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['subscribers_and_subscriptions'],
             },
