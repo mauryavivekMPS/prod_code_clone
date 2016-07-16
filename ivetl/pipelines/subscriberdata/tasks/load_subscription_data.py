@@ -1,8 +1,11 @@
 import os
 import csv
+import datetime
+from dateutil.parser import parse
+from collections import defaultdict
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Subscription, PublisherMetadata
+from ivetl.models import Subscription, Subscriber, PublisherMetadata
 from ivetl import utils
 
 
@@ -68,6 +71,11 @@ class LoadSubscriptionDataTask(Task):
             for ac_database in publisher.ac_databases:
                 publisher_id_by_ac_database[ac_database] = publisher.publisher_id
 
+        now = datetime.datetime.now()
+
+        expiration_dates_for_member = defaultdict(lambda: defaultdict(list))
+        subscriptions_for_member = defaultdict(lambda: defaultdict(int))
+
         count = 0
         for file_path in all_files:
             with open(file_path, encoding='windows-1252') as f:
@@ -76,23 +84,47 @@ class LoadSubscriptionDataTask(Task):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
+                    membership_no = row['membership_no']
                     if publisher_id:
                         Subscription.objects(
                             publisher_id=publisher_id,
-                            membership_no=row['membership_no'],
+                            membership_no=membership_no,
                             journal_code=row['journal_code'],
                             subscr_type_cd=row['subscr_type_cd']
                         ).update(
                             institution_number=row['institution_number'],
                             ac_database=row['ac_database'],
-                            expiration_dt=row['expiration_dt'],
+                            expiration_dt=parse(row['expiration_dt']),
                             subscr_status=row['subscr_status'],
-                            last_used_dt=row['last_used_dt'],
-                            modified_by_dt=row['modified_by_dt'],
+                            last_used_dt=parse(row['last_used_dt']),
+                            modified_by_dt=parse(row['modified_by_dt']),
                             product_cd=row['product_cd'],
                             subscr_type=row['subscr_type'],
                             subscr_type_desc=row['subscr_type_desc'],
                         )
+
+                    expiration_dates_for_member[publisher_id][membership_no].append(parse(row['expiration_dt']))
+                    subscriptions_for_member[publisher_id][membership_no] += 1
+
+        for publisher_id in expiration_dates_for_member:
+            for membership_no in expiration_dates_for_member[publisher_id]:
+
+                try:
+                    subscriber = Subscriber.objects.get(
+                        publisher_id=publisher_id,
+                        membership_no=membership_no
+                    )
+                    expired = True
+                    for expiration_date in expiration_dates_for_member[publisher_id][membership_no]:
+                        if expiration_date > now:
+                            expired = False
+
+                    subscriber.expired = expired
+                    subscriber.num_subscriptions = subscriptions_for_member[publisher_id][membership_no]
+                    subscriber.save()
+
+                except Subscriber.DoesNotExist:
+                    pass
 
         task_args['count'] = total_count
 

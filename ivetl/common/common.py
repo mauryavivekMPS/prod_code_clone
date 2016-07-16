@@ -315,7 +315,6 @@ PIPELINES = [
             'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberDataTask',
             'ivetl.pipelines.subscriberdata.tasks.LoadSubscriptionDataTask',
             'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
-            'ivetl.pipelines.subscriberdata.tasks.UpdateAttributeValuesCacheTask',
         ],
     },
     {
@@ -332,7 +331,6 @@ PIPELINES = [
             'ivetl.pipelines.customarticledata.tasks.ValidateSubscriberDataFilesTask',
             'ivetl.pipelines.customarticledata.tasks.InsertCustomSubscriberDataIntoCassandraTask',
             'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
-            'ivetl.pipelines.subscriberdata.tasks.UpdateAttributeValuesCacheTask',
         ],
     },
 ]

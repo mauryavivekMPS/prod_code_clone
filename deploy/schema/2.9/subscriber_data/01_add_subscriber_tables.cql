@@ -94,7 +94,7 @@ CREATE TABLE subscriber_values (
   source text,
   name text,
   value_text text,
-  PRIMARY KEY ((publisher_id), membership_no)
+  PRIMARY KEY ((publisher_id), membership_no, source, name)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
