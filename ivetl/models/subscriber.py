@@ -4,7 +4,7 @@ from cassandra.cqlengine.models import Model
 
 class Subscriber(Model):
     publisher_id = columns.Text(partition_key=True)
-    membership_no = columns.Text(primary_key=True)
+    membership_no = columns.Text(primary_key=True, index=True)
     ac_database = columns.Text()
     firstname = columns.Text()
     lastname = columns.Text()

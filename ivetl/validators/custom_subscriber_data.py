@@ -1,19 +1,16 @@
 import os
 import csv
-import codecs
 from ivetl.validators.base import BaseValidator
 
 
 class CustomSubscriberDataValidator(BaseValidator):
-
     def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
-
         errors = []
         total_count = 0
         for f in files:
             file_name = os.path.basename(f)
             try:
-                with codecs.open(f, encoding='utf-8') as tsv:
+                with open(f, encoding='utf-8') as tsv:
                     count = 0
                     for line in csv.reader(tsv, delimiter='\t'):
                         if line:
@@ -27,7 +24,7 @@ class CustomSubscriberDataValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 6:
+                            if len(line) != 26:
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 

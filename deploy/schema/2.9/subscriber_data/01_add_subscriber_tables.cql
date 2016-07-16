@@ -1,7 +1,6 @@
 USE impactvizor;
 
 ALTER TABLE publisher_metadata ADD ac_databases list<text>;
-CREATE INDEX publisher_metadata_ac_databases_index ON publisher_metadata(ac_databases);
 
 CREATE TABLE subscriber (
   publisher_id text,
@@ -56,6 +55,8 @@ CREATE TABLE subscriber (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE INDEX subscriber_membership_no_index ON subscriber(membership_no);
 
 CREATE TABLE subscription (
   publisher_id text,

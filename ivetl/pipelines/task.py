@@ -211,6 +211,8 @@ class Task(BaseTask):
             else:
                 increment = 1000
 
+        print("%s, %s, %s, %s, %s, %s " % (publisher_id, product_id, pipeline_id, job_id, self.short_name, current_count))
+
         if total_count and current_count % increment == 0:
             # write out every 100 records to the db
             Pipeline_Task_Status.objects(

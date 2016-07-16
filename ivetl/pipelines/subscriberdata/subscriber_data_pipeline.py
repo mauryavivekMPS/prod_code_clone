@@ -6,6 +6,37 @@ from ivetl.common import common
 @app.task
 class SubscribersAndSubscriptionsPipeline(Pipeline):
 
+    OVERLAPPING_FIELDS = [
+        'firstname',
+        'lastname',
+        'inst_name',
+        'user_phone',
+        'user_fax',
+        'user_email',
+        'user_address',
+        'address_2',
+        'title',
+        'affiliation',
+        'ringgold_id',
+        'sales_agent',
+        'memo',
+        'tier',
+        'consortium',
+        'start_date',
+        'country',
+        'region',
+        'contact',
+        'institution_alternate_name',
+        'institution_alternate_identifier',
+        'custom1',
+        'custom2',
+        'custom3',
+    ]
+
+    OVERLAPPING_DATETIMES = [
+        'start_date',
+    ]
+
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
         pipeline_id = "subscribers_and_subscriptions"
 

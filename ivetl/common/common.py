@@ -321,15 +321,15 @@ PIPELINES = [
         'name': 'Custom Subscriber Data',
         'id': 'custom_subscriber_data',
         'user_facing_display_name': 'Additional subscriber data',
-        'class': 'ivetl.pipelines.customarticledata.CustomSubscriberDataPipeline',
+        'class': 'ivetl.pipelines.customsubscriberdata.CustomSubscriberDataPipeline',
         'has_file_input': True,
         'validator_class': 'ivetl.validators.CustomSubscriberDataValidator',
         'format_file': 'AdditionalSubscriberData-Format.pdf',
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.customarticledata.tasks.GetSubscriberDataFilesTask',
-            'ivetl.pipelines.customarticledata.tasks.ValidateSubscriberDataFilesTask',
-            'ivetl.pipelines.customarticledata.tasks.InsertCustomSubscriberDataIntoCassandraTask',
+            'ivetl.pipelines.customsubscriberdata.tasks.GetSubscriberDataFilesTask',
+            'ivetl.pipelines.customsubscriberdata.tasks.ValidateSubscriberDataFilesTask',
+            'ivetl.pipelines.customsubscriberdata.tasks.InsertCustomSubscriberDataIntoCassandraTask',
             'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
         ],
     },
@@ -573,6 +573,11 @@ FTP_DIRS = [
         'product_id': 'institutions',
         'pipeline_id': 'jr3_institution_usage',
         'ftp_dir_name': 'jr3_institution_usage_files',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'custom_subscriber_data',
+        'ftp_dir_name': 'additional_subscriber_data_files',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}

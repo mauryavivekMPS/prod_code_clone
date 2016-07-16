@@ -1,8 +1,8 @@
-import csv
-import datetime
+from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Subscriber, SubscriberValues
+from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
 
 
 @app.task
@@ -10,7 +10,6 @@ class ResolveSubscriberDataTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         total_count = task_args['count']
-        now = datetime.datetime.now()
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
@@ -18,24 +17,8 @@ class ResolveSubscriberDataTask(Task):
         for subscriber in Subscriber.objects.all():
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-            fields = [
-                'sales_agent',
-                'memo',
-                'tier',
-                'consortium',
-                'start_date',
-                'country',
-                'region',
-                'contact',
-                'institution_alternate_name',
-                'institution_alternate_identifier',
-                'custom1',
-                'custom2',
-                'custom3',
-            ]
-
             # resolve policy: if a value from source=custom is present it always wins
-            for field in fields:
+            for field in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
                 new_value = None
                 try:
                     v = SubscriberValues.objects.get(
@@ -60,9 +43,15 @@ class ResolveSubscriberDataTask(Task):
                     except SubscriberValues.DoesNotExist:
                         pass
 
-            # update the canonical if there is any non Null/None value (note that "None" is a value)
-            if new_value:
-                setattr(subscriber, field, new_value)
+                # update the canonical if there is any non Null/None value (note that "None" is a value)
+                if new_value:
+                    if field in SubscribersAndSubscriptionsPipeline.OVERLAPPING_DATETIMES:
+                        try:
+                            new_value = parse(new_value)
+                        except ValueError:
+                            continue
+
+                    setattr(subscriber, field, new_value)
 
             subscriber.save()
 

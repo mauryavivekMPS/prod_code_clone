@@ -2,7 +2,8 @@ import os
 import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Subscriber, PublisherMetadata
+from ivetl.models import Subscriber, PublisherMetadata, SubscriberValues
+from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
 from ivetl import utils
 
 
@@ -59,6 +60,8 @@ class LoadSubscriberDataTask(Task):
             for ac_database in publisher.ac_databases:
                 publisher_id_by_ac_database[ac_database] = publisher.publisher_id
 
+        overlapping_fields_in_file = set(SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS).intersection(set(self.FIELD_NAMES))
+
         count = 0
         for file_path in all_files:
             with open(file_path, encoding='windows-1252') as f:
@@ -67,10 +70,11 @@ class LoadSubscriberDataTask(Task):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
+                    membership_no = row['membership_no']
                     if publisher_id:
                         Subscriber.objects(
                             publisher_id=publisher_id,
-                            membership_no=row['membership_no']
+                            membership_no=membership_no,
                         ).update(
                             ac_database=row['ac_database'],
                             firstname=row['firstname'],
@@ -91,22 +95,17 @@ class LoadSubscriberDataTask(Task):
                             ringgold_id=row['ringgold_id'],
                             affiliation=row['affiliation'],
                             user_type=row['user_type'],
-                            # expired=row['expired'],
-                            # num_subscriptions=row['num_subscriptions'],
-                            # sales_agent=row['sales_agent'],
-                            # memo=row['memo'],
-                            # tier=row['tier'],
-                            # consortium=row['consortium'],
-                            # start_date=row['start_date'],
-                            # country=row['country'],
-                            # region=row['region'],
-                            # contact=row['contact'],
-                            # institution_alternate_name=row['institution_alternate_name'],
-                            # institution_alternate_identifier=row['institution_alternate_identifier'],
-                            # custom1=row['custom1'],
-                            # custom2=row['custom2'],
-                            # custom3=row['custom3'],
                         )
+
+                        for field in overlapping_fields_in_file:
+                            SubscriberValues.objects(
+                                publisher_id=publisher_id,
+                                membership_no=membership_no,
+                                source='hw',
+                                name=field,
+                            ).update(
+                                value_text=row[field],
+                            )
 
         task_args['count'] = total_count
 
