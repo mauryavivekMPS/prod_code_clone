@@ -10,7 +10,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Publisher_Metadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
+from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -34,7 +34,7 @@ def list_publishers(request):
             messages.append("Your new publisher account is created and ready to go.")
 
     if request.user.superuser:
-        all_accessible_publishers = Publisher_Metadata.objects.all()
+        all_accessible_publishers = PublisherMetadata.objects.all()
     else:
         all_accessible_publishers = request.user.get_accessible_publishers()
 
@@ -166,6 +166,7 @@ class PublisherForm(forms.Form):
     reports_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
+    ac_databases = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated database names'}), required=False)
 
     # demo-specific fields
     start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
@@ -194,6 +195,9 @@ class PublisherForm(forms.Form):
                 initial['issn_values_list'] = properties.get('issn_values_list', [])
                 initial['issn_values_cohort_list'] = properties.get('issn_values_cohort_list', [])
                 initial['demo_notes'] = properties.get('demo_notes')
+                initial['ac_databases'] = ', '.join(properties.get('ac_databases', []))
+            else:
+                initial['ac_databases'] = ', '.join(initial.get('ac_databases', []))
 
             initial.pop('reports_password', None)  # clear out the encoded password
             initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
@@ -266,7 +270,7 @@ class PublisherForm(forms.Form):
             if self.instance:
                 return self.instance.publisher_id  # can't change this
             else:
-                if Publisher_Metadata.objects.filter(publisher_id=publisher_id).count():
+                if PublisherMetadata.objects.filter(publisher_id=publisher_id).count():
                     raise forms.ValidationError("This publisher ID is already in use.")
 
         return publisher_id
@@ -281,6 +285,10 @@ class PublisherForm(forms.Form):
             supported_products.append('cohort_articles')
         if self.cleaned_data['institutions']:
             supported_products.append('institutions')
+
+        ac_databases = []
+        if self.cleaned_data['ac_databases']:
+            ac_databases = [d.strip() for d in self.cleaned_data['ac_databases'].split(",")]
 
         if self.is_demo:
             demo_id = self.cleaned_data['demo_id']
@@ -307,6 +315,7 @@ class PublisherForm(forms.Form):
                 'issn_values_list': json.loads(self.cleaned_data['issn_values']),
                 'issn_values_cohort_list': json.loads(self.cleaned_data['issn_values_cohort']),
                 'demo_notes': self.cleaned_data['demo_notes'],
+                'ac_databases': ac_databases,
             }
 
             status = self.cleaned_data.get('status')
@@ -326,6 +335,7 @@ class PublisherForm(forms.Form):
             scopus_api_keys = []
             if self.cleaned_data['scopus_api_keys']:
                 scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
+
             if not self.instance and self.cleaned_data['use_scopus_api_keys_from_pool']:
                 # grab 5 API keys from the pool
                 for key in Scopus_Api_Key.objects.all()[:5]:
@@ -333,7 +343,7 @@ class PublisherForm(forms.Form):
                     key.delete()
 
             publisher_id = self.cleaned_data['publisher_id']
-            Publisher_Metadata.objects(publisher_id=publisher_id).update(
+            PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
                 email=self.cleaned_data['email'],
                 hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
@@ -344,9 +354,10 @@ class PublisherForm(forms.Form):
                 pilot=self.cleaned_data['pilot'],
                 demo=self.cleaned_data['demo'],
                 demo_id=self.cleaned_data['demo_id'],
+                ac_databases=ac_databases,
             )
 
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+            publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
             if self.instance:
                 new_password = self.cleaned_data['reports_password']
@@ -410,7 +421,7 @@ def edit(request, publisher_id=None):
     convert_from_demo = False
     if publisher_id:
         new = False
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     # bail quickly if there are no API keys
     if new:
@@ -547,8 +558,8 @@ def edit_demo(request, demo_id=None):
         demo_files_rejected_articles = get_pending_files_for_demo(demo_id, 'rejected_manuscripts', 'rejected_articles', with_lines_and_sizes=True)
 
         try:
-            publisher_from_demo = Publisher_Metadata.objects.get(demo_id=demo_id)
-        except Publisher_Metadata.DoesNotExist:
+            publisher_from_demo = PublisherMetadata.objects.get(demo_id=demo_id)
+        except PublisherMetadata.DoesNotExist:
             pass
 
     else:
@@ -581,7 +592,7 @@ def edit_demo(request, demo_id=None):
 @login_required
 def check_reports(request):
     publisher_id = request.GET['publisher']
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     return JsonResponse({
         'status': publisher.reports_setup_status,
     })
@@ -738,7 +749,7 @@ def _notify_on_new_status(demo, request, message=None):
 
     elif demo.status == common.DEMO_STATUS_COMPLETED:
 
-        publisher = Publisher_Metadata.objects.get(demo_id=demo.demo_id)
+        publisher = PublisherMetadata.objects.get(demo_id=demo.demo_id)
 
         subject = "Impact Vizor (%s): Your demo is ready" % demo.name
         body = """

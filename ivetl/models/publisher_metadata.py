@@ -3,7 +3,7 @@ from cassandra.cqlengine.models import Model
 from ivetl.models import Publisher_User, Publisher_Journal
 
 
-class Publisher_Metadata(Model):
+class PublisherMetadata(Model):
     publisher_id = columns.Text(primary_key=True)
     name = columns.Text()
     email = columns.Text()
@@ -28,6 +28,7 @@ class Publisher_Metadata(Model):
     has_cohort = columns.Boolean(index=True)
     cohort_articles_issns_to_lookup = columns.List(columns.Text())
     cohort_articles_last_updated = columns.DateTime()
+    ac_databases = columns.List(columns.Text())
     archived = columns.Boolean(default=False, index=True)
 
     @property

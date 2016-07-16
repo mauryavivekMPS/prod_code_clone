@@ -3,7 +3,7 @@ import json
 import codecs
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
-from ivetl.models import Publisher_Metadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
+from ivetl.models import PublisherMetadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 
@@ -22,7 +22,7 @@ class GetScopusArticleCitations(Task):
                           'DOI\t'
                           'DATA\n')
 
-        pm = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        pm = PublisherMetadata.objects.get(publisher_id=publisher_id)
         connector = ScopusConnector(pm.scopus_api_keys)
 
         if product['cohort']:

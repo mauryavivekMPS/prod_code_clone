@@ -4,7 +4,7 @@ import json
 from ivetl.celery import app
 from ivetl.connectors.base import MaxTriesAPIError
 from ivetl.connectors.scopus import ScopusConnector
-from ivetl.models import Publisher_Metadata, PublishedArticle
+from ivetl.models import PublisherMetadata, PublishedArticle
 from ivetl.pipelines.task import Task
 
 
@@ -20,7 +20,7 @@ class ScopusIdLookupTask(Task):
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
 
-        pm = Publisher_Metadata.objects.filter(publisher_id=publisher_id).first()
+        pm = PublisherMetadata.objects.filter(publisher_id=publisher_id).first()
         connector = ScopusConnector(pm.scopus_api_keys)
 
         count = 0

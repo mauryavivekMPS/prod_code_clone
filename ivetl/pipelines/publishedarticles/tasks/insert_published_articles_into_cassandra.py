@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.models import PublishedArticle, Published_Article_By_Cohort, Publisher_Vizor_Updates, Publisher_Metadata, Article_Citations, Published_Article_Values, Issn_Journal
+from ivetl.models import PublishedArticle, Published_Article_By_Cohort, Publisher_Vizor_Updates, PublisherMetadata, Article_Citations, PublishedArticleValues, Issn_Journal
 from ivetl.pipelines.task import Task
 
 
@@ -34,7 +34,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
         for ij in Issn_Journal.objects.limit(100000):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
 
-        pm = Publisher_Metadata.filter(publisher_id=publisher_id).first()
+        pm = PublisherMetadata.filter(publisher_id=publisher_id).first()
 
         with codecs.open(file, encoding="utf-16") as tsv:
 
@@ -185,10 +185,10 @@ class InsertPublishedArticlesIntoCassandra(Task):
                         ed_first_name = data['editor'][0]['given']
                     editor = '%s, %s' % (ed_last_name, ed_first_name)
 
-                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
-                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='subject_category').update(value_text=subject_category)
-                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='editor').update(value_text=editor)
-                Published_Article_Values.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
+                PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
+                PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='subject_category').update(value_text=subject_category)
+                PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='editor').update(value_text=editor)
+                PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
 
                 # Record in cohort table
                 pac = Published_Article_By_Cohort()

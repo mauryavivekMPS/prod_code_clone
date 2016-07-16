@@ -2,7 +2,7 @@ import csv
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import PublishedArticle, Published_Article_Values
+from ivetl.models import PublishedArticle, PublishedArticleValues
 
 
 @app.task
@@ -40,16 +40,16 @@ class ResolvePublishedArticlesData(Task):
                 for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:
                     new_value = None
                     try:
-                        v = Published_Article_Values.objects.get(article_doi=doi, publisher_id=publisher_id, source='custom', name=field)
+                        v = PublishedArticleValues.objects.get(article_doi=doi, publisher_id=publisher_id, source='custom', name=field)
                         new_value = v.value_text
-                    except Published_Article_Values.DoesNotExist:
+                    except PublishedArticleValues.DoesNotExist:
                         pass
 
                     if not new_value:
                         try:
-                            v = Published_Article_Values.objects.get(article_doi=doi, publisher_id=publisher_id, source='pa', name=field)
+                            v = PublishedArticleValues.objects.get(article_doi=doi, publisher_id=publisher_id, source='pa', name=field)
                             new_value = v.value_text
-                        except Published_Article_Values.DoesNotExist:
+                        except PublishedArticleValues.DoesNotExist:
                             pass
 
                     # update the canonical if there is any non Null/None value (note that "None" is a value)
@@ -58,8 +58,6 @@ class ResolvePublishedArticlesData(Task):
 
                 article.updated = now
                 article.save()
-
-            tsv.close()
 
         if pipeline_id == 'custom_article_data':
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=count)

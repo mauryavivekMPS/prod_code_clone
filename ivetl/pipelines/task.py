@@ -6,8 +6,7 @@ import shutil
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
-from ivetl.models import Pipeline_Status, Pipeline_Task_Status, Publisher_Metadata
-from ivetl.connectors import TableauConnector
+from ivetl.models import Pipeline_Status, Pipeline_Task_Status, PublisherMetadata
 
 
 class Task(BaseTask):
@@ -212,6 +211,8 @@ class Task(BaseTask):
             else:
                 increment = 1000
 
+        print("%s, %s, %s, %s, %s, %s " % (publisher_id, product_id, pipeline_id, job_id, self.short_name, current_count))
+
         if total_count and current_count % increment == 0:
             # write out every 100 records to the db
             Pipeline_Task_Status.objects(
@@ -224,59 +225,6 @@ class Task(BaseTask):
                 current_record_count=current_count
             )
         return current_count
-
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, send_notification_email=False, notification_count=None):
-        end_date = datetime.datetime.today()
-
-        pipeline = common.PIPELINE_BY_ID[pipeline_id]
-        pipeline_title = common.get_pipeline_display_name(pipeline)
-
-        try:
-            p = Pipeline_Status.objects.get(
-                publisher_id=publisher_id,
-                product_id=product_id,
-                pipeline_id=pipeline_id,
-                job_id=job_id,
-            )
-
-            p.update(
-                end_time=end_date,
-                duration_seconds=(end_date - p.start_time).total_seconds(),
-                status=self.PIPELINE_STATUS_COMPLETED,
-                updated=end_date,
-            )
-
-            # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
-            if send_notification_email and pipeline.get('has_file_input'):
-                if p.user_email:
-                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline_title)
-                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline_title
-
-                    if notification_count:
-                        body += '<p>%s records were processed.<p>' % notification_count
-
-                    body += '<p>Thank you,<br/>Impact Vizor Team</p>'
-
-                    common.send_email(subject, body, to=p.user_email)
-
-        except Pipeline_Status.DoesNotExist:
-            pass
-
-        if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
-            publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
-
-            # update the data in tableau
-            t = TableauConnector(
-                username=common.TABLEAU_USERNAME,
-                password=common.TABLEAU_PASSWORD,
-                server=common.TABLEAU_SERVER
-            )
-
-            pipeline = common.PIPELINE_BY_ID[pipeline_id]
-            if pipeline.get('rebuild_data_source_id'):
-                for ds in pipeline['rebuild_data_source_id']:
-                    t.refresh_data_source(publisher_id, publisher.reports_project, ds)
-                    t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
 
     def run_validation_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args, validator=None):
         files = task_args['input_files']
@@ -296,7 +244,7 @@ class Task(BaseTask):
         def increment_count(count):
             return self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
         t0 = time()
         total_count, errors = validator.validate_files(
@@ -318,10 +266,10 @@ class Task(BaseTask):
         else:
             tlogger.info("No errors found")
 
-        return {
-            'input_files': files,
-            'count': total_count,
-        }
+        task_args['input_files'] = files
+        task_args['count'] = total_count
+
+        return task_args
 
     def run_get_files_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         preserve_incoming_files = task_args.get('preserve_incoming_files', False)
@@ -345,7 +293,7 @@ class Task(BaseTask):
             # compile a list of files for the next task
             files.append(os.path.join(work_folder, os.path.basename(source_file)))
 
-        return {
-            'input_files': files,
-            'count': count,
-        }
+        task_args['input_files'] = files
+        task_args['count'] = total_count
+
+        return task_args

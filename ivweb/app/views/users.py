@@ -5,7 +5,7 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import User, Publisher_User, Audit_Log, Publisher_Metadata
+from ivetl.models import User, Publisher_User, Audit_Log, PublisherMetadata
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 @login_required
 def list_users(request, publisher_id=None):
     if publisher_id:
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
         publisher_users = [u.user_id for u in Publisher_User.objects.allow_filtering().filter(publisher_id=publisher_id)]
         users = User.objects.filter(user_id__in=publisher_users)
     else:
@@ -119,7 +119,7 @@ class AdminUserForm(forms.Form):
 @login_required
 def edit(request, publisher_id=None, user_id=None):
     if publisher_id:
-        publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     else:
         publisher = None
 

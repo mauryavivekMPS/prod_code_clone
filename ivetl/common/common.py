@@ -299,7 +299,40 @@ PIPELINES = [
             'ivetl.pipelines.servicestats.tasks.InsertStatsIntoCassandraTask',
         ],
     },
-
+    {
+        'name': 'Subscription Data',
+        'id': 'subscribers_and_subscriptions',
+        'user_facing_display_name': 'Subscriber and subscription data',
+        'class': 'ivetl.pipelines.subscriberdata.SubscribersAndSubscriptionsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': None,
+        'hide_demo_filter': True,
+        'single_publisher_pipeline': True,
+        'single_publisher_id': 'hw',
+        'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
+        'tasks': [
+            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberDataTask',
+            'ivetl.pipelines.subscriberdata.tasks.LoadSubscriptionDataTask',
+            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
+        ],
+    },
+    {
+        'name': 'Custom Subscriber Data',
+        'id': 'custom_subscriber_data',
+        'user_facing_display_name': 'Additional subscriber data',
+        'class': 'ivetl.pipelines.customsubscriberdata.CustomSubscriberDataPipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.CustomSubscriberDataValidator',
+        'format_file': 'AdditionalSubscriberData-Format.pdf',
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.customsubscriberdata.tasks.GetSubscriberDataFilesTask',
+            'ivetl.pipelines.customsubscriberdata.tasks.ValidateSubscriberDataFilesTask',
+            'ivetl.pipelines.customsubscriberdata.tasks.InsertCustomSubscriberDataIntoCassandraTask',
+            'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
+        ],
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -458,6 +491,7 @@ PRODUCTS = [
         'name': 'Institutions',
         'id': 'institutions',
         'is_user_facing': True,
+        'icon': 'lnr-reading',
         'order': 4,
         'cohort': False,
         'pipelines': [
@@ -467,6 +501,12 @@ PRODUCTS = [
             {
                 'pipeline': PIPELINE_BY_ID['jr3_institution_usage'],
             },
+            {
+                'pipeline': PIPELINE_BY_ID['subscribers_and_subscriptions'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['custom_subscriber_data'],
+            },
         ],
         'tableau_workbooks': [],
     },
@@ -474,7 +514,7 @@ PRODUCTS = [
         'name': 'HighWire Sites',
         'id': 'highwire_sites',
         'is_user_facing': True,
-        'order': 5,
+        'order': 6,
         'cohort': False,
         'pipelines': [
             {
@@ -496,7 +536,7 @@ PRODUCTS = [
         'name': 'Social',
         'id': 'social',
         'is_user_facing': True,
-        'order': 6,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {
@@ -534,6 +574,11 @@ FTP_DIRS = [
         'product_id': 'institutions',
         'pipeline_id': 'jr3_institution_usage',
         'ftp_dir_name': 'jr3_institution_usage_files',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'custom_subscriber_data',
+        'ftp_dir_name': 'additional_subscriber_data_files',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}

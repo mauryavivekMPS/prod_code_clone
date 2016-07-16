@@ -5,7 +5,7 @@ from datetime import datetime
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
-from ivetl.models import PublishedArticle, Published_Article_By_Cohort, Publisher_Metadata
+from ivetl.models import PublishedArticle, Published_Article_By_Cohort, PublisherMetadata
 
 
 if __name__ == "__main__":
@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     updated = datetime.today()
 
-    publishers = Publisher_Metadata.objects.limit(1000)
+    publishers = PublisherMetadata.objects.limit(1000)
 
     for p in publishers:
 

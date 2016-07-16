@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import F1000SocialData
+from ivetl import utils
 
 
 @app.task
@@ -20,18 +21,9 @@ class LoadF1000DataTask(Task):
 
         # need to set permissions on file because of s3 fuse
         os.system('chmod +r ' + self.LOCAL_FILE_PATH)
-
         tlogger.info('Downloaded new file: %s' % self.LOCAL_FILE_PATH)
 
-        # count lines
-        total_count = 0
-        with open(self.LOCAL_FILE_PATH, 'r', encoding='utf-8') as f:
-            for line in f.readlines():
-                total_count += 1
-
-        # ignore opening and closing element
-        total_count -= 2
-
+        total_count = utils.file_len(self.LOCAL_FILE_PATH) - 2  # ignore opening and closing element
         tlogger.info('Found %s records' % total_count)
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -89,6 +81,6 @@ class LoadF1000DataTask(Task):
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
-        return {
-            'count': count
-        }
+        task_args['count'] = total_count
+
+        return task_args
