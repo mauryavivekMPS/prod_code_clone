@@ -491,6 +491,7 @@ PRODUCTS = [
         'name': 'Institutions',
         'id': 'institutions',
         'is_user_facing': True,
+        'icon': 'lnr-reading',
         'order': 4,
         'cohort': False,
         'pipelines': [
