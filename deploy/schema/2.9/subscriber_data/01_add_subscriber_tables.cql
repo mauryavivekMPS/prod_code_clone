@@ -1,5 +1,10 @@
 USE impactvizor;
 
+UPDATE publisher_metadata SET
+  supported_products = ['highwire_sites', 'social', 'institutions']
+WHERE
+  publisher_id = 'hw';
+
 ALTER TABLE publisher_metadata ADD ac_databases list<text>;
 
 CREATE TABLE subscriber (
