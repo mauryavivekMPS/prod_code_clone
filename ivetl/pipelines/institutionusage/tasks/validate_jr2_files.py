@@ -4,7 +4,7 @@ from ivetl.validators import JR2Validator
 
 
 @app.task
-class ValidateJR2Files(Task):
+class ValidateJR2FilesTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         return self.run_validation_task(
             publisher_id,

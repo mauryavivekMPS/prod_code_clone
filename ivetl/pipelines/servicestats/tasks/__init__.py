@@ -1,0 +1,2 @@
+from ivetl.pipelines.servicestats.tasks.get_stats_files import GetStatsFilesTask
+from ivetl.pipelines.servicestats.tasks.insert_stats_into_cassandra import InsertStatsIntoCassandraTask

@@ -1,23 +1,26 @@
-import os
-import humanize
-import subprocess
+import codecs
+import datetime
 import json
 import logging
-import datetime
-import stat
+import os
 import shutil
-import codecs
+import stat
+import subprocess
 import uuid
+
+import humanize
 from dateutil.parser import parse
 from django import forms
-from django.core.urlresolvers import reverse
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import JsonResponse
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.template import loader, RequestContext
+
 from ivetl.common import common
+from ivetl import utils
+from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
 from ivweb.app.views import utils as view_utils
-from ivweb.app.models import Publisher_Metadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, System_Global, Publisher_Journal
 
 log = logging.getLogger(__name__)
 
@@ -88,8 +91,12 @@ def list_pipelines(request, product_id, pipeline_id):
 
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
-            if pipeline.get('single_publisher_pipeline') or filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
 
+            if pipeline.get('single_publisher_pipeline'):
+                if publisher.publisher_id == pipeline['single_publisher_id']:
+                    supported_publishers.append(publisher)
+
+            elif filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 # special support for other pipeline-level filters
                 if pipeline.get('filter_for_benchpress_support'):
                     benchpress_journals = Publisher_Journal.objects.filter(
@@ -150,9 +157,9 @@ def list_pipelines(request, product_id, pipeline_id):
     high_water_mark_label = ''
     if pipeline.get('use_high_water_mark'):
         try:
-            high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value
+            high_water_mark = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value
             high_water_mark_label = high_water_mark.strftime('%m/%d/%Y')
-        except System_Global.DoesNotExist:
+        except SystemGlobal.DoesNotExist:
             high_water_mark_label = 'never'
 
     if pipeline.get('include_date_range_controls'):
@@ -198,7 +205,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     current_task_status_on_client = request.GET.get('current_task_status')
     opened = True if request.GET.get('opened') == '1' and request.user.superuser else False
 
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher_runs = get_recent_runs_for_publisher(pipeline_id, product_id, publisher)
 
     has_section_updates = True
@@ -242,8 +249,8 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
         if current_task and current_task.status == 'completed' and pipeline.get('use_high_water_mark'):
             try:
-                high_water_mark = System_Global.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
-            except System_Global.DoesNotExist:
+                high_water_mark = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
+            except SystemGlobal.DoesNotExist:
                 pass
 
     return JsonResponse({
@@ -381,37 +388,21 @@ def tail(request, product_id, pipeline_id):
     })
 
 
-def _get_files_in_dir(dir, with_lines_and_sizes=False, ignore=[]):
-    files = [{'file_name': n} for n in os.listdir(dir) if not ignore or ignore and n not in ignore]
-    if with_lines_and_sizes:
-        for file in files:
-            file_path = os.path.join(dir, file['file_name'])
-            line_count = 0
-            with codecs.open(file_path, encoding='utf-8') as f:
-                for i, l in enumerate(f):
-                    pass
-                line_count = i + 1
-            file['line_count'] = line_count
-            file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
-            file['file_id'] = uuid.uuid4()
-    return files
-
-
 def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     pub_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
-    return _get_files_in_dir(pub_dir, with_lines_and_sizes, ignore)
+    return utils.list_dir(pub_dir, with_lines_and_sizes, ignore)
 
 
 def get_queued_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     pipeline_class = common.get_pipeline_class(pipeline)
     incoming_dir = pipeline_class.get_or_create_incoming_dir_for_publisher(common.BASE_INCOMING_DIR, publisher_id, pipeline_id)
-    return _get_files_in_dir(incoming_dir, with_lines_and_sizes, ignore)
+    return utils.list_dir(incoming_dir, with_lines_and_sizes, ignore)
 
 
 def get_pending_files_for_demo(demo_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     demo_dir = get_or_create_demo_file_dir(demo_id, product_id, pipeline_id)
-    return _get_files_in_dir(demo_dir, with_lines_and_sizes, ignore)
+    return utils.list_dir(demo_dir, with_lines_and_sizes, ignore)
 
 
 def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
@@ -449,7 +440,7 @@ def pending_files(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher']
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     return render(request, 'pipelines/pending_files.html', {
         'product': product,
@@ -499,7 +490,7 @@ def upload_pending_file_inline(request):
                 validator = validator_class()
 
                 if file_type == 'publisher':
-                    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+                    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
                     issns = publisher.all_issns
                     crossref_username = publisher.crossref_username
                     crossref_password = publisher.crossref_password

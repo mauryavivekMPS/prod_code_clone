@@ -1,7 +1,6 @@
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.socialmetrics import tasks
+from ivetl.common import common
 
 
 @app.task
@@ -13,11 +12,12 @@ class SocialMetricsPipeline(Pipeline):
         now, today_label, job_id = self.generate_job_id()
 
         # this pipeline operates on the global publisher ID
-        publisher_id = 'hw'
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        publisher_id = pipeline.get('single_publisher_id', 'hw')
 
         # create work folder, signal the start of the pipeline
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=4, current_task_count=0)
+        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email)
 
         # construct the first task args with all of the standard bits + the list of files
         task_args = {
@@ -28,7 +28,4 @@ class SocialMetricsPipeline(Pipeline):
             'job_id': job_id,
         }
 
-        chain(
-            tasks.LoadAltmetricsDataTask.s(task_args) |
-            tasks.LoadF1000DataTask.s()
-        ).delay()
+        self.chain_tasks(pipeline_id, task_args)

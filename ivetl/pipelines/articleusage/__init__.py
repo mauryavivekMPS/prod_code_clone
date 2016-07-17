@@ -1,1 +1,1 @@
-from ivetl.pipelines.articleusage.ArticleUsagePipeline import ArticleUsagePipeline
+from ivetl.pipelines.articleusage.article_usage_pipeline import ArticleUsagePipeline

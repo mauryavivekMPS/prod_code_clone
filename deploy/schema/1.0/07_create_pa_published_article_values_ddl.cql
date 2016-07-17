@@ -1,12 +1,12 @@
 USE impactvizor;
 
-CREATE TABLE impactvizor.published_article_values (
-    publisher_id text,
-    article_doi text,
-    source text,
-    name text,
-    value_text text,
-    PRIMARY KEY (publisher_id, article_doi, source, name)
+CREATE TABLE published_article_values (
+  publisher_id text,
+  article_doi text,
+  source text,
+  name text,
+  value_text text,
+  PRIMARY KEY (publisher_id, article_doi, source, name)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

@@ -1,3 +1,3 @@
-from ivetl.pipelines.articleusage.tasks.GetArticleUsageFiles import GetArticleUsageFiles
-from ivetl.pipelines.articleusage.tasks.ValidateArticleUsageFiles import ValidateArticleUsageFiles
-from ivetl.pipelines.articleusage.tasks.InsertArticleUsageIntoCassandra import InsertArticleUsageIntoCassandra
+from ivetl.pipelines.articleusage.tasks.get_article_usage_files import GetArticleUsageFiles
+from ivetl.pipelines.articleusage.tasks.validate_article_usage_files import ValidateArticleUsageFiles
+from ivetl.pipelines.articleusage.tasks.insert_article_usage_into_cassandra import InsertArticleUsageIntoCassandra

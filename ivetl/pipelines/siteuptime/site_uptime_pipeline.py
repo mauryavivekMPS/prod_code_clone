@@ -1,11 +1,9 @@
 import json
-import datetime
 from dateutil.parser import parse
-from celery import chain
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.pipelines.siteuptime import tasks
 from ivetl.models import Pipeline_Status
+from ivetl.common import common
 
 
 @app.task
@@ -15,7 +13,8 @@ class SiteUptimePipeline(Pipeline):
         pipeline_id = "site_uptime"
 
         # this pipeline operates on the global publisher ID
-        publisher_id = 'hw'
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        publisher_id = pipeline.get('single_publisher_id', 'hw')
 
         params = {}
         today_label = ''
@@ -54,7 +53,7 @@ class SiteUptimePipeline(Pipeline):
 
         # create work folder, signal the start of the pipeline
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, params=params, initiating_user_email=initiating_user_email, total_task_count=3, current_task_count=0)
+        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, params=params, initiating_user_email=initiating_user_email)
 
         # construct the first task args with all of the standard bits + the list of files
         task_args = {
@@ -68,7 +67,4 @@ class SiteUptimePipeline(Pipeline):
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
         }
 
-        chain(
-            tasks.GetUptimeStatsTask.s(task_args) |
-            tasks.InsertStatsIntoCassandraTask.s()
-        ).delay()
+        self.chain_tasks(pipeline_id, task_args)

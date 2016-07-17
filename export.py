@@ -17,7 +17,7 @@ from ivetl.common import common
 
 models = [
     'PublishedArticle',
-    'Published_Article_Values',
+    'PublishedArticleValues',
     'Publisher_Vizor_Updates',
     'Article_Citations',
     'Issn_Journal',
@@ -26,7 +26,7 @@ models = [
     'Rejected_Articles',
     'Publisher_Journal',
     'Publisher_User',
-    'Publisher_Metadata',
+    'PublisherMetadata',
     'Audit_Log',
     'Published_Article_By_Cohort',
     'Scopus_Api_Key',
@@ -36,7 +36,7 @@ models = [
     'UptimeCheckStat',
     'HighwireMetadata',
     'DrupalMetadata',
-    'System_Global',
+    'SystemGlobal',
     'Doi_Transform_Rule',
     'Alert',
     'Notification',
