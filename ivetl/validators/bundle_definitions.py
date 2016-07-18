@@ -1,7 +1,7 @@
 from ivetl.validators.base import BaseValidator
 
 
-class BundleDefinitionValidator(BaseValidator):
+class BundleDefinitionsValidator(BaseValidator):
 
     def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
         errors = []

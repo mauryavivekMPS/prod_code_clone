@@ -1,23 +1,21 @@
 import os
-import datetime
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Publisher_Metadata, Pipeline_Status
+from ivetl.models import PublisherMetadata
 
 
 @app.task
-class BundleDefinitionPipeline(Pipeline):
+class CustomSubscriberDataPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'custom_bundle_definitions'
+        pipeline_id = 'custom_subscriber_data'
         now, today_label, job_id = self.generate_job_id()
-        product = common.PRODUCT_BY_ID[product_id]
 
         if publisher_id_list:
-            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+            publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
-            publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
+            publishers = PublisherMetadata.objects.filter(demo=False)  # default to production pubs
 
         publishers = [p for p in publishers if product_id in p.supported_products]
 
@@ -58,12 +56,4 @@ class BundleDefinitionPipeline(Pipeline):
                 self.chain_tasks(pipeline_id, task_args)
 
             else:
-                # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
-                end_date = datetime.datetime.today()
-                p = Pipeline_Status().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
-                if p is not None:
-                    p.end_time = end_date
-                    p.duration_seconds = (end_date - p.start_time).total_seconds()
-                    p.status = self.PIPELINE_STATUS_COMPLETED
-                    p.updated = end_date
-                    p.update()
+                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id)

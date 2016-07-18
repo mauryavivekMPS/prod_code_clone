@@ -1,13 +1,13 @@
 import datetime
 from ivetl.common import common
-from ivetl.models import Publisher_Metadata, Audit_Log
+from ivetl.models import PublisherMetadata, Audit_Log
 from ivetl.connectors import TableauConnector
 from ivetl.celery import app
 
 
 @app.task
 def setup_reports(publisher_id, initiating_user_id):
-    publisher = Publisher_Metadata.objects.get(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher.reports_setup_status = 'in-progress'
     publisher.save()
 

@@ -3,7 +3,7 @@ import datetime
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Pipeline_Status, Publisher_Metadata
+from ivetl.models import Pipeline_Status, PublisherMetadata
 
 
 @app.task
@@ -14,9 +14,9 @@ class JR3InstitutionUsagePipeline(Pipeline):
         now, today_label, job_id = self.generate_job_id()
 
         if publisher_id_list:
-            publishers = Publisher_Metadata.objects.filter(publisher_id__in=publisher_id_list)
+            publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
-            publishers = Publisher_Metadata.objects.filter(demo=False)  # default to production pubs
+            publishers = PublisherMetadata.objects.filter(demo=False)  # default to production pubs
 
         publishers = [p for p in publishers if product_id in p.supported_products]
 
@@ -39,7 +39,7 @@ class JR3InstitutionUsagePipeline(Pipeline):
 
             # create work folder, signal the start of the pipeline
             work_folder = self.get_work_folder(today_label, publisher.publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, total_task_count=4, current_task_count=0)
+            self.on_pipeline_started(publisher.publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email)
 
             if files:
                 # construct the first task args with all of the standard bits + the list of files

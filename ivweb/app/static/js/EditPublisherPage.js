@@ -54,7 +54,7 @@ var EditPublisherPage = (function() {
         var hasReportsDetails = true;
         if (isNew) {
             var reportsUsername = $('#id_reports_username').val();
-            var reportsPassword = $('#id_reports_username').val();
+            var reportsPassword = $('#id_reports_password').val();
             var reportsProject = $('#id_reports_project').val();
 
             if (publisherDemoMode()) {
@@ -107,14 +107,10 @@ var EditPublisherPage = (function() {
                 }
 
                 var index = row.attr('index');
-                console.log('checking ' + index);
                 if (useMonthsFree(index)) {
-                    console.log('it is USING');
                     var months = parseInt($('.issn-values-months-row-' + index + ' .months-until-free').val());
                     if (isNaN(months) || months <= 0) {
-                        console.log('months is ' + months);
                         validMonthsFree = false;
-                        console.log('setting to false');
                     }
                 }
             });
@@ -154,6 +150,13 @@ var EditPublisherPage = (function() {
                     }
                 }
             });
+        }
+
+        var validACDatabases = true;
+        if (institutionsProduct && hasHighWire()) {
+            if (!$('#id_ac_databases').val()) {
+                validACDatabases = false;
+            }
         }
 
         if (isDemo) {
@@ -232,7 +235,7 @@ var EditPublisherPage = (function() {
                 disableSubmit();
             }
 
-            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort) {
+            if (hasBasics && hasStartDate && atLeastOneProduct && atLeastOneRejectedArticlesUpload && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort && validACDatabases) {
                 enableSubmitForApproval();
             }
             else {
@@ -240,7 +243,7 @@ var EditPublisherPage = (function() {
             }
         }
         else {
-            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort) {
+            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort && validACDatabases) {
                 enableSubmit();
             }
             else {
@@ -276,6 +279,16 @@ var EditPublisherPage = (function() {
         }
     };
 
+    var updateInstitutionsControls = function() {
+        if ($('#id_institutions').is(':checked')) {
+            $('.institutions-controls').fadeIn(200);
+        }
+        else {
+            $('.institutions-controls').fadeOut(100);
+        }
+        updateACDatabasesControls();
+    };
+
     var hasHighWire = function() {
         return $('#id_hw_addl_metadata_available').is(':checked');
     };
@@ -286,6 +299,13 @@ var EditPublisherPage = (function() {
         }
         else {
             $('.highwire-controls').fadeOut(100);
+        }
+        updateACDatabasesControls();
+    };
+
+    var updateACDatabasesControls = function() {
+        if (!($('#id_institutions').is(':checked') && hasHighWire())) {
+            $('#id_ac_databases').val('');
         }
     };
 
@@ -659,6 +679,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="hw_addl_metadata_available"]').val($('#id_hw_addl_metadata_available').is(':checked') ? 'on' : '');
         f.find('input[name="demo"]').val($('#id_demo').is(':checked') ? 'on' : '');
         f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
+        f.find('input[name="ac_databases"]').val($('#id_ac_databases').val());
         f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
         f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
         f.find('input[name="cohort_articles"]').val($('#id_cohort_articles').is(':checked') ? 'on' : '');
@@ -755,7 +776,13 @@ var EditPublisherPage = (function() {
         });
         updateCohortArticlesControls();
 
-        $('#id_institutions').on('change', checkForm);
+        $('#id_institutions').on('change', function() {
+            updateInstitutionsControls();
+            checkForm();
+        });
+        updateInstitutionsControls();
+
+        $('#id_ac_databases').on('keyup', checkForm);
 
         $('#id_hw_addl_metadata_available').on('change', function() {
             updateHighWireControls();

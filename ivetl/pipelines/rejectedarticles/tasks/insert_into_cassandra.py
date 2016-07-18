@@ -80,10 +80,13 @@ class InsertIntoCassandraDBTask(Task):
                         if existing_record['status'] == "Published & Cited" and data['xref_doi'] == existing_record['crossref_doi']:
                             tlogger.info("Matched (Published & Cited) in previous run, updating citation count")
 
-                            existing_record['citations'] = int(data.get('citations', 0))
-                            existing_record['mendeley_saves'] = int(data.get('mendeley_saves', 0))
-                            existing_record.save()
+                            if 'citations' in data and data['citations'] is not None and (data['citations'] != ''):
+                                existing_record['citations'] = int(data.get('citations', 0))
 
+                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
+                                existing_record['mendeley_saves'] = int(data.get('mendeley_saves', 0))
+
+                            existing_record.save()
                             continue
                         else:
                             tlogger.info("Manuscript changed status from last run, deleting existing record")

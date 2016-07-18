@@ -7,10 +7,10 @@ from ivetl.models import Publisher_Metadata, Pipeline_Status
 
 
 @app.task
-class SubscriptionPricePipeline(Pipeline):
+class BundleDefinitionsPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
-        pipeline_id = 'custom_subscription_pricing'
+        pipeline_id = 'bundle_definitions'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]
 

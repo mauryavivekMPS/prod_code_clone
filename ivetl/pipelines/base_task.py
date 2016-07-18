@@ -1,9 +1,12 @@
 import os
 import json
 import logging
+import datetime
 from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
+from ivetl.connectors import TableauConnector
+from ivetl.models import PublisherMetadata, Pipeline_Status
 
 
 class TaskParamsEncodingError(Exception):
@@ -48,6 +51,59 @@ class BaseTask(Task):
 
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
+
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, send_notification_email=False, notification_count=None):
+        end_date = datetime.datetime.today()
+
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        pipeline_title = common.get_pipeline_display_name(pipeline)
+
+        try:
+            p = Pipeline_Status.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            )
+
+            p.update(
+                end_time=end_date,
+                duration_seconds=(end_date - p.start_time).total_seconds(),
+                status=self.PIPELINE_STATUS_COMPLETED,
+                updated=end_date,
+            )
+
+            # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
+            if send_notification_email and pipeline.get('has_file_input'):
+                if p.user_email:
+                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline_title)
+                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline_title
+
+                    if notification_count:
+                        body += '<p>%s records were processed.<p>' % notification_count
+
+                    body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+
+                    common.send_email(subject, body, to=p.user_email)
+
+        except Pipeline_Status.DoesNotExist:
+            pass
+
+        if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
+            publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+
+            # update the data in tableau
+            t = TableauConnector(
+                username=common.TABLEAU_USERNAME,
+                password=common.TABLEAU_PASSWORD,
+                server=common.TABLEAU_SERVER
+            )
+
+            pipeline = common.PIPELINE_BY_ID[pipeline_id]
+            if pipeline.get('rebuild_data_source_id'):
+                for ds in pipeline['rebuild_data_source_id']:
+                    t.refresh_data_source(publisher_id, publisher.reports_project, ds)
+                    t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
 
     def params_to_json(self, params):
         try:
