@@ -15,7 +15,7 @@ class InsertStatsIntoCassandraTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         file = task_args['input_file']
         total_count = task_args['count']
-        to_date = task_args['to_date']
+        to_date = self.from_json_date(task_args['to_date'])
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 

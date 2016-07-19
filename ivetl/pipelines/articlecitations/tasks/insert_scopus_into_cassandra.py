@@ -44,7 +44,7 @@ class InsertScopusIntoCassandra(Task):
                         citation_journal_issn=data['journal_issn'],
                         citation_journal_title=data['journal_title'],
                         citation_pages=data['pages'],
-                        citation_source_scopus = True,
+                        citation_source_scopus=True,
                         citation_title=data['title'],
                         citation_volume=data['volume'],
                         citation_count=1,

@@ -13,8 +13,8 @@ from ivetl.models import SystemGlobal
 @app.task
 class GetUptimeStatsTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        from_date = task_args['from_date']
-        to_date = task_args['to_date']
+        from_date = self.from_json_date(task_args['from_date'])
+        to_date = self.from_json_date(task_args['to_date'])
 
         target_file_name = os.path.join(work_folder, "%s_uptimechecks_target.tab" % publisher_id)
 
@@ -123,7 +123,7 @@ class GetUptimeStatsTask(Task):
 
         task_args['input_file'] = target_file_name
         task_args['count'] = total_count
-        task_args['from_date'] = from_date
-        task_args['to_date'] = to_date
+        task_args['from_date'] = self.to_json_date(from_date)
+        task_args['to_date'] = self.to_json_date(to_date)
 
         return task_args
