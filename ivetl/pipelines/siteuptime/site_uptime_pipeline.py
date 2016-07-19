@@ -62,8 +62,8 @@ class SiteUptimePipeline(Pipeline):
             'product_id': product_id,
             'work_folder': work_folder,
             'job_id': job_id,
-            'from_date': from_date,
-            'to_date': to_date,
+            'from_date': self.to_json_date(from_date),
+            'to_date': self.to_json_date(to_date),
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
         }
 
