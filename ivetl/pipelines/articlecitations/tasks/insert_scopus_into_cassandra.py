@@ -33,14 +33,30 @@ class InsertScopusIntoCassandra(Task):
 
                 for data in citations:
 
+                    citation_doi = data.get('doi')
+                    if not citation_doi:
+                        tlogger.info('No citation DOI found, skipping...')
+                        continue
+
+                    try:
+                        citation_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d')
+                    except ValueError:
+                        tlogger.info('No date for citation %s, skipping...' % citation_doi)
+                        continue
+
+                    issue = data.get('issue')
+                    if type(issue) is not str:
+                        tlogger.info('Unrecognized type for issue for citation %s, skipping...' % citation_doi)
+                        continue
+
                     Article_Citations.create(
                         publisher_id=publisher_id,
                         article_doi=doi,
-                        citation_doi=data['doi'],
+                        citation_doi=citation_doi,
                         citation_scopus_id=data['scopus_id'],
-                        citation_date=datetime.datetime.strptime(data['date'], '%Y-%m-%d'),
+                        citation_date=citation_date,
                         citation_first_author=data['first_author'],
-                        citation_issue=data['issue'],
+                        citation_issue=issue,
                         citation_journal_issn=data['journal_issn'],
                         citation_journal_title=data['journal_title'],
                         citation_pages=data['pages'],
@@ -55,7 +71,6 @@ class InsertScopusIntoCassandra(Task):
 
                 PublishedArticle.objects(publisher_id=publisher_id, article_doi=doi).update(citations_updated_on=updated_date)
 
-                tlogger.info("---")
                 tlogger.info(str(count-1) + ". " + publisher_id + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")
 
             tsv.close()
