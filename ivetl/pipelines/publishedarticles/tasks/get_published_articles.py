@@ -73,12 +73,15 @@ class GetPublishedArticlesTask(Task):
 
                     for i in xrefdata['message']['items']:
 
+                        # if i['DOI'] != '10.1101/gad.1935210':
+                        #     continue
+
                         articles[i['DOI']] = (i['DOI'], issn, json.dumps(i))
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                         # Just for testing!!
-                        if count > 1:
-                            break
+                        # if count > 1:
+                        #     break
 
                     offset += task_args['articles_per_page']
 

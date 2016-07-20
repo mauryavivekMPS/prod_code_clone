@@ -33,29 +33,45 @@ class InsertScopusIntoCassandra(Task):
 
                 for data in citations:
 
-                    Article_Citations.create(
-                        publisher_id=publisher_id,
-                        article_doi=doi,
-                        citation_doi=data['doi'],
-                        citation_scopus_id=data['scopus_id'],
-                        citation_date=datetime.datetime.strptime(data['date'], '%Y-%m-%d'),
-                        citation_first_author=data['first_author'],
-                        citation_issue=data['issue'],
-                        citation_journal_issn=data['journal_issn'],
-                        citation_journal_title=data['journal_title'],
-                        citation_pages=data['pages'],
-                        citation_source_scopus = True,
-                        citation_title=data['title'],
-                        citation_volume=data['volume'],
-                        citation_count=1,
-                        updated=updated_date,
-                        created=updated_date,
-                        is_cohort=data['is_cohort']
-                    )
+                    citation_doi = data.get('doi')
+                    if not citation_doi:
+                        tlogger.info('No citation DOI found, skipping...')
+                        continue
+
+                    try:
+                        citation_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d')
+                    except ValueError:
+                        tlogger.info('No date for citation %s, skipping...' % citation_doi)
+                        continue
+
+                    # note this try-except should probably be removed when we're satisfied there are no bugs
+                    try:
+                        Article_Citations.create(
+                            publisher_id=publisher_id,
+                            article_doi=doi,
+                            citation_doi=citation_doi,
+                            citation_scopus_id=data['scopus_id'],
+                            citation_date=citation_date,
+                            citation_first_author=data['first_author'],
+                            citation_issue=data['issue'],
+                            citation_journal_issn=data['journal_issn'],
+                            citation_journal_title=data['journal_title'],
+                            citation_pages=data['pages'],
+                            citation_source_scopus=True,
+                            citation_title=data['title'],
+                            citation_volume=data['volume'],
+                            citation_count=1,
+                            updated=updated_date,
+                            created=updated_date,
+                            is_cohort=data['is_cohort']
+                        )
+                    except:
+                        tlogger.error('Exception when inserting citation for %s (%s)' % (doi, citation_doi))
+                        tlogger.error(data)
+                        raise
 
                 PublishedArticle.objects(publisher_id=publisher_id, article_doi=doi).update(citations_updated_on=updated_date)
 
-                tlogger.info("---")
                 tlogger.info(str(count-1) + ". " + publisher_id + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")
 
             tsv.close()

@@ -42,7 +42,6 @@ class GetScopusArticleCitations(Task):
 
             doi = article.article_doi
 
-            tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, doi))
 
             if article.article_scopus_id is None or article.article_scopus_id == '':
