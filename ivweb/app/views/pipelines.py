@@ -34,13 +34,13 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
         all_runs = [run for run in all_runs if run.status == 'completed']
 
     # sort the runs by date, most recent at top, take only the top 4
-    recent_runs = sorted(all_runs, key=lambda r: r.start_time, reverse=True)[:4]
+    recent_runs = sorted(all_runs, key=lambda r: r.start_time or datetime.datetime.min, reverse=True)[:4]
 
     # now get all the tasks for each run
     tasks_by_run = []
     for run in recent_runs:
         tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
-        sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
+        sorted_tasks = sorted(tasks, key=lambda t: t.start_time or datetime.datetime.min)
 
         tasks_by_run.append({
             'run': run,
