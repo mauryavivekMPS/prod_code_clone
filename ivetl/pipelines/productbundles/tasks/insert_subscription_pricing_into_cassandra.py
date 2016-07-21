@@ -14,6 +14,13 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
+        # Membership No.(REQ)
+        # Year(REQ)
+        # Bundle Name(REQ)
+        # On Trial(Y | N)
+        # Trial Expiration Date(date MM / DD / YY)
+        # Amount(REQ)(decimal)
+
         count = 0
         for file in files:
 

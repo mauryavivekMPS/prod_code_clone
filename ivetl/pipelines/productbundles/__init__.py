@@ -1,2 +1,2 @@
-from ivetl.pipelines.customproductbundle.bundle_definition_pipeline import BundleDefinitionsPipeline
-from ivetl.pipelines.customproductbundle.subscription_price_pipeline import SubscriptionPricingPipeline
+from ivetl.pipelines.productbundles.bundle_definitions_pipeline import BundleDefinitionsPipeline
+from ivetl.pipelines.productbundles.subscription_pricing_pipeline import SubscriptionPricingPipeline

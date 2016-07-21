@@ -303,9 +303,9 @@ PIPELINES = [
         'name': 'Bundle Definitions',
         'id': 'bundle_definitions',
         'user_facing_display_name': 'Bundle definitions',
-        'class': 'ivetl.pipelines.productbundle.BundleDefinitionsPipeline',
+        'class': 'ivetl.pipelines.productbundles.BundleDefinitionsPipeline',
         'has_file_input': True,
-        'validator_class': 'ivetl.validators.BundleDefinitions',
+        'validator_class': 'ivetl.validators.BundleDefinitionsValidator',
         'rebuild_data_source_id': None,
         'tasks': [
             'ivetl.pipelines.productbundles.tasks.GetBundleDefinitionsFilesTask',
@@ -319,7 +319,7 @@ PIPELINES = [
         'user_facing_display_name': 'Subscription pricing',
         'class': 'ivetl.pipelines.productbundles.SubscriptionPricingPipeline',
         'has_file_input': True,
-        'validator_class': 'ivetl.validators.SubscriptionPricing',
+        'validator_class': 'ivetl.validators.SubscriptionPricingValidator',
         'rebuild_data_source_id': None,
         'tasks': [
             'ivetl.pipelines.productbundles.tasks.GetSubscriptionPricingFilesTask',
@@ -534,6 +534,12 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['custom_subscriber_data'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['bundle_definitions'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['subscription_pricing'],
             },
         ],
         'tableau_workbooks': [],
