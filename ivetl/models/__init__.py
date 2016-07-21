@@ -35,3 +35,4 @@ from ivetl.models.subscription import Subscription
 from ivetl.models.subscriber_values import SubscriberValues
 from ivetl.models.system_global import SystemGlobal
 from ivetl.models.product_bundle import ProductBundle
+from ivetl.models.subscription_pricing import SubscriptionPricing
