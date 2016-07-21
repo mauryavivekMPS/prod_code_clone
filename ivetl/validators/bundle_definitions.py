@@ -3,7 +3,8 @@ import csv
 from ivetl.validators.base import BaseValidator
 
 
-class CustomSubscriberDataValidator(BaseValidator):
+class BundleDefinitionsValidator(BaseValidator):
+
     def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
         errors = []
         total_count = 0
@@ -19,12 +20,8 @@ class CustomSubscriberDataValidator(BaseValidator):
                             else:
                                 count += 1
 
-                            # skip header row
-                            if count == 1:
-                                continue
-
                             # check for number of fields
-                            if len(line) != 26:
+                            if len(line) < 3:
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 

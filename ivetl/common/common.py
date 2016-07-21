@@ -300,6 +300,36 @@ PIPELINES = [
         ],
     },
     {
+        'name': 'Bundle Definitions',
+        'id': 'bundle_definitions',
+        'user_facing_display_name': 'Bundle definitions',
+        'class': 'ivetl.pipelines.productbundles.BundleDefinitionsPipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.BundleDefinitionsValidator',
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.productbundles.tasks.GetBundleDefinitionsFilesTask',
+            'ivetl.pipelines.productbundles.tasks.ValidateBundleDefinitionsFilesTask',
+            'ivetl.pipelines.productbundles.tasks.InsertBundleDefinitionsIntoCassandraTask',
+            'ivetl.pipelines.productbundles.tasks.UpdateInstitutionUsageStatsTask',
+        ],
+    },
+    {
+        'name': 'Subscription Pricing',
+        'id': 'subscription_pricing',
+        'user_facing_display_name': 'Subscription pricing',
+        'class': 'ivetl.pipelines.productbundles.SubscriptionPricingPipeline',
+        'has_file_input': True,
+        'validator_class': 'ivetl.validators.SubscriptionPricingValidator',
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.productbundles.tasks.GetSubscriptionPricingFilesTask',
+            'ivetl.pipelines.productbundles.tasks.ValidateSubscriptionPricingFilesTask',
+            'ivetl.pipelines.productbundles.tasks.InsertSubscriptionPricingIntoCassandraTask',
+            'ivetl.pipelines.productbundles.tasks.UpdateInstitutionUsageStatsTask',
+        ],
+    },
+    {
         'name': 'Subscription Data',
         'id': 'subscribers_and_subscriptions',
         'user_facing_display_name': 'Subscriber and subscription data',
@@ -506,6 +536,12 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['custom_subscriber_data'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['bundle_definitions'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['subscription_pricing'],
             },
         ],
         'tableau_workbooks': [],
