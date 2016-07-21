@@ -7,7 +7,7 @@ from ivetl.connectors import CrossrefConnector
 
 class CustomArticleDataValidator(BaseValidator):
     
-    def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
 
         # create a crossref connector
         crossref = CrossrefConnector(crossref_username, crossref_password)

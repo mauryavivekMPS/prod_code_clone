@@ -85,7 +85,7 @@ class IvetlHandler(FTPHandler):
                 if pipeline.get('validator_class'):
                     validator_class = common.get_validator_class(pipeline)
                     validator = validator_class()
-                    line_count, raw_errors = validator.validate_files([file], publisher_id)
+                    line_count, raw_errors = validator.validate_files([file], publisher_id=publisher_id)
                     validation_errors = validator.parse_errors(raw_errors)
 
                     if validation_errors:
