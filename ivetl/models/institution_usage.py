@@ -13,3 +13,7 @@ class InstitutionUsageStat(Model):
     journal_online_issn = columns.Text()
     institution_name = columns.Text()
     usage = columns.Integer()
+    bundle_name = columns.Text()
+    amount = columns.Decimal()
+    trial = columns.Boolean()
+    trial_expiration_date = columns.DateTime()
