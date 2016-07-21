@@ -3,11 +3,12 @@ import csv
 from decimal import Decimal
 from dateutil.parser import parse
 from ivetl.validators.base import BaseValidator
+from ivetl.models import ProductBundle
 
 
 class SubscriptionPricingValidator(BaseValidator):
 
-    def validate_files(self, files, issns=[], crossref_username=None, crossref_password=None, increment_count_func=None):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
         errors = []
         total_count = 0
         for f in files:
@@ -43,10 +44,13 @@ class SubscriptionPricingValidator(BaseValidator):
                             if not line[2]:
                                 errors.append(self.format_error(file_name, count - 1, "Bundle name is missing"))
 
+                            try:
+                                ProductBundle.objects.get(publisher_id=publisher_id, bundle_name=line[2])
+                            except ProductBundle.DoesNotExist:
+                                errors.append(self.format_error(file_name, count - 1, "Bundle name not found in database"))
+
                             if line[3] and line[3] not in ('y', 'n', 'Y', 'N'):
                                 errors.append(self.format_error(file_name, count - 1, "Trial field must be Y or N"))
-
-                            # Trial Expiration Date(date MM / DD / YY)
 
                             if line[4]:
                                 try:

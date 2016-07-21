@@ -502,6 +502,7 @@ def upload_pending_file_inline(request):
                 line_count, raw_errors = validator.validate_files(
                     [pending_file_path],
                     issns=issns,
+                    publisher_id=publisher_id,
                     crossref_username=crossref_username,
                     crossref_password=crossref_password
                 )

@@ -250,9 +250,10 @@ class Task(BaseTask):
         total_count, errors = validator.validate_files(
             files,
             issns=publisher.all_issns,
+            publisher_id=publisher_id,
             crossref_username=publisher.crossref_username,
             crossref_password=publisher.crossref_password,
-            increment_count_func=increment_count
+            increment_count_func=increment_count,
         )
 
         t1 = time()
