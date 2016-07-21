@@ -311,6 +311,7 @@ PIPELINES = [
             'ivetl.pipelines.productbundles.tasks.GetBundleDefinitionsFilesTask',
             'ivetl.pipelines.productbundles.tasks.ValidateBundleDefinitionsFilesTask',
             'ivetl.pipelines.productbundles.tasks.InsertBundleDefinitionsIntoCassandraTask',
+            'ivetl.pipelines.productbundles.tasks.UpdateInstitutionUsageStatsTask',
         ],
     },
     {
@@ -325,6 +326,7 @@ PIPELINES = [
             'ivetl.pipelines.productbundles.tasks.GetSubscriptionPricingFilesTask',
             'ivetl.pipelines.productbundles.tasks.ValidateSubscriptionPricingFilesTask',
             'ivetl.pipelines.productbundles.tasks.InsertSubscriptionPricingIntoCassandraTask',
+            'ivetl.pipelines.productbundles.tasks.UpdateInstitutionUsageStatsTask',
         ],
     },
     {

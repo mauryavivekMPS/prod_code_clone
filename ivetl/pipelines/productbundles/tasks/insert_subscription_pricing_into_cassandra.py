@@ -53,8 +53,6 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
                         amount=amount,
                     )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
-
         return {
             'count': count
         }
