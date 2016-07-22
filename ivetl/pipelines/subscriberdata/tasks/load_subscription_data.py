@@ -61,7 +61,7 @@ class LoadSubscriptionDataTask(Task):
 
         total_count = 0
         for file_path in all_files:
-            total_count += utils.file_len(file_path, encoding='windows-1252')
+            total_count += utils.file_len(file_path, encoding='ISO-8859-2')
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
         tlogger.info('Found %s records' % total_count)
 
@@ -78,7 +78,7 @@ class LoadSubscriptionDataTask(Task):
 
         count = 0
         for file_path in all_files:
-            with open(file_path, encoding='windows-1252') as f:
+            with open(file_path, encoding='ISO-8859-2') as f:
                 reader = csv.DictReader(f, delimiter='\t', fieldnames=self.FIELD_NAMES)
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
