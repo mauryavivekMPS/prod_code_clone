@@ -19,7 +19,7 @@ from django.template import loader, RequestContext
 
 from ivetl.common import common
 from ivetl import utils
-from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
+from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ def list_pipelines(request, product_id, pipeline_id):
             elif filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 # special support for other pipeline-level filters
                 if pipeline.get('filter_for_benchpress_support'):
-                    benchpress_journals = Publisher_Journal.objects.filter(
+                    benchpress_journals = PublisherJournal.objects.filter(
                         publisher_id=publisher.publisher_id,
                         product_id='published_articles',
                         use_benchpress=True

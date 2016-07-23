@@ -35,6 +35,10 @@ urlpatterns = patterns(
     url(r'^notifications/$', 'notifications.list_notifications', name='notifications.list'),
     url(r'^external/$', 'notifications.external', name='notifications.external'),
 
+    # citable sections
+    url(r'^citablesections/$', 'citable_sections.list_journals', name='citable_sections.list'),
+    url(r'^citablesections/(?P<uid>[\w\-\.]+)/$', 'citable_sections.choose_citable_sections', name='citable_sections.choose_citable_sections'),
+
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
     url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),

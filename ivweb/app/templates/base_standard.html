@@ -71,6 +71,9 @@
                     <li class="publisher_menu_item">
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
+                    <li class="citable_sections_menu_item">
+                        <a href="{% url 'citable_sections.list' %}">Citable Sections</a>
+                    </li>
                     <li class="demo_menu_item">
                         <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>
                     </li>
@@ -118,6 +121,9 @@
                             <a href="{% url 'home' %}">Dashboard</a>
                         </li>
                     {% endif %}
+                    <li class="citable_sections_menu_item">
+                        <a href="{% url 'citable_sections.list' %}">Citable Sections</a>
+                    </li>
                     <li class="notification_menu_item">
                         <a href="{% url 'notifications.list' %}">Alert Notifications</a>
                     </li>

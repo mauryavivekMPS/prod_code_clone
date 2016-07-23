@@ -5,7 +5,7 @@ import datetime
 import spur
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Publisher_Journal
+from ivetl.models import PublisherJournal
 
 
 @app.task
@@ -54,7 +54,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
 
-        journals_with_benchpress = [p.journal_code for p in Publisher_Journal.objects.filter(
+        journals_with_benchpress = [p.journal_code for p in PublisherJournal.objects.filter(
             publisher_id=publisher_id,
             product_id='published_articles',
             use_benchpress=True

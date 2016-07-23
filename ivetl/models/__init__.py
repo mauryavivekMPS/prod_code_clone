@@ -1,4 +1,4 @@
-from ivetl.models.PublisherJournal import Publisher_Journal
+from ivetl.models.publisher_journal import PublisherJournal
 from ivetl.models.PublisherUser import Publisher_User
 from ivetl.models.publisher_metadata import PublisherMetadata
 from ivetl.models.User import User, Anonymous_User
