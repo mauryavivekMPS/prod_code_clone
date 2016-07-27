@@ -1,0 +1,54 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Chose Citable Sections{% endblock %}
+{% block body_class %}citable-sections{% endblock %}
+
+{% block content %}
+    <div id="choose-citable-sections-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'citable_sections.list' %}">Citable Sections</a></li>
+                    <li></li>
+                </ol>
+                <h1>Choose Citable Sections</h1>
+            </div>
+        </div>
+
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-horizontal citable-sections-form" method="post">
+                        {% csrf_token %}
+                        {{ form.journal_uid }}
+
+                        <div class="form-group row">
+                            <label for="journal_code" class="col-sm-2">Journal</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static">
+                                    {{ journal.journal_code }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-group submit-row">
+                            <button type="submit" class="btn btn-primary submit-button">
+                                Save Changes
+                            </button>
+                            <span class="cancel">or <a href="../">Cancel</a></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#choose-citable-sections-page').citablesectionspage();
+        });
+    </script>
+{% endblock %}

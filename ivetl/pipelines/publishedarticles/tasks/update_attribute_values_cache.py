@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublishedArticle, Attribute_Values
@@ -20,7 +21,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 if f['table'] == 'published_article':
                     value_names.add(f['name'])
 
-        total_count = len(all_articles) * len(value_names)
+        total_count = len(all_articles) * (len(value_names) + 1)  # plus one for the special-case citable sections
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
@@ -35,6 +36,20 @@ class UpdateAttributeValuesCacheTask(Task):
             Attribute_Values.objects(
                 publisher_id=publisher_id,
                 name='published_article.' + name,
+            ).update(
+                values_json=json.dumps(list(values))
+            )
+
+        # special publisher-centric caching for citable sections
+        values_by_issn = defaultdict(set)
+        for article in all_articles:
+            if article.article_type and not article.is_cohort:
+                values_by_issn[article.article_journal_issn].add(article.article_type)
+
+        for issn, values in values_by_issn:
+            Attribute_Values.objects(
+                publisher_id=publisher_id,
+                name='citable_sections.' + issn,
             ).update(
                 values_json=json.dumps(list(values))
             )

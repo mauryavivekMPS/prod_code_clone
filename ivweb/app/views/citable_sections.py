@@ -1,5 +1,5 @@
 import logging
-from operator import attrgetter
+from django import forms
 from django.shortcuts import render, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
@@ -29,27 +29,10 @@ def list_journals(request):
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
-    # filtered_alerts = []
-    # if filter_param == 'active':
-    #     for alert in alerts:
-    #         if not alert.archived:
-    #             filtered_alerts.append(alert)
-    # elif filter_param == 'archived':
-    #     for alert in alerts:
-    #         if alert.archived:
-    #             filtered_alerts.append(alert)
-
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('journal-list-sort', 'publisher_id'))
-    sorted_journals = sorted(unsorted_journals, key=attrgetter(sort_key), reverse=sort_descending)
-
-    # for alert in sorted_alerts:
-    #     check = CHECKS[alert.check_id]
-    #     setattr(alert, 'check_name', check['name'])
-    #     setattr(alert, 'param_display_string', get_check_params_display_string(alert))
-    #     setattr(alert, 'filter_display_string', get_filter_params_display_string(alert))
+    sorted_journals = sorted(unsorted_journals, key=lambda j: (j[sort_key], j['journal_code']), reverse=sort_descending)
 
     response = render(request, 'citable_sections/list.html', {
-        # 'alerts': sorted_alerts,
         # 'messages': messages,
         'journals': sorted_journals,
         'reset_url': reverse('citable_sections.list') + '?sort=' + sort_param,
@@ -63,6 +46,31 @@ def list_journals(request):
     return response
 
 
+class CitableSectionForm(forms.Form):
+    journal_uid = forms.CharField(widget=forms.HiddenInput, required=True)
+
+    def __init__(self, *args, instance=None, **kwargs):
+        initial = {}
+
+        if instance:
+            self.instance = instance
+            initial = dict(instance)
+        else:
+            self.instance = None
+
+        super(CitableSectionForm, self).__init__(initial=initial, *args, **kwargs)
+
+
 @login_required
-def choose_citable_sections(request, uid=None):
-    return HttpResponse('ok')
+def choose_citable_sections(request, publisher_id=None, uid=None):
+    journal = PublisherJournal.objects.get(publisher_id=publisher_id, product_id='published_articles', uid=uid)
+
+    if request.method == 'POST':
+        form = CitableSectionForm(request.POST, instance=journal)
+    else:
+        form = CitableSectionForm(instance=journal)
+
+    return render(request, 'citable_sections/choose_citable_sections.html', {
+        'journal': journal,
+        'form': form,
+    })
