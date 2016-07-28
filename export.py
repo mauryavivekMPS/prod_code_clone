@@ -41,7 +41,7 @@ models = [
     'Alert',
     'Notification',
     'Notification_Summary',
-    'Attribute_Values',
+    'AttributeValues',
 ]
 
 def format_value(value):

@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import PublishedArticle, Attribute_Values
+from ivetl.models import PublishedArticle, AttributeValues
 from ivetl.alerts import CHECKS
 
 
@@ -33,7 +33,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 if article[name]:
                     values.add(article[name])
 
-            Attribute_Values.objects(
+            AttributeValues.objects(
                 publisher_id=publisher_id,
                 name='published_article.' + name,
             ).update(
@@ -47,7 +47,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 values_by_issn[article.article_journal_issn].add(article.article_type)
 
         for issn, values in values_by_issn.items():
-            Attribute_Values.objects(
+            AttributeValues.objects(
                 publisher_id=publisher_id,
                 name='citable_sections.' + issn,
             ).update(

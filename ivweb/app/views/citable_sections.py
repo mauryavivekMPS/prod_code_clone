@@ -1,9 +1,10 @@
+import json
 import logging
 from django import forms
 from django.shortcuts import render, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherJournal
+from ivetl.models import PublisherJournal, AttributeValues, CitableSection
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -46,31 +47,42 @@ def list_journals(request):
     return response
 
 
-class CitableSectionForm(forms.Form):
-    journal_uid = forms.CharField(widget=forms.HiddenInput, required=True)
-
-    def __init__(self, *args, instance=None, **kwargs):
-        initial = {}
-
-        if instance:
-            self.instance = instance
-            initial = dict(instance)
-        else:
-            self.instance = None
-
-        super(CitableSectionForm, self).__init__(initial=initial, *args, **kwargs)
-
-
 @login_required
 def choose_citable_sections(request, publisher_id=None, uid=None):
     journal = PublisherJournal.objects.get(publisher_id=publisher_id, product_id='published_articles', uid=uid)
 
+    sections = {}
+    for issn in [journal.electronic_issn, journal.print_issn]:
+        try:
+            attribute_value = AttributeValues.objects.get(
+                publisher_id=publisher_id,
+                name='citable_sections.' + issn
+            )
+            for section in json.loads(attribute_value.values_json):
+                try:
+                    CitableSection.objects.get(
+                        publisher_id=publisher_id,
+                        journal_issn=issn
+                    )
+                    cited = True
+                except CitableSection.DoesNotExist:
+                    cited = False
+                sections[section] = cited
+
+        except AttributeValues.DoesNotExist:
+            pass
+
     if request.method == 'POST':
-        form = CitableSectionForm(request.POST, instance=journal)
-    else:
-        form = CitableSectionForm(instance=journal)
+        # TODO: figure out whether to delete everything first
+        # for section_param_name in [p[8:] for p in request.POST if p.startswith('section_')]:
+        #     CitableSection.objects.create(
+        #         publisher_id=publisher_id,
+        #         journal_issn=journal.electronic_issn,
+        #         # TODO: figure out which issn to write it against!
+        #     )
+        pass
 
     return render(request, 'citable_sections/choose_citable_sections.html', {
         'journal': journal,
-        'form': form,
+        'sections': sections,
     })

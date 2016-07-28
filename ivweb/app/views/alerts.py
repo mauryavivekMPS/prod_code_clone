@@ -5,7 +5,7 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import Alert, PublisherMetadata, Attribute_Values
+from ivetl.models import Alert, PublisherMetadata, AttributeValues
 from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
 
@@ -151,8 +151,8 @@ def _add_filter_values(publisher_id, check):
     for check_filter in check.get('filters', []):
         filter_name = check_filter['table'] + '.' + check_filter['name']
         try:
-            values = json.loads(Attribute_Values.objects.get(publisher_id=publisher_id, name=filter_name).values_json)
-        except Attribute_Values.DoesNotExist:
+            values = json.loads(AttributeValues.objects.get(publisher_id=publisher_id, name=filter_name).values_json)
+        except AttributeValues.DoesNotExist:
             values = []
 
         check_filter['filter_values'] = values

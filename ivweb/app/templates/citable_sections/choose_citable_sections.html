@@ -32,6 +32,20 @@
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            <label class="col-sm-2">Sections</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    {% for section, cited in sections.items %}
+                                        <label>
+                                            <input name="section_{{ section }}" {% if cited %}checked{% endif %} type="checkbox">
+                                            {{ section }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group submit-row">
                             <button type="submit" class="btn btn-primary submit-button">
                                 Save Changes
