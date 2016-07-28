@@ -46,7 +46,7 @@ class UpdateAttributeValuesCacheTask(Task):
             if article.article_type and not article.is_cohort:
                 values_by_issn[article.article_journal_issn].add(article.article_type)
 
-        for issn, values in values_by_issn:
+        for issn, values in values_by_issn.items():
             Attribute_Values.objects(
                 publisher_id=publisher_id,
                 name='citable_sections.' + issn,
