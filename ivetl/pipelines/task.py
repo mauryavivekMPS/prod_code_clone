@@ -125,10 +125,9 @@ class Task(BaseTask):
         tlogger = self.get_task_logger(task_work_folder)
 
         tlogger.error('Exception: %s' % exc)
-        tlogger.error('Traceback:\n %s' % einfo.traceback)
-        tlogger.error('Type: %s' % type(args))
-        tlogger.error('Type: %s' % type(kwargs))
-        # tlogger.error('Args:\n %s' % args)
+        tlogger.error('Traceback:\n%s' % einfo.traceback)
+        tlogger.error('args:\n%s' % args)
+        tlogger.error('kwargs:\n%s' % kwargs)
 
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,
