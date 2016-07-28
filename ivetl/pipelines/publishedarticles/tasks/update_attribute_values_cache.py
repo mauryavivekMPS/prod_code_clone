@@ -2,14 +2,17 @@ import json
 from collections import defaultdict
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
+from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
 from ivetl.models import PublishedArticle, AttributeValues
 from ivetl.alerts import CHECKS
+from ivetl.common import common
 
 
 @app.task
 class UpdateAttributeValuesCacheTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        product = common.PRODUCT_BY_ID[product_id]
 
         all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id)
 
@@ -41,18 +44,26 @@ class UpdateAttributeValuesCacheTask(Task):
             )
 
         # special publisher-centric caching for citable sections
-        values_by_issn = defaultdict(set)
-        for article in all_articles:
-            if article.article_type and not article.is_cohort:
-                values_by_issn[article.article_journal_issn].add(article.article_type)
+        if not product['cohort']:
 
-        for issn, values in values_by_issn.items():
-            AttributeValues.objects(
-                publisher_id=publisher_id,
-                name='citable_sections.' + issn,
-            ).update(
-                values_json=json.dumps(list(values))
-            )
+            electronic_issn_lookup = UpdatePublishedArticlesPipeline.generate_electronic_issn_lookup(publisher_id, product_id)
+
+            # group all of the article_type values for each ISSN by journal (via electronic ISSN)
+            values_by_electronic_issn = defaultdict(set)
+            for article in all_articles:
+                if article.article_type:
+                    electronic_issn = electronic_issn_lookup.get(article.article_journal_issn)
+                    if electronic_issn:
+                        values_by_electronic_issn[electronic_issn].add(article.article_type)
+
+            # add a values record per journal
+            for electronic_issn, values in values_by_electronic_issn.items():
+                AttributeValues.objects(
+                    publisher_id=publisher_id,
+                    name='citable_sections.' + electronic_issn,
+                ).update(
+                    values_json=json.dumps(list(values))
+                )
 
         if pipeline_id == 'custom_article_data':
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=count)

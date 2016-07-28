@@ -49,29 +49,27 @@ def choose_citable_sections(request, publisher_id=None, uid=None):
     journal = PublisherJournal.objects.get(publisher_id=publisher_id, product_id='published_articles', uid=uid)
 
     sections = {}
-    for issn in [journal.electronic_issn, journal.print_issn]:
-        try:
-            attribute_value = AttributeValues.objects.get(
-                publisher_id=publisher_id,
-                name='citable_sections.' + issn
-            )
-            for section in json.loads(attribute_value.values_json):
-                if section and section != 'None':
-                    try:
-                        CitableSection.objects.get(
-                            publisher_id=publisher_id,
-                            journal_issn=issn,
-                            article_type=section
-                        )
-                        cited = True
-                    except CitableSection.DoesNotExist:
-                        cited = False
-                    sections[section] = cited
+    try:
+        attribute_value = AttributeValues.objects.get(
+            publisher_id=publisher_id,
+            name='citable_sections.' + journal.electronic_issn
+        )
+        for section in json.loads(attribute_value.values_json):
+            if section and section != 'None':
+                try:
+                    CitableSection.objects.get(
+                        publisher_id=publisher_id,
+                        journal_issn=journal.electronic_issn,
+                        article_type=section
+                    )
+                    cited = True
+                except CitableSection.DoesNotExist:
+                    cited = False
+                sections[section] = cited
 
-        except AttributeValues.DoesNotExist:
-            pass
+    except AttributeValues.DoesNotExist:
+        pass
 
-    foo = [(section, cited) for section, cited in sections.items()]
     sorted_sections = sorted([(section, cited) for section, cited in sections.items()], key=lambda s: s[0])
 
     if request.method == 'POST':
