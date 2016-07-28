@@ -40,13 +40,31 @@ class MendeleyLookupTask(Task):
 
                 tlogger.info(str(count-1) + ". Retrieving Mendelez saves for: " + doi)
 
+                new_saves_value = None
                 try:
                     new_saves_value = mendeley.get_saves(doi)
+                except:
+                    tlogger.info("General Exception - Mendelez API failed for %s. Moving to next article..." % doi)
+
+                if new_saves_value:
                     data['mendeley_saves'] = new_saves_value
+
+                    extra_values = {
+                        'doi': doi,
+                        'issn': issn,
+                    }
 
                     try:
                         article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
                         old_saves_value = article.mendeley_saves
+                        extra_values.update({
+                            'article_type': article.article_type,
+                            'subject_category': article.subject_category,
+                            'custom': article.custom,
+                            'custom_2': article.custom_2,
+                            'custom_3': article.custom_3,
+                            'article_title': article.article_title,
+                        })
                     except PublishedArticle.DoesNotExist:
                         old_saves_value = 0
 
@@ -58,19 +76,8 @@ class MendeleyLookupTask(Task):
                         job_id=job_id,
                         old_value=old_saves_value,
                         new_value=new_saves_value,
-                        extra_values={
-                            'doi': doi,
-                            'issn': issn,
-                            'article_type': article.article_type,
-                            'subject_category': article.subject_category,
-                            'custom': article.custom,
-                            'custom_2': article.custom_2,
-                            'custom_3': article.custom_3,
-                            'article_title': article.article_title,
-                        }
+                        extra_values=extra_values,
                     )
-                except:
-                    tlogger.info("General Exception - Mendelez API failed for %s. Moving to next article..." % doi)
 
                 row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
 

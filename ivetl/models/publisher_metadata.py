@@ -1,6 +1,6 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
-from ivetl.models import Publisher_User, Publisher_Journal
+from ivetl.models import Publisher_User, PublisherJournal
 
 
 class PublisherMetadata(Model):
@@ -46,7 +46,7 @@ class PublisherMetadata(Model):
     @property
     def all_issns(self):
         all_issns = []
-        for j in Publisher_Journal.objects.filter(publisher_id=self.publisher_id, product_id='published_articles'):
+        for j in PublisherJournal.objects.filter(publisher_id=self.publisher_id, product_id='published_articles'):
             all_issns.append(j.electronic_issn)
             all_issns.append(j.print_issn)
         return all_issns

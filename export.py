@@ -24,7 +24,7 @@ models = [
     'Pipeline_Status',
     'Pipeline_Task_Status',
     'Rejected_Articles',
-    'Publisher_Journal',
+    'PublisherJournal',
     'Publisher_User',
     'PublisherMetadata',
     'Audit_Log',
@@ -41,7 +41,7 @@ models = [
     'Alert',
     'Notification',
     'Notification_Summary',
-    'Attribute_Values',
+    'AttributeValues',
 ]
 
 def format_value(value):
