@@ -50,7 +50,7 @@ class LoadSubscriberDataTask(Task):
 
         total_count = 0
         for file_path in all_files:
-            total_count += utils.file_len(file_path, encoding='windows-1252')
+            total_count += utils.file_len(file_path, encoding='ISO-8859-2')
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
         tlogger.info('Found %s records' % total_count)
 
@@ -64,16 +64,16 @@ class LoadSubscriberDataTask(Task):
 
         count = 0
         for file_path in all_files:
-            with open(file_path, encoding='windows-1252') as f:
+            with open(file_path, encoding='ISO-8859-2') as f:
                 reader = csv.DictReader(f, delimiter='\t', fieldnames=self.FIELD_NAMES)
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
+                    subscriber_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
                     membership_no = row['membership_no']
-                    if publisher_id:
+                    if subscriber_publisher_id:
                         Subscriber.objects(
-                            publisher_id=publisher_id,
+                            publisher_id=subscriber_publisher_id,
                             membership_no=membership_no,
                         ).update(
                             ac_database=row['ac_database'],
@@ -99,7 +99,7 @@ class LoadSubscriberDataTask(Task):
 
                         for field in overlapping_fields_in_file:
                             SubscriberValues.objects(
-                                publisher_id=publisher_id,
+                                publisher_id=subscriber_publisher_id,
                                 membership_no=membership_no,
                                 source='hw',
                                 name=field,
