@@ -7,7 +7,8 @@ from ivetl.models import HighwireMetadata
 
 @app.task
 class LoadH20MetadataTask(Task):
-    METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'
+    # METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'
+    METADATA_FILE = '/Users/john/Desktop/hwdw_journal_info.txt'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
@@ -56,7 +57,13 @@ class LoadH20MetadataTask(Task):
             for row in reader:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                HighwireMetadata.objects(site_id=row['site_id']).update(
+                try:
+                    site_id = int(row['site_id'])
+                except ValueError:
+                    tlogger.info('Unrecognized site ID, skipping row...')
+                    continue
+
+                HighwireMetadata.objects(site_id=site_id).update(
                     sort_name=row['sort_name'],
                     site_code=row['site_code'],
                     name=row['name'],
@@ -87,6 +94,8 @@ class LoadH20MetadataTask(Task):
                     has_athens=row['has_athens'],
                     sage_subject_area=row['sage_subject_area'],
                 )
+
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
         return {
             'count': count
