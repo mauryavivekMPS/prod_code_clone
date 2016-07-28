@@ -1,0 +1,68 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Chose Citable Sections{% endblock %}
+{% block body_class %}citable-sections{% endblock %}
+
+{% block content %}
+    <div id="choose-citable-sections-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'citable_sections.list' %}">Journals</a></li>
+                    <li></li>
+                </ol>
+                <h1>{{ journal.journal_code }}</h1>
+            </div>
+        </div>
+
+        {% if sections %}
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Choose citable sections from the list below to take affect during the next monthly processing run:</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-horizontal citable-sections-form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            {% if sections %}
+                                <div class="checkbox">
+                                    {% for section, cited in sections %}
+                                        <label>
+                                            <input name="section_{{ section }}" {% if cited %}checked{% endif %} type="checkbox">
+                                            {{ section }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="form-control-static">
+                                    No sections found for this journal. Please try again after the next monthly processing run.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group submit-row">
+                        <button type="submit" class="btn btn-primary submit-button">
+                            Save Changes
+                        </button>
+                        <span class="cancel">or <a href="../../">Cancel</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#choose-citable-sections-page').citablesectionspage();
+        });
+    </script>
+{% endblock %}

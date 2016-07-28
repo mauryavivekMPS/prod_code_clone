@@ -1,7 +1,7 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import PublisherMetadata, Publisher_Journal
+from ivetl.models import PublisherMetadata, PublisherJournal
 from ivetl.common import common
 
 
@@ -30,8 +30,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             publisher_id = pm.publisher_id
 
             # get ISSNs by product to deal with cohort or not
-            issns = [j.print_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)]
-            issns.extend([j.electronic_issn for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)])
+            issns = [j.print_issn for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)]
+            issns.extend([j.electronic_issn for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)])
 
             if product['cohort']:
                 start_publication_date = self.COHORT_PUB_START_DATE
@@ -56,3 +56,11 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             }
 
             self.chain_tasks(pipeline_id, task_args)
+
+    @staticmethod
+    def generate_electronic_issn_lookup(publisher_id, product_id):
+        """ Create a lookup to allow resolving both ISSNs to the electronic ISSN. """
+        journals_for_publisher = PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)
+        electronic_issn_lookup = {j.electronic_issn: j.electronic_issn for j in journals_for_publisher}
+        electronic_issn_lookup.update({j.print_issn: j.electronic_issn for j in journals_for_publisher})
+        return electronic_issn_lookup

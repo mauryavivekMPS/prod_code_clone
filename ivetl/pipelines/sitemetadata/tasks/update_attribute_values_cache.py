@@ -1,7 +1,7 @@
 import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import UptimeCheckMetadata, Attribute_Values
+from ivetl.models import UptimeCheckMetadata, AttributeValues
 from ivetl.alerts import CHECKS
 
 
@@ -32,7 +32,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 if check[name]:
                     values.add(check[name])
 
-            Attribute_Values.objects(
+            AttributeValues.objects(
                 publisher_id=publisher_id,
                 name='uptime_check_metadata.' + name,
             ).update(
