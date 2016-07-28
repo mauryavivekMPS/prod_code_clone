@@ -126,8 +126,12 @@ class Task(BaseTask):
 
         tlogger.error('Exception: %s' % exc)
         tlogger.error('Traceback:\n%s' % einfo.traceback)
-        tlogger.error('args:\n%s' % args)
-        tlogger.error('kwargs:\n%s' % kwargs)
+
+        if args:
+            tlogger.error('args:\n%s' % args)
+
+        if kwargs:
+            tlogger.error('kwargs:\n%s' % kwargs)
 
         Pipeline_Task_Status.objects(
             publisher_id=publisher_id,
