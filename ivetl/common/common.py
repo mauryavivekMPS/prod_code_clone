@@ -711,6 +711,9 @@ EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.or
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
+NETSITE_USERNAME = 'netsite'
+NETSITE_PASSWORD = 'p3p!22st3P'
+
 PINGDOM_ACCOUNTS = [
     {
         'name': 'primary',
