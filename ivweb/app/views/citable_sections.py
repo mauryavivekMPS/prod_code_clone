@@ -1,7 +1,6 @@
 import json
 import logging
-from django import forms
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import PublisherJournal, AttributeValues, CitableSection
@@ -13,13 +12,11 @@ log = logging.getLogger(__name__)
 @login_required
 def list_journals(request):
 
-    # messages = []
-    # if 'from' in request.GET:
-    #     from_value = request.GET['from']
-    #     if from_value == 'save-success':
-    #         messages.append("Changes to your alert have been saved.")
-    #     elif from_value == 'new-success':
-    #         messages.append("Your new alert is created and ready to go.")
+    messages = []
+    if 'from' in request.GET:
+        from_value = request.GET['from']
+        if from_value == 'save-success':
+            messages.append("Changes to the citable sections have been saved.")
 
     single_publisher_user = False
     if request.user.superuser:
@@ -34,7 +31,7 @@ def list_journals(request):
     sorted_journals = sorted(unsorted_journals, key=lambda j: (j[sort_key], j['journal_code']), reverse=sort_descending)
 
     response = render(request, 'citable_sections/list.html', {
-        # 'messages': messages,
+        'messages': messages,
         'journals': sorted_journals,
         'reset_url': reverse('citable_sections.list') + '?sort=' + sort_param,
         'sort_key': sort_key,
@@ -59,30 +56,41 @@ def choose_citable_sections(request, publisher_id=None, uid=None):
                 name='citable_sections.' + issn
             )
             for section in json.loads(attribute_value.values_json):
-                try:
-                    CitableSection.objects.get(
-                        publisher_id=publisher_id,
-                        journal_issn=issn
-                    )
-                    cited = True
-                except CitableSection.DoesNotExist:
-                    cited = False
-                sections[section] = cited
+                if section and section != 'None':
+                    try:
+                        CitableSection.objects.get(
+                            publisher_id=publisher_id,
+                            journal_issn=issn,
+                            article_type=section
+                        )
+                        cited = True
+                    except CitableSection.DoesNotExist:
+                        cited = False
+                    sections[section] = cited
 
         except AttributeValues.DoesNotExist:
             pass
 
+    foo = [(section, cited) for section, cited in sections.items()]
+    sorted_sections = sorted([(section, cited) for section, cited in sections.items()], key=lambda s: s[0])
+
     if request.method == 'POST':
-        # TODO: figure out whether to delete everything first
-        # for section_param_name in [p[8:] for p in request.POST if p.startswith('section_')]:
-        #     CitableSection.objects.create(
-        #         publisher_id=publisher_id,
-        #         journal_issn=journal.electronic_issn,
-        #         # TODO: figure out which issn to write it against!
-        #     )
-        pass
+
+        # delete existing citable records
+        CitableSection.objects.filter(publisher_id=publisher_id, journal_issn=journal.electronic_issn).delete()
+
+        # add all new ones
+        for section in [p[8:] for p in request.POST if p.startswith('section_')]:
+            CitableSection.objects.create(
+                publisher_id=publisher_id,
+                journal_issn=journal.electronic_issn,
+                article_type=section
+            )
+
+        return HttpResponseRedirect(reverse('citable_sections.list') + '?from=save-success')
 
     return render(request, 'citable_sections/choose_citable_sections.html', {
         'journal': journal,
-        'sections': sections,
+        'sections': sorted_sections,
     })
+
