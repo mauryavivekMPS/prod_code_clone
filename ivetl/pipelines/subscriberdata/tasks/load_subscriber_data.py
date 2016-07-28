@@ -62,10 +62,16 @@ class LoadSubscriberDataTask(Task):
 
         overlapping_fields_in_file = set(SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS).intersection(set(self.FIELD_NAMES))
 
+        def reader_without_nulls(f):
+            while True:
+                yield next(f).replace('\0', '')
+                continue
+            return
+
         count = 0
         for file_path in all_files:
-            with open(file_path, encoding='ISO-8859-2') as f:
-                reader = csv.DictReader(f, delimiter='\t', fieldnames=self.FIELD_NAMES)
+            with open(file_path, encoding='ISO-8859-2') as subscriber_file:
+                reader = csv.DictReader(reader_without_nulls(subscriber_file), delimiter='\t', fieldnames=self.FIELD_NAMES)
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
