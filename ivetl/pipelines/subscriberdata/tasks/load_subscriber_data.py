@@ -71,7 +71,7 @@ class LoadSubscriberDataTask(Task):
         count = 0
         for file_path in all_files:
             with open(file_path, encoding='ISO-8859-2') as subscriber_file:
-                reader = csv.DictReader(reader_without_nulls(subscriber_file), delimiter='\t', fieldnames=self.FIELD_NAMES)
+                reader = csv.DictReader(reader_without_nulls(subscriber_file), delimiter='\t', fieldnames=self.FIELD_NAMES, quoting=csv.QUOTE_NONE)
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 

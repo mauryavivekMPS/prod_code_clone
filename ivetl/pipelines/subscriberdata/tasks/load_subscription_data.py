@@ -76,15 +76,23 @@ class LoadSubscriptionDataTask(Task):
         expiration_dates_for_member = defaultdict(lambda: defaultdict(list))
         subscriptions_for_member = defaultdict(lambda: defaultdict(int))
 
+        def reader_without_nulls(f):
+            while True:
+                yield next(f).replace('\0', '')
+                continue
+            return
+
         count = 0
         for file_path in all_files:
-            with open(file_path, encoding='ISO-8859-2') as f:
-                reader = csv.DictReader(f, delimiter='\t', fieldnames=self.FIELD_NAMES)
+            with open(file_path, encoding='ISO-8859-2') as subscription_file:
+                reader = csv.DictReader(reader_without_nulls(subscription_file), delimiter='\t', fieldnames=self.FIELD_NAMES, quoting=csv.QUOTE_NONE)
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     subscription_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
                     membership_no = row['membership_no']
+                    expiration_date = parse(row['expiration_dt'])
+
                     if subscription_publisher_id:
                         Subscription.objects(
                             publisher_id=subscription_publisher_id,
@@ -94,7 +102,7 @@ class LoadSubscriptionDataTask(Task):
                         ).update(
                             institution_number=row['institution_number'],
                             ac_database=row['ac_database'],
-                            expiration_dt=parse(row['expiration_dt']),
+                            expiration_dt=expiration_date,
                             subscr_status=row['subscr_status'],
                             last_used_dt=parse(row['last_used_dt']),
                             modified_by_dt=parse(row['modified_by_dt']),
@@ -103,7 +111,7 @@ class LoadSubscriptionDataTask(Task):
                             subscr_type_desc=row['subscr_type_desc'],
                         )
 
-                    expiration_dates_for_member[subscription_publisher_id][membership_no].append(parse(row['expiration_dt']))
+                    expiration_dates_for_member[subscription_publisher_id][membership_no].append(expiration_date)
                     subscriptions_for_member[subscription_publisher_id][membership_no] += 1
 
         for subscription_publisher_id in expiration_dates_for_member:
