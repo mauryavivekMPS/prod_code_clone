@@ -1,7 +1,10 @@
 import os
 import importlib
 import sendgrid
+import json
 
+with open('/iv/properties.json', 'r') as properties_file:
+    ENV_PROPERTIES = json.loads(properties_file.read())
 
 PIPELINES = [
     {
@@ -711,20 +714,20 @@ EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.or
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
-NETSITE_USERNAME = 'netsite'
-NETSITE_PASSWORD = 'p3p!22st3P'
+NETSITE_USERNAME = ENV_PROPERTIES['netsite']['username']
+NETSITE_PASSWORD = ENV_PROPERTIES['netsite']['password']
 
 PINGDOM_ACCOUNTS = [
     {
         'name': 'primary',
         'email': 'pingdom@highwire.stanford.edu',
-        'password': '#hq77C;_-',
+        'password': ENV_PROPERTIES['pingdom']['primary']['password'],
         'api_key': '3j65ak0jedmwy1cu6u68u237a6a47quq'
     },
     {
         'name': 'secondary',
         'email': 'sysadmin@highwire.org',
-        'password': '#[~Iw&+J6',
+        'password': ENV_PROPERTIES['pingdom']['secondary']['password'],
         'api_key': '9jl17p9dka6agqmwb6ru6e7mqt9ei8a1',
     },
 ]
