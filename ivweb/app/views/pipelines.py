@@ -19,7 +19,7 @@ from django.template import loader, RequestContext
 
 from ivetl.common import common
 from ivetl import utils
-from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, Publisher_Journal
+from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ def list_pipelines(request, product_id, pipeline_id):
             elif filter_param == 'all' or (filter_param == 'demos' and publisher.demo) or (filter_param == 'publishers' and not publisher.demo):
                 # special support for other pipeline-level filters
                 if pipeline.get('filter_for_benchpress_support'):
-                    benchpress_journals = Publisher_Journal.objects.filter(
+                    benchpress_journals = PublisherJournal.objects.filter(
                         publisher_id=publisher.publisher_id,
                         product_id='published_articles',
                         use_benchpress=True
@@ -368,7 +368,7 @@ def tail(request, product_id, pipeline_id):
     job_id = request.REQUEST['job_id']
     task_id = request.REQUEST['task_id']
     log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
-    content = subprocess.check_output('tail -n 20 %s' % log_file, shell=True).decode('utf-8')
+    content = subprocess.check_output('tail -n 100 %s' % log_file, shell=True).decode('utf-8')
 
     # strip up to a previously loaded line if provided
     if 'last_line' in request.REQUEST:

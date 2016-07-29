@@ -90,6 +90,7 @@ class ClassifyChecksTask(Task):
                     check['site_code'] = 'unknown'
                     check['publisher_name'] = 'unknown'
                     check['publisher_code'] = 'unknown'
+                    check['drupal_launch_date'] = None
 
                     if h20_metadata:
                         check['site_name'] = _unknown_if_empty(h20_metadata.name)
@@ -103,6 +104,8 @@ class ClassifyChecksTask(Task):
                         check['site_code'] = _unknown_if_empty(drupal_metadata.site_code)
                         check['publisher_code'] = _unknown_if_empty(drupal_metadata.umbrella_code)
                         check['publisher_name'] = _unknown_if_empty(drupal_metadata.publisher)
+                        if drupal_metadata.launch_date:
+                            check['drupal_launch_date'] = self.to_json_date(drupal_metadata.launch_date)
 
                     name = check['name']
                     url = check['type']['http']['url']

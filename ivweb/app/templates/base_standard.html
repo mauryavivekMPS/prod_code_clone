@@ -77,6 +77,9 @@
                     <li class="user_menu_item">
                         <a href="{% url 'users.list' %}">Users</a>
                     </li>
+                    <li class="journals_menu_item">
+                        <a href="{% url 'journals.list' %}">Journals</a>
+                    </li>
                     <li class="notification_menu_item">
                         <a href="{% url 'notifications.list' %}">Alert Notifications</a>
                     </li>
@@ -118,6 +121,9 @@
                             <a href="{% url 'home' %}">Dashboard</a>
                         </li>
                     {% endif %}
+                    <li class="journals_menu_item">
+                        <a href="{% url 'journals.list' %}">Citable Sections</a>
+                    </li>
                     <li class="notification_menu_item">
                         <a href="{% url 'notifications.list' %}">Alert Notifications</a>
                     </li>

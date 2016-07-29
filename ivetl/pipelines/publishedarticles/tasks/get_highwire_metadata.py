@@ -10,7 +10,7 @@ from lxml import etree
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector, SassConnector
-from ivetl.models import Publisher_Journal, Doi_Transform_Rule
+from ivetl.models import PublisherJournal, Doi_Transform_Rule
 from ivetl.pipelines.task import Task
 
 
@@ -86,8 +86,8 @@ class GetHighWireMetadataTask(Task):
             tlogger.info("Cohort product - Skipping Task")
             return task_args
 
-        issn_to_hw_journal_code = {j.electronic_issn: j.journal_code for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)}
-        issn_to_hw_journal_code.update({j.print_issn: j.journal_code for j in Publisher_Journal.objects.filter(publisher_id=publisher_id, product_id=product_id)})
+        issn_to_hw_journal_code = {j.electronic_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)}
+        issn_to_hw_journal_code.update({j.print_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)})
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "hwmetadatalookup" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')

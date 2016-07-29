@@ -10,7 +10,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, Publisher_Journal, Scopus_Api_Key, Demo
+from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, PublisherJournal, Scopus_Api_Key, Demo
 from ivetl.tasks import setup_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -48,6 +48,10 @@ def list_publishers(request):
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('publisher-list-sort', 'name'))
     sorted_filtered_publishers = sorted(filtered_publishers, key=attrgetter(sort_key), reverse=sort_descending)
+
+    for publisher in sorted_filtered_publishers:
+        num_journals = PublisherJournal.objects.filter(publisher_id=publisher.publisher_id, product_id='published_articles')
+        setattr(publisher, 'num_journals', num_journals.count())
 
     response = render(request, 'publishers/list.html', {
         'publishers': sorted_filtered_publishers,
@@ -212,7 +216,7 @@ class PublisherForm(forms.Form):
                 initial['issn_values'] = json.dumps(self.issn_values_list)
             else:
                 index = 0
-                for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
+                for code in PublisherJournal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
                     self.issn_values_list.append({
                         'product_id': 'published_articles',
                         'electronic_issn': code.electronic_issn,
@@ -231,7 +235,7 @@ class PublisherForm(forms.Form):
                 initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
             else:
                 index = 0
-                for code in Publisher_Journal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
+                for code in PublisherJournal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
                     self.issn_values_cohort_list.append({
                         'product_id': 'cohort_articles',
                         'electronic_issn': code.electronic_issn,
@@ -378,7 +382,7 @@ class PublisherForm(forms.Form):
                     reports_project=self.cleaned_data['reports_project'],
                 )
 
-            for journal in Publisher_Journal.objects.filter(publisher_id=publisher_id):
+            for journal in PublisherJournal.objects.filter(publisher_id=publisher_id):
                 journal.delete()
 
             def int_or_none(i):
@@ -389,7 +393,7 @@ class PublisherForm(forms.Form):
 
             if self.cleaned_data['issn_values']:
                 for issn_value in json.loads(self.cleaned_data['issn_values']):
-                    Publisher_Journal.objects.create(
+                    PublisherJournal.objects.create(
                         product_id='published_articles',
                         publisher_id=publisher_id,
                         electronic_issn=issn_value['electronic_issn'],
@@ -402,7 +406,7 @@ class PublisherForm(forms.Form):
 
             if self.cleaned_data['issn_values_cohort']:
                 for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
-                    Publisher_Journal.objects.create(
+                    PublisherJournal.objects.create(
                         product_id='cohort_articles',
                         publisher_id=publisher_id,
                         electronic_issn=issn_value['electronic_issn'],

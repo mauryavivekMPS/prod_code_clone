@@ -15,3 +15,4 @@ class UptimeCheckMetadata(Model):
     site_platform = columns.Text()
     publisher_name = columns.Text()
     publisher_code = columns.Text()
+    drupal_launch_date = columns.DateTime()

@@ -3,14 +3,13 @@ import shutil
 import spur
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
+from ivetl.common import common
 from ivetl import utils
 
 
 @app.task
 class GetStatsFilesTask(Task):
     HOSTNAME = 'dw-work-02.highwire.org'
-    USERNAME = 'netsite'
-    PASSWORD = 'F!b57g0v'
     LOG_FILE_DIR = '/var/log/logstat'
     LOG_FILE_EXTENSION = '.log'
 
@@ -29,8 +28,8 @@ class GetStatsFilesTask(Task):
 
         shell = spur.SshShell(
             hostname=self.HOSTNAME,
-            username=self.USERNAME,
-            password=self.PASSWORD,
+            username=common.NETSITE_USERNAME,
+            password=common.NETSITE_PASSWORD,
             missing_host_key=spur.ssh.MissingHostKey.accept,
             shell_type=spur.ssh.ShellTypes.minimal
         )

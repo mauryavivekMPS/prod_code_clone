@@ -12,3 +12,4 @@ class DrupalMetadata(Model):
     product = columns.Text()
     type = columns.Text()
     created = columns.Text()
+    launch_date = columns.DateTime()

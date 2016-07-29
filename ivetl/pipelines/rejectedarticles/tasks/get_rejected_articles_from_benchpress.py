@@ -5,14 +5,12 @@ import datetime
 import spur
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Publisher_Journal
-
+from ivetl.models import PublisherJournal
+from ivetl.common import common
 
 @app.task
 class GetRejectedArticlesFromBenchPressTask(Task):
     HOSTNAME = 'hw-bp-cron-dev-1.highwire.org'
-    USERNAME = 'netsite'
-    PASSWORD = 'F!b57g0v'
     SCRIPT = '/mstr/maint/vizor/vizor_request.pl'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
@@ -54,7 +52,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
 
-        journals_with_benchpress = [p.journal_code for p in Publisher_Journal.objects.filter(
+        journals_with_benchpress = [p.journal_code for p in PublisherJournal.objects.filter(
             publisher_id=publisher_id,
             product_id='published_articles',
             use_benchpress=True
@@ -69,8 +67,8 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
             shell = spur.SshShell(
                 hostname=self.HOSTNAME,
-                username=self.USERNAME,
-                password=self.PASSWORD,
+                username=common.NETSITE_USERNAME,
+                password=common.NETSITE_PASSWORD,
                 missing_host_key=spur.ssh.MissingHostKey.accept
             )
 

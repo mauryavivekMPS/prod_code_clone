@@ -24,16 +24,20 @@ urlpatterns = patterns(
     # users
     url(r'^users/$', 'users.list_users', name='users.list'),
     url(r'^users/new/$', 'users.edit', name='users.new'),
-    url(r'^users/(?P<user_id>[\w\-\.]+)/$', 'users.edit', name='users.edit'),
+    url(r'^users/(?P<user_id>[\w\-.]+)/$', 'users.edit', name='users.edit'),
 
     # alerts
     url(r'^alerts/$', 'alerts.list_alerts', name='alerts.list'),
     url(r'^alerts/new/$', 'alerts.edit', name='alerts.new'),
-    url(r'^alerts/(?P<alert_id>[\w\-\.]+)/$', 'alerts.edit', name='alerts.edit'),
+    url(r'^alerts/(?P<alert_id>[\w\-.]+)/$', 'alerts.edit', name='alerts.edit'),
 
     # notifications
     url(r'^notifications/$', 'notifications.list_notifications', name='notifications.list'),
     url(r'^external/$', 'notifications.external', name='notifications.external'),
+
+    # journals and citable sections
+    url(r'^journals/$', 'journals.list_journals', name='journals.list'),
+    url(r'^journals/(?P<publisher_id>[\w]+)/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='journals.choose_citable_sections'),
 
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
@@ -46,7 +50,9 @@ urlpatterns = patterns(
     url(r'^publishers/(?P<publisher_id>[\w]+)/$', 'publishers.edit', name='publishers.edit'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/$', 'users.list_users', name='publishers.users'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/new/$', 'users.edit', name='publishers.users.new'),
-    url(r'^publishers/(?P<publisher_id>[\w]+)/users/(?P<user_id>[\w\-\.]+)/$', 'users.edit', name='publishers.users.edit'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/journals/$', 'journals.list_journals', name='publishers.journals'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/journals/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='publishers.journals.choose_citable_sections'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/users/(?P<user_id>[\w\-.]+)/$', 'users.edit', name='publishers.users.edit'),
 
     # pipeline details
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/$', 'pipelines.list_pipelines', name='pipelines.list'),

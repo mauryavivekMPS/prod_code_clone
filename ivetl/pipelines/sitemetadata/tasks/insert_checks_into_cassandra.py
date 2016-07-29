@@ -24,6 +24,11 @@ class InsertChecksIntoCassandraTask(Task):
 
                 check = json.loads(line[1])
 
+                if check['drupal_launch_date']:
+                    drupal_launch_date = self.from_json_date(check['drupal_launch_date'])
+                else:
+                    drupal_launch_date = None
+
                 UptimeCheckMetadata.objects(
                     publisher_id=publisher_id,
                     check_id=check['id'],
@@ -38,6 +43,7 @@ class InsertChecksIntoCassandraTask(Task):
                     site_platform=check['site_platform'],
                     publisher_name=check['publisher_name'],
                     publisher_code=check['publisher_code'],
+                    drupal_launch_date=drupal_launch_date,
                 )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)

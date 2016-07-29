@@ -3,7 +3,7 @@ from cassandra.cqlengine.models import Model
 
 
 class PublishedArticle(Model):
-    publisher_id = columns.Text(primary_key=True)
+    publisher_id = columns.Text(partition_key=True)
     article_doi = columns.Text(primary_key=True)
     article_issue = columns.Text()
     article_journal = columns.Text()
@@ -82,4 +82,5 @@ class PublishedArticle(Model):
     f1000_num_recommendations = columns.Integer()
     f1000_average_score = columns.Decimal()
     citation_count = columns.Integer()
+    is_tr_citable = columns.Boolean()
     updated = columns.DateTime()

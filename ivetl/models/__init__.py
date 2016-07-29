@@ -1,4 +1,4 @@
-from ivetl.models.PublisherJournal import Publisher_Journal
+from ivetl.models.publisher_journal import PublisherJournal
 from ivetl.models.PublisherUser import Publisher_User
 from ivetl.models.publisher_metadata import PublisherMetadata
 from ivetl.models.User import User, Anonymous_User
@@ -18,7 +18,7 @@ from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.Alert import Alert
 from ivetl.models.Notification import Notification
 from ivetl.models.NotificationSummary import Notification_Summary
-from ivetl.models.AttributeValues import Attribute_Values
+from ivetl.models.attribute_values import AttributeValues
 from ivetl.models.InstitutionMetadata import Institution_Metadata
 from ivetl.models.published_article import PublishedArticle
 from ivetl.models.institution_usage import InstitutionUsageStat
@@ -36,3 +36,4 @@ from ivetl.models.subscriber_values import SubscriberValues
 from ivetl.models.system_global import SystemGlobal
 from ivetl.models.product_bundle import ProductBundle
 from ivetl.models.subscription_pricing import SubscriptionPricing
+from ivetl.models.citable_section import CitableSection

@@ -1,6 +1,6 @@
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import PublisherMetadata, Publisher_Journal
+from ivetl.models import PublisherMetadata, PublisherJournal
 
 
 @app.task
@@ -17,7 +17,7 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
             # default to production pubs with benchpress support
             publishers = []
             for publisher in PublisherMetadata.objects.filter(demo=False):
-                benchpress_journals = Publisher_Journal.objects.filter(
+                benchpress_journals = PublisherJournal.objects.filter(
                     publisher_id=publisher.publisher_id,
                     product_id='published_articles',
                     use_benchpress=True

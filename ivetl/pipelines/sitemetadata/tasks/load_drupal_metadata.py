@@ -1,3 +1,4 @@
+from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import SmartConnector
@@ -22,30 +23,37 @@ class LoadDrupalMetadataTask(Task):
 
                         site = metadata['clusters'][cluster_name]['sites'][site_key]
                         site_id = site.get('identifier')
+                        launch_date = None
 
                         if site_id:
 
                             if 'instances' in site:
-                                if site_key + '_production' in site['instances']:
-                                    pre_production_site = site['instances'][site_key + '_production'].get('pre_production')
-                                    if 'production_url' in site['instances'][site_key + '_production']:
-                                        site_url = site['instances'][site_key + '_production'].get('production_url')
-                                    else:
-                                        site_url = site['instances'][site_key + '_production'].get('primary_url')
+                                instances = site['instances']
+                                key_1 = site_key + '_production'
+                                key_2 = 'production_' + site_key
 
-                                elif 'production_' + site_key in site['instances']:
-                                    pre_production_site = site['instances']['production_' + site_key].get('pre_production')
-                                    if 'production_url' in site['instances']['production_' + site_key]:
-                                        site_url = site['instances']['production_' + site_key].get('production_url')
-                                    else:
-                                        site_url = site['instances']['production_' + site_key].get('primary_url')
+                                site_record = None
+                                if key_1 in instances:
+                                    site_record = instances[key_1]
+                                elif key_2 in instances:
+                                    site_record = instances[key_2]
+                                elif len(list(instances.values())):
+                                    site_record = list(instances.values())[0]
 
-                                elif list(site['instances'].values())[0]:
-                                    pre_production_site = list(site['instances'].values())[0].get('pre_production')
-                                    if 'production_url' in list(site['instances'].values())[0]:
-                                        site_url = list(site['instances'].values())[0].get('production_url')
+                                if site_record:
+                                    pre_production_site = site_record.get('pre_production')
+
+                                    launch_date_str = site_record.get('site_instance_launch_date')
+                                    if launch_date_str:
+                                        try:
+                                            launch_date = parse(launch_date_str)
+                                        except ValueError:
+                                            pass
+
+                                    if 'production_url' in site_record:
+                                        site_url = site_record.get('production_url')
                                     else:
-                                        site_url = list(site['instances'].values())[0].get('primary_url')
+                                        site_url = site_record.get('primary_url')
                                 else:
                                     site_url = ""
                                     pre_production_site = 1
@@ -68,6 +76,7 @@ class LoadDrupalMetadataTask(Task):
                                 product=site.get('product'),
                                 type=site.get('type'),
                                 created=site.get('created'),
+                                launch_date=launch_date,
                             )
 
         return {
