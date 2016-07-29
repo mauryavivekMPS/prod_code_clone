@@ -39,7 +39,7 @@ class InsertScopusIntoCassandra(Task):
                         continue
 
                     if not isinstance(citation_doi, str):
-                        tlogger.info('citation doi is not of type string, skipping... ' + type(citation_doi))
+                        tlogger.info('citation doi is not of type string, skipping... ' + str(type(citation_doi)))
                         continue
 
                     try:
