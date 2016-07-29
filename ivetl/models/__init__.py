@@ -2,7 +2,7 @@ from ivetl.models.PublisherJournal import Publisher_Journal
 from ivetl.models.PublisherUser import Publisher_User
 from ivetl.models.publisher_metadata import PublisherMetadata
 from ivetl.models.User import User, Anonymous_User
-from ivetl.models.demo import Demo
+from ivetl.models.Demo import Demo
 from ivetl.models.published_article_values import PublishedArticleValues
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 from ivetl.models.ArticleCitations import Article_Citations
