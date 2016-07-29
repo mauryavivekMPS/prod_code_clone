@@ -40,7 +40,6 @@
                             <td>{{ publisher.publisher_id }}</td>
                             <td><a href="{% url 'publishers.users' publisher.publisher_id %}">{{ publisher.users|length }} user{{ publisher.users|pluralize }}</a></td>
                             <td><a href="{% url 'publishers.journals' publisher.publisher_id %}">{{ publisher.num_journals }} journal{{ publisher.num_journals|pluralize }}</a></td>
-                            <td class="text-center">{{ publisher.supported_products|length }}</td>
                             <td class="text-center">{% checkmark publisher.demo %}</td>
                             <td class="text-center">{% checkmark publisher.pilot %}</td>
                         </tr>

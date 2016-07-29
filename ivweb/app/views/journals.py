@@ -35,8 +35,10 @@ def list_journals(request, publisher_id=None):
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
+    filtered_journals = [j for j in unsorted_journals if j.product_id == 'published_articles']
+
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('journal-list-sort', 'publisher_id'))
-    sorted_journals = sorted(unsorted_journals, key=lambda j: (j[sort_key], j['journal_code']), reverse=sort_descending)
+    sorted_journals = sorted(filtered_journals, key=lambda j: (j[sort_key] or '', j['journal_code'] or ''), reverse=sort_descending)
 
     for journal in unsorted_journals:
         num_citable_sections = CitableSection.objects.filter(publisher_id=journal.publisher_id, journal_issn=journal.electronic_issn)

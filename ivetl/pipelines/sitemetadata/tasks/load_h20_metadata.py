@@ -7,8 +7,7 @@ from ivetl.models import HighwireMetadata
 
 @app.task
 class LoadH20MetadataTask(Task):
-    # METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'
-    METADATA_FILE = '/Users/john/Desktop/hwdw_journal_info.txt'
+    METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
