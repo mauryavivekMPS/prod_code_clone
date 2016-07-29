@@ -83,11 +83,11 @@ class LoadSubscriptionDataTask(Task):
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
+                    subscription_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
                     membership_no = row['membership_no']
-                    if publisher_id:
+                    if subscription_publisher_id:
                         Subscription.objects(
-                            publisher_id=publisher_id,
+                            publisher_id=subscription_publisher_id,
                             membership_no=membership_no,
                             journal_code=row['journal_code'],
                             subscr_type_cd=row['subscr_type_cd']
@@ -103,24 +103,24 @@ class LoadSubscriptionDataTask(Task):
                             subscr_type_desc=row['subscr_type_desc'],
                         )
 
-                    expiration_dates_for_member[publisher_id][membership_no].append(parse(row['expiration_dt']))
-                    subscriptions_for_member[publisher_id][membership_no] += 1
+                    expiration_dates_for_member[subscription_publisher_id][membership_no].append(parse(row['expiration_dt']))
+                    subscriptions_for_member[subscription_publisher_id][membership_no] += 1
 
-        for publisher_id in expiration_dates_for_member:
-            for membership_no in expiration_dates_for_member[publisher_id]:
+        for subscription_publisher_id in expiration_dates_for_member:
+            for membership_no in expiration_dates_for_member[subscription_publisher_id]:
 
                 try:
                     subscriber = Subscriber.objects.get(
-                        publisher_id=publisher_id,
+                        publisher_id=subscription_publisher_id,
                         membership_no=membership_no
                     )
                     expired = True
-                    for expiration_date in expiration_dates_for_member[publisher_id][membership_no]:
+                    for expiration_date in expiration_dates_for_member[subscription_publisher_id][membership_no]:
                         if expiration_date > now:
                             expired = False
 
                     subscriber.expired = expired
-                    subscriber.num_subscriptions = subscriptions_for_member[publisher_id][membership_no]
+                    subscriber.num_subscriptions = subscriptions_for_member[subscription_publisher_id][membership_no]
                     subscriber.save()
 
                 except Subscriber.DoesNotExist:

@@ -9,12 +9,14 @@ from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
 class ResolveSubscriberDataTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        total_count = task_args['count']
 
+        all_subscribers = Subscriber.objects.all()
+
+        total_count = all_subscribers.count()
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
-        for subscriber in Subscriber.objects.all():
+        for subscriber in all_subscribers:
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
             # resolve policy: if a value from source=custom is present it always wins
