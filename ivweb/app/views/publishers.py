@@ -49,6 +49,10 @@ def list_publishers(request):
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('publisher-list-sort', 'name'))
     sorted_filtered_publishers = sorted(filtered_publishers, key=attrgetter(sort_key), reverse=sort_descending)
 
+    for publisher in sorted_filtered_publishers:
+        num_journals = PublisherJournal.objects.filter(publisher_id=publisher.publisher_id, product_id='published_articles')
+        setattr(publisher, 'num_journals', num_journals.count())
+
     response = render(request, 'publishers/list.html', {
         'publishers': sorted_filtered_publishers,
         'alt_error_message': alt_error_message,

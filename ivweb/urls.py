@@ -35,9 +35,9 @@ urlpatterns = patterns(
     url(r'^notifications/$', 'notifications.list_notifications', name='notifications.list'),
     url(r'^external/$', 'notifications.external', name='notifications.external'),
 
-    # citable sections
-    url(r'^citablesections/$', 'citable_sections.list_journals', name='citable_sections.list'),
-    url(r'^citablesections/(?P<publisher_id>[\w]+)/(?P<uid>[\w\-.]+)/$', 'citable_sections.choose_citable_sections', name='citable_sections.choose_citable_sections'),
+    # journals and citable sections
+    url(r'^journals/$', 'journals.list_journals', name='journals.list'),
+    url(r'^journals/(?P<publisher_id>[\w]+)/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='journals.choose_citable_sections'),
 
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
@@ -50,6 +50,8 @@ urlpatterns = patterns(
     url(r'^publishers/(?P<publisher_id>[\w]+)/$', 'publishers.edit', name='publishers.edit'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/$', 'users.list_users', name='publishers.users'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/new/$', 'users.edit', name='publishers.users.new'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/journals/$', 'journals.list_journals', name='publishers.journals'),
+    url(r'^publishers/(?P<publisher_id>[\w]+)/journals/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='publishers.journals.choose_citable_sections'),
     url(r'^publishers/(?P<publisher_id>[\w]+)/users/(?P<user_id>[\w\-.]+)/$', 'users.edit', name='publishers.users.edit'),
 
     # pipeline details

@@ -1,18 +1,24 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}Chose Citable Sections{% endblock %}
-{% block body_class %}citable-sections{% endblock %}
+{% block title %}Choose Citable Sections{% endblock %}
+{% block body_class %}journals{% endblock %}
 
 {% block content %}
     <div id="choose-citable-sections-page">
         <div class="row header-row with-breadcrumb">
             <div class="col-md-8">
                 <ol class="breadcrumb">
-                    <li><a href="{% url 'citable_sections.list' %}">Journals</a></li>
+                    {% if from_value == 'publisher-journals' %}
+                        <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
+                        <li><a href="{% url 'publishers.edit' publisher.publisher_id %}">{{ publisher.name }}</a></li>
+                        <li><a href="{% url 'publishers.journals' publisher.publisher_id %}">Journals</a></li>
+                    {% else %}
+                        <li><a href="{% url 'journals.list' %}">Journals</a></li>
+                    {% endif %}
                     <li></li>
                 </ol>
-                <h1>{{ journal.journal_code }}</h1>
+                <h1>Citable Sections: {{ journal.journal_code }}</h1>
             </div>
         </div>
 
@@ -28,6 +34,7 @@
             <div class="col-md-12">
                 <form class="form-horizontal citable-sections-form" method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="from" value="{{ from_value }}">
                     <div class="form-group row">
                         <div class="col-sm-12">
                             {% if sections %}
@@ -51,7 +58,13 @@
                         <button type="submit" class="btn btn-primary submit-button">
                             Save Changes
                         </button>
-                        <span class="cancel">or <a href="../../">Cancel</a></span>
+                        <span class="cancel">or
+                            {% if from_value == 'publisher-journals' %}
+                                <a href="../../">Cancel</a>
+                            {% else %}
+                                <a href="../../../">Cancel</a>
+                            {% endif %}
+                        </span>
                     </div>
                 </form>
             </div>

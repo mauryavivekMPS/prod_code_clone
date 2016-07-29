@@ -24,7 +24,7 @@
                         <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
                         <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
                         <th>Users</th>
-                        <th class="text-center">Products</th>
+                        <th>Journals</th>
                         <th class="text-center">Demo</th>
                         <th class="text-center">Pilot</th>
                     </tr>
@@ -38,7 +38,8 @@
                                 </a>
                             </td>
                             <td>{{ publisher.publisher_id }}</td>
-                            <td><a href="{% url 'publishers.users' publisher.publisher_id %}">{{ publisher.users|length }} users</a></td>
+                            <td><a href="{% url 'publishers.users' publisher.publisher_id %}">{{ publisher.users|length }} user{{ publisher.users|pluralize }}</a></td>
+                            <td><a href="{% url 'publishers.journals' publisher.publisher_id %}">{{ publisher.num_journals }} journal{{ publisher.num_journals|pluralize }}</a></td>
                             <td class="text-center">{{ publisher.supported_products|length }}</td>
                             <td class="text-center">{% checkmark publisher.demo %}</td>
                             <td class="text-center">{% checkmark publisher.pilot %}</td>

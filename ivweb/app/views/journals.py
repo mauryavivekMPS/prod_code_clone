@@ -3,14 +3,14 @@ import logging
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherJournal, AttributeValues, CitableSection
+from ivetl.models import PublisherJournal, AttributeValues, CitableSection, PublisherMetadata
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
 
 @login_required
-def list_journals(request):
+def list_journals(request, publisher_id=None):
 
     messages = []
     if 'from' in request.GET:
@@ -19,24 +19,44 @@ def list_journals(request):
             messages.append("Changes to the citable sections have been saved.")
 
     single_publisher_user = False
+    unsorted_journals = []
     if request.user.superuser:
-        unsorted_journals = PublisherJournal.objects.all()
+        if publisher_id:
+            unsorted_journals = PublisherJournal.objects.filter(publisher_id=publisher_id)
+        else:
+            unsorted_journals = PublisherJournal.objects.all()
     else:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
-        unsorted_journals = PublisherJournal.objects.filter(publisher_id__in=accessible_publisher_ids)
+        if publisher_id:
+            if publisher_id in accessible_publisher_ids:
+                unsorted_journals = PublisherJournal.objects.filter(publisher_id=publisher_id)
+        else:
+            unsorted_journals = PublisherJournal.objects.filter(publisher_id__in=accessible_publisher_ids)
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('journal-list-sort', 'publisher_id'))
     sorted_journals = sorted(unsorted_journals, key=lambda j: (j[sort_key], j['journal_code']), reverse=sort_descending)
 
-    response = render(request, 'citable_sections/list.html', {
+    for journal in unsorted_journals:
+        num_citable_sections = CitableSection.objects.filter(publisher_id=journal.publisher_id, journal_issn=journal.electronic_issn)
+        setattr(journal, 'num_citable_sections', num_citable_sections.count())
+
+    publisher = None
+    if publisher_id:
+        reset_url = reverse('publishers.journals', kwargs={'publisher_id': publisher_id})
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+    else:
+        reset_url = reverse('journals.list')
+
+    response = render(request, 'journals/list.html', {
         'messages': messages,
         'journals': sorted_journals,
-        'reset_url': reverse('citable_sections.list') + '?sort=' + sort_param,
+        'reset_url': reset_url + '?sort=' + sort_param,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
+        'publisher': publisher,
     })
 
     response.set_cookie('journal-list-sort', value=sort_param, max_age=30*24*60*60)
@@ -47,6 +67,7 @@ def list_journals(request):
 @login_required
 def choose_citable_sections(request, publisher_id=None, uid=None):
     journal = PublisherJournal.objects.get(publisher_id=publisher_id, product_id='published_articles', uid=uid)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     sections = {}
     try:
@@ -73,6 +94,7 @@ def choose_citable_sections(request, publisher_id=None, uid=None):
     sorted_sections = sorted([(section, cited) for section, cited in sections.items()], key=lambda s: s[0])
 
     if request.method == 'POST':
+        from_value = request.POST.get('from')
 
         # delete existing citable records
         CitableSection.objects.filter(publisher_id=publisher_id, journal_issn=journal.electronic_issn).delete()
@@ -85,10 +107,17 @@ def choose_citable_sections(request, publisher_id=None, uid=None):
                 article_type=section
             )
 
-        return HttpResponseRedirect(reverse('citable_sections.list') + '?from=save-success')
+        if from_value == 'publisher-journals':
+            return HttpResponseRedirect(reverse('publishers.journals', kwargs={'publisher_id': publisher_id}) + '?from=save-success')
+        else:
+            return HttpResponseRedirect(reverse('journals.list') + '?from=save-success')
+    else:
+        from_value = request.GET.get('from')
 
-    return render(request, 'citable_sections/choose_citable_sections.html', {
+    return render(request, 'journals/choose_citable_sections.html', {
         'journal': journal,
         'sections': sorted_sections,
+        'from_value': from_value,
+        'publisher': publisher,
     })
 
