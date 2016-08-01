@@ -85,31 +85,84 @@ class LoadSubscriptionDataTask(Task):
         count = 0
         for file_path in all_files:
             with open(file_path, encoding='ISO-8859-2') as subscription_file:
+                tlogger.info('Processing file %s' % file_path)
                 reader = csv.DictReader(reader_without_nulls(subscription_file), delimiter='\t', fieldnames=self.FIELD_NAMES, quoting=csv.QUOTE_NONE)
                 for row in reader:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    subscription_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
-                    membership_no = row['membership_no']
-                    expiration_date = parse(row['expiration_dt'])
+                    if not count % 100000:
+                        tlogger.info('Completed %s rows' % count)
 
-                    if subscription_publisher_id:
-                        Subscription.objects(
-                            publisher_id=subscription_publisher_id,
-                            membership_no=membership_no,
-                            journal_code=row['journal_code'],
-                            subscr_type_cd=row['subscr_type_cd']
-                        ).update(
-                            institution_number=row['institution_number'],
-                            ac_database=row['ac_database'],
-                            expiration_dt=expiration_date,
-                            subscr_status=row['subscr_status'],
-                            last_used_dt=parse(row['last_used_dt']),
-                            modified_by_dt=parse(row['modified_by_dt']),
-                            product_cd=row['product_cd'],
-                            subscr_type=row['subscr_type'],
-                            subscr_type_desc=row['subscr_type_desc'],
-                        )
+                    subscription_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
+                    membership_no = row.get('membership_no')
+                    journal_code = row.get('journal_code')
+                    subscriber_type_code = row.get('subscr_type_cd')
+
+                    if not subscription_publisher_id:
+                        tlogger.info('No publisher ID for line %s, skipping...' % count)
+                        continue
+
+                    if not membership_no:
+                        tlogger.info('No membership no on line %s, skipping...' % count)
+                        continue
+
+                    if not journal_code:
+                        tlogger.info('No journal_code on line %s, skipping...' % count)
+                        continue
+
+                    if not subscriber_type_code:
+                        tlogger.info('No subscriber_type_code on line %s, skipping...' % count)
+                        continue
+
+                    expiration_date_str = row['expiration_dt']
+                    if not expiration_date_str:
+                        tlogger.info('No expiration date on line %s, skipping...' % count)
+                        continue
+
+                    try:
+                        expiration_date = parse(expiration_date_str)
+                    except ValueError:
+                        tlogger.info('Invalid expiration date on line %s, skipping...' % count)
+                        continue
+
+                    last_used_date_str = row['last_used_dt']
+                    if not last_used_date_str:
+                        tlogger.info('No last used date on line %s, skipping...' % count)
+                        continue
+
+                    try:
+                        last_used_date = parse(last_used_date_str)
+                    except ValueError:
+                        tlogger.info('Invalid last used date on line %s, skipping...' % count)
+                        continue
+
+                    modified_by_date_str = row['modified_by_dt']
+                    if not modified_by_date_str:
+                        tlogger.info('No modified by date on line %s, skipping...' % count)
+                        continue
+
+                    try:
+                        modified_by_date = parse(modified_by_date_str)
+                    except ValueError:
+                        tlogger.info('Invalid modified by date on line %s, skipping...' % count)
+                        continue
+
+                    Subscription.objects(
+                        publisher_id=subscription_publisher_id,
+                        membership_no=membership_no,
+                        journal_code=journal_code,
+                        subscr_type_cd=subscriber_type_code
+                    ).update(
+                        institution_number=row['institution_number'],
+                        ac_database=row['ac_database'],
+                        expiration_dt=expiration_date,
+                        subscr_status=row['subscr_status'],
+                        last_used_dt=last_used_date,
+                        modified_by_dt=modified_by_date,
+                        product_cd=row['product_cd'],
+                        subscr_type=row['subscr_type'],
+                        subscr_type_desc=row['subscr_type_desc'],
+                    )
 
                     expiration_dates_for_member[subscription_publisher_id][membership_no].append(expiration_date)
                     subscriptions_for_member[subscription_publisher_id][membership_no] += 1
