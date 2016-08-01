@@ -281,6 +281,7 @@ PIPELINES = [
             'ivetl.pipelines.institutionusage.tasks.GetJR3FilesTask',
             'ivetl.pipelines.institutionusage.tasks.ValidateJR3FilesTask',
             'ivetl.pipelines.institutionusage.tasks.InsertJR3IntoCassandraTask',
+            'ivetl.pipelines.productbundles.tasks.UpdateInstitutionUsageStatsTask',
         ],
     },
     {
