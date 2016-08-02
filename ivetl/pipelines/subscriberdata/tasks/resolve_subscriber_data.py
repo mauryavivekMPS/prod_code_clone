@@ -10,7 +10,7 @@ class ResolveSubscriberDataTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        all_subscribers = Subscriber.objects.all().limit(1000000)
+        all_subscribers = Subscriber.objects.all().limit(10000000)
 
         total_count = all_subscribers.count()
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
