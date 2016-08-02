@@ -7,7 +7,7 @@ from ivetl.models import InstitutionUsageStat, SubscriptionPricing, ProductBundl
 class UpdateInstitutionUsageStatsTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        publisher_stats = InstitutionUsageStat.objects.filter(publisher_id=publisher_id, counter_type='jr3')
+        publisher_stats = InstitutionUsageStat.objects.filter(publisher_id=publisher_id, counter_type='jr3').limit(1000000)
 
         total_count = publisher_stats.count()
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
