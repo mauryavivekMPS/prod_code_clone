@@ -73,7 +73,7 @@ class LoadSubscriptionDataTask(Task):
 
         now = datetime.datetime.now()
 
-        expiration_dates_for_member = defaultdict(lambda: defaultdict(list))
+        subscription_details_for_member = defaultdict(lambda: defaultdict(list))
         subscriptions_for_member = defaultdict(lambda: defaultdict(int))
 
         def reader_without_nulls(f):
@@ -97,6 +97,7 @@ class LoadSubscriptionDataTask(Task):
                     membership_no = row.get('membership_no')
                     journal_code = row.get('journal_code')
                     subscriber_type_code = row.get('subscr_type_cd')
+                    subscr_status = row.get('subscr_status')
 
                     if not subscription_publisher_id:
                         tlogger.info('No publisher ID for line %s, skipping...' % count)
@@ -112,6 +113,10 @@ class LoadSubscriptionDataTask(Task):
 
                     if not subscriber_type_code:
                         tlogger.info('No subscriber_type_code on line %s, skipping...' % count)
+                        continue
+
+                    if not subscr_status:
+                        tlogger.info('No subscr_status on line %s, skipping...' % count)
                         continue
 
                     expiration_date_str = row['expiration_dt']
@@ -156,7 +161,7 @@ class LoadSubscriptionDataTask(Task):
                         institution_number=row['institution_number'],
                         ac_database=row['ac_database'],
                         expiration_dt=expiration_date,
-                        subscr_status=row['subscr_status'],
+                        subscr_status=subscr_status,
                         last_used_dt=last_used_date,
                         modified_by_dt=modified_by_date,
                         product_cd=row['product_cd'],
@@ -164,11 +169,15 @@ class LoadSubscriptionDataTask(Task):
                         subscr_type_desc=row['subscr_type_desc'],
                     )
 
-                    expiration_dates_for_member[subscription_publisher_id][membership_no].append(expiration_date)
+                    subscription_details_for_member[subscription_publisher_id][membership_no].append({
+                        'expiration_date': expiration_date,
+                        'subscr_status': subscr_status,
+                    })
+
                     subscriptions_for_member[subscription_publisher_id][membership_no] += 1
 
-        for subscription_publisher_id in expiration_dates_for_member:
-            for membership_no in expiration_dates_for_member[subscription_publisher_id]:
+        for subscription_publisher_id in subscription_details_for_member:
+            for membership_no in subscription_details_for_member[subscription_publisher_id]:
 
                 try:
                     subscriber = Subscriber.objects.get(
@@ -176,8 +185,8 @@ class LoadSubscriptionDataTask(Task):
                         membership_no=membership_no
                     )
                     expired = True
-                    for expiration_date in expiration_dates_for_member[subscription_publisher_id][membership_no]:
-                        if expiration_date > now:
+                    for subscription_details in subscription_details_for_member[subscription_publisher_id][membership_no]:
+                        if subscription_details['expiration_date'] > now or subscription_details['subscr_status'] == 'HOLD':
                             expired = False
 
                     subscriber.expired = expired
