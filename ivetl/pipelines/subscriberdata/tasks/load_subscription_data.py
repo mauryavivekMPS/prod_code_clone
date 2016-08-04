@@ -1,5 +1,6 @@
 import os
 import csv
+import time
 import datetime
 from dateutil.parser import parse
 from collections import defaultdict
@@ -54,6 +55,7 @@ class LoadSubscriptionDataTask(Task):
     ]
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        total_t0 = time.time()
 
         all_files = []
         for dir_path in self.FILE_DIRS:
@@ -73,7 +75,7 @@ class LoadSubscriptionDataTask(Task):
 
         now = datetime.datetime.now()
 
-        expiration_dates_for_member = defaultdict(lambda: defaultdict(list))
+        subscription_details_for_member = defaultdict(lambda: defaultdict(list))
         subscriptions_for_member = defaultdict(lambda: defaultdict(int))
 
         def reader_without_nulls(f):
@@ -97,6 +99,7 @@ class LoadSubscriptionDataTask(Task):
                     membership_no = row.get('membership_no')
                     journal_code = row.get('journal_code')
                     subscriber_type_code = row.get('subscr_type_cd')
+                    subscr_status = row.get('subscr_status')
 
                     if not subscription_publisher_id:
                         tlogger.info('No publisher ID for line %s, skipping...' % count)
@@ -112,6 +115,10 @@ class LoadSubscriptionDataTask(Task):
 
                     if not subscriber_type_code:
                         tlogger.info('No subscriber_type_code on line %s, skipping...' % count)
+                        continue
+
+                    if not subscr_status:
+                        tlogger.info('No subscr_status on line %s, skipping...' % count)
                         continue
 
                     expiration_date_str = row['expiration_dt']
@@ -147,6 +154,7 @@ class LoadSubscriptionDataTask(Task):
                         tlogger.info('Invalid modified by date on line %s, skipping...' % count)
                         continue
 
+                    sub_update_t0 = time.time()
                     Subscription.objects(
                         publisher_id=subscription_publisher_id,
                         membership_no=membership_no,
@@ -156,19 +164,27 @@ class LoadSubscriptionDataTask(Task):
                         institution_number=row['institution_number'],
                         ac_database=row['ac_database'],
                         expiration_dt=expiration_date,
-                        subscr_status=row['subscr_status'],
+                        subscr_status=subscr_status,
                         last_used_dt=last_used_date,
                         modified_by_dt=modified_by_date,
                         product_cd=row['product_cd'],
                         subscr_type=row['subscr_type'],
                         subscr_type_desc=row['subscr_type_desc'],
                     )
+                    sub_update_t1 = time.time()
 
-                    expiration_dates_for_member[subscription_publisher_id][membership_no].append(expiration_date)
+                    if not count % 1000:
+                        tlogger.info('query times: %f' % (sub_update_t1 - sub_update_t0))
+
+                    subscription_details_for_member[subscription_publisher_id][membership_no].append({
+                        'expiration_date': expiration_date,
+                        'subscr_status': subscr_status,
+                    })
+
                     subscriptions_for_member[subscription_publisher_id][membership_no] += 1
 
-        for subscription_publisher_id in expiration_dates_for_member:
-            for membership_no in expiration_dates_for_member[subscription_publisher_id]:
+        for subscription_publisher_id in subscription_details_for_member:
+            for membership_no in subscription_details_for_member[subscription_publisher_id]:
 
                 try:
                     subscriber = Subscriber.objects.get(
@@ -176,8 +192,8 @@ class LoadSubscriptionDataTask(Task):
                         membership_no=membership_no
                     )
                     expired = True
-                    for expiration_date in expiration_dates_for_member[subscription_publisher_id][membership_no]:
-                        if expiration_date > now:
+                    for subscription_details in subscription_details_for_member[subscription_publisher_id][membership_no]:
+                        if subscription_details['expiration_date'] > now or subscription_details['subscr_status'] == 'HOLD':
                             expired = False
 
                     subscriber.expired = expired
@@ -188,5 +204,8 @@ class LoadSubscriptionDataTask(Task):
                     pass
 
         task_args['count'] = total_count
+
+        total_t1 = time.time()
+        tlogger.info('total task time: %f' % (total_t1 - total_t0))
 
         return task_args
