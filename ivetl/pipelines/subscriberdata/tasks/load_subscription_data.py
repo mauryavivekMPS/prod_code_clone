@@ -174,7 +174,7 @@ class LoadSubscriptionDataTask(Task):
                     sub_update_t1 = time.time()
 
                     if not count % 1000:
-                        print('query times: %f' % (sub_update_t1 - sub_update_t0))
+                        tlogger.info('query times: %f' % (sub_update_t1 - sub_update_t0))
 
                     subscription_details_for_member[subscription_publisher_id][membership_no].append({
                         'expiration_date': expiration_date,
@@ -206,6 +206,6 @@ class LoadSubscriptionDataTask(Task):
         task_args['count'] = total_count
 
         total_t1 = time.time()
-        print('total task time: %f' % (total_t1 - total_t0))
+        tlogger.info('total task time: %f' % (total_t1 - total_t0))
 
         return task_args

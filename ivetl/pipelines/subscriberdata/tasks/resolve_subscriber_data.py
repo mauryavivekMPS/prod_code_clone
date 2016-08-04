@@ -22,7 +22,7 @@ class ResolveSubscriberDataTask(Task):
         count = 0
 
         for subscriber_publisher_id in publisher_id_list:
-            tlogger.log('Processing publisher: %s' % subscriber_publisher_id)
+            tlogger.info('Processing publisher: %s' % subscriber_publisher_id)
 
             all_subscribers = Subscriber.objects.filter(publisher_id=subscriber_publisher_id).limit(10000000)
 

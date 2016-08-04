@@ -120,11 +120,11 @@ class LoadSubscriberDataTask(Task):
                         field_update_t1 = time.time()
 
                         if not count % 1000:
-                            print('query times: %f %f' % (sub_update_t1 - sub_update_t0, field_update_t1 - field_update_t0))
+                            tlogger.info('query times: %f %f' % (sub_update_t1 - sub_update_t0, field_update_t1 - field_update_t0))
 
         task_args['count'] = total_count
 
         total_t1 = time.time()
-        print('total task time: %f' % (total_t1 - total_t0))
+        tlogger.info('total task time: %f' % (total_t1 - total_t0))
 
         return task_args
