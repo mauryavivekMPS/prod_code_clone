@@ -1,5 +1,6 @@
 import os
 import csv
+import time
 import datetime
 from dateutil.parser import parse
 from collections import defaultdict
@@ -54,6 +55,7 @@ class LoadSubscriptionDataTask(Task):
     ]
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        total_t0 = time.time()
 
         all_files = []
         for dir_path in self.FILE_DIRS:
@@ -152,6 +154,7 @@ class LoadSubscriptionDataTask(Task):
                         tlogger.info('Invalid modified by date on line %s, skipping...' % count)
                         continue
 
+                    sub_update_t0 = time.time()
                     Subscription.objects(
                         publisher_id=subscription_publisher_id,
                         membership_no=membership_no,
@@ -168,6 +171,10 @@ class LoadSubscriptionDataTask(Task):
                         subscr_type=row['subscr_type'],
                         subscr_type_desc=row['subscr_type_desc'],
                     )
+                    sub_update_t1 = time.time()
+
+                    if not count % 1000:
+                        print('query times: %f' % (sub_update_t1 - sub_update_t0))
 
                     subscription_details_for_member[subscription_publisher_id][membership_no].append({
                         'expiration_date': expiration_date,
@@ -197,5 +204,8 @@ class LoadSubscriptionDataTask(Task):
                     pass
 
         task_args['count'] = total_count
+
+        total_t1 = time.time()
+        print('total task time: %f' % (total_t1 - total_t0))
 
         return task_args
