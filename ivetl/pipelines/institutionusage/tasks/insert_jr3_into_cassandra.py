@@ -52,7 +52,7 @@ class InsertJR3IntoCassandraTask(Task):
                         try:
                             usage = int(line[col])
                         except ValueError:
-                            usage = 0
+                            continue
 
                         InstitutionUsageStat.objects(
                             publisher_id=publisher_id,
