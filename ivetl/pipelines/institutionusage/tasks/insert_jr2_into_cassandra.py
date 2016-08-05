@@ -1,4 +1,5 @@
 import csv
+import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -31,8 +32,9 @@ class InsertJR2IntoCassandraTask(Task):
 
                         # collect all of them (we support any number of them)
                         while line[col] != 'YTD Total':
-                            date = parse(line[col])
-                            date_cols.append((col, date))
+                            month_date = parse(line[col])
+                            full_date = datetime.date(month_date.year, month_date.month, 1)  # hard set to 1st of month
+                            date_cols.append((col, full_date))
                             col += 1
 
                         tlogger.info('Found %s date columns' % len(date_cols))

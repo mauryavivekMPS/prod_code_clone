@@ -191,9 +191,11 @@ class LoadSubscriptionDataTask(Task):
                         publisher_id=subscription_publisher_id,
                         membership_no=membership_no
                     )
+
+                    # assume all subs for this member expired and look for single counter example
                     expired = True
                     for subscription_details in subscription_details_for_member[subscription_publisher_id][membership_no]:
-                        if subscription_details['expiration_date'] > now or subscription_details['subscr_status'] == 'HOLD':
+                        if subscription_details['expiration_date'] > now and subscription_details['subscr_status'] != 'HOLD':
                             expired = False
 
                     subscriber.expired = expired
