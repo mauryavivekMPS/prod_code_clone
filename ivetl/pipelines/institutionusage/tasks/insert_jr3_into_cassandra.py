@@ -21,6 +21,7 @@ class InsertJR3IntoCassandraTask(Task):
             tlogger.info('Processing %s' % file)
 
             date_cols = []
+            num_cols = 6
             with open(file, 'r', encoding='windows-1252') as tsv:
                 for line in csv.reader(tsv, delimiter="\t"):
 
@@ -37,7 +38,13 @@ class InsertJR3IntoCassandraTask(Task):
                             date_cols.append((col, full_date))
                             col += 1
 
+                        num_cols += len(date_cols)
+
                         tlogger.info('Found %s date columns' % len(date_cols))
+                        continue
+
+                    if len(line) < num_cols:
+                        tlogger.info('Unexpected number of cols, skipping row...')
                         continue
 
                     subscriber_id = line[0]
