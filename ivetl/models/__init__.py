@@ -22,6 +22,7 @@ from ivetl.models.attribute_values import AttributeValues
 from ivetl.models.InstitutionMetadata import Institution_Metadata
 from ivetl.models.published_article import PublishedArticle
 from ivetl.models.institution_usage import InstitutionUsageStat
+from ivetl.models.institution_usage_delta import InstitutionUsageStatDelta
 from ivetl.models.uptime_check_metadata import UptimeCheckMetadata
 from ivetl.models.uptime_check_stat import UptimeCheckStat
 from ivetl.models.drupal_metadata import DrupalMetadata
@@ -37,3 +38,5 @@ from ivetl.models.system_global import SystemGlobal
 from ivetl.models.product_bundle import ProductBundle
 from ivetl.models.subscription_pricing import SubscriptionPricing
 from ivetl.models.citable_section import CitableSection
+from ivetl.models.subscription_cost_per_use import SubscriptionCostPerUse
+from ivetl.models.subscription_cost_per_use_delta import SubscriptionCostPerUseStatDelta
