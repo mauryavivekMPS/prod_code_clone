@@ -367,6 +367,17 @@ PIPELINES = [
             'ivetl.pipelines.subscriberdata.tasks.ResolveSubscriberDataTask',
         ],
     },
+    {
+        'name': 'Institution Usage Deltas',
+        'id': 'update_institution_usage_deltas',
+        'user_facing_display_name': 'Institution usage deltas',
+        'class': 'ivetl.pipelines.institutionusagedeltas.UpdateInstitutionUsageDeltasPipeline',
+        'has_file_input': False,
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateInstitutionUsageDeltasTask',
+        ],
+    },
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -546,6 +557,9 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['subscription_pricing'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['update_institution_usage_deltas'],
             },
         ],
         'tableau_workbooks': [],
