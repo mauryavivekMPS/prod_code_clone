@@ -1,57 +1,80 @@
+import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, SubscriptionPricing, ProductBundle
+from ivetl.models import InstitutionUsageStat, InstitutionUsageStatDelta
+from ivetl.utils import month_range
 
 
 @app.task
 class UpdateInstitutionUsageDeltasTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        publisher_stats = InstitutionUsageStat.objects.filter(publisher_id=publisher_id, counter_type='jr3').limit(10000000)
+        now = datetime.datetime.now()
+        from_date = datetime.date(2013, 1, 1)
+        to_date = datetime.date(now.year, now.month, 1)
 
-        total_count = publisher_stats.count()
-        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
-
+        total_count = 100000  # wild guess
         count = 0
-        for stat in publisher_stats:
-            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-            # get subscriptions for this pub and year
-            matching_subscriptions = SubscriptionPricing.objects.filter(
+        for current_month in month_range(from_date, to_date):
+
+            # select all usage for the current (iterated) month
+            all_current_month_usage = InstitutionUsageStat.objects.filter(
                 publisher_id=publisher_id,
-                membership_no=stat.subscriber_id,
-                year=stat.usage_date.year,
+                usage_date=current_month,
             )
 
-            tlogger.info('Matching stat: %s, %s, %s' % (stat.publisher_id, stat.counter_type, stat.journal))
+            for current_usage in all_current_month_usage:
 
-            # find one with a matching ISSN
-            match = None
-            for subscription in matching_subscriptions:
+                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                #
+                # time_slice == 'm' (month)
+                #
+
+                previous_month = datetime.date(current_month.year, current_month.month, 1)
+
                 try:
-                    bundle = ProductBundle.objects.get(
+                    previous_usage = InstitutionUsageStat.objects.get(
                         publisher_id=publisher_id,
-                        bundle_name=subscription.bundle_name,
+                        counter_type=current_usage.counter_type,
+                        journal=current_usage.journal,
+                        subscriber_id=current_usage.subscriber_id,
+                        usage_date=previous_month,
+                        usage_category=current_usage.usage_category,
                     )
 
-                    issns = bundle.journal_issns
-                    if stat.journal_print_issn in issns or stat.journal_online_issn in issns:
-                        match = subscription
-                        break
+                    absolute_delta = current_usage.usage - previous_usage.usage
+                    if current_usage.usage:
+                        percentage_delta = previous_usage.usage / 20
+                    else:
+                        percentage_delta = 0.0
 
-                except ProductBundle.DoesNotExist:
+                    InstitutionUsageStatDelta.objects(
+                        publisher_id=publisher_id,
+                        counter_type=current_usage.counter_type,
+                        journal=current_usage.journal,
+                        subscriber_id=current_usage.subscriber_id,
+                        usage_date=current_month,
+                        usage_category=current_usage.usage_category,
+                        time_slice='m',
+                    ).update(
+                        previous_usage=previous_usage.usage,
+                        current_usage=current_usage.usage,
+                        absolute_delta=absolute_delta,
+                        percentage_delta=percentage_delta,
+                    )
+
+                except InstitutionUsageStat.DoesNotExist:
                     pass
 
-            if match:
-                tlogger.info('Found match, updating with bundle info: %s' % match.bundle_name)
-                stat.update(
-                    bundle_name=match.bundle_name,
-                    trial=match.trial,
-                    trial_expiration_date=match.trial_expiration_date,
-                    amount=match.amount,
-                )
-            else:
-                tlogger.info('No match found')
+                #
+                # time_slice == 'qtd' (quarter-to-date)
+                #
+
+                #
+                # time_slice == 'ytd' (year-to-date)
+                #
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 

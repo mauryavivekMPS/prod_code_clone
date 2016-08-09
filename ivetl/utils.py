@@ -1,16 +1,21 @@
 import codecs
-import datetime
 import os
 import uuid
-
 import humanize
-
+import datetime
+from dateutil.rrule import rrule, MONTHLY
 from ivetl.models import SystemGlobal
 
 
-def date_range(from_date, to_date):
+def day_range(from_date, to_date):
+    """Generates an inclusive range of days. Will use the hour, minute, second from the from_date."""
     for n in range(int((to_date - from_date).days) + 1):
         yield from_date + datetime.timedelta(n)
+
+
+def month_range(from_date, to_date):
+    """Generates an inclusive range of months. Will use day, hour, minute, second from the from_date."""
+    return rrule(MONTHLY, dtstart=from_date, until=to_date)
 
 
 def get_from_to_dates_with_high_water(from_date, to_date, pipeline_id):
