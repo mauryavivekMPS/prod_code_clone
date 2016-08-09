@@ -23,10 +23,12 @@ class InsertJR3IntoCassandraTask(Task):
             date_cols = []
             num_cols = 6
             with open(file, 'r', encoding='windows-1252') as tsv:
-                for line in csv.reader(tsv, delimiter="\t"):
+                got_header_for_file = False
 
+                for line in csv.reader(tsv, delimiter="\t"):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-                    if count == 1:
+
+                    if not got_header_for_file:
 
                         # date cols start here
                         col = 6
@@ -41,6 +43,7 @@ class InsertJR3IntoCassandraTask(Task):
                         num_cols += len(date_cols)
 
                         tlogger.info('Found %s date columns' % len(date_cols))
+                        got_header_for_file = True
                         continue
 
                     if len(line) < num_cols:
