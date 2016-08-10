@@ -18,6 +18,28 @@ def month_range(from_date, to_date):
     return rrule(MONTHLY, dtstart=from_date, until=to_date)
 
 
+def start_of_quarter(date):
+    if date.month < 4:
+        return datetime.datetime(date.year, 1, 1)
+    elif date.month < 7:
+        return datetime.datetime(date.year, 4, 1)
+    elif date.month < 10:
+        return datetime.datetime(date.year, 7, 1)
+    else:
+        return datetime.datetime(date.year, 10, 1)
+
+
+def start_of_previous_quarter(date):
+    if date.month < 4:
+        return datetime.datetime(date.year - 1, 10, 1)
+    elif date.month < 7:
+        return datetime.datetime(date.year, 1, 1)
+    elif date.month < 10:
+        return datetime.datetime(date.year, 4, 1)
+    else:
+        return datetime.datetime(date.year, 7, 1)
+
+
 def get_from_to_dates_with_high_water(from_date, to_date, pipeline_id):
     today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
 
