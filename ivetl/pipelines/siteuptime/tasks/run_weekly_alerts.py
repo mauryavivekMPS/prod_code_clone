@@ -36,7 +36,7 @@ class RunWeeklyAlertsTask(Task):
 
             # collect uptime for previous n days
             uptimes = []
-            for date in utils.date_range(alert_from_date, to_date):
+            for date in utils.day_range(alert_from_date, to_date):
 
                 # for testing...
                 # if len(uptimes) in [2, 3]:

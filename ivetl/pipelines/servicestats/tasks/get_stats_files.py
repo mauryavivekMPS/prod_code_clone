@@ -20,7 +20,7 @@ class GetStatsFilesTask(Task):
         from_date, to_date = utils.get_from_to_dates_with_high_water(from_date, to_date, pipeline_id)
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
 
-        all_file_names = [d.strftime('%Y-%m-%d' + self.LOG_FILE_EXTENSION) for d in utils.date_range(from_date, to_date)]
+        all_file_names = [d.strftime('%Y-%m-%d' + self.LOG_FILE_EXTENSION) for d in utils.day_range(from_date, to_date)]
 
         total_count = len(all_file_names)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
