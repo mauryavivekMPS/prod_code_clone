@@ -7,7 +7,7 @@ from ivetl import utils
 
 
 @app.task
-class UpdateInstitutionUsageDeltasTask(Task):
+class UpdateCostPerUseTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         now = datetime.datetime.now()
@@ -16,6 +16,13 @@ class UpdateInstitutionUsageDeltasTask(Task):
 
         total_count = None
         count = 0
+
+        # for each subscriber for a given publisher:
+        # 	for each bundle:
+        # 		pull usage
+        # 		pull annual cost
+        # 		calculate the prorated values
+        # 		insert/update cost-per-use record
 
         for current_month in utils.month_range(from_date, to_date):
 
@@ -26,6 +33,8 @@ class UpdateInstitutionUsageDeltasTask(Task):
                 publisher_id=publisher_id,
                 usage_date=current_month,
             )
+
+
 
             all_current_month_usage_count = all_current_month_usage.count()
 

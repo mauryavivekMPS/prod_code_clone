@@ -33,6 +33,8 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.productbundles.tasks',
     'ivetl.pipelines.institutionusagedeltas',
     'ivetl.pipelines.institutionusagedeltas.tasks',
+    'ivetl.pipelines.subscriptionusagedeltas',
+    'ivetl.pipelines.subscriptionusagedeltas.tasks',
     'ivetl.tasks',
 )
 

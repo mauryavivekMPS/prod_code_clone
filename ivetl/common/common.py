@@ -368,14 +368,25 @@ PIPELINES = [
         ],
     },
     {
-        'name': 'Institution Usage Deltas',
+        'name': 'Usage Deltas',
         'id': 'update_institution_usage_deltas',
         'user_facing_display_name': 'Institution usage deltas',
-        'class': 'ivetl.pipelines.institutionusagedeltas.UpdateInstitutionUsageDeltasPipeline',
+        'class': 'ivetl.pipelines.institutionusagedeltas.UpdateDeltasPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateInstitutionUsageDeltasTask',
+            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
+        ],
+    },
+    {
+        'name': 'Cost-Per-Use Deltas',
+        'id': 'update_subscription_cost_per_use_deltas',
+        'user_facing_display_name': 'Subscription cost-per-use deltas',
+        'class': 'ivetl.pipelines.subscriptioncostperusedeltas.UpdateDeltasPipeline',
+        'has_file_input': False,
+        'rebuild_data_source_id': None,
+        'tasks': [
+            'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateDeltasTask',
         ],
     },
 ]
@@ -560,6 +571,9 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['update_institution_usage_deltas'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['update_subscription_cost_per_use_deltas'],
             },
         ],
         'tableau_workbooks': [],
