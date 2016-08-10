@@ -1,8 +1,7 @@
 import datetime
-from dateutil.relativedelta import relativedelta
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, InstitutionUsageStatDelta
+from ivetl.models import InstitutionUsageStat, SubscriptionCostPerUse
 from ivetl import utils
 
 
@@ -14,214 +13,66 @@ class UpdateCostPerUseTask(Task):
         from_date = datetime.date(2013, 1, 1)
         to_date = datetime.date(now.year, now.month, 1)
 
-        total_count = None
-        count = 0
+        categories = {
+            'Full-text HTML Requests': 'html_usage',
+            'Full-text PDF Requests': 'pdf_usage',
+            'cat': 'cat',
+        }
 
-        # for each subscriber for a given publisher:
-        # 	for each bundle:
-        # 		pull usage
-        # 		pull annual cost
-        # 		calculate the prorated values
-        # 		insert/update cost-per-use record
+        count = 0
 
         for current_month in utils.month_range(from_date, to_date):
 
             tlogger.info('Processing month %s' % current_month.strftime('%Y-%m'))
 
-            # select all usage for the current (iterated) month
-            all_current_month_usage = InstitutionUsageStat.objects.filter(
+            # select all html usage for the current (iterated) month
+            current_month_usage = InstitutionUsageStat.objects.filter(
                 publisher_id=publisher_id,
+                counter_type='jr3',
                 usage_date=current_month,
             )
+            tlogger.info('using month %s' % current_month.strftime('%Y-%m-%d'))
 
+            tlogger.info('Found %s total usage records' % current_month_usage.count())
 
+            for usage in current_month_usage:
 
-            all_current_month_usage_count = all_current_month_usage.count()
+                if not usage.bundle_name:
+                    tlogger.info('no bundle name')
+                else:
+                    tlogger.info('found a bundle name!')
 
-            if all_current_month_usage_count:
-
-                tlogger.info('Found %s records' % all_current_month_usage_count)
-
-                # estimate the total count
-                if total_count is None:
-                    months_remaining = relativedelta(to_date, current_month).months + 1
-                    total_count = all_current_month_usage.count() * months_remaining
-                    self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
-
-                for current_usage in all_current_month_usage:
-
-                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-
-                    #
-                    # time_slice == 'm' (month)
-                    #
-
-                    previous_month = datetime.date(current_month.year, current_month.month, 1)
-
+                if usage.usage_category in categories and usage.bundle_name:
                     try:
-                        previous_usage = InstitutionUsageStat.objects.get(
+                        s = SubscriptionCostPerUse.objects.get(
                             publisher_id=publisher_id,
-                            counter_type=current_usage.counter_type,
-                            journal=current_usage.journal,
-                            subscriber_id=current_usage.subscriber_id,
-                            usage_date=previous_month,
-                            usage_category=current_usage.usage_category,
+                            membership_no=usage.subscriber_id,
+                            bundle_name=usage.bundle_name,
+                            month=current_month,
+                        )
+                    except SubscriptionCostPerUse.DoesNotExist:
+                        prorated_amount = usage.amount / 12 * current_month.month
+
+                        s = SubscriptionCostPerUse.objects.create(
+                            publisher_id=publisher_id,
+                            membership_no=usage.subscriber_id,
+                            bundle_name=usage.bundle_name,
+                            month=current_month,
+                            amount=prorated_amount,
                         )
 
-                        absolute_delta = current_usage.usage - previous_usage.usage
-                        if previous_usage.usage:
-                            percentage_delta = absolute_delta / previous_usage.usage
-                        else:
-                            percentage_delta = 0.0
+                    s.category_usage[categories[usage.usage_category]] = usage.usage
 
-                        InstitutionUsageStatDelta.objects(
-                            publisher_id=publisher_id,
-                            counter_type=current_usage.counter_type,
-                            journal=current_usage.journal,
-                            subscriber_id=current_usage.subscriber_id,
-                            usage_date=current_month,
-                            usage_category=current_usage.usage_category,
-                            time_slice='m',
-                        ).update(
-                            previous_usage=previous_usage.usage,
-                            current_usage=current_usage.usage,
-                            absolute_delta=absolute_delta,
-                            percentage_delta=percentage_delta,
-                        )
+                    total_usage = 0
+                    for category_usage in s.category_usage.values():
+                        total_usage += category_usage
 
-                    except InstitutionUsageStat.DoesNotExist:
-                        pass
+                    if total_usage:
+                        s.total_usage = total_usage
+                        s.cost_per_use = s.amount / total_usage
 
-                    #
-                    # time_slice == 'qtd' (quarter-to-date)
-                    #
-
-                    start_of_previous_quarter = utils.start_of_previous_quarter(current_month)
-                    current_month_previous_quarter = current_month - relativedelta(months=3)
-                    previous_qtd_usage = 0
-                    found_first_qtd_usage = True
-                    for m in utils.month_range(start_of_previous_quarter, current_month_previous_quarter):
-                        try:
-                            u = InstitutionUsageStat.objects.get(
-                                publisher_id=publisher_id,
-                                counter_type=current_usage.counter_type,
-                                journal=current_usage.journal,
-                                subscriber_id=current_usage.subscriber_id,
-                                usage_date=m,
-                                usage_category=current_usage.usage_category,
-                            )
-                            previous_qtd_usage += u.usage
-                            if m == start_of_previous_quarter:
-                                found_first_qtd_usage = True
-                        except InstitutionUsageStat.DoesNotExist:
-                            if not found_first_qtd_usage:
-                                break
-
-                    if found_first_qtd_usage:
-                        start_of_current_quarter = utils.start_of_quarter(current_month)
-                        current_qtd_usage = 0
-                        for m in utils.month_range(start_of_current_quarter, current_month):
-                            try:
-                                u = InstitutionUsageStat.objects.get(
-                                    publisher_id=publisher_id,
-                                    counter_type=current_usage.counter_type,
-                                    journal=current_usage.journal,
-                                    subscriber_id=current_usage.subscriber_id,
-                                    usage_date=m,
-                                    usage_category=current_usage.usage_category,
-                                )
-                                current_qtd_usage += u.usage
-                            except InstitutionUsageStat.DoesNotExist:
-                                pass
-
-                        absolute_qtd_delta = current_qtd_usage - previous_qtd_usage
-                        if previous_qtd_usage:
-                            percentage_qtd_delta = absolute_qtd_delta / previous_qtd_usage
-                        else:
-                            percentage_qtd_delta = 0.0
-
-                        InstitutionUsageStatDelta.objects(
-                            publisher_id=publisher_id,
-                            counter_type=current_usage.counter_type,
-                            journal=current_usage.journal,
-                            subscriber_id=current_usage.subscriber_id,
-                            usage_date=current_month,
-                            usage_category=current_usage.usage_category,
-                            time_slice='qtd',
-                        ).update(
-                            previous_usage=previous_qtd_usage,
-                            current_usage=current_qtd_usage,
-                            absolute_delta=absolute_qtd_delta,
-                            percentage_delta=percentage_qtd_delta,
-                        )
-
-                    #
-                    # time_slice == 'ytd' (year-to-date)
-                    #
-
-                    start_of_previous_year = datetime.date(current_month.year - 1, 1, 1)
-                    current_month_previous_year = datetime.date(current_month.year - 1, current_month.month, 1)
-                    previous_ytd_usage = 0
-                    found_first_ytd_usage = True
-                    for m in utils.month_range(start_of_previous_year, current_month_previous_year):
-                        try:
-                            u = InstitutionUsageStat.objects.get(
-                                publisher_id=publisher_id,
-                                counter_type=current_usage.counter_type,
-                                journal=current_usage.journal,
-                                subscriber_id=current_usage.subscriber_id,
-                                usage_date=m,
-                                usage_category=current_usage.usage_category,
-                            )
-                            previous_ytd_usage += u.usage
-                            if m == start_of_previous_year:
-                                found_first_ytd_usage = True
-                        except InstitutionUsageStat.DoesNotExist:
-                            if not found_first_ytd_usage:
-                                break
-
-                    if found_first_ytd_usage:
-                        start_of_current_year = datetime.date(current_month.year, 1, 1)
-                        current_ytd_usage = 0
-                        for m in utils.month_range(start_of_current_year, current_month):
-                            try:
-                                u = InstitutionUsageStat.objects.get(
-                                    publisher_id=publisher_id,
-                                    counter_type=current_usage.counter_type,
-                                    journal=current_usage.journal,
-                                    subscriber_id=current_usage.subscriber_id,
-                                    usage_date=m,
-                                    usage_category=current_usage.usage_category,
-                                )
-                                current_ytd_usage += u.usage
-                            except InstitutionUsageStat.DoesNotExist:
-                                pass
-
-                        absolute_ytd_delta = current_ytd_usage - previous_ytd_usage
-                        if previous_ytd_usage:
-                            percentage_ytd_delta = absolute_ytd_delta / previous_ytd_usage
-                        else:
-                            percentage_ytd_delta = 0.0
-
-                        InstitutionUsageStatDelta.objects(
-                            publisher_id=publisher_id,
-                            counter_type=current_usage.counter_type,
-                            journal=current_usage.journal,
-                            subscriber_id=current_usage.subscriber_id,
-                            usage_date=current_month,
-                            usage_category=current_usage.usage_category,
-                            time_slice='ytd',
-                        ).update(
-                            previous_usage=previous_ytd_usage,
-                            current_usage=current_ytd_usage,
-                            absolute_delta=absolute_ytd_delta,
-                            percentage_delta=percentage_ytd_delta,
-                        )
-
-            else:
-                tlogger.info('No stats found')
-
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+                    # we calculate totals and cost_per_use incrementally
+                    s.save()
 
         return {
             'count': count

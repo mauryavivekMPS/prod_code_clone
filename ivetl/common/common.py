@@ -368,7 +368,7 @@ PIPELINES = [
         ],
     },
     {
-        'name': 'Usage Deltas',
+        'name': 'Institution Usage Deltas',
         'id': 'update_institution_usage_deltas',
         'user_facing_display_name': 'Institution usage deltas',
         'class': 'ivetl.pipelines.institutionusagedeltas.UpdateDeltasPipeline',
@@ -386,6 +386,7 @@ PIPELINES = [
         'has_file_input': False,
         'rebuild_data_source_id': None,
         'tasks': [
+            'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateCostPerUseTask',
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateDeltasTask',
         ],
     },

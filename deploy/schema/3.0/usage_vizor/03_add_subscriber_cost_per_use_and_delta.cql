@@ -6,7 +6,8 @@ CREATE TABLE subscription_cost_per_use (
   bundle_name text,
   month timestamp,
   amount decimal,
-  usage int,
+  category_usage map<text, int>,
+  total_usage int,
   cost_per_use decimal,
   PRIMARY KEY ((publisher_id), membership_no, bundle_name, month)
 ) WITH
