@@ -73,7 +73,7 @@ class PingdomConnector(BaseConnector):
     def get_check_stats(self, check_id, from_date, to_date):
         uptime_stats = []
 
-        for date in utils.date_range(from_date, to_date):
+        for date in utils.day_range(from_date, to_date):
             from_timestamp = int(date.timestamp())
             to_timestamp = int((date + datetime.timedelta(1)).timestamp())
 
