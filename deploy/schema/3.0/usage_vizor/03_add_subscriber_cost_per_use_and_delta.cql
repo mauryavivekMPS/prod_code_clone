@@ -1,15 +1,15 @@
 USE impactvizor;
 
-CREATE TABLE subscription_cost_per_use (
+CREATE TABLE subscription_cost_per_use_stat (
   publisher_id text,
   membership_no text,
   bundle_name text,
-  month timestamp,
+  usage_date timestamp,
   amount decimal,
   category_usage map<text, int>,
   total_usage int,
   cost_per_use decimal,
-  PRIMARY KEY ((publisher_id), membership_no, bundle_name, month)
+  PRIMARY KEY ((publisher_id), membership_no, bundle_name, usage_date)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
@@ -26,7 +26,9 @@ CREATE TABLE subscription_cost_per_use (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
-CREATE TABLE subscription_cost_per_use_delta (
+CREATE INDEX subscription_cost_per_use_stat_usage_date_index ON subscription_cost_per_use_stat(usage_date);
+
+CREATE TABLE subscription_cost_per_use_stat_delta (
   publisher_id text,
   membership_no text,
   bundle_name text,

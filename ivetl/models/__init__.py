@@ -38,5 +38,5 @@ from ivetl.models.system_global import SystemGlobal
 from ivetl.models.product_bundle import ProductBundle
 from ivetl.models.subscription_pricing import SubscriptionPricing
 from ivetl.models.citable_section import CitableSection
-from ivetl.models.subscription_cost_per_use import SubscriptionCostPerUse
+from ivetl.models.subscription_cost_per_use import SubscriptionCostPerUseStat
 from ivetl.models.subscription_cost_per_use_delta import SubscriptionCostPerUseStatDelta

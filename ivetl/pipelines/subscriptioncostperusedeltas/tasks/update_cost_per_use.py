@@ -1,7 +1,7 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, SubscriptionCostPerUse
+from ivetl.models import InstitutionUsageStat, SubscriptionCostPerUseStat
 from ivetl import utils
 
 
@@ -16,7 +16,6 @@ class UpdateCostPerUseTask(Task):
         categories = {
             'Full-text HTML Requests': 'html_usage',
             'Full-text PDF Requests': 'pdf_usage',
-            'cat': 'cat',
         }
 
         count = 0
@@ -31,34 +30,26 @@ class UpdateCostPerUseTask(Task):
                 counter_type='jr3',
                 usage_date=current_month,
             )
-            tlogger.info('using month %s' % current_month.strftime('%Y-%m-%d'))
 
             tlogger.info('Found %s total usage records' % current_month_usage.count())
 
             for usage in current_month_usage:
-
-                if not usage.bundle_name:
-                    tlogger.info('no bundle name')
-                else:
-                    tlogger.info('found a bundle name!')
-
+                tlogger.info(usage)
                 if usage.usage_category in categories and usage.bundle_name:
                     try:
-                        s = SubscriptionCostPerUse.objects.get(
+                        s = SubscriptionCostPerUseStat.objects.get(
                             publisher_id=publisher_id,
                             membership_no=usage.subscriber_id,
                             bundle_name=usage.bundle_name,
-                            month=current_month,
+                            usage_date=current_month,
                         )
-                    except SubscriptionCostPerUse.DoesNotExist:
-                        prorated_amount = usage.amount / 12 * current_month.month
-
-                        s = SubscriptionCostPerUse.objects.create(
+                    except SubscriptionCostPerUseStat.DoesNotExist:
+                        s = SubscriptionCostPerUseStat.objects.create(
                             publisher_id=publisher_id,
                             membership_no=usage.subscriber_id,
                             bundle_name=usage.bundle_name,
-                            month=current_month,
-                            amount=prorated_amount,
+                            usage_date=current_month,
+                            amount=usage.amount / 12,
                         )
 
                     s.category_usage[categories[usage.usage_category]] = usage.usage
