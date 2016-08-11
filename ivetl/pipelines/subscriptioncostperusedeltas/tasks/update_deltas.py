@@ -99,7 +99,7 @@ class UpdateDeltasTask(Task):
                                 usage_date=m,
                             )
                             previous_qtd_total_usage += u.total_usage
-                            previous_qtd_amount += u.amoujnt
+                            previous_qtd_amount += u.amount
                             if m == start_of_previous_quarter:
                                 found_first_qtd_cost_per_use = True
                         except SubscriptionCostPerUseByBundleStat.DoesNotExist:
