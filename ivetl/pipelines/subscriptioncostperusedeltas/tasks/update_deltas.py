@@ -26,7 +26,7 @@ class UpdateDeltasTask(Task):
             all_current_month_cost_per_use = SubscriptionCostPerUseByBundleStat.objects.filter(
                 publisher_id=publisher_id,
                 usage_date=current_month,
-            )
+            ).limit(10000000)
 
             all_current_month_cost_per_use_count = all_current_month_cost_per_use.count()
 
@@ -79,6 +79,9 @@ class UpdateDeltasTask(Task):
 
                     except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                         pass
+
+                    # for now, we'll only process the month time slice
+                    continue
 
                     #
                     # time_slice == 'qtd' (quarter-to-date)
