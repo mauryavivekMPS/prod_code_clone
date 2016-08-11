@@ -23,6 +23,10 @@ class InsertBundleDefinitionsIntoCassandraTask(Task):
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
+                    # skip header row
+                    if count == 1:
+                        continue
+
                     bundle_name = line[0]
 
                     issns = []

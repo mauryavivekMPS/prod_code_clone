@@ -20,6 +20,10 @@ class BundleDefinitionsValidator(BaseValidator):
                             else:
                                 count += 1
 
+                            # skip header row
+                            if count == 1:
+                                continue
+
                             # check for number of fields
                             if len(line) < 2:
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
