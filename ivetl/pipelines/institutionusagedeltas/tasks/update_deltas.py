@@ -25,7 +25,7 @@ class UpdateDeltasTask(Task):
             all_current_month_usage = InstitutionUsageStat.objects.filter(
                 publisher_id=publisher_id,
                 usage_date=current_month,
-            )
+            ).limit(10000000)
 
             all_current_month_usage_count = all_current_month_usage.count()
 
@@ -82,6 +82,9 @@ class UpdateDeltasTask(Task):
 
                     except InstitutionUsageStat.DoesNotExist:
                         pass
+
+                    # for now, we'll only process the month time slice
+                    continue
 
                     #
                     # time_slice == 'qtd' (quarter-to-date)

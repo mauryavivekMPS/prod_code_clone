@@ -29,7 +29,7 @@ class UpdateCostPerUseTask(Task):
                 publisher_id=publisher_id,
                 counter_type='jr3',
                 usage_date=current_month,
-            )
+            ).limit(10000000)
 
             tlogger.info('Found %s total usage records' % current_month_usage.count())
 
