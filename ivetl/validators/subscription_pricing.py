@@ -1,6 +1,6 @@
 import os
 import csv
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from dateutil.parser import parse
 from ivetl.validators.base import BaseValidator
 from ivetl.models import ProductBundle
@@ -22,6 +22,10 @@ class SubscriptionPricingValidator(BaseValidator):
                                 count = increment_count_func(count)
                             else:
                                 count += 1
+
+                            # skip header row
+                            if count == 1:
+                                continue
 
                             # check for number of fields
                             if len(line) != 6:
@@ -63,7 +67,7 @@ class SubscriptionPricingValidator(BaseValidator):
                             else:
                                 try:
                                     Decimal(line[5])
-                                except ValueError:
+                                except (ValueError, InvalidOperation):
                                     errors.append(self.format_error(file_name, count - 1, "Amount must be a valid decimal"))
 
                     total_count += count

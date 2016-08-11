@@ -20,11 +20,14 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
 
             tlogger.info('Processing %s' % file)
 
-            date_cols = []
             with open(file, 'r', encoding='utf-8') as tsv:
                 for line in csv.reader(tsv, delimiter="\t"):
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                    # skip header row
+                    if count == 1:
+                        continue
 
                     membership_no = line[0]
                     year = int(line[1])
