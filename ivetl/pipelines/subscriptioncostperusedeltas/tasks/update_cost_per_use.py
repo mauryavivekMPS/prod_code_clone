@@ -1,7 +1,7 @@
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, SubscriptionCostPerUseStat
+from ivetl.models import InstitutionUsageStat, SubscriptionCostPerUseByBundleStat, SubscriptionCostPerUseBySubscriberStat
 from ivetl import utils
 
 
@@ -33,18 +33,18 @@ class UpdateCostPerUseTask(Task):
 
             tlogger.info('Found %s total usage records' % current_month_usage.count())
 
+            # first, fill out cpu by bundle
             for usage in current_month_usage:
-                tlogger.info(usage)
                 if usage.usage_category in categories and usage.bundle_name:
                     try:
-                        s = SubscriptionCostPerUseStat.objects.get(
+                        s = SubscriptionCostPerUseByBundleStat.objects.get(
                             publisher_id=publisher_id,
                             membership_no=usage.subscriber_id,
                             bundle_name=usage.bundle_name,
                             usage_date=current_month,
                         )
-                    except SubscriptionCostPerUseStat.DoesNotExist:
-                        s = SubscriptionCostPerUseStat.objects.create(
+                    except SubscriptionCostPerUseByBundleStat.DoesNotExist:
+                        s = SubscriptionCostPerUseByBundleStat.objects.create(
                             publisher_id=publisher_id,
                             membership_no=usage.subscriber_id,
                             bundle_name=usage.bundle_name,
@@ -64,6 +64,9 @@ class UpdateCostPerUseTask(Task):
 
                     # we calculate totals and cost_per_use incrementally
                     s.save()
+
+            # and then use the new records to calculate across bundles
+
 
         return {
             'count': count

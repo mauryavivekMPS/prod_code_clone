@@ -2,7 +2,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import SubscriptionCostPerUseStat, SubscriptionCostPerUseStatDelta
+from ivetl.models import SubscriptionCostPerUseByBundleStat, SubscriptionCostPerUseByBundleStatDelta
 from ivetl import utils
 
 
@@ -23,7 +23,7 @@ class UpdateDeltasTask(Task):
             tlogger.info(current_month)
 
             # select all usage for the current (iterated) month
-            all_current_month_cost_per_use = SubscriptionCostPerUseStat.objects.filter(
+            all_current_month_cost_per_use = SubscriptionCostPerUseByBundleStat.objects.filter(
                 publisher_id=publisher_id,
                 usage_date=current_month,
             )
@@ -51,7 +51,7 @@ class UpdateDeltasTask(Task):
                     previous_month = current_month - relativedelta(months=1)
 
                     try:
-                        previous_cost_per_use = SubscriptionCostPerUseStat.objects.get(
+                        previous_cost_per_use = SubscriptionCostPerUseByBundleStat.objects.get(
                             publisher_id=publisher_id,
                             membership_no=current_cost_per_use.membership_no,
                             bundle_name=current_cost_per_use.bundle_name,
@@ -64,7 +64,7 @@ class UpdateDeltasTask(Task):
                         else:
                             percentage_delta = 0.0
 
-                        SubscriptionCostPerUseStatDelta.objects(
+                        SubscriptionCostPerUseByBundleStatDelta.objects(
                             publisher_id=publisher_id,
                             membership_no=current_cost_per_use.membership_no,
                             bundle_name=current_cost_per_use.bundle_name,
@@ -77,7 +77,7 @@ class UpdateDeltasTask(Task):
                             percentage_delta=percentage_delta,
                         )
 
-                    except SubscriptionCostPerUseStat.DoesNotExist:
+                    except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                         pass
 
                     #
@@ -92,7 +92,7 @@ class UpdateDeltasTask(Task):
                     found_first_qtd_cost_per_use = True
                     for m in utils.month_range(start_of_previous_quarter, current_month_previous_quarter):
                         try:
-                            u = SubscriptionCostPerUseStat.objects.get(
+                            u = SubscriptionCostPerUseByBundleStat.objects.get(
                                 publisher_id=publisher_id,
                                 membership_no=current_cost_per_use.membership_no,
                                 bundle_name=current_cost_per_use.bundle_name,
@@ -102,7 +102,7 @@ class UpdateDeltasTask(Task):
                             previous_qtd_amount += u.amoujnt
                             if m == start_of_previous_quarter:
                                 found_first_qtd_cost_per_use = True
-                        except SubscriptionCostPerUseStat.DoesNotExist:
+                        except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                             if not found_first_qtd_cost_per_use:
                                 break
 
@@ -113,7 +113,7 @@ class UpdateDeltasTask(Task):
                         current_qtd_cost_per_use = 0
                         for m in utils.month_range(start_of_current_quarter, current_month):
                             try:
-                                u = SubscriptionCostPerUseStat.objects.get(
+                                u = SubscriptionCostPerUseByBundleStat.objects.get(
                                     publisher_id=publisher_id,
                                     membership_no=current_cost_per_use.membership_no,
                                     bundle_name=current_cost_per_use.bundle_name,
@@ -121,7 +121,7 @@ class UpdateDeltasTask(Task):
                                 )
                                 previous_qtd_total_usage += u.total_usage
                                 previous_qtd_amount += u.amount
-                            except SubscriptionCostPerUseStat.DoesNotExist:
+                            except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                                 pass
 
                         if previous_qtd_total_usage:
@@ -136,7 +136,7 @@ class UpdateDeltasTask(Task):
                         else:
                             percentage_qtd_delta = 0.0
 
-                        SubscriptionCostPerUseStatDelta.objects(
+                        SubscriptionCostPerUseByBundleStatDelta.objects(
                             publisher_id=publisher_id,
                             membership_no=current_cost_per_use.membership_no,
                             bundle_name=current_cost_per_use.bundle_name,
