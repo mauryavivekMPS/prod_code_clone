@@ -7,7 +7,7 @@ from ivetl import utils
 
 
 @app.task
-class UpdateInstitutionUsageDeltasTask(Task):
+class UpdateDeltasTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         now = datetime.datetime.now()
@@ -36,7 +36,7 @@ class UpdateInstitutionUsageDeltasTask(Task):
                 # estimate the total count
                 if total_count is None:
                     months_remaining = relativedelta(to_date, current_month).months + 1
-                    total_count = all_current_month_usage.count() * months_remaining
+                    total_count = all_current_month_usage_count * months_remaining
                     self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
                 for current_usage in all_current_month_usage:
@@ -47,7 +47,7 @@ class UpdateInstitutionUsageDeltasTask(Task):
                     # time_slice == 'm' (month)
                     #
 
-                    previous_month = datetime.date(current_month.year, current_month.month, 1)
+                    previous_month = current_month - relativedelta(months=1)
 
                     try:
                         previous_usage = InstitutionUsageStat.objects.get(
