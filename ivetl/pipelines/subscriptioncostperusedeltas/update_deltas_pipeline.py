@@ -4,10 +4,10 @@ from ivetl.models import PublisherMetadata
 
 
 @app.task
-class UpdateInstitutionUsageDeltasPipeline(Pipeline):
+class UpdateDeltasPipeline(Pipeline):
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
-        pipeline_id = "update_institution_usage_deltas"
+        pipeline_id = "update_subscription_cost_per_use_deltas"
 
         now, today_label, job_id = self.generate_job_id()
 
