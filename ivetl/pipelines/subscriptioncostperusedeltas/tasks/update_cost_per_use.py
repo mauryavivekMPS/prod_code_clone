@@ -58,15 +58,51 @@ class UpdateCostPerUseTask(Task):
                     for category_usage in s.category_usage.values():
                         total_usage += category_usage
 
+                    s.total_usage = total_usage
+
                     if total_usage:
-                        s.total_usage = total_usage
                         s.cost_per_use = s.amount / total_usage
 
-                    # we calculate totals and cost_per_use incrementally
                     s.save()
 
-            # and then use the new records to calculate across bundles
+            # second, iterate over the just-created bundle stats
+            current_month_bundle_stats = SubscriptionCostPerUseByBundleStat.objects.filter(
+                publisher_id=publisher_id,
+                usage_date=current_month,
+            )
 
+            for bundle_stat in current_month_bundle_stats:
+                try:
+                    s = SubscriptionCostPerUseBySubscriberStat.objects.get(
+                        publisher_id=publisher_id,
+                        membership_no=bundle_stat.membership_no,
+                        usage_date=current_month,
+                    )
+                except SubscriptionCostPerUseBySubscriberStat.DoesNotExist:
+                    s = SubscriptionCostPerUseBySubscriberStat.objects.create(
+                        publisher_id=publisher_id,
+                        membership_no=bundle_stat.membership_no,
+                        usage_date=current_month,
+                    )
+
+                s.bundle_amount[bundle_stat.bundle_name] = bundle_stat.amount
+                s.bundle_usage[bundle_stat.bundle_name] = bundle_stat.total_usage
+
+                total_amount = 0
+                for bundle_amount in s.bundle_amount.values():
+                    total_amount += bundle_amount
+
+                total_usage = 0
+                for bundle_usage in s.bundle_usage.values():
+                    total_usage += bundle_usage
+
+                s.total_amount = total_amount
+                s.total_usage = total_usage
+
+                if total_usage:
+                    s.cost_per_use = total_amount / total_usage
+
+                s.save()
 
         return {
             'count': count

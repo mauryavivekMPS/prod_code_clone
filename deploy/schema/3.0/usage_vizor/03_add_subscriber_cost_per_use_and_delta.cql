@@ -32,8 +32,9 @@ CREATE TABLE subscription_cpu_by_subscriber_stat (
   publisher_id text,
   membership_no text,
   usage_date timestamp,
-  amount decimal,
-  category_usage map<text, int>,
+  bundle_amount map<text, decimal>,
+  total_amount decimal,
+  bundle_usage map<text, int>,
   total_usage int,
   cost_per_use decimal,
   PRIMARY KEY ((publisher_id), membership_no, usage_date)
