@@ -60,7 +60,7 @@ class UpdateCostPerUseTask(Task):
 
                     s.total_usage = total_usage
 
-                    if total_usage:
+                    if s.amount is not None and total_usage:
                         s.cost_per_use = s.amount / total_usage
 
                     s.save()
@@ -99,7 +99,7 @@ class UpdateCostPerUseTask(Task):
                 s.total_amount = total_amount
                 s.total_usage = total_usage
 
-                if total_usage:
+                if total_amount is not None and total_usage:
                     s.cost_per_use = total_amount / total_usage
 
                 s.save()

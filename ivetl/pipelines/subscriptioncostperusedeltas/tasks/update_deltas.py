@@ -36,7 +36,8 @@ class UpdateDeltasTask(Task):
 
                 # estimate the total count
                 if total_count is None:
-                    months_remaining = relativedelta(to_date, current_month).months + 1
+                    r = relativedelta(to_date, current_month)
+                    months_remaining = r.years * 12 + r.months + 1
                     total_count = all_current_month_cost_per_use_count * months_remaining
                     self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
