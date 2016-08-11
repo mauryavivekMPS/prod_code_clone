@@ -120,7 +120,7 @@ class UpdateDeltasTask(Task):
                                     usage_date=m,
                                 )
                                 previous_qtd_total_usage += u.total_usage
-                                previous_qtd_amount += u.amoujnt
+                                previous_qtd_amount += u.amount
                             except SubscriptionCostPerUseStat.DoesNotExist:
                                 pass
 
