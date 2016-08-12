@@ -1,2 +1,3 @@
 from ivetl.pipelines.subscriptioncostperusedeltas.tasks.update_cost_per_use import UpdateCostPerUseTask
-from ivetl.pipelines.subscriptioncostperusedeltas.tasks.update_deltas import UpdateDeltasTask
+from ivetl.pipelines.subscriptioncostperusedeltas.tasks.update_bundle_deltas import UpdateBundleDeltasTask
+from ivetl.pipelines.subscriptioncostperusedeltas.tasks.update_subscriber_deltas import UpdateSubscriberDeltasTask

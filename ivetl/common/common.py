@@ -375,7 +375,7 @@ PIPELINES = [
         'has_file_input': False,
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
+            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateBundleDeltasTask',
         ],
     },
     {
@@ -387,7 +387,8 @@ PIPELINES = [
         'rebuild_data_source_id': None,
         'tasks': [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateCostPerUseTask',
-            'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateDeltasTask',
+            'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateBundleDeltasTask',
+            'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateSubscriberDeltasTask',
         ],
     },
 ]
