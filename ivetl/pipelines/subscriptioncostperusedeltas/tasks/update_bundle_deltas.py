@@ -7,7 +7,7 @@ from ivetl import utils
 
 
 @app.task
-class UpdateDeltasTask(Task):
+class UpdateBundleDeltasTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         now = datetime.datetime.now()
@@ -218,8 +218,6 @@ class UpdateDeltasTask(Task):
 
             else:
                 tlogger.info('No stats found')
-
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
 
         return {
             'count': count
