@@ -24,18 +24,18 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
                     if count == 1:
                         continue
 
-                    membership_no = line['membership_no']
+                    membership_no = line['Membership Number']
                     subscriber = Subscriber.objects.get(membership_no=membership_no)
                     tlogger.info("Processing #%s : %s" % (count - 1, membership_no))
 
-                    for field in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
+                    for attr_name, col_name in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
                         SubscriberValues.objects(
                             publisher_id=subscriber.publisher_id,
                             membership_no=membership_no,
                             source='custom',
-                            name=field,
+                            name=attr_name,
                         ).update(
-                            value_text=line[field],
+                            value_text=line[col_name],
                         )
 
         task_args['count'] = total_count

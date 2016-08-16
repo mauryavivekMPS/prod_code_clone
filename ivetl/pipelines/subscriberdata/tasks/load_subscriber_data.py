@@ -62,7 +62,7 @@ class LoadSubscriberDataTask(Task):
             for ac_database in publisher.ac_databases:
                 publisher_id_by_ac_database[ac_database] = publisher.publisher_id
 
-        overlapping_fields_in_file = set(SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS).intersection(set(self.FIELD_NAMES))
+        overlapping_fields_in_file = [f[0] for f in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS]
 
         def reader_without_nulls(f):
             while True:
