@@ -20,22 +20,23 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
                 for line in csv.DictReader(tsv, delimiter='\t'):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    # skip header row
-                    if count == 1:
+                    membership_no = line['Membership Number']
+                    try:
+                        subscriber = Subscriber.objects.get(membership_no=membership_no)
+                    except Subscriber.DoesNotExist:
+                        tlogger.info('Subscriber %s not found, skipping...' % membership_no)
                         continue
 
-                    membership_no = line['membership_no']
-                    subscriber = Subscriber.objects.get(membership_no=membership_no)
                     tlogger.info("Processing #%s : %s" % (count - 1, membership_no))
 
-                    for field in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
+                    for attr_name, col_name in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
                         SubscriberValues.objects(
                             publisher_id=subscriber.publisher_id,
                             membership_no=membership_no,
                             source='custom',
-                            name=field,
+                            name=attr_name,
                         ).update(
-                            value_text=line[field],
+                            value_text=line[col_name],
                         )
 
         task_args['count'] = total_count
