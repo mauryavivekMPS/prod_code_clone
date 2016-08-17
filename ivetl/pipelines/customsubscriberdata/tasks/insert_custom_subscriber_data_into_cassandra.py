@@ -2,6 +2,7 @@ import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import SubscriberValues, Subscriber
+from ivetl.pipelines.customsubscriberdata import CustomSubscriberDataPipeline
 from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
 
 
@@ -17,10 +18,14 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
         for f in files:
             with open(f, encoding='utf-8') as tsv:
                 count = 0
-                for line in csv.DictReader(tsv, delimiter='\t'):
+                for line in csv.reader(tsv, delimiter='\t'):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    membership_no = line['Membership Number']
+                    # skip header row
+                    if count == 1:
+                        continue
+
+                    membership_no = line[CustomSubscriberDataPipeline.FIELD_NAMES['membership_no']]
                     try:
                         subscriber = Subscriber.objects.get(membership_no=membership_no)
                     except Subscriber.DoesNotExist:
@@ -29,14 +34,14 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
 
                     tlogger.info("Processing #%s : %s" % (count - 1, membership_no))
 
-                    for attr_name, col_name in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
+                    for attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
                         SubscriberValues.objects(
                             publisher_id=subscriber.publisher_id,
                             membership_no=membership_no,
                             source='custom',
                             name=attr_name,
                         ).update(
-                            value_text=line[col_name],
+                            value_text=line[CustomSubscriberDataPipeline.FIELD_NAMES[attr_name]],
                         )
 
         task_args['count'] = total_count

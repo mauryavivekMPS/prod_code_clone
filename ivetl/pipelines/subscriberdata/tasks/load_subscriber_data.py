@@ -62,8 +62,6 @@ class LoadSubscriberDataTask(Task):
             for ac_database in publisher.ac_databases:
                 publisher_id_by_ac_database[ac_database] = publisher.publisher_id
 
-        overlapping_fields_in_file = [f[0] for f in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS]
-
         def reader_without_nulls(f):
             while True:
                 yield next(f).replace('\0', '')
@@ -108,7 +106,7 @@ class LoadSubscriberDataTask(Task):
                         sub_update_t1 = time.time()
 
                         field_update_t0 = time.time()
-                        for field in overlapping_fields_in_file:
+                        for field in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
                             SubscriberValues.objects(
                                 publisher_id=subscriber_publisher_id,
                                 membership_no=membership_no,

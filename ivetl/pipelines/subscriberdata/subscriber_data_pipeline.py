@@ -6,35 +6,33 @@ from ivetl.common import common
 @app.task
 class SubscribersAndSubscriptionsPipeline(Pipeline):
 
-    OVERLAPPING_FIELDS = [
-        ('firstname', 'First Name'),
-        ('lastname', 'Last Name'),
-        ('inst_name', 'Institution Name'),
-        ('user_phone', 'Phone'),
-        ('user_fax', 'Fax'),
-        ('user_email', 'Email Address'),
-        ('user_address', 'Address #2'),
-        ('address_2', 'Title'),
-        ('title', 'Affiliation'),
-        ('affiliation', 'RingGold Id'),
-        ('ringgold_id', 'Sales Agent'),
-        ('sales_agent', 'Memo'),
-        ('memo', 'Tier'),
-        ('tier', 'Consortium'),
-        ('consortium', 'Start Date'),
-        ('start_date', 'Country'),
-        ('country', 'Region'),
-        ('region', 'Contact'),
-        ('contact', 'Institution Alternate Name'),
-        ('institution_alternate_name', 'Institution Alternate Identifier'),
-        ('institution_alternate_identifier', 'Memo'),
-        ('custom1', 'Custom #1'),
-        ('custom2', 'Custom #2'),
-        ('custom3', 'Custom #3'),
-
+    CUSTOMIZABLE_FIELD_NAMES = [
+        'firstname',
+        'lastname',
+        'inst_name',
+        'user_phone',
+        'user_fax',
+        'user_email',
+        'address_2',
+        'title',
+        'affiliation',
+        'ringgold_id',
+        'sales_agent',
+        'memo',
+        'tier',
+        'consortium',
+        'start_date',
+        'country',
+        'region',
+        'contact',
+        'institution_alternate_name',
+        'institution_alternate_identifier',
+        'custom1',
+        'custom2',
+        'custom3',
     ]
 
-    OVERLAPPING_DATETIMES = [
+    CUSTOMIZABLE_DATETIME_FIELD_NAMES = [
         'start_date',
     ]
 
