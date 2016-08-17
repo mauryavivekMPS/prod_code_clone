@@ -42,11 +42,33 @@ class InsertScopusIntoCassandra(Task):
                         tlogger.info('citation doi is not of type string, skipping... ' + str(type(citation_doi)))
                         continue
 
-                    try:
-                        citation_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d')
-                    except ValueError:
+                    citation_date_str = data.get('date')
+                    if not citation_date_str:
                         tlogger.info('No date for citation %s, skipping...' % citation_doi)
                         continue
+
+                    try:
+                        citation_date = datetime.datetime.strptime(citation_date_str, '%Y-%m-%d')
+                    except ValueError:
+                        tlogger.info('Badly formatted date for citation %s, skipping...' % citation_doi)
+                        continue
+
+                    non_list_fields = [
+                        'scopus_id',
+                        'first_author',
+                        'issue',
+                        'journal_issn',
+                        'journal_title',
+                        'pages',
+                        'title',
+                        'volume',
+                    ]
+
+                    # check that we don't have any of the weird malformed list values from scopus
+                    for field in non_list_fields:
+                        if type(data.get(field)) == list:
+                            tlogger.info('Badly formatted value for %s from scopus, skipping...' % field)
+                            continue
 
                     # note this try-except should probably be removed when we're satisfied there are no bugs
                     try:
