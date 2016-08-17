@@ -1,0 +1,11 @@
+USE impactvizor;
+
+ALTER TABLE subscription_cpu_by_bundle_stat_delta ADD previous_amount decimal;
+ALTER TABLE subscription_cpu_by_bundle_stat_delta ADD previous_total_usage int;
+ALTER TABLE subscription_cpu_by_bundle_stat_delta ADD current_amount decimal;
+ALTER TABLE subscription_cpu_by_bundle_stat_delta ADD current_total_usage int;
+
+ALTER TABLE subscription_cpu_by_subscriber_stat_delta ADD previous_total_amount decimal;
+ALTER TABLE subscription_cpu_by_subscriber_stat_delta ADD previous_total_usage int;
+ALTER TABLE subscription_cpu_by_subscriber_stat_delta ADD current_total_amount decimal;
+ALTER TABLE subscription_cpu_by_subscriber_stat_delta ADD current_total_usage int;
