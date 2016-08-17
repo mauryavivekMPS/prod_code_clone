@@ -365,14 +365,14 @@ def tail(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']
-    job_id = request.REQUEST['job_id']
-    task_id = request.REQUEST['task_id']
+    job_id = request.GET['job_id']
+    task_id = request.GET['task_id']
     log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
     content = subprocess.check_output('tail -n 100 %s' % log_file, shell=True).decode('utf-8')
 
     # strip up to a previously loaded line if provided
-    if 'last_line' in request.REQUEST:
-        last_line = request.REQUEST['last_line']
+    if 'last_line' in request.GET:
+        last_line = request.GET['last_line']
         if last_line and last_line in content:
             content = content[content.index(last_line) + len(last_line):]
 
@@ -386,6 +386,53 @@ def tail(request, product_id, pipeline_id):
         'pipeline': pipeline,
         'content': content,
     })
+
+
+@login_required
+def job_action(request, product_id, pipeline_id):
+    publisher_id = request.POST['publisher_id']
+    job_id = request.POST['job_id']
+    action = request.POST['action']
+
+    if action == 'mark-as-stopped':
+        try:
+            now = datetime.datetime.now()
+
+            # kill the overall status
+            p = Pipeline_Status.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id
+            )
+            if p.status in ('started', 'in-progress'):
+                p.update(
+                    status='error',
+                    end_time=now,
+                    updated=now,
+                    error_details='Marked as stopped'
+                )
+
+            # kill the task status
+            t = Pipeline_Task_Status.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                task_id=p.current_task
+            )
+            if t.status in ('started', 'in-progress'):
+                t.update(
+                    status='error',
+                    end_time=now,
+                    updated=now,
+                    error_details='Marked as stopped'
+                )
+
+        except (Pipeline_Status.DoesNotExist, Pipeline_Task_Status.DoesNotExist):
+            pass
+
+    return HttpResponse('ok')
 
 
 def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):

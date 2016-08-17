@@ -3,6 +3,7 @@ var PipelinePage = (function() {
     var csrfToken;
     var updatePublisherUrl;
     var tailUrl;
+    var jobActionUrl;
     var runForPublisherUrl;
     var runForAllUrl;
     var isSuperuser;
@@ -43,7 +44,7 @@ var PipelinePage = (function() {
             {name: 'current_task_status', value: summaryRow.attr('current_task_status')},
             {name: 'opened', value: opened}
         ];
-
+        console.log('updating publisher');
         $.getJSON(updatePublisherUrl, data)
             .done(function(json) {
 
@@ -54,6 +55,8 @@ var PipelinePage = (function() {
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireRestartRunButtons('.' + publisherId + '_restart-run-button');
+                    console.log('wiring actions dropdown');
+                    wireJobActionsDropdown('.' + publisherId + '_job-actions-dropdown');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
                     onUpdatePublisher(publisherId);
                 }
@@ -203,6 +206,31 @@ var PipelinePage = (function() {
         });
     };
 
+    var wireJobActionsDropdown = function(selector) {
+        console.log('in');
+        $(selector).each(function () {
+            console.log('in2');
+            var dropdown = $(this);
+            var publisherId = dropdown.attr('publisher_id');
+            var jobId = dropdown.attr('job_id');
+            dropdown.find('.mark-job-as-stopped-link').click(function () {
+                var data = {
+                    csrfmiddlewaretoken: csrfToken,
+                    publisher_id: publisherId,
+                    job_id: jobId,
+                    action: 'mark-as-stopped'
+                };
+
+                $.post(jobActionUrl, data)
+                    .done(function () {
+                        console.log('Job ' + jobId + ' marked as stopped');
+                    });
+
+                return false;
+            });
+        });
+    };
+
     var wireTaskLinks = function(selector) {
         $(selector).each(function() {
             var link = $(this);
@@ -290,6 +318,7 @@ var PipelinePage = (function() {
             pipelineId: '',
             publishers: [],
             tailUrl: '',
+            jobActionUrl: '',
             updatePublisherUrl: '',
             runForPublisherUrl: '',
             runForAllUrl: '',
@@ -307,6 +336,7 @@ var PipelinePage = (function() {
         runForPublisherUrl = options.runForPublisherUrl;
         runForAllUrl = options.runForAllUrl;
         tailUrl = options.tailUrl;
+        jobActionUrl = options.jobActionUrl;
         isSuperuser = options.isSuperuser;
         pipelineName = options.pipelineName;
         singlePublisherPipeline = options.singlePublisherPipeline;
@@ -396,6 +426,7 @@ var PipelinePage = (function() {
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
         wireRestartRunButtons('.restart-run-button');
+        wireJobActionsDropdown('.job-actions-dropdown');
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {

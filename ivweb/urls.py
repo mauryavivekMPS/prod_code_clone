@@ -67,6 +67,9 @@ urlpatterns = patterns(
     # tail a task
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/task/$', 'pipelines.tail', name='pipelines.tail'),
 
+    # perform action on a job
+    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/action/$', 'pipelines.job_action', name='pipelines.job_action'),
+
     # various tools
     url(r'^validatecrossref/$', 'publishers.validate_crossref', name='publishers.validate_crossref'),
     url(r'^validateissn/$', 'publishers.validate_issn', name='publishers.validate_issn'),
