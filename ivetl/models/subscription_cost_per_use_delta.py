@@ -27,7 +27,7 @@ class SubscriptionCostPerUseBySubscriberStatDelta(Model):
     time_slice = columns.Text(primary_key=True)
     previous_total_amount = columns.Decimal(default=0.0)
     previous_total_usage = columns.Integer(default=0)
-    current_amount = columns.Decimal(default=0.0)
+    current_total_amount = columns.Decimal(default=0.0)
     current_total_usage = columns.Integer(default=0)
     previous_cost_per_use = columns.Decimal()
     current_cost_per_use = columns.Decimal()

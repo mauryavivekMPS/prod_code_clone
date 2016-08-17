@@ -72,6 +72,10 @@ class UpdateBundleDeltasTask(Task):
                             usage_date=current_month,
                             time_slice='m',
                         ).update(
+                            previous_amount=previous_cost_per_use.amount,
+                            previous_total_usage=previous_cost_per_use.total_usage,
+                            current_amount=current_cost_per_use.amount,
+                            current_total_usage=current_cost_per_use.total_usage,
                             previous_cost_per_use=previous_cost_per_use.cost_per_use,
                             current_cost_per_use=current_cost_per_use.cost_per_use,
                             absolute_delta=absolute_delta,
@@ -123,8 +127,8 @@ class UpdateBundleDeltasTask(Task):
                                     bundle_name=current_cost_per_use.bundle_name,
                                     usage_date=m,
                                 )
-                                previous_qtd_total_usage += u.total_usage
-                                previous_qtd_amount += u.amount
+                                current_qtd_total_usage += u.total_usage
+                                current_qtd_amount += u.amount
                             except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                                 pass
 
@@ -147,6 +151,10 @@ class UpdateBundleDeltasTask(Task):
                             usage_date=current_month,
                             time_slice='qtd',
                         ).update(
+                            previous_amount=previous_qtd_amount,
+                            previous_total_usage=previous_qtd_total_usage,
+                            current_amount=current_qtd_amount,
+                            current_total_usage=current_qtd_total_usage,
                             previous_cost_per_use=previous_qtd_cost_per_use,
                             current_cost_per_use=current_qtd_cost_per_use,
                             absolute_delta=absolute_qtd_delta,

@@ -70,6 +70,10 @@ class UpdateSubscriberDeltasTask(Task):
                             usage_date=current_month,
                             time_slice='m',
                         ).update(
+                            previous_total_amount=previous_cost_per_use.total_amount,
+                            previous_total_usage=previous_cost_per_use.total_usage,
+                            current_total_amount=current_cost_per_use.total_amount,
+                            current_total_usage=current_cost_per_use.total_usage,
                             previous_cost_per_use=previous_cost_per_use.cost_per_use,
                             current_cost_per_use=current_cost_per_use.cost_per_use,
                             absolute_delta=absolute_delta,
