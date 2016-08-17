@@ -187,6 +187,7 @@
                 piplineId: '{{ pipeline.id }}',
                 publishers: {{ publisher_id_list_as_json|safe }},
                 tailUrl: '{% url 'pipelines.tail' product.id pipeline.id %}',
+                jobActionUrl: '{% url 'pipelines.job_action' product.id pipeline.id %}',
                 updatePublisherUrl: '{% url 'pipelines.include_updated_publisher_runs' product.id pipeline.id %}',
                 runForPublisherUrl: '{% url 'pipelines.run' product.id pipeline.id %}',
                 runForAllUrl: '{% url 'pipelines.run' product.id pipeline.id %}',

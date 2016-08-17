@@ -3,7 +3,7 @@ from cassandra.cqlengine.models import Model
 
 
 class Pipeline_Status(Model):
-    publisher_id = columns.Text(primary_key=True)
+    publisher_id = columns.Text(partition_key=True)
     product_id = columns.Text(primary_key=True)
     pipeline_id = columns.Text(primary_key=True)
     job_id = columns.Text(primary_key=True)
