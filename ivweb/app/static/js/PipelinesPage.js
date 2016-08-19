@@ -426,7 +426,7 @@ var PipelinePage = (function() {
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
         wireRestartRunButtons('.restart-run-button');
-        wireJobActionsDropdown('.job-actions-dropdown');
+        wireJobActionsDropdown('.job-actions-dropdown   ');
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {

@@ -34,6 +34,7 @@ PIPELINES = [
         'user_facing_display_name': 'Additional metadata',
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Additional Metadata',
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
         'rebuild_data_source_id': ['article_citations'],
@@ -65,6 +66,7 @@ PIPELINES = [
         'user_facing_display_name': 'Article usage',
         'class': 'ivetl.pipelines.articleusage.ArticleUsagePipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Article Usage',
         'validator_class': 'ivetl.validators.ArticleUsageValidator',
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
         'tasks': [
@@ -94,9 +96,10 @@ PIPELINES = [
     {
         'name': 'Upload Rejected',
         'id': 'rejected_articles',
-        'user_facing_display_name': 'Rejected manuscripts',
+        'user_facing_display_name': 'Manuscripts imported from files',
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Rejected Manuscripts',
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
         'rebuild_data_source_id': ['rejected_articles'],
@@ -115,7 +118,7 @@ PIPELINES = [
     {
         'name': 'Bench Press Rejected',
         'id': 'benchpress_rejected_articles',
-        'user_facing_display_name': 'Rejected manuscripts',
+        'user_facing_display_name': 'Manuscripts imported from BenchPress',
         'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': ['rejected_articles'],
@@ -136,7 +139,7 @@ PIPELINES = [
     {
         'name': 'Reprocess Rejected',
         'id': 'reprocess_rejected_articles',
-        'user_facing_display_name': 'Reprocess rejected manuscripts',
+        'user_facing_display_name': 'Status for all manuscripts',
         'class': 'ivetl.pipelines.rejectedarticles.ReprocessRejectedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -261,6 +264,7 @@ PIPELINES = [
         'user_facing_display_name': 'JR2 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR2InstitutionUsagePipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'JR2 Institution Usage',
         'validator_class': 'ivetl.validators.JR2Validator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -275,6 +279,7 @@ PIPELINES = [
         'user_facing_display_name': 'JR3 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR3InstitutionUsagePipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'JR3 Institution Usage',
         'validator_class': 'ivetl.validators.JR3Validator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -309,6 +314,7 @@ PIPELINES = [
         'user_facing_display_name': 'Bundle definitions',
         'class': 'ivetl.pipelines.productbundles.BundleDefinitionsPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Bundle Definitions',
         'validator_class': 'ivetl.validators.BundleDefinitionsValidator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -324,6 +330,7 @@ PIPELINES = [
         'user_facing_display_name': 'Subscription pricing',
         'class': 'ivetl.pipelines.productbundles.SubscriptionPricingPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Subsciption Pricing',
         'validator_class': 'ivetl.validators.SubscriptionPricingValidator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -357,6 +364,7 @@ PIPELINES = [
         'user_facing_display_name': 'Additional subscriber data',
         'class': 'ivetl.pipelines.customsubscriberdata.CustomSubscriberDataPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Additional Subscriber Data',
         'validator_class': 'ivetl.validators.CustomSubscriberDataValidator',
         'format_file': 'AdditionalSubscriberData-Format.pdf',
         'rebuild_data_source_id': None,
@@ -394,18 +402,6 @@ PIPELINES = [
 ]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
-
-
-def get_pipeline_display_name(pipeline):
-    user_facing_display_name = pipeline.get('user_facing_display_name')
-    if user_facing_display_name:
-        return user_facing_display_name.title()
-    else:
-        pipeline_name = pipeline.get('name')
-        if pipeline_name:
-            return pipeline_name
-        else:
-            return pipeline['id']
 
 
 def get_pipeline_class(pipeline):

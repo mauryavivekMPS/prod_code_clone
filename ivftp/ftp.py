@@ -89,7 +89,7 @@ class IvetlHandler(FTPHandler):
                     validation_errors = validator.parse_errors(raw_errors)
 
                     if validation_errors:
-                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, common.get_pipeline_display_name(pipeline))
+                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, pipeline['user_facing_file_description'])
                         body = "<p>We found some validation errors in: <b>%s</b></p>" % file_name
                         body += "<ul>"
                         for error in validation_errors:
