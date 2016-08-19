@@ -97,7 +97,7 @@ class IvetlHandler(FTPHandler):
                         body += "</ul>"
                         body += "<p>Please resolve the errors above and FTP the file again.</p>"
                         body += '<p>Thank you,<br/>Impact Vizor Team</p>'
-                        common.send_email(subject, body, to=user.email)
+                        common.send_email(subject, body, to=user.email, bcc=common.FTP_ADMIN_BCC)
 
                         self.log('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
 

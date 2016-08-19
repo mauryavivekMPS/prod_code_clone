@@ -741,6 +741,8 @@ EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.or
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
+FTP_ADMIN_BCC = 'vizor-support@highwire.org'
+
 NETSITE_USERNAME = ENV_PROPERTIES['netsite']['username']
 NETSITE_PASSWORD = ENV_PROPERTIES['netsite']['password']
 
@@ -760,11 +762,13 @@ PINGDOM_ACCOUNTS = [
 ]
 
 
-def send_email(subject, body, to=EMAIL_TO, format="html"):
+def send_email(subject, body, to=EMAIL_TO, bcc=None, format="html"):
     try:
         sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
         message = sendgrid.Mail()
         message.add_to(to)
+        if bcc:
+            message.add_bcc(bcc)
         message.set_subject(subject)
         if format == 'html':
             message.set_html(body)
