@@ -432,10 +432,10 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['published_articles'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['custom_article_data'],
+                'pipeline': PIPELINE_BY_ID['article_citations'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['article_citations'],
+                'pipeline': PIPELINE_BY_ID['custom_article_data'],
             },
             {
                 'pipeline': PIPELINE_BY_ID['article_usage'],
