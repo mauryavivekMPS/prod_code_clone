@@ -12,8 +12,8 @@ user="celery"
 
 name=`basename $0`
 pid_file="/var/run/$name.pid"
-stdout_log="/var/log/$name.log"
-stderr_log="/var/log/$name.err"
+stdout_log="/var/$name/log/$name.log"
+stderr_log="/var/$name/$name.err"
 
 get_pid() {
     cat "$pid_file"
@@ -25,7 +25,7 @@ is_running() {
 
 case "$1" in
     start)
-    if is_running;12 then
+    if is_running; then
         echo "Already started"
     else
         echo "Starting $name"
@@ -33,7 +33,7 @@ case "$1" in
         if [ -z "$user" ]; then
             sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
         else
-            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
+            su "$user" -c "$cmd >> "$stdout_log" 2>> "$stderr_log" &"
         fi
         echo $! > "$pid_file"
         if ! is_running; then
