@@ -7,13 +7,13 @@ echo "Sourcing conf/qa.sh"
 source /iv/impactvizor-pipeline/conf/qa.sh
 
 dir="/iv/impactvizor-pipeline/ivftp"
-cmd="python ftp.py"
+cmd="python ftp.py &"
 user="celery"
 
 name=`basename $0`
-pid_file="/var/run/$name.pid"
-stdout_log="/var/$name/log/$name.log"
-stderr_log="/var/$name/$name.err"
+pid_file="/var/run/$name/$name.pid"
+stdout_log="/var/log/$name/$name.log"
+stderr_log="/var/log/$name/$name.err"
 
 get_pid() {
     cat "$pid_file"
@@ -30,12 +30,7 @@ case "$1" in
     else
         echo "Starting $name"
         cd "$dir"
-        if [ -z "$user" ]; then
-            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
-        else
-            su "$user" -c "$cmd >> "$stdout_log" 2>> "$stderr_log" &"
-        fi
-        echo $! > "$pid_file"
+        su $user -c "$cmd >> $stdout_log 2>> $stderr_log & echo \$! > $pid_file"
         if ! is_running; then
             echo "Unable to start, see $stdout_log and $stderr_log"
             exit 1
