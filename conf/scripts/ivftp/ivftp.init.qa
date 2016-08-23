@@ -1,13 +1,11 @@
 #!/bin/sh
 
 # set the python environment
-echo "Sourcing virtualenv"
 source /iv/env/bin/activate
-echo "Sourcing conf/qa.sh"
 source /iv/impactvizor-pipeline/conf/qa.sh
 
 dir="/iv/impactvizor-pipeline/ivftp"
-cmd="python ftp.py &"
+cmd="python ftp.py"
 user="celery"
 
 name=`basename $0`
