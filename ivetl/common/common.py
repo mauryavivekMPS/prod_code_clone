@@ -384,7 +384,7 @@ PIPELINES = [
         'has_file_input': False,
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateBundleDeltasTask',
+            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
         ],
     },
     {

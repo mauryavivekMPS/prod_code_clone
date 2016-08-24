@@ -83,6 +83,76 @@ class UpdateSubscriberDeltasTask(Task):
                     except SubscriptionCostPerUseBySubscriberStat.DoesNotExist:
                         pass
 
+                    #
+                    # time_slice == 'ytd' (year-to-date)
+                    #
+
+                    start_of_previous_year = datetime.date(current_month.year - 1, 1, 1)
+                    current_month_previous_year = datetime.date(current_month.year - 1, current_month.month, 1)
+                    previous_ytd_total_usage = 0
+                    previous_ytd_total_amount = 0
+                    previous_ytd_cost_per_use = 0
+                    found_first_ytd_cost_per_use = True
+                    for m in utils.month_range(start_of_previous_year, current_month_previous_year):
+                        try:
+                            u = SubscriptionCostPerUseBySubscriberStat.objects.get(
+                                publisher_id=publisher_id,
+                                membership_no=current_cost_per_use.membership_no,
+                                usage_date=m,
+                            )
+                            previous_ytd_total_usage += u.total_usage
+                            previous_ytd_total_amount += u.total_amount
+                            if m == start_of_previous_year:
+                                found_first_ytd_cost_per_use = True
+                        except SubscriptionCostPerUseBySubscriberStat.DoesNotExist:
+                            if not found_first_ytd_cost_per_use:
+                                break
+
+                    if found_first_ytd_cost_per_use:
+                        start_of_current_year = datetime.date(current_month.year, 1, 1)
+                        current_ytd_total_usage = 0
+                        current_ytd_total_amount = 0
+                        current_ytd_cost_per_use = 0
+                        for m in utils.month_range(start_of_current_year, current_month):
+                            try:
+                                u = SubscriptionCostPerUseBySubscriberStat.objects.get(
+                                    publisher_id=publisher_id,
+                                    membership_no=current_cost_per_use.membership_no,
+                                    usage_date=m,
+                                )
+                                current_ytd_total_usage += u.total_usage
+                                current_ytd_total_amount += u.total_amount
+                            except SubscriptionCostPerUseBySubscriberStat.DoesNotExist:
+                                pass
+
+                        if previous_ytd_total_usage:
+                            previous_ytd_cost_per_use = previous_ytd_total_amount / previous_ytd_total_usage
+
+                        if current_ytd_total_usage:
+                            current_ytd_cost_per_use = current_ytd_total_amount / current_ytd_total_usage
+
+                        absolute_ytd_delta = current_ytd_cost_per_use - previous_ytd_cost_per_use
+                        if previous_ytd_cost_per_use:
+                            percentage_ytd_delta = absolute_ytd_delta / previous_ytd_cost_per_use
+                        else:
+                            percentage_ytd_delta = 0.0
+
+                        SubscriptionCostPerUseBySubscriberStatDelta.objects(
+                            publisher_id=publisher_id,
+                            membership_no=current_cost_per_use.membership_no,
+                            usage_date=current_month,
+                            time_slice='ytd',
+                        ).update(
+                            previous_total_amount=previous_ytd_total_amount,
+                            previous_total_usage=previous_ytd_total_usage,
+                            current_total_amount=current_ytd_total_amount,
+                            current_total_usage=current_ytd_total_usage,
+                            previous_cost_per_use=previous_ytd_cost_per_use,
+                            current_cost_per_use=current_ytd_cost_per_use,
+                            absolute_delta=absolute_ytd_delta,
+                            percentage_delta=percentage_ytd_delta,
+                        )
+
             else:
                 tlogger.info('No stats found')
 
