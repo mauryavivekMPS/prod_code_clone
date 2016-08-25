@@ -19,7 +19,7 @@ from django.template import loader, RequestContext
 
 from ivetl.common import common
 from ivetl import utils
-from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, PublisherJournal
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, Audit_Log, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_completed_runs=False, prioritize_most_recent_running=True):
 
     # get all the runs
-    all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
+    all_runs = PipelineStatus.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
 
     if only_completed_runs:
         all_runs = [run for run in all_runs if run.status == 'completed']
@@ -39,7 +39,7 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
     # now get all the tasks for each run
     tasks_by_run = []
     for run in recent_runs:
-        tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
+        tasks = PipelineTaskStatus.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
         sorted_tasks = sorted(tasks, key=lambda t: t.start_time or datetime.datetime.min)
 
         tasks_by_run.append({
@@ -399,7 +399,7 @@ def job_action(request, product_id, pipeline_id):
             now = datetime.datetime.now()
 
             # kill the overall status
-            p = Pipeline_Status.objects.get(
+            p = PipelineStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=pipeline_id,
@@ -414,7 +414,7 @@ def job_action(request, product_id, pipeline_id):
                 )
 
             # kill the task status
-            t = Pipeline_Task_Status.objects.get(
+            t = PipelineTaskStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=pipeline_id,
@@ -429,7 +429,7 @@ def job_action(request, product_id, pipeline_id):
                     error_details='Marked as stopped'
                 )
 
-        except (Pipeline_Status.DoesNotExist, Pipeline_Task_Status.DoesNotExist):
+        except (PipelineStatus.DoesNotExist, PipelineTaskStatus.DoesNotExist):
             pass
 
     return HttpResponse('ok')

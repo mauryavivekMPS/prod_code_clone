@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Pipeline_Task_Status(Model):
+class PipelineTaskStatus(Model):
     publisher_id = columns.Text(primary_key=True)
     product_id = columns.Text(primary_key=True)
     pipeline_id = columns.Text(primary_key=True)

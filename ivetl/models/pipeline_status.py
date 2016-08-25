@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Pipeline_Status(Model):
+class PipelineStatus(Model):
     publisher_id = columns.Text(partition_key=True)
     product_id = columns.Text(primary_key=True)
     pipeline_id = columns.Text(primary_key=True)
@@ -19,6 +19,7 @@ class Pipeline_Status(Model):
     workfolder = columns.Text()
     user_email = columns.Text()
     params_json = columns.Text()
+    stop_at_next_task = columns.Boolean()
 
     def display_name(self):
         return 'Run %s' % self.job_id[self.job_id.rindex('_') + 1:]

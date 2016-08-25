@@ -2,7 +2,7 @@ import json
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Pipeline_Status
+from ivetl.models import PipelineStatus
 from ivetl.common import common
 
 
@@ -21,7 +21,7 @@ class SiteUptimePipeline(Pipeline):
 
         if job_id:
             try:
-                ps = Pipeline_Status.objects.get(
+                ps = PipelineStatus.objects.get(
                     publisher_id=publisher_id,
                     product_id=product_id,
                     pipeline_id=pipeline_id,
@@ -40,7 +40,7 @@ class SiteUptimePipeline(Pipeline):
                     if params['to_date']:
                         to_date = parse(params['to_date'])
 
-            except Pipeline_Status.DoesNotExist:
+            except PipelineStatus.DoesNotExist:
                 pass
 
         if not job_id:

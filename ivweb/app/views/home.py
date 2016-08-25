@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.common import common
-from ivetl.models import Pipeline_Status, Pipeline_Task_Status
+from ivetl.models import PipelineStatus, PipelineTaskStatus
 from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending_files_for_publisher
 
 
@@ -109,11 +109,11 @@ def all_pipelines(request):
         runs_by_pub = {p.publisher_id: {'publisher': p, 'runs': []} for p in all_publishers}
 
         # get any reasonably recent in progress runs
-        in_progress_runs = [run for run in Pipeline_Status.objects().limit(1000) if run.status == 'completed']
+        in_progress_runs = [run for run in PipelineStatus.objects().limit(1000) if run.status == 'completed']
 
         # sort the runs by pub
         for run in in_progress_runs:
-            tasks = Pipeline_Task_Status.objects(publisher_id=run.publisher_id, product_id=run.product_id, pipeline_id=run.pipeline_id, job_id=run.job_id)
+            tasks = PipelineTaskStatus.objects(publisher_id=run.publisher_id, product_id=run.product_id, pipeline_id=run.pipeline_id, job_id=run.job_id)
             sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
             # TODO: order runs by product/pipeline order
             runs_by_pub[run.publisher_id]['runs'].append({

@@ -7,8 +7,8 @@ from ivetl.models.published_article_values import PublishedArticleValues
 from ivetl.models.PublisherVizorUpdates import Publisher_Vizor_Updates
 from ivetl.models.ArticleCitations import Article_Citations
 from ivetl.models.IssnJournal import Issn_Journal
-from ivetl.models.PipelineStatus import Pipeline_Status
-from ivetl.models.PipelineTaskStatus import Pipeline_Task_Status
+from ivetl.models.pipeline_status import PipelineStatus
+from ivetl.models.pipeline_task_status import PipelineTaskStatus
 from ivetl.models.RejectedArticles import Rejected_Articles
 from ivetl.models.AuditLog import Audit_Log
 from ivetl.models.PublishedArticleByCohort import Published_Article_By_Cohort

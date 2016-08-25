@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
 from ivetl.connectors import TableauConnector
-from ivetl.models import PublisherMetadata, Pipeline_Status
+from ivetl.models import PublisherMetadata, PipelineStatus
 
 
 class TaskParamsEncodingError(Exception):
@@ -58,7 +58,7 @@ class BaseTask(Task):
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
         try:
-            p = Pipeline_Status.objects.get(
+            p = PipelineStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=pipeline_id,
@@ -85,7 +85,7 @@ class BaseTask(Task):
 
                     common.send_email(subject, body, to=p.user_email)
 
-        except Pipeline_Status.DoesNotExist:
+        except PipelineStatus.DoesNotExist:
             pass
 
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):

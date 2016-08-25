@@ -5,7 +5,7 @@ import uuid
 from celery import chain
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
-from ivetl.models import Pipeline_Status, Pipeline_Task_Status
+from ivetl.models import PipelineStatus, PipelineTaskStatus
 
 
 class Pipeline(BaseTask):
@@ -29,7 +29,7 @@ class Pipeline(BaseTask):
         start_date = datetime.datetime.today()
         params_json = self.params_to_json(params)
 
-        Pipeline_Status.objects(
+        PipelineStatus.objects(
             publisher_id=publisher_id,
             product_id=product_id,
             pipeline_id=pipeline_id,
@@ -58,7 +58,7 @@ class Pipeline(BaseTask):
 
             # TODO: Not sure what to do here if there are no args yet!?!
 
-            Pipeline_Task_Status.objects(
+            PipelineTaskStatus.objects(
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=self.pipeline_name,
@@ -72,7 +72,7 @@ class Pipeline(BaseTask):
             )
 
             try:
-                ps = Pipeline_Status.objects(
+                ps = PipelineStatus.objects(
                     publisher_id=publisher_id,
                     product_id=product_id,
                     pipeline_id=pipeline_id,
@@ -85,7 +85,7 @@ class Pipeline(BaseTask):
                     error_details=str(exc),
                     updated=end_date,
                 )
-            except Pipeline_Status.DoesNotExist:
+            except PipelineStatus.DoesNotExist:
                 # do nothing
                 pass
 
