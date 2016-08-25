@@ -428,9 +428,28 @@ def job_action(request, product_id, pipeline_id):
                     updated=now,
                     error_details='Marked as stopped'
                 )
-
         except (PipelineStatus.DoesNotExist, PipelineTaskStatus.DoesNotExist):
             pass
+
+    elif action == 'stop-at-next-task':
+        try:
+            p = PipelineStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id
+            )
+            if p.status in ('started', 'in-progress'):
+                p.update(
+                    stop_at_next_task=True,
+                )
+        except PipelineStatus.DoesNotExist:
+            pass
+
+    elif action == 'restart-from-first-task':
+        pass
+    elif action == 'restart-from-stopped-task':
+        pass
 
     return HttpResponse('ok')
 

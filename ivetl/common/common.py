@@ -16,6 +16,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',

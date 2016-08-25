@@ -56,6 +56,7 @@
                     <input type="hidden" name="move_pending_files" value="1">
                     {% if pipeline.supports_restart %}
                         <input type="hidden" name="restart_job_id" value="">
+                        <input type="hidden" name="restart_from_start" value="">
                     {% endif %}
                     {% if pipeline.include_date_range_controls %}
                         <input type="hidden" name="from_date">
@@ -91,33 +92,37 @@
                 <td class="opener-col"></td>
                 <td class="run-col">
                     <span class="run-name">{{ run_item.run.display_name }}</span>
-                    <div class="dropdown {{ publisher_runs.publisher.publisher_id }}_job-actions-dropdown job-actions-dropdown" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">
-                        <a class="job-actions-menu-icon" href="#" data-toggle="dropdown"><span class="lnr lnr-cog"></span></a>
-                        <ul class="dropdown-menu">
-                            {% if run_item.run.status == 'in-progress' %}
-                                <li><a class="stop-at-next-task-link" href="#">Stop job at next task</a></li>
-                            {% else %}
-                                <li class="disabled"><a href="#" onclick="return false">Stop job at next task</a></li>
-                            {% endif %}
-                            <li class="divider"></li>
-                            {% if run_item.run.status != 'in-progress' %}
-                                <li><a class="{{ publisher_runs.publisher.publisher_id }}_restart-from-first-task-button" href="#">Restart from first task</a></li>
-                                <li><a class="{{ publisher_runs.publisher.publisher_id }}_restart-from-stopped-task-button" href="#">Restart from stopped task</a></li>
-                            {% else %}
-                                <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>
-                                <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>
-                            {% endif %}
-                            <li class="divider"></li>
-                            {% if run_item.run.status == 'in-progress' %}
-                                <li><a class="mark-job-as-stopped-link" href="#">Mark job as stopped</a></li>
-                            {% else %}
-                                <li class="disabled"><a href="#" onclick="return false">Mark job as stopped</a></li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                    {% if pipeline.supports_restart and run_item.run.status == 'error' %}
-                        <a class="btn btn-default submit-button {{ publisher_runs.publisher.publisher_id }}_restart-run-button restart-run-button" href="#" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">Restart</a>
+                    {% if forloop.first %}
+                        <div class="dropdown {{ publisher_runs.publisher.publisher_id }}_job-actions-dropdown job-actions-dropdown" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">
+                            <a class="job-actions-menu-icon" href="#" data-toggle="dropdown"><span class="lnr lnr-cog"></span></a>
+                            <ul class="dropdown-menu">
+                                {% if run_item.run.status == 'in-progress' %}
+                                    <li><a class="action-link" href="#" action="stop-at-next-task">Stop job at next task</a></li>
+                                {% else %}
+                                    <li class="disabled"><a href="#" onclick="return false">Stop job at next task</a></li>
+                                {% endif %}
+                                {% if pipeline.supports_restart %}
+                                    <li class="divider"></li>
+                                    {% if run_item.run.status != 'in-progress' %}
+                                        <li><a class="action-link {{ publisher_runs.publisher.publisher_id }}_restart-from-first-task-button" href="#" action="restart-from-first-task">Restart from first task</a></li>
+                                        <li><a class="action-link {{ publisher_runs.publisher.publisher_id }}_restart-from-stopped-task-button" href="#" action="restart-from-stopped-task">Restart from stopped task</a></li>
+                                    {% else %}
+                                        <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>
+                                        <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>
+                                    {% endif %}
+                                {% endif %}
+                                <li class="divider"></li>
+                                {% if run_item.run.status == 'in-progress' %}
+                                    <li><a class="action-link mark-job-as-stopped-link" href="#" action="mark-job-as-stopped">Mark job as stopped</a></li>
+                                {% else %}
+                                    <li class="disabled"><a href="#" onclick="return false">Mark job as stopped</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     {% endif %}
+{#                    {% if pipeline.supports_restart and run_item.run.status == 'error' %}#}
+{#                        <a class="btn btn-default submit-button {{ publisher_runs.publisher.publisher_id }}_restart-run-button restart-run-button" href="#" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">Restart</a>#}
+{#                    {% endif %}#}
                 </td>
                 <td>{{ run_item.run.end_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
                 <td>{{ run_item.run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>

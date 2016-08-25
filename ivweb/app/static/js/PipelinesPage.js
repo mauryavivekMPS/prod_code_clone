@@ -44,7 +44,6 @@ var PipelinePage = (function() {
             {name: 'current_task_status', value: summaryRow.attr('current_task_status')},
             {name: 'opened', value: opened}
         ];
-        console.log('updating publisher');
         $.getJSON(updatePublisherUrl, data)
             .done(function(json) {
 
@@ -55,7 +54,6 @@ var PipelinePage = (function() {
                     wirePublisherLinks('.' + publisherId + '_summary_row .publisher-link');
                     wireRunForPublisherForms('.' + publisherId + '_summary_row .run-pipeline-for-publisher-inline-form');
                     wireRestartRunButtons('.' + publisherId + '_restart-run-button');
-                    console.log('wiring actions dropdown');
                     wireJobActionsDropdown('.' + publisherId + '_job-actions-dropdown');
                     wireTaskLinks('.' + publisherId + '_row .task-link');
                     onUpdatePublisher(publisherId);
@@ -207,26 +205,19 @@ var PipelinePage = (function() {
     };
 
     var wireJobActionsDropdown = function(selector) {
-        console.log('in');
         $(selector).each(function () {
-            console.log('in2');
             var dropdown = $(this);
             var publisherId = dropdown.attr('publisher_id');
             var jobId = dropdown.attr('job_id');
-            dropdown.find('.mark-job-as-stopped-link').click(function () {
+            dropdown.find('.action-link').click(function (e) {
                 var data = {
                     csrfmiddlewaretoken: csrfToken,
                     publisher_id: publisherId,
                     job_id: jobId,
-                    action: 'mark-as-stopped'
+                    action: $(this).attr('action')
                 };
-
-                $.post(jobActionUrl, data)
-                    .done(function () {
-                        console.log('Job ' + jobId + ' marked as stopped');
-                    });
-
-                return false;
+                $.post(jobActionUrl, data);
+                e.preventDefault();
             });
         });
     };
