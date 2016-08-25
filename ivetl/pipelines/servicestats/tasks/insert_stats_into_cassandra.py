@@ -59,9 +59,9 @@ class InsertStatsIntoCassandraTask(Task):
                                 name=stat_json.get('Name'),
                                 from_date=parse(stat_json.get('From')),
                                 until_date=parse(stat_json.get('Until')),
+                                status_code=status_code,
                             ).update(
                                 sample=stat_json.get('Sample'),
-                                status_code=status_code,
                                 count=count,
                             )
 

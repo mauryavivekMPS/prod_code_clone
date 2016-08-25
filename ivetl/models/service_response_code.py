@@ -7,6 +7,6 @@ class ServiceResponseCode(Model):
     name = columns.Text(primary_key=True)
     from_date = columns.DateTime(primary_key=True)
     until_date = columns.DateTime(primary_key=True)
+    status_code = columns.Text(primary_key=True)
     sample = columns.Integer()
-    status_code = columns.Text()
     count = columns.Integer()
