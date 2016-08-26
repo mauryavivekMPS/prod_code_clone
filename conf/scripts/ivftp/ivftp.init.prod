@@ -7,8 +7,8 @@ echo "Sourcing conf/prod.sh"
 source /iv/impactvizor-pipeline/conf/prod.sh
 
 dir="/iv/impactvizor-pipeline/ivftp"
-cmd="python ftp.py &"
-user="celery"
+cmd="python ftp.py"
+user="ec2-user"
 
 name=`basename $0`
 pid_file="/var/run/$name/$name.pid"

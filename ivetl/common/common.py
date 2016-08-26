@@ -645,6 +645,16 @@ FTP_DIRS = [
     },
     {
         'product_id': 'institutions',
+        'pipeline_id': 'bundle_definitions',
+        'ftp_dir_name': 'bundle_definitions',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'subscription_pricing',
+        'ftp_dir_name': 'subscription_pricing',
+    },
+    {
+        'product_id': 'institutions',
         'pipeline_id': 'custom_subscriber_data',
         'ftp_dir_name': 'additional_subscriber_data_files',
     },
