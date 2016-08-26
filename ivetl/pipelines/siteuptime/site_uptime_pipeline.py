@@ -28,7 +28,6 @@ class SiteUptimePipeline(Pipeline):
                     job_id=job_id,
                 )
 
-                job_id = ps.job_id
                 today_label = job_id.split("_")[0]
 
                 if ps.params_json:
