@@ -66,4 +66,4 @@ class SiteUptimePipeline(Pipeline):
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
         }
 
-        self.chain_tasks(pipeline_id, task_args)
+        Pipeline.chain_tasks(pipeline_id, task_args)

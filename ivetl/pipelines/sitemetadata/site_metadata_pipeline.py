@@ -28,4 +28,4 @@ class SiteMetadataPipeline(Pipeline):
             'job_id': job_id,
         }
 
-        self.chain_tasks(pipeline_id, task_args)
+        Pipeline.chain_tasks(pipeline_id, task_args)

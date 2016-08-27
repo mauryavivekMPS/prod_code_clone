@@ -35,4 +35,4 @@ class InsertPlaceholderCitationsPipeline(Pipeline):
                 'max_articles_to_process': max_articles_to_process,
             }
 
-            self.chain_tasks(pipeline_id, task_args)
+            Pipeline.chain_tasks(pipeline_id, task_args)

@@ -160,8 +160,7 @@ class Pipeline(BaseTask):
             task_to_start_at = p.current_task
 
         else:
-            # get the status for the first task
-            first_task_id = pipeline['tasks'][0][pipeline['tasks'][0].rfind('.') + 1:]
+            first_task_id = common.task_id_from_path(pipeline['tasks'][0])
             task_status = PipelineTaskStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
@@ -174,6 +173,25 @@ class Pipeline(BaseTask):
         # parse the task args
         task_args = json.loads(task_status.task_args_json)
 
+        # delete task status records after the chosen task
+        found_start_at_task = False
+        for task_class_path in pipeline['tasks']:
+            task_id = common.task_id_from_path(task_class_path)
+            if task_id == task_to_start_at:
+                found_start_at_task = True
+                continue
+            if found_start_at_task:
+                try:
+                    PipelineTaskStatus.objects.get(
+                        publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
+                        task_id=task_id,
+                    ).delete()
+                except PipelineTaskStatus.DoesNotExist:
+                    pass
+
         # and run the entire pipeline
         Pipeline.chain_tasks(pipeline_id, task_args, start_at=task_to_start_at)
 
@@ -185,7 +203,7 @@ class Pipeline(BaseTask):
             remaining_tasks = []
             found_start_at_task = False
             for task_class_path in pipeline['tasks']:
-                task_id = task_class_path[task_class_path.rfind('.') + 1:]
+                task_id = common.task_id_from_path(task_class_path)
                 if task_id == start_at:
                     found_start_at_task = True
                 if found_start_at_task:

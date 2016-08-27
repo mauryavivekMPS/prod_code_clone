@@ -619,6 +619,7 @@ def upload_pending_file_inline(request):
 
     return HttpResponse('ok')
 
+
 @login_required
 def delete_pending_file_inline(request):
 

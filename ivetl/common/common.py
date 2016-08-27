@@ -421,6 +421,10 @@ def get_validator_class(pipeline):
     return getattr(importlib.import_module(validator_module_name), class_name)
 
 
+def task_id_from_path(task_class_path):
+    return task_class_path[task_class_path.rfind('.') + 1:]
+
+
 PRODUCTS = [
     {
         'name': 'Published Articles',

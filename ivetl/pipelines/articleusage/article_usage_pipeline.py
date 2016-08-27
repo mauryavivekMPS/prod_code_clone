@@ -58,7 +58,7 @@ class ArticleUsagePipeline(Pipeline):
                 }
 
                 # and run the pipeline!
-                self.chain_tasks(pipeline_id, task_args)
+                Pipeline.chain_tasks(pipeline_id, task_args)
 
             else:
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
