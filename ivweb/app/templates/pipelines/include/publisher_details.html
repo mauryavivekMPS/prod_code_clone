@@ -101,19 +101,22 @@
                                 {% else %}
                                     <li class="disabled"><a href="#" onclick="return false">Stop job at next task</a></li>
                                 {% endif %}
-{#                                {% if pipeline.supports_restart %}#}
-{#                                    <li class="divider"></li>#}
-{#                                    {% if run_item.run.status != 'in-progress' %}#}
-{#                                        <li><a class="action-link {{ publisher_runs.publisher.publisher_id }}_restart-from-first-task-button" href="#" action="restart-from-first-task">Restart from first task</a></li>#}
-{#                                        <li><a class="action-link {{ publisher_runs.publisher.publisher_id }}_restart-from-stopped-task-button" href="#" action="restart-from-stopped-task">Restart from stopped task</a></li>#}
-{#                                    {% else %}#}
-{#                                        <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>#}
-{#                                        <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>#}
-{#                                    {% endif %}#}
-{#                                {% endif %}#}
-                                <li class="divider"></li>
-                                <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>
-                                <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>
+                                {% if pipeline.supports_restart %}
+                                    <li class="divider"></li>
+                                    {% if run_item.run.status != 'in-progress' %}
+                                        <li><a class="action-link" href="#" action="restart-from-first-task">Restart from first task</a></li>
+                                    {% else %}
+                                        <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>
+                                    {% endif %}
+                                    {% if run_item.run.status == 'error' %}
+                                        <li><a class="action-link" href="#" action="restart-from-stopped-task">Restart from stopped task</a></li>
+                                    {% else %}
+                                        <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>
+                                    {% endif %}
+                                {% endif %}
+{#                                <li class="divider"></li>#}
+{#                                <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>#}
+{#                                <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>#}
                                 <li class="divider"></li>
                                 {% if run_item.run.status == 'in-progress' %}
                                     <li><a class="action-link mark-job-as-stopped-link" href="#" action="mark-job-as-stopped">Mark job as stopped</a></li>

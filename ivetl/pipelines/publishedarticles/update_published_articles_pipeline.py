@@ -16,6 +16,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
         pipeline_id = "published_articles"
 
         # if job_id:
+        #
+        #     # assumes a single publisher
         #     publisher_id = publisher_id_list[0]
         #
         #     try:
@@ -33,8 +35,6 @@ class UpdatePublishedArticlesPipeline(Pipeline):
         #
         #         if ps.params_json:
         #             params = json.loads(ps.params_json)
-        #
-        #
         #
         #     except PipelineStatus.DoesNotExist:
         #         raise ValueError('Unable to restart job, that job ID does not exist.')

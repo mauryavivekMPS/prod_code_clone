@@ -7,7 +7,6 @@ import shutil
 import stat
 import subprocess
 import uuid
-
 import humanize
 from dateutil.parser import parse
 from django import forms
@@ -16,9 +15,9 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.template import loader, RequestContext
-
 from ivetl.common import common
 from ivetl import utils
+from ivetl.pipelines.pipeline import Pipeline
 from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, Audit_Log, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
@@ -447,9 +446,10 @@ def job_action(request, product_id, pipeline_id):
             pass
 
     elif action == 'restart-from-first-task':
-        pass
+        Pipeline.restart_job(publisher_id, product_id, pipeline_id, job_id, start_from_stopped_task=False)
+
     elif action == 'restart-from-stopped-task':
-        pass
+        Pipeline.restart_job(publisher_id, product_id, pipeline_id, job_id, start_from_stopped_task=True)
 
     return HttpResponse('ok')
 

@@ -721,6 +721,8 @@ IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
 IS_QA = os.environ.get('IVETL_QA', '0') == '1'
 IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 
+DEBUG_QUICKLY = bool(os.environ.get('IVETL_DEBUG_QUICKLY', False))
+
 PUBLISH_TO_TABLEAU_WHEN_LOCAL = os.environ.get('IVETL_PUBLISH_TO_TABLEAU_WHEN_LOCAL', '0') == '1'
 
 IVETL_WEB_ADDRESS = os.environ.get('IVETL_WEB_ADDRESS', 'http://localhost:8000')
