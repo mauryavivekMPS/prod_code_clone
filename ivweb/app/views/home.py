@@ -56,9 +56,14 @@ def home(request):
                         message = '%s currently being processed' % pipeline_name
                     else:
                         if status:
-                            message = '%s updated %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))
+                            if pipeline['pipeline'].get('use_colon_instead_of_updated'):
+                                message = '%s: %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))
+                            elif pipeline['pipeline'].get('use_uploaded_instead_of_updated'):
+                                message = '%s uploaded %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))
+                            else:
+                                message = '%s updated %s' % (pipeline_name, humanize.naturaltime(recent_runs['recent_run'].updated))
                         else:
-                            message = '%s not recently updated' % pipeline_name
+                            message = '%s: never' % pipeline_name
 
                     pending_files = []
                     if pipeline['pipeline'].get('has_file_input'):
