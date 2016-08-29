@@ -65,10 +65,14 @@ class InsertScopusIntoCassandra(Task):
                     ]
 
                     # check that we don't have any of the weird malformed list values from scopus
+                    skip_for_unexpected_list = False
                     for field in non_list_fields:
                         if type(data.get(field)) == list:
                             tlogger.info('Badly formatted value for %s from scopus, skipping...' % field)
-                            continue
+                            skip_for_unexpected_list = True
+
+                    if skip_for_unexpected_list:
+                        continue
 
                     # note this try-except should probably be removed when we're satisfied there are no bugs
                     try:
