@@ -2,8 +2,8 @@ import time
 import unittest
 import datetime
 from dateutil import parser
-from ivetl.models import (PublisherMetadata, Pipeline_Status, PublishedArticle, Article_Citations,
-                          Publisher_Vizor_Updates, PublishedArticleValues, Pipeline_Task_Status)
+from ivetl.models import (PublisherMetadata, PipelineStatus, PublishedArticle, Article_Citations,
+                          Publisher_Vizor_Updates, PublishedArticleValues, PipelineTaskStatus)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
@@ -27,7 +27,7 @@ class PipelineTestCase(unittest.TestCase):
         got_complete_status = False
         while (datetime.datetime.now() - start_time).seconds < timeout_in_seconds:
             # look for a single "completed" status line
-            for s in Pipeline_Status.objects.filter(publisher_id=publisher_id, pipeline_id=pipeline_name):
+            for s in PipelineStatus.objects.filter(publisher_id=publisher_id, pipeline_id=pipeline_name):
                 if s.status == 'completed':
                     got_complete_status = True
                     break
@@ -65,7 +65,7 @@ class PipelineTestCase(unittest.TestCase):
             PublishedArticle.objects(publisher_id='test').delete()
             PublishedArticleValues.objects(publisher_id='test').delete()
             Article_Citations.objects(publisher_id='test').delete()
-            Pipeline_Status.objects(publisher_id='test').delete()
+            PipelineStatus.objects(publisher_id='test').delete()
             Publisher_Vizor_Updates.objects(publisher_id='test').delete()
             publisher.delete()
 
@@ -278,7 +278,7 @@ class PipelineTestCase(unittest.TestCase):
         # add some pipeline status
         #
 
-        Pipeline_Status.objects.create(
+        PipelineStatus.objects.create(
             publisher_id='blood',
             pipeline_id='published_articles',
             job_id='20150824_161812054742',
@@ -292,7 +292,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150824/test/published_articles/20150824_161812054742',
         )
 
-        Pipeline_Status.objects.create(
+        PipelineStatus.objects.create(
             publisher_id='blood',
             pipeline_id='published_articles',
             job_id='20150825_161812054742',
@@ -306,7 +306,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150825/test/published_articles/20150825_161812054742',
         )
 
-        Pipeline_Status.objects.create(
+        PipelineStatus.objects.create(
             publisher_id='blood',
             pipeline_id='article_citations',
             job_id='20150825_161812054752',
@@ -320,7 +320,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895',
         )
 
-        Pipeline_Task_Status.objects.create(
+        PipelineTaskStatus.objects.create(
             publisher_id='blood',
             pipeline_id='article_citations',
             job_id='20150825_161812054752',
@@ -334,7 +334,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895/GetScopusArticleCitations',
         )
 
-        Pipeline_Task_Status.objects.create(
+        PipelineTaskStatus.objects.create(
             publisher_id='blood',
             pipeline_id='article_citations',
             job_id='20150825_161812054752',
@@ -348,7 +348,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895/InsertScopusIntoCassandra',
         )
 
-        Pipeline_Task_Status.objects.create(
+        PipelineTaskStatus.objects.create(
             publisher_id='blood',
             pipeline_id='article_citations',
             job_id='20150825_161812054752',
@@ -362,7 +362,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150921_095547135895/UpdateArticleCitationsWithCrossref',
         )
 
-        Pipeline_Status.objects.create(
+        PipelineStatus.objects.create(
             publisher_id='neuro',
             pipeline_id='article_citations',
             job_id='20150825_161812054753',
@@ -376,7 +376,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150825_161812054753',
         )
 
-        Pipeline_Task_Status.objects.create(
+        PipelineTaskStatus.objects.create(
             publisher_id='neuro',
             pipeline_id='article_citations',
             job_id='20150825_161812054753',
@@ -390,7 +390,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150825_161812054753/GetScopusArticleCitations',
         )
 
-        Pipeline_Task_Status.objects.create(
+        PipelineTaskStatus.objects.create(
             publisher_id='neuro',
             pipeline_id='article_citations',
             job_id='20150825_161812054753',
@@ -404,7 +404,7 @@ class PipelineTestCase(unittest.TestCase):
             workfolder='/iv/working/20150921/test/article_citations/20150825_161812054753/InsertScopusIntoCassandra',
         )
 
-        Pipeline_Task_Status.objects.create(
+        PipelineTaskStatus.objects.create(
             publisher_id='neuro',
             pipeline_id='article_citations',
             job_id='20150825_161812054753',

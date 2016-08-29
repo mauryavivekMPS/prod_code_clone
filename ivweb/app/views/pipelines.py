@@ -7,7 +7,6 @@ import shutil
 import stat
 import subprocess
 import uuid
-
 import humanize
 from dateutil.parser import parse
 from django import forms
@@ -16,10 +15,10 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.template import loader, RequestContext
-
 from ivetl.common import common
 from ivetl import utils
-from ivweb.app.models import PublisherMetadata, Pipeline_Status, Pipeline_Task_Status, Audit_Log, SystemGlobal, PublisherJournal
+from ivetl.pipelines.pipeline import Pipeline
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, Audit_Log, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -28,7 +27,7 @@ log = logging.getLogger(__name__)
 def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_completed_runs=False, prioritize_most_recent_running=True):
 
     # get all the runs
-    all_runs = Pipeline_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
+    all_runs = PipelineStatus.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id)
 
     if only_completed_runs:
         all_runs = [run for run in all_runs if run.status == 'completed']
@@ -39,7 +38,7 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
     # now get all the tasks for each run
     tasks_by_run = []
     for run in recent_runs:
-        tasks = Pipeline_Task_Status.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
+        tasks = PipelineTaskStatus.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
         sorted_tasks = sorted(tasks, key=lambda t: t.start_time or datetime.datetime.min)
 
         tasks_by_run.append({
@@ -365,14 +364,14 @@ def tail(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher_id']
-    job_id = request.REQUEST['job_id']
-    task_id = request.REQUEST['task_id']
+    job_id = request.GET['job_id']
+    task_id = request.GET['task_id']
     log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
     content = subprocess.check_output('tail -n 100 %s' % log_file, shell=True).decode('utf-8')
 
     # strip up to a previously loaded line if provided
-    if 'last_line' in request.REQUEST:
-        last_line = request.REQUEST['last_line']
+    if 'last_line' in request.GET:
+        last_line = request.GET['last_line']
         if last_line and last_line in content:
             content = content[content.index(last_line) + len(last_line):]
 
@@ -386,6 +385,73 @@ def tail(request, product_id, pipeline_id):
         'pipeline': pipeline,
         'content': content,
     })
+
+
+@login_required
+def job_action(request, product_id, pipeline_id):
+    publisher_id = request.POST['publisher_id']
+    job_id = request.POST['job_id']
+    action = request.POST['action']
+
+    if action == 'mark-as-stopped':
+        try:
+            now = datetime.datetime.now()
+
+            # kill the overall status
+            p = PipelineStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id
+            )
+            if p.status in ('started', 'in-progress'):
+                p.update(
+                    status='error',
+                    end_time=now,
+                    updated=now,
+                    error_details='Marked as stopped'
+                )
+
+            # kill the task status
+            t = PipelineTaskStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                task_id=p.current_task
+            )
+            if t.status in ('started', 'in-progress'):
+                t.update(
+                    status='error',
+                    end_time=now,
+                    updated=now,
+                    error_details='Marked as stopped'
+                )
+        except (PipelineStatus.DoesNotExist, PipelineTaskStatus.DoesNotExist):
+            pass
+
+    elif action == 'stop-at-next-task':
+        try:
+            p = PipelineStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id
+            )
+            if p.status in ('started', 'in-progress'):
+                p.update(
+                    stop_at_next_task=True,
+                )
+        except PipelineStatus.DoesNotExist:
+            pass
+
+    elif action == 'restart-from-first-task':
+        Pipeline.restart_job(publisher_id, product_id, pipeline_id, job_id, start_from_stopped_task=False)
+
+    elif action == 'restart-from-stopped-task':
+        Pipeline.restart_job(publisher_id, product_id, pipeline_id, job_id, start_from_stopped_task=True)
+
+    return HttpResponse('ok')
 
 
 def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
@@ -552,6 +618,7 @@ def upload_pending_file_inline(request):
         })
 
     return HttpResponse('ok')
+
 
 @login_required
 def delete_pending_file_inline(request):

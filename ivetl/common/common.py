@@ -11,10 +11,12 @@ PIPELINES = [
         'name': 'Published Articles',
         'id': 'published_articles',
         'user_facing_display_name': 'Published articles',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
@@ -31,9 +33,10 @@ PIPELINES = [
     {
         'name': 'Custom Article Data',
         'id': 'custom_article_data',
-        'user_facing_display_name': 'Additional metadata',
+        'user_facing_display_name': 'Article metadata',
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Article Metadata',
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
         'rebuild_data_source_id': ['article_citations'],
@@ -65,6 +68,7 @@ PIPELINES = [
         'user_facing_display_name': 'Article usage',
         'class': 'ivetl.pipelines.articleusage.ArticleUsagePipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Article Usage',
         'validator_class': 'ivetl.validators.ArticleUsageValidator',
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
         'tasks': [
@@ -94,9 +98,10 @@ PIPELINES = [
     {
         'name': 'Upload Rejected',
         'id': 'rejected_articles',
-        'user_facing_display_name': 'Rejected manuscripts',
+        'user_facing_display_name': 'Manuscripts imported from files',
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Rejected Manuscripts',
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
         'rebuild_data_source_id': ['rejected_articles'],
@@ -115,7 +120,7 @@ PIPELINES = [
     {
         'name': 'Bench Press Rejected',
         'id': 'benchpress_rejected_articles',
-        'user_facing_display_name': 'Rejected manuscripts',
+        'user_facing_display_name': 'Manuscripts imported from BenchPress',
         'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': ['rejected_articles'],
@@ -136,7 +141,7 @@ PIPELINES = [
     {
         'name': 'Reprocess Rejected',
         'id': 'reprocess_rejected_articles',
-        'user_facing_display_name': 'Reprocess rejected manuscripts',
+        'user_facing_display_name': 'Status for all manuscripts',
         'class': 'ivetl.pipelines.rejectedarticles.ReprocessRejectedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -261,6 +266,7 @@ PIPELINES = [
         'user_facing_display_name': 'JR2 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR2InstitutionUsagePipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'JR2 Institution Usage',
         'validator_class': 'ivetl.validators.JR2Validator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -275,6 +281,7 @@ PIPELINES = [
         'user_facing_display_name': 'JR3 institution usage',
         'class': 'ivetl.pipelines.institutionusage.JR3InstitutionUsagePipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'JR3 Institution Usage',
         'validator_class': 'ivetl.validators.JR3Validator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -309,6 +316,7 @@ PIPELINES = [
         'user_facing_display_name': 'Bundle definitions',
         'class': 'ivetl.pipelines.productbundles.BundleDefinitionsPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Bundle Definitions',
         'validator_class': 'ivetl.validators.BundleDefinitionsValidator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -324,6 +332,7 @@ PIPELINES = [
         'user_facing_display_name': 'Subscription pricing',
         'class': 'ivetl.pipelines.productbundles.SubscriptionPricingPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Subsciption Pricing',
         'validator_class': 'ivetl.validators.SubscriptionPricingValidator',
         'rebuild_data_source_id': None,
         'tasks': [
@@ -357,6 +366,7 @@ PIPELINES = [
         'user_facing_display_name': 'Additional subscriber data',
         'class': 'ivetl.pipelines.customsubscriberdata.CustomSubscriberDataPipeline',
         'has_file_input': True,
+        'user_facing_file_description': 'Additional Subscriber Data',
         'validator_class': 'ivetl.validators.CustomSubscriberDataValidator',
         'format_file': 'AdditionalSubscriberData-Format.pdf',
         'rebuild_data_source_id': None,
@@ -375,7 +385,7 @@ PIPELINES = [
         'has_file_input': False,
         'rebuild_data_source_id': None,
         'tasks': [
-            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateBundleDeltasTask',
+            'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
         ],
     },
     {
@@ -396,18 +406,6 @@ PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
 
-def get_pipeline_display_name(pipeline):
-    user_facing_display_name = pipeline.get('user_facing_display_name')
-    if user_facing_display_name:
-        return user_facing_display_name.title()
-    else:
-        pipeline_name = pipeline.get('name')
-        if pipeline_name:
-            return pipeline_name
-        else:
-            return pipeline['id']
-
-
 def get_pipeline_class(pipeline):
     pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
     return getattr(importlib.import_module(pipeline_module_name), class_name)
@@ -423,6 +421,10 @@ def get_validator_class(pipeline):
     return getattr(importlib.import_module(validator_module_name), class_name)
 
 
+def task_id_from_path(task_class_path):
+    return task_class_path[task_class_path.rfind('.') + 1:]
+
+
 PRODUCTS = [
     {
         'name': 'Published Articles',
@@ -436,10 +438,10 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['published_articles'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['custom_article_data'],
+                'pipeline': PIPELINE_BY_ID['article_citations'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['article_citations'],
+                'pipeline': PIPELINE_BY_ID['custom_article_data'],
             },
             {
                 'pipeline': PIPELINE_BY_ID['article_usage'],
@@ -647,6 +649,16 @@ FTP_DIRS = [
     },
     {
         'product_id': 'institutions',
+        'pipeline_id': 'bundle_definitions',
+        'ftp_dir_name': 'bundle_definitions',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'subscription_pricing',
+        'ftp_dir_name': 'subscription_pricing',
+    },
+    {
+        'product_id': 'institutions',
         'pipeline_id': 'custom_subscriber_data',
         'ftp_dir_name': 'additional_subscriber_data_files',
     },
@@ -713,6 +725,8 @@ IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
 IS_QA = os.environ.get('IVETL_QA', '0') == '1'
 IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 
+DEBUG_QUICKLY = bool(os.environ.get('IVETL_DEBUG_QUICKLY', False))
+
 PUBLISH_TO_TABLEAU_WHEN_LOCAL = os.environ.get('IVETL_PUBLISH_TO_TABLEAU_WHEN_LOCAL', '0') == '1'
 
 IVETL_WEB_ADDRESS = os.environ.get('IVETL_WEB_ADDRESS', 'http://localhost:8000')
@@ -745,6 +759,8 @@ EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.or
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
 
+FTP_ADMIN_BCC = 'vizor-support@highwire.org'
+
 NETSITE_USERNAME = ENV_PROPERTIES['netsite']['username']
 NETSITE_PASSWORD = ENV_PROPERTIES['netsite']['password']
 
@@ -764,11 +780,13 @@ PINGDOM_ACCOUNTS = [
 ]
 
 
-def send_email(subject, body, to=EMAIL_TO, format="html"):
+def send_email(subject, body, to=EMAIL_TO, bcc=None, format="html"):
     try:
         sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
         message = sendgrid.Mail()
         message.add_to(to)
+        if bcc:
+            message.add_bcc(bcc)
         message.set_subject(subject)
         if format == 'html':
             message.set_html(body)

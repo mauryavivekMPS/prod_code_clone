@@ -85,20 +85,17 @@ class UpdateBundleDeltasTask(Task):
                     except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                         pass
 
-                    # for now, we'll only process the month time slice
-                    continue
-
                     #
-                    # time_slice == 'qtd' (quarter-to-date)
+                    # time_slice == 'ytd' (year-to-date)
                     #
 
-                    start_of_previous_quarter = utils.start_of_previous_quarter(current_month)
-                    current_month_previous_quarter = current_month - relativedelta(months=3)
-                    previous_qtd_total_usage = 0
-                    previous_qtd_amount = 0
-                    previous_qtd_cost_per_use = 0
-                    found_first_qtd_cost_per_use = True
-                    for m in utils.month_range(start_of_previous_quarter, current_month_previous_quarter):
+                    start_of_previous_year = datetime.date(current_month.year - 1, 1, 1)
+                    current_month_previous_year = datetime.date(current_month.year - 1, current_month.month, 1)
+                    previous_ytd_total_usage = 0
+                    previous_ytd_amount = 0
+                    previous_ytd_cost_per_use = 0
+                    found_first_ytd_cost_per_use = True
+                    for m in utils.month_range(start_of_previous_year, current_month_previous_year):
                         try:
                             u = SubscriptionCostPerUseByBundleStat.objects.get(
                                 publisher_id=publisher_id,
@@ -106,20 +103,20 @@ class UpdateBundleDeltasTask(Task):
                                 bundle_name=current_cost_per_use.bundle_name,
                                 usage_date=m,
                             )
-                            previous_qtd_total_usage += u.total_usage
-                            previous_qtd_amount += u.amount
-                            if m == start_of_previous_quarter:
-                                found_first_qtd_cost_per_use = True
+                            previous_ytd_total_usage += u.total_usage
+                            previous_ytd_amount += u.amount
+                            if m == start_of_previous_year:
+                                found_first_ytd_cost_per_use = True
                         except SubscriptionCostPerUseByBundleStat.DoesNotExist:
-                            if not found_first_qtd_cost_per_use:
+                            if not found_first_ytd_cost_per_use:
                                 break
 
-                    if found_first_qtd_cost_per_use:
-                        start_of_current_quarter = utils.start_of_quarter(current_month)
-                        current_qtd_total_usage = 0
-                        current_qtd_amount = 0
-                        current_qtd_cost_per_use = 0
-                        for m in utils.month_range(start_of_current_quarter, current_month):
+                    if found_first_ytd_cost_per_use:
+                        start_of_current_year = datetime.date(current_month.year, 1, 1)
+                        current_ytd_total_usage = 0
+                        current_ytd_amount = 0
+                        current_ytd_cost_per_use = 0
+                        for m in utils.month_range(start_of_current_year, current_month):
                             try:
                                 u = SubscriptionCostPerUseByBundleStat.objects.get(
                                     publisher_id=publisher_id,
@@ -127,102 +124,39 @@ class UpdateBundleDeltasTask(Task):
                                     bundle_name=current_cost_per_use.bundle_name,
                                     usage_date=m,
                                 )
-                                current_qtd_total_usage += u.total_usage
-                                current_qtd_amount += u.amount
+                                current_ytd_total_usage += u.total_usage
+                                current_ytd_amount += u.amount
                             except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                                 pass
 
-                        if previous_qtd_total_usage:
-                            previous_qtd_cost_per_use = previous_qtd_amount / previous_qtd_total_usage
+                        if previous_ytd_total_usage:
+                            previous_ytd_cost_per_use = previous_ytd_amount / previous_ytd_total_usage
 
-                        if current_qtd_total_usage:
-                            current_qtd_cost_per_use = current_qtd_amount / current_qtd_total_usage
+                        if current_ytd_total_usage:
+                            current_ytd_cost_per_use = current_ytd_amount / current_ytd_total_usage
 
-                        absolute_qtd_delta = current_qtd_cost_per_use - previous_qtd_cost_per_use
-                        if previous_qtd_cost_per_use:
-                            percentage_qtd_delta = absolute_qtd_delta / previous_qtd_cost_per_use
+                        absolute_ytd_delta = current_ytd_cost_per_use - previous_ytd_cost_per_use
+                        if previous_ytd_cost_per_use:
+                            percentage_ytd_delta = absolute_ytd_delta / previous_ytd_cost_per_use
                         else:
-                            percentage_qtd_delta = 0.0
+                            percentage_ytd_delta = 0.0
 
                         SubscriptionCostPerUseByBundleStatDelta.objects(
                             publisher_id=publisher_id,
                             membership_no=current_cost_per_use.membership_no,
                             bundle_name=current_cost_per_use.bundle_name,
                             usage_date=current_month,
-                            time_slice='qtd',
+                            time_slice='ytd',
                         ).update(
-                            previous_amount=previous_qtd_amount,
-                            previous_total_usage=previous_qtd_total_usage,
-                            current_amount=current_qtd_amount,
-                            current_total_usage=current_qtd_total_usage,
-                            previous_cost_per_use=previous_qtd_cost_per_use,
-                            current_cost_per_use=current_qtd_cost_per_use,
-                            absolute_delta=absolute_qtd_delta,
-                            percentage_delta=percentage_qtd_delta,
+                            previous_amount=previous_ytd_amount,
+                            previous_total_usage=previous_ytd_total_usage,
+                            current_amount=current_ytd_amount,
+                            current_total_usage=current_ytd_total_usage,
+                            previous_cost_per_use=previous_ytd_cost_per_use,
+                            current_cost_per_use=current_ytd_cost_per_use,
+                            absolute_delta=absolute_ytd_delta,
+                            percentage_delta=percentage_ytd_delta,
                         )
-
-                    #
-                    # time_slice == 'ytd' (year-to-date)
-                    #
-
-                    # start_of_previous_year = datetime.date(current_month.year - 1, 1, 1)
-                    # current_month_previous_year = datetime.date(current_month.year - 1, current_month.month, 1)
-                    # previous_ytd_usage = 0
-                    # found_first_ytd_usage = True
-                    # for m in utils.month_range(start_of_previous_year, current_month_previous_year):
-                    #     try:
-                    #         u = InstitutionUsageStat.objects.get(
-                    #             publisher_id=publisher_id,
-                    #             counter_type=current_cost_per_use.counter_type,
-                    #             journal=current_cost_per_use.journal,
-                    #             subscriber_id=current_cost_per_use.subscriber_id,
-                    #             usage_date=m,
-                    #             usage_category=current_cost_per_use.usage_category,
-                    #         )
-                    #         previous_ytd_usage += u.usage
-                    #         if m == start_of_previous_year:
-                    #             found_first_ytd_usage = True
-                    #     except InstitutionUsageStat.DoesNotExist:
-                    #         if not found_first_ytd_usage:
-                    #             break
-                    #
-                    # if found_first_ytd_usage:
-                    #     start_of_current_year = datetime.date(current_month.year, 1, 1)
-                    #     current_ytd_usage = 0
-                    #     for m in utils.month_range(start_of_current_year, current_month):
-                    #         try:
-                    #             u = InstitutionUsageStat.objects.get(
-                    #                 publisher_id=publisher_id,
-                    #                 counter_type=current_cost_per_use.counter_type,
-                    #                 journal=current_cost_per_use.journal,
-                    #                 subscriber_id=current_cost_per_use.subscriber_id,
-                    #                 usage_date=m,
-                    #                 usage_category=current_cost_per_use.usage_category,
-                    #             )
-                    #             current_ytd_usage += u.usage
-                    #         except InstitutionUsageStat.DoesNotExist:
-                    #             pass
-                    #
-                    #     absolute_ytd_delta = current_ytd_usage - previous_ytd_usage
-                    #     if previous_ytd_usage:
-                    #         percentage_ytd_delta = absolute_ytd_delta / previous_ytd_usage
-                    #     else:
-                    #         percentage_ytd_delta = 0.0
-                    #
-                    #     InstitutionUsageStatDelta.objects(
-                    #         publisher_id=publisher_id,
-                    #         counter_type=current_cost_per_use.counter_type,
-                    #         journal=current_cost_per_use.journal,
-                    #         subscriber_id=current_cost_per_use.subscriber_id,
-                    #         usage_date=current_month,
-                    #         usage_category=current_cost_per_use.usage_category,
-                    #         time_slice='ytd',
-                    #     ).update(
-                    #         previous_usage=previous_ytd_usage,
-                    #         current_usage=current_ytd_usage,
-                    #         absolute_delta=absolute_ytd_delta,
-                    #         percentage_delta=percentage_ytd_delta,
-                    #     )
 
             else:
                 tlogger.info('No stats found')

@@ -30,7 +30,7 @@ class ResolveSubscriberDataTask(Task):
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                 # resolve policy: if a value from source=custom is present it always wins
-                for attr_name, col_name in SubscribersAndSubscriptionsPipeline.OVERLAPPING_FIELDS:
+                for attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
                     new_value = None
                     try:
                         v = SubscriberValues.objects.get(
@@ -57,7 +57,7 @@ class ResolveSubscriberDataTask(Task):
 
                     # update the canonical if there is any non Null/None value (note that "None" is a value)
                     if new_value:
-                        if attr_name in SubscribersAndSubscriptionsPipeline.OVERLAPPING_DATETIMES:
+                        if attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_DATETIME_FIELD_NAMES:
                             try:
                                 new_value = parse(new_value)
                             except ValueError:

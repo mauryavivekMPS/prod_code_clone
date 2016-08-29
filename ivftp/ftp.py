@@ -89,7 +89,7 @@ class IvetlHandler(FTPHandler):
                     validation_errors = validator.parse_errors(raw_errors)
 
                     if validation_errors:
-                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, common.get_pipeline_display_name(pipeline))
+                        subject = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, pipeline['user_facing_file_description'])
                         body = "<p>We found some validation errors in: <b>%s</b></p>" % file_name
                         body += "<ul>"
                         for error in validation_errors:
@@ -97,7 +97,7 @@ class IvetlHandler(FTPHandler):
                         body += "</ul>"
                         body += "<p>Please resolve the errors above and FTP the file again.</p>"
                         body += '<p>Thank you,<br/>Impact Vizor Team</p>'
-                        common.send_email(subject, body, to=user.email)
+                        common.send_email(subject, body, to=user.email, bcc=common.FTP_ADMIN_BCC)
 
                         self.log('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     handler = IvetlHandler
     handler.authorizer = authorizer
     handler.banner = "Impact Vizor ftpd ready."
-    handler.passive_ports=range(57000,57501)
+    handler.passive_ports = range(57000, 57501)
     handler.masquerade_address = common.FTP_PUBLIC_IP
     address = ('', 2121)
     server = FTPServer(address, handler)

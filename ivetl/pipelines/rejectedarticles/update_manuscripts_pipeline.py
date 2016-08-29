@@ -35,4 +35,4 @@ class UpdateManuscriptsPipeline(Pipeline):
                 'input_file': input_file,
             }
 
-            self.chain_tasks(pipeline_id, task_args)
+            Pipeline.chain_tasks(pipeline_id, task_args)

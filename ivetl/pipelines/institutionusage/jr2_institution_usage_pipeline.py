@@ -3,7 +3,7 @@ import datetime
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import Pipeline_Status, PublisherMetadata
+from ivetl.models import PipelineStatus, PublisherMetadata
 
 
 @app.task
@@ -54,12 +54,12 @@ class JR2InstitutionUsagePipeline(Pipeline):
                 }
 
                 # and run the pipeline!
-                self.chain_tasks(pipeline_id, task_args)
+                Pipeline.chain_tasks(pipeline_id, task_args)
 
             else:
                 # note: this is annoyingly duplicated from task.pipeline_ended ... this should be factored better
                 end_date = datetime.datetime.today()
-                p = Pipeline_Status().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
+                p = PipelineStatus().objects.filter(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=job_id).first()
                 if p is not None:
                     p.end_time = end_date
                     p.duration_seconds = (end_date - p.start_time).total_seconds()

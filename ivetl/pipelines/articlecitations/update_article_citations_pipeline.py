@@ -33,4 +33,4 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'reprocess_errors': False,
             }
 
-            self.chain_tasks(pipeline_id, task_args)
+            Pipeline.chain_tasks(pipeline_id, task_args)

@@ -30,4 +30,4 @@ class ServiceStatsPipeline(Pipeline):
             'to_date': self.to_json_date(to_date),
         }
 
-        self.chain_tasks(pipeline_id, task_args)
+        Pipeline.chain_tasks(pipeline_id, task_args)

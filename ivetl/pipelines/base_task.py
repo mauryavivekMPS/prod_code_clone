@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
 from ivetl.connectors import TableauConnector
-from ivetl.models import PublisherMetadata, Pipeline_Status
+from ivetl.models import PublisherMetadata, PipelineStatus
 
 
 class TaskParamsEncodingError(Exception):
@@ -25,7 +25,7 @@ class BaseTask(Task):
 
     @property
     def short_name(self):
-        return self.name[self.name.rfind('.') + 1:]
+        return common.task_id_from_path(self.name)
 
     def get_work_folder(self, day, publisher_id, product_id, pipeline_id, job_id):
         return os.path.join(common.BASE_WORK_DIR, day, publisher_id, pipeline_id, job_id)
@@ -56,10 +56,9 @@ class BaseTask(Task):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
-        pipeline_title = common.get_pipeline_display_name(pipeline)
 
         try:
-            p = Pipeline_Status.objects.get(
+            p = PipelineStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=pipeline_id,
@@ -76,8 +75,8 @@ class BaseTask(Task):
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
             if send_notification_email and pipeline.get('has_file_input'):
                 if p.user_email:
-                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline_title)
-                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline_title
+                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_file_description'])
+                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_file_description']
 
                     if notification_count:
                         body += '<p>%s records were processed.<p>' % notification_count
@@ -86,7 +85,7 @@ class BaseTask(Task):
 
                     common.send_email(subject, body, to=p.user_email)
 
-        except Pipeline_Status.DoesNotExist:
+        except PipelineStatus.DoesNotExist:
             pass
 
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
