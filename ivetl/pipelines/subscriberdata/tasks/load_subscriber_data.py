@@ -1,6 +1,5 @@
 import os
 import csv
-import time
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Subscriber, PublisherMetadata, SubscriberValues
@@ -45,7 +44,6 @@ class LoadSubscriberDataTask(Task):
     ]
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        total_t0 = time.time()
         all_files = []
         for dir_path in self.FILE_DIRS:
             all_files.extend([os.path.join(dir_path, n) for n in os.listdir(dir_path) if not n.startswith('.')])
@@ -68,6 +66,8 @@ class LoadSubscriberDataTask(Task):
                 continue
             return
 
+        overlapping_fields = set(self.FIELD_NAMES).intersection(set(SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES))
+
         count = 0
         for file_path in all_files:
             with open(file_path, encoding='ISO-8859-2') as subscriber_file:
@@ -78,7 +78,6 @@ class LoadSubscriberDataTask(Task):
                     subscriber_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
                     membership_no = row['membership_no']
                     if subscriber_publisher_id:
-                        sub_update_t0 = time.time()
                         Subscriber.objects(
                             publisher_id=subscriber_publisher_id,
                             membership_no=membership_no,
@@ -103,10 +102,8 @@ class LoadSubscriberDataTask(Task):
                             affiliation=row['affiliation'],
                             user_type=row['user_type'],
                         )
-                        sub_update_t1 = time.time()
 
-                        field_update_t0 = time.time()
-                        for field in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
+                        for field in overlapping_fields:
                             SubscriberValues.objects(
                                 publisher_id=subscriber_publisher_id,
                                 membership_no=membership_no,
@@ -115,14 +112,7 @@ class LoadSubscriberDataTask(Task):
                             ).update(
                                 value_text=row[field],
                             )
-                        field_update_t1 = time.time()
-
-                        if not count % 1000:
-                            tlogger.info('query times: %f %f' % (sub_update_t1 - sub_update_t0, field_update_t1 - field_update_t0))
 
         task_args['count'] = total_count
-
-        total_t1 = time.time()
-        tlogger.info('total task time: %f' % (total_t1 - total_t0))
 
         return task_args
