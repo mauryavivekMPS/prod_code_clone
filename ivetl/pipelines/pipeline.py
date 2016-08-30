@@ -1,4 +1,5 @@
 import os
+import json
 import datetime
 import stat
 import uuid
@@ -130,13 +131,91 @@ class Pipeline(BaseTask):
         job_id = '%s_%s' % (now.strftime('%Y%m%d_%H%M%S%f'), str(uuid.uuid4()).split('-')[0])
         return now, today_label, job_id
 
-    def chain_tasks(self, pipeline_id, task_args):
+    @staticmethod
+    def restart_job(publisher_id, product_id, pipeline_id, job_id, start_from_stopped_task=False):
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
+
+        # reset some of the status properties
+        p = PipelineStatus.objects.get(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+            job_id=job_id
+        )
+
+        p.update(
+            status='in-progress',
+            stop_at_next_task=False,
+            updated=datetime.datetime.now(),
+        )
+
+        if start_from_stopped_task:
+            task_status = PipelineTaskStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                task_id=p.current_task,
+            )
+            task_to_start_at = p.current_task
+
+        else:
+            first_task_id = common.task_id_from_path(pipeline['tasks'][0])
+            task_status = PipelineTaskStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                task_id=first_task_id,
+            )
+            task_to_start_at = first_task_id
+
+        # parse the task args
+        task_args = json.loads(task_status.task_args_json)
+
+        # delete task status records after the chosen task
+        found_start_at_task = False
+        for task_class_path in pipeline['tasks']:
+            task_id = common.task_id_from_path(task_class_path)
+            if task_id == task_to_start_at:
+                found_start_at_task = True
+                continue
+            if found_start_at_task:
+                try:
+                    PipelineTaskStatus.objects.get(
+                        publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
+                        task_id=task_id,
+                    ).delete()
+                except PipelineTaskStatus.DoesNotExist:
+                    pass
+
+        # and run the entire pipeline
+        Pipeline.chain_tasks(pipeline_id, task_args, start_at=task_to_start_at)
+
+    @staticmethod
+    def chain_tasks(pipeline_id, task_args, start_at=None):
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
+
+        if start_at:
+            remaining_tasks = []
+            found_start_at_task = False
+            for task_class_path in pipeline['tasks']:
+                task_id = common.task_id_from_path(task_class_path)
+                if task_id == start_at:
+                    found_start_at_task = True
+                if found_start_at_task:
+                    remaining_tasks.append(task_class_path)
+        else:
+            remaining_tasks = pipeline['tasks']
 
         tasks = []
         first_task = True
-        for task_class_path in pipeline['tasks']:
+        for task_class_path in remaining_tasks:
             task_class = common.get_task_class(task_class_path)
+
             if first_task:
                 tasks.append(task_class.s(task_args))
                 first_task = False

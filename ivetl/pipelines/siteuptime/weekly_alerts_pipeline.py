@@ -30,4 +30,4 @@ class WeeklyAlertsPipeline(Pipeline):
             'to_date': self.to_json_date(now - datetime.timedelta(days=1)),
         }
 
-        self.chain_tasks(pipeline_id, task_args)
+        Pipeline.chain_tasks(pipeline_id, task_args)

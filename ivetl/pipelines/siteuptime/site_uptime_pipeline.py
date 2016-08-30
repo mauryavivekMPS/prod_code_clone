@@ -28,7 +28,6 @@ class SiteUptimePipeline(Pipeline):
                     job_id=job_id,
                 )
 
-                job_id = ps.job_id
                 today_label = job_id.split("_")[0]
 
                 if ps.params_json:
@@ -67,4 +66,4 @@ class SiteUptimePipeline(Pipeline):
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
         }
 
-        self.chain_tasks(pipeline_id, task_args)
+        Pipeline.chain_tasks(pipeline_id, task_args)

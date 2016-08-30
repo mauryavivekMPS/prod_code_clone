@@ -1,7 +1,8 @@
+import json
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import PublisherMetadata, PublisherJournal
+from ivetl.models import PublisherMetadata, PublisherJournal, PipelineStatus
 from ivetl.common import common
 
 
@@ -11,7 +12,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
     COHORT_PUB_START_DATE = datetime.date(2013, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, start_at_stopped_task=False, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False):
         pipeline_id = "published_articles"
 
         now, today_label, job_id = self.generate_job_id()
@@ -55,7 +56,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'run_monthly_job': run_monthly_job,
             }
 
-            self.chain_tasks(pipeline_id, task_args)
+            Pipeline.chain_tasks(pipeline_id, task_args)
 
     @staticmethod
     def generate_electronic_issn_lookup(publisher_id, product_id):

@@ -25,7 +25,7 @@ class BaseTask(Task):
 
     @property
     def short_name(self):
-        return self.name[self.name.rfind('.') + 1:]
+        return common.task_id_from_path(self.name)
 
     def get_work_folder(self, day, publisher_id, product_id, pipeline_id, job_id):
         return os.path.join(common.BASE_WORK_DIR, day, publisher_id, pipeline_id, job_id)

@@ -44,4 +44,4 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 'to_date': to_date,
             }
 
-            self.chain_tasks(pipeline_id, task_args)
+            Pipeline.chain_tasks(pipeline_id, task_args)

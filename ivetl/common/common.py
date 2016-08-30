@@ -33,13 +33,16 @@ PIPELINES = [
     {
         'name': 'Custom Article Data',
         'id': 'custom_article_data',
-        'user_facing_display_name': 'Article metadata',
+        'user_facing_display_name': 'Additional article metadata',
+        'use_uploaded_instead_of_updated': True,
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.customarticledata.CustomArticleDataPipeline',
         'has_file_input': True,
         'user_facing_file_description': 'Article Metadata',
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
         'format_file': 'AdditionalMetadata-Format.pdf',
         'rebuild_data_source_id': ['article_citations'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.customarticledata.tasks.GetArticleDataFiles',
             'ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles',
@@ -52,10 +55,12 @@ PIPELINES = [
         'name': 'Article Citations',
         'id': 'article_citations',
         'user_facing_display_name': 'Article citations',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.articlecitations.UpdateArticleCitationsPipeline',
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['article_citations'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.articlecitations.tasks.GetScopusArticleCitations',
             'ivetl.pipelines.articlecitations.tasks.InsertScopusIntoCassandra',
@@ -66,11 +71,13 @@ PIPELINES = [
         'name': 'Article Usage',
         'id': 'article_usage',
         'user_facing_display_name': 'Article usage',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.articleusage.ArticleUsagePipeline',
         'has_file_input': True,
         'user_facing_file_description': 'Article Usage',
         'validator_class': 'ivetl.validators.ArticleUsageValidator',
         'rebuild_data_source_id': ['article_citations', 'article_usage'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.articleusage.tasks.GetArticleUsageFiles',
             'ivetl.pipelines.articleusage.tasks.ValidateArticleUsageFiles',
@@ -82,6 +89,7 @@ PIPELINES = [
         'name': 'Social Metrics',
         'id': 'social_metrics',
         'user_facing_display_name': 'Social metrics',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.socialmetrics.SocialMetricsPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -90,6 +98,7 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Get Latest Social Metrics',
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.socialmetrics.tasks.LoadAltmetricsDataTask',
             'ivetl.pipelines.socialmetrics.tasks.LoadF1000DataTask',
@@ -99,12 +108,15 @@ PIPELINES = [
         'name': 'Upload Rejected',
         'id': 'rejected_articles',
         'user_facing_display_name': 'Manuscripts imported from files',
+        'use_colon_instead_of_updated': True,
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
         'user_facing_file_description': 'Rejected Manuscripts',
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
         'rebuild_data_source_id': ['rejected_articles'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesDataFiles',
             'ivetl.pipelines.rejectedarticles.tasks.ValidateInputFileTask',
@@ -121,6 +133,8 @@ PIPELINES = [
         'name': 'Bench Press Rejected',
         'id': 'benchpress_rejected_articles',
         'user_facing_display_name': 'Manuscripts imported from BenchPress',
+        'use_colon_instead_of_updated': True,
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': ['rejected_articles'],
@@ -141,11 +155,13 @@ PIPELINES = [
     {
         'name': 'Reprocess Rejected',
         'id': 'reprocess_rejected_articles',
-        'user_facing_display_name': 'Status for all manuscripts',
+        'user_facing_display_name': 'Published status for all manuscripts',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.rejectedarticles.ReprocessRejectedArticlesPipeline',
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': ['rejected_articles'],
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesTask',
             'ivetl.pipelines.rejectedarticles.tasks.XREFPublishedArticleSearchTask',
@@ -163,6 +179,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.CheckRejectedManuscriptTask',
         ],
@@ -174,6 +191,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.InsertPlaceholderCitationsIntoCassandraTask',
         ],
@@ -185,6 +203,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.rejectedarticles.tasks.UpdateManuscriptsInCassandraTask',
         ],
@@ -196,6 +215,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.rejectedarticles.tasks.UpdateManuscriptsInCassandraTask',
         ],
@@ -212,6 +232,7 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Site and Check Metadata',
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.sitemetadata.tasks.LoadH20MetadataTask',
             'ivetl.pipelines.sitemetadata.tasks.LoadDrupalMetadataTask',
@@ -255,7 +276,7 @@ PIPELINES = [
         'pipeline_run_button_label': 'Run Weekly Uptime Alerts',
         'include_date_range_controls': False,
         'use_high_water_mark': False,
-        'supports_restart': False,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.siteuptime.tasks.RunWeeklyAlertsTask',
         ],
@@ -263,12 +284,15 @@ PIPELINES = [
     {
         'name': 'JR2 Institution Usage',
         'id': 'jr2_institution_usage',
-        'user_facing_display_name': 'JR2 institution usage',
+        'user_facing_display_name': 'JR2 usage',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.institutionusage.JR2InstitutionUsagePipeline',
         'has_file_input': True,
+        'hide_upload_from_user_home': True,
         'user_facing_file_description': 'JR2 Institution Usage',
         'validator_class': 'ivetl.validators.JR2Validator',
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.institutionusage.tasks.GetJR2FilesTask',
             'ivetl.pipelines.institutionusage.tasks.ValidateJR2FilesTask',
@@ -278,12 +302,15 @@ PIPELINES = [
     {
         'name': 'JR3 Institution Usage',
         'id': 'jr3_institution_usage',
-        'user_facing_display_name': 'JR3 institution usage',
+        'user_facing_display_name': 'JR3 usage',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.institutionusage.JR3InstitutionUsagePipeline',
         'has_file_input': True,
+        'hide_upload_from_user_home': True,
         'user_facing_file_description': 'JR3 Institution Usage',
         'validator_class': 'ivetl.validators.JR3Validator',
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.institutionusage.tasks.GetJR3FilesTask',
             'ivetl.pipelines.institutionusage.tasks.ValidateJR3FilesTask',
@@ -305,6 +332,7 @@ PIPELINES = [
         'pipeline_run_button_label': 'Update Service Stats',
         'include_date_range_controls': True,
         'use_high_water_mark': True,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.servicestats.tasks.GetStatsFilesTask',
             'ivetl.pipelines.servicestats.tasks.InsertStatsIntoCassandraTask',
@@ -313,12 +341,15 @@ PIPELINES = [
     {
         'name': 'Bundle Definitions',
         'id': 'bundle_definitions',
-        'user_facing_display_name': 'Bundle definitions',
+        'user_facing_display_name': 'Product bundles',
+        'use_uploaded_instead_of_updated': True,
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.productbundles.BundleDefinitionsPipeline',
         'has_file_input': True,
         'user_facing_file_description': 'Bundle Definitions',
         'validator_class': 'ivetl.validators.BundleDefinitionsValidator',
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.productbundles.tasks.GetBundleDefinitionsFilesTask',
             'ivetl.pipelines.productbundles.tasks.ValidateBundleDefinitionsFilesTask',
@@ -330,11 +361,14 @@ PIPELINES = [
         'name': 'Subscription Pricing',
         'id': 'subscription_pricing',
         'user_facing_display_name': 'Subscription pricing',
+        'use_uploaded_instead_of_updated': True,
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.productbundles.SubscriptionPricingPipeline',
         'has_file_input': True,
         'user_facing_file_description': 'Subsciption Pricing',
         'validator_class': 'ivetl.validators.SubscriptionPricingValidator',
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.productbundles.tasks.GetSubscriptionPricingFilesTask',
             'ivetl.pipelines.productbundles.tasks.ValidateSubscriptionPricingFilesTask',
@@ -345,7 +379,8 @@ PIPELINES = [
     {
         'name': 'Subscription Data',
         'id': 'subscribers_and_subscriptions',
-        'user_facing_display_name': 'Subscriber and subscription data',
+        'user_facing_display_name': 'HighWire subscribers',
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.subscriberdata.SubscribersAndSubscriptionsPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -354,6 +389,7 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.subscriberdata.tasks.LoadSubscriberDataTask',
             'ivetl.pipelines.subscriberdata.tasks.LoadSubscriptionDataTask',
@@ -363,13 +399,16 @@ PIPELINES = [
     {
         'name': 'Custom Subscriber Data',
         'id': 'custom_subscriber_data',
-        'user_facing_display_name': 'Additional subscriber data',
+        'user_facing_display_name': 'Additional subscriber metadata',
+        'use_uploaded_instead_of_updated': True,
+        'visible_on_user_home': True,
         'class': 'ivetl.pipelines.customsubscriberdata.CustomSubscriberDataPipeline',
         'has_file_input': True,
         'user_facing_file_description': 'Additional Subscriber Data',
         'validator_class': 'ivetl.validators.CustomSubscriberDataValidator',
         'format_file': 'AdditionalSubscriberData-Format.pdf',
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.customsubscriberdata.tasks.GetSubscriberDataFilesTask',
             'ivetl.pipelines.customsubscriberdata.tasks.ValidateSubscriberDataFilesTask',
@@ -384,6 +423,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.institutionusagedeltas.UpdateDeltasPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
         ],
@@ -395,6 +435,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.subscriptioncostperusedeltas.UpdateDeltasPipeline',
         'has_file_input': False,
         'rebuild_data_source_id': None,
+        'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateCostPerUseTask',
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateBundleDeltasTask',
@@ -421,6 +462,10 @@ def get_validator_class(pipeline):
     return getattr(importlib.import_module(validator_module_name), class_name)
 
 
+def task_id_from_path(task_class_path):
+    return task_class_path[task_class_path.rfind('.') + 1:]
+
+
 PRODUCTS = [
     {
         'name': 'Published Articles',
@@ -437,10 +482,10 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['article_citations'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['custom_article_data'],
+                'pipeline': PIPELINE_BY_ID['article_usage'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['article_usage'],
+                'pipeline': PIPELINE_BY_ID['custom_article_data'],
             },
         ],
         'tableau_workbooks': [
@@ -645,6 +690,16 @@ FTP_DIRS = [
     },
     {
         'product_id': 'institutions',
+        'pipeline_id': 'bundle_definitions',
+        'ftp_dir_name': 'bundle_definitions',
+    },
+    {
+        'product_id': 'institutions',
+        'pipeline_id': 'subscription_pricing',
+        'ftp_dir_name': 'subscription_pricing',
+    },
+    {
+        'product_id': 'institutions',
         'pipeline_id': 'custom_subscriber_data',
         'ftp_dir_name': 'additional_subscriber_data_files',
     },
@@ -710,6 +765,8 @@ IVETL_ROOT = os.environ.get('IVETL_ROOT', '/iv')
 IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
 IS_QA = os.environ.get('IVETL_QA', '0') == '1'
 IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
+
+DEBUG_QUICKLY = bool(os.environ.get('IVETL_DEBUG_QUICKLY', False))
 
 PUBLISH_TO_TABLEAU_WHEN_LOCAL = os.environ.get('IVETL_PUBLISH_TO_TABLEAU_WHEN_LOCAL', '0') == '1'
 
