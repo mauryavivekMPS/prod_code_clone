@@ -62,17 +62,22 @@ CELERYBEAT_SCHEDULE = {
     'get-uptime-metadata-every-morning-at-2am': {
         'task': 'ivetl.pipelines.sitemetadata.site_metadata_pipeline.SiteMetadataPipeline',
         'schedule': crontab(hour=2, minute=0),
-        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites'},
+        'kwargs': {'product_id': 'highwire_sites'},
+    },
+    'get-service-stats-every-morning-at-2-10am': {
+        'task': 'ivetl.pipelines.servicestats.service_stats_pipeline.ServiceStatsPipeline',
+        'schedule': crontab(hour=2, minute=10),
+        'kwargs': {'product_id': 'highwire_sites'},
     },
     'get-uptime-every-morning-at-4am': {
         'task': 'ivetl.pipelines.siteuptime.site_uptime_pipeline.SiteUptimePipeline',
         'schedule': crontab(hour=4, minute=0),
-        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites', 'run_daily_uptime_alerts': False},
+        'kwargs': {'product_id': 'highwire_sites', 'run_daily_uptime_alerts': False},
     },
     'run-weekly-uptime-alerts': {
         'task': 'ivetl.pipelines.siteuptime.weekly_alerts_pipeline.WeeklyAlertsPipeline',
         'schedule': crontab(day_of_week=1, hour=7, minute=0),
-        'kwargs': {'publisher_id_list': ['hw'], 'product_id': 'highwire_sites'},
+        'kwargs': {'product_id': 'highwire_sites'},
     },
     'monthly-social-metrics': {
         'task': 'ivetl.pipelines.socialmetrics.social_metrics_pipeline.SocialMetricsPipeline',
