@@ -393,7 +393,7 @@ def job_action(request, product_id, pipeline_id):
     job_id = request.POST['job_id']
     action = request.POST['action']
 
-    if action == 'mark-as-stopped':
+    if action == 'mark-job-as-stopped':
         try:
             now = datetime.datetime.now()
 
