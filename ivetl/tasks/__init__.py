@@ -1,1 +1,1 @@
-from ivetl.tasks.reports import setup_reports
+from ivetl.tasks.reports import update_reports

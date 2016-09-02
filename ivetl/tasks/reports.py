@@ -6,7 +6,7 @@ from ivetl.celery import app
 
 
 @app.task
-def setup_reports(publisher_id, initiating_user_id):
+def update_reports(publisher_id, initiating_user_id):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher.reports_setup_status = 'in-progress'
     publisher.save()

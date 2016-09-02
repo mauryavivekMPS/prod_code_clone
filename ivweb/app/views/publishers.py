@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, PublisherJournal, Scopus_Api_Key, Demo
-from ivetl.tasks import setup_reports
+from ivetl.tasks import update_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
@@ -171,6 +171,12 @@ class PublisherForm(forms.Form):
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
     ac_databases = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated database names'}), required=False)
+
+    # vizor-level checkboxes
+    impact_vizor = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    rejected_article_tracker = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    usage_vizor = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    social_vizor = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
     # demo-specific fields
     start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
@@ -462,7 +468,7 @@ def edit(request, publisher_id=None):
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
 
                 # tableau setup takes a while, run it through celery
-                setup_reports.s(publisher.publisher_id, request.user.user_id).delay()
+                update_reports.s(publisher.publisher_id, request.user.user_id).delay()
 
                 return HttpResponseRedirect(reverse("publishers.edit", kwargs={
                     'publisher_id': publisher.publisher_id,

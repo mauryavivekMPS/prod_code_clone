@@ -74,7 +74,6 @@ urlpatterns = patterns(
     url(r'^validatecrossref/$', 'publishers.validate_crossref', name='publishers.validate_crossref'),
     url(r'^validateissn/$', 'publishers.validate_issn', name='publishers.validate_issn'),
     url(r'^newissn/$', 'publishers.new_issn', name='publishers.new_issn'),
-    url(r'^setupreports/$', 'publishers.setup_reports', name='publishers.setup_reports'),
     url(r'^checkreports/$', 'publishers.check_reports', name='publishers.check_reports'),
     url(r'^updatedemostatus/$', 'publishers.update_demo_status', name='publishers.update_demo_status'),
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),

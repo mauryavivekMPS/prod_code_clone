@@ -488,12 +488,6 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['custom_article_data'],
             },
         ],
-        'tableau_workbooks': [
-            'section_performance_analyzer_workbook',
-            'hot_article_tracker_workbook',
-            'hot_object_tracker_workbook',
-            'citation_distribution_surveyor_workbook',
-        ]
     },
     {
         'name': 'Rejected Manuscripts',
@@ -661,6 +655,39 @@ PRODUCTS = [
 ]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
 PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
+
+PRODUCT_GROUPS = [
+    {
+        'name': 'ImpactVizor',
+        'id': 'impact_vizor',
+        'products': [
+            'published_articles',
+            'rejected_manuscripts',
+            'cohort_articles',
+        ],
+        'tableau_data_sources': [
+            'article_citations_ds.tds',
+            'article_usage_ds.tds',
+            'rejected_articles_ds.tds',
+        ],
+        'tableau_workbooks': [
+            'section_performance_analyzer_workbook',
+            'hot_article_tracker_workbook',
+            'hot_object_tracker_workbook',
+            'citation_distribution_surveyor_workbook',
+        ],
+    },
+    {
+        'name': 'UsageVizor',
+        'id': 'usage_vizor',
+        'products': [],
+    },
+    {
+        'name': 'SocialVizor',
+        'id': 'social_vizor',
+        'products': [],
+    },
+]
 
 FTP_DIRS = [
     {

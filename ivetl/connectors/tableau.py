@@ -255,6 +255,22 @@ class TableauConnector(BaseConnector):
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
+    def list_data_sources(self):
+        self._check_authentication()
+
+        url = self.server_url + "/api/2.0/sites/%s/datasources/" % self.site_id
+        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        r = untangle.parse(response.text).tsResponse
+        return [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.datasources.datasource]
+
+    def list_workbooks(self):
+        self._check_authentication()
+
+        url = self.server_url + "/api/2.0/sites/%s/workbooks/" % self.site_id
+        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        # r = untangle.parse(response.text).tsResponse
+        return r.text
+
     def _make_multipart(self, parts):
         mime_multipart_parts = []
 
