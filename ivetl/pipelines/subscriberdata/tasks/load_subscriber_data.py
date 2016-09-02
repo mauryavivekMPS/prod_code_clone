@@ -77,6 +77,7 @@ class LoadSubscriberDataTask(Task):
 
                     subscriber_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
                     membership_no = row['membership_no']
+                    user_type = row['user_type']
                     if subscriber_publisher_id:
                         Subscriber.objects(
                             publisher_id=subscriber_publisher_id,
@@ -100,18 +101,20 @@ class LoadSubscriberDataTask(Task):
                             subscr_type_desc=row['subscr_type_desc'],
                             ringgold_id=row['ringgold_id'],
                             affiliation=row['affiliation'],
-                            user_type=row['user_type'],
+                            user_type=user_type,
                         )
 
-                        for field in overlapping_fields:
-                            SubscriberValues.objects(
-                                publisher_id=subscriber_publisher_id,
-                                membership_no=membership_no,
-                                source='hw',
-                                name=field,
-                            ).update(
-                                value_text=row[field],
-                            )
+                        # we only override values for INST users
+                        if user_type == 'INST':
+                            for field in overlapping_fields:
+                                SubscriberValues.objects(
+                                    publisher_id=subscriber_publisher_id,
+                                    membership_no=membership_no,
+                                    source='hw',
+                                    name=field,
+                                ).update(
+                                    value_text=row[field],
+                                )
 
         task_args['count'] = total_count
 
