@@ -442,7 +442,7 @@ PIPELINES = [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateSubscriberDeltasTask',
         ],
     },
-]
+]  # type: list[dict]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
@@ -479,9 +479,6 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['published_articles'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['article_citations'],
-            },
-            {
                 'pipeline': PIPELINE_BY_ID['article_usage'],
             },
             {
@@ -490,11 +487,24 @@ PRODUCTS = [
         ],
     },
     {
+        'name': 'Article Citations',
+        'id': 'article_citations',
+        'icon': 'lnr-layers',
+        'is_user_facing': True,
+        'order': 3,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+        ],
+    },
+    {
         'name': 'Rejected Manuscripts',
         'id': 'rejected_manuscripts',
         'icon': 'lnr-layers-crossed',
         'is_user_facing': True,
-        'order': 2,
+        'order': 4,
         'cohort': False,
         'pipelines': [
             {
@@ -507,87 +517,87 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
             }
         ],
-        'tableau_workbooks': [
-            'rejected_article_tracker_workbook',
-        ]
     },
     {
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
         'icon': 'lnr-icons2',
         'is_user_facing': True,
-        'order': 3,
+        'order': 5,
         'cohort': True,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['published_articles'],
             },
+        ],
+    },
+    {
+        'name': 'Cohort Citations',
+        'id': 'cohort_citations',
+        'icon': 'lnr-icons2',
+        'is_user_facing': True,
+        'order': 6,
+        'cohort': True,
+        'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
             },
         ],
-        'tableau_workbooks': [
-            'cohort_comparator_workbook',
-        ]
     },
     {
         'name': 'Check Rejected Manuscripts',
         'id': 'check_rejected_manuscripts',
         'is_user_facing': False,
-        'order': 5,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['check_rejected_manuscripts'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Insert Placeholder Citations',
         'id': 'insert_placeholder_citations',
         'is_user_facing': False,
-        'order': 6,
+        'order': 8,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['insert_placeholder_citations'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Update Manuscripts',
         'id': 'update_manuscripts',
         'is_user_facing': False,
-        'order': 7,
+        'order': 9,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['update_manuscripts'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'XREF Journal Catalog',
         'id': 'xref_journal_catalog',
         'is_user_facing': False,
-        'order': 8,
+        'order': 10,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['xref_journal_catalog'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Institutions',
         'id': 'institutions',
         'is_user_facing': True,
         'icon': 'lnr-reading',
-        'order': 4,
+        'order': 11,
         'cohort': False,
         'pipelines': [
             {
@@ -615,13 +625,12 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['update_subscription_cost_per_use_deltas'],
             },
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'HighWire Sites',
         'id': 'highwire_sites',
         'is_user_facing': True,
-        'order': 6,
+        'order': 12,
         'cohort': False,
         'pipelines': [
             {
@@ -637,22 +646,20 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['weekly_site_uptime_alerts'],
             },
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Social',
         'id': 'social',
         'is_user_facing': True,
-        'order': 7,
+        'order': 13,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['social_metrics'],
             },
         ],
-        'tableau_workbooks': [],
     },
-]
+]  # type: list[dict]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
 PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
 
@@ -662,30 +669,58 @@ PRODUCT_GROUPS = [
         'id': 'impact_vizor',
         'products': [
             'published_articles',
+            'article_citations',
             'rejected_manuscripts',
             'cohort_articles',
         ],
-        'tableau_data_sources': [
+        'tableau_datasources': [
             'article_citations_ds.tds',
             'article_usage_ds.tds',
             'rejected_articles_ds.tds',
         ],
         'tableau_workbooks': [
-            'section_performance_analyzer_workbook',
-            'hot_article_tracker_workbook',
-            'hot_object_tracker_workbook',
-            'citation_distribution_surveyor_workbook',
+            'advance_correlator_citation_usage.twb',
+            'citation_distribution_surveyor.twb',
+            'cohort_comparator.twb',
+            'hot_article_tracker.twb',
+            'hot_object_tracker.twb',
+            'rejected_article_tracker.twb',
+            'section_performance_analyzer.twb',
         ],
     },
     {
         'name': 'UsageVizor',
         'id': 'usage_vizor',
-        'products': [],
+        'products': [
+            'published_articles',
+            'institutions',
+        ],
+        'tableau_datasources': [
+            'inst_usage_ds.tds',
+            'subscriber_ds.tds',
+            'subscriptions_ds.tds',
+            'inst_usage_delta_ds.tds',
+            'subscription_pricing_ds.tds',
+            'cost_by_subscriber_bundle_ds.tds',
+            'cost_delta_subscriber_bundle_ds.tds',
+            'article_usage_with_article_metadata_ds.tds',
+        ],
+        'tableau_workbooks': [
+            'uv_institutional_usage.twb',
+            'uv_article_usage_tracker.twb',
+            'uv_section_usage_performance_analyzer.twb',
+            'uv_article_usage_distribution_surveyor.twb',
+        ]
     },
     {
         'name': 'SocialVizor',
         'id': 'social_vizor',
-        'products': [],
+        'products': [
+            'published_articles',
+            'social',
+        ],
+        'tableau_datasources': [],
+        'tableau_workbooks': [],
     },
 ]
 
