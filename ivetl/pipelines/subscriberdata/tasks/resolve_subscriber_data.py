@@ -3,6 +3,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Subscriber, SubscriberValues, PublisherMetadata
 from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
+from ivetl.pipelines.subscriberdata.tasks import LoadSubscriberDataTask
 from ivetl.common import common
 
 
@@ -16,6 +17,8 @@ class ResolveSubscriberDataTask(Task):
         else:
             publisher_id_list = [publisher_id]
 
+        overlapping_fields = set(LoadSubscriberDataTask.FIELD_NAMES).intersection(set(SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES))
+
         total_count = 1000000  # just have to use a guess
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
@@ -24,9 +27,9 @@ class ResolveSubscriberDataTask(Task):
         for subscriber_publisher_id in publisher_id_list:
             tlogger.info('Processing publisher: %s' % subscriber_publisher_id)
 
-            all_subscribers = Subscriber.objects.filter(publisher_id=subscriber_publisher_id).limit(10000000)
+            all_inst_subscribers = Subscriber.objects.filter(publisher_id=subscriber_publisher_id, user_type='INST').limit(10000000)
 
-            for subscriber in all_subscribers:
+            for subscriber in all_inst_subscribers:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                 # resolve policy: if a value from source=custom is present it always wins
@@ -43,7 +46,7 @@ class ResolveSubscriberDataTask(Task):
                     except SubscriberValues.DoesNotExist:
                         pass
 
-                    if not new_value:
+                    if not new_value and attr_name in overlapping_fields:
                         try:
                             v = SubscriberValues.objects.get(
                                 publisher_id=subscriber.publisher_id,

@@ -23,7 +23,7 @@ class Subscriber(Model):
     subscr_type_desc = columns.Text()
     ringgold_id = columns.Text()
     affiliation = columns.Text()
-    user_type = columns.Text()
+    user_type = columns.Text(index=True)
     expired = columns.Boolean()
     num_subscriptions = columns.Integer()
     sales_agent = columns.Text()
