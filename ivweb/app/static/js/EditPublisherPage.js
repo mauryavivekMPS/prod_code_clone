@@ -692,6 +692,9 @@ var EditPublisherPage = (function() {
         f.find('input[name="start_date"]').val($('#id_start_date').val());
         f.find('input[name="demo_notes"]').val($('#id_demo_notes').val());
         f.find('input[name="message"]').val($('#id_message').val());
+        f.find('input[name="impact_vizor_product_group"]').val($('#id_impact_vizor_product_group').is(':checked') ? 'on' : '');
+        f.find('input[name="usage_vizor_product_group"]').val($('#id_usage_vizor_product_group').is(':checked') ? 'on' : '');
+        f.find('input[name="social_vizor_product_group"]').val($('#id_social_vizor_product_group').is(':checked') ? 'on' : '');
 
         if (options.submitForApproval) {
             f.find('input[name="status"]').val('submitted-for-review');

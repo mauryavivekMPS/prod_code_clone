@@ -173,10 +173,9 @@ class PublisherForm(forms.Form):
     ac_databases = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated database names'}), required=False)
 
     # vizor-level checkboxes
-    impact_vizor = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_article_tracker = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    usage_vizor = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    social_vizor = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    impact_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    usage_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    social_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
     # demo-specific fields
     start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
@@ -199,6 +198,7 @@ class PublisherForm(forms.Form):
                 properties = json.loads(initial.get('properties', '{}'))
                 initial['hw_addl_metadata_available'] = properties.get('hw_addl_metadata_available', False)
                 initial['use_crossref'] = properties.get('use_crossref', False)
+                initial['supported_product_groups'] = properties.get('supported_product_groups', [])
                 initial['supported_products'] = properties.get('supported_products', [])
                 initial['crossref_username'] = properties.get('crossref_username')
                 initial['crossref_password'] = properties.get('crossref_password')
@@ -211,6 +211,9 @@ class PublisherForm(forms.Form):
 
             initial.pop('reports_password', None)  # clear out the encoded password
             initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
+            initial['impact_vizor_product_group'] = 'impact_vizor' in initial['supported_product_groups']
+            initial['usage_vizor_product_group'] = 'usage_vizor' in initial['supported_product_groups']
+            initial['social_vizor_product_group'] = 'social_vizor' in initial['supported_product_groups']
             initial['published_articles'] = 'published_articles' in initial['supported_products']
             initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
             initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
@@ -296,6 +299,14 @@ class PublisherForm(forms.Form):
         if self.cleaned_data['institutions']:
             supported_products.append('institutions')
 
+        supported_product_groups = []
+        if self.cleaned_data['impact_vizor_product_group']:
+            supported_product_groups.append('impact_vizor')
+        if self.cleaned_data['usage_vizor_product_group']:
+            supported_product_groups.append('usage_vizor')
+        if self.cleaned_data['social_vizor_product_group']:
+            supported_product_groups.append('social_vizor')
+
         ac_databases = []
         if self.cleaned_data['ac_databases']:
             ac_databases = [d.strip() for d in self.cleaned_data['ac_databases'].split(",")]
@@ -322,6 +333,7 @@ class PublisherForm(forms.Form):
                 'crossref_username': self.cleaned_data['crossref_username'],
                 'crossref_password': self.cleaned_data['crossref_password'],
                 'supported_products': supported_products,
+                'supported_product_groups': supported_product_groups,
                 'issn_values_list': json.loads(self.cleaned_data['issn_values']),
                 'issn_values_cohort_list': json.loads(self.cleaned_data['issn_values_cohort']),
                 'demo_notes': self.cleaned_data['demo_notes'],
@@ -360,6 +372,7 @@ class PublisherForm(forms.Form):
                 scopus_api_keys=scopus_api_keys,
                 crossref_username=self.cleaned_data['crossref_username'],
                 crossref_password=self.cleaned_data['crossref_password'],
+                supported_product_groups=supported_product_groups,
                 supported_products=supported_products,
                 pilot=self.cleaned_data['pilot'],
                 demo=self.cleaned_data['demo'],
