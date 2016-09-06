@@ -14,7 +14,6 @@ class GetStatsFilesTask(Task):
     LOG_FILE_EXTENSION = '.log'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-
         from_date = self.from_json_date(task_args.get('from_date'))
         to_date = self.from_json_date(task_args.get('to_date'))
         from_date, to_date = utils.get_from_to_dates_with_high_water(from_date, to_date, pipeline_id)
@@ -57,6 +56,8 @@ class GetStatsFilesTask(Task):
 
             tlogger.info('Retrieved file: %s' % file_name)
 
+        task_args['from_date'] = self.to_json_date(from_date)
+        task_args['to_date'] = self.to_json_date(to_date)
         task_args['input_files'] = files
         task_args['count'] = total_count
 

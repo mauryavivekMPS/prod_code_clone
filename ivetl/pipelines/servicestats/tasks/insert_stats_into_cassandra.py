@@ -25,6 +25,9 @@ class InsertStatsIntoCassandraTask(Task):
                 for line in stats_file:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
+                    if count > 10:
+                        continue
+
                     if line:
                         try:
                             stat_json = json.loads(line)
