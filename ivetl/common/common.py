@@ -672,6 +672,7 @@ PRODUCT_GROUPS = [
             'article_citations',
             'rejected_manuscripts',
             'cohort_articles',
+            'cohort_citations',
         ],
         'tableau_datasources': [
             'article_citations_ds.tds',

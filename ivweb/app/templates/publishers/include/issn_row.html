@@ -1,6 +1,6 @@
 <div class="form-group row issn-values{% if cohort %}-cohort{% endif %}-row issn-values{% if cohort %}-cohort{% endif %}-row-{{ index }}" index="{{ index }}">
     <label class="col-sm-2">
-        <span class="issn-row-label">ISSNs</span>
+        <span class="issn-row-label">{% if cohort %}Cohort {% endif %}ISSNs</span>
     </label>
     <div class="col-sm-2">
         <input type="text" class="form-control electronic-issn" id="id_electronic_issn_{{ index }}" placeholder="Electronic ISSN" value="{{ issn_value.electronic_issn }}" {% if read_only %}readonly disabled{% endif %}>

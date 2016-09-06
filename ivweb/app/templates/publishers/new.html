@@ -195,23 +195,12 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <label class="col-sm-2">Vizors</label>
-                            <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>{{ form.impact_vizor_product_group }} ImpactVizor</label>
-                                    <label>{{ form.usage_vizor_product_group }} UsageVizor</label>
-                                    <label>{{ form.social_vizor_product_group }} SocialVizor</label>
-                                </div>
-                            </div>
-                        </div>
-
                     {% endif %}
 
                     {% if not is_demo %}
-                        <h2>Reporting</h2>
+                        <h2>Tableau Configuration</h2>
                         <div class="form-group row reports-login-controls" style="display:none">
-                            <label for="reports_username" class="col-sm-2">Reports Login</label>
+                            <label for="reports_username" class="col-sm-2">Tableau Login</label>
                             <div class="col-sm-3">
                                 {% if publisher %}
                                     <p class="form-control-static">
@@ -251,68 +240,17 @@
                 </form>
 
                 <form class="form-horizontal publisher-form">
-
-                    <h2>Rejected Manuscripts</h2>
+                    <h2>Vizor Configuration</h2>
                     <div class="form-group row">
-                        <label class="col-sm-2">Product</label>
+                        <label class="col-sm-2">Vizors</label>
                         <div class="col-sm-6">
                             <div class="checkbox">
-                                <label>{{ form.rejected_manuscripts }} Enable Rejected Manuscripts</label>
+                                <label>{{ form.impact_vizor_product_group }} ImpactVizor</label>
+                                <label>{{ form.usage_vizor_product_group }} UsageVizor</label>
+                                <label>{{ form.social_vizor_product_group }} SocialVizor</label>
                             </div>
                         </div>
                     </div>
-
-                </form>
-
-                {% if is_demo %}
-                    <div class="rejected-manuscripts-controls" style="display:none">
-                        <div class="form-horizontal publisher-form demo-files-fake-form">
-                            <div class="form-group row">
-                                <label class="col-sm-2">Rejected Article Files</label>
-                                <div class="col-sm-10">
-                                    {% if read_only and not demo_files_rejected_articles %}
-                                        <p class="form-control-static no-files-uploaded-message">
-                                            No files uploaded
-                                        </p>
-                                    {% else %}
-                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
-                {% if convert_from_demo %}
-                    <div class="form-horizontal publisher-form">
-                        <div class="form-group row">
-                            <label class="col-sm-2">Rejected Article Files</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static no-files-uploaded-message">
-                                    {% if demo_files_rejected_articles %}
-                                        {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
-                                    {% else %}
-                                        No files uploaded for demo
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
-
-                <form class="form-horizontal publisher-form">
-
-                    <h2>Published Articles</h2>
-                    <div class="form-group row">
-                        <label class="col-sm-2">Product</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.published_articles }} Enable Published Articles</label>
-                            </div>
-                        </div>
-                    </div>
-
                 </form>
 
                 <div class="published-articles-controls" style="display:none">
@@ -328,22 +266,14 @@
                             </div>
                         </div>
 
-                        <div id="issn-values-container">
-                            {{ form.issn_values }}
-                            {% for issn_value in issn_values_list %}
-                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=False %}
-                            {% empty %}
-                                {% include "publishers/include/issn_row.html" with index="pa-0" cohort=False %}
-                            {% endfor %}
-                        </div>
-
-                        <div class="form-group row issn-add-row">
-                            <div class="col-sm-2 col-sm-offset-2">
-                                {% if not read_only %}
-                                    <p class="form-control-static">
-                                        <a href="#" class="add-issn-button">+ Add Another</a>
-                                    </p>
-                                {% endif %}
+                        <div class="institutions-controls" style="display:none">
+                            <div class="highwire-controls" style="display:none">
+                                <div class="form-group row">
+                                    <label for="ac_databases" class="col-sm-2">AC Databases</label>
+                                    <div class="col-sm-6">
+                                        {{ form.ac_databases }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -375,8 +305,51 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="issn-values-container">
+                            {{ form.issn_values }}
+                            {% for issn_value in issn_values_list %}
+                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=False %}
+                            {% empty %}
+                                {% include "publishers/include/issn_row.html" with index="pa-0" cohort=False %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group row issn-add-row">
+                            <div class="col-sm-2 col-sm-offset-2">
+                                {% if not read_only %}
+                                    <p class="form-control-static">
+                                        <a href="#" class="add-issn-button">+ Add Another</a>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="cohort-articles-controls" style="display:none">
+                            <div id="issn-values-cohort-container">
+                                {{ form.issn_values_cohort }}
+                                {% for issn_value in issn_values_cohort_list %}
+                                    {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=True %}
+                                {% empty %}
+                                    {% include "publishers/include/issn_row.html" with index="ca-0" cohort=True %}
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group row issn-add-row">
+                                <div class="col-sm-2 col-sm-offset-2">
+                                    <p class="form-control-static">
+                                        <a href="#" class="add-issn-cohort-button">+ Add Another</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
                     </form>
+
+                    {% if is_demo or convert_from_demo %}
+                        <div class="form-horizontal">
+                            <h2>Demo Files</h2>
+                        </div>
+                    {% endif %}
 
                     {% if is_demo %}
                         <div class="form-horizontal publisher-form demo-files-fake-form">
@@ -411,59 +384,46 @@
                             </div>
                         </div>
                     {% endif %}
-                </div>
 
-                <form class="form-horizontal publisher-form">
-
-                    <h2>Cohort Articles</h2>
-                    <div class="form-group row">
-                        <label class="col-sm-2">Product</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.cohort_articles }} Enable Cohort Articles</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cohort-articles-controls" style="display:none">
-                        <div id="issn-values-cohort-container">
-                            {{ form.issn_values_cohort }}
-                            {% for issn_value in issn_values_cohort_list %}
-                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=True %}
-                            {% empty %}
-                                {% include "publishers/include/issn_row.html" with index="ca-0" cohort=True %}
-                            {% endfor %}
-                        </div>
-
-                        <div class="form-group row issn-add-row">
-                            <div class="col-sm-2 col-sm-offset-2">
-                                <p class="form-control-static">
-                                    <a href="#" class="add-issn-cohort-button">+ Add Another</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h2>Institutions</h2>
-                    <div class="form-group row">
-                        <label class="col-sm-2">Product</label>
-                        <div class="col-sm-6">
-                            <div class="checkbox">
-                                <label>{{ form.institutions }} Enable Institutions (includes JR2 and JR3)</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="institutions-controls" style="display:none">
-                        <div class="highwire-controls" style="display:none">
-                            <div class="form-group row">
-                                <label for="ac_databases" class="col-sm-2">AC Databases</label>
-                                <div class="col-sm-6">
-                                    {{ form.ac_databases }}
+                    {% if is_demo %}
+                        <div class="rejected-manuscripts-controls" style="display:none">
+                            <div class="form-horizontal publisher-form demo-files-fake-form">
+                                <div class="form-group row">
+                                    <label class="col-sm-2">Rejected Article Files</label>
+                                    <div class="col-sm-10">
+                                        {% if read_only and not demo_files_rejected_articles %}
+                                            <p class="form-control-static no-files-uploaded-message">
+                                                No files uploaded
+                                            </p>
+                                        {% else %}
+                                            {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    {% endif %}
+
+                    {% if convert_from_demo %}
+                        <div class="form-horizontal publisher-form">
+                            <div class="form-group row">
+                                <label class="col-sm-2">Rejected Article Files</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static no-files-uploaded-message">
+                                        {% if demo_files_rejected_articles %}
+                                            {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
+                                        {% else %}
+                                            No files uploaded for demo
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <form class="form-horizontal publisher-form">
 
                     {% if is_demo %}
                         <h2>Demo Notes</h2>

@@ -162,10 +162,6 @@ class PublisherForm(forms.Form):
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     demo = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    institutions = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     reports_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
@@ -199,7 +195,6 @@ class PublisherForm(forms.Form):
                 initial['hw_addl_metadata_available'] = properties.get('hw_addl_metadata_available', False)
                 initial['use_crossref'] = properties.get('use_crossref', False)
                 initial['supported_product_groups'] = properties.get('supported_product_groups', [])
-                initial['supported_products'] = properties.get('supported_products', [])
                 initial['crossref_username'] = properties.get('crossref_username')
                 initial['crossref_password'] = properties.get('crossref_password')
                 initial['issn_values_list'] = properties.get('issn_values_list', [])
@@ -214,10 +209,6 @@ class PublisherForm(forms.Form):
             initial['impact_vizor_product_group'] = 'impact_vizor' in initial['supported_product_groups']
             initial['usage_vizor_product_group'] = 'usage_vizor' in initial['supported_product_groups']
             initial['social_vizor_product_group'] = 'social_vizor' in initial['supported_product_groups']
-            initial['published_articles'] = 'published_articles' in initial['supported_products']
-            initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
-            initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
-            initial['institutions'] = 'institutions' in initial['supported_products']
             initial['use_crossref'] = initial.get('use_crossref') or initial['crossref_username'] or initial['crossref_password']
 
             if self.is_demo or convert_from_demo:
@@ -289,16 +280,6 @@ class PublisherForm(forms.Form):
         return publisher_id
 
     def save(self):
-        supported_products = []
-        if self.cleaned_data['published_articles']:
-            supported_products.append('published_articles')
-        if self.cleaned_data['rejected_manuscripts']:
-            supported_products.append('rejected_manuscripts')
-        if self.cleaned_data['cohort_articles']:
-            supported_products.append('cohort_articles')
-        if self.cleaned_data['institutions']:
-            supported_products.append('institutions')
-
         supported_product_groups = []
         if self.cleaned_data['impact_vizor_product_group']:
             supported_product_groups.append('impact_vizor')
@@ -306,6 +287,12 @@ class PublisherForm(forms.Form):
             supported_product_groups.append('usage_vizor')
         if self.cleaned_data['social_vizor_product_group']:
             supported_product_groups.append('social_vizor')
+
+        supported_products_set = set()
+        for product_group_id in supported_product_groups:
+            for product_id in common.PRODUCT_GROUPS[product_group_id]['products']:
+                supported_products_set.add(product_id)
+        supported_products = list(supported_products_set)
 
         ac_databases = []
         if self.cleaned_data['ac_databases']:
