@@ -82,35 +82,35 @@ CELERYBEAT_SCHEDULE = {
     'monthly-social-metrics': {
         'task': 'ivetl.pipelines.socialmetrics.social_metrics_pipeline.SocialMetricsPipeline',
         'schedule': crontab(day_of_month=1, hour=0, minute=1),
-        'kwargs': {'product_id': 'published_articles', 'run_monthly_job': True},
+        'kwargs': {'product_id': 'published_articles'},
     },
     'monthly-published-articles-and-article-citations': {
-        'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
+        'task': 'ivetl.pipelines.publishedarticles.update_published_articles_pipeline.UpdatePublishedArticlesPipeline',
         'schedule': crontab(day_of_month=1, hour=2, minute=0),
         'kwargs': {'product_id': 'published_articles', 'run_monthly_job': True},
     },
     'monthly-cohort-articles-and-article-citations': {
-        'task': 'ivetl.pipelines.publishedarticles.UpdatePublishedArticlesPipeline.UpdatePublishedArticlesPipeline',
+        'task': 'ivetl.pipelines.publishedarticles.update_published_articles_pipeline.UpdatePublishedArticlesPipeline',
         'schedule': crontab(day_of_month=5, hour=2, minute=0),
         'kwargs': {'product_id': 'cohort_articles', 'run_monthly_job': True},
     },
     'q1-benchpress-rejected-articles': {
-        'task': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline.GetRejectedArticlesFromBenchPressPipeline',
+        'task': 'ivetl.pipelines.rejectedarticles.get_rejected_articles_from_benchpress_pipeline.GetRejectedArticlesFromBenchPressPipeline',
         'schedule': crontab(month_of_year=4, day_of_month=1, hour=1, minute=10),
         'kwargs': {'product_id': 'rejected_manuscripts'},
     },
     'q2-benchpress-rejected-articles': {
-        'task': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline.GetRejectedArticlesFromBenchPressPipeline',
+        'task': 'ivetl.pipelines.rejectedarticles.get_rejected_articles_from_benchpress_pipeline.GetRejectedArticlesFromBenchPressPipeline',
         'schedule': crontab(month_of_year=7, day_of_month=1, hour=1, minute=10),
         'kwargs': {'product_id': 'rejected_manuscripts'},
     },
     'q3-benchpress-rejected-articles': {
-        'task': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline.GetRejectedArticlesFromBenchPressPipeline',
+        'task': 'ivetl.pipelines.rejectedarticles.get_rejected_articles_from_benchpress_pipeline.GetRejectedArticlesFromBenchPressPipeline',
         'schedule': crontab(month_of_year=10, day_of_month=1, hour=1, minute=10),
         'kwargs': {'product_id': 'rejected_manuscripts'},
     },
     'q4-benchpress-rejected-articles': {
-        'task': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline.GetRejectedArticlesFromBenchPressPipeline',
+        'task': 'ivetl.pipelines.rejectedarticles.get_rejected_articles_from_benchpress_pipeline.GetRejectedArticlesFromBenchPressPipeline',
         'schedule': crontab(month_of_year=1, day_of_month=1, hour=1, minute=10),
         'kwargs': {'product_id': 'rejected_manuscripts'},
     },
