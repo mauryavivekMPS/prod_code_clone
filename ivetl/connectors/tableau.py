@@ -255,20 +255,27 @@ class TableauConnector(BaseConnector):
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
-    def list_data_sources(self):
+    def list_datasources(self, project_id=None):
         self._check_authentication()
 
         url = self.server_url + "/api/2.0/sites/%s/datasources/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
-        return [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.datasources.datasource]
+        all_datasources = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.datasources.datasource]
+
+        if project_id:
+            filtered_datasources = [d for d in all_datasources if d['project_id'] == project_id]
+        else:
+            filtered_datasources = all_datasources
+
+        return filtered_datasources
 
     def list_workbooks(self):
         self._check_authentication()
 
         url = self.server_url + "/api/2.0/sites/%s/workbooks/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
-        # r = untangle.parse(response.text).tsResponse
+        r = untangle.parse(response.text).tsResponse
         return r.text
 
     def _make_multipart(self, parts):
@@ -286,6 +293,44 @@ class TableauConnector(BaseConnector):
         return post_body, content_type
 
     def add_data_source_to_project(self, project_id, publisher_id, data_source_id, job_id=None):
+        self._check_authentication()
+        url = self.server_url + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
+
+        request_string = """
+            <tsRequest>
+                <datasource name="%s">
+                    <project id="%s" />
+                </datasource>
+            </tsRequest>
+        """
+
+        data_source = DATA_SOURCES_BY_ID[data_source_id]
+
+        with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + data_source['template_name'] + '.tds'), encoding='utf-8') as f:
+            template = f.read()
+
+        data_source_name = data_source['template_name'] + '_' + publisher_id
+
+        if job_id:
+            data_source_name += '_' + job_id
+
+        prepared_data_source = template.replace(data_source['template_name'], data_source_name)
+        prepared_data_source = prepared_data_source.replace('&apos;%s&apos;' % TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher_id)
+
+        with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "w", encoding="utf-8") as fh:
+            fh.write(prepared_data_source)
+
+        with codecs.open(common.TMP_DIR + '/' + data_source_name + '.tds', "rb", encoding="utf-8") as fh:
+            prepared_data_source_binary = fh.read()
+
+        payload, content_type = self._make_multipart({
+            'request_payload': ('', request_string % (data_source_name, project_id), 'text/xml'),
+            'tableau_datasource': (data_source_name + '.tds', prepared_data_source_binary, 'application/octet-stream'),
+        })
+
+        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+
+    def add_datasource_to_project(self, project_id, publisher_id, data_source_id, job_id=None, force_update=False):
         self._check_authentication()
         url = self.server_url + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
 
@@ -372,21 +417,40 @@ class TableauConnector(BaseConnector):
             self.set_user_password(user_id, password)
             self.add_user_to_group(user_id, group_id)
 
+        return project_id, group_id, user_id
+
+    def update_datasources_and_workbooks(self, publisher_id, project_id, supported_product_groups):
+
+        required_datasource_ids = set()
+        for product_group_id in supported_product_groups:
+            for datasource in common.PRODUCT_GROUPS[product_group_id]['tableau_datasources']:
+                required_datasource_ids.add(datasource)
+
+        existing_datasources = []
+
+        for datasource in required_datasource_ids:
+            self.add_datasource_to_project(project_id, publisher_id, datasource, force_update=False)
+
+
+
         # # add all data sources
         # for data_source in DATA_SOURCES:
         #     print('data source: %s' % data_source['id'])
         #     fake_job_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
         #     self.add_data_source_to_project(project_id, publisher_id, data_source['id'])
         #     self.refresh_data_source(publisher_id, project_name, data_source['id'])
-        #
-        # time.sleep(10)
+
+
+
+        time.sleep(10)
 
         # and all workbooks, regardless of the selected products
         # for workbook in WORKBOOKS:
         #     print('workbook: %s' % workbook['id'])
         #     self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
         #
-        return project_id, group_id, user_id
+
+        pass
 
     def refresh_data_source(self, publisher_id, project_name, data_source_id):
         data_source = DATA_SOURCES_BY_ID[data_source_id]
