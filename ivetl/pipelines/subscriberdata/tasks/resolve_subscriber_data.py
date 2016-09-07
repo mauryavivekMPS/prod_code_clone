@@ -19,7 +19,7 @@ class ResolveSubscriberDataTask(Task):
 
         overlapping_fields = set(LoadSubscriberDataTask.FIELD_NAMES).intersection(set(SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES))
 
-        total_count = 1000000  # just have to use a guess
+        total_count = len(publisher_id_list) * 3000  # just have to use a guess
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
