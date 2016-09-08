@@ -39,3 +39,4 @@ class Subscriber(Model):
     custom1 = columns.Text()
     custom2 = columns.Text()
     custom3 = columns.Text()
+    final_expiration_date = columns.DateTime()
