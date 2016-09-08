@@ -19,14 +19,10 @@ def update_reports(publisher_id, initiating_user_id):
         )
 
         if publisher.demo:
-            project_id, group_id, user_id = t.setup_account(
-                publisher.publisher_id,
-                publisher.reports_project,
-            )
+            project_id, group_id, user_id = t.setup_account(publisher)
         else:
             project_id, group_id, user_id = t.setup_account(
-                publisher.publisher_id,
-                publisher.reports_project,
+                publisher,
                 create_new_login=True,
                 username=publisher.reports_username,
                 password=publisher.reports_password,

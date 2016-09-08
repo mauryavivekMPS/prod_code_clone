@@ -290,7 +290,7 @@ class PublisherForm(forms.Form):
 
         supported_products_set = set()
         for product_group_id in supported_product_groups:
-            for product_id in common.PRODUCT_GROUPS[product_group_id]['products']:
+            for product_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['products']:
                 supported_products_set.add(product_id)
         supported_products = list(supported_products_set)
 

@@ -6,6 +6,16 @@ import json
 with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
 
+# the IVETL_ROOT env var is mandatory
+if 'IVETL_ROOT' not in os.environ:
+    print("You must set the IVETL_ROOT env var!")
+    exit(1)
+
+IVETL_ROOT = os.environ.get('IVETL_ROOT', '/iv')
+IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
+IS_QA = os.environ.get('IVETL_QA', '0') == '1'
+IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
+
 PIPELINES = [
     {
         'name': 'Published Articles',
@@ -724,6 +734,71 @@ PRODUCT_GROUPS = [
         'tableau_workbooks': [],
     },
 ]
+PRODUCT_GROUP_BY_ID = {p['id']: p for p in PRODUCT_GROUPS}
+
+TABLEAU_WORKBOOKS = [
+    {
+        'id': 'rejected_article_tracker.twb',
+        'name': 'Rejected Article Tracker',
+        'datasources': ['rejected_articles_ds.tds'],
+    },
+    {
+        'id': 'section_performance_analyzer.twb',
+        'name': 'Section Performance Analyzer',
+        'datasources': ['article_citations_ds.tds'],
+    },
+    {
+        'id': 'hot_article_tracker.twb',
+        'name': 'Hot Article Tracker',
+        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
+    },
+    {
+        'id': 'hot_object_tracker.twb',
+        'name': 'Hot Object Tracker',
+        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
+    },
+    {
+        'id': 'citation_distribution_surveyor.twb',
+        'name': 'Citation Distribution Surveyor',
+        'datasources': ['article_citations_ds.tds'],
+    },
+    {
+        'id': 'advance_correlator_citation_usage.twb',
+        'name': 'Advance Correlator of Citations & Usage',
+        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
+    },
+    {
+        'id': 'cohort_comparator.twb',
+        'name': 'Cohort Comparator',
+        'datasources': ['article_citations_ds.tds'],
+    },
+    {
+        'id': 'uv_institutional_usage.twb',
+        'name': 'Institutional Usage',
+        'datasources': ['inst_usage_ds.tds'],
+    },
+    {
+        'id': 'uv_article_usage_tracker.twb',
+        'name': 'Article Usage Tracker',
+        'datasources': ['article_usage_with_article_metadata_ds.tds'],
+    },
+    {
+        'id': 'uv_section_usage_performance_analyzer.twb',
+        'name': 'Section Usage Performance Analyzer',
+        'datasources': ['article_usage_with_article_metadata_ds.tds'],
+    },
+    {
+        'id': 'uv_article_usage_distribution_surveyor.twb',
+        'name': 'Article Usage Distribution Surveyor',
+        'datasources': ['inst_usage_ds.tds'],
+    },
+]  # type: list[dict]
+TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
+TABLEAU_DATASOURCE_FILE_EXTENSION = '.tds'
+TABLEAU_WORKBOOK_FILE_EXTENSION = '.twb'
+TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
+TABLEAU_TEMPLATE_SERVER_TO_REPLACE = 'vizors.stackly.org'
+TABCMD = os.path.join(IVETL_ROOT, 'deploy/tabcmd/tabcmd.sh')
 
 FTP_DIRS = [
     {
@@ -818,16 +893,6 @@ ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'results': 'http://schema.highwire.org/SQL/results'}
 
 sass_url = "http://sass.highwire.org"
-
-# the IVETL_ROOT env var is mandatory
-if 'IVETL_ROOT' not in os.environ:
-    print("You must set the IVETL_ROOT env var!")
-    exit(1)
-
-IVETL_ROOT = os.environ.get('IVETL_ROOT', '/iv')
-IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
-IS_QA = os.environ.get('IVETL_QA', '0') == '1'
-IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 
 DEBUG_QUICKLY = bool(os.environ.get('IVETL_DEBUG_QUICKLY', False))
 
