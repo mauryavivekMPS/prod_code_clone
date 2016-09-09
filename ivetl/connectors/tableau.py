@@ -201,13 +201,20 @@ class TableauConnector(BaseConnector):
 
         return filtered_datasources
 
-    def list_workbooks(self):
+    def list_workbooks(self, project_id=None):
         self._check_authentication()
 
         url = self.server_url + "/api/2.0/sites/%s/workbooks/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
-        return r.text
+        all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.workbooks.workbook]
+
+        if project_id:
+            filtered_workbooks = [w for w in all_workbooks if w['project_id'] == project_id]
+        else:
+            filtered_workbooks = all_workbooks
+
+        return filtered_workbooks
 
     def _make_multipart(self, parts):
         mime_multipart_parts = []
@@ -223,10 +230,10 @@ class TableauConnector(BaseConnector):
         return post_body, content_type
 
     def _base_datasource_name(self, datasource_id):
-        return datasource_id[:len(common.TABLEAU_DATASOURCE_FILE_EXTENSION)]
+        return datasource_id[:-len(common.TABLEAU_DATASOURCE_FILE_EXTENSION)]
 
     def _base_workbook_name(self, workbook_id):
-        return workbook_id[:len(common.TABLEAU_WORKBOOK_FILE_EXTENSION)]
+        return workbook_id[:-len(common.TABLEAU_WORKBOOK_FILE_EXTENSION)]
 
     def _publisher_datasource_name(self, publisher, datasource_id):
         return self._base_datasource_name(datasource_id) + '_' + publisher.publisher_id
@@ -246,39 +253,44 @@ class TableauConnector(BaseConnector):
         url = self.server_url + "/api/2.0/sites/%s/datasources/%s" % (self.site_id, tableau_datasource_id)
         requests.post(url, headers={'X-Tableau-Auth': self.token})
 
+    def delete_workbook_from_project(self, tableau_workbook_id):
+        self._check_authentication()
+        url = self.server_url + "/api/2.0/sites/%s/workbooks/%s" % (self.site_id, tableau_workbook_id)
+        requests.post(url, headers={'X-Tableau-Auth': self.token})
+
     def add_datasource_to_project(self, publisher, datasource_id):
         self._check_authentication()
-url = self.server_url + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
 
-request_string = """
-    <tsRequest>
-        <datasource name="%s">
-            <project id="%s" />
-        </datasource>
-    </tsRequest>
-"""
+        request_string = """
+            <tsRequest>
+                <datasource name="%s">
+                    <project id="%s" />
+                </datasource>
+            </tsRequest>
+        """
 
-with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + datasource_id), encoding='utf-8') as f:
-    template = f.read()
+        with open(os.path.join(common.IVETL_ROOT, 'ivreports/datasources/' + datasource_id), encoding='utf-8') as f:
+            template = f.read()
 
-base_datasource_name = self._base_datasource_name(datasource_id)
-publisher_datasource_name = self._publisher_datasource_name(publisher, datasource_id)
+        base_datasource_name = self._base_datasource_name(datasource_id)
+        publisher_datasource_name = self._publisher_datasource_name(publisher, datasource_id)
 
-prepared_datasource = template.replace(base_datasource_name, publisher_datasource_name)
-prepared_datasource = prepared_datasource.replace('&apos;%s&apos;' % common.TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher.publisher_id)
+        prepared_datasource = template.replace(base_datasource_name, publisher_datasource_name)
+        prepared_datasource = prepared_datasource.replace('&apos;%s&apos;' % common.TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher.publisher_id)
 
-with codecs.open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "w", encoding="utf-8") as fh:
-    fh.write(prepared_datasource)
+        with open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "w", encoding="utf-8") as fh:
+            fh.write(prepared_datasource)
 
-with codecs.open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "rb") as fh:
-    prepared_datasource_binary = fh.read()
+        with open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "rb") as fh:
+            prepared_datasource_binary = fh.read()
 
-payload, content_type = self._make_multipart({
-    'request_payload': ('', request_string % (publisher_datasource_name, publisher.reports_project_id), 'text/xml'),
-    'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
-})
+        payload, content_type = self._make_multipart({
+            'request_payload': ('', request_string % (publisher_datasource_name, publisher.reports_project_id), 'text/xml'),
+            'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
+        })
 
-return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
@@ -293,10 +305,10 @@ return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, '
         """
 
         workbook = common.TABLEAU_WORKBOOKS_BY_ID[workbook_id]
-        with codecs.open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook_id), encoding='utf-8') as f:
+        with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook_id), encoding='utf-8') as f:
             prepared_workbook = f.read()
 
-        for datasource_id in workbook['datasources']:
+        for datasource_id in workbook['datasources']:  # TODO: up to here, need to figure out what all the data sources are
             base_datasource_name = self._base_datasource_name(datasource_id)
             publisher_datasource_name = self._publisher_datasource_name(publisher, datasource_id)
             prepared_workbook = prepared_workbook.replace(base_datasource_name, publisher_datasource_name)
@@ -305,10 +317,10 @@ return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, '
 
         publisher_workbook_name = self._publisher_workbook_name(publisher, workbook_id)
 
-        with codecs.open(common.TMP_DIR + '/' + publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, "w", encoding="utf-8") as fh:
+        with open(common.TMP_DIR + '/' + publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, "w", encoding="utf-8") as fh:
             fh.write(prepared_workbook)
 
-        with codecs.open(common.TMP_DIR + '/' + publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, "rb", encoding="utf-8") as fh:
+        with open(common.TMP_DIR + '/' + publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, "rb", encoding="utf-8") as fh:
             prepared_workbook_binary = fh.read()
 
         payload, content_type = self._make_multipart({
@@ -325,23 +337,20 @@ return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, '
             for datasource_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources']:
                 required_datasource_ids.add(datasource_id)
 
-        print(required_datasource_ids)
-
         existing_datasources = self.list_datasources(project_id=publisher.reports_project_id)
-        existing_datasource_ids = set([self._base_name_from_publisher_name(publisher, d['name']) for d in existing_datasources])
-        print(existing_datasource_ids)
+        existing_datasource_ids = set([self._base_name_from_publisher_name(publisher, d['name']) + common.TABLEAU_DATASOURCE_FILE_EXTENSION for d in existing_datasources])
         datasource_tableau_id_lookup = {self._base_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_datasources}
 
         for datasource_id in existing_datasource_ids - required_datasource_ids:
             print('deleting ' + datasource_id)
-            self.delete_datasource_from_project(datasource_tableau_id_lookup(datasource_id))
+            self.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
 
         for datasource_id in required_datasource_ids - existing_datasource_ids:
             print('adding ' + datasource_id)
             self.add_datasource_to_project(publisher, datasource_id)
             # self.refresh_data_source(publisher, datasource_id)
 
-        # time.sleep(10)
+        time.sleep(10)
 
         # and all workbooks, regardless of the selected products
         # for workbook in WORKBOOKS:
@@ -349,6 +358,22 @@ return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, '
         #     self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
         #
 
+        required_workbook_ids = set()
+        for product_group_id in publisher.supported_product_groups:
+            for workbook_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_workbooks']:
+                required_workbook_ids.add(workbook_id)
+
+        existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
+        existing_workbook_ids = set([self._base_name_from_publisher_name(publisher, d['name']) + common.TABLEAU_WORKBOOK_FILE_EXTENSION for d in existing_workbooks])
+        workbook_tableau_id_lookup = {self._base_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_workbooks}
+
+        for workbook_id in existing_workbook_ids - required_workbook_ids:
+            print('deleting ' + workbook_id)
+            self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
+
+        for workbook_id in required_workbook_ids - existing_workbook_ids:
+            print('adding ' + workbook_id)
+            self.add_workbook_to_project(publisher, workbook_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 
