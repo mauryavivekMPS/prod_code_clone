@@ -290,7 +290,7 @@ class TableauConnector(BaseConnector):
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
 
-        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
@@ -308,7 +308,11 @@ class TableauConnector(BaseConnector):
         with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook_id), encoding='utf-8') as f:
             prepared_workbook = f.read()
 
-        for datasource_id in workbook['datasources']:  # TODO: up to here, need to figure out what all the data sources are
+        all_datasources_for_publisher = set()
+        for product_group_id in publisher.supported_product_groups:
+            all_datasources_for_publisher.update(common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources'])
+
+        for datasource_id in all_datasources_for_publisher:
             base_datasource_name = self._base_datasource_name(datasource_id)
             publisher_datasource_name = self._publisher_datasource_name(publisher, datasource_id)
             prepared_workbook = prepared_workbook.replace(base_datasource_name, publisher_datasource_name)
@@ -317,10 +321,10 @@ class TableauConnector(BaseConnector):
 
         publisher_workbook_name = self._publisher_workbook_name(publisher, workbook_id)
 
-        with open(common.TMP_DIR + '/' + publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, "w", encoding="utf-8") as fh:
+        with open(os.path.join(common.TMP_DIR, publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION), "w", encoding="utf-8") as fh:
             fh.write(prepared_workbook)
 
-        with open(common.TMP_DIR + '/' + publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, "rb", encoding="utf-8") as fh:
+        with open(os.path.join(common.TMP_DIR, publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION), "rb") as fh:
             prepared_workbook_binary = fh.read()
 
         payload, content_type = self._make_multipart({
@@ -351,12 +355,6 @@ class TableauConnector(BaseConnector):
             # self.refresh_data_source(publisher, datasource_id)
 
         time.sleep(10)
-
-        # and all workbooks, regardless of the selected products
-        # for workbook in WORKBOOKS:
-        #     print('workbook: %s' % workbook['id'])
-        #     self.add_workbook_to_project(project_id, publisher_id, workbook['id'])
-        #
 
         required_workbook_ids = set()
         for product_group_id in publisher.supported_product_groups:
