@@ -3,8 +3,8 @@
 # set the python environment
 echo "Sourcing virtualenv"
 source /iv/env/bin/activate
-echo "Sourcing conf/prod.sh"
-source /iv/impactvizor-pipeline/conf/prod.sh
+echo "Sourcing conf/ftp_prod.sh"
+source /iv/impactvizor-pipeline/conf/ftp_prod.sh
 
 dir="/iv/impactvizor-pipeline/ivftp"
 cmd="python ftp.py"
