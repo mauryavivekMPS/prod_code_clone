@@ -427,14 +427,14 @@ class PublisherForm(forms.Form):
 @login_required
 def edit(request, publisher_id=None):
     publisher = None
-    new = True
+    is_new = True
     convert_from_demo = False
     if publisher_id:
-        new = False
+        is_new = False
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     # bail quickly if there are no API keys
-    if new:
+    if is_new:
         if Scopus_Api_Key.objects.count() < 5:
             return HttpResponseRedirect(reverse('publishers.list') + '?from=no-keys')
 
@@ -447,7 +447,7 @@ def edit(request, publisher_id=None):
         if form.is_valid():
             publisher = form.save()
 
-            if new:
+            if is_new:
                 if not request.user.superuser:
                     Publisher_User.objects.create(
                         user_id=request.user.user_id,
@@ -457,7 +457,7 @@ def edit(request, publisher_id=None):
                 Audit_Log.objects.create(
                     user_id=request.user.user_id,
                     event_time=datetime.datetime.now(),
-                    action='create-publisher' if new else 'edit-publisher',
+                    action='create-publisher' if is_new else 'edit-publisher',
                     entity_type='publisher',
                     entity_id=publisher.publisher_id,
                 )
@@ -467,14 +467,14 @@ def edit(request, publisher_id=None):
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'published_articles', 'custom_article_data')
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
 
-                # tableau setup takes a while, run it through celery
-                update_reports.s(publisher.publisher_id, request.user.user_id).delay()
+            # tableau setup takes a while, run it through celery
+            update_reports.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
 
-                return HttpResponseRedirect(reverse("publishers.edit", kwargs={
-                    'publisher_id': publisher.publisher_id,
-                }) + '?from=new-success')
+            query_string = '?from=new-success' if is_new else '?from=save-success'
 
-            return HttpResponseRedirect(reverse('publishers.list') + '?from=save-success')
+            return HttpResponseRedirect(reverse("publishers.edit", kwargs={
+                'publisher_id': publisher.publisher_id,
+            }) + query_string)
     else:
         from_value = ''
         if 'from' in request.GET:

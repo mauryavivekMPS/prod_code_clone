@@ -659,6 +659,8 @@ var EditPublisherPage = (function() {
             convertToPublisher: false
         }, options);
 
+        console.log('here 2');
+
         var issnValues = [];
         $('.issn-values-row').each(function() {
             var row = $(this);
@@ -707,10 +709,6 @@ var EditPublisherPage = (function() {
         f.find('input[name="demo"]').val($('#id_demo').is(':checked') ? 'on' : '');
         f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
         f.find('input[name="ac_databases"]').val($('#id_ac_databases').val());
-        // f.find('input[name="published_articles"]').val($('#id_published_articles').is(':checked') ? 'on' : '');
-        // f.find('input[name="rejected_manuscripts"]').val($('#id_rejected_manuscripts').is(':checked') ? 'on' : '');
-        // f.find('input[name="cohort_articles"]').val($('#id_cohort_articles').is(':checked') ? 'on' : '');
-        // f.find('input[name="institutions"]').val($('#id_institutions').is(':checked') ? 'on' : '');
         f.find('input[name="issn_values_cohort"]').val($('#id_issn_values_cohort').val());
         f.find('input[name="reports_username"]').val($('#id_reports_username').val());
         f.find('input[name="reports_password"]').val($('#id_reports_password').val());
@@ -881,6 +879,7 @@ var EditPublisherPage = (function() {
         });
 
         $('.submit-button.save-button').on('click', function(event) {
+            console.log('here 1')
             submit();
             event.preventDefault();
             return false;

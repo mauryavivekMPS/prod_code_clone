@@ -182,7 +182,7 @@ class TableauConnector(BaseConnector):
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
-        url = self.server_url + "/api/2.0/sites/%s/workbooks/" % self.site_id
+        url = self.server_url + "/api/2.0/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
@@ -190,7 +190,7 @@ class TableauConnector(BaseConnector):
         self._check_authentication()
 
         url = self.server_url + "/api/2.0/sites/%s/datasources/" % self.site_id
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
         all_datasources = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.datasources.datasource]
 
@@ -204,8 +204,8 @@ class TableauConnector(BaseConnector):
     def list_workbooks(self, project_id=None):
         self._check_authentication()
 
-        url = self.server_url + "/api/2.0/sites/%s/workbooks/" % self.site_id
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        url = self.server_url + "/api/2.0/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
+        response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
         all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.workbooks.workbook]
 
@@ -241,8 +241,11 @@ class TableauConnector(BaseConnector):
     def _publisher_workbook_name(self, publisher, workbook_id):
         return self._base_workbook_name(workbook_id) + '_' + publisher.publisher_id
 
-    def _base_name_from_publisher_name(self, publisher, item_publisher_name):
-        return item_publisher_name[:-len(publisher.publisher_id) - 1]
+    def _base_datasource_name_from_publisher_name(self, publisher, item_publisher_name):
+        return item_publisher_name[:-(len(publisher.publisher_id) + 1 + len(common.TABLEAU_DATASOURCE_FILE_EXTENSION))] + common.TABLEAU_DATASOURCE_FILE_EXTENSION
+
+    def _base_workbook_name_from_publisher_name(self, publisher, item_publisher_name):
+        return item_publisher_name[:-(len(publisher.publisher_id) + 1 + len(common.TABLEAU_WORKBOOK_FILE_EXTENSION))] + common.TABLEAU_WORKBOOK_FILE_EXTENSION
 
     def refresh_data_source(self, publisher, datasource_id):
         datasource_name = self._publisher_datasource_name(publisher, datasource_id)
@@ -290,7 +293,7 @@ class TableauConnector(BaseConnector):
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
 
-        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
@@ -308,9 +311,7 @@ class TableauConnector(BaseConnector):
         with open(os.path.join(common.IVETL_ROOT, 'ivreports/workbooks/' + workbook_id), encoding='utf-8') as f:
             prepared_workbook = f.read()
 
-        all_datasources_for_publisher = set()
-        for product_group_id in publisher.supported_product_groups:
-            all_datasources_for_publisher.update(common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources'])
+        all_datasources_for_publisher = publisher.all_datasources
 
         for datasource_id in all_datasources_for_publisher:
             base_datasource_name = self._base_datasource_name(datasource_id)
@@ -332,7 +333,7 @@ class TableauConnector(BaseConnector):
             'tableau_workbook': (publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, prepared_workbook_binary, 'application/octet-stream'),
         })
 
-        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
     def update_datasources_and_workbooks(self, publisher):
 
@@ -342,8 +343,8 @@ class TableauConnector(BaseConnector):
                 required_datasource_ids.add(datasource_id)
 
         existing_datasources = self.list_datasources(project_id=publisher.reports_project_id)
-        existing_datasource_ids = set([self._base_name_from_publisher_name(publisher, d['name']) + common.TABLEAU_DATASOURCE_FILE_EXTENSION for d in existing_datasources])
-        datasource_tableau_id_lookup = {self._base_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_datasources}
+        existing_datasource_ids = set([self._base_datasource_name_from_publisher_name(publisher, d['name']) for d in existing_datasources])
+        datasource_tableau_id_lookup = {self._base_datasource_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_datasources}
 
         for datasource_id in existing_datasource_ids - required_datasource_ids:
             print('deleting ' + datasource_id)
@@ -351,7 +352,9 @@ class TableauConnector(BaseConnector):
 
         for datasource_id in required_datasource_ids - existing_datasource_ids:
             print('adding ' + datasource_id)
-            self.add_datasource_to_project(publisher, datasource_id)
+            r = self.add_datasource_to_project(publisher, datasource_id)
+            print(r.status_code)
+            print(r.text)
             # self.refresh_data_source(publisher, datasource_id)
 
         time.sleep(10)
@@ -362,8 +365,8 @@ class TableauConnector(BaseConnector):
                 required_workbook_ids.add(workbook_id)
 
         existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
-        existing_workbook_ids = set([self._base_name_from_publisher_name(publisher, d['name']) + common.TABLEAU_WORKBOOK_FILE_EXTENSION for d in existing_workbooks])
-        workbook_tableau_id_lookup = {self._base_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_workbooks}
+        existing_workbook_ids = set([self._base_workbook_name_from_publisher_name(publisher, d['name']) for d in existing_workbooks])
+        workbook_tableau_id_lookup = {self._base_workbook_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_workbooks}
 
         for workbook_id in existing_workbook_ids - required_workbook_ids:
             print('deleting ' + workbook_id)
@@ -371,7 +374,9 @@ class TableauConnector(BaseConnector):
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
             print('adding ' + workbook_id)
-            self.add_workbook_to_project(publisher, workbook_id)
+            r = self.add_workbook_to_project(publisher, workbook_id)
+            print(r.status_code)
+            print(r.text)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 

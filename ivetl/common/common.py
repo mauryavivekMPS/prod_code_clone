@@ -800,6 +800,53 @@ TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
 TABLEAU_TEMPLATE_SERVER_TO_REPLACE = 'vizors.stackly.org'
 TABCMD = os.path.join(IVETL_ROOT, 'deploy/tabcmd/tabcmd.sh')
 
+TABLEAU_DATASOURCE_UPDATES = {
+    ('published_articles', 'article_usage'): [
+        'article_citations_ds.tds',
+        'article_usage_ds.tds',
+        'article_usage_with_article_metadata_ds.tds',
+    ],
+    ('published_articles', 'custom_article_data'): [
+        'article_citations_ds.tds',
+        'article_usage_with_article_metadata_ds.tds',
+    ],
+    ('article_citations', 'article_citations'): [
+        'article_citations_ds.tds'
+    ],
+    ('rejected_manuscripts', 'rejected_articles'): [
+        'rejected_articles_ds.tds'
+    ],
+    ('rejected_manuscripts', 'benchpress_rejected_articles'): [
+        'rejected_articles_ds.tds'
+    ],
+    ('rejected_manuscripts', 'reprocess_rejected_articles'): [
+        'rejected_articles_ds.tds'
+    ],
+    ('cohort_citations', 'article_citations'): [
+        'article_citations_ds.tds'
+    ],
+    ('institutions', 'subscribers_and_subscriptions'): [
+        'subscriptions_ds.tds'
+    ],
+    ('institutions', 'custom_subscriber_data'): [
+        'subscriber_ds.tds',
+    ],
+    ('institutions', 'update_institution_usage_deltas'): [
+        'inst_usage_ds.tds',
+        'inst_usage_delta_ds.tds',
+        'subscription_pricing_ds.tds',
+        'cost_by_subscriber_bundle_ds.tds',
+        'cost_delta_subscriber_bundle_ds.tds',
+    ],
+    ('institutions', 'update_subscription_cost_per_use_deltas'): [
+        'inst_usage_ds.tds',
+        'inst_usage_delta_ds.tds',
+        'subscription_pricing_ds.tds',
+        'cost_by_subscriber_bundle_ds.tds',
+        'cost_delta_subscriber_bundle_ds.tds',
+    ],
+}
+
 FTP_DIRS = [
     {
         'product_id': 'published_articles',
