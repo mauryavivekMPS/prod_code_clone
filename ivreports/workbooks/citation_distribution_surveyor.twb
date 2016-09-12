@@ -60807,12 +60807,6 @@
           <groupfilter function='member' level='[article_doi (Custom_SQL_Query)]' member='%null%' />
         </groupfilter>
       </filter>
-      <filter class='categorical' column='[is_cohort]' filter-group='2'>
-        <groupfilter function='except' user:ui-domain='database' user:ui-enumeration='exclusive' user:ui-marker='enumerate'>
-          <groupfilter function='level-members' level='[is_cohort]' />
-          <groupfilter function='member' level='[is_cohort]' member='true' />
-        </groupfilter>
-      </filter>
     </datasource>
   </datasources>
   <shared-views>
@@ -60833,7 +60827,10 @@
         <groupfilter function='member' level='[none:Calculation_4771210231545080:nk]' member='&quot;No&quot;' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
       </filter>
       <filter class='categorical' column='[sqlproxy.42215.594235729164].[none:is_cohort:nk]' context='true'>
-        <groupfilter function='member' level='[none:is_cohort:nk]' member='false' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+        <groupfilter function='except' user:ui-domain='database' user:ui-enumeration='exclusive' user:ui-marker='enumerate'>
+          <groupfilter function='level-members' level='[none:is_cohort:nk]' />
+          <groupfilter function='member' level='[none:is_cohort:nk]' member='true' />
+        </groupfilter>
       </filter>
     </shared-view>
   </shared-views>
