@@ -50,11 +50,18 @@ class CheckRejectedManuscriptTask(Task):
                 job_id=job_id,
             )
 
-            UpdateArticleCitationsPipeline.s(
-                publisher_id_list=[publisher_id],
-                product_id=product_id,
-                initiating_user_email=pipeline_status.user_email,
-                job_id=job_id,
-            ).delay()
+            citation_product_id = None
+            if product_id == 'published_articles':
+                citation_product_id = 'article_citations'
+            elif product_id == 'cohort_articles':
+                citation_product_id = 'cohort_citations'
+
+            if citation_product_id:
+                UpdateArticleCitationsPipeline.s(
+                    publisher_id_list=[publisher_id],
+                    product_id=citation_product_id,
+                    initiating_user_email=pipeline_status.user_email,
+                    job_id=job_id,
+                ).delay()
 
         return {'count': count}

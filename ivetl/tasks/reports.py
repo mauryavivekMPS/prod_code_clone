@@ -6,7 +6,7 @@ from ivetl.celery import app
 
 
 @app.task
-def setup_reports(publisher_id, initiating_user_id):
+def update_reports(publisher_id, initiating_user_id, include_initial_setup=False):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher.reports_setup_status = 'in-progress'
     publisher.save()
@@ -18,33 +18,33 @@ def setup_reports(publisher_id, initiating_user_id):
             server=common.TABLEAU_SERVER
         )
 
-        if publisher.demo:
-            project_id, group_id, user_id = t.setup_account(
-                publisher.publisher_id,
-                publisher.reports_project,
-            )
-        else:
-            project_id, group_id, user_id = t.setup_account(
-                publisher.publisher_id,
-                publisher.reports_project,
-                create_new_login=True,
-                username=publisher.reports_username,
-                password=publisher.reports_password,
+        if include_initial_setup:
+            if publisher.demo:
+                project_id, group_id, user_id = t.setup_account(publisher)
+            else:
+                project_id, group_id, user_id = t.setup_account(
+                    publisher,
+                    create_new_login=True,
+                    username=publisher.reports_username,
+                    password=publisher.reports_password,
+                )
+
+            publisher.reports_project_id = project_id
+            publisher.reports_group_id = group_id
+            publisher.reports_user_id = user_id
+            publisher.save()
+
+            Audit_Log.objects.create(
+                user_id=initiating_user_id,
+                event_time=datetime.datetime.now(),
+                action='setup-reports',
+                entity_type='publisher',
+                entity_id=publisher_id,
             )
 
-        publisher.reports_project_id = project_id
-        publisher.reports_group_id = group_id
-        publisher.reports_user_id = user_id
+        t.update_datasources_and_workbooks(publisher)
         publisher.reports_setup_status = 'completed'
         publisher.save()
-
-        Audit_Log.objects.create(
-            user_id=initiating_user_id,
-            event_time=datetime.datetime.now(),
-            action='setup-reports',
-            entity_type='publisher',
-            entity_id=publisher_id,
-        )
 
     except:
         publisher.reports_setup_status = 'error'

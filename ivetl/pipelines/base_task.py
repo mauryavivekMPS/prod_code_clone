@@ -98,11 +98,9 @@ class BaseTask(Task):
                 server=common.TABLEAU_SERVER
             )
 
-            pipeline = common.PIPELINE_BY_ID[pipeline_id]
-            if pipeline.get('rebuild_data_source_id'):
-                for ds in pipeline['rebuild_data_source_id']:
-                    t.refresh_data_source(publisher_id, publisher.reports_project, ds)
-                    t.add_data_source_to_project(publisher.reports_project_id, publisher_id, ds, job_id=job_id)
+            all_modified_datasources = set(common.TABLEAU_DATASOURCE_UPDATES.get((product_id, pipeline_id), []))
+            for datasource_id in all_modified_datasources.intersection(publisher.all_datasources):
+                t.refresh_data_source(publisher, datasource_id)
 
     def params_to_json(self, params):
         try:

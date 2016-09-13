@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, PublisherJournal, Scopus_Api_Key, Demo
-from ivetl.tasks import setup_reports
+from ivetl.tasks import update_reports
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
@@ -162,15 +162,16 @@ class PublisherForm(forms.Form):
     pilot = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     demo = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     demo_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    published_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    rejected_manuscripts = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    cohort_articles = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    institutions = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     issn_values_cohort = forms.CharField(widget=forms.HiddenInput, required=False)
     reports_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
     ac_databases = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated database names'}), required=False)
+
+    # vizor-level checkboxes
+    impact_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    usage_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    social_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
     # demo-specific fields
     start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
@@ -193,7 +194,7 @@ class PublisherForm(forms.Form):
                 properties = json.loads(initial.get('properties', '{}'))
                 initial['hw_addl_metadata_available'] = properties.get('hw_addl_metadata_available', False)
                 initial['use_crossref'] = properties.get('use_crossref', False)
-                initial['supported_products'] = properties.get('supported_products', [])
+                initial['supported_product_groups'] = properties.get('supported_product_groups', [])
                 initial['crossref_username'] = properties.get('crossref_username')
                 initial['crossref_password'] = properties.get('crossref_password')
                 initial['issn_values_list'] = properties.get('issn_values_list', [])
@@ -205,10 +206,9 @@ class PublisherForm(forms.Form):
 
             initial.pop('reports_password', None)  # clear out the encoded password
             initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
-            initial['published_articles'] = 'published_articles' in initial['supported_products']
-            initial['rejected_manuscripts'] = 'rejected_manuscripts' in initial['supported_products']
-            initial['cohort_articles'] = 'cohort_articles' in initial['supported_products']
-            initial['institutions'] = 'institutions' in initial['supported_products']
+            initial['impact_vizor_product_group'] = 'impact_vizor' in initial['supported_product_groups']
+            initial['usage_vizor_product_group'] = 'usage_vizor' in initial['supported_product_groups']
+            initial['social_vizor_product_group'] = 'social_vizor' in initial['supported_product_groups']
             initial['use_crossref'] = initial.get('use_crossref') or initial['crossref_username'] or initial['crossref_password']
 
             if self.is_demo or convert_from_demo:
@@ -280,15 +280,19 @@ class PublisherForm(forms.Form):
         return publisher_id
 
     def save(self):
-        supported_products = []
-        if self.cleaned_data['published_articles']:
-            supported_products.append('published_articles')
-        if self.cleaned_data['rejected_manuscripts']:
-            supported_products.append('rejected_manuscripts')
-        if self.cleaned_data['cohort_articles']:
-            supported_products.append('cohort_articles')
-        if self.cleaned_data['institutions']:
-            supported_products.append('institutions')
+        supported_product_groups = []
+        if self.cleaned_data['impact_vizor_product_group']:
+            supported_product_groups.append('impact_vizor')
+        if self.cleaned_data['usage_vizor_product_group']:
+            supported_product_groups.append('usage_vizor')
+        if self.cleaned_data['social_vizor_product_group']:
+            supported_product_groups.append('social_vizor')
+
+        supported_products_set = set()
+        for product_group_id in supported_product_groups:
+            for product_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['products']:
+                supported_products_set.add(product_id)
+        supported_products = list(supported_products_set)
 
         ac_databases = []
         if self.cleaned_data['ac_databases']:
@@ -316,6 +320,7 @@ class PublisherForm(forms.Form):
                 'crossref_username': self.cleaned_data['crossref_username'],
                 'crossref_password': self.cleaned_data['crossref_password'],
                 'supported_products': supported_products,
+                'supported_product_groups': supported_product_groups,
                 'issn_values_list': json.loads(self.cleaned_data['issn_values']),
                 'issn_values_cohort_list': json.loads(self.cleaned_data['issn_values_cohort']),
                 'demo_notes': self.cleaned_data['demo_notes'],
@@ -354,6 +359,7 @@ class PublisherForm(forms.Form):
                 scopus_api_keys=scopus_api_keys,
                 crossref_username=self.cleaned_data['crossref_username'],
                 crossref_password=self.cleaned_data['crossref_password'],
+                supported_product_groups=supported_product_groups,
                 supported_products=supported_products,
                 pilot=self.cleaned_data['pilot'],
                 demo=self.cleaned_data['demo'],
@@ -421,14 +427,14 @@ class PublisherForm(forms.Form):
 @login_required
 def edit(request, publisher_id=None):
     publisher = None
-    new = True
+    is_new = True
     convert_from_demo = False
     if publisher_id:
-        new = False
+        is_new = False
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     # bail quickly if there are no API keys
-    if new:
+    if is_new:
         if Scopus_Api_Key.objects.count() < 5:
             return HttpResponseRedirect(reverse('publishers.list') + '?from=no-keys')
 
@@ -441,7 +447,7 @@ def edit(request, publisher_id=None):
         if form.is_valid():
             publisher = form.save()
 
-            if new:
+            if is_new:
                 if not request.user.superuser:
                     Publisher_User.objects.create(
                         user_id=request.user.user_id,
@@ -451,7 +457,7 @@ def edit(request, publisher_id=None):
                 Audit_Log.objects.create(
                     user_id=request.user.user_id,
                     event_time=datetime.datetime.now(),
-                    action='create-publisher' if new else 'edit-publisher',
+                    action='create-publisher' if is_new else 'edit-publisher',
                     entity_type='publisher',
                     entity_id=publisher.publisher_id,
                 )
@@ -461,14 +467,14 @@ def edit(request, publisher_id=None):
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'published_articles', 'custom_article_data')
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
 
-                # tableau setup takes a while, run it through celery
-                setup_reports.s(publisher.publisher_id, request.user.user_id).delay()
+            # tableau setup takes a while, run it through celery
+            update_reports.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
 
-                return HttpResponseRedirect(reverse("publishers.edit", kwargs={
-                    'publisher_id': publisher.publisher_id,
-                }) + '?from=new-success')
+            query_string = '?from=new-success' if is_new else '?from=save-success'
 
-            return HttpResponseRedirect(reverse('publishers.list') + '?from=save-success')
+            return HttpResponseRedirect(reverse("publishers.edit", kwargs={
+                'publisher_id': publisher.publisher_id,
+            }) + query_string)
     else:
         from_value = ''
         if 'from' in request.GET:

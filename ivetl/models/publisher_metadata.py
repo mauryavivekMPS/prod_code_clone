@@ -1,6 +1,7 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 from ivetl.models import Publisher_User, PublisherJournal
+from ivetl.common import common
 
 
 class PublisherMetadata(Model):
@@ -21,7 +22,8 @@ class PublisherMetadata(Model):
     reports_group_id = columns.Text()
     reports_project_id = columns.Text()
     reports_setup_status = columns.Text()
-    supported_products = columns.List(columns.Text())
+    supported_product_groups = columns.List(columns.Text())  # type: list
+    supported_products = columns.List(columns.Text())  # type: list
     pilot = columns.Boolean()
     demo = columns.Boolean(index=True)
     demo_id = columns.Text(index=True)
@@ -50,6 +52,13 @@ class PublisherMetadata(Model):
             all_issns.append(j.electronic_issn)
             all_issns.append(j.print_issn)
         return all_issns
+
+    @property
+    def all_datasources(self):
+        all_datasources_for_publisher = set()
+        for product_group_id in self.supported_product_groups:
+            all_datasources_for_publisher.update(common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources'])
+        return all_datasources_for_publisher
 
     def users(self):
         return Publisher_User.objects.allow_filtering().filter(publisher_id=self.publisher_id)

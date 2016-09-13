@@ -5,6 +5,8 @@ SECRET_KEY = '-3&ciydd_*vkt93q=vasdfasdf+9!j53!ectu290_v6*$ea!_re&8=25u3'
 
 DEBUG = False
 
+OFFLINE = os.environ.get('IVETL_OFFLINE') == '1'
+
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (

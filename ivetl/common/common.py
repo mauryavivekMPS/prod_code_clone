@@ -6,6 +6,16 @@ import json
 with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
 
+# the IVETL_ROOT env var is mandatory
+if 'IVETL_ROOT' not in os.environ:
+    print("You must set the IVETL_ROOT env var!")
+    exit(1)
+
+IVETL_ROOT = os.environ.get('IVETL_ROOT', '/iv')
+IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
+IS_QA = os.environ.get('IVETL_QA', '0') == '1'
+IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
+
 PIPELINES = [
     {
         'name': 'Published Articles',
@@ -442,7 +452,7 @@ PIPELINES = [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateSubscriberDeltasTask',
         ],
     },
-]
+]  # type: list[dict]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
@@ -479,28 +489,32 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['published_articles'],
             },
             {
-                'pipeline': PIPELINE_BY_ID['article_citations'],
-            },
-            {
                 'pipeline': PIPELINE_BY_ID['article_usage'],
             },
             {
                 'pipeline': PIPELINE_BY_ID['custom_article_data'],
             },
         ],
-        'tableau_workbooks': [
-            'section_performance_analyzer_workbook',
-            'hot_article_tracker_workbook',
-            'hot_object_tracker_workbook',
-            'citation_distribution_surveyor_workbook',
-        ]
+    },
+    {
+        'name': 'Article Citations',
+        'id': 'article_citations',
+        'icon': 'lnr-layers',
+        'is_user_facing': True,
+        'order': 3,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+        ],
     },
     {
         'name': 'Rejected Manuscripts',
         'id': 'rejected_manuscripts',
         'icon': 'lnr-layers-crossed',
         'is_user_facing': True,
-        'order': 2,
+        'order': 4,
         'cohort': False,
         'pipelines': [
             {
@@ -513,87 +527,87 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
             }
         ],
-        'tableau_workbooks': [
-            'rejected_article_tracker_workbook',
-        ]
     },
     {
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
         'icon': 'lnr-icons2',
         'is_user_facing': True,
-        'order': 3,
+        'order': 5,
         'cohort': True,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['published_articles'],
             },
+        ],
+    },
+    {
+        'name': 'Cohort Citations',
+        'id': 'cohort_citations',
+        'icon': 'lnr-icons2',
+        'is_user_facing': True,
+        'order': 6,
+        'cohort': True,
+        'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
             },
         ],
-        'tableau_workbooks': [
-            'cohort_comparator_workbook',
-        ]
     },
     {
         'name': 'Check Rejected Manuscripts',
         'id': 'check_rejected_manuscripts',
         'is_user_facing': False,
-        'order': 5,
+        'order': 7,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['check_rejected_manuscripts'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Insert Placeholder Citations',
         'id': 'insert_placeholder_citations',
         'is_user_facing': False,
-        'order': 6,
+        'order': 8,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['insert_placeholder_citations'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Update Manuscripts',
         'id': 'update_manuscripts',
         'is_user_facing': False,
-        'order': 7,
+        'order': 9,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['update_manuscripts'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'XREF Journal Catalog',
         'id': 'xref_journal_catalog',
         'is_user_facing': False,
-        'order': 8,
+        'order': 10,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['xref_journal_catalog'],
             }
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Institutions',
         'id': 'institutions',
         'is_user_facing': True,
         'icon': 'lnr-reading',
-        'order': 4,
+        'order': 11,
         'cohort': False,
         'pipelines': [
             {
@@ -621,13 +635,12 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['update_subscription_cost_per_use_deltas'],
             },
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'HighWire Sites',
         'id': 'highwire_sites',
         'is_user_facing': True,
-        'order': 6,
+        'order': 12,
         'cohort': False,
         'pipelines': [
             {
@@ -643,24 +656,197 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['weekly_site_uptime_alerts'],
             },
         ],
-        'tableau_workbooks': [],
     },
     {
         'name': 'Social',
         'id': 'social',
         'is_user_facing': True,
-        'order': 7,
+        'order': 13,
         'cohort': False,
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['social_metrics'],
             },
         ],
+    },
+]  # type: list[dict]
+PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
+PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
+
+PRODUCT_GROUPS = [
+    {
+        'name': 'ImpactVizor',
+        'id': 'impact_vizor',
+        'products': [
+            'published_articles',
+            'article_citations',
+            'rejected_manuscripts',
+            'cohort_articles',
+            'cohort_citations',
+        ],
+        'tableau_datasources': [
+            'article_citations_ds.tds',
+            'article_usage_ds.tds',
+            'rejected_articles_ds.tds',
+        ],
+        'tableau_workbooks': [
+            'advance_correlator_citation_usage.twb',
+            'citation_distribution_surveyor.twb',
+            'cohort_comparator.twb',
+            'hot_article_tracker.twb',
+            'hot_object_tracker.twb',
+            'rejected_article_tracker.twb',
+            'section_performance_analyzer.twb',
+        ],
+    },
+    {
+        'name': 'UsageVizor',
+        'id': 'usage_vizor',
+        'products': [
+            'published_articles',
+            'institutions',
+        ],
+        'tableau_datasources': [
+            'inst_usage_ds.tds',
+            'subscriber_ds.tds',
+            'subscriptions_ds.tds',
+            'inst_usage_delta_ds.tds',
+            'subscription_pricing_ds.tds',
+            'cost_by_subscriber_bundle_ds.tds',
+            'cost_delta_subscriber_bundle_ds.tds',
+            'article_usage_with_article_metadata_ds.tds',
+        ],
+        'tableau_workbooks': [
+            'uv_institutional_usage.twb',
+            'uv_article_usage_tracker.twb',
+            'uv_section_usage_performance_analyzer.twb',
+            'uv_article_usage_distribution_surveyor.twb',
+        ]
+    },
+    {
+        'name': 'SocialVizor',
+        'id': 'social_vizor',
+        'products': [
+            'published_articles',
+            'social',
+        ],
+        'tableau_datasources': [],
         'tableau_workbooks': [],
     },
 ]
-PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
-PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
+PRODUCT_GROUP_BY_ID = {p['id']: p for p in PRODUCT_GROUPS}
+
+TABLEAU_WORKBOOKS = [
+    {
+        'id': 'rejected_article_tracker.twb',
+        'name': 'Rejected Article Tracker',
+        'datasources': ['rejected_articles_ds.tds'],
+    },
+    {
+        'id': 'section_performance_analyzer.twb',
+        'name': 'Section Performance Analyzer',
+        'datasources': ['article_citations_ds.tds'],
+    },
+    {
+        'id': 'hot_article_tracker.twb',
+        'name': 'Hot Article Tracker',
+        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
+    },
+    {
+        'id': 'hot_object_tracker.twb',
+        'name': 'Hot Object Tracker',
+        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
+    },
+    {
+        'id': 'citation_distribution_surveyor.twb',
+        'name': 'Citation Distribution Surveyor',
+        'datasources': ['article_citations_ds.tds'],
+    },
+    {
+        'id': 'advance_correlator_citation_usage.twb',
+        'name': 'Advance Correlator of Citations & Usage',
+        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
+    },
+    {
+        'id': 'cohort_comparator.twb',
+        'name': 'Cohort Comparator',
+        'datasources': ['article_citations_ds.tds'],
+    },
+    {
+        'id': 'uv_institutional_usage.twb',
+        'name': 'Institutional Usage',
+        'datasources': ['inst_usage_ds.tds'],
+    },
+    {
+        'id': 'uv_article_usage_tracker.twb',
+        'name': 'Article Usage Tracker',
+        'datasources': ['article_usage_with_article_metadata_ds.tds'],
+    },
+    {
+        'id': 'uv_section_usage_performance_analyzer.twb',
+        'name': 'Section Usage Performance Analyzer',
+        'datasources': ['article_usage_with_article_metadata_ds.tds'],
+    },
+    {
+        'id': 'uv_article_usage_distribution_surveyor.twb',
+        'name': 'Article Usage Distribution Surveyor',
+        'datasources': ['inst_usage_ds.tds'],
+    },
+]  # type: list[dict]
+TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
+TABLEAU_DATASOURCE_FILE_EXTENSION = '.tds'
+TABLEAU_WORKBOOK_FILE_EXTENSION = '.twb'
+TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
+TABLEAU_TEMPLATE_SERVER_TO_REPLACE = 'vizors.stackly.org'
+TABLEAU_DUMMY_EXTRACTS_DIR_NAME = 'dummy_extracts'
+TABCMD = os.path.join(IVETL_ROOT, 'deploy/tabcmd/tabcmd.sh')
+
+TABLEAU_DATASOURCE_UPDATES = {
+    ('published_articles', 'article_usage'): [
+        'article_citations_ds.tds',
+        'article_usage_ds.tds',
+        'article_usage_with_article_metadata_ds.tds',
+    ],
+    ('published_articles', 'custom_article_data'): [
+        'article_citations_ds.tds',
+        'article_usage_with_article_metadata_ds.tds',
+    ],
+    ('article_citations', 'article_citations'): [
+        'article_citations_ds.tds'
+    ],
+    ('rejected_manuscripts', 'rejected_articles'): [
+        'rejected_articles_ds.tds'
+    ],
+    ('rejected_manuscripts', 'benchpress_rejected_articles'): [
+        'rejected_articles_ds.tds'
+    ],
+    ('rejected_manuscripts', 'reprocess_rejected_articles'): [
+        'rejected_articles_ds.tds'
+    ],
+    ('cohort_citations', 'article_citations'): [
+        'article_citations_ds.tds'
+    ],
+    ('institutions', 'subscribers_and_subscriptions'): [
+        'subscriptions_ds.tds'
+    ],
+    ('institutions', 'custom_subscriber_data'): [
+        'subscriber_ds.tds',
+    ],
+    ('institutions', 'update_institution_usage_deltas'): [
+        'inst_usage_ds.tds',
+        'inst_usage_delta_ds.tds',
+        'subscription_pricing_ds.tds',
+        'cost_by_subscriber_bundle_ds.tds',
+        'cost_delta_subscriber_bundle_ds.tds',
+    ],
+    ('institutions', 'update_subscription_cost_per_use_deltas'): [
+        'inst_usage_ds.tds',
+        'inst_usage_delta_ds.tds',
+        'subscription_pricing_ds.tds',
+        'cost_by_subscriber_bundle_ds.tds',
+        'cost_delta_subscriber_bundle_ds.tds',
+    ],
+}
 
 FTP_DIRS = [
     {
@@ -755,16 +941,6 @@ ns = {'dc': 'http://purl.org/dc/elements/1.1/',
       'results': 'http://schema.highwire.org/SQL/results'}
 
 sass_url = "http://sass.highwire.org"
-
-# the IVETL_ROOT env var is mandatory
-if 'IVETL_ROOT' not in os.environ:
-    print("You must set the IVETL_ROOT env var!")
-    exit(1)
-
-IVETL_ROOT = os.environ.get('IVETL_ROOT', '/iv')
-IS_LOCAL = os.environ.get('IVETL_LOCAL', '0') == '1'
-IS_QA = os.environ.get('IVETL_QA', '0') == '1'
-IS_PROD = os.environ.get('IVETL_PROD', '0') == '1'
 
 DEBUG_QUICKLY = bool(os.environ.get('IVETL_DEBUG_QUICKLY', False))
 

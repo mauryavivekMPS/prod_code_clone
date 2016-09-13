@@ -39,6 +39,9 @@ urlpatterns = patterns(
     url(r'^journals/$', 'journals.list_journals', name='journals.list'),
     url(r'^journals/(?P<publisher_id>[\w]+)/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='journals.choose_citable_sections'),
 
+    # tableau admin
+    # url(r'^reportsadmin/$', 'tableau.list_alerts', name='alerts.list'),
+
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
     url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),
@@ -74,7 +77,6 @@ urlpatterns = patterns(
     url(r'^validatecrossref/$', 'publishers.validate_crossref', name='publishers.validate_crossref'),
     url(r'^validateissn/$', 'publishers.validate_issn', name='publishers.validate_issn'),
     url(r'^newissn/$', 'publishers.new_issn', name='publishers.new_issn'),
-    url(r'^setupreports/$', 'publishers.setup_reports', name='publishers.setup_reports'),
     url(r'^checkreports/$', 'publishers.check_reports', name='publishers.check_reports'),
     url(r'^updatedemostatus/$', 'publishers.update_demo_status', name='publishers.update_demo_status'),
     url(r'^uploadfile/$', 'pipelines.upload_pending_file_inline', name='pipelines.upload_pending_file_inline'),
