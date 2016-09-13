@@ -140,8 +140,8 @@ var EditPublisherPage = (function() {
                         }
                     }
 
-                    if (gotOne && isIssnRowEmpty(row)) {
-                        // let it slide
+                    if (isIssnRowEmpty(row)) {
+                        // let it slide, empty and zero rows is fine, the only thing that isn't is invalid data
                     }
                     else {
                         validCohortIssns = false;
