@@ -78,34 +78,35 @@ class LoadSubscriberDataTask(Task):
                     subscriber_publisher_id = publisher_id_by_ac_database.get(row['ac_database'])
                     membership_no = row['membership_no']
                     user_type = row['user_type']
-                    if subscriber_publisher_id:
-                        Subscriber.objects(
-                            publisher_id=subscriber_publisher_id,
-                            membership_no=membership_no,
-                        ).update(
-                            ac_database=row['ac_database'],
-                            firstname=row['firstname'],
-                            lastname=row['lastname'],
-                            inst_name=row['inst_name'],
-                            user_phone=row['user_phone'],
-                            user_fax=row['user_fax'],
-                            user_email=row['user_email'],
-                            email_domain_srch=row['email_domain_srch'],
-                            user_address=row['user_address'],
-                            address_2=row['address_2'],
-                            title=row['title'],
-                            user_systemname=row['user_systemname'],
-                            inst_key=row['inst_key'],
-                            modified_by_dt=row['modified_by_dt'],
-                            subscr_type=row['subscr_type'],
-                            subscr_type_desc=row['subscr_type_desc'],
-                            ringgold_id=row['ringgold_id'],
-                            affiliation=row['affiliation'],
-                            user_type=user_type,
-                        )
 
-                        # we only override values for INST users
-                        if user_type == 'INST':
+                    # we only work on INST users
+                    if user_type == 'INST':
+                        if subscriber_publisher_id:
+                            Subscriber.objects(
+                                publisher_id=subscriber_publisher_id,
+                                membership_no=membership_no,
+                            ).update(
+                                ac_database=row['ac_database'],
+                                firstname=row['firstname'],
+                                lastname=row['lastname'],
+                                inst_name=row['inst_name'],
+                                user_phone=row['user_phone'],
+                                user_fax=row['user_fax'],
+                                user_email=row['user_email'],
+                                email_domain_srch=row['email_domain_srch'],
+                                user_address=row['user_address'],
+                                address_2=row['address_2'],
+                                title=row['title'],
+                                user_systemname=row['user_systemname'],
+                                inst_key=row['inst_key'],
+                                modified_by_dt=row['modified_by_dt'],
+                                subscr_type=row['subscr_type'],
+                                subscr_type_desc=row['subscr_type_desc'],
+                                ringgold_id=row['ringgold_id'],
+                                affiliation=row['affiliation'],
+                                user_type=user_type,
+                            )
+
                             for field in overlapping_fields:
                                 SubscriberValues.objects(
                                     publisher_id=subscriber_publisher_id,
