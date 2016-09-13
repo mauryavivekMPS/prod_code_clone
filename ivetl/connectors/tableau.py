@@ -1,8 +1,8 @@
 import os
+import re
 import untangle
 import requests
 import subprocess
-import codecs
 import time
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
@@ -241,11 +241,11 @@ class TableauConnector(BaseConnector):
     def _publisher_workbook_name(self, publisher, workbook_id):
         return self._base_workbook_name(workbook_id) + '_' + publisher.publisher_id
 
-    def _base_datasource_name_from_publisher_name(self, publisher, item_publisher_name):
-        return item_publisher_name[:-(len(publisher.publisher_id) + 1 + len(common.TABLEAU_DATASOURCE_FILE_EXTENSION))] + common.TABLEAU_DATASOURCE_FILE_EXTENSION
+    def _base_datasource_name_from_publisher_name(self, publisher, publisher_datasource_name):
+        return publisher_datasource_name[:-(len(publisher.publisher_id) + 1)] + common.TABLEAU_DATASOURCE_FILE_EXTENSION
 
-    def _base_workbook_name_from_publisher_name(self, publisher, item_publisher_name):
-        return item_publisher_name[:-(len(publisher.publisher_id) + 1 + len(common.TABLEAU_WORKBOOK_FILE_EXTENSION))] + common.TABLEAU_WORKBOOK_FILE_EXTENSION
+    def _base_workbook_name_from_publisher_name(self, publisher, publisher_workbook_name):
+        return publisher_workbook_name[:-(len(publisher.publisher_id) + 1)] + common.TABLEAU_WORKBOOK_FILE_EXTENSION
 
     def refresh_data_source(self, publisher, datasource_id):
         datasource_name = self._publisher_datasource_name(publisher, datasource_id)
@@ -279,7 +279,7 @@ class TableauConnector(BaseConnector):
         base_datasource_name = self._base_datasource_name(datasource_id)
         publisher_datasource_name = self._publisher_datasource_name(publisher, datasource_id)
 
-        prepared_datasource = template.replace(base_datasource_name, publisher_datasource_name)
+        prepared_datasource = re.sub('(?<!%s\\\)%s' % (common.TABLEAU_DUMMY_EXTRACTS_DIR_NAME, base_datasource_name), publisher_datasource_name, template)
         prepared_datasource = prepared_datasource.replace('&apos;%s&apos;' % common.TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher.publisher_id)
 
         with open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "w", encoding="utf-8") as fh:
@@ -347,15 +347,11 @@ class TableauConnector(BaseConnector):
         datasource_tableau_id_lookup = {self._base_datasource_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_datasources}
 
         for datasource_id in existing_datasource_ids - required_datasource_ids:
-            print('deleting ' + datasource_id)
             self.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
 
         for datasource_id in required_datasource_ids - existing_datasource_ids:
-            print('adding ' + datasource_id)
-            r = self.add_datasource_to_project(publisher, datasource_id)
-            print(r.status_code)
-            print(r.text)
-            # self.refresh_data_source(publisher, datasource_id)
+            self.add_datasource_to_project(publisher, datasource_id)
+            self.refresh_data_source(publisher, datasource_id)
 
         time.sleep(10)
 
@@ -364,19 +360,16 @@ class TableauConnector(BaseConnector):
             for workbook_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_workbooks']:
                 required_workbook_ids.add(workbook_id)
 
+        workbook_id_lookup = {w['name']: w['id'] for w in common.TABLEAU_WORKBOOKS}
         existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
-        existing_workbook_ids = set([self._base_workbook_name_from_publisher_name(publisher, d['name']) for d in existing_workbooks])
-        workbook_tableau_id_lookup = {self._base_workbook_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_workbooks}
+        existing_workbook_ids = set([workbook_id_lookup[w['name']] for w in existing_workbooks])
+        workbook_tableau_id_lookup = {d['name']: d['id'] for d in existing_workbooks}
 
         for workbook_id in existing_workbook_ids - required_workbook_ids:
-            print('deleting ' + workbook_id)
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
-            print('adding ' + workbook_id)
-            r = self.add_workbook_to_project(publisher, workbook_id)
-            print(r.status_code)
-            print(r.text)
+            self.add_workbook_to_project(publisher, workbook_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 

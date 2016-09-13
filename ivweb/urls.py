@@ -39,6 +39,9 @@ urlpatterns = patterns(
     url(r'^journals/$', 'journals.list_journals', name='journals.list'),
     url(r'^journals/(?P<publisher_id>[\w]+)/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='journals.choose_citable_sections'),
 
+    # tableau admin
+    # url(r'^reportsadmin/$', 'tableau.list_alerts', name='alerts.list'),
+
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
     url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),
