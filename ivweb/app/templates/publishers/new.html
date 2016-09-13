@@ -524,7 +524,7 @@
                 addIssnValuesUrl: '{% url 'publishers.new_issn' %}',
                 {% if publisher %}
                     buildingPollUrl: '{% url 'publishers.check_reports' %}?publisher={{ publisher.publisher_id }}',
-                    buildingSuccessUrl: '{% url 'publishers.list' %}?from=new-success',
+                    buildingSuccessUrl: '{% url 'publishers.list' %}?from={{ from_value }}',
                     buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
                 {% endif %}
                 csrfToken: '{{ csrf_token }}',
