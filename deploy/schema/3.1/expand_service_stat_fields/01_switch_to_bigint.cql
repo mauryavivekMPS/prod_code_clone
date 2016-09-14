@@ -12,13 +12,13 @@ CREATE TABLE service_response_time (
   mean float,
   standard_deviation float,
   variance float,
-  minimum int,
-  maximum int,
-  percentile_25 int,
-  percentile_50 int,
-  percentile_75 int,
-  percentile_95 int,
-  percentile_99 int,
+  minimum bigint,
+  maximum bigint,
+  percentile_25 bigint,
+  percentile_50 bigint,
+  percentile_75 bigint,
+  percentile_95 bigint,
+  percentile_99 bigint,
   PRIMARY KEY ((publisher_id), name, from_date, until_date)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
