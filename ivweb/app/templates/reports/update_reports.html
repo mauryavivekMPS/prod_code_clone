@@ -18,19 +18,12 @@
                         <tr>
                             <th>Item</th>
                             <th>Type</th>
-                            <th>Update</th>
+                            <th class="update-col">Update</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in report_items %}
-                            <tr item_id="{{ item.id }}" item_type="{{ item.type }}">
-                                <td>{{ item.id }}</td>
-                                <td>{{ item.type }}</td>
-                                <td class="report-update-status">
-                                    {% include "reports/include/item_status.html" %}
-                                    <i class="fa fa-spinner fa-pulse report-updating-icon" style="display:none"></i>
-                                </td>
-                            </tr>
+                            {% include "reports/include/item_status_row.html" %}
                         {% endfor %}
                     </tbody>
                 </table>

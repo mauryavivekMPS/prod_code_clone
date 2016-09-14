@@ -8,4 +8,4 @@ class SingletonTaskStatus(Model):
     status = columns.Text()
     start_time = columns.DateTime()
     end_time = columns.DateTime()
-    properties_json = columns.Text()
+    properties_json = columns.Text(default="{}")

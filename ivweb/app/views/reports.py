@@ -65,7 +65,7 @@ def include_item_statuses(request):
     report_items = _get_items_with_status()
 
     for item in report_items:
-        template = loader.get_template('reports/include/item_status.html')
+        template = loader.get_template('reports/include/item_status_row.html')
         context = RequestContext(request, {
             'item': item,
         })

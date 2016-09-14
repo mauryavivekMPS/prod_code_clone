@@ -1,0 +1,17 @@
+<tr item_id="{{ item.id }}" item_type="{{ item.type }}" item_status="{{ item.status }}">
+    <td>{{ item.id }}</td>
+    <td>{{ item.type }}</td>
+    <td class="update-col report-update-status">
+        {% if item.status == 'in-progress' %}
+            <i class="fa fa-spinner fa-pulse report-updating-icon"></i>
+            <span class="update-message">Update in progress...</span>
+        {% else %}
+            <a href="#" class="btn btn-default little-report-update-button">
+                Update
+            </a>
+        {% endif %}
+        <i class="fa fa-spinner fa-pulse report-updating-icon" style="display:none"></i>
+    </td>
+</tr>
+
+

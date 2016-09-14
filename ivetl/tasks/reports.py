@@ -73,6 +73,7 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
     else:
         publishers = PublisherMetadata.objects.all()
 
+    status.start_time = datetime.datetime.now()
     status.status = 'in-progress'
     status.save()
 
@@ -99,10 +100,11 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
             entity_id=item_id,
         )
 
+        status.end_time = datetime.datetime.now()
         status.status = 'completed'
         status.save()
 
     except:
+        status.end_time = datetime.datetime.now()
         status.status = 'error'
-
         status.save()
