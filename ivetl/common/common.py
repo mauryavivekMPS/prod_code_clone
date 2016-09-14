@@ -793,6 +793,7 @@ TABLEAU_WORKBOOKS = [
         'datasources': ['inst_usage_ds.tds'],
     },
 ]  # type: list[dict]
+
 TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
 TABLEAU_DATASOURCE_FILE_EXTENSION = '.tds'
 TABLEAU_WORKBOOK_FILE_EXTENSION = '.twb'

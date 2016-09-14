@@ -40,7 +40,7 @@ urlpatterns = patterns(
     url(r'^journals/(?P<publisher_id>[\w]+)/(?P<uid>[\w\-.]+)/citablesections/$', 'journals.choose_citable_sections', name='journals.choose_citable_sections'),
 
     # tableau admin
-    # url(r'^reportsadmin/$', 'tableau.list_alerts', name='alerts.list'),
+    url(r'^updatereports/$', 'reports.update_reports', name='reports.update_reports'),
 
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
@@ -86,5 +86,7 @@ urlpatterns = patterns(
     url(r'^includecheckchoices/$', 'alerts.include_check_choices', name='alerts.include_check_choices'),
     url(r'^includenotificationdetails/$', 'notifications.include_notification_details', name='notifications.include_notification_details'),
     url(r'^dismissnotification/$', 'notifications.dismiss_notification', name='notifications.dismiss_notification'),
+    url(r'^updatereportitem/$', 'reports.update_item', name='reports.update_item'),
+    url(r'^includereportitemstatuses/$', 'reports.include_item_statuses', name='reports.include_item_statuses'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

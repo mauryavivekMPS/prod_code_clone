@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, PublisherJournal, Scopus_Api_Key, Demo
-from ivetl.tasks import update_reports
+from ivetl.tasks import update_reports_for_publisher
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
 from ivweb.app.views import utils as view_utils
@@ -468,7 +468,7 @@ def edit(request, publisher_id=None):
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
 
             # tableau setup takes a while, run it through celery
-            update_reports.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
+            update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
 
             query_string = '?from=new-success' if is_new else '?from=save-success'
 

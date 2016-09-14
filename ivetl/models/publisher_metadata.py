@@ -60,5 +60,12 @@ class PublisherMetadata(Model):
             all_datasources_for_publisher.update(common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources'])
         return all_datasources_for_publisher
 
+    @property
+    def all_workbooks(self):
+        all_workbooks_for_publisher = set()
+        for product_group_id in self.supported_product_groups:
+            all_workbooks_for_publisher.update(common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_workbooks'])
+        return all_workbooks_for_publisher
+
     def users(self):
         return Publisher_User.objects.allow_filtering().filter(publisher_id=self.publisher_id)
