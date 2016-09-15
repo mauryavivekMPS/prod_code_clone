@@ -42,6 +42,9 @@ urlpatterns = patterns(
     # tableau admin
     url(r'^updatereports/$', 'reports.update_reports', name='reports.update_reports'),
 
+    # site uptime admin
+    url(r'^uptimeoverrides/$', 'uptime.list_overrides', name='uptime.list_overrides'),
+
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
     url(r'^demos/new/$', 'publishers.edit_demo', name='publishers.new_demo'),

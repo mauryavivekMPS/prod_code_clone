@@ -1,0 +1,39 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Uptime Overrides{% endblock %}
+{% block body_class %}uptime_overrides{% endblock %}
+
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-12">
+            <h1>Uptime Overrides</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table sortable-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Match Type</th>
+                        <th>Match Value</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for override in overrides %}
+                        <tr>
+                            <td>{{ override.override_type }}</td>
+                            <td>{{ override.match_type }}</td>
+                            <td>{{ override.match_value }}</td>
+                            <td>{{ override.start_date }}</td>
+                            <td>{{ override.end_date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
