@@ -254,12 +254,12 @@ class TableauConnector(BaseConnector):
     def delete_datasource_from_project(self, tableau_datasource_id):
         self._check_authentication()
         url = self.server_url + "/api/2.0/sites/%s/datasources/%s" % (self.site_id, tableau_datasource_id)
-        requests.post(url, headers={'X-Tableau-Auth': self.token})
+        requests.delete(url, headers={'X-Tableau-Auth': self.token})
 
     def delete_workbook_from_project(self, tableau_workbook_id):
         self._check_authentication()
         url = self.server_url + "/api/2.0/sites/%s/workbooks/%s" % (self.site_id, tableau_workbook_id)
-        requests.post(url, headers={'X-Tableau-Auth': self.token})
+        requests.delete(url, headers={'X-Tableau-Auth': self.token})
 
     def add_datasource_to_project(self, publisher, datasource_id):
         self._check_authentication()
@@ -363,7 +363,7 @@ class TableauConnector(BaseConnector):
         workbook_id_lookup = {w['name']: w['id'] for w in common.TABLEAU_WORKBOOKS}
         existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
         existing_workbook_ids = set([workbook_id_lookup[w['name']] for w in existing_workbooks])
-        workbook_tableau_id_lookup = {d['name']: d['id'] for d in existing_workbooks}
+        workbook_tableau_id_lookup = {workbook_id_lookup[d['name']]: d['id'] for d in existing_workbooks}
 
         for workbook_id in existing_workbook_ids - required_workbook_ids:
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
