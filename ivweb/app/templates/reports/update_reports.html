@@ -1,0 +1,43 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Update Reports{% endblock %}
+{% block body_class %}update_reports{% endblock %}
+
+{% block content %}
+    <div id="update-reports-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Update Reports</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table sortable-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Type</th>
+                            <th class="update-col">Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in report_items %}
+                            {% include "reports/include/item_status_row.html" %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#update-reports-page').updatereportspage({
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

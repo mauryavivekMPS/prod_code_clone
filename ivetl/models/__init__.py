@@ -42,3 +42,4 @@ from ivetl.models.subscription_cost_per_use import SubscriptionCostPerUseByBundl
 from ivetl.models.subscription_cost_per_use import SubscriptionCostPerUseBySubscriberStat
 from ivetl.models.subscription_cost_per_use_delta import SubscriptionCostPerUseByBundleStatDelta
 from ivetl.models.subscription_cost_per_use_delta import SubscriptionCostPerUseBySubscriberStatDelta
+from ivetl.models.singleton_task_status import SingletonTaskStatus
