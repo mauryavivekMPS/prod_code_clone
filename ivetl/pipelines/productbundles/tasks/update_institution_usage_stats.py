@@ -9,7 +9,7 @@ class UpdateInstitutionUsageStatsTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         publisher_stats = InstitutionUsageStat.objects.filter(publisher_id=publisher_id, counter_type='jr3').limit(10000000)
 
-        total_count = publisher_stats.count()
+        total_count = 100000  # cheap estimate
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
