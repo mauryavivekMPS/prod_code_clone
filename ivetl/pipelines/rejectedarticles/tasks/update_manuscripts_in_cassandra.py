@@ -148,7 +148,7 @@ class UpdateManuscriptsInCassandraTask(Task):
 
                 tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher + " / " + manuscript_id)
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         return {'count': count}
 

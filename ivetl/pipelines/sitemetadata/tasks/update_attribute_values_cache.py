@@ -39,6 +39,6 @@ class UpdateAttributeValuesCacheTask(Task):
                 values_json=json.dumps(list(values))
             )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         return task_args

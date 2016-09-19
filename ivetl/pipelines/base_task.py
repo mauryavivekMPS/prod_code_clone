@@ -7,6 +7,7 @@ from celery import Task
 from ivetl.common import common
 from ivetl.connectors import TableauConnector
 from ivetl.models import PublisherMetadata, PipelineStatus
+from ivetl import utils
 
 
 class TaskParamsEncodingError(Exception):
@@ -52,7 +53,7 @@ class BaseTask(Task):
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
 
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, send_notification_email=False, notification_count=None):
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, notification_count=None):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
@@ -100,7 +101,30 @@ class BaseTask(Task):
 
             all_modified_datasources = set(common.TABLEAU_DATASOURCE_UPDATES.get((product_id, pipeline_id), []))
             for datasource_id in all_modified_datasources.intersection(publisher.all_datasources):
+                tlogger.info('Refreshing datasource: %s' % datasource_id)
                 t.refresh_data_source(publisher, datasource_id)
+
+        for chain in common.CHAINS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
+
+            tlogger.info('Processing chain: %s' % chain['id'])
+
+            # if any of the source pipelines are running, then bail here and let them kick off any dependents
+            is_source_pipeline_running = False
+            for source_product_id, source_pipeline_id in chain['source_pipelines']:
+                if utils.is_pipeline_in_progress(publisher_id, source_product_id, source_pipeline_id):
+                    tlogger.info('Found other source pipelines running, will let them invoke the chain')
+                    is_source_pipeline_running = True
+                    break
+
+            # if any of the dependent pipelines are running, ask them to stop and restart, else just start them
+            if not is_source_pipeline_running:
+                for dependent_product_id, dependent_pipeline_id in chain['dependent_pipelines']:
+                    if utils.is_pipeline_in_progress(publisher_id, dependent_product_id, dependent_pipeline_id):
+                        tlogger.info('Chained pipeline %s is running, stopping and restarting it')
+                        # TODO: add the restart
+                    else:
+                        tlogger.info('Chained pipeline %s is not running, starting it')
+                        # TODO: start the pipeline
 
     def params_to_json(self, params):
         try:

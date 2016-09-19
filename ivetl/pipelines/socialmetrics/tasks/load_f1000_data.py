@@ -79,7 +79,7 @@ class LoadF1000DataTask(Task):
                     average_score=average_score,
                 )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         task_args['count'] = total_count
 

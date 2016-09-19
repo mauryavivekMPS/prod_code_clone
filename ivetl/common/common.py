@@ -2,6 +2,7 @@ import os
 import importlib
 import sendgrid
 import json
+from collections import defaultdict
 
 with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
@@ -455,6 +456,26 @@ PIPELINES = [
 ]  # type: list[dict]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
+
+CHAINS = [
+    {
+        'id': 'usage_chain',
+        'source_pipelines': [
+            ('institutions', 'jr3_institution_usage'),
+            ('institutions', 'bundle_definitions'),
+            ('institutions', 'subscription_pricing'),
+        ],
+        'dependent_pipelines': [
+            ('institutions', 'update_institution_usage_deltas'),
+            ('institutions', 'update_subscription_cost_per_use_deltas'),
+        ]
+    }
+]  # type: list[dict]
+
+CHAINS_BY_SOURCE_PIPELINE = defaultdict(list)
+for chain in CHAINS:
+    for pipeline_tuple in chain['source_pipelines']:
+        CHAINS_BY_SOURCE_PIPELINE[pipeline_tuple].append(chain)
 
 
 def get_pipeline_class(pipeline):
