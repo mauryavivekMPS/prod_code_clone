@@ -4,3 +4,4 @@ from ivetl.pipelines.institutionusage.tasks.validate_jr3_files import ValidateJR
 from ivetl.pipelines.institutionusage.tasks.validate_jr2_files import ValidateJR2FilesTask
 from ivetl.pipelines.institutionusage.tasks.insert_jr3_into_cassandra import InsertJR3IntoCassandraTask
 from ivetl.pipelines.institutionusage.tasks.insert_jr2_into_cassandra import InsertJR2IntoCassandraTask
+from ivetl.pipelines.institutionusage.tasks.chain_usage_pipelines import ChainUsagePipelinesTask

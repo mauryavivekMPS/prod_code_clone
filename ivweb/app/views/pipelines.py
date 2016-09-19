@@ -440,7 +440,7 @@ def job_action(request, product_id, pipeline_id):
             )
             if p.status in ('started', 'in-progress'):
                 p.update(
-                    stop_at_next_task=True,
+                    stop_instruction='stop-asap',
                 )
         except PipelineStatus.DoesNotExist:
             pass

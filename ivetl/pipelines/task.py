@@ -31,7 +31,7 @@ class Task(BaseTask):
                 job_id=job_id,
             )
 
-            if p.stop_at_next_task:
+            if p.stop_instruction == 'stop-asap' or 'stop-asap-and-restart':
                 stop_task = True
 
                 if p.status == 'in-progress':
@@ -42,6 +42,8 @@ class Task(BaseTask):
                         updated=now,
                         error_details='Stopped manually'
                     )
+
+                # TODO: add restart code here
 
         except PipelineStatus.DoesNotExist:
             pass
