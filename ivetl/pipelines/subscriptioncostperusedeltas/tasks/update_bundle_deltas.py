@@ -17,6 +17,8 @@ class UpdateBundleDeltasTask(Task):
         total_count = None
         count = 0
 
+        stopped = False
+
         for current_month in utils.month_range(from_date, to_date):
 
             tlogger.info('Processing month %s' % current_month.strftime('%Y-%m'))
@@ -44,6 +46,13 @@ class UpdateBundleDeltasTask(Task):
                 for current_cost_per_use in all_current_month_cost_per_use:
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                    # early stop support
+                    if count % 1000:
+                        if self.is_stopped(publisher_id, product_id, pipeline_id, job_id):
+                            self.mark_as_stopped(publisher_id, product_id, pipeline_id, job_id)
+                            stopped = True
+                            break
 
                     #
                     # time_slice == 'm' (month)
@@ -158,9 +167,11 @@ class UpdateBundleDeltasTask(Task):
                             percentage_delta=percentage_ytd_delta,
                         )
 
+                if stopped:
+                    break
+
             else:
                 tlogger.info('No stats found')
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

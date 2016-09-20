@@ -110,17 +110,16 @@ def list_dir(path, with_lines_and_sizes=False, ignore=[], encoding='utf-8'):
     return files
 
 
-def is_pipeline_in_progress(publisher_id, product_id, pipeline_id):
+def get_most_recent_run(publisher_id, product_id, pipeline_id):
     all_runs = PipelineStatus.objects.filter(
         publisher_id=publisher_id,
         product_id=product_id,
         pipeline_id=pipeline_id,
     )
 
+    most_recent_run = None
     if all_runs:
         date_sorted_runs = sorted(all_runs, key=lambda r: r.start_time or datetime.datetime.min, reverse=True)
         most_recent_run = date_sorted_runs[0]
-        if most_recent_run.status == 'in-progress':
-            return True
 
-    return False
+    return most_recent_run

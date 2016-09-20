@@ -57,6 +57,7 @@ class BaseTask(Task):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
+        initiating_user_email = None
 
         try:
             p = PipelineStatus.objects.get(
@@ -73,9 +74,11 @@ class BaseTask(Task):
                 updated=end_date,
             )
 
+            initiating_user_email = p.user_email
+
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
             if send_notification_email and pipeline.get('has_file_input'):
-                if p.user_email:
+                if initiating_user_email:
                     subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_file_description'])
                     body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_file_description']
 
@@ -84,7 +87,7 @@ class BaseTask(Task):
 
                     body += '<p>Thank you,<br/>Impact Vizor Team</p>'
 
-                    common.send_email(subject, body, to=p.user_email)
+                    common.send_email(subject, body, to=initiating_user_email)
 
         except PipelineStatus.DoesNotExist:
             pass
@@ -111,7 +114,8 @@ class BaseTask(Task):
             # if any of the source pipelines are running, then bail here and let them kick off any dependents
             is_source_pipeline_running = False
             for source_product_id, source_pipeline_id in chain['source_pipelines']:
-                if utils.is_pipeline_in_progress(publisher_id, source_product_id, source_pipeline_id):
+                most_recent_run = utils.get_most_recent_run(publisher_id, source_product_id, source_pipeline_id)
+                if most_recent_run.status == 'in-progress':
                     tlogger.info('Found other source pipelines running, will let them invoke the chain')
                     is_source_pipeline_running = True
                     break
@@ -119,12 +123,23 @@ class BaseTask(Task):
             # if any of the dependent pipelines are running, ask them to stop and restart, else just start them
             if not is_source_pipeline_running:
                 for dependent_product_id, dependent_pipeline_id in chain['dependent_pipelines']:
-                    if utils.is_pipeline_in_progress(publisher_id, dependent_product_id, dependent_pipeline_id):
+                    dependent_pipeline = common.PIPELINE_BY_ID[dependent_pipeline_id]
+
+                    most_recent_run = utils.get_most_recent_run(publisher_id, dependent_product_id, dependent_pipeline_id)
+
+                    if most_recent_run.status == 'in-progress':
                         tlogger.info('Chained pipeline %s is running, stopping and restarting it')
-                        # TODO: add the restart
+                        most_recent_run.stop_instruction = 'stop-asap-and-restart'
+                        most_recent_run.save()
+
                     else:
                         tlogger.info('Chained pipeline %s is not running, starting it')
-                        # TODO: start the pipeline
+                        pipeline_class = common.get_pipeline_class(dependent_pipeline)
+                        pipeline_class.s(
+                            publisher_id_list=[publisher_id],
+                            product_id=dependent_product_id,
+                            initiating_user_email=initiating_user_email,
+                        ).delay()
 
     def params_to_json(self, params):
         try:

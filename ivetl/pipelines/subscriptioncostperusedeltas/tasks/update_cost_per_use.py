@@ -20,6 +20,8 @@ class UpdateCostPerUseTask(Task):
 
         count = 0
 
+        stopped = False
+
         for current_month in utils.month_range(from_date, to_date):
 
             tlogger.info('Processing month %s' % current_month.strftime('%Y-%m'))
@@ -35,6 +37,14 @@ class UpdateCostPerUseTask(Task):
 
             # first, fill out cpu by bundle
             for usage in current_month_usage:
+
+                # early stop support
+                if count % 1000:
+                    if self.is_stopped(publisher_id, product_id, pipeline_id, job_id):
+                        self.mark_as_stopped(publisher_id, product_id, pipeline_id, job_id)
+                        stopped = True
+                        break
+
                 if usage.usage_category in categories and usage.bundle_name:
                     try:
                         s = SubscriptionCostPerUseByBundleStat.objects.get(
@@ -71,7 +81,18 @@ class UpdateCostPerUseTask(Task):
                 usage_date=current_month,
             )
 
+            if stopped:
+                break
+
             for bundle_stat in current_month_bundle_stats:
+
+                # early stop support
+                if count % 1000:
+                    if self.is_stopped(publisher_id, product_id, pipeline_id, job_id):
+                        self.mark_as_stopped(publisher_id, product_id, pipeline_id, job_id)
+                        stopped = True
+                        break
+
                 try:
                     s = SubscriptionCostPerUseBySubscriberStat.objects.get(
                         publisher_id=publisher_id,
@@ -104,6 +125,8 @@ class UpdateCostPerUseTask(Task):
 
                 s.save()
 
-        return {
-            'count': count
-        }
+            if stopped:
+                break
+
+        task_args['count'] = count
+        return task_args
