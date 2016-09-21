@@ -107,15 +107,17 @@ class BaseTask(Task):
                 tlogger.info('Refreshing datasource: %s' % datasource_id)
                 t.refresh_data_source(publisher, datasource_id)
 
-        for chain in common.CHAINS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
+        for chain_id in common.CHAINS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
+
+            chain = common.CHAIN_BY_ID[chain_id]
 
             tlogger.info('Processing chain: %s' % chain['id'])
 
             # if any of the source pipelines are running, then bail here and let them kick off any dependents
             is_source_pipeline_running = False
             for source_product_id, source_pipeline_id in chain['source_pipelines']:
-                most_recent_run = utils.get_most_recent_run(publisher_id, source_product_id, source_pipeline_id)
-                if most_recent_run.status == 'in-progress':
+                most_recent_source_run = utils.get_most_recent_run(publisher_id, source_product_id, source_pipeline_id)
+                if most_recent_source_run and most_recent_source_run.status == 'in-progress':
                     tlogger.info('Found other source pipelines running, will let them invoke the chain')
                     is_source_pipeline_running = True
                     break
@@ -125,15 +127,15 @@ class BaseTask(Task):
                 for dependent_product_id, dependent_pipeline_id in chain['dependent_pipelines']:
                     dependent_pipeline = common.PIPELINE_BY_ID[dependent_pipeline_id]
 
-                    most_recent_run = utils.get_most_recent_run(publisher_id, dependent_product_id, dependent_pipeline_id)
+                    most_recent_dependent_run = utils.get_most_recent_run(publisher_id, dependent_product_id, dependent_pipeline_id)
 
-                    if most_recent_run.status == 'in-progress':
-                        tlogger.info('Chained pipeline %s is running, stopping and restarting it')
-                        most_recent_run.stop_instruction = 'stop-asap-and-restart'
-                        most_recent_run.save()
+                    if most_recent_dependent_run and most_recent_dependent_run.status == 'in-progress':
+                        tlogger.info('Chained pipeline %s is running, stopping and restarting it' % dependent_pipeline_id)
+                        most_recent_dependent_run.stop_instruction = 'stop-asap-and-restart'
+                        most_recent_dependent_run.save()
 
                     else:
-                        tlogger.info('Chained pipeline %s is not running, starting it')
+                        tlogger.info('Chained pipeline %s is not running, starting it' % dependent_pipeline_id)
                         pipeline_class = common.get_pipeline_class(dependent_pipeline)
                         pipeline_class.s(
                             publisher_id_list=[publisher_id],

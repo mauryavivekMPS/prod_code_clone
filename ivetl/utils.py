@@ -110,7 +110,7 @@ def list_dir(path, with_lines_and_sizes=False, ignore=[], encoding='utf-8'):
     return files
 
 
-def get_most_recent_run(publisher_id, product_id, pipeline_id):
+def get_most_recent_run(publisher_id, product_id, pipeline_id, status=None):
     all_runs = PipelineStatus.objects.filter(
         publisher_id=publisher_id,
         product_id=product_id,
@@ -119,7 +119,13 @@ def get_most_recent_run(publisher_id, product_id, pipeline_id):
 
     most_recent_run = None
     if all_runs:
-        date_sorted_runs = sorted(all_runs, key=lambda r: r.start_time or datetime.datetime.min, reverse=True)
+
+        if status:
+            filtered_runs = [run for run in all_runs if run.status == status]
+        else:
+            filtered_runs = all_runs
+
+        date_sorted_runs = sorted(filtered_runs, key=lambda r: r.start_time or datetime.datetime.min, reverse=True)
         most_recent_run = date_sorted_runs[0]
 
     return most_recent_run
