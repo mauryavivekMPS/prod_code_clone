@@ -95,11 +95,9 @@ CELERYBEAT_SCHEDULE = {
         'kwargs': {'product_id': 'cohort_articles', 'run_monthly_job': True},
     },
     'monthly-subscription-data': {
-        # TODO: finish this!!
-        'task': 'ivetl.pipelines.publishedarticles.update_published_articles_pipeline.UpdatePublishedArticlesPipeline',
-        'task': 'ivetl.pipelines.publishedarticles.update_published_articles_pipeline.UpdatePublishedArticlesPipeline',
+        'task': 'ivetl.pipelines.subscriberdata.subscriber_data_pipeline.SubscribersAndSubscriptionsPipeline',
         'schedule': crontab(day_of_month=5, hour=1, minute=0),
-        'kwargs': {'product_id': 'published_articles', 'run_monthly_job': True},
+        'kwargs': {'product_id': 'institutions'},
     },
     'q1-benchpress-rejected-articles': {
         'task': 'ivetl.pipelines.rejectedarticles.get_rejected_articles_from_benchpress_pipeline.GetRejectedArticlesFromBenchPressPipeline',
