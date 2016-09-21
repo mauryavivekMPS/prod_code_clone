@@ -46,7 +46,7 @@ class InsertChecksIntoCassandraTask(Task):
                     drupal_launch_date=drupal_launch_date,
                 )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         return {
             'count': count

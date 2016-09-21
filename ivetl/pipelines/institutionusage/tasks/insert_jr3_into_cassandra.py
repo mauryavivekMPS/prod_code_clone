@@ -78,6 +78,5 @@ class InsertJR3IntoCassandraTask(Task):
                             usage=usage,
                         )
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

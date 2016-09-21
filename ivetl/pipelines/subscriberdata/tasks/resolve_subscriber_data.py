@@ -70,7 +70,7 @@ class ResolveSubscriberDataTask(Task):
 
                 subscriber.save()
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         task_args['count'] = count
         return task_args
