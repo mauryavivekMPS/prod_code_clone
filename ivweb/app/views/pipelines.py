@@ -91,7 +91,13 @@ def list_pipelines(request, product_id, pipeline_id):
     for publisher in request.user.get_accessible_publishers():
         if product_id in publisher.supported_products:
 
-            if pipeline.get('single_publisher_pipeline'):
+            single_publisher_pipeline = pipeline.get('single_publisher_pipeline')
+
+            # ignore highwire pub if it's not a single pub pipeline
+            if not single_publisher_pipeline and publisher.publisher_id == common.HW_PUBLISHER_ID:
+                continue
+
+            if single_publisher_pipeline:
                 if publisher.publisher_id == pipeline['single_publisher_id']:
                     supported_publishers.append(publisher)
 
