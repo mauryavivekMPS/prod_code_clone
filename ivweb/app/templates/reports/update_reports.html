@@ -30,6 +30,27 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade confirm-update-report" id="confirm-update-report-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close cancel-update-report" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Update Report Item</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to update this report item?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary confirm-update-report-button">Yes, Update</button>
+                    <span class="cancel">or <a href="#" data-dismiss="modal" class="cancel-update-report">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block page_scripts %}

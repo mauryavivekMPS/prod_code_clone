@@ -31,17 +31,47 @@ $.widget("custom.updatereportspage", {
         selector.click(function(event) {
             var button = $(this);
             var row = button.closest('tr');
+            var itemId = row.attr('item_id');
+            var itemType = row.attr('item_type');
 
-            row.find('.little-report-update-button').hide();
-            row.find('.report-updating-icon').show();
+            var m = $('#confirm-update-report-modal');
+            m.find('.modal-title').text('Update ' + itemType[0].toUpperCase() + itemType.slice(1));
+            m.find('.modal-body').html('<p>Are you sure you want to update <b>' + itemId + '</b> for all publishers?');
 
-            var data = {
-                'item_id': row.attr('item_id'),
-                'item_type': row.attr('item_type'),
-                'csrfmiddlewaretoken': self.options.csrfToken
-            };
+            var submitButton = m.find('.confirm-update-report-button');
+            submitButton.on('click', function() {
+                row.find('.little-report-update-button').hide();
+                row.find('.report-updating-icon').show();
 
-            $.post('/updatereportitem/', data);
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+                m.modal('hide');
+
+                IvetlWeb.showLoading();
+
+                var data = {
+                    'item_id': itemId,
+                    'item_type': itemType,
+                    'csrfmiddlewaretoken': self.options.csrfToken
+                };
+
+                $.post('/updatereportitem/', data)
+                    .always(function() {
+                        IvetlWeb.hideLoading();
+                    });
+            });
+
+            var cancelButton = m.find('.cancel-update-report');
+            cancelButton.on('click', function() {
+                $(this).off('click');
+            });
+
+            m.modal();
+
+            m.on('hidden.bs.modal', function () {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+            });
 
             event.preventDefault();
         });
