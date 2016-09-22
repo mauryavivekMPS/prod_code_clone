@@ -97,9 +97,9 @@
                             <a class="job-actions-menu-icon" href="#" data-toggle="dropdown"><span class="lnr lnr-cog"></span></a>
                             <ul class="dropdown-menu">
                                 {% if run_item.run.status == 'in-progress' %}
-                                    <li><a class="action-link" href="#" action="stop-at-next-task">Stop job at next task</a></li>
+                                    <li><a class="action-link" href="#" action="stop-at-next-task">Stop job</a></li>
                                 {% else %}
-                                    <li class="disabled"><a href="#" onclick="return false">Stop job at next task</a></li>
+                                    <li class="disabled"><a href="#" onclick="return false">Stop job</a></li>
                                 {% endif %}
                                 {% if pipeline.supports_restart %}
                                     <li class="divider"></li>

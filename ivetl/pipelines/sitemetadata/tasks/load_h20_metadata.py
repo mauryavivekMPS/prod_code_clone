@@ -94,7 +94,7 @@ class LoadH20MetadataTask(Task):
                     sage_subject_area=row['sage_subject_area'],
                 )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         return {
             'count': count

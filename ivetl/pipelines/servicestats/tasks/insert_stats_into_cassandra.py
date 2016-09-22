@@ -72,7 +72,7 @@ class InsertStatsIntoCassandraTask(Task):
 
         utils.update_high_water(pipeline_id, to_date)
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
 
         task_args['count'] = total_count
 

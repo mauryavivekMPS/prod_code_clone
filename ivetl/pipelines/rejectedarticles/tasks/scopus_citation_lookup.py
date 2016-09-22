@@ -47,7 +47,6 @@ class ScopusCitationLookupTask(Task):
 
                     except MaxTriesAPIError:
                         tlogger.info("Scopus API failed. Trying Again")
-                        print(manuscript_id)
                         traceback.print_exc()
                         data['citation_lookup_status'] = "Scopus API failed"
                         data['scopus_id'] = ''

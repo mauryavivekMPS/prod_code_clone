@@ -84,4 +84,4 @@ class CustomSubscriberDataPipeline(Pipeline):
                 Pipeline.chain_tasks(pipeline_id, task_args)
 
             else:
-                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id)
+                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id, tlogger)

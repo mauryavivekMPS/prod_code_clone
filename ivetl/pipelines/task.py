@@ -6,6 +6,7 @@ import shutil
 from time import time
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
+from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import PipelineStatus, PipelineTaskStatus, PublisherMetadata
 
 
@@ -21,27 +22,22 @@ class Task(BaseTask):
         work_folder = new_task_args.pop('work_folder')
         job_id = new_task_args.pop('job_id')
         pipeline_id = new_task_args.pop('pipeline_id')
+        pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
         stop_task = False
         try:
-            p = PipelineStatus.objects.get(
+            pipeline_status = PipelineStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
                 pipeline_id=pipeline_id,
                 job_id=job_id,
             )
 
-            if p.stop_at_next_task:
+            if pipeline_status.stop_instruction in ['stop-asap', 'stop-asap-and-restart']:
                 stop_task = True
 
-                if p.status == 'in-progress':
-                    now = datetime.datetime.now()
-                    p.update(
-                        status='error',
-                        end_time=now,
-                        updated=now,
-                        error_details='Stopped manually'
-                    )
+                if pipeline_status.status == 'in-progress':
+                    self.mark_as_stopped(publisher_id, product_id, pipeline_id, job_id)
 
         except PipelineStatus.DoesNotExist:
             pass
@@ -84,10 +80,60 @@ class Task(BaseTask):
                 'pipeline_id': pipeline_id,
             }
 
+        try:
+            pipeline_status = PipelineStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            )
+
+            if pipeline_status.stop_instruction == 'stop-asap-and-restart':
+                final_task_id = common.task_id_from_path(pipeline['tasks'][-1])
+                if self.short_name == final_task_id:
+                    Pipeline.restart_job(publisher_id, product_id, pipeline_id, job_id, start_from_stopped_task=False)
+
+        except PipelineStatus.DoesNotExist:
+            pass
+
         return task_result
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         raise NotImplementedError
+
+    def is_stopped(self, publisher_id, product_id, pipeline_id, job_id):
+        try:
+            pipeline_status = PipelineStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            )
+
+            stopped = pipeline_status.stop_instruction in ['stop-asap', 'stop-asap-and-restart']
+
+        except PipelineStatus.DoesNotExist:
+            stopped = False
+
+        return stopped
+
+    def mark_as_stopped(self, publisher_id, product_id, pipeline_id, job_id):
+        try:
+            now = datetime.datetime.now()
+            PipelineStatus.objects.get(
+                publisher_id=publisher_id,
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+            ).update(
+                status='error',
+                end_time=now,
+                updated=now,
+                error_details='Stopped manually'
+            )
+
+        except PipelineStatus.DoesNotExist:
+            pass
 
     def on_task_started(self, publisher_id, product_id, pipeline_id, job_id, work_folder, current_task_count, task_args, tlogger):
         start_date = datetime.datetime.today()

@@ -456,6 +456,28 @@ PIPELINES = [
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
 
+CHAINS = [
+    {
+        'id': 'usage_chain',
+        'source_pipelines': [
+            ('institutions', 'jr3_institution_usage'),
+            ('institutions', 'bundle_definitions'),
+            ('institutions', 'subscription_pricing'),
+        ],
+        'dependent_pipelines': [
+            ('institutions', 'update_institution_usage_deltas'),
+            ('institutions', 'update_subscription_cost_per_use_deltas'),
+        ]
+    }
+]  # type: list[dict]
+CHAIN_BY_ID = {c['id']: c for c in CHAINS}
+CHAINS_BY_SOURCE_PIPELINE = {}
+for chain in CHAINS:
+    for pipeline_tuple in chain['source_pipelines']:
+        if pipeline_tuple not in CHAINS_BY_SOURCE_PIPELINE:
+            CHAINS_BY_SOURCE_PIPELINE[pipeline_tuple] = []
+        CHAINS_BY_SOURCE_PIPELINE[pipeline_tuple].append(chain['id'])
+
 
 def get_pipeline_class(pipeline):
     pipeline_module_name, class_name = pipeline['class'].rsplit('.', 1)
@@ -829,6 +851,7 @@ TABLEAU_DATASOURCE_UPDATES = {
     ],
     ('institutions', 'subscribers_and_subscriptions'): [
         'subscriptions_ds.tds'
+        'subscriber_ds.tds'
     ],
     ('institutions', 'custom_subscriber_data'): [
         'subscriber_ds.tds',
