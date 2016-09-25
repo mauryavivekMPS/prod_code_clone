@@ -180,8 +180,8 @@ class GetHighWireMetadataTask(Task):
 
                             data.update(metadata)
 
-                        row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
-                        target_file.write(row)
+                row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
+                target_file.write(row)
 
         target_file.close()
 
