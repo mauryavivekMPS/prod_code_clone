@@ -4,7 +4,7 @@ import uuid
 import humanize
 import datetime
 from dateutil.rrule import rrule, MONTHLY
-from ivetl.models import SystemGlobal
+from ivetl.models import SystemGlobal, PipelineStatus
 
 
 def day_range(from_date, to_date):
@@ -108,3 +108,24 @@ def list_dir(path, with_lines_and_sizes=False, ignore=[], encoding='utf-8'):
             file['file_size'] = humanize.naturalsize(os.stat(file_path).st_size)
             file['file_id'] = uuid.uuid4()
     return files
+
+
+def get_most_recent_run(publisher_id, product_id, pipeline_id, status=None):
+    all_runs = PipelineStatus.objects.filter(
+        publisher_id=publisher_id,
+        product_id=product_id,
+        pipeline_id=pipeline_id,
+    )
+
+    most_recent_run = None
+    if all_runs:
+
+        if status:
+            filtered_runs = [run for run in all_runs if run.status == status]
+        else:
+            filtered_runs = all_runs
+
+        date_sorted_runs = sorted(filtered_runs, key=lambda r: r.start_time or datetime.datetime.min, reverse=True)
+        most_recent_run = date_sorted_runs[0]
+
+    return most_recent_run

@@ -145,7 +145,7 @@ class Pipeline(BaseTask):
 
         p.update(
             status='in-progress',
-            stop_at_next_task=False,
+            stop_instruction=None,
             updated=datetime.datetime.now(),
         )
 

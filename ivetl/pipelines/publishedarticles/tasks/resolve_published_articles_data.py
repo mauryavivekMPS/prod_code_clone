@@ -80,7 +80,7 @@ class ResolvePublishedArticlesData(Task):
                 article.save()
 
         if pipeline_id == 'custom_article_data':
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=count)
+            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, notification_count=count)
 
         task_args['count'] = count
         return task_args

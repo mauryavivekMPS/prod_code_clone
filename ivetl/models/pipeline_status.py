@@ -19,7 +19,7 @@ class PipelineStatus(Model):
     workfolder = columns.Text()
     user_email = columns.Text()
     params_json = columns.Text()
-    stop_at_next_task = columns.Boolean()
+    stop_instruction = columns.Text()
 
     def display_name(self):
         return 'Run %s' % self.job_id[self.job_id.rindex('_') + 1:]

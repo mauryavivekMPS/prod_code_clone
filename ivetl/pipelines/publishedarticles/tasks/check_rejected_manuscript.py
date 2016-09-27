@@ -40,7 +40,7 @@ class CheckRejectedManuscriptTask(Task):
                 article.update()
                 tlogger.info("Article sourced from rejected manuscript.")
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, send_notification_email=True, notification_count=total_count)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, notification_count=total_count)
 
         if pipeline_id in ("published_articles", "cohort_articles") and task_args['run_monthly_job']:
             pipeline_status = PipelineStatus.objects.get(
