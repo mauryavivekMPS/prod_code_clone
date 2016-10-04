@@ -44,6 +44,8 @@ urlpatterns = patterns(
 
     # site uptime admin
     url(r'^uptimeoverrides/$', 'uptime.list_overrides', name='uptime.list_overrides'),
+    url(r'^uptimeoverrides/new/$', 'uptime.new_override', name='uptime.new_override'),
+    url(r'^uptimeoverrides/(?P<override_id>[\w\-\.]+)/$', 'uptime.view_override', name='uptime.view_override'),
 
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),

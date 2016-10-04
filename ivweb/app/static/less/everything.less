@@ -334,7 +334,7 @@ body {
 
 .small-left-menu {
     #left-menu {
-        with: @small-left-menu-width;
+        width: @small-left-menu-width;
     }
 }
 
@@ -351,6 +351,7 @@ body {
 .journals #left-menu .journals_menu_item,
 .audit #left-menu .audit_menu_item,
 .update_reports #left-menu .update_reports_menu_item,
+.uptime_overrides #left-menu .uptime_overrides_menu_item,
 .published_articles_pipeline #left-menu .published_articles_menu_item,
 .custom_article_data_pipeline #left-menu .custom_article_data_menu_item,
 .article_citations_pipeline #left-menu .article_citations_menu_item,
@@ -465,7 +466,7 @@ body {
             }
         }
 
-        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
+        .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
             margin-top: 21px;
             margin-left: 20px;
             float: left;
@@ -485,7 +486,7 @@ body {
                 margin-top: 12px;
             }
 
-            .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-alert-button, .run-single-publisher-pipeline-button {
+            .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .run-single-publisher-pipeline-button {
                 margin-top: 9px;
             }
 
@@ -2131,6 +2132,27 @@ p.uploaded-file-error-icon {
 }
 
 
+// Overrides
+// -------------------------
+
+#new-uptime-override-page {
+    .submit-row {
+        padding-top: 50px;
+    }
+
+}
+
+.date-range-joiner {
+    width: 10px;
+    padding: 0;
+
+    p {
+        text-align: center;
+    }
+
+}
+
+
 // Demo files
 // -------------------------
 
@@ -2403,7 +2425,6 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 }
-
 
 
 // Error/log listing

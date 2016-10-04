@@ -2,11 +2,13 @@ USE impactvizor;
 
 CREATE TABLE uptime_override (
   override_id uuid,
+  label text,
   start_date timestamp,
   end_date timestamp,
-  match_type text,
-  match_value text,
+  match_expression_json text,
   override_type text,
+  applied_date timestamp,
+  notes text,
   PRIMARY KEY ((override_id))
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
@@ -23,3 +25,9 @@ CREATE TABLE uptime_override (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+
+ALTER TABLE uptime_check_stat ADD avg_response_ms int;
+ALTER TABLE uptime_check_stat ADD original_total_up_sec int;
+ALTER TABLE uptime_check_stat ADD original_total_down_sec int;
+ALTER TABLE uptime_check_stat ADD original_total_unknown_sec int;
+ALTER TABLE uptime_check_stat ADD override boolean;
