@@ -1,0 +1,78 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}New Uptime Override{% endblock %}
+{% block body_class %}uptime-overrides{% endblock %}
+
+{% block content %}
+    <div id="new-uptime-override-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'uptime.list_overrides' %}">Uptime Overrides</a></li>
+                    <li></li>
+                </ol>
+                <h1>New Uptime Override</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-horizontal new-uptime-override-form" method="post">
+                    {% csrf_token %}
+                    {{ form.match_expression_json }}
+
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2">Label</label>
+                        <div class="col-sm-6">
+                            {{ form.label }}
+                            {{ form.label.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2">Date Range</label>
+                        <div class="col-sm-2">
+                            {{ form.start_date }}
+                        </div>
+                        <div class="col-sm-1 date-range-joiner">
+                            <p class="form-control-static">to</p>
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form.end_date }}
+                        </div>
+                    </div>
+
+                    <h2>Filters</h2>
+                    {% for filter in filters %}
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2">{{ filter.name }}</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="id_filter_{{ filter.id }}" placeholder="Comma separated {{ filter.plural }}">
+                           </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group submit-row">
+                        <button type="submit" class="btn btn-primary submit-button">
+                            Create and Apply Override
+                        </button>
+                        <span class="cancel">or
+                            <a href="../">Cancel</a>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#new-uptime-override-page').newuptimeoverridepage({
+                filters: {{ filter_ids|safe }}
+            });
+        });
+    </script>
+{% endblock %}
