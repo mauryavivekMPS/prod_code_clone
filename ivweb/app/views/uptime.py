@@ -69,7 +69,7 @@ def new_override(request):
         form = UptimeOverrideForm(request.POST)
         if form.is_valid():
             override = form.save()
-            tasks.apply_override.s(override.overide_id).delay()
+            tasks.apply_override.s(override.override_id).delay()
             return HttpResponseRedirect(reverse('uptime.list_overrides') + '?from=new-success')
     else:
         form = UptimeOverrideForm()
