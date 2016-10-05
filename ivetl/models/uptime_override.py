@@ -17,8 +17,11 @@ class UptimeOverride(Model):
     @property
     def display_match_expression(self):
         bits = []
-        match_expression = json.loads(self.match_expression_json)
-        for filter_id, values in match_expression.items():
+        for filter_id, values in self.match_expression_dict.items():
             if values:
                 bits.append('%s = %s' % (filter_id, ", ".join(values)))
         return " + ".join(bits)
+
+    @property
+    def match_expression_dict(self):
+        return json.loads(self.match_expression_json)

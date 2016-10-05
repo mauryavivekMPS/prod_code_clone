@@ -45,7 +45,6 @@ urlpatterns = patterns(
     # site uptime admin
     url(r'^uptimeoverrides/$', 'uptime.list_overrides', name='uptime.list_overrides'),
     url(r'^uptimeoverrides/new/$', 'uptime.new_override', name='uptime.new_override'),
-    url(r'^uptimeoverrides/(?P<override_id>[\w\-\.]+)/$', 'uptime.view_override', name='uptime.view_override'),
 
     # demos
     url(r'^demos/$', 'publishers.list_demos', name='publishers.list_demos'),
@@ -93,5 +92,6 @@ urlpatterns = patterns(
     url(r'^dismissnotification/$', 'notifications.dismiss_notification', name='notifications.dismiss_notification'),
     url(r'^updatereportitem/$', 'reports.update_item', name='reports.update_item'),
     url(r'^includereportitemstatuses/$', 'reports.include_item_statuses', name='reports.include_item_statuses'),
+    url(r'^deleteuptimeoverride/$', 'uptime.delete_override', name='uptime.delete_override'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

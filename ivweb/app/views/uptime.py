@@ -1,6 +1,6 @@
 import logging
 from django import forms
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import UptimeOverride
@@ -65,16 +65,12 @@ class UptimeOverrideForm(forms.Form):
 
 @login_required
 def new_override(request):
-
     if request.method == 'POST':
         form = UptimeOverrideForm(request.POST)
         if form.is_valid():
             override = form.save()
-            tasks.apply_override(override.overide_id)
-            # TODO: enable this before committing!!
-            # tasks.apply_override.s(override.overide_id).delay()
+            tasks.apply_override.s(override.overide_id).delay()
             return HttpResponseRedirect(reverse('uptime.list_overrides') + '?from=new-success')
-
     else:
         form = UptimeOverrideForm()
 
@@ -86,11 +82,9 @@ def new_override(request):
 
 
 @login_required
-def view_override(request, override_id):
+def delete_override(request):
+    override_id = request.POST['override_id']
     override = UptimeOverride.objects.get(override_id=override_id)
-    return render(request, 'uptime/new_override.html', {
-        'view': True,
-        'override': override,
-        'filters': OVERRIDE_FILTERS,
-        'filter_ids': [f['id'] for f in OVERRIDE_FILTERS],
-    })
+    tasks.revert_override.s(override.override_id).delay()
+    override.delete()
+    return HttpResponse('ok')

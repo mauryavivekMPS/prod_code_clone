@@ -26,7 +26,7 @@ CREATE TABLE uptime_override (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
-ALTER TABLE uptime_check_stat ADD avg_response_ms int;
+ALTER TABLE uptime_check_stat ADD original_avg_response_ms int;
 ALTER TABLE uptime_check_stat ADD original_total_up_sec int;
 ALTER TABLE uptime_check_stat ADD original_total_down_sec int;
 ALTER TABLE uptime_check_stat ADD original_total_unknown_sec int;

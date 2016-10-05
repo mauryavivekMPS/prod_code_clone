@@ -9,10 +9,10 @@
         <div class="row header-row with-breadcrumb">
             <div class="col-md-8">
                 <ol class="breadcrumb">
-                    <li><a href="{% url 'uptime.new_override' %}">Uptime Overrides</a></li>
+                    <li><a href="{% url 'uptime.list_overrides' %}">Uptime Overrides</a></li>
                     <li></li>
                 </ol>
-                <h1>{% if view %}Uptime Override: {{ override.label }}{% else %}New Uptime Override{% endif %}</h1>
+                <h1>New Uptime Override</h1>
             </div>
         </div>
 
@@ -25,12 +25,8 @@
                     <div class="form-group row">
                         <label for="name" class="col-sm-2">Label</label>
                         <div class="col-sm-6">
-                            {% if view %}
-                                <p class="form-control-static">{{ form.label.initial }}</p>
-                            {% else %}
-                                {{ form.label }}
-                                {{ form.label.errors }}
-                            {% endif %}
+                            {{ form.label }}
+                            {{ form.label.errors }}
                         </div>
                     </div>
 
@@ -56,14 +52,6 @@
                            </div>
                         </div>
                     {% endfor %}
-
-                    <h2>Notes</h2>
-                    <div class="form-group row">
-                        <label for="email" class="col-sm-2">Notes</label>
-                        <div class="col-sm-6">
-                            {{ form.notes }}
-                        </div>
-                    </div>
 
                     <div class="form-group submit-row">
                         <button type="submit" class="btn btn-primary submit-button">

@@ -31,17 +31,24 @@ def apply_override(override_id):
 
     for publisher_id, check_id in matching_checks:
         for date in utils.day_range(override.start_date, override.end_date):
-            stat = UptimeCheckStat.objects.get(
-                publisher_id=publisher_id,
-                check_id=check_id,
-                check_date=date,
-            )
+            print('%s, %s, %s' % (publisher_id, check_id, date))
 
-            # zero out down, and set anything less than up to unknown
-            stat.total_down_sec = 0
-            stat.total_unknown_sec = total_seconds - stat.original_total_up_sec
-            stat.override = True
-            stat.save()
+            try:
+                stat = UptimeCheckStat.objects.get(
+                    publisher_id=publisher_id,
+                    check_id=check_id,
+                    check_date=date,
+                )
+
+                print('setting unknown to: %s' % (total_seconds - stat.original_total_up_sec))
+                # zero out down, and set anything less than up to unknown
+                stat.total_down_sec = 0
+                stat.total_unknown_sec = total_seconds - stat.original_total_up_sec
+                stat.override = True
+                stat.save()
+
+            except UptimeCheckStat.DoesNotExist:
+                pass
 
 
 @app.task
@@ -51,16 +58,20 @@ def revert_override(override_id):
 
     for publisher_id, check_id in matching_checks:
         for date in utils.day_range(override.start_date, override.end_date):
-            stat = UptimeCheckStat.objects(
-                publisher_id=publisher_id,
-                check_id=check_id,
-                check_date=date,
-            )
+            try:
+                stat = UptimeCheckStat.objects.get(
+                    publisher_id=publisher_id,
+                    check_id=check_id,
+                    check_date=date,
+                )
 
-            # simply set back to original values
-            stat.avg_response_ms = stat.original_avg_response_ms
-            stat.total_up_sec = stat.original_total_up_sec
-            stat.total_down_sec = stat.original_total_down_sec
-            stat.total_unknown_sec = stat.original_total_unknown_sec
-            stat.override = False
-            stat.save()
+                # simply set back to original values
+                stat.avg_response_ms = stat.original_avg_response_ms
+                stat.total_up_sec = stat.original_total_up_sec
+                stat.total_down_sec = stat.original_total_down_sec
+                stat.total_unknown_sec = stat.original_total_unknown_sec
+                stat.override = False
+                stat.save()
+
+            except UptimeCheckStat.DoesNotExist:
+                pass
