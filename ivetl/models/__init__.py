@@ -25,6 +25,7 @@ from ivetl.models.institution_usage import InstitutionUsageStat
 from ivetl.models.institution_usage_delta import InstitutionUsageStatDelta
 from ivetl.models.uptime_check_metadata import UptimeCheckMetadata
 from ivetl.models.uptime_check_stat import UptimeCheckStat
+from ivetl.models.uptime_override import UptimeOverride
 from ivetl.models.drupal_metadata import DrupalMetadata
 from ivetl.models.highwire_metadata import HighwireMetadata
 from ivetl.models.altmetrics_social_data import AltmetricsSocialData

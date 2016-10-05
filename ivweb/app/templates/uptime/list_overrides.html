@@ -1,0 +1,87 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Uptime Overrides{% endblock %}
+{% block body_class %}uptime_overrides{% endblock %}
+
+{% block content %}
+    <div id="list-uptime-overrides-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Uptime Overrides</h1>
+                <a class="btn btn-default small add-new-item-button add-uptime-override-button" href="new/">+ Add Override</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table sortable-table">
+                    <thead>
+                        <tr>
+                            <th>Label</th>
+                            <th>Match Expression</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for override in overrides %}
+                            <tr>
+                                <td>{{ override.label }}</td>
+                                <td>
+                                    {% for filter_id, values in override.match_expression_dict.items %}
+                                        {% if values %}
+                                            <div class="name-value"><b>{{ filter_id }}:</b> {{ values|join:", " }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ override.start_date|date:"m/d/Y" }}</td>
+                                <td>{{ override.end_date|date:"m/d/Y" }}</td>
+                                <td>
+                                    <a href="#" class="delete-override" override_id="{{ override.override_id }}" override_label="{{ override.label }}" override_date_range="{{ override.start_date|date:"m/d/Y" }} to {{ override.end_date|date:"m/d/Y" }}">
+                                    <span class="lnr lnr-trash2"></span> Delete</a>
+                                    <i class="fa fa-spinner fa-pulse override-deleting-icon" style="display:none"></i>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade confirm-delete-override" id="confirm-delete-override-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close cancel-delete-override" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Delete Uptime Override</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the following override?</p>
+                        <p class="override-details override-label"></p>
+                        <p class="override-details override-date-range"></p>
+                        <p>This will delete this override record and revert all of the matching site uptime stats to their
+                            original values. This process may take some time to complete.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary confirm-delete-override-button">Yes, Delete and Revert Stats</button>
+                        <span class="cancel">or <a href="#" data-dismiss="modal" class="cancel-delete-override">Cancel</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#list-uptime-overrides-page').listuptimeoverridespage({
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

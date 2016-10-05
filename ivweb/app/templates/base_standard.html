@@ -92,6 +92,9 @@
                     <li class="report_updates_menu_item">
                         <a href="{% url 'reports.update_reports' %}">Update Reports</a>
                     </li>
+                    <li class="uptime_overrides_menu_item">
+                        <a href="{% url 'uptime.list_overrides' %}">Uptime Overrides</a>
+                    </li>
                 </ul>
                 {% for product in common.PRODUCTS %}
                     {% if product.is_user_facing %}
