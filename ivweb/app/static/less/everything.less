@@ -334,7 +334,7 @@ body {
 
 .small-left-menu {
     #left-menu {
-        with: @small-left-menu-width;
+        width: @small-left-menu-width;
     }
 }
 
@@ -351,6 +351,7 @@ body {
 .journals #left-menu .journals_menu_item,
 .audit #left-menu .audit_menu_item,
 .update_reports #left-menu .update_reports_menu_item,
+.uptime_overrides #left-menu .uptime_overrides_menu_item,
 .published_articles_pipeline #left-menu .published_articles_menu_item,
 .custom_article_data_pipeline #left-menu .custom_article_data_menu_item,
 .article_citations_pipeline #left-menu .article_citations_menu_item,
@@ -465,7 +466,7 @@ body {
             }
         }
 
-        .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
+        .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
             margin-top: 21px;
             margin-left: 20px;
             float: left;
@@ -485,7 +486,7 @@ body {
                 margin-top: 12px;
             }
 
-            .upload-button, .run-button, .add-publisher-button, .add-user-button, .add-alert-button, .run-single-publisher-pipeline-button {
+            .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .run-single-publisher-pipeline-button {
                 margin-top: 9px;
             }
 
@@ -1052,6 +1053,22 @@ ul.errorlist {
 
     .checkmark {
         font-size: 12px;
+    }
+    .name-value {
+        display: block;
+        float: left;
+        clear: left;
+    }
+
+    .name-value {
+        font-size: 12px;
+        color: #999;
+        margin-top: 2px;
+
+        b {
+            color: #333;
+            font-weight: normal;
+        }
     }
 }
 
@@ -2131,6 +2148,68 @@ p.uploaded-file-error-icon {
 }
 
 
+// Overrides
+// -------------------------
+
+#new-uptime-override-page {
+    .submit-row {
+        padding-top: 50px;
+    }
+
+    .date-range-joiner {
+        width: 10px;
+        padding: 0;
+
+        p {
+            text-align: center;
+        }
+    }
+}
+
+#list-uptime-overrides-page {
+    .delete-override {
+        font-size: 12px;
+        opacity: .4;
+        color: @brand-danger;
+        text-decoration: none;
+        border-radius: 3px;
+        padding: 5px 7px;
+
+        &:hover, &:focus {
+            color: @brand-danger;
+            text-decoration: none;
+            background-color: #fff3f4;
+        }
+
+        .lnr {
+            font-size: 13px;
+            vertical-align: -1px;
+        }
+    }
+
+    tr:hover {
+        .delete-override {
+            opacity: 1;
+            color: @brand-danger;
+        }
+    }
+
+    .override-details {
+        padding-left: 40px;
+
+        &.override-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        &.override-date-range {
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+    }
+}
+
+
 // Demo files
 // -------------------------
 
@@ -2217,7 +2296,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     &:hover, &:focus {
         color: @brand-danger;
         text-decoration: none;
-        background-color: #FFFBFB;
+        background-color: #fff3f4;
     }
 
     .lnr {
@@ -2405,7 +2484,6 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 }
 
 
-
 // Error/log listing
 // -------------------------
 
@@ -2580,32 +2658,6 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     display: block;
     position: relative;
     top: -90px;
-}
-
-.alerts-table {
-    .alert-details, .alert-name {
-        display: block;
-        float: left;
-        clear: left;
-    }
-
-    .alert-name {
-        margin-bottom: 3px;
-    }
-
-    .alert-details {
-        font-size: 12px;
-        color: #999;
-
-        &:last-of-type {
-            margin-bottom: 7px;
-        }
-
-        b {
-            color: #333;
-            font-weight: normal;
-        }
-    }
 }
 
 // External notification page

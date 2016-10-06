@@ -10,3 +10,8 @@ class UptimeCheckStat(Model):
     total_up_sec = columns.Integer()
     total_down_sec = columns.Integer()
     total_unknown_sec = columns.Integer()
+    original_avg_response_ms = columns.Integer()
+    original_total_up_sec = columns.Integer()
+    original_total_down_sec = columns.Integer()
+    original_total_unknown_sec = columns.Integer()
+    override = columns.Boolean()
