@@ -3,11 +3,13 @@ import os
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import HighwireMetadata
+from ivetl.common import common
+from ivetl import utils
 
 
 @app.task
 class LoadH20MetadataTask(Task):
-    METADATA_FILE = '/iv/hwdw-metadata/journalinfo/hwdw_journal_info.txt'
+    METADATA_FILE = 'journalinfo/hwdw_journal_info.txt'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
@@ -48,10 +50,9 @@ class LoadH20MetadataTask(Task):
         total_count = 1000  # just a guess
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        # Using S3 fuse, need to set permissions on file
-        os.system('chmod +r ' + self.METADATA_FILE)
+        local_metadata_file_path = utils.download_file_from_s3(common.HWDW_METADATA_BUCKET, self.METADATA_FILE)
 
-        with open(self.METADATA_FILE, encoding='utf-8') as highwire_metadata_file:
+        with open(local_metadata_file_path, encoding='utf-8') as highwire_metadata_file:
             reader = csv.DictReader(highwire_metadata_file, delimiter='\t', fieldnames=fieldnames)
             for row in reader:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)

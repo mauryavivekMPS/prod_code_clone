@@ -3,8 +3,10 @@ import os
 import uuid
 import humanize
 import datetime
+import boto3
 from dateutil.rrule import rrule, MONTHLY
 from ivetl.models import SystemGlobal, PipelineStatus
+from ivetl.common import common
 
 
 def day_range(from_date, to_date):
@@ -129,3 +131,23 @@ def get_most_recent_run(publisher_id, product_id, pipeline_id, status=None):
         most_recent_run = date_sorted_runs[0]
 
     return most_recent_run
+
+
+def download_file_from_s3(bucket, key):
+    session = boto3.Session(aws_access_key_id=common.AWS_ACCESS_KEY_ID, aws_secret_access_key=common.AWS_SECRET_ACCESS_KEY)
+    s3_resource = session.resource('s3')
+    local_file = os.path.join(common.TMP_DIR, bucket, key)
+    s3_resource.meta.client.download_file(bucket, key, local_file)
+    return local_file
+
+
+def download_files_from_s3_dir(bucket, dir_path):
+    session = boto3.Session(aws_access_key_id=common.AWS_ACCESS_KEY_ID, aws_secret_access_key=common.AWS_SECRET_ACCESS_KEY)
+    s3_resource = session.resource('s3')
+    bucket = s3_resource.Bucket(bucket)
+    all_keys = [f.key for f in bucket.objects.filter(Prefix=dir_path) if f.key != dir_path]
+    local_files = []
+    for key in all_keys:
+        local_file = download_file_from_s3(bucket, key)
+        local_files.append(local_file)
+    return local_files

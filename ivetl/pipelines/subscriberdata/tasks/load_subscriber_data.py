@@ -4,13 +4,14 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Subscriber, PublisherMetadata, SubscriberValues
 from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
+from ivetl.common import common
 from ivetl import utils
 
 
 @app.task
 class LoadSubscriberDataTask(Task):
-    FILE_DIRS = [
-        '/iv/hwdw-metadata/subscribers/',
+    S3_DIRS = [
+        'subscribers/',
     ]
 
     FIELD_NAMES = [
@@ -44,9 +45,11 @@ class LoadSubscriberDataTask(Task):
     ]
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+
         all_files = []
-        for dir_path in self.FILE_DIRS:
-            all_files.extend([os.path.join(dir_path, n) for n in os.listdir(dir_path) if not n.startswith('.')])
+        for s3_dir in self.S3_DIRS:
+            new_files = utils.download_files_from_s3_dir(common.HWDW_METADATA_BUCKET, s3_dir)
+            all_files.extend(new_files)
 
         total_count = 0
         for file_path in all_files:
