@@ -14,7 +14,7 @@ from ivetl import utils
 class LoadSubscriptionDataTask(Task):
     FILE_DIRS = [
         '/iv/hwdw-metadata/instadmin/',
-        '/iv/hwdw-metadata/individual_subscriptions/',
+        # '/iv/hwdw-metadata/individual_subscriptions/',
     ]
 
     FIELD_NAMES = [
