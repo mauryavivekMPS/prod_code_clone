@@ -32,7 +32,6 @@ def apply_override(override_id):
 
     for publisher_id, check_id in matching_checks:
         for date in utils.day_range(override.start_date, override.end_date):
-            print('%s, %s, %s' % (publisher_id, check_id, date))
 
             try:
                 stat = UptimeCheckStat.objects.get(
@@ -41,7 +40,6 @@ def apply_override(override_id):
                     check_date=date,
                 )
 
-                print('setting unknown to: %s' % (total_seconds - stat.original_total_up_sec))
                 # zero out down, and set anything less than up to unknown
                 stat.total_down_sec = 0
                 stat.total_unknown_sec = total_seconds - stat.original_total_up_sec
