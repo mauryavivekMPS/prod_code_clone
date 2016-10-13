@@ -13,7 +13,8 @@ def _get_matching_checks(override):
         add_check = True
         for attribute_name, values in match_expression.items():
             if values:
-                if getattr(check_metadata, attribute_name) not in values:
+                value_for_this_check = str(getattr(check_metadata, attribute_name))
+                if value_for_this_check not in values:
                     add_check = False
 
         if add_check:
