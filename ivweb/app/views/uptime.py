@@ -10,6 +10,11 @@ log = logging.getLogger(__name__)
 
 OVERRIDE_FILTERS = [
     {
+        'name': 'Check ID',
+        'id': 'check_id',
+        'plural': 'check IDs',
+    },
+    {
         'name': 'Publisher Code',
         'id': 'publisher_code',
         'plural': 'publisher codes',
