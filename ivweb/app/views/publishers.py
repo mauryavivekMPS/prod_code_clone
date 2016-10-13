@@ -635,13 +635,33 @@ def validate_issn(request):
             journal_code_ok = True
 
             soup = BeautifulSoup(r.content, 'xml')
-            matching_electronic_issn = soup.find('pub-id', attrs={'pub-id-type': "eissn"}).text
-            matching_print_issn = soup.find('pub-id', attrs={'pub-id-type': "issn"}).text
 
-            if electronic_issn == matching_electronic_issn and print_issn == matching_print_issn:
-                matching_codes = True
+            matching_electronic_issn = None
+            matching_print_issn = None
+
+            electronic_issn_element_1 = soup.find('pub-id', attrs={'pub-id-type': "eissn"})
+            if electronic_issn_element_1 and electronic_issn_element_1.text:
+                matching_electronic_issn = electronic_issn_element_1.text
             else:
-                matching_codes = False
+                electronic_issn_element_2 = soup.find('issn', attrs={'pub-type': "epub"})
+                if electronic_issn_element_2 and electronic_issn_element_2.text:
+                    matching_electronic_issn = electronic_issn_element_2.text
+
+            print_issn_element_1 = soup.find('pub-id', attrs={'pub-id-type': "issn"})
+            if print_issn_element_1 and print_issn_element_1.text:
+                matching_print_issn = print_issn_element_1.text
+            else:
+                print_issn_element_2 = soup.find('issn', attrs={'pub-type': "ppub"})
+                if print_issn_element_2 and print_issn_element_2.text:
+                    matching_print_issn = print_issn_element_2.text
+
+            if matching_electronic_issn and matching_print_issn:
+                if electronic_issn == matching_electronic_issn and print_issn == matching_print_issn:
+                    matching_codes = True
+                else:
+                    matching_codes = False
+            else:
+                journal_code_ok = False
         else:
             journal_code_ok = False
             matching_codes = True  # can't test until journal code is ok
