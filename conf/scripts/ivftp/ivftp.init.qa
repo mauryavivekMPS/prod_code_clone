@@ -6,7 +6,7 @@ source /iv/impactvizor-pipeline/conf/qa.sh
 
 dir="/iv/impactvizor-pipeline/ivftp"
 cmd="python ftp.py"
-user="celery"
+user="ivftp"
 
 name=`basename $0`
 pid_file="/var/run/$name/$name.pid"

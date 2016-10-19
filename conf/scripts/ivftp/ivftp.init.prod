@@ -1,14 +1,12 @@
 #!/bin/sh
 
 # set the python environment
-echo "Sourcing virtualenv"
 source /iv/env/bin/activate
-echo "Sourcing conf/ftp_prod.sh"
 source /iv/impactvizor-pipeline/conf/ftp_prod.sh
 
 dir="/iv/impactvizor-pipeline/ivftp"
 cmd="python ftp.py"
-user="ec2-user"
+user="ivftp"
 
 name=`basename $0`
 pid_file="/var/run/$name/$name.pid"
