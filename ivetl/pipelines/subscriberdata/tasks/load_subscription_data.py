@@ -13,7 +13,7 @@ from ivetl.common import common
 class LoadSubscriptionDataTask(Task):
     S3_DIRS = [
         '/iv/hwdw-metadata/instadmin/',
-        '/iv/hwdw-metadata/individual_subscriptions/',
+        # '/iv/hwdw-metadata/individual_subscriptions/',
     ]
 
     FIELD_NAMES = [

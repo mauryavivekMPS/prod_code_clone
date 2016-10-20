@@ -53,6 +53,11 @@ class InsertStatsIntoCassandraTask(Task):
                         total_up_sec=stat['total_up_sec'],
                         total_down_sec=stat['total_down_sec'],
                         total_unknown_sec=stat['total_unknown_sec'],
+                        original_avg_response_ms=stat['avg_response_ms'],
+                        original_total_up_sec=stat['total_up_sec'],
+                        original_total_down_sec=stat['total_down_sec'],
+                        original_total_unknown_sec=stat['total_unknown_sec'],
+                        override=False,
                     )
 
                 if task_args['run_daily_uptime_alerts']:
