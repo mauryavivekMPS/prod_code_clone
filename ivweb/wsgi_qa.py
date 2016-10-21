@@ -28,6 +28,10 @@ os.environ["IVETL_TABLEAU_SERVER"] = "10.0.0.143"
 os.environ["IVETL_TABLEAU_USERNAME"] = "admin"
 os.environ["IVETL_TABLEAU_PASSWORD"] = "admin"
 os.environ["IVETL_CASSANDRA_IP"] = "10.0.0.21"
+os.environ["IVETL_EMAIL_TO_ADDRESS"] = "john@lonepixel.com"
+os.environ["IVETL_WEB_ADDRESS"] = "http://10.0.0.80"
+os.environ["IVETL_RABBITMQ_BROKER_IP"] = "10.0.0.139"
+
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
