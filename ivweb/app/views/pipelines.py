@@ -270,7 +270,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
 
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
-    pub_dir = os.path.join('/tmp', publisher_id, product_id, pipeline_id)
+    pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
     os.makedirs(pub_dir, exist_ok=True)
     return pub_dir
 
