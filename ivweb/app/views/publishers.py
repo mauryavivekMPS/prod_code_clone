@@ -655,8 +655,8 @@ def validate_issn(request):
                 if print_issn_element_2 and print_issn_element_2.text:
                     matching_print_issn = print_issn_element_2.text
 
-            if matching_electronic_issn and matching_print_issn:
-                if electronic_issn == matching_electronic_issn and print_issn == matching_print_issn:
+            if matching_electronic_issn or matching_print_issn:
+                if (matching_electronic_issn and electronic_issn == matching_electronic_issn) or (matching_print_issn and print_issn == matching_print_issn):
                     matching_codes = True
                 else:
                     matching_codes = False
