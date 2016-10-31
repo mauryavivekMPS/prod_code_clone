@@ -29,8 +29,8 @@ os.environ["IVETL_TABLEAU_USERNAME"] = "nmehta"
 os.environ["IVETL_TABLEAU_PASSWORD"] = "Reena,1275"
 os.environ["IVETL_CASSANDRA_IP"] = "10.0.1.59,10.0.1.196,10.0.1.40"
 os.environ["IVETL_EMAIL_TO_ADDRESS"] = "john@lonepixel.com"
-os.environ["IVETL_WEB_ADDRESS"] = "http://manage.vizors.org"
-os.environ["IVETL_RABBITMQ_BROKER_IP"] = "10.0.0.185"
+os.environ["IVETL_WEB_ADDRESS"] = "http://managenew.vizors.org"
+os.environ["IVETL_RABBITMQ_BROKER_IP"] = "10.0.1.119,10.0.1.80"
 
 
 # This application object is used by any WSGI server configured to use this
