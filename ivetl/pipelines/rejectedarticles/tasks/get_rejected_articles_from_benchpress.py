@@ -15,8 +15,8 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        from_date = task_args.get('from_date')
-        to_date = task_args.get('to_date')
+        from_date = self.from_json_date(task_args.get('from_date'))
+        to_date = self.from_json_date(task_args.get('to_date'))
 
         today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
 
