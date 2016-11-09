@@ -28,6 +28,9 @@ os.environ["IVETL_TABLEAU_SERVER"] = "vizors.org"
 os.environ["IVETL_TABLEAU_USERNAME"] = "nmehta"
 os.environ["IVETL_TABLEAU_PASSWORD"] = "Reena,1275"
 os.environ["IVETL_CASSANDRA_IP"] = "10.0.1.59,10.0.1.196,10.0.1.40"
+os.environ["IVETL_EMAIL_TO_ADDRESS"] = "john@lonepixel.com"
+os.environ["IVETL_WEB_ADDRESS"] = "http://manage.vizors.org"
+os.environ["IVETL_RABBITMQ_BROKER_URL"] = "amqp://guest:guest@10.0.1.174:5672//;amqp://guest:guest@10.0.1.185:5672//"
 
 
 # This application object is used by any WSGI server configured to use this

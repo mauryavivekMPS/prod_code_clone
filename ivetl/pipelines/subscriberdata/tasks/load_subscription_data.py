@@ -1,6 +1,4 @@
-import os
 import csv
-import time
 import datetime
 from dateutil.parser import parse
 from collections import defaultdict
@@ -8,11 +6,12 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Subscription, Subscriber, PublisherMetadata
 from ivetl import utils
+from ivetl.common import common
 
 
 @app.task
 class LoadSubscriptionDataTask(Task):
-    FILE_DIRS = [
+    S3_DIRS = [
         '/iv/hwdw-metadata/instadmin/',
         # '/iv/hwdw-metadata/individual_subscriptions/',
     ]
@@ -55,11 +54,10 @@ class LoadSubscriptionDataTask(Task):
     ]
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        total_t0 = time.time()
-
         all_files = []
-        for dir_path in self.FILE_DIRS:
-            all_files.extend([os.path.join(dir_path, n) for n in os.listdir(dir_path) if not n.startswith('.')])
+        for s3_dir in self.S3_DIRS:
+            new_files = utils.download_files_from_s3_dir(common.HWDW_METADATA_BUCKET, s3_dir)
+            all_files.extend(new_files)
 
         total_count = 0
         for file_path in all_files:
@@ -154,7 +152,6 @@ class LoadSubscriptionDataTask(Task):
                         tlogger.info('Invalid modified by date on line %s, skipping...' % count)
                         continue
 
-                    sub_update_t0 = time.time()
                     Subscription.objects(
                         publisher_id=subscription_publisher_id,
                         membership_no=membership_no,
@@ -171,10 +168,6 @@ class LoadSubscriptionDataTask(Task):
                         subscr_type=row['subscr_type'],
                         subscr_type_desc=row['subscr_type_desc'],
                     )
-                    sub_update_t1 = time.time()
-
-                    if not count % 1000:
-                        tlogger.info('query times: %f' % (sub_update_t1 - sub_update_t0))
 
                     subscription_details_for_member[subscription_publisher_id][membership_no].append({
                         'expiration_date': expiration_date,
@@ -209,8 +202,5 @@ class LoadSubscriptionDataTask(Task):
                     pass
 
         task_args['count'] = total_count
-
-        total_t1 = time.time()
-        tlogger.info('total task time: %f' % (total_t1 - total_t0))
 
         return task_args

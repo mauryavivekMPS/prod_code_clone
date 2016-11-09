@@ -6,6 +6,7 @@ import os
 import shutil
 import stat
 import subprocess
+import time
 import uuid
 import humanize
 from dateutil.parser import parse
@@ -270,7 +271,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
 
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
-    pub_dir = os.path.join('/tmp', publisher_id, product_id, pipeline_id)
+    pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
     os.makedirs(pub_dir, exist_ok=True)
     return pub_dir
 
@@ -373,7 +374,19 @@ def tail(request, product_id, pipeline_id):
     job_id = request.GET['job_id']
     task_id = request.GET['task_id']
     log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
-    content = subprocess.check_output('tail -n 100 %s' % log_file, shell=True).decode('utf-8')
+
+    # we do a little dance here to kick EFS in the butt and work around the latency
+    max_attempts = 5
+    wait_time = 2
+    attempt = 0
+    content = ''
+    while attempt < max_attempts:
+        attempt += 1
+        if os.path.isfile(log_file):
+            content = subprocess.check_output('tail -n 100 %s' % log_file, shell=True).decode('utf-8')
+            if content:
+                break
+        time.sleep(wait_time)
 
     # strip up to a previously loaded line if provided
     if 'last_line' in request.GET:
