@@ -21,11 +21,11 @@ export IVETL_TABLEAU_USERNAME
 IVETL_TABLEAU_PASSWORD=Reena,1275
 export IVETL_TABLEAU_PASSWORD
 
-IVETL_WEB_ADDRESS=http://managenew.vizors.org
+IVETL_WEB_ADDRESS=http://manage.vizors.org
 export IVETL_WEB_ADDRESS
 
 DJANGO_SETTINGS_MODULE=ivweb.settings.prod
 export DJANGO_SETTINGS_MODULE
 
-IVETL_RABBITMQ_BROKER_URL="amqp://guest:guest@10.0.1.174:5672//;amqp://guest:guest@10.0.1.84:5672//"
+IVETL_RABBITMQ_BROKER_URL="amqp://guest:guest@10.0.1.174:5672//;amqp://guest:guest@10.0.1.185:5672//"
 export IVETL_RABBITMQ_BROKER_URL
