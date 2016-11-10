@@ -390,7 +390,7 @@ PIPELINES = [
         'name': 'Subscription Data',
         'id': 'subscribers_and_subscriptions',
         'user_facing_display_name': 'HighWire subscribers',
-        'visible_on_user_home': True,
+        'visible_on_user_home': False,
         'class': 'ivetl.pipelines.subscriberdata.SubscribersAndSubscriptionsPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -500,11 +500,30 @@ def task_id_from_path(task_class_path):
 
 PRODUCTS = [
     {
+        'name': 'Rejected Manuscripts',
+        'id': 'rejected_manuscripts',
+        'icon': 'lnr-layers-crossed',
+        'is_user_facing': True,
+        'order': 1,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['rejected_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['benchpress_rejected_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
+            }
+        ],
+    },
+    {
         'name': 'Published Articles',
         'id': 'published_articles',
         'icon': 'lnr-layers',
         'is_user_facing': True,
-        'order': 1,
+        'order': 2,
         'cohort': False,
         'pipelines': [
             {
@@ -532,30 +551,11 @@ PRODUCTS = [
         ],
     },
     {
-        'name': 'Rejected Manuscripts',
-        'id': 'rejected_manuscripts',
-        'icon': 'lnr-layers-crossed',
-        'is_user_facing': True,
-        'order': 4,
-        'cohort': False,
-        'pipelines': [
-            {
-                'pipeline': PIPELINE_BY_ID['rejected_articles'],
-            },
-            {
-                'pipeline': PIPELINE_BY_ID['benchpress_rejected_articles'],
-            },
-            {
-                'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
-            }
-        ],
-    },
-    {
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
         'icon': 'lnr-icons2',
         'is_user_facing': True,
-        'order': 5,
+        'order': 4,
         'cohort': True,
         'pipelines': [
             {
