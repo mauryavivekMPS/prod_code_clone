@@ -144,8 +144,7 @@ def download_file_from_s3(bucket, key):
 def download_files_from_s3_dir(bucket, dir_path):
     session = boto3.Session(aws_access_key_id=common.AWS_ACCESS_KEY_ID, aws_secret_access_key=common.AWS_SECRET_ACCESS_KEY)
     s3_resource = session.resource('s3')
-    bucket = s3_resource.Bucket(bucket)
-    all_keys = [f.key for f in bucket.objects.filter(Prefix=dir_path) if f.key != dir_path]
+    all_keys = [f.key for f in s3_resource.Bucket(bucket).objects.filter(Prefix=dir_path) if f.key != dir_path]
     local_files = []
     for key in all_keys:
         local_file = download_file_from_s3(bucket, key)
