@@ -740,9 +740,7 @@ PRODUCT_GROUPS = [
         ],
         'tableau_workbooks': [
             'uv_institutional_usage.twb',
-            'uv_article_usage_tracker.twb',
-            'uv_section_usage_performance_analyzer.twb',
-            'uv_article_usage_distribution_surveyor.twb',
+            'uv_article_usage.twb',
         ]
     },
     {
@@ -762,57 +760,38 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'rejected_article_tracker.twb',
         'name': 'Rejected Article Tracker',
-        'datasources': ['rejected_articles_ds.tds'],
     },
     {
         'id': 'section_performance_analyzer.twb',
         'name': 'Section Performance Analyzer',
-        'datasources': ['article_citations_ds.tds'],
     },
     {
         'id': 'hot_article_tracker.twb',
         'name': 'Hot Article Tracker',
-        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
     },
     {
         'id': 'hot_object_tracker.twb',
         'name': 'Hot Object Tracker',
-        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
     },
     {
         'id': 'citation_distribution_surveyor.twb',
         'name': 'Citation Distribution Surveyor',
-        'datasources': ['article_citations_ds.tds'],
     },
     {
         'id': 'advance_correlator_citation_usage.twb',
         'name': 'Advance Correlator of Citations & Usage',
-        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
     },
     {
         'id': 'cohort_comparator.twb',
         'name': 'Cohort Comparator',
-        'datasources': ['article_citations_ds.tds'],
     },
     {
         'id': 'uv_institutional_usage.twb',
-        'name': 'Institutional Usage',
-        'datasources': ['inst_usage_ds.tds'],
+        'name': 'UV: Institutional Usage',
     },
     {
-        'id': 'uv_article_usage_tracker.twb',
-        'name': 'Article Usage Tracker',
-        'datasources': ['article_usage_with_article_metadata_ds.tds'],
-    },
-    {
-        'id': 'uv_section_usage_performance_analyzer.twb',
-        'name': 'Section Usage Performance Analyzer',
-        'datasources': ['article_usage_with_article_metadata_ds.tds'],
-    },
-    {
-        'id': 'uv_article_usage_distribution_surveyor.twb',
-        'name': 'Article Usage Distribution Surveyor',
-        'datasources': ['inst_usage_ds.tds'],
+        'id': 'uv_article_usage.twb',
+        'name': 'UV: Article Usage',
     },
 ]  # type: list[dict]
 
