@@ -1,6 +1,7 @@
 import codecs
 import json
 import requests
+import urllib.parse
 from requests import HTTPError
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -21,11 +22,14 @@ class GetPublishedArticlesTask(Task):
 
         articles = {}
         count = 0
+
+        issns = ['0006-4971']
         for issn in issns:
 
-            offset = 0
+            more_results = True
+            cursor = '*'
 
-            while offset != -1:
+            while more_results:
 
                 attempt = 0
                 max_attempts = 3
@@ -37,10 +41,13 @@ class GetPublishedArticlesTask(Task):
 
                 while not success and attempt < max_attempts:
                     try:
-                        url = 'http://api.crossref.org/journals/' + issn + '/works'
-                        url += '?rows=' + str(task_args['articles_per_page'])
-                        url += '&offset=' + str(offset)
-                        url += '&filter=type:journal-article,from-pub-date:' + from_pub_date_str
+                        encoded_params = urllib.parse.urlencode({
+                            'rows': task_args['articles_per_page'],
+                            'cursor': cursor,
+                            'filter': 'type:journal-article,from-pub-date:%s' % from_pub_date_str,
+                        })
+
+                        url = 'http://api.crossref.org/journals/%s/works?%s' % (issn, encoded_params)
 
                         tlogger.info("Searching CrossRef for: " + url)
                         r = requests.get(url, timeout=30)
@@ -81,10 +88,10 @@ class GetPublishedArticlesTask(Task):
                             if count > 3:
                                 break
 
-                    offset += task_args['articles_per_page']
+                    cursor = xrefdata['message']['next-cursor']
 
                 else:
-                    offset = -1
+                    more_results = False
 
         for a in articles.values():
             row = "%s\t%s\t%s\t%s\n" % (publisher_id, a[0], a[1], a[2])
