@@ -23,7 +23,6 @@ class GetPublishedArticlesTask(Task):
         articles = {}
         count = 0
 
-        issns = ['0006-4971']
         for issn in issns:
 
             more_results = True
