@@ -30,7 +30,7 @@ os.environ["IVETL_TABLEAU_PASSWORD"] = "admin"
 os.environ["IVETL_CASSANDRA_IP"] = "10.0.0.21"
 os.environ["IVETL_EMAIL_TO_ADDRESS"] = "john@lonepixel.com"
 os.environ["IVETL_WEB_ADDRESS"] = "http://10.0.0.232"
-os.environ["IVETL_RABBITMQ_BROKER_IP"] = "10.0.1.99"
+os.environ["IVETL_RABBITMQ_BROKER_URL"] = "amqp://guest:guest@10.0.1.99:5672//"
 
 
 # This application object is used by any WSGI server configured to use this
