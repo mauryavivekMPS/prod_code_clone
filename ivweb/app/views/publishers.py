@@ -625,6 +625,11 @@ def validate_issn(request):
     electronic_issn = request.GET['electronic_issn']
     print_issn = request.GET['print_issn']
 
+    # disable this test for now
+    return JsonResponse({
+        'status': 'ok',
+    })
+
     electronic_issn_ok = check_issn(electronic_issn)
 
     if 'journal_code' in request.GET:

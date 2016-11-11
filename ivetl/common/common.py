@@ -390,7 +390,7 @@ PIPELINES = [
         'name': 'Subscription Data',
         'id': 'subscribers_and_subscriptions',
         'user_facing_display_name': 'HighWire subscribers',
-        'visible_on_user_home': True,
+        'visible_on_user_home': False,
         'class': 'ivetl.pipelines.subscriberdata.SubscribersAndSubscriptionsPipeline',
         'has_file_input': False,
         'validator_class': None,
@@ -500,11 +500,30 @@ def task_id_from_path(task_class_path):
 
 PRODUCTS = [
     {
+        'name': 'Rejected Manuscripts',
+        'id': 'rejected_manuscripts',
+        'icon': 'lnr-layers-crossed',
+        'is_user_facing': True,
+        'order': 1,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['rejected_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['benchpress_rejected_articles'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
+            }
+        ],
+    },
+    {
         'name': 'Published Articles',
         'id': 'published_articles',
         'icon': 'lnr-layers',
         'is_user_facing': True,
-        'order': 1,
+        'order': 2,
         'cohort': False,
         'pipelines': [
             {
@@ -532,30 +551,11 @@ PRODUCTS = [
         ],
     },
     {
-        'name': 'Rejected Manuscripts',
-        'id': 'rejected_manuscripts',
-        'icon': 'lnr-layers-crossed',
-        'is_user_facing': True,
-        'order': 4,
-        'cohort': False,
-        'pipelines': [
-            {
-                'pipeline': PIPELINE_BY_ID['rejected_articles'],
-            },
-            {
-                'pipeline': PIPELINE_BY_ID['benchpress_rejected_articles'],
-            },
-            {
-                'pipeline': PIPELINE_BY_ID['reprocess_rejected_articles'],
-            }
-        ],
-    },
-    {
         'name': 'Cohort Articles',
         'id': 'cohort_articles',
         'icon': 'lnr-icons2',
         'is_user_facing': True,
-        'order': 5,
+        'order': 4,
         'cohort': True,
         'pipelines': [
             {
@@ -740,9 +740,7 @@ PRODUCT_GROUPS = [
         ],
         'tableau_workbooks': [
             'uv_institutional_usage.twb',
-            'uv_article_usage_tracker.twb',
-            'uv_section_usage_performance_analyzer.twb',
-            'uv_article_usage_distribution_surveyor.twb',
+            'uv_article_usage.twb',
         ]
     },
     {
@@ -762,57 +760,38 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'rejected_article_tracker.twb',
         'name': 'Rejected Article Tracker',
-        'datasources': ['rejected_articles_ds.tds'],
     },
     {
         'id': 'section_performance_analyzer.twb',
         'name': 'Section Performance Analyzer',
-        'datasources': ['article_citations_ds.tds'],
     },
     {
         'id': 'hot_article_tracker.twb',
         'name': 'Hot Article Tracker',
-        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
     },
     {
         'id': 'hot_object_tracker.twb',
         'name': 'Hot Object Tracker',
-        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
     },
     {
         'id': 'citation_distribution_surveyor.twb',
         'name': 'Citation Distribution Surveyor',
-        'datasources': ['article_citations_ds.tds'],
     },
     {
         'id': 'advance_correlator_citation_usage.twb',
         'name': 'Advance Correlator of Citations & Usage',
-        'datasources': ['article_citations_ds.tds', 'article_usage_ds.tds'],
     },
     {
         'id': 'cohort_comparator.twb',
         'name': 'Cohort Comparator',
-        'datasources': ['article_citations_ds.tds'],
     },
     {
         'id': 'uv_institutional_usage.twb',
-        'name': 'Institutional Usage',
-        'datasources': ['inst_usage_ds.tds'],
+        'name': 'UV: Institutional Usage',
     },
     {
-        'id': 'uv_article_usage_tracker.twb',
-        'name': 'Article Usage Tracker',
-        'datasources': ['article_usage_with_article_metadata_ds.tds'],
-    },
-    {
-        'id': 'uv_section_usage_performance_analyzer.twb',
-        'name': 'Section Usage Performance Analyzer',
-        'datasources': ['article_usage_with_article_metadata_ds.tds'],
-    },
-    {
-        'id': 'uv_article_usage_distribution_surveyor.twb',
-        'name': 'Article Usage Distribution Surveyor',
-        'datasources': ['inst_usage_ds.tds'],
+        'id': 'uv_article_usage.twb',
+        'name': 'UV: Article Usage',
     },
 ]  # type: list[dict]
 

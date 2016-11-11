@@ -2,7 +2,6 @@ import os
 from celery.schedules import crontab
 from ivetl.common import common
 
-# BROKER_URL = 'amqp://guest:guest@' + common.RABBITMQ_BROKER_IP + ':5672//'
 BROKER_URL = common.RABBITMQ_BROKER_URL
 
 CELERY_IMPORTS = (
