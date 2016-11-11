@@ -34,8 +34,6 @@ class UpdateCostPerUseTask(Task):
                 usage_date=current_month,
             ).limit(10000000)
 
-            tlogger.info('Found %s total usage records' % current_month_usage.count())
-
             # first, fill out cpu by bundle
             for usage in current_month_usage:
 
