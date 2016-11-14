@@ -11,6 +11,7 @@ class CrossrefConnector(BaseConnector):
     BASE_CITATION_URL = 'https://doi.crossref.org/servlet/getForwardLinks'
     BASE_ARTICLE_URL = 'http://api.crossref.org/works'
     BASE_WORKS_URL = 'http://api.crossref.org/journals/%s/works'
+    BASE_JNL_URL = 'http://api.crossref.org/journals/%s'
 
     connector_name = 'Crossref'
     max_attempts = 7
@@ -33,6 +34,36 @@ class CrossrefConnector(BaseConnector):
         r = self.get_with_retry(url)
         first_doi = r.json()['message']['items'][0]['DOI']
         return first_doi
+
+    def get_journal_info(self, issn, year):
+        url = self.BASE_JNL_URL % issn
+        #print(url)
+        r = self.get_with_retry(url)
+
+        journal = None
+
+        try:
+            if r.json():
+                jnl_name = r.json()['message']['title']
+                publisher_name = r.json()['message']['publisher']
+
+                url = self.BASE_JNL_URL % issn + "/works?rows=1&filter=from-pub-date:" + str(year) + \
+                      "-01-01,until-pub-date:" + str(year) + "-12-31"
+
+                #print(url)
+                r = self.get_with_retry(url)
+
+                article_count = r.json()['message']['total-results']
+
+                journal = {
+                    'name': jnl_name,
+                    'publisher': publisher_name,
+                    'article_count': article_count
+                }
+        except ValueError:
+            pass
+
+        return journal
 
     def get_article(self, doi):
         url = '%s/%s' % (self.BASE_ARTICLE_URL, doi)

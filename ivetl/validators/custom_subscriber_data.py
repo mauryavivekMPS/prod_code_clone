@@ -24,7 +24,7 @@ class CustomSubscriberDataValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 26:
+                            if len(line) != 25:
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 
