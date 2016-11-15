@@ -55,6 +55,9 @@ class GetRejectedArticlesTask(Task):
 
         target_file.close()
 
+        # true up the count
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, count)
+
         return {
             'count': count,
             'input_file': target_file_name,
