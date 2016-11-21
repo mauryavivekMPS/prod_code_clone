@@ -32,7 +32,7 @@ class UpdateCostPerUseTask(Task):
                 publisher_id=publisher_id,
                 counter_type='jr3',
                 usage_date=current_month,
-            ).limit(10000000)
+            ).fetch_size(1000).limit(10000000)
 
             # first, fill out cpu by bundle
             for usage in current_month_usage:

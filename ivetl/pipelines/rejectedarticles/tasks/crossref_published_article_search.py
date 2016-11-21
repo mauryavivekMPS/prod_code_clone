@@ -156,7 +156,7 @@ class XREFPublishedArticleSearchTask(Task):
 
         # build Issn Journal List
         issn_journals = {}
-        for ij in Issn_Journal.objects.limit(self.ISSN_JNL_QUERY_LIMIT):
+        for ij in Issn_Journal.objects.fetch_size(1000).limit(self.ISSN_JNL_QUERY_LIMIT):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
 
         count = 0

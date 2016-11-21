@@ -27,7 +27,7 @@ class UpdateDeltasTask(Task):
             all_current_month_usage = InstitutionUsageStat.objects.filter(
                 publisher_id=publisher_id,
                 usage_date=current_month,
-            ).limit(10000000)
+            ).fetch_size(1000).limit(10000000)
 
             all_current_month_usage_count = all_current_month_usage.count()
 

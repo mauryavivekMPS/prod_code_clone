@@ -28,7 +28,7 @@ class UpdateSubscriberDeltasTask(Task):
             all_current_month_cost_per_use = SubscriptionCostPerUseBySubscriberStat.objects.filter(
                 publisher_id=publisher_id,
                 usage_date=current_month,
-            ).limit(10000000)
+            ).fetch_size(1000).limit(10000000)
 
             all_current_month_cost_per_use_count = all_current_month_cost_per_use.count()
 

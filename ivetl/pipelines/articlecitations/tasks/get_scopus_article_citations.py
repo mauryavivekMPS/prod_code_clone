@@ -26,9 +26,9 @@ class GetScopusArticleCitations(Task):
         connector = ScopusConnector(pm.scopus_api_keys)
 
         if product['cohort']:
-            articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=True).limit(self.QUERY_LIMIT)
+            articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=True).fetch_size(1000).limit(self.QUERY_LIMIT)
         else:
-            articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.QUERY_LIMIT)
+            articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.QUERY_LIMIT)
 
         count = 0
         error_count = 0

@@ -14,7 +14,7 @@ class GetRejectedArticlesTask(Task):
         total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        rejected_articles = Rejected_Articles.objects.filter(publisher_id=publisher_id).limit(1000000)
+        rejected_articles = Rejected_Articles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "rejectedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
