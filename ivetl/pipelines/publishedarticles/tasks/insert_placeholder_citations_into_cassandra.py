@@ -10,7 +10,7 @@ class InsertPlaceholderCitationsIntoCassandraTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         article_limit = 1000000
 
-        articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(article_limit)
+        articles = PublishedArticle.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(article_limit)
         count = 0
         total_count = len(articles)
         today = datetime.today()

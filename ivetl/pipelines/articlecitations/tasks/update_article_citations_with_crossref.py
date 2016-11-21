@@ -34,7 +34,7 @@ class UpdateArticleCitationsWithCrossref(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
-        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).limit(self.PUBLISHED_ARTICLE_QUERY_LIMIT)
+        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.PUBLISHED_ARTICLE_QUERY_LIMIT)
         updated_date = datetime.datetime.today()
 
         for article in articles:
@@ -109,7 +109,7 @@ class UpdateArticleCitationsWithCrossref(Task):
 
             published_article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
             old_citation_count = published_article.citation_count
-            new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
+            new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).fetch_size(1000).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
             issn = published_article.article_journal_issn
 
             # Just for testing!!

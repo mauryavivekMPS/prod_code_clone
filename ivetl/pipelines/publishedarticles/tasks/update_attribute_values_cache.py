@@ -6,6 +6,7 @@ from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
 from ivetl.models import PublishedArticle, AttributeValues
 from ivetl.alerts import CHECKS
 from ivetl.common import common
+from ivetl import utils
 
 
 @app.task
@@ -24,7 +25,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 if f['table'] == 'published_article':
                     value_names.add(f['name'])
 
-        total_count = len(all_articles) * (len(value_names) + 1)  # plus one for the special-case citable sections
+        total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
@@ -69,5 +70,7 @@ class UpdateAttributeValuesCacheTask(Task):
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, notification_count=count)
 
         # leave existing task args in place, input_file and count, in particular
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, count)
 
         return task_args

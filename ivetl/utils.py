@@ -4,8 +4,9 @@ import uuid
 import humanize
 import datetime
 import boto3
+from operator import attrgetter
 from dateutil.rrule import rrule, MONTHLY
-from ivetl.models import SystemGlobal, PipelineStatus
+from ivetl.models import SystemGlobal, PipelineStatus, PipelineTaskStatus
 from ivetl.common import common
 
 
@@ -131,6 +132,17 @@ def get_most_recent_run(publisher_id, product_id, pipeline_id, status=None):
         most_recent_run = date_sorted_runs[0]
 
     return most_recent_run
+
+
+def get_record_count_estimate(publisher_id, product_id, pipeline_id, task_id, default=100000):
+    all_tasks = PipelineTaskStatus.objects.filter(publisher_id=publisher_id, product_id=product_id, pipeline_id=pipeline_id)
+    all_tasks = [t for t in all_tasks if t.status == 'completed' and t.task_id == task_id]
+    if all_tasks:
+        sorted_tasks = sorted(all_tasks, key=attrgetter('start_time'), reverse=True)
+        recent_task = sorted_tasks[0]
+        return recent_task.current_record_count
+    else:
+        return default
 
 
 def download_file_from_s3(bucket, key):

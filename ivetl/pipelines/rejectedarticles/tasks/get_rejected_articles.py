@@ -3,6 +3,7 @@ import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import Rejected_Articles
+from ivetl import utils
 
 
 @app.task
@@ -10,10 +11,10 @@ class GetRejectedArticlesTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        rejected_articles = Rejected_Articles.objects.filter(publisher_id=publisher_id).limit(1000000)
-        total_count = rejected_articles.count()
-
+        total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        rejected_articles = Rejected_Articles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "rejectedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -53,6 +54,9 @@ class GetRejectedArticlesTask(Task):
             target_file.write(row)
 
         target_file.close()
+
+        # true up the count
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, count)
 
         return {
             'count': count,

@@ -27,7 +27,7 @@ class ResolveSubscriberDataTask(Task):
         for subscriber_publisher_id in publisher_id_list:
             tlogger.info('Processing publisher: %s' % subscriber_publisher_id)
 
-            all_inst_subscribers = Subscriber.objects.filter(publisher_id=subscriber_publisher_id, user_type='INST').limit(10000000)
+            all_inst_subscribers = Subscriber.objects.filter(publisher_id=subscriber_publisher_id, user_type='INST').fetch_size(1000).limit(10000000)
 
             for subscriber in all_inst_subscribers:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
