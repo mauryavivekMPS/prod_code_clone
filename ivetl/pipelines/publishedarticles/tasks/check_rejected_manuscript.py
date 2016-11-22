@@ -17,10 +17,10 @@ class CheckRejectedManuscriptTask(Task):
         if 'max_articles_to_process' in task_args and task_args['max_articles_to_process']:
             article_limit = task_args['max_articles_to_process']
 
-        articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(article_limit)
+        articles = PublishedArticle.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(article_limit)
         rm_map = {}
 
-        rms = Rejected_Articles.objects.filter(publisher_id=publisher_id).limit(1000000)
+        rms = Rejected_Articles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
         for r in rms:
             if r.status != 'Not Published':
                 rm_map[r.crossref_doi] = r

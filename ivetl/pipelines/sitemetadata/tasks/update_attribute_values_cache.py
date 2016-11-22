@@ -3,6 +3,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import UptimeCheckMetadata, AttributeValues
 from ivetl.alerts import CHECKS
+from ivetl import utils
 
 
 @app.task
@@ -20,7 +21,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 if f['table'] == 'uptime_check_metadata':
                     value_names.add(f['name'])
 
-        total_count = len(all_checks) * len(value_names)
+        total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
@@ -40,5 +41,7 @@ class UpdateAttributeValuesCacheTask(Task):
             )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, count)
 
         return task_args
