@@ -1,27 +1,63 @@
-var EditAlertPage = (function() {
-    var alertParamsUrl;
-    var alertFiltersUrl;
-    var checkChoicesUrl;
-    var params = [];
-    var filters = [];
+$.widget("custom.editalertpage", {
+    options: {
+        alertParamsUrl: '',
+        alertFiltersUrl: '',
+        checkChoicesUrl: '',
+        selectedCheck: null
+    },
 
-    var isIntegerValue = function(value) {
+    _create: function() {
+        var self = this;
+
+        this.params = [];
+        this.filters = [];
+
+        $('#id_publisher_id').on('change', function () {
+            self._updateCheckChoices();
+        });
+        if (!this.options.selectedCheck) {
+            this._updateCheckChoices();
+        }
+        this._wireUpCheckChoices();
+
+        $('#id_name, #id_comma_separated_emails').on('keyup', function () {
+            self._checkForm();
+        });
+
+        $('#id_enabled').on('change', function () {
+            self._checkForm();
+        });
+
+        var m = $('#confirm-archive-alert-modal');
+
+        m.find('.confirm-archive-alert-button').on('click', function () {
+            IvetlWeb.showLoading();
+            m.modal('hide');
+            $('#archive-alert-form').submit();
+        });
+
+        $('.archive-alert').on('click', function () {
+            m.modal();
+        });
+    },
+
+    _isIntegerValue: function(value) {
         return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10)) && parseInt(value) > 0;
-    };
+    },
 
-    var isFloatValue = function(value) {
+    _isFloatValue: function(value) {
       return !isNaN(parseFloat(value)) && isFinite(value);
-    };
+    },
 
-    var isPercentageIntegerValue = function(value) {
-        return isIntegerValue(value) && parseInt(value) > 0;
-    };
+    _isPercentageIntegerValue: function(value) {
+        return self._isIntegerValue(value) && parseInt(value) > 0;
+    },
 
-    var isPercentageFloatValue = function(value) {
-        return isFloatValue(value) && parseFloat(value) > 0;
-    };
+    _isPercentageFloatValue: function(value) {
+        return self._isFloatValue(value) && parseFloat(value) > 0;
+    },
 
-    var checkForm = function() {
+    _checkForm: function() {
         var checkId = $("#id_check_id option:selected").val();
         var publisherId = $("#id_publisher_id option:selected").val();
         var name = $('#id_name').val();
@@ -42,23 +78,23 @@ var EditAlertPage = (function() {
         }
 
         var gotParamValues = true;
-        $.each(params, function(index, param) {
+        $.each(this.params, function(index, param) {
             var requirement = $('.' + param.name + '-requirement');
             var value = $('#id_param_' + param.name).val();
 
             var isValid = false;
             if (value) {
                 if (param.type == 'integer') {
-                    isValid = isIntegerValue(value);
+                    isValid = self._isIntegerValue(value);
                 }
                 else if (param.type == 'float') {
-                    isValid = isFloatValue(value);
+                    isValid = self._isFloatValue(value);
                 }
                 else if (param.type == 'percentage-integer') {
-                    isValid = isPercentageIntegerValue(value);
+                    isValid = self._isPercentageIntegerValue(value);
                 }
                 else if (param.type == 'percentage-float') {
-                    isValid = isPercentageFloatValue(value);
+                    isValid = self._isPercentageFloatValue(value);
                 }
             }
 
@@ -77,22 +113,24 @@ var EditAlertPage = (function() {
         else {
             $('.submit-button').addClass('disabled').prop('disabled', false);
         }
-    };
+    },
 
-    var setParams = function(newParams) {
-        params = newParams;
-        $.each(params, function(index, param) {
+    _setParams: function(newParams) {
+        var self = this;
+        this.params = newParams;
+        $.each(this.params, function(index, param) {
             $('.requirements-items .param-requirement').remove();
             $('.requirements-items').append('<li class="' + param.name + '-requirement param-requirement">' + param.requirement_text + '<span class="lnr lnr-check checkmark"></span></li>');
             $('#id_param_' + param.name).on('keyup', function() {
-                checkForm();
+                self._checkForm();
             });
         });
-    };
+    },
 
-    var setFilters = function(newFilters) {
-        filters = newFilters;
-        $.each(filters, function(index, filter) {
+    _setFilters: function(newFilters) {
+        var self = this;
+        this.filters = newFilters;
+        $.each(this.filters, function(index, filter) {
             var filterElement = $('#id_filter_' + filter.name);
 
             filterElement.typeahead({
@@ -102,12 +140,12 @@ var EditAlertPage = (function() {
             });
 
             filterElement.on('keyup', function() {
-                checkForm();
+                self._checkForm();
             });
         });
-    };
+    },
 
-    var updateFilters = function() {
+    _updateFilters: function() {
         var checkId = $('#id_check_id option:selected').val();
         var publisherId = $("#id_publisher_id option:selected").val();
 
@@ -118,46 +156,49 @@ var EditAlertPage = (function() {
 
         IvetlWeb.showLoading();
 
-        $.get(alertFiltersUrl, data)
+        $.get(this.options.alertFiltersUrl, data)
             .done(function(html) {
                 $('.alert-filters').html(html);
             })
             .always(function() {
                 IvetlWeb.hideLoading();
             });
-    };
+    },
 
-    var onPublisherOrCheckChange = function() {
+    _onPublisherOrCheckChange: function() {
         if ($('#id_check_id option').length > 0) {
-            updateParams();
-            updateFilters();
+            this._updateParams();
+            this.updateFilters();
         }
         else {
             $('#id_name').val('');
         }
-        checkForm();
-    };
+        this._checkForm();
+    },
 
-    var wireUpCheckChoices = function() {
+    _wireUpCheckChoices: function() {
+        var self = this;
         $('#id_check_id').on('change', function() {
-            onPublisherOrCheckChange();
+            self._onPublisherOrCheckChange();
         });
-    };
+    },
 
-    var updateCheckChoices = function() {
+    _updateCheckChoices: function() {
+        var self = this;
+
         var data = [
             {name: 'publisher_id', value: $('#id_publisher_id option:selected').val()}
         ];
 
-        $.get(checkChoicesUrl, data)
+        $.get(this.options.checkChoicesUrl, data)
             .done(function(html) {
                 $('.check-control-container').html(html);
-                wireUpCheckChoices();
-                onPublisherOrCheckChange();
+                self._wireUpCheckChoices();
+                self._onPublisherOrCheckChange();
             });
-    };
+    },
 
-    var updateParams = function() {
+    _updateParams :function() {
         var checkId = $('#id_check_id option:selected').val();
 
         $(this).removeClass('placeholder');
@@ -167,61 +208,12 @@ var EditAlertPage = (function() {
         ];
 
         IvetlWeb.showLoading();
-        $.get(alertParamsUrl, data)
+        $.get(this.options.alertParamsUrl, data)
             .done(function(html) {
                 $('.alert-params').html(html);
             })
             .always(function() {
                 IvetlWeb.hideLoading();
             });
-    };
-
-    var init = function(options) {
-        options = $.extend({
-            alertParamsUrl: '',
-            alertFiltersUrl: '',
-            checkChoicesUrl: '',
-            selectedCheck: null
-        }, options);
-
-        alertParamsUrl = options.alertParamsUrl;
-        alertFiltersUrl = options.alertFiltersUrl;
-        checkChoicesUrl = options.checkChoicesUrl;
-
-        $('#id_publisher_id').on('change', function() {
-            updateCheckChoices();
-        });
-        if (!options.selectedCheck) {
-            updateCheckChoices();
-        }
-        wireUpCheckChoices();
-
-        $('#id_name, #id_comma_separated_emails').on('keyup', function() {
-            checkForm();
-        });
-
-        $('#id_enabled').on('change', function() {
-            checkForm();
-        });
-
-        var m = $('#confirm-archive-alert-modal');
-
-        m.find('.confirm-archive-alert-button').on('click', function() {
-            IvetlWeb.showLoading();
-            m.modal('hide');
-            $('#archive-alert-form').submit();
-        });
-
-        $('.archive-alert').on('click', function() {
-            m.modal();
-        });
-    };
-
-    return {
-        setParams: setParams,
-        setFilters: setFilters,
-        checkForm: checkForm,
-        init: init
-    };
-
-})();
+    }
+});

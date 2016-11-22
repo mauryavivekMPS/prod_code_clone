@@ -43,17 +43,18 @@
                 onFirstInteractive: function () {
                     workbook = viz.getWorkbook();
                     activeSheet = workbook.getActiveSheet();
-                }
+                },
+                "Article Type": "At a Glance"
             };
             new tableau.Viz(placeholderDiv, url, options);
         }
 
         $(function() {
             // var url = "http://login.vizors.org/#/views/AdvanceCorrelatorofCitationsUsage_19/Section-to-SectionComparator";
-            // var url = "http://10.0.0.143/trusted/{{ token }}/views/SectionPerformanceAnalyzer_0/ArticleDetails";
-            initializeViz('tableau-1', "http://public.tableau.com/views/WorldIndicators/GDPpercapita");
-            initializeViz('tableau-2', "http://public.tableau.com/views/WorldIndicators/GDPpercapita");
-            initializeViz('tableau-3', "http://public.tableau.com/views/WorldIndicators/GDPpercapita");
+            var url = "http://10.0.0.143/trusted/Hpy6vVYjOIIqKpqiDXTKWZVK/views/RejectedArticleTracker_5/Overview";
+            initializeViz('tableau-1', url);
+{#            initializeViz('tableau-2', "http://public.tableau.com/views/WorldIndicators/GDPpercapita");#}
+{#            initializeViz('tableau-3', "http://public.tableau.com/views/WorldIndicators/GDPpercapita");#}
         });
 
     </script>
