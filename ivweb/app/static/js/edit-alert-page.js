@@ -3,7 +3,9 @@ $.widget("custom.editalertpage", {
         alertParamsUrl: '',
         alertFiltersUrl: '',
         checkChoicesUrl: '',
-        selectedCheck: null
+        selectedCheck: null,
+        initialFilters: {},
+        initialParams: {}
     },
 
     _create: function() {
@@ -39,6 +41,10 @@ $.widget("custom.editalertpage", {
         $('.archive-alert').on('click', function () {
             m.modal();
         });
+
+        this._setFilters(this.options.initialFilters);
+        this._setParams(this.options.initialParams);
+        this._checkForm();
     },
 
     _isIntegerValue: function(value) {
@@ -146,6 +152,7 @@ $.widget("custom.editalertpage", {
     },
 
     _updateFilters: function() {
+        var self = this;
         var checkId = $('#id_check_id option:selected').val();
         var publisherId = $("#id_publisher_id option:selected").val();
 
@@ -157,8 +164,9 @@ $.widget("custom.editalertpage", {
         IvetlWeb.showLoading();
 
         $.get(this.options.alertFiltersUrl, data)
-            .done(function(html) {
-                $('.alert-filters').html(html);
+            .done(function(response) {
+                $('.alert-filters').html(response.html);
+                self._setFilters(response.filters)
             })
             .always(function() {
                 IvetlWeb.hideLoading();
@@ -168,7 +176,7 @@ $.widget("custom.editalertpage", {
     _onPublisherOrCheckChange: function() {
         if ($('#id_check_id option').length > 0) {
             this._updateParams();
-            this.updateFilters();
+            this._updateFilters();
         }
         else {
             $('#id_name').val('');
@@ -198,7 +206,8 @@ $.widget("custom.editalertpage", {
             });
     },
 
-    _updateParams :function() {
+    _updateParams: function() {
+        var self = this;
         var checkId = $('#id_check_id option:selected').val();
 
         $(this).removeClass('placeholder');
@@ -209,11 +218,12 @@ $.widget("custom.editalertpage", {
 
         IvetlWeb.showLoading();
         $.get(this.options.alertParamsUrl, data)
-            .done(function(html) {
-                $('.alert-params').html(html);
+            .done(function(response) {
+                $('.alert-params').html(response.html);
+                self._setParams(response.params);
             })
             .always(function() {
                 IvetlWeb.hideLoading();
             });
-    }
+    },
 });

@@ -11,10 +11,3 @@
         </div>
     {% endfor %}
 {% endif %}
-
-<script>
-    $(function() {
-        EditAlertPage.setFilters({{ check.filters|safe|default:"{}" }});
-        EditAlertPage.checkForm();
-    });
-</script>

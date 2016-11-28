@@ -5,155 +5,158 @@
 {% block body_class %}alerts{% endblock %}
 
 {% block content %}
-    <div class="row header-row with-breadcrumb">
-        <div class="col-md-8">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'alerts.list' %}">Alerts</a></li>
-                <li></li>
-            </ol>
-            <h1>{% if alert %}{{ alert.name }}{% else %}New Alert{% endif %}</h1>
-        </div>
-    </div>
-
-    <div class="requirements-box">
-        <h2>Checklist</h2>
-        <ul class="requirements-items">
-            <li class="name-requirement">A name for the alert <span class="lnr lnr-check checkmark"></span></li>
-            <li class="email-requirement">One or more email addresses <span class="lnr lnr-check checkmark"></span></li>
-        </ul>
-        <ul>
-            <li class="requirements-notes">All of the items listed above are required to create an alert.</li>
-        </ul>
-    </div>
-
-    <div>
-        <div class="row">
-            <div class="col-md-12">
-                <form class="form-horizontal alert-form" method="post">
-                    {% csrf_token %}
-                    {{ form.alert_id }}
-                    {{ form.check_params }}
-
-                    <div class="form-group row" {% if single_publisher_user %}style="display:none"{% endif %}>
-                        <label for="publisher_id" class="col-sm-2">Publisher</label>
-                        <div class="col-sm-6">
-                            {{ form.publisher_id }}
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="check_id" class="col-sm-2">Alert Type</label>
-                        <div class="col-sm-6">
-                            <select class="form-control">
-                                <option></option>
-                                <option>Scheduled Alert</option>
-                                <option>Threshold Alert</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="check_id" class="col-sm-2">Check</label>
-                        <div class="col-sm-6 check-control-container">
-                            {% include "alerts/include/check_choices.html" %}
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="name" class="col-sm-2">Name</label>
-                        <div class="col-sm-6">
-                            {{ form.name }}
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="comma_separated_emails" class="col-sm-2">
-                            Emails
-{#                            <span class="lnr lnr-question-circle" data-toggle="tooltip" data-placement="bottom" title="This is some help info"></span>#}
-                        </label>
-                        <div class="col-sm-6">
-                            {{ form.comma_separated_emails }}
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        {% if not alert.archived %}
-                            <div class="col-sm-2 col-sm-offset-2">
-                                <div class="checkbox">
-                                    <label>{{ form.enabled }} Enabled</label>
-                                </div>
-                            </div>
-                        {% endif %}
-                        <div class="col-sm-2 {% if alert.archived %}col-sm-offset-2{% endif %}">
-                            <p class="form-control-static">
-                                {% if alert.archived %}
-                                    <a href="#" class="archive-link archive-alert">Unarchive</a>
-                                {% else %}
-                                    <a href="#" class="archive-link archive-alert"><span class="lnr lnr-trash2"></span> Archive</a>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="alert-params">
-                        {% include "alerts/include/params.html" %}
-                    </div>
-
-                    <div class="alert-filters">
-                        {% include "alerts/include/filters.html" %}
-                    </div>
-
-                    <div class="form-group submit-row">
-                        <button type="submit" class="btn btn-primary submit-button {% if not alert %}disabled{% endif %}" {% if not alert %}disabled="disabled"{% endif %}>
-                            {% if alert %}
-                                Save Changes
-                            {% else %}
-                                Add Alert
-                            {% endif %}
-                        </button>
-                        <span class="cancel">or <a href="../">Cancel</a></span>
-                    </div>
-                </form>
+    <div id="edit-alert-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'alerts.list' %}">Alerts</a></li>
+                    <li></li>
+                </ol>
+                <h1>{% if alert %}{{ alert.name }}{% else %}New Alert{% endif %}</h1>
             </div>
         </div>
-    </div>
 
-    {% if alert %}
-        <form id="archive-alert-form" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="alert_id" value="{{ form.initial.alert_id }}">
-            <input type="hidden" name="archive" value="{% if alert.archived %}off{% else %}on{% endif %}">
-        </form>
+        <div class="requirements-box">
+            <h2>Checklist</h2>
+            <ul class="requirements-items">
+                <li class="name-requirement">A name for the alert <span class="lnr lnr-check checkmark"></span></li>
+                <li class="email-requirement">One or more email addresses <span class="lnr lnr-check checkmark"></span></li>
+            </ul>
+            <ul>
+                <li class="requirements-notes">All of the items listed above are required to create an alert.</li>
+            </ul>
+        </div>
 
-        <div class="modal fade confirm-archive-alert" id="confirm-archive-alert-modal">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title">{% if alert.archived %}Unarchive{% else %}Archive{% endif %} Alert</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to {% if alert.archived %}un{% endif %}archive this alert?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary confirm-archive-alert-button">Yes, {% if alert.archived %}Unarchive{% else %}Archive{% endif %} Alert</button>
-                        <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
-                    </div>
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-horizontal alert-form" method="post">
+                        {% csrf_token %}
+                        {{ form.alert_id }}
+                        {{ form.check_params }}
+
+                        <div class="form-group row" {% if single_publisher_user %}style="display:none"{% endif %}>
+                            <label for="publisher_id" class="col-sm-2">Publisher</label>
+                            <div class="col-sm-6">
+                                {{ form.publisher_id }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="check_id" class="col-sm-2">Alert Type</label>
+                            <div class="col-sm-6">
+                                <select class="form-control">
+                                    <option></option>
+                                    <option>Scheduled Alert</option>
+                                    <option>Threshold Alert</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="check_id" class="col-sm-2">Check</label>
+                            <div class="col-sm-6 check-control-container">
+                                {% include "alerts/include/check_choices.html" %}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2">Name</label>
+                            <div class="col-sm-6">
+                                {{ form.name }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="comma_separated_emails" class="col-sm-2">
+                                Emails
+    {#                            <span class="lnr lnr-question-circle" data-toggle="tooltip" data-placement="bottom" title="This is some help info"></span>#}
+                            </label>
+                            <div class="col-sm-6">
+                                {{ form.comma_separated_emails }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            {% if not alert.archived %}
+                                <div class="col-sm-2 col-sm-offset-2">
+                                    <div class="checkbox">
+                                        <label>{{ form.enabled }} Enabled</label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="col-sm-2 {% if alert.archived %}col-sm-offset-2{% endif %}">
+                                <p class="form-control-static">
+                                    {% if alert.archived %}
+                                        <a href="#" class="archive-link archive-alert">Unarchive</a>
+                                    {% else %}
+                                        <a href="#" class="archive-link archive-alert"><span class="lnr lnr-trash2"></span> Archive</a>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="alert-params">
+                            {% include "alerts/include/params.html" %}
+                        </div>
+
+                        <div class="alert-filters">
+                            {% include "alerts/include/filters.html" %}
+                        </div>
+
+                        <div class="form-group submit-row">
+                            <button type="submit" class="btn btn-primary submit-button {% if not alert %}disabled{% endif %}" {% if not alert %}disabled="disabled"{% endif %}>
+                                {% if alert %}
+                                    Save Changes
+                                {% else %}
+                                    Add Alert
+                                {% endif %}
+                            </button>
+                            <span class="cancel">or <a href="../">Cancel</a></span>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    {% endif %}
 
+        {% if alert %}
+            <form id="archive-alert-form" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="alert_id" value="{{ form.initial.alert_id }}">
+                <input type="hidden" name="archive" value="{% if alert.archived %}off{% else %}on{% endif %}">
+            </form>
+
+            <div class="modal fade confirm-archive-alert" id="confirm-archive-alert-modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title">{% if alert.archived %}Unarchive{% else %}Archive{% endif %} Alert</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to {% if alert.archived %}un{% endif %}archive this alert?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary confirm-archive-alert-button">Yes, {% if alert.archived %}Unarchive{% else %}Archive{% endif %} Alert</button>
+                            <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block page_scripts %}
     <script>
         $(function() {
-            EditAlertPage.init({
+            $('#edit-alert-page').editalertpage({
                 alertParamsUrl: '{% url 'alerts.include_alert_params' %}',
                 alertFiltersUrl: '{% url 'alerts.include_alert_filters' %}',
                 checkChoicesUrl: '{% url 'alerts.include_check_choices' %}',
-                selectedCheck: '{{ form.initial.check_id }}'
+                selectedCheck: '{{ form.initial.check_id }}',
+                filters: {{ check.filters|safe|default:"{}" }},
+                params: {{ check.check_type.params|safe|default:"{}" }}
             });
         });
     </script>

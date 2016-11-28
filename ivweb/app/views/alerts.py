@@ -2,6 +2,8 @@ import logging
 import json
 from operator import attrgetter
 from django import forms
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
@@ -221,9 +223,16 @@ def edit(request, alert_id=None):
 @login_required
 def include_alert_params(request):
     check_id = request.GET['check_id']
-    return render(request, 'alerts/include/params.html', {
-        'check': CHECKS[check_id],
+    check = CHECKS[check_id]
+
+    html = render_to_string('alerts/include/params.html', {
+        'check': check,
         'is_include': True,
+    }, request=request)
+
+    return JsonResponse({
+        'html': html,
+        'params': check['check_type']['params'],
     })
 
 
@@ -234,9 +243,14 @@ def include_alert_filters(request):
     check = CHECKS[check_id]
     _add_filter_values(publisher_id, check)
 
-    return render(request, 'alerts/include/filters.html', {
+    html = render_to_string('alerts/include/filters.html', {
         'check': check,
         'is_include': True,
+    }, request=request)
+
+    return JsonResponse({
+        'html': html,
+        'filters': check['filters'],
     })
 
 
@@ -248,7 +262,7 @@ def get_check_choices_for_publisher(publisher_id):
             if product in publisher.supported_products:
                 supported_checks.add(check_id)
 
-    check_choices =  [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
+    check_choices = [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
     sorted_check_choices = sorted(check_choices, key=lambda c: c[1])
 
     return sorted_check_choices
