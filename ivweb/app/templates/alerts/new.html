@@ -43,34 +43,13 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="check_id" class="col-sm-2">Alert Type</label>
-                            <div class="col-sm-6">
-                                <select class="form-control">
-                                    <option></option>
-                                    <option>Scheduled Alert</option>
-                                    <option>Threshold Alert</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="check_id" class="col-sm-2">Check</label>
-                            <div class="col-sm-6 check-control-container">
-                                {% include "alerts/include/check_choices.html" %}
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
                             <label for="name" class="col-sm-2">Name</label>
                             <div class="col-sm-6">
                                 {{ form.name }}
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="comma_separated_emails" class="col-sm-2">
-                                Emails
-    {#                            <span class="lnr lnr-question-circle" data-toggle="tooltip" data-placement="bottom" title="This is some help info"></span>#}
-                            </label>
+                            <label for="comma_separated_emails" class="col-sm-2">Emails</label>
                             <div class="col-sm-6">
                                 {{ form.comma_separated_emails }}
                             </div>
@@ -94,12 +73,36 @@
                             </div>
                         </div>
 
-                        <div class="alert-params">
-                            {% include "alerts/include/params.html" %}
+                        <div class="form-group row">
+                            <label for="check_id" class="col-sm-2">Alert Type</label>
+                            <div class="col-sm-6">
+                                <select id="id_alert_type" class="form-control">
+                                    <option value="">Select an alert type</option>
+                                    <option value="scheduled">Scheduled Alert</option>
+                                    <option value="threshold">Threshold Alert</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="alert-filters">
-                            {% include "alerts/include/filters.html" %}
+                        <div class="threshold-alert-controls" style="display:none">
+                            <div class="form-group row">
+                                <label for="check_id" class="col-sm-2">Check</label>
+                                <div class="col-sm-6 check-control-container">
+                                    {% include "alerts/include/check_choices.html" %}
+                                </div>
+                            </div>
+
+                            <div class="alert-params">
+                                {% include "alerts/include/params.html" %}
+                            </div>
+
+                            <div class="alert-filters">
+                                {% include "alerts/include/filters.html" %}
+                            </div>
+                        </div>
+
+                        <div class="scheduled-alert-controls" style="display:none">
+                            <p>This is scheduled controls!</p>
                         </div>
 
                         <div class="form-group submit-row">
@@ -112,6 +115,7 @@
                             </button>
                             <span class="cancel">or <a href="../">Cancel</a></span>
                         </div>
+
                     </form>
                 </div>
             </div>
