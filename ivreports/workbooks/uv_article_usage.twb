@@ -1681,7 +1681,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem4324346938419367186&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;article_usage_with_article_metadata_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.1&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_usage_with_article_metadata_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos; server-userid=&apos;5&apos; username=&apos;&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[altmetrics_blogs]&apos; value=&apos;[sqlproxy].[altmetrics_blogs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_facebook]&apos; value=&apos;[sqlproxy].[altmetrics_facebook]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_gplus]&apos; value=&apos;[sqlproxy].[altmetrics_gplus]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_news_outlets]&apos; value=&apos;[sqlproxy].[altmetrics_news_outlets]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_policy_docs]&apos; value=&apos;[sqlproxy].[altmetrics_policy_docs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_reddit]&apos; value=&apos;[sqlproxy].[altmetrics_reddit]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_twitter]&apos; value=&apos;[sqlproxy].[altmetrics_twitter]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_video]&apos; value=&apos;[sqlproxy].[altmetrics_video]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_wikipedia]&apos; value=&apos;[sqlproxy].[altmetrics_wikipedia]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[article_doi (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[article_issue]&apos; value=&apos;[sqlproxy].[article_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal]&apos; value=&apos;[sqlproxy].[article_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal_issn]&apos; value=&apos;[sqlproxy].[article_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[article_pages]&apos; value=&apos;[sqlproxy].[article_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[article_publisher]&apos; value=&apos;[sqlproxy].[article_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[article_scopus_id]&apos; value=&apos;[sqlproxy].[article_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[article_title]&apos; value=&apos;[sqlproxy].[article_title]&apos; /&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[article_volume]&apos; value=&apos;[sqlproxy].[article_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count]&apos; value=&apos;[sqlproxy].[citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_lookup_error]&apos; value=&apos;[sqlproxy].[citations_lookup_error]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_updated_on]&apos; value=&apos;[sqlproxy].[citations_updated_on]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_2]&apos; value=&apos;[sqlproxy].[custom_2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_3]&apos; value=&apos;[sqlproxy].[custom_3]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_average_score]&apos; value=&apos;[sqlproxy].[f1000_average_score]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_num_recommendations]&apos; value=&apos;[sqlproxy].[f1000_num_recommendations]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_total_score]&apos; value=&apos;[sqlproxy].[f1000_total_score]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[from_rejected_manuscript]&apos; value=&apos;[sqlproxy].[from_rejected_manuscript]&apos; /&gt;&#10;      &lt;map key=&apos;[has_abstract]&apos; value=&apos;[sqlproxy].[has_abstract]&apos; /&gt;&#10;      &lt;map key=&apos;[hw_metadata_retrieved]&apos; value=&apos;[sqlproxy].[hw_metadata_retrieved]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort]&apos; value=&apos;[sqlproxy].[is_cohort]&apos; /&gt;&#10;      &lt;map key=&apos;[is_open_access]&apos; value=&apos;[sqlproxy].[is_open_access]&apos; /&gt;&#10;      &lt;map key=&apos;[is_tr_citable]&apos; value=&apos;[sqlproxy].[is_tr_citable]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_03]&apos; value=&apos;[sqlproxy].[month_usage_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_06]&apos; value=&apos;[sqlproxy].[month_usage_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_09]&apos; value=&apos;[sqlproxy].[month_usage_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_12]&apos; value=&apos;[sqlproxy].[month_usage_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_24]&apos; value=&apos;[sqlproxy].[month_usage_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_36]&apos; value=&apos;[sqlproxy].[month_usage_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_48]&apos; value=&apos;[sqlproxy].[month_usage_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_60]&apos; value=&apos;[sqlproxy].[month_usage_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_03]&apos; value=&apos;[sqlproxy].[month_usage_abstract_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_06]&apos; value=&apos;[sqlproxy].[month_usage_abstract_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_09]&apos; value=&apos;[sqlproxy].[month_usage_abstract_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_12]&apos; value=&apos;[sqlproxy].[month_usage_abstract_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_24]&apos; value=&apos;[sqlproxy].[month_usage_abstract_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_36]&apos; value=&apos;[sqlproxy].[month_usage_abstract_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_48]&apos; value=&apos;[sqlproxy].[month_usage_abstract_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_60]&apos; value=&apos;[sqlproxy].[month_usage_abstract_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_03]&apos; value=&apos;[sqlproxy].[month_usage_full_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_06]&apos; value=&apos;[sqlproxy].[month_usage_full_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_09]&apos; value=&apos;[sqlproxy].[month_usage_full_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_12]&apos; value=&apos;[sqlproxy].[month_usage_full_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_24]&apos; value=&apos;[sqlproxy].[month_usage_full_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_36]&apos; value=&apos;[sqlproxy].[month_usage_full_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_48]&apos; value=&apos;[sqlproxy].[month_usage_full_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_60]&apos; value=&apos;[sqlproxy].[month_usage_full_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_03]&apos; value=&apos;[sqlproxy].[month_usage_pdf_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_06]&apos; value=&apos;[sqlproxy].[month_usage_pdf_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_09]&apos; value=&apos;[sqlproxy].[month_usage_pdf_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_12]&apos; value=&apos;[sqlproxy].[month_usage_pdf_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_24]&apos; value=&apos;[sqlproxy].[month_usage_pdf_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_36]&apos; value=&apos;[sqlproxy].[month_usage_pdf_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_48]&apos; value=&apos;[sqlproxy].[month_usage_pdf_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_60]&apos; value=&apos;[sqlproxy].[month_usage_pdf_60]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_editor]&apos; value=&apos;[sqlproxy].[rejected_manuscript_editor]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_id]&apos; value=&apos;[sqlproxy].[rejected_manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_citation_count]&apos; value=&apos;[sqlproxy].[scopus_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_subtype]&apos; value=&apos;[sqlproxy].[scopus_subtype]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[usage_start_date (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;TOC Section&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;created (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#2&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_2]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#3&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_3]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[month_number]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;publisher_id (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Collection&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;usage_start_date (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[usage_start_date (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem3803836580391318888&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;article_usage_with_article_metadata_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.1&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_usage_with_article_metadata_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos; server-userid=&apos;5&apos; username=&apos;&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[altmetrics_blogs]&apos; value=&apos;[sqlproxy].[altmetrics_blogs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_facebook]&apos; value=&apos;[sqlproxy].[altmetrics_facebook]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_gplus]&apos; value=&apos;[sqlproxy].[altmetrics_gplus]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_news_outlets]&apos; value=&apos;[sqlproxy].[altmetrics_news_outlets]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_policy_docs]&apos; value=&apos;[sqlproxy].[altmetrics_policy_docs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_reddit]&apos; value=&apos;[sqlproxy].[altmetrics_reddit]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_twitter]&apos; value=&apos;[sqlproxy].[altmetrics_twitter]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_video]&apos; value=&apos;[sqlproxy].[altmetrics_video]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_wikipedia]&apos; value=&apos;[sqlproxy].[altmetrics_wikipedia]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[article_doi (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[article_issue]&apos; value=&apos;[sqlproxy].[article_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal]&apos; value=&apos;[sqlproxy].[article_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal_issn]&apos; value=&apos;[sqlproxy].[article_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[article_pages]&apos; value=&apos;[sqlproxy].[article_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[article_publisher]&apos; value=&apos;[sqlproxy].[article_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[article_scopus_id]&apos; value=&apos;[sqlproxy].[article_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[article_title]&apos; value=&apos;[sqlproxy].[article_title]&apos; /&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[article_volume]&apos; value=&apos;[sqlproxy].[article_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count]&apos; value=&apos;[sqlproxy].[citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_lookup_error]&apos; value=&apos;[sqlproxy].[citations_lookup_error]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_updated_on]&apos; value=&apos;[sqlproxy].[citations_updated_on]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_2]&apos; value=&apos;[sqlproxy].[custom_2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_3]&apos; value=&apos;[sqlproxy].[custom_3]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_average_score]&apos; value=&apos;[sqlproxy].[f1000_average_score]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_num_recommendations]&apos; value=&apos;[sqlproxy].[f1000_num_recommendations]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_total_score]&apos; value=&apos;[sqlproxy].[f1000_total_score]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[from_rejected_manuscript]&apos; value=&apos;[sqlproxy].[from_rejected_manuscript]&apos; /&gt;&#10;      &lt;map key=&apos;[has_abstract]&apos; value=&apos;[sqlproxy].[has_abstract]&apos; /&gt;&#10;      &lt;map key=&apos;[hw_metadata_retrieved]&apos; value=&apos;[sqlproxy].[hw_metadata_retrieved]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort]&apos; value=&apos;[sqlproxy].[is_cohort]&apos; /&gt;&#10;      &lt;map key=&apos;[is_open_access]&apos; value=&apos;[sqlproxy].[is_open_access]&apos; /&gt;&#10;      &lt;map key=&apos;[is_tr_citable]&apos; value=&apos;[sqlproxy].[is_tr_citable]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_03]&apos; value=&apos;[sqlproxy].[month_usage_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_06]&apos; value=&apos;[sqlproxy].[month_usage_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_09]&apos; value=&apos;[sqlproxy].[month_usage_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_12]&apos; value=&apos;[sqlproxy].[month_usage_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_24]&apos; value=&apos;[sqlproxy].[month_usage_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_36]&apos; value=&apos;[sqlproxy].[month_usage_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_48]&apos; value=&apos;[sqlproxy].[month_usage_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_60]&apos; value=&apos;[sqlproxy].[month_usage_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_03]&apos; value=&apos;[sqlproxy].[month_usage_abstract_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_06]&apos; value=&apos;[sqlproxy].[month_usage_abstract_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_09]&apos; value=&apos;[sqlproxy].[month_usage_abstract_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_12]&apos; value=&apos;[sqlproxy].[month_usage_abstract_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_24]&apos; value=&apos;[sqlproxy].[month_usage_abstract_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_36]&apos; value=&apos;[sqlproxy].[month_usage_abstract_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_48]&apos; value=&apos;[sqlproxy].[month_usage_abstract_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_60]&apos; value=&apos;[sqlproxy].[month_usage_abstract_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_03]&apos; value=&apos;[sqlproxy].[month_usage_full_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_06]&apos; value=&apos;[sqlproxy].[month_usage_full_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_09]&apos; value=&apos;[sqlproxy].[month_usage_full_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_12]&apos; value=&apos;[sqlproxy].[month_usage_full_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_24]&apos; value=&apos;[sqlproxy].[month_usage_full_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_36]&apos; value=&apos;[sqlproxy].[month_usage_full_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_48]&apos; value=&apos;[sqlproxy].[month_usage_full_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_60]&apos; value=&apos;[sqlproxy].[month_usage_full_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_03]&apos; value=&apos;[sqlproxy].[month_usage_pdf_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_06]&apos; value=&apos;[sqlproxy].[month_usage_pdf_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_09]&apos; value=&apos;[sqlproxy].[month_usage_pdf_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_12]&apos; value=&apos;[sqlproxy].[month_usage_pdf_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_24]&apos; value=&apos;[sqlproxy].[month_usage_pdf_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_36]&apos; value=&apos;[sqlproxy].[month_usage_pdf_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_48]&apos; value=&apos;[sqlproxy].[month_usage_pdf_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_60]&apos; value=&apos;[sqlproxy].[month_usage_pdf_60]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_editor]&apos; value=&apos;[sqlproxy].[rejected_manuscript_editor]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_id]&apos; value=&apos;[sqlproxy].[rejected_manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_citation_count]&apos; value=&apos;[sqlproxy].[scopus_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_subtype]&apos; value=&apos;[sqlproxy].[scopus_subtype]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[usage_start_date (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;TOC Section&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;created (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#2&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_2]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#3&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_3]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[month_number]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;publisher_id (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Collection&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;usage_start_date (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[usage_start_date (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;11/12/2016 5:58:27 AM&quot;</attribute>
@@ -2358,6 +2358,558 @@
             </map>
             <map to='#ffbb78'>
               <bucket>&quot;Letters To&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:Calculation_2501027101059850:nk]' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;1-50&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;2,501-5,000&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;101-500&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;50,000+&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;5,001-10,000&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;1,001-1,500&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;501-1,000&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;51-100&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;10,001-25,000&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;0 Usage&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;1,501-2,000&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;25,001-50,000&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;2,001-2,500&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:Color By (copy 2):nk]' type='palette'>
+            <map to='#17becf'>
+              <bucket>&quot;Hong Kong&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;How I Treat&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Pakistan&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Vascular Biology&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>%null%</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;2010&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Anniversary Editorial&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Blood&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;India&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Inside&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Portugal&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;2012&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Belgium&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Blood Reflections&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Italy&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Lymphoid Neoplasia&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Slovenia&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Errata&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;France&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Netherlands&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Review Article&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;United States&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;2015&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Cme Questions&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Colombia&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Luxembourg&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Red Cells, Iron, And Erythropoiesis&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Thailand&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;2014&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Chile&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Clinical Trials And Observations&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Korea, Republic of&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Phagocytes, Granulocytes, And Myelopoiesis&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Switzerland&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Blood Spotlight&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Brazil&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Japan&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Myeloid Neoplasia&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;South Africa&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Hungary&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Immunobiology&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Poland&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Argentina&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Blood Consult&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Free Research Articles&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Inside Blood Commentary&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Iran, Islamic Republic of&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Russian Federation&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Expression Of Concern&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Germany&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Norway&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Thrombosis And Hemostasis&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Continuing Medical Education (Cme) Questions&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Czech Republic&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Malawi&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Platelets And Thrombopoiesis&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Regular Article&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Turkey&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;China&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Cme Article&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Lebanon&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;No Scientific Category&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Plenary Paper&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Taiwan&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Evidence-Based Focused Review&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Gambia&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;New Zealand&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Review Series&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Transfusion Medicine&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Uruguay&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;2013&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Blood Work&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Canada&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Jersey&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;None&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Spain&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Greece&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Hematopoiesis And Stem Cells&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Oman&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Transplantation&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;2016&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Denmark&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;E-&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;E-Blood&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Martinique&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Plenary Papers&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Response To Letter&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;United Arab Emirates&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Editorial&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Finland&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Mexico&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Retraction&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;United Kingdom&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;2011&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Australia&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Blood Flashback&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Gene Therapy&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Ireland&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Letter To Blood&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Saudi Arabia&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Brief Report&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Canada, Canada&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Kenya&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Multiple Myeloma&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Perspectives&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Sweden&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Austria&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Blood Forum&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Israel&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Letters To&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Singapore&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:article_type:nk]' type='palette'>
+            <map to='#17becf'>
+              <bucket>&quot;Gene Therapy&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;How I Treat&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>%null%</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Anniversary Editorial&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Inside&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Blood Reflections&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Lymphoid Neoplasia&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Errata&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Review Article&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Cme Questions&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Red Cells, Iron, And Erythropoiesis&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Clinical Trials And Observations&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Phagocytes, Granulocytes, And Myelopoiesis&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Blood Spotlight&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Myeloid Neoplasia&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Immunobiology&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Blood Consult&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Inside Blood Commentary&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Vascular Biology&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Expression Of Concern&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Thrombosis And Hemostasis&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Continuing Medical Education (Cme) Questions&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Platelets And Thrombopoiesis&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Regular Article&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Cme Article&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Plenary Paper&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Evidence-Based Focused Review&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Review Series&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Blood Work&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;None&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Hematopoiesis And Stem Cells&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Transplantation&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;E-Blood&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Response To Letter&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;E-&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Editorial&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Retraction&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Blood Flashback&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Letter To Blood&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Brief Report&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Perspectives&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Blood Forum&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Letters To&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:Year of Publication (copy):ok]' type='palette'>
+            <map to='#67bf5c'>
+              <bucket>2014</bucket>
+            </map>
+            <map to='#729ece'>
+              <bucket>2016</bucket>
+            </map>
+            <map to='#a8786e'>
+              <bucket>2011</bucket>
+            </map>
+            <map to='#ad8bc9'>
+              <bucket>2012</bucket>
+            </map>
+            <map to='#ed665d'>
+              <bucket>2013</bucket>
+            </map>
+            <map to='#ed97ca'>
+              <bucket>2010</bucket>
+            </map>
+            <map to='#ff9e4a'>
+              <bucket>2015</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:usage_type (copy):nk]' type='palette'>
+            <map to='#5f9ed1'>
+              <bucket>&quot;abstract&quot;</bucket>
+            </map>
+            <map to='#ababab'>
+              <bucket>&quot;pdf&quot;</bucket>
+            </map>
+            <map to='#ffbc79'>
+              <bucket>&quot;full&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:usage_type:nk]' type='palette'>
+            <map to='#006ba4'>
+              <bucket>&quot;abstract&quot;</bucket>
+            </map>
+            <map to='#595959'>
+              <bucket>&quot;pdf&quot;</bucket>
+            </map>
+            <map to='#ff800e'>
+              <bucket>&quot;full&quot;</bucket>
             </map>
           </encoding>
           <encoding attr='color' field='[none:Calculation_9890802164725350:nk]' type='palette'>
@@ -3533,558 +4085,6 @@
             </map>
             <map to='#ffbb78'>
               <bucket>&quot;Letters To&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Calculation_2501027101059850:nk]' type='palette'>
-            <map to='#1f77b4'>
-              <bucket>&quot;1-50&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;2,501-5,000&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;101-500&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;50,000+&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;5,001-10,000&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;1,001-1,500&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;501-1,000&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;51-100&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;10,001-25,000&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;0 Usage&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;1,501-2,000&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;25,001-50,000&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;2,001-2,500&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Color By (copy 2):nk]' type='palette'>
-            <map to='#17becf'>
-              <bucket>&quot;Hong Kong&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;How I Treat&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Pakistan&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Vascular Biology&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>%null%</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;2010&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Anniversary Editorial&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Blood&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;India&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Inside&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Portugal&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;2012&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Belgium&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Blood Reflections&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Italy&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Lymphoid Neoplasia&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Slovenia&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Errata&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;France&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Netherlands&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Review Article&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;United States&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;2015&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Cme Questions&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Colombia&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Luxembourg&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Red Cells, Iron, And Erythropoiesis&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Thailand&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;2014&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Chile&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Clinical Trials And Observations&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Korea, Republic of&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Phagocytes, Granulocytes, And Myelopoiesis&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Switzerland&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Blood Spotlight&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Brazil&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Japan&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Myeloid Neoplasia&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;South Africa&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Hungary&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Immunobiology&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Poland&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Argentina&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Blood Consult&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Free Research Articles&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Inside Blood Commentary&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Iran, Islamic Republic of&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Russian Federation&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Expression Of Concern&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Germany&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Norway&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Thrombosis And Hemostasis&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Continuing Medical Education (Cme) Questions&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Czech Republic&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Malawi&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Platelets And Thrombopoiesis&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Regular Article&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Turkey&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;China&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Cme Article&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Lebanon&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;No Scientific Category&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Plenary Paper&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Taiwan&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Evidence-Based Focused Review&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Gambia&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;New Zealand&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Review Series&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Transfusion Medicine&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Uruguay&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;2013&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Blood Work&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Canada&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Jersey&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;None&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Spain&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Greece&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Hematopoiesis And Stem Cells&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Oman&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Transplantation&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;2016&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Denmark&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;E-&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;E-Blood&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Martinique&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Plenary Papers&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Response To Letter&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;United Arab Emirates&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Editorial&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Finland&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Mexico&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Retraction&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;United Kingdom&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;2011&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Australia&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Blood Flashback&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Gene Therapy&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Ireland&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Letter To Blood&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Saudi Arabia&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Brief Report&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Canada, Canada&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Kenya&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Multiple Myeloma&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Perspectives&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Sweden&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Austria&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Blood Forum&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Israel&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Letters To&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Singapore&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:article_type:nk]' type='palette'>
-            <map to='#17becf'>
-              <bucket>&quot;Gene Therapy&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;How I Treat&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>%null%</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Anniversary Editorial&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Inside&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Blood Reflections&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Lymphoid Neoplasia&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Errata&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Review Article&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Cme Questions&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Red Cells, Iron, And Erythropoiesis&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Clinical Trials And Observations&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Phagocytes, Granulocytes, And Myelopoiesis&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Blood Spotlight&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Myeloid Neoplasia&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Immunobiology&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Blood Consult&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Inside Blood Commentary&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Vascular Biology&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Expression Of Concern&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Thrombosis And Hemostasis&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Continuing Medical Education (Cme) Questions&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Platelets And Thrombopoiesis&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Regular Article&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Cme Article&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Plenary Paper&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Evidence-Based Focused Review&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Review Series&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Blood Work&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;None&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Hematopoiesis And Stem Cells&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Transplantation&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;E-Blood&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Response To Letter&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;E-&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Editorial&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Retraction&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Blood Flashback&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Letter To Blood&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Brief Report&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Perspectives&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Blood Forum&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Letters To&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Year of Publication (copy):ok]' type='palette'>
-            <map to='#67bf5c'>
-              <bucket>2014</bucket>
-            </map>
-            <map to='#729ece'>
-              <bucket>2016</bucket>
-            </map>
-            <map to='#a8786e'>
-              <bucket>2011</bucket>
-            </map>
-            <map to='#ad8bc9'>
-              <bucket>2012</bucket>
-            </map>
-            <map to='#ed665d'>
-              <bucket>2013</bucket>
-            </map>
-            <map to='#ed97ca'>
-              <bucket>2010</bucket>
-            </map>
-            <map to='#ff9e4a'>
-              <bucket>2015</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:usage_type (copy):nk]' type='palette'>
-            <map to='#5f9ed1'>
-              <bucket>&quot;abstract&quot;</bucket>
-            </map>
-            <map to='#ababab'>
-              <bucket>&quot;pdf&quot;</bucket>
-            </map>
-            <map to='#ffbc79'>
-              <bucket>&quot;full&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:usage_type:nk]' type='palette'>
-            <map to='#006ba4'>
-              <bucket>&quot;abstract&quot;</bucket>
-            </map>
-            <map to='#595959'>
-              <bucket>&quot;pdf&quot;</bucket>
-            </map>
-            <map to='#ff800e'>
-              <bucket>&quot;full&quot;</bucket>
             </map>
           </encoding>
         </style-rule>
@@ -6691,7 +6691,7 @@
             <format attr='color' scope='rows' value='#297a98' />
           </style-rule>
           <style-rule element='mark'>
-            <encoding attr='color' field='[sqlproxy.42589.490078657407].[usr:Measure By (copy):qk]' palette='tableau-map-temperatur' type='interpolated' />
+            <encoding attr='color' field='[sqlproxy.42589.490078657407].[usr:Measure By (copy):qk]' palette='area-red-green' reverse='true' type='interpolated' />
           </style-rule>
           <style-rule element='worksheet'>
             <format attr='display-field-labels' scope='cols' value='false' />
@@ -10881,45 +10881,45 @@
                                   </zone>
                                   <zone h='6120' id='108' param='vert' type='layout-flow' w='100000' x='0' y='2480'>
                                     <zone h='2000' id='109' param='horz' type='layout-flow' w='98908' x='546' y='2560'>
-                                      <zone h='1840' id='118' param='[Parameters].[Parameter 1 4]' type='paramctrl' w='17453' x='728' y='2640'>
+                                      <zone custom-title='true' h='1840' id='118' mode='compact' param='[Parameters].[Parameter 1 4]' type='paramctrl' w='17453' x='728' y='2640'>
                                         <formatted-text>
                                           <run>Group By</run>
                                         </formatted-text>
                                       </zone>
-                                      <zone fixed-size='188' h='1840' id='102' is-fixed='true' param='[Parameters].[Color By Parameter (copy) 1]' type='paramctrl' w='17819' x='18181' y='2640'>
+                                      <zone custom-title='true' fixed-size='188' h='1840' id='102' is-fixed='true' mode='compact' param='[Parameters].[Color By Parameter (copy) 1]' type='paramctrl' w='17819' x='18181' y='2640'>
                                         <formatted-text>
                                           <run>Measure By</run>
                                         </formatted-text>
                                       </zone>
-                                      <zone h='1840' id='117' param='[Parameters].[Parameter 1]' type='paramctrl' w='17453' x='36000' y='2640'>
+                                      <zone h='1840' id='117' mode='compact' param='[Parameters].[Parameter 1]' type='paramctrl' w='17453' x='36000' y='2640'>
                                       </zone>
-                                      <zone h='1840' id='88' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_journal:nk]' type='filter' w='15273' x='53453' y='2640'>
+                                      <zone h='1840' id='88' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_journal:nk]' type='filter' w='15273' x='53453' y='2640'>
                                       </zone>
-                                      <zone h='1840' id='91' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_volume:nk]' type='filter' w='15273' x='68726' y='2640'>
+                                      <zone h='1840' id='91' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_volume:nk]' type='filter' w='15273' x='68726' y='2640'>
                                       </zone>
-                                      <zone h='1840' id='92' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_issue:nk]' type='filter' w='15273' x='83999' y='2640'>
+                                      <zone h='1840' id='92' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_issue:nk]' type='filter' w='15273' x='83999' y='2640'>
                                       </zone>
                                     </zone>
                                     <zone h='1920' id='110' param='horz' type='layout-flow' w='98908' x='546' y='4560'>
-                                      <zone h='1760' id='86' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_type:nk]' type='filter' w='14077' x='728' y='4640'>
+                                      <zone h='1760' id='86' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:article_type:nk]' type='filter' w='14077' x='728' y='4640'>
                                       </zone>
-                                      <zone h='1760' id='87' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:subject_category:nk]' type='filter' w='14077' x='14805' y='4640'>
+                                      <zone h='1760' id='87' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:subject_category:nk]' type='filter' w='14077' x='14805' y='4640'>
                                       </zone>
-                                      <zone h='1760' id='90' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:editor:nk]' type='filter' w='14077' x='28882' y='4640'>
+                                      <zone h='1760' id='90' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:editor:nk]' type='filter' w='14077' x='28882' y='4640'>
                                       </zone>
-                                      <zone h='1760' id='89' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:custom:nk]' type='filter' w='14077' x='42959' y='4640'>
+                                      <zone h='1760' id='89' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:custom:nk]' type='filter' w='14077' x='42959' y='4640'>
                                       </zone>
-                                      <zone h='1760' id='115' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:custom_2:nk]' type='filter' w='14077' x='57036' y='4640'>
+                                      <zone h='1760' id='115' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:custom_2:nk]' type='filter' w='14077' x='57036' y='4640'>
                                       </zone>
-                                      <zone h='1760' id='116' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:custom_3:nk]' type='filter' w='14077' x='71113' y='4640'>
+                                      <zone h='1760' id='116' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:custom_3:nk]' type='filter' w='14077' x='71113' y='4640'>
                                       </zone>
-                                      <zone h='1760' id='104' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:is_open_access:nk]' type='filter' w='14082' x='85190' y='4640'>
+                                      <zone h='1760' id='104' mode='dropdown' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:is_open_access:nk]' show-mode='false' type='filter' w='14082' x='85190' y='4640'>
                                       </zone>
                                     </zone>
                                     <zone h='1880' id='114' param='horz' type='layout-flow' w='98908' x='546' y='6480'>
-                                      <zone h='1880' id='97' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:date_of_publication:qk]' type='filter' w='49454' x='546' y='6480'>
+                                      <zone h='1880' id='97' name='Object Mapper - Articles' param='[sqlproxy.42589.490078657407].[none:date_of_publication:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49454' x='546' y='6480'>
                                       </zone>
-                                      <zone h='1880' id='129' name='Object Treemap' param='[sqlproxy.42589.490078657407].[tmn:Calculation_0961213202244106:qk]' type='filter' w='49454' x='50000' y='6480'>
+                                      <zone h='1880' id='129' name='Object Treemap' param='[sqlproxy.42589.490078657407].[tmn:Calculation_0961213202244106:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49454' x='50000' y='6480'>
                                       </zone>
                                     </zone>
                                   </zone>
@@ -10948,7 +10948,7 @@
                         </zone>
                       </zone>
                       <zone h='17800' id='125' name='Object Plot' show-title='true' w='50727' x='48909' y='9880'>
-                        <layout-cache minwidth='193' type-h='fixed' type-w='scalable' />
+                        <layout-cache minheight='165' minwidth='193' type-h='scalable' type-w='scalable' />
                       </zone>
                     </zone>
                     <zone fixed-size='5' h='520' id='131' is-fixed='true' type='empty' w='100000' x='0' y='27680'>
@@ -10963,7 +10963,7 @@
                       </formatted-text>
                     </zone>
                     <zone h='1400' id='128' name='Object Mapper - Articles' show-title='true' w='100000' x='0' y='29120'>
-                      <layout-cache fixed-size-h='27' non-cell-size-w='1084' type-h='fixed' type-w='cell' />
+                      <layout-cache non-cell-size-w='1084' type-h='fixed' type-w='cell' />
                     </zone>
                   </zone>
                 </zone>
@@ -11033,7 +11033,7 @@
                                 <zone h='1700' id='105' type='title' w='99636' x='0' y='0'>
                                 </zone>
                                 <zone h='2400' id='153' param='horz' type='layout-flow' w='99636' x='0' y='1700'>
-                                  <zone h='2400' id='156' name='ov_apby' param='[sqlproxy.42589.490078657407].[none:article_journal:nk]' type='filter' w='15637' x='0' y='1700'>
+                                  <zone h='2400' id='156' mode='checkdropdown' name='ov_apby' param='[sqlproxy.42589.490078657407].[none:article_journal:nk]' show-apply='true' type='filter' w='15637' x='0' y='1700'>
                                   </zone>
                                   <zone h='2400' id='157' type='empty' w='83999' x='15637' y='1700'>
                                   </zone>
@@ -11070,10 +11070,10 @@
                                 <zone h='16550' id='169' type='layout-basic' w='99636' x='0' y='37150'>
                                   <zone h='16550' id='124' param='horz' type='layout-flow' w='66000' x='0' y='37150'>
                                     <zone h='16550' id='125' name='ov_abstract' show-title='true' w='33177' x='0' y='37150'>
-                                      <layout-cache type-h='fixed' type-w='cell' />
+                                      <layout-cache cell-count-w='7' non-cell-size-w='30' type-h='fixed' type-w='cell' />
                                     </zone>
                                     <zone h='16550' id='128' name='ov_full' show-title='true' w='32813' x='33177' y='37150'>
-                                      <layout-cache type-h='fixed' type-w='cell' />
+                                      <layout-cache cell-count-w='7' non-cell-size-w='30' type-h='fixed' type-w='cell' />
                                     </zone>
                                   </zone>
                                   <zone h='16550' id='170' param='horz' type='layout-flow' w='33636' x='66000' y='37150'>
@@ -11769,7 +11769,6 @@
       </zones>
     </window>
     <window auto-hidden='0' class='dashboard' maximized='0' name='Object Mapper'>
-      <active id='49' />
       <zones>
         <zone h='1360' id='112' name='' type='title' w='100000' x='0' y='0' />
         <zone fixed-size='5' h='520' id='131' is-fixed='true' name='' type='empty' w='100000' x='0' y='27680' />
@@ -14700,221 +14699,228 @@
     </thumbnail>
     <thumbnail height='192' name='Object Mapper' width='192'>
       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
-      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
+      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
+      BF8AAAAASUVORK5CYII=
     </thumbnail>
     <thumbnail height='192' name='Section-to-Section Comparator' width='192'>
       iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAACXBIWXMAAA7EAAAOxAGVKw4b
