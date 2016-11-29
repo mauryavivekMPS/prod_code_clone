@@ -3,7 +3,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
-from ivetl.models import PublisherMetadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
+from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations, PublishedArticle
 from ivetl.alerts import run_alerts, send_alert_notifications
 
 
@@ -34,7 +34,7 @@ class UpdateArticleCitationsWithCrossref(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
-        articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.PUBLISHED_ARTICLE_QUERY_LIMIT)
+        articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.PUBLISHED_ARTICLE_QUERY_LIMIT)
         updated_date = datetime.datetime.today()
 
         for article in articles:
@@ -58,7 +58,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                 add_citation = False
 
                 try:
-                    existing_citation = Article_Citations.objects.get(
+                    existing_citation = ArticleCitations.objects.get(
                         publisher_id=publisher_id,
                         article_doi=doi,
                         citation_doi=citation_doi
@@ -73,7 +73,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                         existing_citation.citation_source_xref = True
                         existing_citation.save()
 
-                except Article_Citations.DoesNotExist:
+                except ArticleCitations.DoesNotExist:
                     tlogger.info("Found new citation %s in crossref, adding record" % citation_doi)
                     add_citation = True
 
@@ -86,7 +86,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                             tlogger.info("No citation date available for citation %s, skipping" % citation_doi)
                             continue
 
-                        Article_Citations.create(
+                        ArticleCitations.create(
                             publisher_id=publisher_id,
                             article_doi=doi,
                             citation_doi=data['doi'],
@@ -109,7 +109,7 @@ class UpdateArticleCitationsWithCrossref(Task):
 
             published_article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
             old_citation_count = published_article.citation_count
-            new_citation_count = Article_Citations.objects.filter(publisher_id=publisher_id, article_doi=doi).fetch_size(1000).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
+            new_citation_count = ArticleCitations.objects.filter(publisher_id=publisher_id, article_doi=doi).fetch_size(1000).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
             issn = published_article.article_journal_issn
 
             # Just for testing!!

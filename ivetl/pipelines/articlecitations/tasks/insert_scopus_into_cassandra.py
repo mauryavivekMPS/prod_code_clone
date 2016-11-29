@@ -3,7 +3,7 @@ import codecs
 import json
 import datetime
 from ivetl.celery import app
-from ivetl.models import PublishedArticle, Article_Citations, Publisher_Vizor_Updates
+from ivetl.models import PublishedArticle, ArticleCitations, Publisher_Vizor_Updates
 from ivetl.pipelines.task import Task
 
 
@@ -76,7 +76,7 @@ class InsertScopusIntoCassandra(Task):
 
                     # note this try-except should probably be removed when we're satisfied there are no bugs
                     try:
-                        Article_Citations.create(
+                        ArticleCitations.create(
                             publisher_id=publisher_id,
                             article_doi=doi,
                             citation_doi=citation_doi,
