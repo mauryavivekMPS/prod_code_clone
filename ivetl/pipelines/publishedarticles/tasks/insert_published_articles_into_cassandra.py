@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.models import PublishedArticle, Published_Article_By_Cohort, Publisher_Vizor_Updates, PublisherMetadata, Article_Citations, PublishedArticleValues, Issn_Journal
+from ivetl.models import PublishedArticle, PublishedArticleByCohort, Publisher_Vizor_Updates, PublisherMetadata, ArticleCitations, PublishedArticleValues, Issn_Journal
 from ivetl.pipelines.task import Task
 
 
@@ -191,7 +191,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
 
                 # Record in cohort table
-                pac = Published_Article_By_Cohort()
+                pac = PublishedArticleByCohort()
                 pac['publisher_id'] = publisher_id
                 pac['is_cohort'] = pa.is_cohort
                 pac['article_doi'] = pa.article_doi
@@ -202,7 +202,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 # finally, add placeholder citations
                 for yr in range(pa.date_of_publication.year, today.year + 1):
 
-                    plac = Article_Citations()
+                    plac = ArticleCitations()
                     plac['publisher_id'] = publisher_id
                     plac['article_doi'] = pa.article_doi
                     plac['citation_doi'] = str(yr) + "-placeholder"

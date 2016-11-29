@@ -3,7 +3,7 @@ import json
 import codecs
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
-from ivetl.models import PublisherMetadata, Published_Article_By_Cohort, Article_Citations, PublishedArticle
+from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 
@@ -26,9 +26,9 @@ class GetScopusArticleCitations(Task):
         connector = ScopusConnector(pm.scopus_api_keys)
 
         if product['cohort']:
-            articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=True).fetch_size(1000).limit(self.QUERY_LIMIT)
+            articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=True).fetch_size(1000).limit(self.QUERY_LIMIT)
         else:
-            articles = Published_Article_By_Cohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.QUERY_LIMIT)
+            articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.QUERY_LIMIT)
 
         count = 0
         error_count = 0
@@ -42,7 +42,16 @@ class GetScopusArticleCitations(Task):
 
             doi = article.article_doi
 
-            tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, doi))
+            def should_get_citation_details(citation_doi):
+                try:
+                    ArticleCitations.objects.get(
+                        publisher_id=publisher_id,
+                        article_doi=doi,
+                        citation_doi=citation_doi
+                    )
+                    return False
+                except ArticleCitations.DoesNotExist:
+                    return True
 
             if article.article_scopus_id is None or article.article_scopus_id == '':
                 tlogger.info("Skipping - No Scopus Id")
@@ -50,7 +59,12 @@ class GetScopusArticleCitations(Task):
 
             citations = []
             try:
-                citations = connector.get_citations(article.article_scopus_id, article.is_cohort, tlogger)
+                citations = connector.get_citations(
+                    article.article_scopus_id,
+                    article.is_cohort,
+                    tlogger,
+                    should_get_citation_details=should_get_citation_details
+                )
 
             except MaxTriesAPIError:
                 tlogger.info("Scopus API failed for %s" % article.article_scopus_id)

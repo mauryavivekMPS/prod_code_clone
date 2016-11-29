@@ -102,7 +102,7 @@ class ScopusConnector(BaseConnector):
 
         return scopus_id, scopus_cited_by_count, scopus_subtype
 
-    def get_citations(self, article_scopus_id, is_cohort, tlogger):
+    def get_citations(self, article_scopus_id, is_cohort, tlogger, should_get_citation_details=None):
         offset = 0
         citations = []
 
@@ -165,6 +165,13 @@ class ScopusConnector(BaseConnector):
                             else:
                                 doi = scopus_citation['eid']
 
+                            if should_get_citation_details:
+                                if not should_get_citation_details(doi):
+                                    tlogger.info('skipping: %s' % doi)
+                                    continue
+
+                            tlogger.info('not skipping: %s' % doi)
+
                             scopus_id = None
                             if 'eid' in scopus_citation and (scopus_citation['eid'] != 0):
                                 scopus_id = scopus_citation['eid']
@@ -173,11 +180,9 @@ class ScopusConnector(BaseConnector):
                             cr_article = crossref.get_article(doi)
 
                             if cr_article is None or cr_article['date'] is None:
-                                #tlogger.info("Using Scopus value for date of citation")
                                 if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
                                     citation_date = scopus_citation['prism:coverDate']
                             else:
-                                #tlogger.info("Using CrossRef value for date of citation")
                                 citation_date = cr_article['date'].strftime('%Y-%m-%d')
 
                             first_author = None
