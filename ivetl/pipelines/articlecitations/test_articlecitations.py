@@ -1,4 +1,4 @@
-from ivetl.models import Article_Citations
+from ivetl.models import ArticleCitations
 from ivetl.pipelines.test_pipelines import PipelineTestCase
 from ivetl.pipelines.articlecitations import UpdateArticleCitationsPipeline
 
@@ -24,7 +24,7 @@ class CustomArticleDataTestCase(PipelineTestCase):
         self.poll_and_timeout('test', UpdateArticleCitationsPipeline.pipeline_name, run_pipeline)
 
         # pull out one of the expected citations
-        citation1 = Article_Citations.objects.get(
+        citation1 = ArticleCitations.objects.get(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-427765',
             citation_doi='10.1002/ajh.23628'
@@ -35,7 +35,7 @@ class CustomArticleDataTestCase(PipelineTestCase):
         self.assertEqual(citation1.citation_scopus_id, '2-s2.0-84893910207')
 
         # check for a citation from both scopus and crossref
-        citation2 = Article_Citations.objects.get(
+        citation2 = ArticleCitations.objects.get(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             citation_doi='10.3389/fimmu.2015.00015'

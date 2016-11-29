@@ -2,7 +2,7 @@ import time
 import unittest
 import datetime
 from dateutil import parser
-from ivetl.models import (PublisherMetadata, PipelineStatus, PublishedArticle, Article_Citations,
+from ivetl.models import (PublisherMetadata, PipelineStatus, PublishedArticle, ArticleCitations,
                           Publisher_Vizor_Updates, PublishedArticleValues, PipelineTaskStatus)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
@@ -64,7 +64,7 @@ class PipelineTestCase(unittest.TestCase):
             publisher = PublisherMetadata.objects.get(publisher_id='test')
             PublishedArticle.objects(publisher_id='test').delete()
             PublishedArticleValues.objects(publisher_id='test').delete()
-            Article_Citations.objects(publisher_id='test').delete()
+            ArticleCitations.objects(publisher_id='test').delete()
             PipelineStatus.objects(publisher_id='test').delete()
             Publisher_Vizor_Updates.objects(publisher_id='test').delete()
             publisher.delete()
@@ -176,7 +176,7 @@ class PipelineTestCase(unittest.TestCase):
         # some citations
         #
 
-        Article_Citations.create(
+        ArticleCitations.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-427765',
             citation_doi='2013-placeholder',
@@ -186,7 +186,7 @@ class PipelineTestCase(unittest.TestCase):
             updated=parser.parse('2015-09-07 13:04:46-0700'),
         )
 
-        Article_Citations.create(
+        ArticleCitations.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-427765',
             citation_doi='2014-placeholder',
@@ -196,7 +196,7 @@ class PipelineTestCase(unittest.TestCase):
             updated=parser.parse('2015-09-07 13:04:46-0700'),
         )
 
-        Article_Citations.create(
+        ArticleCitations.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             citation_doi='2013-placeholder',
@@ -206,7 +206,7 @@ class PipelineTestCase(unittest.TestCase):
             updated=parser.parse('2015-09-07 13:04:46-0700'),
         )
 
-        Article_Citations.create(
+        ArticleCitations.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             citation_doi='2014-placeholder',
@@ -216,7 +216,7 @@ class PipelineTestCase(unittest.TestCase):
             updated=parser.parse('2015-09-07 13:04:46-0700'),
         )
 
-        Article_Citations.create(
+        ArticleCitations.create(
             publisher_id='test',
             article_doi='10.1182/blood-2012-11-464685',
             citation_doi='2015-placeholder',
