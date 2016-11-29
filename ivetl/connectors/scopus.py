@@ -167,10 +167,8 @@ class ScopusConnector(BaseConnector):
 
                             if should_get_citation_details:
                                 if not should_get_citation_details(doi):
-                                    tlogger.info('skipping: %s' % doi)
+                                    tlogger.info('Skipping: %s' % doi)
                                     continue
-
-                            tlogger.info('not skipping: %s' % doi)
 
                             scopus_id = None
                             if 'eid' in scopus_citation and (scopus_citation['eid'] != 0):

@@ -22,7 +22,7 @@ class InsertJR3IntoCassandraTask(Task):
 
             date_cols = []
             num_cols = 6
-            with open(file, 'r', encoding='windows-1252') as tsv:
+            with open(file, 'r', encoding='ISO-8859-1') as tsv:
                 got_header_for_file = False
 
                 for line in csv.reader(tsv, delimiter="\t"):
