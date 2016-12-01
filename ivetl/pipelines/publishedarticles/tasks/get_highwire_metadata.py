@@ -1,12 +1,7 @@
 import csv
 import codecs
 import json
-import urllib.parse
-import urllib.request
 import re
-import requests
-from requests import HTTPError
-from lxml import etree
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector, SassConnector
