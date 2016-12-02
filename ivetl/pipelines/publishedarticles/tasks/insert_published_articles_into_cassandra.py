@@ -103,12 +103,14 @@ class InsertPublishedArticlesIntoCassandra(Task):
                         co_authors = ''
                         for a in data['author'][1:]:
 
-                            co_authors += a['family']
+                            if 'family' in a:
 
-                            if 'given' in a:
-                                co_authors += ',' + a['given'] + "; "
-                            else:
-                                co_authors += "; "
+                                co_authors += a['family']
+
+                                if 'given' in a:
+                                    co_authors += ',' + a['given'] + "; "
+                                else:
+                                    co_authors += "; "
 
                         pa['co_authors'] = co_authors
 

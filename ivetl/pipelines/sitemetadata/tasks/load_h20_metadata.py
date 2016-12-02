@@ -1,5 +1,4 @@
 import csv
-import os
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import HighwireMetadata
