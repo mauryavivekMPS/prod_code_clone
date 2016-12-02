@@ -391,7 +391,7 @@ class TableauConnector(BaseConnector):
     def generate_png_report(self, view_url):
         subprocess.call([common.TABCMD, 'get', view_url, '-f', '/tmp/image-test.png'] + self._tabcmd_login_params())
 
-    def generate_web_token(self):
+    def generate_trusted_token(self):
         # subprocess.call([common.TABCMD, 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())
         # subprocess.call(['/Users/john/Projects/impactvizor-pipeline/deploy/tabcmd/tabcmd.sh', 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())
         # t.sign_in
@@ -400,8 +400,15 @@ class TableauConnector(BaseConnector):
         # t.server
         # t.server
         # import requests
-        # response = requests.post('http://10.0.0.143/trusted', data=data)
-        # data = data = {'username': 'admin'}
+
+        # cheat for now
+        username = 'cob'
+        password = 'Hello123'
+
+        response = requests.post('http://10.0.0.143/trusted', data=data)
+        data = data = {'username': 'admin'}
+
+
         # response = requests.post('http://10.0.0.143/trusted', data=data)
         # response.text
 

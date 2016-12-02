@@ -3,7 +3,9 @@ $.widget("custom.editalertpage", {
         alertParamsUrl: '',
         alertFiltersUrl: '',
         checkChoicesUrl: '',
+        trustedReportUrl: '',
         selectedAlertType: null,
+        selectedReportType: null,
         selectedCheck: null,
         initialFilters: {},
         initialParams: {}
@@ -59,6 +61,19 @@ $.widget("custom.editalertpage", {
         alertTypeMenu.on('change', function() {
             self._updateAlertTypeMenu();
         });
+
+        var reportTypeMenu = $('#id_report_type');
+
+        var nullReportTypeItem = reportTypeMenu.find('option:first-child');
+        nullReportTypeItem.attr('disabled', 'disabled');
+        if (!this.options.selectedReportType) {
+            reportTypeMenu.addClass('placeholder');
+            nullReportTypeItem.attr('selected', 'selected');
+        }
+
+        reportTypeMenu.on('change', function() {
+            self._updateReportTypeMenu();
+        });
     },
 
     _updateAlertTypeMenu: function() {
@@ -79,6 +94,51 @@ $.widget("custom.editalertpage", {
             else {
                 $('.scheduled-alert-controls').hide();
                 $('.threshold-alert-controls').hide();
+            }
+        }
+    },
+
+    _updateReportTypeMenu: function() {
+        var reportTypeMenu = $('#id_report_type');
+        var selectedOption = reportTypeMenu.find('option:selected');
+        if (!selectedOption.attr('disabled')) {
+            reportTypeMenu.removeClass('placeholder');
+
+            var controls = $('.embedded-report-controls');
+            var selectedType = selectedOption.val();
+            if (selectedType != '') {
+
+                var data = {
+                    'report': selectedType
+                };
+
+                IvetlWeb.showLoading();
+
+                $.get(this.options.trustedReportUrl, data)
+                    .done(function (response) {
+                        var trustedReportUrl = response.url;
+                        console.log('trusted URL: ' + trustedReportUrl);
+                        controls.show();
+                        var reportContainer = controls.find('.embedded-report-container')[0];
+                        new tableau.Viz(reportContainer, trustedReportUrl, {
+                            width: reportContainer.offsetWidth,
+                            height: reportContainer.offsetHeight,
+                            hideTabs: true,
+                            hideToolbar: true,
+                            onFirstInteractive: function () {
+                                // var workbook = viz.getWorkbook();
+                                // var activeSheet = workbook.getActiveSheet();
+                            }
+                        });
+                    })
+                    .always(function () {
+                        IvetlWeb.hideLoading();
+                    });
+
+                // var trustedReportUrl = "http://public.tableau.com/views/WorldIndicators/GDPpercapita";
+            }
+            else {
+                controls.hide();
             }
         }
     },

@@ -102,7 +102,28 @@
                         </div>
 
                         <div class="scheduled-alert-controls" style="display:none">
-                            <p>This is scheduled controls!</p>
+
+                            <div class="form-group row">
+                                <label for="report_type" class="col-sm-2">Report Type</label>
+                                <div class="col-sm-6">
+                                    <select id="id_report_type" class="form-control">
+                                        <option value="">Select an report</option>
+                                        <option value="hot-article-tracker">Hot Article Tracker</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="embedded-report-controls" style="display:none">
+
+                                <h2>Report</h2>
+                                <div class="form-group row">
+                                    <div class="col-sm-12">
+                                        <div class="embedded-report-container" style="height:500px"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="form-group submit-row">
@@ -158,6 +179,7 @@
                 alertParamsUrl: '{% url 'alerts.include_alert_params' %}',
                 alertFiltersUrl: '{% url 'alerts.include_alert_filters' %}',
                 checkChoicesUrl: '{% url 'alerts.include_check_choices' %}',
+                trustedReportUrl: '{% url 'alerts.get_trusted_report_url' %}',
                 selectedCheck: '{{ form.initial.check_id }}',
                 filters: {{ check.filters|safe|default:"{}" }},
                 params: {{ check.check_type.params|safe|default:"{}" }}

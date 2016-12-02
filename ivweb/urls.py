@@ -93,5 +93,6 @@ urlpatterns = [
     url(r'^updatereportitem/$', reports.update_item, name='reports.update_item'),
     url(r'^includereportitemstatuses/$', reports.include_item_statuses, name='reports.include_item_statuses'),
     url(r'^deleteuptimeoverride/$', uptime.delete_override, name='uptime.delete_override'),
+    url(r'^gettrustedreporturl/$', alerts.get_trusted_report_url, name='alerts.get_trusted_report_url'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

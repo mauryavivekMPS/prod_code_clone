@@ -1,5 +1,6 @@
 import logging
 import json
+import requests
 from operator import attrgetter
 from django import forms
 from django.http import JsonResponse
@@ -10,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from ivetl.models import Alert, PublisherMetadata, AttributeValues
 from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
+from ivetl.connectors import TableauConnector
 
 log = logging.getLogger(__name__)
 
@@ -274,4 +276,14 @@ def include_check_choices(request):
     check_choices = get_check_choices_for_publisher(publisher_id)
     return render(request, 'alerts/include/check_choices.html', {
         'check_choices': check_choices,
+    })
+
+
+@login_required
+def get_trusted_report_url(request):
+    response = requests.post('http://10.0.0.143/trusted', data={'username': 'admin'})
+    token = response.text
+    url = 'http://10.0.0.143/trusted/%s/views/RejectedArticleTracker_5/Overview' % token
+    return JsonResponse({
+        'url': url,
     })
