@@ -91,12 +91,9 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
                 if 'author' in data and (len(data['author']) > 0):
 
-                    fa_last_name = data['author'][0]['family']
-
-                    fa_first_name = ''
-                    if 'given' in data['author'][0]:
-                        fa_first_name = data['author'][0]['given']
-
+                    first_author = data['author'][0]
+                    fa_last_name = first_author.get('family', '')
+                    fa_first_name = first_author.get('given', '')
                     pa['first_author'] = fa_last_name + ',' + fa_first_name
 
                     if len(data['author']) > 1:
@@ -181,10 +178,8 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
                 editor = None
                 if 'editor' in data and (data['editor'] != ''):
-                    ed_last_name = data['editor'][0]['family']
-                    ed_first_name = ''
-                    if 'given' in data['editor'][0]:
-                        ed_first_name = data['editor'][0]['given']
+                    ed_last_name = data['editor'][0].get('family', '')
+                    ed_first_name = data['editor'][0].get('given', '')
                     editor = '%s, %s' % (ed_last_name, ed_first_name)
 
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
