@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
-<datasource formatted-name='genericodbc.42593.869924293984' inline='true' source-platform='win' version='9.0' xmlns:user='http://www.tableausoftware.com/xml/user'>
+<datasource formatted-name='subscription_pricing_ds' inline='true' source-platform='win' version='9.0' xmlns:user='http://www.tableausoftware.com/xml/user'>
   <!-- build 9000.15.0318.1720                                -->
-  <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='impactvizor' server='' username=''>
-    <relation name='subscription_pricing' table='[impactvizor].[subscription_pricing]' type='table' />
+  <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' server='' username=''>
+    <relation name='subscription_pricing' type='text'>SELECT * from impactvizor.subscription_pricing WHERE publisher_id=&apos;blood&apos;;</relation>
     <refresh increment-key='' incremental-updates='false'>
     </refresh>
     <connection-customization class='genericodbc' enabled='false' version='9.0'>
@@ -261,18 +261,18 @@
   </column>
   <column caption='Trial Expiration Date' datatype='datetime' name='[trial_expiration_date]' role='dimension' type='ordinal'>
   </column>
-  <column caption='Year' datatype='integer' name='[year]' role='dimension' type='quantitative'>
+  <column aggregation='Sum' caption='Year' datatype='integer' name='[year]' role='dimension' type='ordinal'>
   </column>
   <extract count='-1' enabled='true' units='records'>
-    <connection class='dataengine' dbname='D:\dummy_extracts\subscription_pricing_ds.tde' schema='Extract' tablename='Extract' update-time='08/12/2016 03:55:28 AM'>
+    <connection class='dataengine' dbname='D:\dummy_extracts\subscription_pricing_ds.tde' schema='Extract' tablename='Extract' update-time='12/01/2016 07:06:01 AM'>
       <relation name='Extract' table='[Extract].[Extract]' type='table' />
       <refresh increment-key='' incremental-updates='false'>
-        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='11016' timestamp-start='2016-08-12 03:55:28.089' />
+        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='5382' timestamp-start='2016-12-01 07:06:01.520' />
       </refresh>
       <metadata-records>
         <metadata-record class='column'>
           <remote-name>amount</remote-name>
-          <remote-type>4</remote-type>
+          <remote-type>5</remote-type>
           <local-name>[amount]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>amount</remote-alias>
@@ -280,21 +280,21 @@
           <family>subscription_pricing</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>3</approx-count>
+          <approx-count>321</approx-count>
           <contains-null>false</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='real'>750.0</statistic>
-            <statistic aggregation='Max' datatype='real'>1500.0</statistic>
+            <statistic aggregation='Min' datatype='real'>1.0</statistic>
+            <statistic aggregation='Max' datatype='real'>110108.0</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>4</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>3</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
-            <attribute datatype='string' name='DebugRemoteType'>&quot;float&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;double&quot;</attribute>
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
@@ -307,14 +307,14 @@
           <family>subscription_pricing</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3</approx-count>
+          <approx-count>1</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;ASH-ALL&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;BLOOD-ONLY&quot;</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;Blood&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;Blood&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -323,8 +323,6 @@
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>0</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -339,14 +337,14 @@
           <family>subscription_pricing</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>2868</approx-count>
+          <approx-count>1994</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;1001327&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;TATHENS2&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;425990&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -354,7 +352,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>2</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -401,11 +399,7 @@
           <local-type>boolean</local-type>
           <aggregation>Count</aggregation>
           <approx-count>1</approx-count>
-          <contains-null>false</contains-null>
-          <statistics>
-            <statistic aggregation='Min' datatype='boolean'>false</statistic>
-            <statistic aggregation='Max' datatype='boolean'>false</statistic>
-          </statistics>
+          <contains-null>true</contains-null>
           <attributes>
             <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
@@ -444,18 +438,19 @@
           <family>subscription_pricing</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>4</approx-count>
+          <approx-count>3</approx-count>
           <contains-null>false</contains-null>
           <statistics>
-            <statistic aggregation='Min' datatype='integer'>2013</statistic>
+            <statistic aggregation='Min' datatype='integer'>2014</statistic>
             <statistic aggregation='Max' datatype='integer'>2016</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>2</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>1</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>0</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;sint16&quot;</attribute>
