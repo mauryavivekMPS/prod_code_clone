@@ -8,7 +8,7 @@ from ivetl.pipelines.task import Task
 from ivetl.common import common
 
 
-@app.task
+@app.task(rate_limit="1/m")
 class GetPublishedArticlesTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):

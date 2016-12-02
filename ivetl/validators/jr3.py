@@ -10,7 +10,7 @@ class JR3Validator(BaseValidator):
         total_count = 0
         for f in files:
             file_name = os.path.basename(f)
-            with open(f, 'r', encoding='windows-1252') as tsv:
+            with open(f, 'r', encoding='ISO-8859-1') as tsv:
                 count = 0
                 for line in csv.reader(tsv, delimiter='\t'):
                     if line:
