@@ -281,9 +281,11 @@ def include_check_choices(request):
 
 @login_required
 def get_trusted_report_url(request):
-    response = requests.post('http://10.0.0.143/trusted', data={'username': 'admin'})
+    response = requests.post('http://10.0.1.201/trusted', data={'username': 'nmehta'})
     token = response.text
-    url = 'http://10.0.0.143/trusted/%s/views/RejectedArticleTracker_5/Overview' % token
+    # url = 'http://10.0.0.143/trusted/%s/views/RejectedArticleTracker_5/Overview' % token
+    # url = 'http://10.0.0.143/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
+    url = 'http://10.0.1.201/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
     return JsonResponse({
         'url': url,
     })

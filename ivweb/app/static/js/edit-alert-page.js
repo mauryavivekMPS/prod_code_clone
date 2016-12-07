@@ -123,12 +123,15 @@ $.widget("custom.editalertpage", {
                         new tableau.Viz(reportContainer, trustedReportUrl, {
                             width: reportContainer.offsetWidth,
                             height: reportContainer.offsetHeight,
-                            hideTabs: true,
+                            hideTabs: false,
                             hideToolbar: true,
+
                             onFirstInteractive: function () {
                                 // var workbook = viz.getWorkbook();
                                 // var activeSheet = workbook.getActiveSheet();
-                            }
+                            },
+                            "\"Published Publisher": "American Society of Limnology and Oceanography, Inc.\""
+
                         });
                     })
                     .always(function () {
