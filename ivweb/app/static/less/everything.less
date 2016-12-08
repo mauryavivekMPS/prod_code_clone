@@ -2661,9 +2661,13 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     top: -90px;
 }
 
-// External notification page
+// External notification report page
 .external-notification-report {
     padding-top: 30px;
+
+    .container-fluid {
+        width: 1030px !important;
+    }
 
     .notification-report-header-row {
         padding-bottom: 20px;
@@ -2677,7 +2681,9 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 }
 
 .embedded-report-container {
-    height: 500px;
+    &.configure-report {
+        height: 500px;
+    }
 }
 
 // Citable sections

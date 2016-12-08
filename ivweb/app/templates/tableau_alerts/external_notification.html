@@ -1,0 +1,40 @@
+{% extends "base_single_col.html" %}
+
+{% block body_class %}external-notification-report{% endblock %}
+{% block content %}
+    <div id="external-notification-report-page">
+        <div class="row notification-report-header-row">
+            <div class="col-md-6">
+                Logo
+            </div>
+        </div>
+        <div class="row notification-report-tile-row">
+            <div class="col-md-12">
+                This is a tile with text.
+            </div>
+        </div>
+        <div class="row notification-report-tile-row">
+            <div class="col-md-12">
+                <div class="embedded-report-container full-report"></div>
+            </div>
+        </div>
+        <div class="row notification-report-tile-row">
+            <div class="col-md-12">
+                This is a another tile.
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#external-notification-report-page').externalnotificationreportpage({
+                trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
+                report: '{{ notification.report_id }}',
+                filters: {{ notification.report_params|safe }}
+            });
+        });
+    </script>
+{% endblock %}
+

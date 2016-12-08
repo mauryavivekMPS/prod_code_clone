@@ -93,7 +93,7 @@ $.widget("custom.edittableaualertpage", {
         if (selectedReport != '') {
             IvetlWeb.showLoading();
 
-            $.get(this.options.trustedReportUrl, {'report': selectedReport})
+            $.get(this.options.trustedReportUrl, {report: selectedReport, embed_type: 'configure'})
                 .done(function (response) {
                     var trustedReportUrl = response.url;
                     console.log('trusted URL: ' + trustedReportUrl);

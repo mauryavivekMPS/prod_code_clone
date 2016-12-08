@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import TableauAlert, PublisherMetadata, AttributeValues
+from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata
 from ivetl.tableau_alerts import REPORTS, get_report_params_display_string
 from ivweb.app.views import utils as view_utils
 
@@ -184,41 +184,12 @@ def edit(request, alert_id=None):
         'single_publisher_user': single_publisher_user,
     })
 
-#
-# @login_required
-# def include_alert_params(request):
-#     check_id = request.GET['check_id']
-#     check = CHECKS[check_id]
-#
-#     html = render_to_string('alerts/include/params.html', {
-#         'check': check,
-#         'is_include': True,
-#     }, request=request)
-#
-#     return JsonResponse({
-#         'html': html,
-#         'params': check['check_type']['params'],
-#     })
-#
-#
-# @login_required
-# def include_alert_filters(request):
-#     check_id = request.GET['check_id']
-#     publisher_id = request.GET['publisher_id']
-#     check = CHECKS[check_id]
-#     _add_filter_values(publisher_id, check)
-#
-#     html = render_to_string('alerts/include/filters.html', {
-#         'check': check,
-#         'is_include': True,
-#     }, request=request)
-#
-#     return JsonResponse({
-#         'html': html,
-#         'filters': check['filters'],
-#     })
-#
-#
+
+def show_external_notification(request, notification_id):
+    notification = TableauNotification.objects.get(notification_id=notification_id)
+    return render(request, 'tableau_alerts/external_notification.html', {
+        'notification': notification,
+    })
 
 
 def get_report_choices_for_publisher(publisher_id):
@@ -246,13 +217,21 @@ def include_report_choices(request):
     })
 
 
-@login_required
-def get_trusted_report_url(request):
+def get_trusted_token():
     response = requests.post('http://10.0.1.201/trusted', data={'username': 'nmehta'})
-    token = response.text
+    return response.text
+
+
+def get_trusted_report_url(request):
+    token = get_trusted_token()
     # url = 'http://10.0.0.143/trusted/%s/views/RejectedArticleTracker_5/Overview' % token
     # url = 'http://10.0.0.143/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
-    url = 'http://10.0.1.201/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
+    embed_type = request.GET.get('embed_type', 'full')
+    if embed_type == 'configure':
+        url = 'http://10.0.1.201/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
+    else:
+        url = 'http://10.0.1.201/trusted/%s/views/RejectedArticleTracker_2/Overview' % token
+
     return JsonResponse({
         'url': url,
     })
