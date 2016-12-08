@@ -1,18 +1,18 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{% if alert %}{{ alert.name }}{% else %}New Alert{% endif %}{% endblock %}
-{% block body_class %}alerts{% endblock %}
+{% block title %}{% if alert %}{{ alert.name }}{% else %}New Tableau Alert{% endif %}{% endblock %}
+{% block body_class %}tableau-alerts{% endblock %}
 
 {% block content %}
-    <div id="edit-alert-page">
+    <div id="edit-tableau-alert-page">
         <div class="row header-row with-breadcrumb">
             <div class="col-md-8">
                 <ol class="breadcrumb">
-                    <li><a href="{% url 'alerts.list' %}">Alerts</a></li>
+                    <li><a href="{% url 'alerts.list' %}">Tableau Alerts</a></li>
                     <li></li>
                 </ol>
-                <h1>{% if alert %}{{ alert.name }}{% else %}New Alert{% endif %}</h1>
+                <h1>{% if alert %}{{ alert.name }}{% else %}New Tableau Alert{% endif %}</h1>
             </div>
         </div>
 
@@ -33,7 +33,7 @@
                     <form class="form-horizontal alert-form" method="post">
                         {% csrf_token %}
                         {{ form.alert_id }}
-                        {{ form.check_params }}
+                        {{ form.report_params }}
 
                         <div class="form-group row" {% if single_publisher_user %}style="display:none"{% endif %}>
                             <label for="publisher_id" class="col-sm-2">Publisher</label>
@@ -62,30 +62,37 @@
                                     </div>
                                 </div>
                             {% endif %}
-                            <div class="col-sm-2 {% if alert.archived %}col-sm-offset-2{% endif %}">
-                                <p class="form-control-static">
-                                    {% if alert.archived %}
-                                        <a href="#" class="archive-link archive-alert">Unarchive</a>
-                                    {% else %}
-                                        <a href="#" class="archive-link archive-alert"><span class="lnr lnr-trash2"></span> Archive</a>
-                                    {% endif %}
-                                </p>
-                            </div>
+                            {% if alert %}
+                                <div class="col-sm-2 {% if alert.archived %}col-sm-offset-2{% endif %}">
+                                    <p class="form-control-static">
+                                        {% if alert.archived %}
+                                            <a href="#" class="archive-link archive-alert">Unarchive</a>
+                                        {% else %}
+                                            <a href="#" class="archive-link archive-alert"><span class="lnr lnr-trash2"></span> Archive</a>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="form-group row">
-                            <label for="check_id" class="col-sm-2">Check</label>
-                            <div class="col-sm-6 check-control-container">
-                                {% include "alerts/include/check_choices.html" %}
+                            <label for="name" class="col-sm-2">Report Type</label>
+                            <div class="col-sm-6">
+                                <div class="report-choices-control-container">
+                                    {% include "tableau_alerts/include/report_choices.html" %}
+                                </div>
                             </div>
                         </div>
 
-                        <div class="alert-params">
-                            {% include "alerts/include/params.html" %}
-                        </div>
+                        <div class="embedded-report-controls" style="display:none">
 
-                        <div class="alert-filters">
-                            {% include "alerts/include/filters.html" %}
+                            <h2>Report</h2>
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <div class="embedded-report-container"></div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="form-group submit-row">
@@ -137,14 +144,10 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            $('#edit-alert-page').editalertpage({
-                alertParamsUrl: '{% url 'alerts.include_alert_params' %}',
-                alertFiltersUrl: '{% url 'alerts.include_alert_filters' %}',
-                checkChoicesUrl: '{% url 'alerts.include_check_choices' %}',
-                trustedReportUrl: '{% url 'alerts.get_trusted_report_url' %}',
-                selectedCheck: '{{ form.initial.check_id }}',
-                filters: {{ check.filters|safe|default:"{}" }},
-                params: {{ check.check_type.params|safe|default:"{}" }}
+            $('#edit-tableau-alert-page').edittableaualertpage({
+                reportChoicesUrl: '{% url 'tableau_alerts.include_report_choices' %}',
+                trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
+                selectedReport: '{{ form.initial.report_id }}'
             });
         });
     </script>

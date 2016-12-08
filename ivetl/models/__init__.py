@@ -16,6 +16,7 @@ from ivetl.models.ScopusApiKey import Scopus_Api_Key
 from ivetl.models.ArticleUsage import Article_Usage
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.alert import Alert
+from ivetl.models.tableau_alert import TableauAlert
 from ivetl.models.Notification import Notification
 from ivetl.models.NotificationSummary import Notification_Summary
 from ivetl.models.attribute_values import AttributeValues

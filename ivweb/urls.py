@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from ivweb.app.views import auth, audit, home, users, alerts, notifications, journals, reports, uptime, publishers, pipelines
+from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines
 
 urlpatterns = [
 
@@ -30,6 +30,11 @@ urlpatterns = [
     url(r'^alerts/$', alerts.list_alerts, name='alerts.list'),
     url(r'^alerts/new/$', alerts.edit, name='alerts.new'),
     url(r'^alerts/(?P<alert_id>[\w\-.]+)/$', alerts.edit, name='alerts.edit'),
+
+    # tableau alerts
+    url(r'^tableaualerts/$', tableau_alerts.list_alerts, name='tableau_alerts.list'),
+    url(r'^tableaualerts/new/$', tableau_alerts.edit, name='tableau_alerts.new'),
+    url(r'^tableaualerts/(?P<alert_id>[\w\-.]+)/$', tableau_alerts.edit, name='tableau_alerts.edit'),
 
     # notifications
     url(r'^notifications/$', notifications.list_notifications, name='notifications.list'),
@@ -93,6 +98,7 @@ urlpatterns = [
     url(r'^updatereportitem/$', reports.update_item, name='reports.update_item'),
     url(r'^includereportitemstatuses/$', reports.include_item_statuses, name='reports.include_item_statuses'),
     url(r'^deleteuptimeoverride/$', uptime.delete_override, name='uptime.delete_override'),
-    url(r'^gettrustedreporturl/$', alerts.get_trusted_report_url, name='alerts.get_trusted_report_url'),
+    url(r'^includereportchoices/$', tableau_alerts.include_report_choices, name='tableau_alerts.include_report_choices'),
+    url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

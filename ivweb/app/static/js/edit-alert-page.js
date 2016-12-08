@@ -3,9 +3,6 @@ $.widget("custom.editalertpage", {
         alertParamsUrl: '',
         alertFiltersUrl: '',
         checkChoicesUrl: '',
-        trustedReportUrl: '',
-        selectedAlertType: null,
-        selectedReportType: null,
         selectedCheck: null,
         initialFilters: {},
         initialParams: {}
@@ -48,102 +45,6 @@ $.widget("custom.editalertpage", {
         this._setFilters(this.options.initialFilters);
         this._setParams(this.options.initialParams);
         this._checkForm();
-
-        var alertTypeMenu = $('#id_alert_type');
-
-        var nullAlertTypeItem = alertTypeMenu.find('option:first-child');
-        nullAlertTypeItem.attr('disabled', 'disabled');
-        if (!this.options.selectedAlertType) {
-            alertTypeMenu.addClass('placeholder');
-            nullAlertTypeItem.attr('selected', 'selected');
-        }
-
-        alertTypeMenu.on('change', function() {
-            self._updateAlertTypeMenu();
-        });
-
-        var reportTypeMenu = $('#id_report_type');
-
-        var nullReportTypeItem = reportTypeMenu.find('option:first-child');
-        nullReportTypeItem.attr('disabled', 'disabled');
-        if (!this.options.selectedReportType) {
-            reportTypeMenu.addClass('placeholder');
-            nullReportTypeItem.attr('selected', 'selected');
-        }
-
-        reportTypeMenu.on('change', function() {
-            self._updateReportTypeMenu();
-        });
-    },
-
-    _updateAlertTypeMenu: function() {
-        var alertTypeMenu = $('#id_alert_type');
-        var selectedOption = alertTypeMenu.find('option:selected');
-        if (!selectedOption.attr('disabled')) {
-            alertTypeMenu.removeClass('placeholder');
-
-            var selectedType = selectedOption.val();
-            if (selectedType == 'scheduled') {
-                $('.threshold-alert-controls').hide();
-                $('.scheduled-alert-controls').show();
-            }
-            else if (selectedType == 'threshold') {
-                $('.scheduled-alert-controls').hide();
-                $('.threshold-alert-controls').show();
-            }
-            else {
-                $('.scheduled-alert-controls').hide();
-                $('.threshold-alert-controls').hide();
-            }
-        }
-    },
-
-    _updateReportTypeMenu: function() {
-        var reportTypeMenu = $('#id_report_type');
-        var selectedOption = reportTypeMenu.find('option:selected');
-        if (!selectedOption.attr('disabled')) {
-            reportTypeMenu.removeClass('placeholder');
-
-            var controls = $('.embedded-report-controls');
-            var selectedType = selectedOption.val();
-            if (selectedType != '') {
-
-                var data = {
-                    'report': selectedType
-                };
-
-                IvetlWeb.showLoading();
-
-                $.get(this.options.trustedReportUrl, data)
-                    .done(function (response) {
-                        var trustedReportUrl = response.url;
-                        console.log('trusted URL: ' + trustedReportUrl);
-                        controls.show();
-                        var reportContainer = controls.find('.embedded-report-container')[0];
-                        new tableau.Viz(reportContainer, trustedReportUrl, {
-                            width: reportContainer.offsetWidth,
-                            height: reportContainer.offsetHeight,
-                            hideTabs: false,
-                            hideToolbar: true,
-
-                            onFirstInteractive: function () {
-                                // var workbook = viz.getWorkbook();
-                                // var activeSheet = workbook.getActiveSheet();
-                            },
-                            "\"Published Publisher": "American Society of Limnology and Oceanography, Inc.\""
-
-                        });
-                    })
-                    .always(function () {
-                        IvetlWeb.hideLoading();
-                    });
-
-                // var trustedReportUrl = "http://public.tableau.com/views/WorldIndicators/GDPpercapita";
-            }
-            else {
-                controls.hide();
-            }
-        }
     },
 
     _isIntegerValue: function(value) {
@@ -324,5 +225,5 @@ $.widget("custom.editalertpage", {
             .always(function() {
                 IvetlWeb.hideLoading();
             });
-    },
+    }
 });
