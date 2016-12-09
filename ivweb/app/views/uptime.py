@@ -90,6 +90,5 @@ def new_override(request):
 def delete_override(request):
     override_id = request.POST['override_id']
     override = UptimeOverride.objects.get(override_id=override_id)
-    tasks.revert_override.s(override.override_id).delay()
-    override.delete()
+    tasks.revert_and_delete_override.s(override.override_id).delay()
     return HttpResponse('ok')
