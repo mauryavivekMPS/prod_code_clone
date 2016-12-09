@@ -51,7 +51,7 @@ def apply_override(override_id):
 
 
 @app.task
-def revert_override(override_id):
+def revert_and_delete_override(override_id):
     override = UptimeOverride.objects.get(override_id=override_id)
     matching_checks = _get_matching_checks(override)
 
@@ -74,3 +74,5 @@ def revert_override(override_id):
 
             except UptimeCheckStat.DoesNotExist:
                 pass
+
+    override.delete()
