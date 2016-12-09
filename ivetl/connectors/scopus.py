@@ -165,6 +165,11 @@ class ScopusConnector(BaseConnector):
                             else:
                                 doi = scopus_citation['eid']
 
+                            # skip for strange or null values (including the weird lists we sometimes get from scopus)
+                            if not doi or type(doi) == list:
+                                tlogger.info('Skipping citation without a valid DOI')
+                                continue
+
                             if should_get_citation_details:
                                 if not should_get_citation_details(doi):
                                     tlogger.info('Skipping: %s' % doi)
