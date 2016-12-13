@@ -391,6 +391,9 @@ class TableauConnector(BaseConnector):
     def generate_png_report(self, view_url):
         subprocess.call([common.TABCMD, 'get', view_url, '-f', '/tmp/image-test.png'] + self._tabcmd_login_params())
 
+    def check_report_for_data(self):
+        subprocess.call([common.TABCMD, 'export', 'alerts_rejected_article_tracker_export_0/ManuscriptInspector?Reject%20Reason=Reject&Date%20of%20Rejection=2', '--csv', '-f', '/Users/john/Desktop/csv-test-1.csv'] + t._tabcmd_login_params())
+
     def generate_trusted_token(self):
         # subprocess.call([common.TABCMD, 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())
         # subprocess.call(['/Users/john/Projects/impactvizor-pipeline/deploy/tabcmd/tabcmd.sh', 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())

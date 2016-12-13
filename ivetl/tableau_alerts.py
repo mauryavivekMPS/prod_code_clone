@@ -10,15 +10,17 @@ def check_for_mendeley_percentage_change(publisher_id):
     return True
 
 ALERTS = {
-    'hot-article-tracker-scheduled': {
+    'hot-article-tracker': {
         'name': 'Hot Article Tracker (Scheduled)',
         'choice_description': 'Send me the Hot Article Tracker as soon as it has been updated.',
         'type': 'scheduled',
     },
     'hot-article-tracker-citation-amount-trigger': {
         'name': 'Hot Article Tracker (Citation Amount Trigger)',
-        'choice_description': 'Send me the Hot Article Tracker whenever article citations exceed a threshold amount.',
+        'choice_description': 'Articles with more than [] citations',
         'type': 'threshold',
+        'threshold_type': 'int',
+        'threshold_default_value': 15,
         'threshold_function': check_for_citation_amount,
     },
     'section-performance-analyzer-scheduled': {
@@ -51,6 +53,15 @@ ALERTS_BY_SOURCE_PIPELINE = {
         'section-performance-analyzer-amount-trigger',
         'section-performance-analyzer-percentage-trigger',
     ],
+}
+
+ALERT_TYPES = {
+    'scheduled': {
+        'instruction_text': 'Send a notification when this report is updated:',
+    },
+    'threshold': {
+        'instruction_text': 'Send a notification for articles that meet the following',
+    }
 }
 
 
