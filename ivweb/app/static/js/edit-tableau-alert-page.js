@@ -62,6 +62,24 @@ $.widget("custom.edittableaualertpage", {
             $('.set-parameters-tab').addClass('active').siblings().removeClass('active');
 
         });
+        $('.configure-notifications-button').on('click', function() {
+            allSteps.hide();
+            $('#step-configure-notifications').show();
+            $('.configure-notifications-tab').addClass('active').siblings().removeClass('active');
+
+        });
+        $('.set-filters-button').on('click', function() {
+            allSteps.hide();
+            $('#step-set-filters').show();
+            $('.set-filters-tab').addClass('active').siblings().removeClass('active');
+
+        });
+        $('.review-button').on('click', function() {
+            allSteps.hide();
+            $('#step-review').show();
+            $('.review-tab').addClass('active').siblings().removeClass('active');
+
+        });
 
         this._checkForm();
     },
@@ -77,23 +95,31 @@ $.widget("custom.edittableaualertpage", {
             .done(function(html) {
                 $('.report-choices-control-container').html(html);
 
-                var reportMenu = $('#id_report_id');
+                // var reportMenu = $('#id_report_id');
 
-                var nullReportItem = reportMenu.find('option:first-child');
-                nullReportItem.attr('disabled', 'disabled');
-                if (!self.options.selectedReport) {
-                    reportMenu.addClass('placeholder');
-                    nullReportItem.attr('selected', 'selected');
-                }
+                // var nullReportItem = reportMenu.find('option:first-child');
+                // nullReportItem.attr('disabled', 'disabled');
+                // if (!self.options.selectedReport) {
+                //     reportMenu.addClass('placeholder');
+                //     nullReportItem.attr('selected', 'selected');
+                // }
+                //
+                // reportMenu.on('change', function() {
+                //     var selectedOption = reportMenu.find('option:selected');
+                //     if (!selectedOption.attr('disabled')) {
+                //         reportMenu.removeClass('placeholder');
+                //         self._updateEmbeddedReport();
+                //     }
+                //     self._checkForm();
+                // });
 
-                reportMenu.on('change', function() {
-                    var selectedOption = reportMenu.find('option:selected');
-                    if (!selectedOption.attr('disabled')) {
-                        reportMenu.removeClass('placeholder');
-                        self._updateEmbeddedReport();
-                    }
-                    self._checkForm();
-                });
+                $('.report-choice-list li').on('click', function() {
+                    var selectedItem = $(this);
+                    selectedItem.addClass('selected').siblings().removeClass('selected');
+                    var selectedReportId = selectedItem.attr('report_id');
+                    $('#id_report_id').val(selectedReportId);
+                    self._updateEmbeddedReport();
+                })
             });
     },
 

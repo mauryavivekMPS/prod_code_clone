@@ -71,7 +71,7 @@ class TableauAlertForm(forms.Form):
     alert_id = forms.CharField(widget=forms.HiddenInput, required=False)
     publisher_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
-    report_id = forms.CharField(required=True)
+    report_id = forms.CharField(widget=forms.HiddenInput, required=True)
     report_params = forms.CharField(widget=forms.HiddenInput, required=False)
     comma_separated_emails = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
