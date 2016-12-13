@@ -10,25 +10,10 @@ $.widget("custom.edittableaualertpage", {
         var self = this;
 
         this.filters = {};
+        this.embeddedReportLoaded = false;
 
         $('#id_name, #id_comma_separated_emails').on('keyup', function() {
-            self._checkForm();
-        });
-
-        $('#id_enabled').on('change', function() {
-            self._checkForm();
-        });
-
-        var m = $('#confirm-archive-alert-modal');
-
-        m.find('.confirm-archive-alert-button').on('click', function() {
-            IvetlWeb.showLoading();
-            m.modal('hide');
-            $('#archive-alert-form').submit();
-        });
-
-        $('.archive-alert').on('click', function () {
-            m.modal();
+            self._checkConfigureNotificationsForm();
         });
 
         var publisherMenu = $('#id_publisher_id');
@@ -46,7 +31,7 @@ $.widget("custom.edittableaualertpage", {
                 publisherMenu.removeClass('placeholder');
                 self._updateReportChoices();
             }
-            self._checkForm();
+            self._checkChooseAlertForm();
         });
 
         var allSteps = $('.wizard-step');
@@ -54,34 +39,35 @@ $.widget("custom.edittableaualertpage", {
             allSteps.hide();
             $('#step-choose-alert').show();
             $('.choose-alert-tab').addClass('active').siblings().removeClass('active');
-
+            self._checkChooseAlertForm();
         });
         $('.set-parameters-button').on('click', function() {
             allSteps.hide();
             $('#step-set-parameters').show();
             $('.set-parameters-tab').addClass('active').siblings().removeClass('active');
-
+            self._checkSetParametersForm();
         });
         $('.configure-notifications-button').on('click', function() {
             allSteps.hide();
             $('#step-configure-notifications').show();
             $('.configure-notifications-tab').addClass('active').siblings().removeClass('active');
-
+            self._checkConfigureNotificationsForm();
         });
         $('.set-filters-button').on('click', function() {
             allSteps.hide();
             $('#step-set-filters').show();
             $('.set-filters-tab').addClass('active').siblings().removeClass('active');
-
+            if (!self.embeddedReportLoaded) {
+                self._loadEmbeddedReport();
+            }
+            self._checkSetFiltersForm();
         });
         $('.review-button').on('click', function() {
             allSteps.hide();
             $('#step-review').show();
             $('.review-tab').addClass('active').siblings().removeClass('active');
-
+            self._checkReviewForm();
         });
-
-        this._checkForm();
     },
 
     _updateReportChoices: function() {
@@ -93,6 +79,7 @@ $.widget("custom.edittableaualertpage", {
 
         $.get(this.options.reportChoicesUrl, data)
             .done(function(html) {
+                $('.alert-type-controls').show();
                 $('.report-choices-control-container').html(html);
 
                 // var reportMenu = $('#id_report_id');
@@ -118,13 +105,16 @@ $.widget("custom.edittableaualertpage", {
                     selectedItem.addClass('selected').siblings().removeClass('selected');
                     var selectedReportId = selectedItem.attr('report_id');
                     $('#id_report_id').val(selectedReportId);
-                    self._updateEmbeddedReport();
+                    self.embeddedReportLoaded = false;
+                    self._checkChooseAlertForm();
                 })
             });
     },
 
-    _updateEmbeddedReport: function() {
+    _loadEmbeddedReport: function() {
         var self = this;
+
+        console.log('loading report');
 
         // clear out existing filter selections
         this.filters = {};
@@ -157,16 +147,52 @@ $.widget("custom.edittableaualertpage", {
                             $('#id_report_params').val(JSON.stringify(self.filters));
                         });
                     });
+
+                    self.embeddedReportLoaded = true;
                 })
                 .always(function () {
                     IvetlWeb.hideLoading();
                 });
-
-            // var trustedReportUrl = "http://public.tableau.com/views/WorldIndicators/GDPpercapita";
         }
         else {
             controls.hide();
         }
+    },
+
+    _checkChooseAlertForm: function() {
+        var publisherId = $("#id_publisher_id option:selected").val();
+        var reportId = $("#id_report_id").val();
+
+        if (publisherId && reportId) {
+            $('.set-parameters-button').removeClass('disabled').prop('disabled', false);
+        }
+        else {
+            $('.set-parameters-button').addClass('disabled').prop('disabled', false);
+        }
+    },
+
+    _checkSetParametersForm: function() {
+        $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
+    },
+
+    _checkConfigureNotificationsForm: function() {
+        var name = $('#id_name').val();
+        var emails = $('#id_comma_separated_emails').val();
+
+        if (name && emails) {
+            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
+        }
+        else {
+            $('.set-filters-button').addClass('disabled').prop('disabled', false);
+        }
+    },
+
+    _checkSetFiltersForm: function() {
+        $('.review-button').removeClass('disabled').prop('disabled', false);
+    },
+
+    _checkReviewForm: function() {
+        $('.save-button').removeClass('disabled').prop('disabled', false);
     },
 
     _checkForm: function() {

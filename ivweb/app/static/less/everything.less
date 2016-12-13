@@ -2678,6 +2678,9 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         a {
             padding: 8px 26px;
 
+            &.disabled {
+                color: #666;
+            }
         }
 
         &.active {
@@ -2708,7 +2711,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         li {
             border-top: 1px dotted #eee;
             padding: 10px 9px;
-            color: #666;
+            color: #888;
 
             &:hover, &.selected {
                 cursor: pointer;
@@ -2726,6 +2729,10 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             margin-left: 5px;
             vertical-align: -1px;
         }
+    }
+
+    #id_comma_separated_emails {
+        height: 100px;
     }
 }
 
