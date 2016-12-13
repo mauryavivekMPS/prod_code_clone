@@ -136,7 +136,10 @@ class UpdateArticleCitationsWithCrossref(Task):
             )
 
             # update the count *after* we've compared the new to old
-            published_article.update(citation_count=new_citation_count)
+            published_article.update(
+                previous_citation_count=old_citation_count,
+                citation_count=new_citation_count
+            )
 
         send_alert_notifications(
             check_ids=['citations-exceeds-integer', 'citations-percentage-change'],

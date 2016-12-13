@@ -81,6 +81,7 @@ class PublishedArticle(Model):
     f1000_total_score = columns.Integer()
     f1000_num_recommendations = columns.Integer()
     f1000_average_score = columns.Decimal()
+    previous_citation_count = columns.Integer()
     citation_count = columns.Integer()
     is_tr_citable = columns.Boolean()
     updated = columns.DateTime()
