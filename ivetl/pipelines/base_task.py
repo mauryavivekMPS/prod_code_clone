@@ -6,7 +6,8 @@ from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
 from ivetl.connectors import TableauConnector
-from ivetl.models import PublisherMetadata, PipelineStatus
+from ivetl.models import PublisherMetadata, PipelineStatus, TableauAlert
+from ivetl import tableau_alerts
 from ivetl import utils
 
 
@@ -53,7 +54,7 @@ class BaseTask(Task):
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
 
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, notification_count=None):
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, notification_count=None, run_monthly_job=False):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
@@ -92,6 +93,11 @@ class BaseTask(Task):
         except PipelineStatus.DoesNotExist:
             pass
 
+        self.process_datasources(publisher_id, product_id, pipeline_id, tlogger)
+        self.process_chains(publisher_id, product_id, pipeline_id, tlogger, initiating_user_email)
+        self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job)
+
+    def update_tableau(self, publisher_id, product_id, pipeline_id, tlogger):
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
             publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
@@ -107,6 +113,7 @@ class BaseTask(Task):
                 tlogger.info('Refreshing datasource: %s' % datasource_id)
                 t.refresh_data_source(publisher, datasource_id)
 
+    def process_chains(self, publisher_id, product_id, pipeline_id, tlogger, initiating_user_email):
         for chain_id in common.CHAINS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
 
             chain = common.CHAIN_BY_ID[chain_id]
@@ -142,6 +149,39 @@ class BaseTask(Task):
                             product_id=dependent_product_id,
                             initiating_user_email=initiating_user_email,
                         ).delay()
+
+    def process_alerts(self, publisher_id, product_id, pipeline_id, tlogger, run_monthly_job):
+        for alert_id in tableau_alerts.ALERTS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
+
+            alert = tableau_alerts.ALERTS[alert_id]
+
+            tlogger.info('Processing alert: %s' % alert_id)
+
+            alert_instances = TableauAlert.objects.filter(
+                alert_id=alert_id,
+                publisher_id=publisher_id,
+                archived=False,
+            )
+
+            for alert_instance in alert_instances:
+                if alert_instance.enabled:
+
+                    run_alert = False
+
+                    if alert['type'] == 'scheduled':
+                        if run_monthly_job:
+                            run_alert = True
+                    elif alert['type'] == 'threshold':
+                        run_alert = alert['threshold_function'](publisher_id)
+
+                    if run_alert:
+                        tlogger.info('Generating alert notification')
+                        # create notification record
+                        # get email bits
+                        # send email
+
+                    else:
+                        tlogger.info('Skipping alert')
 
     def params_to_json(self, params):
         try:

@@ -7,7 +7,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata
-from ivetl.tableau_alerts import REPORTS
+from ivetl.tableau_alerts import ALERTS
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def list_alerts(request):
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     for alert in sorted_alerts:
-        report = REPORTS[alert.report_id]
+        report = ALERTS[alert.report_id]
         setattr(alert, 'report_name', report['name'])
 
     response = render(request, 'tableau_alerts/list.html', {
@@ -168,7 +168,7 @@ def edit(request, alert_id=None):
         form = TableauAlertForm(instance=alert, user=request.user)
 
     if alert:
-        report = REPORTS[alert.report_id]
+        report = ALERTS[alert.report_id]
         report_choices = get_report_choices_for_publisher(alert.publisher_id)
     else:
         report = None
@@ -203,7 +203,7 @@ def get_report_choices_for_publisher(publisher_id):
     #
     # return sorted_check_choices
 
-    return [(report_id, report['choice_description']) for report_id, report in REPORTS.items()]
+    return [(report_id, report['choice_description']) for report_id, report in ALERTS.items()]
 
 
 @login_required
