@@ -1,15 +1,13 @@
 import logging
-import json
 import requests
 from operator import attrgetter
 from django import forms
 from django.http import JsonResponse
-from django.template.loader import render_to_string
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata
-from ivetl.tableau_alerts import REPORTS, get_report_params_display_string
+from ivetl.tableau_alerts import REPORTS
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -205,7 +203,7 @@ def get_report_choices_for_publisher(publisher_id):
     #
     # return sorted_check_choices
 
-    return [(report_id, report['name']) for report_id, report in REPORTS.items()]
+    return [(report_id, report['choice_description']) for report_id, report in REPORTS.items()]
 
 
 @login_required

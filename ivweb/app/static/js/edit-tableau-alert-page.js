@@ -49,6 +49,20 @@ $.widget("custom.edittableaualertpage", {
             self._checkForm();
         });
 
+        var allSteps = $('.wizard-step');
+        $('.choose-alert-button').on('click', function() {
+            allSteps.hide();
+            $('#step-choose-alert').show();
+            $('.choose-alert-tab').addClass('active').siblings().removeClass('active');
+
+        });
+        $('.set-parameters-button').on('click', function() {
+            allSteps.hide();
+            $('#step-set-parameters').show();
+            $('.set-parameters-tab').addClass('active').siblings().removeClass('active');
+
+        });
+
         this._checkForm();
     },
 

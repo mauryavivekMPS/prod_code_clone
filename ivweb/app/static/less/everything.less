@@ -2660,7 +2660,75 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 }
 
 
-// Alert page
+// Alerts
+// -------------------------
+
+.wizard-tabs {
+    list-style: none;
+    padding-left: 0;
+    height: 41px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+
+    li {
+        float: left;
+
+        a {
+            padding: 8px 26px;
+
+        }
+
+        &.active {
+            a {
+                color: #333;
+                background-color: #fafafa;
+            }
+        }
+    }
+}
+
+.wizard-step {
+    padding: 0 15px;
+
+    .wizard-instruction {
+        margin-bottom: 0;
+    }
+
+    .widget-row {
+        margin-bottom: 26px;
+    }
+
+    .report-choice-list {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 1px;
+
+        li {
+            border-top: 1px dotted #eee;
+            padding: 10px 9px;
+            color: #666;
+
+            &:hover {
+                cursor: pointer;
+                background-color: #fafafa;
+                color: #333;
+            }
+        }
+    }
+
+    .next-prev-row {
+        margin-top: 20px;
+
+        .right-arrow {
+            font-size: 12px;
+            margin-left: 5px;
+            vertical-align: -1px;
+        }
+    }
+}
+
 .alert-form .submit-row {
     padding-top: 50px;
     margin-bottom: 30px;
