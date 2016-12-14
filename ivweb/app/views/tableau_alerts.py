@@ -190,7 +190,7 @@ def show_external_notification(request, notification_id):
     })
 
 
-def get_report_choices_for_publisher(publisher_id):
+def get_report_choices_for_publisher(publisher_id, report_type):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     # supported_reports = set()
     # for check_id, check in CHECKS.items():
@@ -203,13 +203,14 @@ def get_report_choices_for_publisher(publisher_id):
     #
     # return sorted_check_choices
 
-    return [(report_id, report['choice_description']) for report_id, report in ALERTS.items()]
+    return [(report_id, report['choice_description']) for report_id, report in ALERTS.items() if report['type'] == report_type]
 
 
 @login_required
 def include_report_choices(request):
     publisher_id = request.GET['publisher_id']
-    report_choices = get_report_choices_for_publisher(publisher_id)
+    report_type = request.GET['report_type']
+    report_choices = get_report_choices_for_publisher(publisher_id, report_type)
     return render(request, 'tableau_alerts/include/report_choices.html', {
         'report_choices': report_choices,
     })

@@ -1,4 +1,4 @@
-<ul class="report-choice-list">
+<ul class="choice-list report-choice-list">
     {% for choice in report_choices %}
         <li report_id="{{ choice.0 }}" class="{% if form.initial.report_id == choice.0 %}selected{% endif %}">{{ choice.1 }}</li>
     {% endfor %}

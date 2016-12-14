@@ -10,6 +10,7 @@ $.widget("custom.edittableaualertpage", {
         var self = this;
 
         this.filters = {};
+        this.selectedAlertType = null;
         this.embeddedReportLoaded = false;
 
         $('#id_name, #id_comma_separated_emails').on('keyup', function() {
@@ -34,18 +35,22 @@ $.widget("custom.edittableaualertpage", {
             self._checkChooseAlertForm();
         });
 
+        $('.alert-type-choice-list li').on('click', function () {
+            var selectedItem = $(this);
+            selectedItem.addClass('selected').siblings().removeClass('selected');
+            self.selectedAlertType = selectedItem.attr('alert_type');
+            $('#id_report_id').val('');
+            self.embeddedReportLoaded = false;
+            self._updateReportChoices();
+            self._checkChooseAlertForm();
+        });
+
         var allSteps = $('.wizard-step');
         $('.choose-alert-button').on('click', function() {
             allSteps.hide();
             $('#step-choose-alert').show();
             $('.choose-alert-tab').addClass('active').siblings().removeClass('active');
             self._checkChooseAlertForm();
-        });
-        $('.set-parameters-button').on('click', function() {
-            allSteps.hide();
-            $('#step-set-parameters').show();
-            $('.set-parameters-tab').addClass('active').siblings().removeClass('active');
-            self._checkSetParametersForm();
         });
         $('.configure-notifications-button').on('click', function() {
             allSteps.hide();
@@ -73,42 +78,41 @@ $.widget("custom.edittableaualertpage", {
     _updateReportChoices: function() {
         var self = this;
 
-        var data = [
-            {name: 'publisher_id', value: $('#id_publisher_id option:selected').val()}
-        ];
+        var alertTypeControls = $('.alert-type-controls');
+        var alertChoiceControls = $('.alert-choice-controls');
 
-        $.get(this.options.reportChoicesUrl, data)
-            .done(function(html) {
-                $('.alert-type-controls').show();
-                $('.report-choices-control-container').html(html);
+        if (!$('#id_publisher_id option:selected').val()) {
+            alertTypeControls.hide();
+            alertChoiceControls.hide();
+        }
+        else {
+            alertTypeControls.show();
 
-                // var reportMenu = $('#id_report_id');
+            if (!this.selectedAlertType) {
+                alertChoiceControls.hide();
+            }
+            else {
+                var data = {
+                    publisher_id: $('#id_publisher_id option:selected').val(),
+                    report_type: self.selectedAlertType
+                };
 
-                // var nullReportItem = reportMenu.find('option:first-child');
-                // nullReportItem.attr('disabled', 'disabled');
-                // if (!self.options.selectedReport) {
-                //     reportMenu.addClass('placeholder');
-                //     nullReportItem.attr('selected', 'selected');
-                // }
-                //
-                // reportMenu.on('change', function() {
-                //     var selectedOption = reportMenu.find('option:selected');
-                //     if (!selectedOption.attr('disabled')) {
-                //         reportMenu.removeClass('placeholder');
-                //         self._updateEmbeddedReport();
-                //     }
-                //     self._checkForm();
-                // });
+                $.get(this.options.reportChoicesUrl, data)
+                    .done(function(html) {
+                        alertChoiceControls.show();
+                        $('.report-choices-control-container').html(html);
 
-                $('.report-choice-list li').on('click', function() {
-                    var selectedItem = $(this);
-                    selectedItem.addClass('selected').siblings().removeClass('selected');
-                    var selectedReportId = selectedItem.attr('report_id');
-                    $('#id_report_id').val(selectedReportId);
-                    self.embeddedReportLoaded = false;
-                    self._checkChooseAlertForm();
-                })
-            });
+                        $('.report-choice-list li').on('click', function() {
+                            var selectedItem = $(this);
+                            selectedItem.addClass('selected').siblings().removeClass('selected');
+                            var selectedReportId = selectedItem.attr('report_id');
+                            $('#id_report_id').val(selectedReportId);
+                            self.embeddedReportLoaded = false;
+                            self._checkChooseAlertForm();
+                        });
+                    });
+            }
+        }
     },
 
     _loadEmbeddedReport: function() {
@@ -164,15 +168,11 @@ $.widget("custom.edittableaualertpage", {
         var reportId = $("#id_report_id").val();
 
         if (publisherId && reportId) {
-            $('.set-parameters-button').removeClass('disabled').prop('disabled', false);
+            $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
         }
         else {
-            $('.set-parameters-button').addClass('disabled').prop('disabled', false);
+            $('.configure-notifications-button').addClass('disabled').prop('disabled', false);
         }
-    },
-
-    _checkSetParametersForm: function() {
-        $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
     },
 
     _checkConfigureNotificationsForm: function() {
@@ -194,32 +194,4 @@ $.widget("custom.edittableaualertpage", {
     _checkReviewForm: function() {
         $('.save-button').removeClass('disabled').prop('disabled', false);
     },
-
-    _checkForm: function() {
-        var publisherId = $("#id_publisher_id option:selected").val();
-        var reportId = $("#id_report_id option:selected").val();
-        var name = $('#id_name').val();
-        var emails = $('#id_comma_separated_emails').val();
-
-        if (name) {
-            $('.name-requirement').addClass('satisfied');
-        }
-        else {
-            $('.name-requirement').removeClass('satisfied');
-        }
-
-        if (emails) {
-            $('.email-requirement').addClass('satisfied');
-        }
-        else {
-            $('.email-requirement').removeClass('satisfied');
-        }
-
-        if (publisherId && reportId && name && emails) {
-            $('.submit-button').removeClass('disabled').prop('disabled', false);
-        }
-        else {
-            $('.submit-button').addClass('disabled').prop('disabled', false);
-        }
-    }
 });
