@@ -2700,7 +2700,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
     li {
         border-top: 1px dotted #eee;
-        padding: 10px 9px;
+        padding: 12px 9px;
         color: #888;
 
         &:hover, &.selected {
@@ -2722,6 +2722,30 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
                 margin-right: 5px;
                 padding-top: 2px;
                 padding-bottom: 3px;
+            }
+        }
+
+        .choice-icon {
+            margin-right: 10px;
+            margin-left: 5px;
+            font-size: 11px;
+        }
+
+        .selected-choice-icon {
+            display: none;
+        }
+
+        .unselected-choice-icon {
+            color: #eee;
+        }
+
+        &.selected {
+            .selected-choice-icon {
+                display: inline;
+            }
+
+            .unselected-choice-icon {
+                display: none;
             }
         }
     }

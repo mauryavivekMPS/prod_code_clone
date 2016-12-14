@@ -211,7 +211,8 @@ def get_report_choices_for_publisher(publisher_id, alert_type):
             if alert_type == 'threshold':
                 if '[]' in rendered_alert_description:
                     has_widgets = True
-                    rendered_alert_description = rendered_alert_description.replace('[]', '<input type="text" class="form-control">')
+                    input_html = '<input type="text" class="form-control" value="%s">' % alert['threshold_default_value']
+                    rendered_alert_description = rendered_alert_description.replace('[]', input_html)
             report_choices.append({
                 'id': alert_id,
                 'description': rendered_alert_description,
