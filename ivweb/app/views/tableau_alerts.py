@@ -75,6 +75,7 @@ class TableauAlertForm(forms.Form):
     report_params = forms.CharField(widget=forms.HiddenInput, required=False)
     comma_separated_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
+    send_with_no_data = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
 
     def __init__(self, *args, instance=None, user=None, **kwargs):
         initial = {}
