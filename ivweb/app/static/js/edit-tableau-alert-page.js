@@ -94,7 +94,7 @@ $.widget("custom.edittableaualertpage", {
             else {
                 var data = {
                     publisher_id: $('#id_publisher_id option:selected').val(),
-                    report_type: self.selectedAlertType
+                    alert_type: self.selectedAlertType
                 };
 
                 $.get(this.options.reportChoicesUrl, data)

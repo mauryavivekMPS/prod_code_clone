@@ -190,7 +190,7 @@ def show_external_notification(request, notification_id):
     })
 
 
-def get_report_choices_for_publisher(publisher_id, report_type):
+def get_report_choices_for_publisher(publisher_id, alert_type):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     # supported_reports = set()
     # for check_id, check in CHECKS.items():
@@ -203,14 +203,29 @@ def get_report_choices_for_publisher(publisher_id, report_type):
     #
     # return sorted_check_choices
 
-    return [(report_id, report['choice_description']) for report_id, report in ALERTS.items() if report['type'] == report_type]
+    report_choices = []
+    for alert_id, alert in ALERTS.items():
+        if alert['type'] == alert_type:
+            rendered_alert_description = alert['choice_description']
+            has_widgets = False
+            if alert_type == 'threshold':
+                if '[]' in rendered_alert_description:
+                    has_widgets = True
+                    rendered_alert_description = rendered_alert_description.replace('[]', '<input type="text" class="form-control">')
+            report_choices.append({
+                'id': alert_id,
+                'description': rendered_alert_description,
+                'has_widgets': has_widgets,
+            })
+
+    return report_choices
 
 
 @login_required
 def include_report_choices(request):
     publisher_id = request.GET['publisher_id']
-    report_type = request.GET['report_type']
-    report_choices = get_report_choices_for_publisher(publisher_id, report_type)
+    alert_type = request.GET['alert_type']
+    report_choices = get_report_choices_for_publisher(publisher_id, alert_type)
     return render(request, 'tableau_alerts/include/report_choices.html', {
         'report_choices': report_choices,
     })
