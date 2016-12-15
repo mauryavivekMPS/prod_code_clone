@@ -4,23 +4,22 @@
 {% block content %}
     <div id="external-notification-report-page">
         <div class="row notification-report-header-row">
-            <div class="col-md-6">
-                Logo
-            </div>
-        </div>
-        <div class="row notification-report-tile-row">
             <div class="col-md-12">
-                This is a tile with text.
+                <img class="logo" src="/static/dist/transparent-logo.png">
+                <h1>{{ notification.name }}</h1>
+                <p class="notification-date">Generated on <b>{{ notification.notification_date|date:"l, F d, Y" }}</b></p>
             </div>
         </div>
+
+{#        <div class="row notification-report-tile-row">#}
+{#            <div class="col-md-12">#}
+{#                This is a tile with text.#}
+{#            </div>#}
+{#        </div>#}
+
         <div class="row notification-report-tile-row">
             <div class="col-md-12">
                 <div class="embedded-report-container full-report"></div>
-            </div>
-        </div>
-        <div class="row notification-report-tile-row">
-            <div class="col-md-12">
-                This is a another tile.
             </div>
         </div>
     </div>
@@ -32,9 +31,8 @@
             $('#external-notification-report-page').externalnotificationreportpage({
                 trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
                 report: '{{ notification.report_id }}',
-                filters: {{ notification.report_params|safe }}
+                filters: {{ notification.alert_filters|safe }}
             });
         });
     </script>
 {% endblock %}
-
