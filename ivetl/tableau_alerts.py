@@ -13,18 +13,21 @@ ALERTS = {
     'hot-article-tracker': {
         'choice_description': 'Hot Article Tracker',
         'name_template': 'Hot Article Tracker Update',
+        'report_name': 'Hot Article Tracker',
         'type': 'scheduled',
         'order': 1,
     },
     'rejected-article-tracker': {
         'choice_description': 'Rejected Article Tracker',
         'name_template': 'Rejected Article Tracker Update',
+        'report_name': 'Rejected Article Tracker',
         'type': 'scheduled',
         'order': 2,
     },
     'articles-citations-exceed-integer': {
         'choice_description': 'Articles that exceed [] citations',
         'name_template': 'New Articles That Exceed %s Citations',
+        'report_name': 'Hot Article Tracker',
         'type': 'threshold',
         'threshold_type': 'integer',
         'threshold_default_value': 20,
@@ -34,6 +37,7 @@ ALERTS = {
     'articles-citations-increase-exceed-percentage': {
         'choice_description': 'Articles that increase their citations by [] or greater',
         'name_template': 'New Articles With Citation Growth of %s%% or Greater',
+        'report_name': 'Hot Article Tracker',
         'type': 'threshold',
         'threshold_type': 'percentage',
         'threshold_default_value': 50,
@@ -43,12 +47,14 @@ ALERTS = {
     'section-performance-analyzer-scheduled': {
         'choice_description': 'Section Performance Analyzer',
         'name_template': 'Section Performance Analyzer Update',
+        'report_name': 'Section Performance Analyzer',
         'type': 'scheduled',
         'order': 3,
     },
     'articles-mendeley-saves-exceed-integer': {
         'choice_description': 'Articles that exceed [] saves on Mendeley',
         'name_template': 'New Articles That Exceed %s Saves on Mendeley',
+        'report_name': 'Section Performance Analyzer',
         'type': 'threshold',
         'threshold_type': 'integer',
         'threshold_default_value': 20,
@@ -58,6 +64,7 @@ ALERTS = {
     'articles-mendeley-saves-increase-exceed-percentage': {
         'choice_description': 'Articles that increase their saves on Mendeley by [] or greater',
         'name_template': 'New Articles With Saves on Mendeley Growth of %s%% or Greater',
+        'report_name': 'Section Performance Analyzer',
         'type': 'threshold',
         'threshold_type': 'percentage',
         'threshold_default_value': 100,
@@ -67,12 +74,14 @@ ALERTS = {
     'citation-distribution-surveyor': {
         'choice_description': 'Citation Distribution Surveyor',
         'name_template': 'Citation Distribution Surveyor Update',
+        'report_name': 'Citation Distribution Surveyor',
         'type': 'scheduled',
         'order': 4,
     },
     'cohort-comparator-scheduled': {
         'choice_description': 'Cohort Comparator',
         'name_template': 'Cohort Comparator Update',
+        'report_name': 'Cohort Comparator',
         'type': 'scheduled',
         'order': 5,
     },

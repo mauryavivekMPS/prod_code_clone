@@ -49,8 +49,8 @@ def list_alerts(request):
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     for alert in sorted_alerts:
-        report = ALERTS[alert.report_id]
-        setattr(alert, 'report_name', report['name'])
+        alert_type = ALERTS[alert.report_id]
+        setattr(alert, 'report_name', alert_type['report_name'])
 
     response = render(request, 'tableau_alerts/list.html', {
         'alerts': sorted_alerts,
@@ -118,7 +118,8 @@ class TableauAlertForm(forms.Form):
             alert_params=self.cleaned_data['alert_params'],
             alert_filters=self.cleaned_data['alert_filters'],
             emails=emails,
-            enabled=self.cleaned_data['enabled'],
+            enabled=True,
+            archived=False,
         )
 
         return alert
