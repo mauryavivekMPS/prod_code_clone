@@ -108,12 +108,29 @@ $.widget("custom.edittableaualertpage", {
                             selectedItem.addClass('selected').siblings().removeClass('selected');
                             var selectedReportId = selectedItem.attr('report_id');
                             $('#id_report_id').val(selectedReportId);
+
+                            // clear out any existing embedded report
                             self.embeddedReportLoaded = false;
+
+                            // wire up the alert name
+                            selectedItem.find('input.threshold-input').on('keyup', function() {
+                                self._updateAlertName();
+                            });
+                            self._updateAlertName();
+
                             self._checkChooseAlertForm();
                         });
                     });
             }
         }
+    },
+
+    _updateAlertName: function() {
+        var selectedItem = $('.report-choice-list li.selected');
+        var thresholdValue = selectedItem.find('input.threshold-input').val();
+        var nameTemplate = selectedItem.attr('name_template');
+        var renderedName = nameTemplate.replace('%%', '%').replace('%s', thresholdValue);
+        $('#id_name').val(renderedName);
     },
 
     _loadEmbeddedReport: function() {

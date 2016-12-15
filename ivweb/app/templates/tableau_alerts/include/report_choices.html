@@ -1,6 +1,6 @@
 <ul class="choice-list report-choice-list">
     {% for choice in report_choices %}
-        <li report_id="{{ choice.id }}" class="{% if form.initial.report_id == choice.id %}selected{% endif %} {% if choice.has_widgets %}has-widgets{% endif %}">
+        <li report_id="{{ choice.id }}" name_template="{{ choice.name_template }}" class="{% if form.initial.report_id == choice.id %}selected{% endif %} {% if choice.has_widgets %}has-widgets{% endif %}">
             <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
             <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
             {{ choice.description|safe }}

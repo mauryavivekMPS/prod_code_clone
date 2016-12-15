@@ -10,30 +10,30 @@ def check_for_mendeley_percentage_change(publisher_id):
     return True
 
 ALERTS = {
-    'rejected-article-tracker': {
-        'name': 'Rejected Article Tracker (Scheduled)',
-        'choice_description': 'Rejected Article Tracker',
+    'hot-article-tracker': {
+        'choice_description': 'Hot Article Tracker',
+        'name_template': 'Hot Article Tracker Update',
         'type': 'scheduled',
         'order': 1,
     },
-    'hot-article-tracker': {
-        'name': 'Hot Article Tracker (Scheduled)',
-        'choice_description': 'Hot Article Tracker',
+    'rejected-article-tracker': {
+        'choice_description': 'Rejected Article Tracker',
+        'name_template': 'Rejected Article Tracker Update',
         'type': 'scheduled',
         'order': 2,
     },
-    'hot-article-tracker-citation-amount-trigger': {
-        'name': 'Hot Article Tracker (Citation Amount Trigger)',
+    'articles-citations-exceed-integer': {
         'choice_description': 'Articles that exceed [] citations',
+        'name_template': 'New Articles That Exceed %s Citations',
         'type': 'threshold',
         'threshold_type': 'integer',
         'threshold_default_value': 20,
         'threshold_function': check_for_citation_amount,
         'order': 1,
     },
-    'hot-article-tracker-citation-percentage-trigger': {
-        'name': 'Hot Article Tracker (Citation Amount Trigger)',
+    'articles-citations-increase-exceed-percentage': {
         'choice_description': 'Articles that increase their citations by [] or greater',
+        'name_template': 'New Articles With Citation Growth of %s%% or Greater',
         'type': 'threshold',
         'threshold_type': 'percentage',
         'threshold_default_value': 50,
@@ -41,23 +41,23 @@ ALERTS = {
         'order': 2,
     },
     'section-performance-analyzer-scheduled': {
-        'name': 'Section Performance Analyzer (Scheduled)',
         'choice_description': 'Section Performance Analyzer',
+        'name_template': 'Section Performance Analyzer Update',
         'type': 'scheduled',
         'order': 3,
     },
-    'section-performance-analyzer-amount-trigger': {
-        'name': 'Section Performance Analyzer (Mendeley Amount Trigger)',
+    'articles-mendeley-saves-exceed-integer': {
         'choice_description': 'Articles that exceed [] saves on Mendeley',
+        'name_template': 'New Articles That Exceed %s Saves on Mendeley',
         'type': 'threshold',
         'threshold_type': 'integer',
         'threshold_default_value': 20,
         'threshold_function': check_for_mendeley_amount,
         'order': 3,
     },
-    'section-performance-analyzer-percentage-trigger': {
-        'name': 'Section Performance Analyzer (Mendeley % Trigger)',
+    'articles-mendeley-saves-increase-exceed-percentage': {
         'choice_description': 'Articles that increase their saves on Mendeley by [] or greater',
+        'name_template': 'New Articles With Saves on Mendeley Growth of %s%% or Greater',
         'type': 'threshold',
         'threshold_type': 'percentage',
         'threshold_default_value': 100,
@@ -65,14 +65,14 @@ ALERTS = {
         'order': 4,
     },
     'citation-distribution-surveyor': {
-        'name': 'Citation Distribution Surveyor (Scheduled)',
         'choice_description': 'Citation Distribution Surveyor',
+        'name_template': 'Citation Distribution Surveyor Update',
         'type': 'scheduled',
         'order': 4,
     },
     'cohort-comparator-scheduled': {
-        'name': 'Cohort Comparator (Scheduled)',
         'choice_description': 'Cohort Comparator',
+        'name_template': 'Cohort Comparator Update',
         'type': 'scheduled',
         'order': 5,
     },

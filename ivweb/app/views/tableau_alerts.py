@@ -193,6 +193,7 @@ def show_external_notification(request, notification_id):
 
 def get_report_choices_for_publisher(publisher_id, alert_type):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+
     # supported_reports = set()
     # for check_id, check in CHECKS.items():
     #     for product in check['products']:
@@ -215,21 +216,23 @@ def get_report_choices_for_publisher(publisher_id, alert_type):
                     if alert['threshold_type'] == 'percentage':
                         input_html = """
                             <div class="input-group">
-                                <input type="text" class="form-control" value="%s">
+                                <input type="text" class="form-control threshold-input" value="%s">
                                 <span class="input-group-addon">%%</span>
                             </div>
                         """ % alert['threshold_default_value']
                     else:
                         input_html = """
-                            <input type="text" class="form-control" value="%s">
+                            <input type="text" class="form-control threshold-input" value="%s">
                         """ % alert['threshold_default_value']
 
                     rendered_alert_description = rendered_alert_description.replace('[]', input_html)
+
             report_choices.append({
                 'id': alert_id,
                 'description': rendered_alert_description,
                 'has_widgets': has_widgets,
                 'order': alert['order'],
+                'name_template': alert['name_template'],
             })
 
     sorted_report_choices = sorted(report_choices, key=lambda a: a['order'])
