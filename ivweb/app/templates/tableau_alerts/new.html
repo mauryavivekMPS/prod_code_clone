@@ -30,7 +30,8 @@
                         {% csrf_token %}
                         {{ form.alert_id }}
                         {{ form.report_id }}
-                        {{ form.report_params }}
+                        {{ form.alert_params }}
+                        {{ form.alert_filters }}
 
                         <div id="step-choose-alert" class="wizard-step">
 

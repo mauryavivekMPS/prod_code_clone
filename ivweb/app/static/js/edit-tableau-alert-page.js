@@ -172,7 +172,7 @@ $.widget("custom.edittableaualertpage", {
                             $.each(selectedValues, function(index, value) {
                                 self.filters[filter._caption].push(value.value);
                             });
-                            $('#id_report_params').val(JSON.stringify(self.filters));
+                            $('#id_alert_filters').val(JSON.stringify(self.filters));
                         });
                     });
 

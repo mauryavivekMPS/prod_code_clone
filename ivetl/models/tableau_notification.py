@@ -10,4 +10,5 @@ class TableauNotification(Model):
     report_id = columns.Text()
     notification_date = columns.DateTime()
     name = columns.Text()
-    report_params = columns.Text()
+    alert_params = columns.Text()
+    alert_filters = columns.Text()

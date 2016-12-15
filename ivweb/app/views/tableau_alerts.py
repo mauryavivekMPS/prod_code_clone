@@ -72,7 +72,8 @@ class TableauAlertForm(forms.Form):
     publisher_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
     report_id = forms.CharField(widget=forms.HiddenInput, required=True)
-    report_params = forms.CharField(widget=forms.HiddenInput, required=False)
+    alert_params = forms.CharField(widget=forms.HiddenInput, required=False)
+    alert_filters = forms.CharField(widget=forms.HiddenInput, required=False)
     comma_separated_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
     send_with_no_data = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
@@ -114,7 +115,8 @@ class TableauAlertForm(forms.Form):
 
         alert.update(
             name=self.cleaned_data['name'],
-            report_params=self.cleaned_data['report_params'],
+            alert_params=self.cleaned_data['alert_params'],
+            alert_filters=self.cleaned_data['alert_filters'],
             emails=emails,
             enabled=self.cleaned_data['enabled'],
         )

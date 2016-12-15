@@ -5,7 +5,8 @@ CREATE TABLE tableau_alert (
   publisher_id text,
   report_id text,
   name text,
-  report_params text,
+  alert_params text,
+  alert_filters text,
   emails list<text>,
   enabled boolean,
   archived boolean,
@@ -36,7 +37,8 @@ CREATE TABLE tableau_notification (
   report_id text,
   notification_date timestamp,
   name text,
-  report_params text,
+  alert_params text,
+  alert_filters text,
   PRIMARY KEY ((notification_id))
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
