@@ -209,18 +209,32 @@ def get_report_choices_for_publisher(publisher_id, alert_type):
         if alert['type'] == alert_type:
             rendered_alert_description = alert['choice_description']
             has_widgets = False
-            if alert_type == 'threshold':
+            if alert['type'] == 'threshold':
                 if '[]' in rendered_alert_description:
                     has_widgets = True
-                    input_html = '<input type="text" class="form-control" value="%s">' % alert['threshold_default_value']
+                    if alert['threshold_type'] == 'percentage':
+                        input_html = """
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="%s">
+                                <span class="input-group-addon">%%</span>
+                            </div>
+                        """ % alert['threshold_default_value']
+                    else:
+                        input_html = """
+                            <input type="text" class="form-control" value="%s">
+                        """ % alert['threshold_default_value']
+
                     rendered_alert_description = rendered_alert_description.replace('[]', input_html)
             report_choices.append({
                 'id': alert_id,
                 'description': rendered_alert_description,
                 'has_widgets': has_widgets,
+                'order': alert['order'],
             })
 
-    return report_choices
+    sorted_report_choices = sorted(report_choices, key=lambda a: a['order'])
+
+    return sorted_report_choices
 
 
 @login_required

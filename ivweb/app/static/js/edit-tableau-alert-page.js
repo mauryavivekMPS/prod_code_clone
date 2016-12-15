@@ -87,6 +87,7 @@ $.widget("custom.edittableaualertpage", {
         }
         else {
             alertTypeControls.show();
+            $('.article-type-instructions-' + this.selectedAlertType).show().siblings().hide();
 
             if (!this.selectedAlertType) {
                 alertChoiceControls.hide();
