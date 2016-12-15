@@ -15,6 +15,7 @@ $.widget("custom.edittableaualertpage", {
 
         $('#id_name, #id_comma_separated_emails').on('keyup', function() {
             self._checkConfigureNotificationsForm();
+            self._updateSummary();
         });
 
         var publisherMenu = $('#id_publisher_id');
@@ -131,6 +132,11 @@ $.widget("custom.edittableaualertpage", {
         var nameTemplate = selectedItem.attr('name_template');
         var renderedName = nameTemplate.replace('%%', '%').replace('%s', thresholdValue);
         $('#id_name').val(renderedName);
+        this._updateSummary();
+    },
+
+    _updateSummary: function() {
+        $('.alert-summary .name').html($('#id_name').val());
     },
 
     _loadEmbeddedReport: function() {
@@ -187,9 +193,19 @@ $.widget("custom.edittableaualertpage", {
 
         if (publisherId && reportId) {
             $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
+
+            // just for now...
+            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
+            $('.review-button').removeClass('disabled').prop('disabled', false);
+            $('.submit-button').removeClass('disabled').prop('disabled', false);
         }
         else {
             $('.configure-notifications-button').addClass('disabled').prop('disabled', false);
+
+            // just for now...
+            $('.set-filters-button').addClass('disabled').prop('disabled', false);
+            $('.review-button').addClass('disabled').prop('disabled', false);
+            $('.submit-button').addClass('disabled').prop('disabled', false);
         }
     },
 
@@ -197,19 +213,19 @@ $.widget("custom.edittableaualertpage", {
         var name = $('#id_name').val();
         var emails = $('#id_comma_separated_emails').val();
 
-        if (name && emails) {
-            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
-        }
-        else {
-            $('.set-filters-button').addClass('disabled').prop('disabled', false);
-        }
+        // if (name && emails) {
+        //     $('.set-filters-button').removeClass('disabled').prop('disabled', false);
+        // }
+        // else {
+        //     $('.set-filters-button').addClass('disabled').prop('disabled', false);
+        // }
     },
 
     _checkSetFiltersForm: function() {
-        $('.review-button').removeClass('disabled').prop('disabled', false);
+        // $('.review-button').removeClass('disabled').prop('disabled', false);
     },
 
     _checkReviewForm: function() {
-        $('.save-button').removeClass('disabled').prop('disabled', false);
-    },
+        // $('.save-button').removeClass('disabled').prop('disabled', false);
+    }
 });
