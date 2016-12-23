@@ -3,7 +3,8 @@ $.widget("custom.edittableaualertpage", {
         reportChoicesUrl: '',
         trustedReportUrl: '',
         selectedPublisher: null,
-        selectedReport: null
+        selectedReport: null,
+        isSinglePublisherUser: false,
     },
 
     _create: function() {
@@ -18,24 +19,6 @@ $.widget("custom.edittableaualertpage", {
             self._updateSummary();
         });
 
-        var publisherMenu = $('#id_publisher_id');
-
-        var nullPublisherItem = publisherMenu.find('option:first-child');
-        nullPublisherItem.attr('disabled', 'disabled');
-        if (!this.options.selectedPublisher) {
-            publisherMenu.addClass('placeholder');
-            nullPublisherItem.attr('selected', 'selected');
-        }
-
-        publisherMenu.on('change', function() {
-            var selectedOption = publisherMenu.find('option:selected');
-            if (!selectedOption.attr('disabled')) {
-                publisherMenu.removeClass('placeholder');
-                self._updateReportChoices();
-            }
-            self._checkChooseAlertForm();
-        });
-
         $('.alert-type-choice-list li').on('click', function () {
             var selectedItem = $(this);
             selectedItem.addClass('selected').siblings().removeClass('selected');
@@ -45,6 +28,29 @@ $.widget("custom.edittableaualertpage", {
             self._updateReportChoices();
             self._checkChooseAlertForm();
         });
+
+        if (this.options.isSinglePublisherUser) {
+            self._updateReportChoices();
+        }
+        else {
+            var publisherMenu = $('#id_publisher_id');
+
+            var nullPublisherItem = publisherMenu.find('option:first-child');
+            nullPublisherItem.attr('disabled', 'disabled');
+            if (!this.options.selectedPublisher) {
+                publisherMenu.addClass('placeholder');
+                nullPublisherItem.attr('selected', 'selected');
+            }
+
+            publisherMenu.on('change', function () {
+                var selectedOption = publisherMenu.find('option:selected');
+                if (!selectedOption.attr('disabled')) {
+                    publisherMenu.removeClass('placeholder');
+                    self._updateReportChoices();
+                }
+                self._checkChooseAlertForm();
+            });
+        }
 
         var allSteps = $('.wizard-step');
         $('.choose-alert-button').on('click', function() {

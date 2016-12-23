@@ -93,11 +93,14 @@ class TableauAlertForm(forms.Form):
         super(TableauAlertForm, self).__init__(initial=initial, *args, **kwargs)
 
         if user.superuser:
-            self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
+            publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
-            self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
+            publisher_choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
 
-        self.fields['publisher_id'].choices.insert(0, ('', 'Select a publisher'))
+        self.fields['publisher_id'].choices = publisher_choices
+
+        if len(publisher_choices) > 1:
+            self.fields['publisher_id'].choices.insert(0, ('', 'Select a publisher'))
 
     def save(self):
         alert_id = self.cleaned_data['alert_id']
