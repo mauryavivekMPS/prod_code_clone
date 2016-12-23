@@ -112,20 +112,24 @@ $.widget("custom.edittableaualertpage", {
 
                         $('.report-choice-list li').on('click', function() {
                             var selectedItem = $(this);
-                            selectedItem.addClass('selected').siblings().removeClass('selected');
                             var selectedReportId = selectedItem.attr('report_id');
-                            $('#id_report_id').val(selectedReportId);
 
-                            // clear out any existing embedded report
-                            self.embeddedReportLoaded = false;
+                            if (selectedReportId) {
+                                selectedItem.addClass('selected').siblings().removeClass('selected');
 
-                            // wire up the alert name
-                            selectedItem.find('input.threshold-input').on('keyup', function() {
+                                $('#id_report_id').val(selectedReportId);
+
+                                // clear out any existing embedded report
+                                self.embeddedReportLoaded = false;
+
+                                // wire up the alert name
+                                selectedItem.find('input.threshold-input').on('keyup', function() {
+                                    self._updateAlertName();
+                                });
                                 self._updateAlertName();
-                            });
-                            self._updateAlertName();
 
-                            self._checkChooseAlertForm();
+                                self._checkChooseAlertForm();
+                            }
                         });
                     });
             }
