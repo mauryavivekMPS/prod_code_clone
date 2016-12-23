@@ -138,7 +138,7 @@ class AlertForm(forms.Form):
             if filter_value:
                 filters[filter_name] = filter_value
 
-        emails = [email.strip() for email in self.cleaned_data['comma_separated_emails'].split(",")]
+        emails = [email.strip() for email in self.cleaned_data["attachment_only_emails"].split(",")]
 
         alert.update(
             name=self.cleaned_data['name'],

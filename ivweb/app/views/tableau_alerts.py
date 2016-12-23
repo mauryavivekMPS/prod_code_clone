@@ -74,7 +74,8 @@ class TableauAlertForm(forms.Form):
     report_id = forms.CharField(widget=forms.HiddenInput, required=True)
     alert_params = forms.CharField(widget=forms.HiddenInput, required=False)
     alert_filters = forms.CharField(widget=forms.HiddenInput, required=False)
-    comma_separated_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
+    attachment_only_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
+    full_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     enabled = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
     send_with_no_data = forms.BooleanField(widget=forms.CheckboxInput, initial=True, required=False)
 
@@ -84,10 +85,10 @@ class TableauAlertForm(forms.Form):
         if instance:
             self.instance = instance
             initial = dict(instance)
-            initial['comma_separated_emails'] = ", ".join(instance.emails)
+            initial['attachment_only_emails'] = ", ".join(instance.attachment_only_emails)
+            initial['full_emails'] = ", ".join(instance.attachment_only_emails)
         else:
             self.instance = None
-            initial['comma_separated_emails'] = user.email
 
         super(TableauAlertForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -111,13 +112,15 @@ class TableauAlertForm(forms.Form):
                 report_id=report_id,
             )
 
-        emails = [email.strip() for email in self.cleaned_data['comma_separated_emails'].split(",")]
+        attachment_only_emails = [email.strip() for email in self.cleaned_data['attachment_only_emails'].split(",")]
+        full_emails = [email.strip() for email in self.cleaned_data['full_emails'].split(",")]
 
         alert.update(
             name=self.cleaned_data['name'],
             alert_params=self.cleaned_data['alert_params'],
             alert_filters=self.cleaned_data['alert_filters'],
-            emails=emails,
+            attachment_only_emails=attachment_only_emails,
+            full_emails=full_emails,
             enabled=True,
             archived=False,
         )

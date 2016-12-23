@@ -113,13 +113,25 @@
 
                             <div class="row instruction-row">
                                 <div class="col-sm-8">
-                                    <p>Add a list of comma separated email addresses to send the notification to:</p>
+                                    <p>Send a notification email with attached PDF report only to:</p>
                                 </div>
                             </div>
 
                             <div class="row widget-row">
                                 <div class="col-sm-8">
-                                    {{ form.comma_separated_emails }}
+                                    {{ form.attachment_only_emails }}
+                                </div>
+                            </div>
+
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Send a notification email with attached PDF report <b>and a link to the live report</b> to:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    {{ form.full_emails }}
                                 </div>
                             </div>
 

@@ -10,6 +10,7 @@ class TableauAlert(Model):
     report_id = columns.Text(primary_key=True)
     alert_params = columns.Text()
     alert_filters = columns.Text()
-    emails = columns.List(columns.Text())
+    attachment_only_emails = columns.List(columns.Text())
+    full_emails = columns.List(columns.Text())
     enabled = columns.Boolean()
     archived = columns.Boolean(index=True)

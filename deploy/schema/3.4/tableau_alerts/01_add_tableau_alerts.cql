@@ -7,7 +7,8 @@ CREATE TABLE tableau_alert (
   name text,
   alert_params text,
   alert_filters text,
-  emails list<text>,
+  attachement_only_emails list<text>,
+  full_emails list<text>,
   enabled boolean,
   archived boolean,
   PRIMARY KEY ((publisher_id), report_id, alert_id)
