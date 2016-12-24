@@ -197,6 +197,27 @@ $.widget("custom.edittableaualertpage", {
         }
     },
 
+    _checkForm: function() {
+        var publisherId = $("#id_publisher_id option:selected").val();
+        var reportId = $("#id_report_id").val();
+
+        if (publisherId && reportId) {
+            $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
+
+            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
+            $('.review-button').removeClass('disabled').prop('disabled', false);
+            $('.submit-button').removeClass('disabled').prop('disabled', false);
+        }
+        else {
+            $('.configure-notifications-button').addClass('disabled').prop('disabled', false);
+
+            $('.set-filters-button').addClass('disabled').prop('disabled', false);
+            $('.review-button').addClass('disabled').prop('disabled', false);
+            $('.submit-button').addClass('disabled').prop('disabled', false);
+        }
+
+    },
+
     _checkChooseAlertForm: function() {
         var publisherId = $("#id_publisher_id option:selected").val();
         var reportId = $("#id_report_id").val();
