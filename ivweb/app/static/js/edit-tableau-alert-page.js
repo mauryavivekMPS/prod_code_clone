@@ -4,7 +4,7 @@ $.widget("custom.edittableaualertpage", {
         trustedReportUrl: '',
         selectedPublisher: null,
         selectedReport: null,
-        isSinglePublisherUser: false,
+        isSinglePublisherUser: false
     },
 
     _create: function() {
@@ -14,9 +14,8 @@ $.widget("custom.edittableaualertpage", {
         this.selectedAlertType = null;
         this.embeddedReportLoaded = false;
 
-        $('#id_name, #id_comma_separated_emails').on('keyup', function() {
-            self._checkConfigureNotificationsForm();
-            self._updateSummary();
+        $('#id_name, #id_attachment_only_emails, #id_full_emails').on('keyup', function() {
+            self._checkForm();
         });
 
         $('.alert-type-choice-list li').on('click', function () {
@@ -26,7 +25,7 @@ $.widget("custom.edittableaualertpage", {
             $('#id_report_id').val('');
             self.embeddedReportLoaded = false;
             self._updateReportChoices();
-            self._checkChooseAlertForm();
+            self._checkForm();
         });
 
         if (this.options.isSinglePublisherUser) {
@@ -48,37 +47,53 @@ $.widget("custom.edittableaualertpage", {
                     publisherMenu.removeClass('placeholder');
                     self._updateReportChoices();
                 }
-                self._checkChooseAlertForm();
+                self._checkForm();
             });
         }
 
         var allSteps = $('.wizard-step');
-        $('.choose-alert-button').on('click', function() {
-            allSteps.hide();
-            $('#step-choose-alert').show();
-            $('.choose-alert-tab').addClass('active').siblings().removeClass('active');
-            self._checkChooseAlertForm();
-        });
-        $('.configure-notifications-button').on('click', function() {
-            allSteps.hide();
-            $('#step-configure-notifications').show();
-            $('.configure-notifications-tab').addClass('active').siblings().removeClass('active');
-            self._checkConfigureNotificationsForm();
-        });
-        $('.set-filters-button').on('click', function() {
-            allSteps.hide();
-            $('#step-set-filters').show();
-            $('.set-filters-tab').addClass('active').siblings().removeClass('active');
-            if (!self.embeddedReportLoaded) {
-                self._loadEmbeddedReport();
+        var chooseAlertButton = $('.choose-alert-button');
+        chooseAlertButton.on('click', function(event) {
+            if (!chooseAlertButton.hasClass('disabled')) {
+                allSteps.hide();
+                $('#step-choose-alert').show();
+                $('.choose-alert-tab').addClass('active').siblings().removeClass('active');
+                self._checkForm();
             }
-            self._checkSetFiltersForm();
+            event.preventDefault();
         });
-        $('.review-button').on('click', function() {
-            allSteps.hide();
-            $('#step-review').show();
-            $('.review-tab').addClass('active').siblings().removeClass('active');
-            self._checkReviewForm();
+        var configureNotificationsButton = $('.configure-notifications-button');
+        configureNotificationsButton.on('click', function() {
+            if (!configureNotificationsButton.hasClass('disabled')) {
+                allSteps.hide();
+                $('#step-configure-notifications').show();
+                $('.configure-notifications-tab').addClass('active').siblings().removeClass('active');
+                self._checkForm();
+            }
+            event.preventDefault();
+        });
+        var setFiltersButton = $('.set-filters-button');
+        setFiltersButton.on('click', function() {
+            if (!setFiltersButton.hasClass('disabled')) {
+                allSteps.hide();
+                $('#step-set-filters').show();
+                $('.set-filters-tab').addClass('active').siblings().removeClass('active');
+                if (!self.embeddedReportLoaded) {
+                    self._loadEmbeddedReport();
+                }
+                self._checkForm();
+            }
+            event.preventDefault();
+        });
+        var reviewButton = $('.review-button');
+        reviewButton.on('click', function() {
+            if (!reviewButton.hasClass('disabled')) {
+                allSteps.hide();
+                $('#step-review').show();
+                $('.review-tab').addClass('active').siblings().removeClass('active');
+                self._checkForm();
+            }
+            event.preventDefault();
         });
     },
 
@@ -128,7 +143,7 @@ $.widget("custom.edittableaualertpage", {
                                 });
                                 self._updateAlertName();
 
-                                self._checkChooseAlertForm();
+                                self._checkForm();
                             }
                         });
                     });
@@ -142,17 +157,10 @@ $.widget("custom.edittableaualertpage", {
         var nameTemplate = selectedItem.attr('name_template');
         var renderedName = nameTemplate.replace('%%', '%').replace('%s', thresholdValue);
         $('#id_name').val(renderedName);
-        this._updateSummary();
-    },
-
-    _updateSummary: function() {
-        $('.alert-summary .name').html($('#id_name').val());
     },
 
     _loadEmbeddedReport: function() {
         var self = this;
-
-        console.log('loading report');
 
         // clear out existing filter selections
         this.filters = {};
@@ -183,6 +191,7 @@ $.widget("custom.edittableaualertpage", {
                                 self.filters[filter._caption].push(value.value);
                             });
                             $('#id_alert_filters').val(JSON.stringify(self.filters));
+                            self._checkForm();
                         });
                     });
 
@@ -203,60 +212,48 @@ $.widget("custom.edittableaualertpage", {
 
         if (publisherId && reportId) {
             $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
-
-            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
-            $('.review-button').removeClass('disabled').prop('disabled', false);
-            $('.submit-button').removeClass('disabled').prop('disabled', false);
+            $('.publisher-summary-item').html('New alert for: ' + publisherId);
+            $('.alert-summary-item').html('Alert type: ' + reportId);
+            // $('.set-filters-button').removeClass('disabled').prop('disabled', false);
         }
         else {
             $('.configure-notifications-button').addClass('disabled').prop('disabled', false);
-
-            $('.set-filters-button').addClass('disabled').prop('disabled', false);
-            $('.review-button').addClass('disabled').prop('disabled', false);
-            $('.submit-button').addClass('disabled').prop('disabled', false);
         }
 
-    },
-
-    _checkChooseAlertForm: function() {
-        var publisherId = $("#id_publisher_id option:selected").val();
-        var reportId = $("#id_report_id").val();
-
-        if (publisherId && reportId) {
-            $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
-
-            // just for now...
-            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
-            $('.review-button').removeClass('disabled').prop('disabled', false);
-            $('.submit-button').removeClass('disabled').prop('disabled', false);
-        }
-        else {
-            $('.configure-notifications-button').addClass('disabled').prop('disabled', false);
-
-            // just for now...
-            $('.set-filters-button').addClass('disabled').prop('disabled', false);
-            $('.review-button').addClass('disabled').prop('disabled', false);
-            $('.submit-button').addClass('disabled').prop('disabled', false);
-        }
-    },
-
-    _checkConfigureNotificationsForm: function() {
         var name = $('#id_name').val();
-        var emails = $('#id_comma_separated_emails').val();
+        var attachmentOnlyEmails = $('#id_attachment_only_emails').val();
+        var fullEmails = $('#id_full_emails').val();
 
-        // if (name && emails) {
-        //     $('.set-filters-button').removeClass('disabled').prop('disabled', false);
-        // }
-        // else {
-        //     $('.set-filters-button').addClass('disabled').prop('disabled', false);
-        // }
-    },
+        if (name && (attachmentOnlyEmails || fullEmails)) {
+            $('.set-filters-button').removeClass('disabled').prop('disabled', false);
+            $('.name-summary-item').html('A new alert called: ' + name);
+            if (attachmentOnlyEmails) {
+                $('.attachment-only-emails-summary-item').html('Attachment-only emails for: ' + attachmentOnlyEmails);
+            }
+            else {
+                $('.attachment-only-emails-summary-item').html('No attachment-only emails will be sent');
+            }
+            if (fullEmails) {
+                $('.full-emails-summary-item').html('Full emails for: ' + fullEmails);
+            }
+            else {
+                $('.full-emails-summary-item').html('No full emails will be sent');
+            }
+            $('.review-button').removeClass('disabled').prop('disabled', false);
+            $('.submit-button').removeClass('disabled').prop('disabled', false);
+        }
+        else {
+            $('.set-filters-button').addClass('disabled').prop('disabled', false);
+            $('.review-button').addClass('disabled').prop('disabled', false);
+            $('.submit-button').addClass('disabled').prop('disabled', false);
+        }
 
-    _checkSetFiltersForm: function() {
-        // $('.review-button').removeClass('disabled').prop('disabled', false);
-    },
-
-    _checkReviewForm: function() {
-        // $('.save-button').removeClass('disabled').prop('disabled', false);
+        var filters = $('#id_alert_filters').val();
+        if (filters) {
+            $('.filter-summary-item').html('Apply filters: ' + filters);
+        }
+        else {
+            $('.filter-summary-item').html('No filters');
+        }
     }
 });
