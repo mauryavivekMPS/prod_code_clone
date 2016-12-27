@@ -9,6 +9,7 @@ class TableauNotification(Model):
     publisher_id = columns.Text()
     report_id = columns.Text()
     notification_date = columns.DateTime()
+    expiration_date = columns.DateTime()
     name = columns.Text()
     alert_params = columns.Text()
     alert_filters = columns.Text()

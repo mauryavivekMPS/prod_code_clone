@@ -1,5 +1,6 @@
 import logging
 import requests
+import datetime
 from operator import attrgetter
 from django import forms
 from django.http import JsonResponse
@@ -120,8 +121,8 @@ class TableauAlertForm(forms.Form):
 
         alert.update(
             name=self.cleaned_data['name'],
-            alert_params=self.cleaned_data['alert_params'],
-            alert_filters=self.cleaned_data['alert_filters'],
+            alert_params=self.cleaned_data.get('alert_params', '{}'),
+            alert_filters=self.cleaned_data.get('alert_filters', '{}'),
             attachment_only_emails=attachment_only_emails,
             full_emails=full_emails,
             enabled=True,
@@ -195,9 +196,14 @@ def edit(request, alert_id=None):
 
 def show_external_notification(request, notification_id):
     notification = TableauNotification.objects.get(notification_id=notification_id)
-    return render(request, 'tableau_alerts/external_notification.html', {
-        'notification': notification,
-    })
+    if notification.expiration_date and notification.expiration_date < datetime.datetime.now():
+        return render(request, 'tableau_alerts/external_notification_expired.html', {
+            'notification': notification,
+        })
+    else:
+        return render(request, 'tableau_alerts/external_notification.html', {
+            'notification': notification,
+        })
 
 
 def get_report_choices_for_publisher(publisher_id, alert_type):
