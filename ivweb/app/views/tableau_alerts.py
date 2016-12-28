@@ -116,8 +116,10 @@ class TableauAlertForm(forms.Form):
                 report_id=report_id,
             )
 
-        attachment_only_emails = [email.strip() for email in self.cleaned_data['attachment_only_emails'].split(",")]
-        full_emails = [email.strip() for email in self.cleaned_data['full_emails'].split(",")]
+        attachment_only_emails_string = self.cleaned_data.get('attachment_only_emails')
+        full_emails_string = self.cleaned_data.get('full_emails')
+        attachment_only_emails = [email.strip() for email in attachment_only_emails_string.split(",") if attachment_only_emails_string]
+        full_emails = [email.strip() for email in full_emails_string.split(",") if full_emails_string]
 
         alert.update(
             name=self.cleaned_data['name'],
