@@ -36,13 +36,18 @@
                                 <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
                                     {{ alert.name }}
                                 </a>
-                                <div class="alert-details"><b>Email:</b> {{ alert.emails|join:", " }}</div>
-{#                                {% if alert.param_display_string %}#}
-{#                                    <div class="alert-details"><b>Parameters:</b> {{ alert.param_display_string }}</div>#}
-{#                                {% endif %}#}
-{#                                {% if alert.filter_display_string %}#}
-{#                                    <div class="alert-details"><b>Filters:</b> {{ alert.filter_display_string }}</div>#}
-{#                                {% endif %}#}
+                                {% if alert.attachment_only_emails %}
+                                    <div class="alert-details"><b>Emails (with attachment):</b> {{ alert.attachment_only_emails|join:", " }}</div>
+                                {% endif %}
+                                {% if alert.full_emails %}
+                                    <div class="alert-details"><b>Emails (with attachment and link):</b>{{ alert.full_emails|join:", " }}</div>
+                                {% endif %}
+                                {% if alert.has_params %}
+                                    <div class="alert-details"><b>Parameters:</b> {{ alert.params_display_string }}</div>
+                                {% endif %}
+                                {% if alert.has_filters %}
+                                    <div class="alert-details"><b>Filters:</b> {{ alert.filters_display_string }}</div>
+                                {% endif %}
                             </td>
                             {% if not single_publisher_user %}
                                 <td>{{ alert.publisher_id }}</td>
