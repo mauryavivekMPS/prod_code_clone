@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata
-from ivetl.tableau_alerts import ALERTS
+from ivetl.tableau_alerts import ALERTS, ALERTS_BY_SOURCE_PIPELINE
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -211,19 +211,15 @@ def show_external_notification(request, notification_id):
 def get_report_choices_for_publisher(publisher_id, alert_type):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
-    # supported_reports = set()
-    # for check_id, check in CHECKS.items():
-    #     for product in check['products']:
-    #         if product in publisher.supported_products:
-    #             supported_checks.add(check_id)
-    #
-    # check_choices = [(check_id, CHECKS[check_id]['name']) for check_id in supported_checks]
-    # sorted_check_choices = sorted(check_choices, key=lambda c: c[1])
-    #
-    # return sorted_check_choices
+    supported_alerts = set()
+    for pipeline_tuple, alert_ids in ALERTS_BY_SOURCE_PIPELINE.items():
+        product_id, pipeline_id = pipeline_tuple
+        if product_id in publisher.supported_products:
+            supported_alerts.update(alert_ids)
 
     report_choices = []
-    for alert_id, alert in ALERTS.items():
+    for alert_id in supported_alerts:
+        alert = ALERTS[alert_id]
         if alert['type'] == alert_type:
             rendered_alert_description = alert['choice_description']
             has_widgets = False
