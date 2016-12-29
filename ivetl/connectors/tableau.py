@@ -8,6 +8,7 @@ from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
+from ivetl.models import WorkbookUrl
 
 
 class TableauConnector(BaseConnector):
@@ -207,7 +208,7 @@ class TableauConnector(BaseConnector):
         url = self.server_url + "/api/2.0/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
         response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
-        all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.workbooks.workbook]
+        all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id'], 'url': d['contentUrl']} for d in r.workbooks.workbook]
 
         if project_id:
             filtered_workbooks = [w for w in all_workbooks if w['project_id'] == project_id]
@@ -293,7 +294,7 @@ class TableauConnector(BaseConnector):
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
 
-        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
@@ -333,7 +334,18 @@ class TableauConnector(BaseConnector):
             'tableau_workbook': (publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, prepared_workbook_binary, 'application/octet-stream'),
         })
 
-        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response.raise_for_status()
+
+        r = untangle.parse(response.text).tsResponse
+
+        workbook_url = r.workbook['contentUrl']
+        WorkbookUrl.objects(
+            publisher_id=publisher.publisher_id,
+            workbook_id=workbook_id,
+        ).update(
+            url=workbook_url
+        )
 
     def update_datasources_and_workbooks(self, publisher):
 
@@ -408,11 +420,8 @@ class TableauConnector(BaseConnector):
         username = 'cob'
         password = 'Hello123'
 
+        data = {'username': 'admin'}
         response = requests.post('http://10.0.0.143/trusted', data=data)
-        data = data = {'username': 'admin'}
-
 
         # response = requests.post('http://10.0.0.143/trusted', data=data)
         # response.text
-
-        pass

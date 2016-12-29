@@ -718,6 +718,8 @@ PRODUCT_GROUPS = [
             'hot_article_tracker.twb',
             'hot_object_tracker.twb',
             'rejected_article_tracker.twb',
+            'alert_rejected_article_tracker.twb',
+            'alert_rejected_article_tracker_export.twb',
             'section_performance_analyzer.twb',
         ],
     },
@@ -762,8 +764,19 @@ TABLEAU_WORKBOOKS = [
         'name': 'Rejected Article Tracker',
     },
     {
+        'id': 'alert_rejected_article_tracker.twb',
+        'name': 'alert_rejected_article_tracker',
+        'home_view': 'Overview',
+    },
+    {
+        'id': 'alert_rejected_article_tracker_export.twb',
+        'name': 'alert_rejected_article_tracker_export',
+        'home_view': 'Overview',
+    },
+    {
         'id': 'section_performance_analyzer.twb',
         'name': 'Section Performance Analyzer',
+        'home_view': 'Overview',
     },
     {
         'id': 'hot_article_tracker.twb',
@@ -796,6 +809,7 @@ TABLEAU_WORKBOOKS = [
 ]  # type: list[dict]
 
 TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
+TABLEAU_WORKBOOKS_BY_NAME = {w['name']: w for w in TABLEAU_WORKBOOKS}
 TABLEAU_DATASOURCE_FILE_EXTENSION = '.tds'
 TABLEAU_WORKBOOK_FILE_EXTENSION = '.twb'
 TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
