@@ -165,11 +165,19 @@ $.widget("custom.edittableaualertpage", {
         // clear out existing filter selections
         this.filters = {};
 
-        var selectedReport = $('#id_report_id').find('option:selected').val();
-        if (selectedReport != '') {
+        var selectedReport = $('#id_report_id').val();
+        if (selectedReport) {
             IvetlWeb.showLoading();
 
-            $.get(this.options.trustedReportUrl, {report: selectedReport, embed_type: 'configure'})
+            console.log('selectedReport = ' + selectedReport);
+
+            data = {
+                publisher_id: $("#id_publisher_id option:selected").val(),
+                report: selectedReport,
+                embed_type: 'configure'
+            };
+
+            $.get(this.options.trustedReportUrl, data)
                 .done(function (response) {
                     var trustedReportUrl = response.url;
                     console.log('trusted URL: ' + trustedReportUrl);

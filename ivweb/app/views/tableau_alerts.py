@@ -7,9 +7,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata
+from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl
 from ivetl.tableau_alerts import ALERTS, ALERTS_BY_SOURCE_PIPELINE
 from ivweb.app.views import utils as view_utils
+from ivetl.common import common
 
 log = logging.getLogger(__name__)
 
@@ -264,19 +265,26 @@ def include_report_choices(request):
 
 
 def get_trusted_token():
+    # TODO: this should be updated probably to at least use the credentials from the account (but some reports not visible)
     response = requests.post('http://10.0.1.201/trusted', data={'username': 'nmehta'})
     return response.text
 
 
 def get_trusted_report_url(request):
-    token = get_trusted_token()
-    # url = 'http://10.0.0.143/trusted/%s/views/RejectedArticleTracker_5/Overview' % token
-    # url = 'http://10.0.0.143/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
+    publisher_id = request.GET['publisher_id']
+    alert_id = request.GET['report']
     embed_type = request.GET.get('embed_type', 'full')
-    if embed_type == 'configure':
-        url = 'http://10.0.1.201/trusted/%s/views/alert_rejected_article_tracker/Overview' % token
-    else:
-        url = 'http://10.0.1.201/trusted/%s/views/RejectedArticleTracker_2/Overview' % token
+
+    # pick up the relevant workbook URL
+    workbook_id = ALERTS[alert_id]['workbooks'][embed_type]
+    workbook_url = WorkbookUrl.objects.get(publisher_id=publisher_id, workbook_id=workbook_id)
+    workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[workbook_id]['home_view']
+
+    # get the trusted token from Tableau
+    token = get_trusted_token()
+
+    # construct the full URL
+    url = 'http://10.0.1.201/trusted/%s/views/%s/%s' % (token, workbook_url, workbook_home_view)
 
     return JsonResponse({
         'url': url,

@@ -6,6 +6,11 @@ ALERTS = {
         'choice_description': 'Rejected Article Tracker',
         'name_template': 'Rejected Article Tracker Update',
         'report_name': 'Rejected Article Tracker',
+        'workbooks': {
+            'full': 'rejected_article_tracker.twb',
+            'configure': 'alert_rejected_article_tracker.twb',
+            'export': 'alert_rejected_article_tracker_export.twb',
+        },
         'type': 'scheduled',
         'order': 1,
     },

@@ -762,6 +762,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'rejected_article_tracker.twb',
         'name': 'Rejected Article Tracker',
+        'home_view': 'Overview',
     },
     {
         'id': 'alert_rejected_article_tracker.twb',
