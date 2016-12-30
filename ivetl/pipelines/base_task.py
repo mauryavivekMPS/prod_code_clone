@@ -151,9 +151,9 @@ class BaseTask(Task):
                         ).delay()
 
     def process_alerts(self, publisher_id, product_id, pipeline_id, tlogger, run_monthly_job):
-        for alert_id in tableau_alerts.ALERTS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
+        for alert_id in tableau_alerts.ALERT_TEMPLATES_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
 
-            alert = tableau_alerts.ALERTS[alert_id]
+            alert = tableau_alerts.ALERT_TEMPLATES[alert_id]
 
             tlogger.info('Processing alert: %s' % alert_id)
 

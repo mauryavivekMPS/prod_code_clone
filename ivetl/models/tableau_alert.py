@@ -5,10 +5,10 @@ from cassandra.cqlengine.models import Model
 
 
 class TableauAlert(Model):
-    alert_id = columns.UUID(primary_key=True, default=uuid.uuid4)
+    alert_id = columns.UUID(primary_key=True, default=uuid.uuid4, index=True)
     publisher_id = columns.Text(partition_key=True)
     name = columns.Text()
-    report_id = columns.Text(primary_key=True)
+    template_id = columns.Text(primary_key=True)
     alert_params = columns.Text()
     alert_filters = columns.Text()
     attachment_only_emails = columns.List(columns.Text())

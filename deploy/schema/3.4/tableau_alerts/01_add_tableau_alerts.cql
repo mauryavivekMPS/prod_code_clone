@@ -3,7 +3,7 @@ USE impactvizor;
 CREATE TABLE tableau_alert (
   alert_id uuid,
   publisher_id text,
-  report_id text,
+  template_id text,
   name text,
   alert_params text,
   alert_filters text,
@@ -11,7 +11,7 @@ CREATE TABLE tableau_alert (
   full_emails list<text>,
   enabled boolean,
   archived boolean,
-  PRIMARY KEY ((publisher_id), report_id, alert_id)
+  PRIMARY KEY ((publisher_id), template_id, alert_id)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
@@ -35,7 +35,7 @@ CREATE TABLE tableau_notification (
   notification_id uuid,
   alert_id uuid,
   publisher_id text,
-  report_id text,
+  template_id text,
   notification_date timestamp,
   expiration_date timestamp,
   name text,

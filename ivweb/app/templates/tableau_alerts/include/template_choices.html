@@ -1,12 +1,12 @@
-<ul class="choice-list report-choice-list">
-    {% if not report_choices %}
-        <li report_id="">
+<ul class="choice-list template-choice-list">
+    {% if not template_choices %}
+        <li template_id="">
             <i class="lnr lnr-prohibited choice-icon"></i>
             No alerts available for this publisher
         </li>
     {% else %}
-        {% for choice in report_choices %}
-            <li report_id="{{ choice.id }}" name_template="{{ choice.name_template }}" class="{% if form.initial.report_id == choice.id %}selected{% endif %} {% if choice.has_widgets %}has-widgets{% endif %}">
+        {% for choice in template_choices %}
+            <li template_id="{{ choice.id }}" name_template="{{ choice.name_template }}" class="{% if form.initial.template_id == choice.id %}selected{% endif %} {% if choice.has_widgets %}has-widgets{% endif %}">
                 <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
                 <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
                 {{ choice.description|safe }}

@@ -25,7 +25,7 @@
                         {% if not single_publisher_user %}
                             <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
                         {% endif %}
-                        <th>{% sort_column "Report" "report_id" sort_key sort_descending %}</th>
+                        <th>{% sort_column "Type" "template_id" sort_key sort_descending %}</th>
                         <th class="text-center">enabled</th>
                     </tr>
                 </thead>
@@ -52,7 +52,7 @@
                             {% if not single_publisher_user %}
                                 <td>{{ alert.publisher_id }}</td>
                             {% endif %}
-                            <td>{{ alert.report_name }}</td>
+                            <td>{{ alert.name }}</td>
                             <td class="text-center">{% checkmark alert.enabled %}</td>
                         </tr>
                     {% endfor %}

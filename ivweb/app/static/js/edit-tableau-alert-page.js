@@ -1,9 +1,9 @@
 $.widget("custom.edittableaualertpage", {
     options: {
-        reportChoicesUrl: '',
+        editExisting: false,
+        templateChoicesUrl: '',
         trustedReportUrl: '',
         selectedPublisher: null,
-        selectedReport: null,
         isSinglePublisherUser: false
     },
 
@@ -18,37 +18,49 @@ $.widget("custom.edittableaualertpage", {
             self._checkForm();
         });
 
-        $('.alert-type-choice-list li').on('click', function () {
-            var selectedItem = $(this);
-            selectedItem.addClass('selected').siblings().removeClass('selected');
-            self.selectedAlertType = selectedItem.attr('alert_type');
-            $('#id_report_id').val('');
-            self.embeddedReportLoaded = false;
-            self._updateReportChoices();
-            self._checkForm();
-        });
-
-        if (this.options.isSinglePublisherUser) {
-            self._updateReportChoices();
+        if (this.options.editExisting) {
+            $('.alert-type-controls').show();
+            $('.alert-choice-controls').show();
+            $('#id_template_id').val($('.template-choice-list li.selected').attr('template_id'));
+            this.filters = JSON.parse($('#id_alert_filters').val());
+            this._checkForm();
         }
         else {
-            var publisherMenu = $('#id_publisher_id');
-
-            var nullPublisherItem = publisherMenu.find('option:first-child');
-            nullPublisherItem.attr('disabled', 'disabled');
-            if (!this.options.selectedPublisher) {
-                publisherMenu.addClass('placeholder');
-                nullPublisherItem.attr('selected', 'selected');
-            }
-
-            publisherMenu.on('change', function () {
-                var selectedOption = publisherMenu.find('option:selected');
-                if (!selectedOption.attr('disabled')) {
-                    publisherMenu.removeClass('placeholder');
-                    self._updateReportChoices();
-                }
+            $('.alert-type-choice-list li').on('click', function () {
+                var selectedItem = $(this);
+                selectedItem.addClass('selected').siblings().removeClass('selected');
+                self.selectedAlertType = selectedItem.attr('alert_type');
+                $('#id_template_id').val('');
+                self.embeddedReportLoaded = false;
+                self._updateTemplateChoices();
                 self._checkForm();
             });
+
+            if (this.options.isSinglePublisherUser) {
+                self._updateTemplateChoices();
+            }
+            else {
+                var publisherMenu = $('#id_publisher_id');
+
+                var nullPublisherItem = publisherMenu.find('option:first-child');
+                nullPublisherItem.attr('disabled', 'disabled');
+                if (this.options.selectedPublisher) {
+                    self._updateTemplateChoices();
+                }
+                else {
+                    publisherMenu.addClass('placeholder');
+                    nullPublisherItem.attr('selected', 'selected');
+                }
+
+                publisherMenu.on('change', function () {
+                    var selectedOption = publisherMenu.find('option:selected');
+                    if (!selectedOption.attr('disabled')) {
+                        publisherMenu.removeClass('placeholder');
+                        self._updateTemplateChoices();
+                    }
+                    self._checkForm();
+                });
+            }
         }
 
         var allSteps = $('.wizard-step');
@@ -79,7 +91,12 @@ $.widget("custom.edittableaualertpage", {
                 $('#step-set-filters').show();
                 $('.set-filters-tab').addClass('active').siblings().removeClass('active');
                 if (!self.embeddedReportLoaded) {
-                    self._loadEmbeddedReport();
+                    if (self.options.editExisting) {
+                        self._loadEmbeddedReport(true);
+                    }
+                    else {
+                        self._loadEmbeddedReport(false);
+                    }
                 }
                 self._checkForm();
             }
@@ -97,7 +114,7 @@ $.widget("custom.edittableaualertpage", {
         });
     },
 
-    _updateReportChoices: function() {
+    _updateTemplateChoices: function() {
         var self = this;
 
         var alertTypeControls = $('.alert-type-controls');
@@ -120,76 +137,92 @@ $.widget("custom.edittableaualertpage", {
                     alert_type: self.selectedAlertType
                 };
 
-                $.get(this.options.reportChoicesUrl, data)
+                $.get(this.options.templateChoicesUrl, data)
                     .done(function(html) {
                         alertChoiceControls.show();
-                        $('.report-choices-control-container').html(html);
-
-                        $('.report-choice-list li').on('click', function() {
-                            var selectedItem = $(this);
-                            var selectedReportId = selectedItem.attr('report_id');
-
-                            if (selectedReportId) {
-                                selectedItem.addClass('selected').siblings().removeClass('selected');
-
-                                $('#id_report_id').val(selectedReportId);
-
-                                // clear out any existing embedded report
-                                self.embeddedReportLoaded = false;
-
-                                // wire up the alert name
-                                selectedItem.find('input.threshold-input').on('keyup', function() {
-                                    self._updateAlertName();
-                                });
-                                self._updateAlertName();
-
-                                self._checkForm();
-                            }
-                        });
+                        $('.template-choices-control-container').html(html);
+                        self._wireTemplateChoiceList();
                     });
             }
         }
     },
 
+    _wireTemplateChoiceList: function() {
+        var self = this;
+        
+        $('.template-choice-list li').on('click', function() {
+            var selectedItem = $(this);
+            var selectedTemplateId = selectedItem.attr('template_id');
+
+            if (selectedTemplateId) {
+                selectedItem.addClass('selected').siblings().removeClass('selected');
+
+                $('#id_template_id').val(selectedTemplateId);
+
+                // clear out any existing embedded report
+                self.embeddedReportLoaded = false;
+
+                // wire up the alert name
+                selectedItem.find('input.threshold-input').on('keyup', function() {
+                    self._updateAlertName();
+                });
+                self._updateAlertName();
+
+                self._checkForm();
+            }
+        });
+    },
+
     _updateAlertName: function() {
-        var selectedItem = $('.report-choice-list li.selected');
+        var selectedItem = $('.template-choice-list li.selected');
         var thresholdValue = selectedItem.find('input.threshold-input').val();
         var nameTemplate = selectedItem.attr('name_template');
         var renderedName = nameTemplate.replace('%%', '%').replace('%s', thresholdValue);
         $('#id_name').val(renderedName);
     },
 
-    _loadEmbeddedReport: function() {
+    _loadEmbeddedReport: function(useExistingFilters) {
         var self = this;
 
         // clear out existing filter selections
         this.filters = {};
 
-        var selectedReport = $('#id_report_id').val();
-        if (selectedReport) {
+        var selectedTemplate = $('#id_template_id').val();
+        if (selectedTemplate) {
             IvetlWeb.showLoading();
-
-            console.log('selectedReport = ' + selectedReport);
 
             data = {
                 publisher_id: $("#id_publisher_id option:selected").val(),
-                report: selectedReport,
+                template_id: selectedTemplate,
                 embed_type: 'configure'
             };
 
             $.get(this.options.trustedReportUrl, data)
                 .done(function (response) {
                     var trustedReportUrl = response.url;
-                    console.log('trusted URL: ' + trustedReportUrl);
                     var controls = $('.embedded-report-controls');
                     controls.show();
                     var reportContainer = controls.find('.embedded-report-container')[0];
-                    var viz = new tableau.Viz(reportContainer, trustedReportUrl, {
+                    
+                    var vizOptions = {
                         width: reportContainer.offsetWidth,
                         height: reportContainer.offsetHeight,
                         hideTabs: false,
                         hideToolbar: true
-                    });
+                    };
+
+                    if (useExistingFilters) {
+                        // apply each of the filters
+                        var existingFilters = JSON.parse($('#id_alert_filters').val());
+                        $.each(Object.keys(existingFilters), function(index, name) {
+                            vizOptions[name] = [];
+                            $.each(existingFilters[name], function(index, value) {
+                                vizOptions[name].push(value);
+                            });
+                        });
+                    }
+                    
+                    var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
 
                     viz.addEventListener(tableau.TableauEventName.FILTER_CHANGE, function(e) {
                         e.getFilterAsync().then(function(filter) {
@@ -216,13 +249,12 @@ $.widget("custom.edittableaualertpage", {
 
     _checkForm: function() {
         var publisherId = $("#id_publisher_id option:selected").val();
-        var reportId = $("#id_report_id").val();
+        var templateId = $("#id_template_id").val();
 
-        if (publisherId && reportId) {
+        if (publisherId && templateId) {
             $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
             $('.publisher-summary-item').html('New alert for: ' + publisherId);
-            $('.alert-summary-item').html('Alert type: ' + reportId);
-            // $('.set-filters-button').removeClass('disabled').prop('disabled', false);
+            $('.alert-summary-item').html('Alert type: ' + templateId);
         }
         else {
             $('.configure-notifications-button').addClass('disabled').prop('disabled', false);

@@ -31,7 +31,7 @@
         $(function() {
             $('#external-notification-report-page').externalnotificationreportpage({
                 trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
-                report: '{{ notification.report_id }}',
+                alertTemplateId: '{{ notification.template_id }}',
                 filters: {{ notification.alert_filters|safe }}
             });
         });

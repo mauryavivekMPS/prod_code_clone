@@ -29,7 +29,7 @@
                     <form class="form-horizontal alert-form" method="post">
                         {% csrf_token %}
                         {{ form.alert_id }}
-                        {{ form.report_id }}
+                        {{ form.template_id }}
                         {{ form.alert_params }}
                         {{ form.alert_filters }}
 
@@ -59,12 +59,12 @@
                                 <div class="row widget-row">
                                     <div class="col-sm-12">
                                         <ul class="choice-list alert-type-choice-list">
-                                            <li alert_type="scheduled">
+                                            <li alert_type="scheduled" class="{% if template.type == 'scheduled' %}selected{% endif %}">
                                                 <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
                                                 <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
                                                 As soon as a report is updated with new data
                                             </li>
-                                            <li alert_type="threshold">
+                                            <li alert_type="threshold" class="{% if template.type == 'threshold' %}selected{% endif %}">
                                                 <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
                                                 <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
                                                 When configured thresholds are exceeded, e.g. citations greater than <i>n</i>
@@ -84,8 +84,8 @@
 
                                 <div class="row widget-row">
                                     <div class="col-sm-12">
-                                        <div class="report-choices-control-container">
-                                            {% include "tableau_alerts/include/report_choices.html" %}
+                                        <div class="template-choices-control-container">
+                                            {% include "tableau_alerts/include/template_choices.html" %}
                                         </div>
                                     </div>
                                 </div>
@@ -199,46 +199,14 @@
                                 </div>
                             </div>
 
-{#                            <div class="form-group row">#}
-{#                                {% if not alert.archived %}#}
-{#                                    <div class="col-sm-2 col-sm-offset-2">#}
-{#                                        <div class="checkbox">#}
-{#                                            <label>{{ form.enabled }} Enabled</label>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                {% endif %}#}
-{#                                {% if alert %}#}
-{#                                    <div class="col-sm-2 {% if alert.archived %}col-sm-offset-2{% endif %}">#}
-{#                                        <p class="form-control-static">#}
-{#                                            {% if alert.archived %}#}
-{#                                                <a href="#" class="archive-link archive-alert">Unarchive</a>#}
-{#                                            {% else %}#}
-{#                                                <a href="#" class="archive-link archive-alert"><span class="lnr lnr-trash2"></span> Archive</a>#}
-{#                                            {% endif %}#}
-{#                                        </p>#}
-{#                                    </div>#}
-{#                                {% endif %}#}
-{#                            </div>#}
-
                             <div class="form-group row next-prev-row">
                                 <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled">
                                     Create Alert
                                 </button>
+{#                            <span class="cancel">or <a href="../">Cancel</a></span>#}
                             </div>
 
                         </div>
-
-{#                        <div class="form-group submit-row">#}
-{#                            <button type="submit" class="btn btn-primary submit-button {% if not alert %}disabled{% endif %}" {% if not alert %}disabled="disabled"{% endif %}>#}
-{#                                {% if alert %}#}
-{#                                    Save Changes#}
-{#                                {% else %}#}
-{#                                    Add Alert#}
-{#                                {% endif %}#}
-{#                            </button>#}
-{#                            <span class="cancel">or <a href="../">Cancel</a></span>#}
-{#                        </div>#}
-
                     </form>
                 </div>
             </div>
@@ -278,9 +246,9 @@
     <script>
         $(function() {
             $('#edit-tableau-alert-page').edittableaualertpage({
-                reportChoicesUrl: '{% url 'tableau_alerts.include_report_choices' %}',
+                editExisting: {% if alert %}true{% else %}false{% endif %},
+                templateChoicesUrl: '{% url 'tableau_alerts.include_template_choices' %}',
                 trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
-                selectedReport: '{{ form.initial.report_id }}',
                 isSinglePublisherUser: {% if single_publisher_user %}true{% else %}false{% endif %}
             });
         });

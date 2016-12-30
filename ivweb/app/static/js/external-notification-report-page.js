@@ -1,13 +1,13 @@
 $.widget("custom.externalnotificationreportpage", {
     options: {
         trustedReportUrl: '',
-        report: '',
+        alertTemplateId: '',
         filters: {}
     },
 
     _create: function() {
         var self = this;
-        $.get(this.options.trustedReportUrl, {report: self.options.report, embed_type: 'full'})
+        $.get(this.options.trustedReportUrl, {template_id: self.options.alertTemplateId, embed_type: 'full'})
             .done(function (response) {
                 var trustedReportUrl = response.url;
                 var reportContainer = $('.embedded-report-container')[0];
@@ -24,9 +24,6 @@ $.widget("custom.externalnotificationreportpage", {
                         vizOptions[name].push(value);
                     });
                 });
-
-                console.log('vizOptions:');
-                console.log(vizOptions);
 
                 var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
 

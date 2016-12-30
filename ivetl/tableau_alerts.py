@@ -1,11 +1,11 @@
 def check_for_citation_amount(publisher_id):
     return True
 
-ALERTS = {
+ALERT_TEMPLATES = {
     'rejected-article-tracker': {
         'choice_description': 'Rejected Article Tracker',
         'name_template': 'Rejected Article Tracker Update',
-        'report_name': 'Rejected Article Tracker',
+        'name': 'Rejected Article Tracker',
         'workbooks': {
             'full': 'rejected_article_tracker.twb',
             'configure': 'alert_rejected_article_tracker.twb',
@@ -36,7 +36,7 @@ ALERTS = {
     # },
 }
 
-ALERTS_BY_SOURCE_PIPELINE = {
+ALERT_TEMPLATES_BY_SOURCE_PIPELINE = {
     ('rejected_manuscripts', 'rejected_articles'): [
         'rejected-article-tracker',
     ],

@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl
-from ivetl.tableau_alerts import ALERTS, ALERTS_BY_SOURCE_PIPELINE
+from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
 
@@ -51,8 +51,8 @@ def list_alerts(request):
     sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     for alert in sorted_alerts:
-        alert_type = ALERTS[alert.report_id]
-        setattr(alert, 'report_name', alert_type['report_name'])
+        alert_type = ALERT_TEMPLATES[alert.template_id]
+        setattr(alert, 'name', alert_type['name'])
 
     response = render(request, 'tableau_alerts/list.html', {
         'alerts': sorted_alerts,
@@ -73,7 +73,7 @@ class TableauAlertForm(forms.Form):
     alert_id = forms.CharField(widget=forms.HiddenInput, required=False)
     publisher_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
-    report_id = forms.CharField(widget=forms.HiddenInput, required=True)
+    template_id = forms.CharField(widget=forms.HiddenInput, required=True)
     alert_params = forms.CharField(widget=forms.HiddenInput, required=False)
     alert_filters = forms.CharField(widget=forms.HiddenInput, required=False)
     attachment_only_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
@@ -88,7 +88,7 @@ class TableauAlertForm(forms.Form):
             self.instance = instance
             initial = dict(instance)
             initial['attachment_only_emails'] = ", ".join(instance.attachment_only_emails)
-            initial['full_emails'] = ", ".join(instance.attachment_only_emails)
+            initial['full_emails'] = ", ".join(instance.full_emails)
         else:
             self.instance = None
 
@@ -106,7 +106,7 @@ class TableauAlertForm(forms.Form):
 
     def save(self):
         alert_id = self.cleaned_data['alert_id']
-        report_id = self.cleaned_data['report_id']
+        template_id = self.cleaned_data["template_id"]
         if alert_id:
             alert = TableauAlert.objects.get(
                 alert_id=alert_id,
@@ -114,7 +114,7 @@ class TableauAlertForm(forms.Form):
         else:
             alert = TableauAlert.objects.create(
                 publisher_id=self.cleaned_data['publisher_id'],
-                report_id=report_id,
+                template_id=template_id,
             )
 
         attachment_only_emails_string = self.cleaned_data.get('attachment_only_emails')
@@ -152,8 +152,6 @@ def edit(request, alert_id=None):
             single_publisher_user = True
 
     if request.method == 'POST':
-        form = None
-
         if 'archive' in request.POST:
             if alert:
                 alert.archived = True if request.POST['archive'] == 'on' else False
@@ -182,17 +180,17 @@ def edit(request, alert_id=None):
         form = TableauAlertForm(instance=alert, user=request.user)
 
     if alert:
-        report = ALERTS[alert.report_id]
-        report_choices = get_report_choices_for_publisher(alert.publisher_id)
+        alert_template = ALERT_TEMPLATES[alert.template_id]
+        alert_template_choices = get_template_choices_for_publisher(alert.publisher_id, alert_template['type'])
     else:
-        report = None
-        report_choices = []
+        alert_template = None
+        alert_template_choices = []
 
     return render(request, 'tableau_alerts/new.html', {
         'form': form,
         'alert': alert,
-        'report': report,
-        'report_choices': report_choices,
+        'template': alert_template,
+        'template_choices': alert_template_choices,
         'single_publisher_user': single_publisher_user,
     })
 
@@ -209,18 +207,18 @@ def show_external_notification(request, notification_id):
         })
 
 
-def get_report_choices_for_publisher(publisher_id, alert_type):
+def get_template_choices_for_publisher(publisher_id, alert_type):
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
-    supported_alerts = set()
-    for pipeline_tuple, alert_ids in ALERTS_BY_SOURCE_PIPELINE.items():
+    supported_templates = set()
+    for pipeline_tuple, template_ids in ALERT_TEMPLATES_BY_SOURCE_PIPELINE.items():
         product_id, pipeline_id = pipeline_tuple
         if product_id in publisher.supported_products:
-            supported_alerts.update(alert_ids)
+            supported_templates.update(template_ids)
 
-    report_choices = []
-    for alert_id in supported_alerts:
-        alert = ALERTS[alert_id]
+    template_choices = []
+    for template_id in supported_templates:
+        alert = ALERT_TEMPLATES[template_id]
         if alert['type'] == alert_type:
             rendered_alert_description = alert['choice_description']
             has_widgets = False
@@ -241,42 +239,41 @@ def get_report_choices_for_publisher(publisher_id, alert_type):
 
                     rendered_alert_description = rendered_alert_description.replace('[]', input_html)
 
-            report_choices.append({
-                'id': alert_id,
+            template_choices.append({
+                'id': template_id,
                 'description': rendered_alert_description,
                 'has_widgets': has_widgets,
                 'order': alert['order'],
                 'name_template': alert['name_template'],
             })
 
-    sorted_report_choices = sorted(report_choices, key=lambda a: a['order'])
+    sorted_template_choices = sorted(template_choices, key=lambda a: a['order'])
 
-    return sorted_report_choices
+    return sorted_template_choices
 
 
 @login_required
-def include_report_choices(request):
+def include_template_choices(request):
     publisher_id = request.GET['publisher_id']
     alert_type = request.GET['alert_type']
-    report_choices = get_report_choices_for_publisher(publisher_id, alert_type)
-    return render(request, 'tableau_alerts/include/report_choices.html', {
-        'report_choices': report_choices,
+    template_choices = get_template_choices_for_publisher(publisher_id, alert_type)
+    return render(request, 'tableau_alerts/include/template_choices.html', {
+        'template_choices': template_choices,
     })
 
 
 def get_trusted_token():
-    # TODO: this should be updated probably to at least use the credentials from the account (but some reports not visible)
-    response = requests.post('http://10.0.1.201/trusted', data={'username': 'nmehta'})
+    response = requests.post('http://%s/trusted' % common.TABLEAU_IP, data={'username': 'nmehta'})  # only IP works here, not hostname
     return response.text
 
 
 def get_trusted_report_url(request):
     publisher_id = request.GET['publisher_id']
-    alert_id = request.GET['report']
+    template_id = request.GET['template_id']
     embed_type = request.GET.get('embed_type', 'full')
 
     # pick up the relevant workbook URL
-    workbook_id = ALERTS[alert_id]['workbooks'][embed_type]
+    workbook_id = ALERT_TEMPLATES[template_id]['workbooks'][embed_type]
     workbook_url = WorkbookUrl.objects.get(publisher_id=publisher_id, workbook_id=workbook_id)
     workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[workbook_id]['home_view']
 
@@ -284,7 +281,7 @@ def get_trusted_report_url(request):
     token = get_trusted_token()
 
     # construct the full URL
-    url = 'http://10.0.1.201/trusted/%s/views/%s/%s' % (token, workbook_url, workbook_home_view)
+    url = 'http://%s/trusted/%s/views/%s/%s' % (common.TABLEAU_SERVER, token, workbook_url.url, workbook_home_view)
 
     return JsonResponse({
         'url': url,
