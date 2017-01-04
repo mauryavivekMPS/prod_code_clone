@@ -97,7 +97,7 @@ class BaseTask(Task):
         self.process_chains(publisher_id, product_id, pipeline_id, tlogger, initiating_user_email)
         self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job)
 
-    def update_tableau(self, publisher_id, product_id, pipeline_id, tlogger):
+    def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
             publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
