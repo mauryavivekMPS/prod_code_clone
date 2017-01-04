@@ -1,6 +1,7 @@
 import os
 import json
 import codecs
+import csv
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
 from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations
@@ -17,10 +18,24 @@ class GetScopusArticleCitations(Task):
         product = common.PRODUCT_BY_ID[product_id]
 
         target_file_name = os.path.join(work_folder, "%s_articlecitations_target.tab" % publisher_id)
-        target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\t'
-                          'DOI\t'
-                          'DATA\n')
+
+        already_processed = set()
+
+        # if the file exists, read it in assuming a job restart
+        if os.path.isfile(target_file_name):
+            with codecs.open(target_file_name, encoding='utf-16') as tsv:
+                for line in csv.reader(tsv, delimiter='\t'):
+                    if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
+                        doi = line[1]
+                        already_processed.add(doi)
+
+        if already_processed:
+            tlogger.info('Found %s existing items to reuse' % len(already_processed))
+
+        target_file = codecs.open(target_file_name, 'a', 'utf-16')
+
+        if not already_processed:
+            target_file.write('PUBLISHER_ID\tDOI\tDATA\n')
 
         pm = PublisherMetadata.objects.get(publisher_id=publisher_id)
         connector = ScopusConnector(pm.scopus_api_keys)
@@ -41,6 +56,9 @@ class GetScopusArticleCitations(Task):
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
             doi = article.article_doi
+
+            if doi in already_processed:
+                continue
 
             def should_get_citation_details(citation_doi):
                 try:
@@ -81,7 +99,7 @@ class GetScopusArticleCitations(Task):
 
         target_file.close()
 
-        return {
-            'count': total_count,
-            'input_file': target_file_name
-        }
+        task_args['count'] = total_count
+        task_args['input_file'] = target_file_name
+
+        return task_args
