@@ -13,6 +13,7 @@ class TableauAlert(Model):
     alert_filters = columns.Text()
     attachment_only_emails = columns.List(columns.Text())
     full_emails = columns.List(columns.Text())
+    custom_message = columns.Text()
     enabled = columns.Boolean()
     archived = columns.Boolean(index=True)
 

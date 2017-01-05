@@ -13,3 +13,4 @@ class TableauNotification(Model):
     name = columns.Text()
     alert_params = columns.Text()
     alert_filters = columns.Text()
+    custom_message = columns.Text()

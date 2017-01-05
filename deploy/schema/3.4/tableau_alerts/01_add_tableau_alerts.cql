@@ -9,6 +9,7 @@ CREATE TABLE tableau_alert (
   alert_filters text,
   attachment_only_emails list<text>,
   full_emails list<text>,
+  custom_message text,
   enabled boolean,
   archived boolean,
   PRIMARY KEY ((publisher_id), template_id, alert_id)
@@ -41,6 +42,7 @@ CREATE TABLE tableau_notification (
   name text,
   alert_params text,
   alert_filters text,
+  custom_message text,
   PRIMARY KEY ((notification_id))
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
