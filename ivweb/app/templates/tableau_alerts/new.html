@@ -77,8 +77,8 @@
                            <div class="alert-choice-controls" style="display:none">
                                 <div class="row instruction-row">
                                     <div class="col-sm-8">
-                                        <p class="article-type-instructions-scheduled" style="display:none">Include the following report:</p>
-                                        <p class="article-type-instructions-threshold" style="display:none">Notify me about:</p>
+                                        <p class="article-type-instructions-scheduled" {% if template.type != 'scheduled' %}style="display:none"{% endif %}>Include the following report:</p>
+                                        <p class="article-type-instructions-threshold" {% if template.type != 'threshold' %}style="display:none"{% endif %}>Notify me about:</p>
                                     </div>
                                 </div>
 
