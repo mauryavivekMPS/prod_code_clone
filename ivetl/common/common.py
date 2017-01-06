@@ -768,11 +768,13 @@ TABLEAU_WORKBOOKS = [
         'id': 'alert_rejected_article_tracker.twb',
         'name': 'alert_rejected_article_tracker',
         'home_view': 'Overview',
+        'admin_only': True,
     },
     {
         'id': 'alert_rejected_article_tracker_export.twb',
         'name': 'alert_rejected_article_tracker_export',
         'home_view': 'Overview',
+        'admin_only': True,
     },
     {
         'id': 'section_performance_analyzer.twb',
@@ -782,30 +784,37 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'hot_article_tracker.twb',
         'name': 'Hot Article Tracker',
+        'home_view': 'Overview',
     },
     {
         'id': 'hot_object_tracker.twb',
         'name': 'Hot Object Tracker',
+        'home_view': 'Overview',
     },
     {
         'id': 'citation_distribution_surveyor.twb',
         'name': 'Citation Distribution Surveyor',
+        'home_view': 'Overview',
     },
     {
         'id': 'advance_correlator_citation_usage.twb',
         'name': 'Advance Correlator of Citations & Usage',
+        'home_view': 'Overview',
     },
     {
         'id': 'cohort_comparator.twb',
         'name': 'Cohort Comparator',
+        'home_view': 'Overview',
     },
     {
         'id': 'uv_institutional_usage.twb',
         'name': 'UV: Institutional Usage',
+        'home_view': 'Overview',
     },
     {
         'id': 'uv_article_usage.twb',
         'name': 'UV: Article Usage',
+        'home_view': 'Overview',
     },
 ]  # type: list[dict]
 
