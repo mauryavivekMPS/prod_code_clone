@@ -2,7 +2,8 @@
 
 <datasource formatted-name='article_usage_ds' inline='true' source-platform='win' version='9.0' xmlns:user='http://www.tableausoftware.com/xml/user'>
   <!-- build 9000.15.0318.1720                                -->
-  <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' server='' username=''>
+  <repository-location id='article_usage_ds' path='datasources' revision='1.0' />
+  <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' server='' server-oauth='' username='' workgroup-auth-mode='as-is'>
     <relation name='article_usage' type='text'>SELECT * FROM impactvizor.article_usage WHERE publisher_id=&apos;blood&apos;;</relation>
     <refresh increment-key='' incremental-updates='false'>
     </refresh>
@@ -99,9 +100,9 @@
         <customization name='SQL_CONVERT_VARCHAR' value='33554431' />
         <customization name='SQL_DATETIME_LITERALS' value='65535' />
         <customization name='SQL_DBMS_NAME' value='TEXT' />
-        <customization name='SQL_DBMS_VER' value='2.0.9.61' />
+        <customization name='SQL_DBMS_VER' value='2.1.14' />
         <customization name='SQL_DRIVER_ODBC_VER' value='03.80' />
-        <customization name='SQL_DRIVER_VER' value='1.0.0.1000' />
+        <customization name='SQL_DRIVER_VER' value='1.0.1.1002' />
         <customization name='SQL_IDENTIFIER_QUOTE_CHAR' value='&quot;' />
         <customization name='SQL_MAX_IDENTIFIER_LEN' value='255' />
         <customization name='SQL_NUMERIC_FUNCTIONS' value='16777215' />
@@ -235,10 +236,10 @@
   <column aggregation='Sum' datatype='integer' name='[month_number]' role='dimension' type='ordinal'>
   </column>
   <extract count='-1' enabled='true' units='records'>
-    <connection class='dataengine' dbname='D:\dummy_extracts\article_usage.tde' schema='Extract' tablename='Extract' update-time='04/14/2016 08:19:24 PM'>
+    <connection class='dataengine' dbname='D:\dummy_extracts\article_usage_ds.tde' schema='Extract' tablename='Extract' update-time='01/07/2017 12:36:09 AM'>
       <relation name='Extract' table='[Extract].[Extract]' type='table' />
-      <refresh>
-        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='1122030' timestamp-start='2016-04-14 20:19:24.058' />
+      <refresh increment-key='' incremental-updates='false'>
+        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='1438449' timestamp-start='2017-01-07 00:36:09.465' />
       </refresh>
       <metadata-records>
         <metadata-record class='column'>
@@ -251,14 +252,14 @@
           <family>article_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>9555</approx-count>
+          <approx-count>10409</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;10.1182/blood-2008-01-130252&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;10.1182/blood-2016-01-694331&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;10.1182/blood-2016-10-745455&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -282,11 +283,11 @@
           <family>article_usage</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>60</approx-count>
+          <approx-count>83</approx-count>
           <contains-null>false</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='integer'>1</statistic>
-            <statistic aggregation='Max' datatype='integer'>60</statistic>
+            <statistic aggregation='Max' datatype='integer'>83</statistic>
           </statistics>
           <attributes>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
@@ -305,7 +306,7 @@
           <family>article_usage</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>3844</approx-count>
+          <approx-count>4201</approx-count>
           <contains-null>false</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='integer'>0</statistic>
@@ -362,11 +363,11 @@
           <family>article_usage</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>1407</approx-count>
+          <approx-count>1588</approx-count>
           <contains-null>false</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='datetime'>#2010-01-06 00:00:00#</statistic>
-            <statistic aggregation='Max' datatype='datetime'>#2016-02-29 00:00:00#</statistic>
+            <statistic aggregation='Max' datatype='datetime'>#2016-11-30 00:00:00#</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
