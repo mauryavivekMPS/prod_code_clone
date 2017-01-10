@@ -294,7 +294,16 @@ class TableauConnector(BaseConnector):
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
 
-        requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response.raise_for_status()
+
+        r = untangle.parse(response.text).tsResponse
+
+        datasource_tableau_id = r.datasource['id']
+
+        return {
+            'tableau_id': datasource_tableau_id,
+        }
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
@@ -340,6 +349,8 @@ class TableauConnector(BaseConnector):
         r = untangle.parse(response.text).tsResponse
 
         workbook_url = r.workbook['contentUrl']
+        workbook_tableau_id = r.workbook['id']
+
         WorkbookUrl.objects(
             publisher_id=publisher.publisher_id,
             workbook_id=workbook_id,
@@ -347,8 +358,23 @@ class TableauConnector(BaseConnector):
             url=workbook_url
         )
 
-    def update_datasources_and_workbooks(self, publisher):
+        return {
+            'url': workbook_url,
+            'tableau_id': workbook_tableau_id,
+        }
 
+    def remove_group_permissions_for_workbook(self, group_id, workbook_tableau_id):
+        self._check_authentication()
+        for capability in ['Read', 'Filter', 'ViewUnderlyingData', 'ExportData', 'ExportImage']:
+            url = self.server_url + "/api/2.0/sites/%s/workbooks/%s/permissions/groups/%s/%s/Allow" % (
+                self.site_id,
+                workbook_tableau_id,
+                group_id,
+                capability
+            )
+            requests.delete(url, headers={'X-Tableau-Auth': self.token})
+
+    def update_datasources_and_workbooks(self, publisher):
         required_datasource_ids = set()
         for product_group_id in publisher.supported_product_groups:
             for datasource_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources']:
@@ -381,8 +407,12 @@ class TableauConnector(BaseConnector):
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
-            # TODO: figure out permissions here for alert related stuff
-            self.add_workbook_to_project(publisher, workbook_id)
+            workbook_results = self.add_workbook_to_project(publisher, workbook_id)
+
+            # remove group permissions if this is an admin_only template
+            if common.TABLEAU_WORKBOOKS_BY_ID[workbook_id].get('admin_only', False):
+                workbook_tableau_id = workbook_results['tableau_id']
+                self.remove_group_permissions_for_workbook(publisher.reports_group_id, workbook_tableau_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 
@@ -405,6 +435,7 @@ class TableauConnector(BaseConnector):
         subprocess.call([common.TABCMD, 'get', view_url, '-f', '/tmp/image-test.png'] + self._tabcmd_login_params())
 
     def check_report_for_data(self):
+        t = None
         subprocess.call([common.TABCMD, 'export', 'alerts_rejected_article_tracker_export_0/ManuscriptInspector?Reject%20Reason=Reject&Date%20of%20Rejection=2', '--csv', '-f', '/Users/john/Desktop/csv-test-1.csv'] + t._tabcmd_login_params())
 
     def generate_trusted_token(self):
