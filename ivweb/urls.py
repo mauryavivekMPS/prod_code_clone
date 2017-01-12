@@ -101,6 +101,7 @@ urlpatterns = [
     url(r'^updatereportitem/$', reports.update_item, name='reports.update_item'),
     url(r'^includereportitemstatuses/$', reports.include_item_statuses, name='reports.include_item_statuses'),
     url(r'^deleteuptimeoverride/$', uptime.delete_override, name='uptime.delete_override'),
+    url(r'^deletetableaualert/$', tableau_alerts.delete_alert, name='tableau_alerts.delete_alert'),
     url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
 

@@ -4,60 +4,100 @@
 {% block body_class %}tableau-alerts{% endblock %}
 
 {% block content %}
-    <div class="row header-row">
-        <div class="col-md-12">
-            <h1>Alerts</h1>
-            <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Tableau Alert</a>
-            <ul class="list-tabs">
-                <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
-                <li><a href="?filter=active" {% if filter_param == 'active' %}class="active"{% endif %}>Active</a></li>
-                <li><a href="?filter=archived" {% if filter_param == 'archived' %}class="active"{% endif %}>Archived</a></li>
-            </ul>
+    <div id="list-tableau-alerts-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Alerts</h1>
+                <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Tableau Alert</a>
+                <ul class="list-tabs">
+                    <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                    <li><a href="?filter=enabled" {% if filter_param == 'enabled' %}class="active"{% endif %}>Enabled</a></li>
+                    <li><a href="?filter=disabled" {% if filter_param == 'disabled' %}class="active"{% endif %}>Disabled</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <table class="table sortable-table alerts-table">
-                <thead>
-                    <tr>
-                        <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
-                        {% if not single_publisher_user %}
-                            <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
-                        {% endif %}
-                        <th>{% sort_column "Type" "template_id" sort_key sort_descending %}</th>
-                        <th class="text-center">enabled</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for alert in alerts %}
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table sortable-table alerts-table">
+                    <thead>
                         <tr>
-                            <td>
-                                <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
-                                    {{ alert.name }}
-                                </a>
-                                {% if alert.attachment_only_emails %}
-                                    <div class="alert-details"><b>Emails (with attachment):</b> {{ alert.attachment_only_emails|join:", " }}</div>
-                                {% endif %}
-                                {% if alert.full_emails %}
-                                    <div class="alert-details"><b>Emails (with attachment and link):</b>{{ alert.full_emails|join:", " }}</div>
-                                {% endif %}
-                                {% if alert.has_params %}
-                                    <div class="alert-details"><b>Parameters:</b> {{ alert.params_display_string }}</div>
-                                {% endif %}
-                                {% if alert.has_filters %}
-                                    <div class="alert-details"><b>Filters:</b> {{ alert.filters_display_string }}</div>
-                                {% endif %}
-                            </td>
+                            <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
                             {% if not single_publisher_user %}
-                                <td>{{ alert.publisher_id }}</td>
+                                <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
                             {% endif %}
-                            <td>{{ alert.name }}</td>
-                            <td class="text-center">{% checkmark alert.enabled %}</td>
+                            <th>{% sort_column "Type" "template_id" sort_key sort_descending %}</th>
+                            <th class="text-center">enabled</th>
+                            <th class="delete-col"></th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for alert in alerts %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
+                                        {{ alert.name }}
+                                    </a>
+                                    {% if alert.attachment_only_emails %}
+                                        <div class="alert-details"><b>Emails (with attachment):</b> {{ alert.attachment_only_emails|join:", " }}</div>
+                                    {% endif %}
+                                    {% if alert.full_emails %}
+                                        <div class="alert-details"><b>Emails (with attachment and link):</b>{{ alert.full_emails|join:", " }}</div>
+                                    {% endif %}
+                                    {% if alert.has_params %}
+                                        <div class="alert-details"><b>Parameters:</b> {{ alert.params_display_string }}</div>
+                                    {% endif %}
+                                    {% if alert.has_filters %}
+                                        <div class="alert-details"><b>Filters:</b> {{ alert.filters_display_string }}</div>
+                                    {% endif %}
+                                </td>
+                                {% if not single_publisher_user %}
+                                    <td>{{ alert.publisher_id }}</td>
+                                {% endif %}
+                                <td>{{ alert.name }}</td>
+                                <td class="text-center">{% checkmark alert.enabled %}</td>
+                                <td>
+                                    <a href="#" class="delete-alert" alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert_name }}">
+                                        <span class="lnr lnr-trash2"></span> Delete</a>
+                                    <i class="fa fa-spinner fa-pulse alert-deleting-icon" style="display:none"></i>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade confirm-delete-alert" id="confirm-delete-alert-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close cancel-delete-alert" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Delete Alert</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this alert?</p>
+                        <p>Note that existing notification reports will remain available until their expiry date, but no new notification
+                            emails or reports will be generated.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary confirm-delete-alert-button">Yes, Delete Alert</button>
+                        <span class="cancel">or <a href="#" data-dismiss="modal" class="cancel-delete-alert">Cancel</a></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function () {
+            $('#list-tableau-alerts-page').listtableaualertspage({
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
 {% endblock %}

@@ -8,7 +8,7 @@ ALERT_TEMPLATES = {
         'name': 'Rejected Article Tracker',
         'workbooks': {
             'full': 'rejected_article_tracker.twb',
-            'configure': 'alert_rejected_article_tracker.twb',
+            'configure': 'alert_rejected_article_tracker_configure.twb',
             'export': 'alert_rejected_article_tracker_export.twb',
         },
         'type': 'scheduled',

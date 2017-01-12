@@ -4,7 +4,7 @@ import datetime
 from operator import attrgetter
 from django import forms
 from django.http import JsonResponse
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl
@@ -28,27 +28,29 @@ def list_alerts(request):
 
     single_publisher_user = False
     if request.user.superuser:
-        alerts = TableauAlert.objects.all()
+        alerts = TableauAlert.objects.filter(archived=False)
     else:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
-        alerts = TableauAlert.objects.filter(publisher_id__in=accessible_publisher_ids)
+        alerts = TableauAlert.objects.filter(publisher_id__in=accessible_publisher_ids, archived=False)
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
     filter_param = request.GET.get('filter', request.COOKIES.get('tableau-alert-list-filter', 'all'))
 
     filtered_alerts = []
-    if filter_param == 'active':
+    if filter_param == 'all':
+        filtered_alerts = alerts
+    elif filter_param == 'enabled':
         for alert in alerts:
-            if not alert.archived:
+            if alert.enabled:
                 filtered_alerts.append(alert)
-    elif filter_param == 'archived':
+    elif filter_param == 'disabled':
         for alert in alerts:
-            if alert.archived:
+            if not alert.enabled:
                 filtered_alerts.append(alert)
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('tableau-alert-list-sort', 'publisher_id'))
-    sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
+    sorted_alerts = sorted(filtered_alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     for alert in sorted_alerts:
         alert_type = ALERT_TEMPLATES[alert.template_id]
@@ -59,6 +61,7 @@ def list_alerts(request):
         'messages': messages,
         'reset_url': reverse('tableau_alerts.list') + '?sort=' + sort_param,
         'sort_key': sort_key,
+        'filter_param': filter_param,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
     })
@@ -264,8 +267,28 @@ def include_template_choices(request):
     })
 
 
+@login_required
+def delete_alert(request):
+    alert_id = request.POST['alert_id']
+    publisher_id = request.POST['publisher_id']
+    alert = TableauAlert.objects.get(alert_id=alert_id)
+    alert.update(
+        enabled=False,
+        archived=True,
+    )
+
+    # TableauAlert.objects(
+    #     alert_id=alert_id,
+    #     publisher_id=publisher_id,
+    # ).update(
+    #     enabled=False,
+    #     archived=True,
+    # )
+    return HttpResponse('ok')
+
+
 def get_trusted_token():
-    response = requests.post('http://%s/trusted' % common.TABLEAU_IP, data={'username': 'nmehta'})  # only IP works here, not hostname
+    response = requests.post('http://%s/trusted' % common.TABLEAU_IP, data={'username': common.TABLEAU_USERNAME})  # only IP works here, not hostname
     return response.text
 
 

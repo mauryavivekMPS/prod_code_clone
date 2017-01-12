@@ -400,8 +400,8 @@ class TableauConnector(BaseConnector):
 
         workbook_id_lookup = {w['name']: w['id'] for w in common.TABLEAU_WORKBOOKS}
         existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
-        existing_workbook_ids = set([workbook_id_lookup[w['name']] for w in existing_workbooks])
-        workbook_tableau_id_lookup = {workbook_id_lookup[d['name']]: d['id'] for d in existing_workbooks}
+        existing_workbook_ids = set([workbook_id_lookup[w['name']] for w in existing_workbooks if w['name'] in workbook_id_lookup])
+        workbook_tableau_id_lookup = {workbook_id_lookup[d['name']]: d['id'] for d in existing_workbooks if d['name'] in workbook_id_lookup}
 
         for workbook_id in existing_workbook_ids - required_workbook_ids:
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])

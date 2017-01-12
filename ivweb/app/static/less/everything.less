@@ -2704,6 +2704,39 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 }
 
+.alerts-table {
+    .delete-col {
+        width: 100px;
+    }
+
+    .delete-alert {
+        font-size: 12px;
+        opacity: .4;
+        color: @brand-danger;
+        text-decoration: none;
+        border-radius: 3px;
+        padding: 5px 7px;
+
+        &:hover, &:focus {
+            color: @brand-danger;
+            text-decoration: none;
+            background-color: #fff3f4;
+        }
+
+        .lnr {
+            font-size: 13px;
+            vertical-align: -1px;
+        }
+    }
+
+    tr:hover {
+        .delete-alert {
+            opacity: 1;
+            color: @brand-danger;
+        }
+    }
+}
+
 .choice-list {
     list-style: none;
     padding-left: 0;
