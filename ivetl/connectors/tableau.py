@@ -1,9 +1,11 @@
 import os
 import re
+import csv
 import untangle
 import requests
 import subprocess
 import time
+import tempfile
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
@@ -431,29 +433,20 @@ class TableauConnector(BaseConnector):
 
         return project_id, group_id, user_id
 
-    def generate_png_report(self, view_url):
-        subprocess.call([common.TABCMD, 'get', view_url, '-f', '/tmp/image-test.png'] + self._tabcmd_login_params())
+    def check_report_for_data(self, view_url):
+        file_handle, file_path = tempfile.mkstemp()
+        subprocess.call([common.TABCMD, 'export', view_url, '--csv', '-f', file_path] + self._tabcmd_login_params())
 
-    def check_report_for_data(self):
-        t = None
-        subprocess.call([common.TABCMD, 'export', 'alerts_rejected_article_tracker_export_0/ManuscriptInspector?Reject%20Reason=Reject&Date%20of%20Rejection=2', '--csv', '-f', '/Users/john/Desktop/csv-test-1.csv'] + t._tabcmd_login_params())
+        num_records = 0
+        try:
+            with open(file_path) as f:
+                reader = csv.DictReader(f)
+                line = next(reader)
+                num_records = str(line['Number of Records'].replace(',', ''))
+        except:
+            # swallow everything, assume the worst
+            pass
 
-    def generate_trusted_token(self):
-        # subprocess.call([common.TABCMD, 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())
-        # subprocess.call(['/Users/john/Projects/impactvizor-pipeline/deploy/tabcmd/tabcmd.sh', 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())
-        # t.sign_in
-        # t.sign_in()
-        # subprocess.call(['/Users/john/Projects/impactvizor-pipeline/deploy/tabcmd/tabcmd.sh', 'get', '/views/RejectedArticleTracker_5/Overview', '-f', '/Users/john/Desktop/tableau-pics/test1.png'] + t._tabcmd_login_params())
-        # t.server
-        # t.server
-        # import requests
+        os.remove(file_path)
 
-        # cheat for now
-        username = 'cob'
-        password = 'Hello123'
-
-        data = {'username': 'admin'}
-        response = requests.post('http://10.0.0.143/trusted', data=data)
-
-        # response = requests.post('http://10.0.0.143/trusted', data=data)
-        # response.text
+        return num_records > 0

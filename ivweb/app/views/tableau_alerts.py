@@ -270,20 +270,11 @@ def include_template_choices(request):
 @login_required
 def delete_alert(request):
     alert_id = request.POST['alert_id']
-    publisher_id = request.POST['publisher_id']
     alert = TableauAlert.objects.get(alert_id=alert_id)
     alert.update(
         enabled=False,
         archived=True,
     )
-
-    # TableauAlert.objects(
-    #     alert_id=alert_id,
-    #     publisher_id=publisher_id,
-    # ).update(
-    #     enabled=False,
-    #     archived=True,
-    # )
     return HttpResponse('ok')
 
 
