@@ -22,7 +22,7 @@
       </column>
     </datasource>
     <datasource caption='rejected_articles_ds' inline='true' name='sqlproxy.42158.501228101850' version='9.0'>
-      <repository-location derived-from='/datasources/rejected_articles_ds?rev=1.0' id='rejected_articles_ds' path='/datasources' revision='1.2' />
+      <repository-location id='rejected_articles_ds' path='/datasources' revision='1.0' />
       <connection channel='http' class='sqlproxy' dbname='rejected_articles_ds' directory='/dataserver' port='80' server='vizors.stackly.org' server-ds-friendly-name='rejected_articles_ds' server-oauth='' username='' workgroup-auth-mode='prompt'>
         <relation name='sqlproxy' table='[sqlproxy]' type='table' />
         <metadata-records>
@@ -364,12 +364,13 @@
           </metadata-record>
           <metadata-record class='measure'>
             <remote-name>mendeley_saves</remote-name>
-            <remote-type>16</remote-type>
+            <remote-type>2</remote-type>
             <local-name>[mendeley_saves]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>mendeley_saves</remote-alias>
             <ordinal>17</ordinal>
             <layered>true</layered>
+            <caption>Mendeley Saves</caption>
             <family>rejected_articles</family>
             <local-type>integer</local-type>
             <aggregation>Sum</aggregation>
@@ -755,10 +756,10 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem4992410648569931161&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/rejected_articles_ds?rev=1.0&apos; id=&apos;rejected_articles_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.2&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;rejected_articles_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos; server-userid=&apos;5&apos; username=&apos;&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[authors_match_score]&apos; value=&apos;[sqlproxy].[authors_match_score]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_lookup_status]&apos; value=&apos;[sqlproxy].[citation_lookup_status]&apos; /&gt;&#10;      &lt;map key=&apos;[citations]&apos; value=&apos;[sqlproxy].[citations]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[corresponding_author]&apos; value=&apos;[sqlproxy].[corresponding_author]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[crossref_doi]&apos; value=&apos;[sqlproxy].[crossref_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[crossref_match_score]&apos; value=&apos;[sqlproxy].[crossref_match_score]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[keywords]&apos; value=&apos;[sqlproxy].[keywords]&apos; /&gt;&#10;      &lt;map key=&apos;[manuscript_id]&apos; value=&apos;[sqlproxy].[manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[manuscript_title]&apos; value=&apos;[sqlproxy].[manuscript_title]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[preprint_doi]&apos; value=&apos;[sqlproxy].[preprint_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[published_co_authors]&apos; value=&apos;[sqlproxy].[published_co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[published_first_author]&apos; value=&apos;[sqlproxy].[published_first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[published_journal]&apos; value=&apos;[sqlproxy].[published_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[published_journal_issn]&apos; value=&apos;[sqlproxy].[published_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[published_publisher]&apos; value=&apos;[sqlproxy].[published_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[published_title]&apos; value=&apos;[sqlproxy].[published_title]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[reject_reason]&apos; value=&apos;[sqlproxy].[reject_reason]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_article_id]&apos; value=&apos;[sqlproxy].[rejected_article_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_doi_status]&apos; value=&apos;[sqlproxy].[scopus_doi_status]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_id]&apos; value=&apos;[sqlproxy].[scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[source_file_name]&apos; value=&apos;[sqlproxy].[source_file_name]&apos; /&gt;&#10;      &lt;map key=&apos;[status]&apos; value=&apos;[sqlproxy].[status]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[submitted_journal]&apos; value=&apos;[sqlproxy].[submitted_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Type&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Authors Match Score&apos; datatype=&apos;real&apos; default-type=&apos;quantitative&apos; name=&apos;[authors_match_score]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;real&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Lookup Status&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_lookup_status]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Citations&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[citations]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Corresponding Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[corresponding_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Created&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;CrossRef DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[crossref_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Crossref Match Score&apos; datatype=&apos;real&apos; default-type=&apos;quantitative&apos; name=&apos;[crossref_match_score]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;real&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Date of Publication&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Date of Rejection&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_rejection]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Keywords&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[keywords]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Manuscript Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[manuscript_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Manuscript Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[manuscript_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Publisher Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Reject Reason&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[reject_reason]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Rejected Article Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[rejected_article_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Scopus DOI Status&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[scopus_doi_status]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Source File Name&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[source_file_name]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Status&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[status]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos;&gt;&#10;    &lt;aliases&gt;&#10;      &lt;alias key=&apos;&amp;quot;Not Published&amp;quot;&apos; value=&apos;Not Matched&apos; /&gt;&#10;    &lt;/aliases&gt;&#10;  &lt;/column&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Subject Category&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Submitted Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[submitted_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Updated&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[updated]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-aliased-fields=&apos;true&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem4577976087349997376&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xml:base=&apos;http://vizors.stackly.org&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;rejected_articles_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;rejected_articles_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos; server-userid=&apos;5&apos; username=&apos;&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[authors_match_score]&apos; value=&apos;[sqlproxy].[authors_match_score]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_lookup_status]&apos; value=&apos;[sqlproxy].[citation_lookup_status]&apos; /&gt;&#10;      &lt;map key=&apos;[citations]&apos; value=&apos;[sqlproxy].[citations]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[corresponding_author]&apos; value=&apos;[sqlproxy].[corresponding_author]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[crossref_doi]&apos; value=&apos;[sqlproxy].[crossref_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[crossref_match_score]&apos; value=&apos;[sqlproxy].[crossref_match_score]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[keywords]&apos; value=&apos;[sqlproxy].[keywords]&apos; /&gt;&#10;      &lt;map key=&apos;[manuscript_id]&apos; value=&apos;[sqlproxy].[manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[manuscript_title]&apos; value=&apos;[sqlproxy].[manuscript_title]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[preprint_doi]&apos; value=&apos;[sqlproxy].[preprint_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[published_co_authors]&apos; value=&apos;[sqlproxy].[published_co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[published_first_author]&apos; value=&apos;[sqlproxy].[published_first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[published_journal]&apos; value=&apos;[sqlproxy].[published_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[published_journal_issn]&apos; value=&apos;[sqlproxy].[published_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[published_publisher]&apos; value=&apos;[sqlproxy].[published_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[published_title]&apos; value=&apos;[sqlproxy].[published_title]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[reject_reason]&apos; value=&apos;[sqlproxy].[reject_reason]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_article_id]&apos; value=&apos;[sqlproxy].[rejected_article_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_doi_status]&apos; value=&apos;[sqlproxy].[scopus_doi_status]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_id]&apos; value=&apos;[sqlproxy].[scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[source_file_name]&apos; value=&apos;[sqlproxy].[source_file_name]&apos; /&gt;&#10;      &lt;map key=&apos;[status]&apos; value=&apos;[sqlproxy].[status]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[submitted_journal]&apos; value=&apos;[sqlproxy].[submitted_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Type&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Authors Match Score&apos; datatype=&apos;real&apos; default-type=&apos;quantitative&apos; name=&apos;[authors_match_score]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;real&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Lookup Status&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_lookup_status]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Citations&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[citations]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Corresponding Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[corresponding_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Created&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;CrossRef DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[crossref_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Crossref Match Score&apos; datatype=&apos;real&apos; default-type=&apos;quantitative&apos; name=&apos;[crossref_match_score]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;real&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Date of Publication&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Date of Rejection&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_rejection]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Keywords&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[keywords]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Manuscript Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[manuscript_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Manuscript Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[manuscript_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Mendeley Saves&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[mendeley_saves]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Published Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[published_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Publisher Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Reject Reason&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[reject_reason]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Rejected Article Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[rejected_article_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Scopus DOI Status&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[scopus_doi_status]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Source File Name&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[source_file_name]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Status&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[status]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos;&gt;&#10;    &lt;aliases&gt;&#10;      &lt;alias key=&apos;&amp;quot;Not Published&amp;quot;&apos; value=&apos;Not Matched&apos; /&gt;&#10;    &lt;/aliases&gt;&#10;  &lt;/column&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Subject Category&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Submitted Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[submitted_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Updated&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[updated]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-aliased-fields=&apos;true&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
-              <attribute datatype='string' name='update-time'>&quot;3/1/2016 5:18:20 PM&quot;</attribute>
+              <attribute datatype='string' name='update-time'>&quot;1/7/2017 12:19:25 AM&quot;</attribute>
               <attribute datatype='string' name='version'>&quot;0.0.0&quot;</attribute>
             </attributes>
           </metadata-record>
@@ -824,7 +825,7 @@
       </column>
       <column aggregation='Count' caption='Manuscript Title' datatype='string' default-type='nominal' layered='true' name='[manuscript_title]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default'>
       </column>
-      <column aggregation='Sum' datatype='integer' default-type='quantitative' hidden='true' layered='true' name='[mendeley_saves]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default'>
+      <column aggregation='Sum' caption='Mendeley Saves' datatype='integer' default-type='quantitative' hidden='true' layered='true' name='[mendeley_saves]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default'>
       </column>
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[preprint_doi]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default'>
       </column>
@@ -1259,30 +1260,9 @@
         <tooltip-style tooltip-mode='sticky' />
       </table>
     </worksheet>
-    <worksheet name='Sheet 2'>
-      <table>
-        <view>
-          <datasources>
-          </datasources>
-          <aggregation value='true' />
-        </view>
-        <style>
-        </style>
-        <panes>
-          <pane>
-            <view>
-              <breakdown value='auto' />
-            </view>
-            <mark class='Automatic' />
-          </pane>
-        </panes>
-        <rows></rows>
-        <cols></cols>
-      </table>
-    </worksheet>
   </worksheets>
   <dashboards>
-    <dashboard name='Manuscript Inspector'>
+    <dashboard name='Overview'>
       <layout-options>
         <title>
           <formatted-text>
@@ -1410,7 +1390,8 @@
   </dashboards>
   <windows>
     <window class='schema' source-height='-1' />
-    <window auto-hidden='0' class='dashboard' maximized='1' name='Manuscript Inspector'>
+    <window auto-hidden='0' class='dashboard' maximized='1' name='Overview'>
+      <active id='3' />
       <zones>
         <zone h='1950' id='1' name='' type='title' w='99600' x='0' y='0' />
         <zone mode='checkdropdown' name='Manuscripts' param='[sqlproxy.42158.501228101850].[none:submitted_journal:nk]' type='filter' />
@@ -1437,25 +1418,6 @@
           </highlight>
         </zone>
       </zones>
-    </window>
-    <window auto-hidden='0' class='worksheet' maximized='0' name='Sheet 2'>
-      <cards>
-        <edge name='left'>
-          <strip size='160'>
-            <card type='pages' />
-            <card type='filters' />
-            <card type='marks' />
-          </strip>
-        </edge>
-        <edge name='top'>
-          <strip size='2147483647'>
-            <card type='columns' />
-          </strip>
-          <strip size='2147483647'>
-            <card type='rows' />
-          </strip>
-        </edge>
-      </cards>
     </window>
     <window class='hidden-worksheet' name='Manuscripts'>
       <cards>
@@ -1514,84 +1476,72 @@
     </window>
   </windows>
   <thumbnails>
-    <thumbnail height='192' name='Manuscript Inspector' width='192'>
+    <thumbnail height='192' name='Overview' width='192'>
       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
-      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
+      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
-      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
-      QmCC
-    </thumbnail>
-    <thumbnail height='144' name='Sheet 2' width='174'>
-      iVBORw0KGgoAAAANSUhEUgAAAK4AAACQCAYAAACRfFAzAAAACXBIWXMAAA7DAAAOwwHHb6hk
-      AAABmUlEQVR4nO3SQQ0AIBDAMMC/58MDH7KkVbDH9szMgpjzOwBeGJck45JkXJKMS5JxSTIu
-      ScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45Jk
-      XJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYl
-      ybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKM
-      S5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgk
-      GZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5Jx
-      STIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuScYlybgkGZck
-      45JkXJKMS5JxSTIuScYlybgkGZck45JkXJKMS5JxSTIuSRePYgUc7kJNEQAAAABJRU5ErkJg
+      CQICEgQEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQICEgQEJAgICBBQECCgIAEAQEJAgIS
+      BAQkCAhIEBCQICAgQUBAgoCABAEBCQICEgQEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQI
+      CEgQEJAgICBBQECCgIAEAQEJAgISBAQkCAhIEBCQICAg+T+Eqkz9p17DUwAAAABJRU5ErkJg
       gg==
     </thumbnail>
   </thumbnails>
