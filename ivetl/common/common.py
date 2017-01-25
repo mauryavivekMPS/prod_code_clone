@@ -713,9 +713,13 @@ PRODUCT_GROUPS = [
         ],
         'tableau_workbooks': [
             'advance_correlator_citation_usage.twb',
+            'alert_advance_correlator_citation_usage_configure.twb',
+            'alert_advance_correlator_citation_usage_export.twb',
             'citation_distribution_surveyor.twb',
             'cohort_comparator.twb',
             'hot_article_tracker.twb',
+            'alert_hot_article_tracker_configure.twb',
+            'alert_hot_article_tracker_export.twb',
             'hot_object_tracker.twb',
             'rejected_article_tracker.twb',
             'alert_rejected_article_tracker_configure.twb',
@@ -742,6 +746,7 @@ PRODUCT_GROUPS = [
         ],
         'tableau_workbooks': [
             'uv_institutional_usage.twb',
+            'alert_uv_institutional_usage_export.twb',
             'uv_article_usage.twb',
         ]
     },
@@ -787,6 +792,18 @@ TABLEAU_WORKBOOKS = [
         'home_view': 'Overview',
     },
     {
+        'id': 'alert_hot_article_tracker_configure.twb',
+        'name': 'alert_hot_article_tracker_configure',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
+        'id': 'alert_hot_article_tracker_export.twb',
+        'name': 'alert_hot_article_tracker_export',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
         'id': 'hot_object_tracker.twb',
         'name': 'Hot Object Tracker',
         'home_view': 'Overview',
@@ -802,6 +819,18 @@ TABLEAU_WORKBOOKS = [
         'home_view': 'Overview',
     },
     {
+        'id': 'alert_advance_correlator_citation_usage_configure.twb',
+        'name': 'alert_advance_correlator_citation_usage_configure',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
+        'id': 'alert_advance_correlator_citation_usage_export.twb',
+        'name': 'alert_advance_correlator_citation_usage_export',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
         'id': 'cohort_comparator.twb',
         'name': 'Cohort Comparator',
         'home_view': 'Overview',
@@ -810,6 +839,12 @@ TABLEAU_WORKBOOKS = [
         'id': 'uv_institutional_usage.twb',
         'name': 'UV: Institutional Usage',
         'home_view': 'Overview',
+    },
+    {
+        'id': 'alert_uv_institutional_usage_export.twb',
+        'name': 'alert_uv_institutional_usage_export',
+        'home_view': 'Overview',
+        'admin_only': True,
     },
     {
         'id': 'uv_article_usage.twb',

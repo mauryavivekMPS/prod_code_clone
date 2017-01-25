@@ -13,6 +13,7 @@ $.widget("custom.edittableaualertpage", {
         this.filters = {};
         this.selectedAlertType = null;
         this.embeddedReportLoaded = false;
+        this.viz = null;
 
         $('#id_name, #id_attachment_only_emails, #id_full_emails').on('keyup', function() {
             self._checkForm();
@@ -91,6 +92,7 @@ $.widget("custom.edittableaualertpage", {
                 $('#step-set-filters').show();
                 $('.set-filters-tab').addClass('active').siblings().removeClass('active');
                 if (!self.embeddedReportLoaded) {
+                    self._clearEmbeddedReport();
                     if (self.options.editExisting) {
                         self._loadEmbeddedReport(true);
                     }
@@ -181,8 +183,17 @@ $.widget("custom.edittableaualertpage", {
         $('#id_name').val(renderedName);
     },
 
+    _clearEmbeddedReport: function () {
+        if (this.viz) {
+            this.viz.dispose();
+        }
+        $('.embedded-report-container').empty();
+    },
+
     _loadEmbeddedReport: function(useExistingFilters) {
         var self = this;
+
+        console.log('_loadEmbeddedReport');
 
         // clear out existing filter selections
         this.filters = {};
@@ -237,6 +248,7 @@ $.widget("custom.edittableaualertpage", {
                     });
 
                     self.embeddedReportLoaded = true;
+                    self.viz = viz;
                 })
                 .always(function () {
                     IvetlWeb.hideLoading();
