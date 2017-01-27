@@ -57,7 +57,7 @@
                                 <td>{{ alert.alert_type }}</td>
                                 <td class="text-center">{% checkmark alert.enabled %}</td>
                                 <td>
-                                    <a href="#" class="delete-alert" alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert_name }}">
+                                    <a href="#" class="delete-alert" alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}">
                                         <span class="lnr lnr-trash2"></span> Delete</a>
                                     <i class="fa fa-spinner fa-pulse alert-deleting-icon" style="display:none"></i>
                                 </td>
@@ -78,9 +78,13 @@
                         <h4 class="modal-title">Delete Alert</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete this alert?</p>
-                        <p>Note that existing notification reports will remain available until their expiry date, but no new notification
-                            emails or reports will be generated.</p>
+                        <p class="confirm-delete-question">Are you sure you want to delete this alert?</p>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="id_expire_notifications" value="1">
+                                Expire all existing notifications from this alert immediately
+                            </label>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary confirm-delete-alert-button">Yes, Delete Alert</button>

@@ -14,6 +14,8 @@ $.widget("custom.listtableaualertspage", {
 
             var m = $('#confirm-delete-alert-modal');
 
+            m.find('.confirm-delete-question').html('Are you sure you want to delete the <b>' + button.attr('alert_name') + '</b> alert?');
+
             var submitButton = m.find('.confirm-delete-alert-button');
             submitButton.on('click', function () {
                 button.hide();
@@ -26,6 +28,7 @@ $.widget("custom.listtableaualertspage", {
                 var data = {
                     alert_id: alertId,
                     publisher_id: publisherId,
+                    expire_notifications: m.find('#id_expire_notifications').is(':checked') ? '1' : '',
                     csrfmiddlewaretoken: self.options.csrfToken
                 };
 
