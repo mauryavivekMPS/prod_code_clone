@@ -1130,6 +1130,96 @@ th .status-icon {
     vertical-align: -2px;
 }
 
+// Toggle
+// -------------------------
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 17px;
+
+    &.disabled {
+        opacity: .5;
+    }
+
+    /* Hide default HTML checkbox */
+    input {
+        display: none;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ddd;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 13px;
+        width: 13px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked:not(:disabled) + .slider {
+        background-color: @color-secondary-2-3;
+    }
+
+    input:focus:not(:disabled) + .slider {
+        box-shadow: 0 0 1px @color-secondary-2-3;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(13px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 17px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+    &.small-switch {
+        width: 24px;
+        height: 15px;
+
+        .slider:before {
+            height: 11px;
+            width: 11px;
+            left: 2px;
+            bottom: 2px;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(9px);
+        }
+
+        .slider.round {
+            border-radius: 11px;
+        }
+    }
+}
+
+th .switch, td .switch {
+    margin-top: 2px;
+}
+
 
 // Status labels
 // -------------------------
@@ -2684,7 +2774,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
             &.disabled {
                 color: #666;
-                
+
                 &:focus, &:hover {
                     text-decoration: none;
                 }

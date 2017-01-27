@@ -33,7 +33,7 @@
                     </thead>
                     <tbody>
                         {% for alert in alerts %}
-                            <tr>
+                            <tr alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}">
                                 <td>
                                     <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
                                         {{ alert.name }}
@@ -55,9 +55,14 @@
                                     <td>{{ alert.publisher_id }}</td>
                                 {% endif %}
                                 <td>{{ alert.alert_type }}</td>
-                                <td class="text-center">{% checkmark alert.enabled %}</td>
+                                <td class="text-center">
+                                    <label class="switch small-switch alert-enabled-switch">
+                                        <input type="checkbox" {% if alert.enabled %}checked{% endif %}>
+                                        <div class="slider round"></div>
+                                    </label>
+                                </td>
                                 <td>
-                                    <a href="#" class="delete-alert" alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}">
+                                    <a href="#" class="delete-alert">
                                         <span class="lnr lnr-trash2"></span> Delete</a>
                                     <i class="fa fa-spinner fa-pulse alert-deleting-icon" style="display:none"></i>
                                 </td>

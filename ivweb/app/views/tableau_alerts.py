@@ -290,6 +290,19 @@ def delete_alert(request):
     return HttpResponse('ok')
 
 
+@login_required
+def toggle_alert(request):
+    alert_id = request.POST['alert_id']
+    enabled = request.POST.get('enabled')
+
+    alert = TableauAlert.objects.get(alert_id=alert_id)
+    alert.update(
+        enabled=enabled,
+    )
+
+    return HttpResponse('ok')
+
+
 def get_trusted_token():
     response = requests.post('http://%s/trusted' % common.TABLEAU_IP, data={'username': common.TABLEAU_USERNAME})  # only IP works here, not hostname
     return response.text

@@ -6,15 +6,34 @@ $.widget("custom.listtableaualertspage", {
     _create: function () {
         var self = this;
 
-        $('.delete-alert').click(function (event) {
+        $('.alert-enabled-switch input[type="checkbox"]').on('click', function () {
+            var enabledSwitch = $(this);
+            var row = enabledSwitch.closest('tr');
+            var alertId = row.attr('alert_id');
+            var publisherId = row.attr('publisher_id');
+
+            var data = {
+                alert_id: alertId,
+                publisher_id: publisherId,
+                enabled: enabledSwitch.is(':checked') ? '1' : '',
+                csrfmiddlewaretoken: self.options.csrfToken
+            };
+
+            $.post('/toggletableaualert/', data)
+                .always(function () {
+                    // check error messages?
+                });
+        });
+
+        $('.delete-alert').on('click', function (event) {
             var button = $(this);
             var row = button.closest('tr');
-            var alertId = button.attr('alert_id');
-            var publisherId = button.attr('publisher_id');
+            var alertId = row.attr('alert_id');
+            var publisherId = row.attr('publisher_id');
 
             var m = $('#confirm-delete-alert-modal');
 
-            m.find('.confirm-delete-question').html('Are you sure you want to delete the <b>' + button.attr('alert_name') + '</b> alert?');
+            m.find('.confirm-delete-question').html('Are you sure you want to delete the <b>' + row.attr('alert_name') + '</b> alert?');
 
             var submitButton = m.find('.confirm-delete-alert-button');
             submitButton.on('click', function () {
