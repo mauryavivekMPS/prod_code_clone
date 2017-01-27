@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl
-from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE
+from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE, process_alert
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
 
@@ -174,7 +174,10 @@ def edit(request, alert_id=None):
 
         form = TableauAlertForm(request.POST, instance=alert, user=request.user)
         if form.is_valid():
-            form.save()
+            saved_alert = form.save()
+
+            if request.POST.get('send_notification'):
+                process_alert(saved_alert)
 
             if new:
                 return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=new-success')

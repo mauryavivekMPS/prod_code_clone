@@ -97,3 +97,11 @@ ALERT_TEMPLATES_BY_SOURCE_PIPELINE = {
 
 def get_report_params_display_string(alert):
     return alert.report_id.title()
+
+
+def process_alert(alert):
+    # create notification record
+    # set expiry to a year!!
+    # get email bits
+    # send email
+    pass

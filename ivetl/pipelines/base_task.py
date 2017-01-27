@@ -175,12 +175,8 @@ class BaseTask(Task):
                         run_alert = alert['threshold_function'](publisher_id)
 
                     if run_alert:
-                        tlogger.info('Generating alert notification')
-                        # create notification record
-                        # set expiry to a year!!
-                        # get email bits
-                        # send email
-
+                        tlogger.info('Running alert instance: %s' % alert_instance)
+                        tableau_alerts.process_alert(alert_instance)
                     else:
                         tlogger.info('Skipping alert')
 
