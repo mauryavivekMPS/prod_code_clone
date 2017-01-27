@@ -31,7 +31,7 @@ def list_alerts(request):
         alerts = TableauAlert.objects.filter(archived=False)
     else:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
-        alerts = TableauAlert.objects.filter(publisher_id__in=accessible_publisher_ids, archived=False)
+        alerts = [a for a in TableauAlert.objects.filter(archived=False) if a.publisher_id in accessible_publisher_ids]
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
@@ -54,7 +54,7 @@ def list_alerts(request):
 
     for alert in sorted_alerts:
         alert_type = ALERT_TEMPLATES[alert.template_id]
-        setattr(alert, 'name', alert_type['name'])
+        setattr(alert, 'alert_type', alert_type['name'])
 
     response = render(request, 'tableau_alerts/list.html', {
         'alerts': sorted_alerts,
@@ -99,7 +99,7 @@ class TableauAlertForm(forms.Form):
         super(TableauAlertForm, self).__init__(initial=initial, *args, **kwargs)
 
         if user.superuser:
-            publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
+            publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all() if p.publisher_id in ('blood', 'portland', 'aan', 'cob')]
         else:
             publisher_choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
 
@@ -270,11 +270,19 @@ def include_template_choices(request):
 @login_required
 def delete_alert(request):
     alert_id = request.POST['alert_id']
+    expire_notifications = request.POST.get('expire_notifications', False)
+
     alert = TableauAlert.objects.get(alert_id=alert_id)
     alert.update(
         enabled=False,
         archived=True,
     )
+
+    if expire_notifications:
+        yesterday = datetime.datetime.today() - datetime.timedelta(1)
+        for n in TableauNotification.objects.filter(alert_id=alert_id):
+            n.update(expiration_date=yesterday)
+
     return HttpResponse('ok')
 
 
@@ -302,3 +310,7 @@ def get_trusted_report_url(request):
     return JsonResponse({
         'url': url,
     })
+
+
+def show_email(request):
+    return render(request, 'tableau_alerts/email.html', {})

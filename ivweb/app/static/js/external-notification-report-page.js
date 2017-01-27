@@ -1,13 +1,19 @@
 $.widget("custom.externalnotificationreportpage", {
     options: {
         trustedReportUrl: '',
+        publisherId: '',
         alertTemplateId: '',
         filters: {}
     },
 
     _create: function() {
         var self = this;
-        $.get(this.options.trustedReportUrl, {template_id: self.options.alertTemplateId, embed_type: 'full'})
+        var data = {
+            template_id: self.options.alertTemplateId,
+            publisher_id: self.options.publisherId,
+            embed_type: 'full'
+        };
+        $.get(this.options.trustedReportUrl, data)
             .done(function (response) {
                 var trustedReportUrl = response.url;
                 var reportContainer = $('.embedded-report-container')[0];
@@ -26,17 +32,6 @@ $.widget("custom.externalnotificationreportpage", {
                 });
 
                 var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
-
-                // viz.addEventListener(tableau.TableauEventName.FILTER_CHANGE, function(e) {
-                //     e.getFilterAsync().then(function(filter) {
-                //         self.filters[filter._caption] = [];
-                //         var selectedValues = filter.getAppliedValues();
-                //         $.each(selectedValues, function(index, value) {
-                //             self.filters[filter._caption].push(value.value);
-                //         });
-                //         $('#id_report_params').val(JSON.stringify(self.filters));
-                //     });
-                // });
             })
             .always(function () {
                 IvetlWeb.hideLoading();

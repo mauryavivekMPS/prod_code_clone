@@ -54,7 +54,7 @@
                                 {% if not single_publisher_user %}
                                     <td>{{ alert.publisher_id }}</td>
                                 {% endif %}
-                                <td>{{ alert.name }}</td>
+                                <td>{{ alert.alert_type }}</td>
                                 <td class="text-center">{% checkmark alert.enabled %}</td>
                                 <td>
                                     <a href="#" class="delete-alert" alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert_name }}">
