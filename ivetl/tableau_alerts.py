@@ -75,6 +75,12 @@ ALERT_TEMPLATES_BY_SOURCE_PIPELINE = {
     ('rejected_manuscripts', 'rejected_articles'): [
         'rejected-article-tracker',
     ],
+    ('rejected_manuscripts', 'benchpress_rejected_articles'): [
+        'rejected-article-tracker',
+    ],
+    ('rejected_manuscripts', 'reprocess_rejected_articles'): [
+        'rejected-article-tracker',
+    ],
     ('article_citations', 'article_citations'): [
         'hot-article-tracker',
         'advance-correlator-citation-usage',
