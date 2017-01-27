@@ -177,6 +177,7 @@ class BaseTask(Task):
                     if run_alert:
                         tlogger.info('Generating alert notification')
                         # create notification record
+                        # set expiry to a year!!
                         # get email bits
                         # send email
 
