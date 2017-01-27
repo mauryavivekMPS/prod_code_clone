@@ -6,7 +6,7 @@ from ivetl.models import PublisherMetadata
 @app.task
 class ReprocessRejectedArticlesPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "reprocess_rejected_articles"
 
         now, today_label, job_id = self.generate_job_id()

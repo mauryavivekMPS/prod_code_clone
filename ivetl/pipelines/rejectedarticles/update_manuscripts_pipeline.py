@@ -6,7 +6,7 @@ from ivetl.models import PublisherMetadata
 @app.task
 class UpdateManuscriptsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, input_file=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, input_file=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "update_manuscripts"
 
         now, today_label, job_id = self.generate_job_id()

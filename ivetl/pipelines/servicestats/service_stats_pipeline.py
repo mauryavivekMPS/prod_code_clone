@@ -6,7 +6,7 @@ from ivetl.common import common
 @app.task
 class ServiceStatsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None, send_alerts=False):
         pipeline_id = "service_stats"
 
         # this pipeline operates on the global publisher ID

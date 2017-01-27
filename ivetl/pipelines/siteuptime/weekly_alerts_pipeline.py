@@ -7,7 +7,7 @@ from ivetl.common import common
 @app.task
 class WeeklyAlertsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "weekly_site_uptime_alerts"
 
         # this pipeline operates on the global publisher ID

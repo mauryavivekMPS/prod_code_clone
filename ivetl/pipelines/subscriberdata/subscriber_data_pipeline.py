@@ -36,7 +36,7 @@ class SubscribersAndSubscriptionsPipeline(Pipeline):
         'start_date',
     ]
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "subscribers_and_subscriptions"
 
         now, today_label, job_id = self.generate_job_id()

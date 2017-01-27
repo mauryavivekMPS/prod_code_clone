@@ -172,6 +172,9 @@ var PipelinePage = (function() {
                     form.find('input[name="to_date"]').val($('#id_run_one_modal_to_date').val());
                 }
 
+                form.find('input[name="send_alerts"]').val(m.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
+
+                console.log('3');
                 $.post(runForPublisherUrl, form.serialize());
 
                 // clear out any job IDs, this form is used by multiple buttons (i.e. run and multiple restart)
@@ -350,7 +353,9 @@ var PipelinePage = (function() {
                     singlePublisherPipelineModal.modal();
                 });
 
-                $('#confirm-run-single-publisher-pipeline-modal .confirm-run-single-publisher-pipeline-submit-button').click(function() {
+                var form = $('#run-single-publisher-pipeline-form');
+                var m = $('#confirm-run-single-publisher-pipeline-modal');
+                m.find('.confirm-run-single-publisher-pipeline-submit-button').click(function() {
                     singlePublisherPipelineModal.modal('hide');
                     $('.run-single-publisher-pipeline-button, .last-updated-message').hide();
                     var loading = $('.run-single-publisher-pipeline-loading-icon');
@@ -360,11 +365,14 @@ var PipelinePage = (function() {
                     }, 3000);
 
                     if (includeDateRangeControls) {
-                        $('#id_from_date').val($('#id_run_single_publisher_pipeline_modal_from_date').val());
-                        $('#id_to_date').val($('#id_run_single_publisher_pipeline_modal_to_date').val());
+                        form.find('input[name="from_date"]').val(m.find('input[name="from_date"]').val());
+                        form.find('input[name="to_date"]').val(m.find('input[name="to_date"]').val());
                     }
 
-                    $('#run-single-publisher-pipeline-form').submit();
+                    form.find('input[name="send_alerts"]').val(m.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
+
+                    console.log('1');
+                    form.submit();
                     return false;
                 });
             }
@@ -388,11 +396,13 @@ var PipelinePage = (function() {
                 }
 
                 var m = $('#confirm-run-all-modal');
+                var form = $('#run-pipeline-form');
+
                 $('.run-button').click(function() {
                     m.modal();
                 });
 
-                $('#confirm-run-all-modal .confirm-run-all-modal-submit-button').click(function() {
+                m.find('.confirm-run-all-modal-submit-button').click(function() {
                     m.modal('hide');
                     $('.run-button').hide();
                     var loading = $('.run-for-all-loading-icon');
@@ -402,11 +412,14 @@ var PipelinePage = (function() {
                     }, 3000);
 
                     if (includeDateRangeControls) {
-                        $('#id_from_date').val($('#id_run_all_modal_from_date').val());
-                        $('#id_to_date').val($('#id_run_all_modal_to_date').val());
+                        form.find('input[name="from_date"]').val(m.find('input[name="from_date"]').val());
+                        form.find('input[name="to_date"]').val(m.find('input[name="to_date"]').val());
                     }
 
-                    $('#run-pipeline-form').submit();
+                    form.find('input[name="send_alerts"]').val(m.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
+
+                    console.log('2');
+                    form.submit();
                     return false;
                 });
             }

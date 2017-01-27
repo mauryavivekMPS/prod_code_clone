@@ -18,6 +18,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.template import loader, RequestContext
 from ivetl.common import common
 from ivetl import utils
+from ivetl import tableau_alerts
 from ivetl.pipelines.pipeline import Pipeline
 from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, Audit_Log, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
@@ -180,6 +181,11 @@ def list_pipelines(request, product_id, pipeline_id):
         from_date_label = from_date.strftime('%m/%d/%Y')
         to_date_label = to_date.strftime('%m/%d/%Y')
 
+    if tableau_alerts.ALERT_TEMPLATES_BY_SOURCE_PIPELINE.get((product_id, pipeline_id)):
+        has_alerts = True
+    else:
+        has_alerts = False
+
     response = render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
@@ -193,6 +199,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'sort_key': sort_key,
         'sort_descending': sort_descending,
         'filter_param': filter_param,
+        'has_alerts': has_alerts,
     })
 
     response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
@@ -324,6 +331,11 @@ def run(request, product_id, pipeline_id):
             # look for a job_id, if found restart the job
             job_id = request.POST.get('restart_job_id')
 
+            if request.POST['send_alerts']:
+                send_alerts = True
+            else:
+                send_alerts = False
+
             # kick the pipeline off (special case for date range pipelines unless restart)
             if pipeline.get('include_date_range_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
@@ -334,6 +346,7 @@ def run(request, product_id, pipeline_id):
                     initiating_user_email=request.user.email,
                     from_date=from_date,
                     to_date=to_date,
+                    send_alerts=send_alerts,
                 ).delay()
             else:
                 pipeline_class.s(
@@ -341,6 +354,7 @@ def run(request, product_id, pipeline_id):
                     product_id=product_id,
                     initiating_user_email=request.user.email,
                     job_id=job_id,
+                    send_alerts=send_alerts,
                 ).delay()
 
             Audit_Log.objects.create(

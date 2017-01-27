@@ -9,7 +9,7 @@ from ivetl.models import PublisherMetadata, PipelineStatus
 @app.task
 class ArticleUsagePipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None, send_alerts=False):
         pipeline_id = 'article_usage'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]
