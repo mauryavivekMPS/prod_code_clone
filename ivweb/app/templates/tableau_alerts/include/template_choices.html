@@ -9,7 +9,7 @@
             <li template_id="{{ choice.id }}" name_template="{{ choice.name_template }}" class="{% if form.initial.template_id == choice.id %}selected{% endif %} {% if choice.has_widgets %}has-widgets{% endif %}">
                 <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
                 <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
-                {{ choice.description|safe }}
+                {{ choice.description|safe }} ({{ choice.frequency }})
             </li>
         {% endfor %}
     {% endif %}
