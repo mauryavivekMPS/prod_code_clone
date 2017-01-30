@@ -95,9 +95,7 @@ class BaseTask(Task):
 
         self.process_datasources(publisher_id, product_id, pipeline_id, tlogger)
         self.process_chains(publisher_id, product_id, pipeline_id, tlogger, initiating_user_email)
-
-        if show_alerts:
-            self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job)
+        self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job, show_alerts)
 
     def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):
@@ -152,35 +150,34 @@ class BaseTask(Task):
                             initiating_user_email=initiating_user_email,
                         ).delay()
 
-    def process_alerts(self, publisher_id, product_id, pipeline_id, tlogger, run_monthly_job):
-        for alert_id in tableau_alerts.ALERT_TEMPLATES_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
+    def process_alerts(self, publisher_id, product_id, pipeline_id, tlogger, run_monthly_job, show_alerts):
+        if show_alerts or run_monthly_job:
+            for alert_id in tableau_alerts.ALERT_TEMPLATES_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):
 
-            alert = tableau_alerts.ALERT_TEMPLATES[alert_id]
+                alert = tableau_alerts.ALERT_TEMPLATES[alert_id]
+                tlogger.info('Processing alert: %s' % alert_id)
 
-            tlogger.info('Processing alert: %s' % alert_id)
+                alert_instances = TableauAlert.objects.filter(
+                    alert_id=alert_id,
+                    publisher_id=publisher_id,
+                    archived=False,
+                )
 
-            alert_instances = TableauAlert.objects.filter(
-                alert_id=alert_id,
-                publisher_id=publisher_id,
-                archived=False,
-            )
+                for alert_instance in alert_instances:
+                    if alert_instance.enabled:
 
-            for alert_instance in alert_instances:
-                if alert_instance.enabled:
+                        run_alert = False
 
-                    run_alert = False
-
-                    if alert['type'] == 'scheduled':
-                        if run_monthly_job:
+                        if alert['type'] == 'scheduled':
                             run_alert = True
-                    elif alert['type'] == 'threshold':
-                        run_alert = alert['threshold_function'](publisher_id)
+                        elif alert['type'] == 'threshold':
+                            run_alert = alert['threshold_function'](publisher_id)
 
-                    if run_alert:
-                        tlogger.info('Running alert instance: %s' % alert_instance)
-                        tableau_alerts.process_alert(alert_instance)
-                    else:
-                        tlogger.info('Skipping alert')
+                        if run_alert:
+                            tlogger.info('Running alert instance: %s' % alert_instance)
+                            tableau_alerts.process_alert(alert_instance)
+                        else:
+                            tlogger.info('Skipping alert')
 
     def params_to_json(self, params):
         try:

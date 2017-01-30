@@ -442,7 +442,7 @@ class TableauConnector(BaseConnector):
             with open(file_path) as f:
                 reader = csv.DictReader(f)
                 line = next(reader)
-                num_records = str(line['Number of Records'].replace(',', ''))
+                num_records = int(str(line['Number of Records'].replace(',', '')))
         except:
             # swallow everything, assume the worst
             pass

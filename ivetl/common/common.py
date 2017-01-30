@@ -778,7 +778,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'alert_rejected_article_tracker_export.twb',
         'name': 'alert_rejected_article_tracker_export',
-        'home_view': 'Overview',
+        'home_view': 'ManuscriptInspector',
         'admin_only': True,
     },
     {
@@ -800,7 +800,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'alert_hot_article_tracker_export.twb',
         'name': 'alert_hot_article_tracker_export',
-        'home_view': 'Overview',
+        'home_view': 'ManuscriptInspector',
         'admin_only': True,
     },
     {
@@ -827,7 +827,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'alert_advance_correlator_citation_usage_export.twb',
         'name': 'alert_advance_correlator_citation_usage_export',
-        'home_view': 'Overview',
+        'home_view': 'ManuscriptInspector',
         'admin_only': True,
     },
     {
@@ -843,7 +843,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'alert_uv_institutional_usage_export.twb',
         'name': 'alert_uv_institutional_usage_export',
-        'home_view': 'Overview',
+        'home_view': 'ManuscriptInspector',
         'admin_only': True,
     },
     {

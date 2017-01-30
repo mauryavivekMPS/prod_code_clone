@@ -1,3 +1,9 @@
+import datetime
+from ivetl.connectors import TableauConnector
+from ivetl.models import WorkbookUrl, TableauNotification
+from ivetl.common import common
+
+
 def check_for_citation_amount(publisher_id):
     return True
 
@@ -100,8 +106,48 @@ def get_report_params_display_string(alert):
 
 
 def process_alert(alert):
-    # create notification record
-    # set expiry to a year!!
-    # get email bits
-    # send email
-    pass
+    # check for data
+
+    t = TableauConnector(
+        username=common.TABLEAU_USERNAME,
+        password=common.TABLEAU_PASSWORD,
+        server=common.TABLEAU_SERVER
+    )
+
+    template = ALERT_TEMPLATES[alert.template_id]
+    export_workbook_id = template['workbooks'].get('export')
+
+    has_data = True
+    if export_workbook_id:
+        workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
+        workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
+        view_url = '%s/%s' % (workbook_url, workbook_home_view)
+        # TODO: add filters and params here!!
+        has_data = t.check_report_for_data(view_url)
+
+    if has_data:
+
+        # create notification record
+        now = datetime.datetime.now()
+        expiration_date = now + datetime.timedelta(days=365)
+        notification = TableauNotification.objects.create(
+            alert_id=alert.alert_id,
+            publisher_id=alert.publisher_id,
+            template_id=alert.template_id,
+            notification_date=now,
+            expiration_date=expiration_date,
+            name=alert.name,
+            alert_params=alert.alert_params,
+            alert_filters=alert.alert_filters,
+            custom_message=alert.custom_message,
+        )
+
+        # send any lite emails
+        if alert.attachment_only_emails:
+            pass
+
+        # send any full emails
+        if alert.full_emails:
+            # TODO: make notification URL absolute here
+            notification_url = '/n/%s/' % notification.notification_id
+            pass
