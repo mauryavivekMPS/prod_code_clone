@@ -2,51 +2,31 @@
 <html lang="en" class="">
     <head>
         <meta charset="utf-8">
-        <title>Rejected Article Tracker Update for Blood</title>
-        <meta name="description" content="Impact Vizor">
+        <title>{{ notification.name }}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
         <link rel="shortcut icon" href="/static/dist/hw.ico">
-
-
-        <script src="https://use.typekit.net/rll0ypr.js"></script>
-        <script>try {
-            Typekit.load({async: true});
-        } catch (e) {
-        }</script>
-
 
         <!-- Compiled custom + bootstrap less -->
         <link rel="stylesheet" type="text/css" href="/static/dist/everything.css"/>
         <link rel="stylesheet" type="text/css" href="/static/dist/hyperlinearicons.css">
         <link rel="stylesheet" type="text/css" href="/static/dist/nv.d3.css">
         <link rel="stylesheet" type="text/css" href="/static/dist/bootstrap-datepicker3.min.css">
-
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-            <script type="text/javascript" src="/static/dist/html5shiv.js"></script>
-            <script type="text/javascript" src="/static/dist/respond.min.js"></script>
-            <![endif]-->
-
-        <script src="/static/dist/jquery.min.js"></script>
-        <script src="/static/dist/jquery-ui.min.js"></script>
-        <script src="/static/dist/jquery.number.min.js"></script>
-        <script src="/static/dist/jquery.cookie.js"></script>
     </head>
 
     <body class="ivweb  external-notification-report " style="background: url(http://manage.vizors.org/static/dist/diagonal-noise.png) repeat center center fixed; width: 100%; height: 400px; padding-top:20px">
         <div style="background-color: white; border: 1px dotted #ccc; padding: 40px 30px; width: 600px; margin: 20px auto 10px">
             <div>
                 <img src="http://manage.vizors.org/static/dist/transparent-logo.png" style="height: 36px; float: left; margin-top: 3px;">
-                <h1 style="margin-left: 50px; font-size: 20px; font-weight: 400; margin-bottom: 1px;">Rejected Article Tracker Update</h1>
-                <div style="margin-left: 50px; font-weight: 200; font-size: 12px; color: #888">Generated on <span>Thursday, December 15, 2016</span></div>
+                <h1 style="margin-left: 50px; font-size: 20px; font-weight: 400; margin-bottom: 1px;">{{ notification.name }}</h1>
+                <div style="margin-left: 50px; font-weight: 200; font-size: 12px; color: #888">Generated on <span>{{ notification.notification_date|date:"l, F d, Y" }}</span></div>
             </div>
             <p style="margin-top: 20px; margin-left: 50px;">Hi there,</p>
             <p style="margin-left: 50px;">There is a new Rejected Article Tracker Update available on ImpactVizor:</p>
             <div style="width: 378px; height: 200px; border: 1px dotted #ccc; background-color: #fafafa; margin: 30px auto 10px; text-align: center; font-size: 10px; color: #999; font-weight: 200; padding-top: 85px;">
                 (report screenshot)
             </div>
-            <p style="text-align: center; font-size: 12px; margin-bottom: 20px;"><a href="http://localhost:8000/n/3caefeae-5d39-4c37-91e8-9ec2c3a96db4/">View the report online</a></p>
+            <p style="text-align: center; font-size: 12px; margin-bottom: 20px;"><a href="{{ notification_url }}">View the report online</a></p>
             <p style="margin-left: 50px;">You are receiving this email because you have been configured as a recipient to a
                 periodic notification from ImpactVizor. You can modify your notification preferences by visiting <a href="asdf">the settings page</a>
                 or by contacting your ImpactVizor administrator.</p>

@@ -148,6 +148,10 @@ def process_alert(alert):
 
         # send any full emails
         if alert.full_emails:
-            # TODO: make notification URL absolute here
+            # TODO: make notification URL absolute here!!
             notification_url = '/n/%s/' % notification.notification_id
-            pass
+            # template = loader.get_template('reports/include/item_status_row.html')
+            # context = RequestContext(request, {
+            #     'item': item,
+            # })
+            # item['html'] = template.render(context)
