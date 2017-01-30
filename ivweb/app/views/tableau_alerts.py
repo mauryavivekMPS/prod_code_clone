@@ -254,6 +254,7 @@ def get_template_choices_for_publisher(publisher_id, alert_type):
                 'order': alert['order'],
                 'name_template': alert['name_template'],
                 'frequency': alert['frequency'],
+                'has_filter_configuration': '1' if alert['workbooks'].get('configure') else '',
             })
 
     sorted_template_choices = sorted(template_choices, key=lambda a: a['order'])

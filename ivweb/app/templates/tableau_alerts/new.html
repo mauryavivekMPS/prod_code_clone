@@ -22,8 +22,13 @@
                     <ul class="wizard-tabs">
                         <li class="active choose-alert-tab active"><a href="#" class="choose-alert-button">1. Choose Alert</a></li>
                         <li class="configure-notifications-tab"><a href="#" class="configure-notifications-button disabled">2. Configure Notifications</a></li>
-                        <li class="set-filters-tab"><a href="#" class="set-filters-button disabled">3. Set Filters</a></li>
-                        <li class="review-tab"><a href="#" class="review-button disabled">4. Review and Save</a></li>
+                        <li class="set-filters-tab filter-configuration"><a href="#" class="set-filters-button disabled">3. Set Filters</a></li>
+                        <li class="review-tab">
+                            <a href="#" class="review-button disabled">
+                                <span class="filter-configuration">4. Review and Save</span>
+                                <span class="no-filter-configuration" style="display:none">3. Review and Save</span>
+                            </a>
+                        </li>
                     </ul>
 
                     <form class="form-horizontal alert-form" method="post">
