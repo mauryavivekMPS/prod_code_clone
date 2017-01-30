@@ -433,7 +433,6 @@ class XREFPublishedArticleSearchTask(Task):
         target_file.close()
         matcher_debug_file.close()
 
-        return {
-            'input_file': target_file_name,
-            'count': count,
-        }
+        task_args['count'] = count
+        task_args['input_file'] = target_file_name
+        return task_args

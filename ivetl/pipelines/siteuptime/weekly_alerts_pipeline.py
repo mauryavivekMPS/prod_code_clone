@@ -28,6 +28,7 @@ class WeeklyAlertsPipeline(Pipeline):
             'work_folder': work_folder,
             'job_id': job_id,
             'to_date': self.to_json_date(now - datetime.timedelta(days=1)),
+            'send_alerts': send_alerts,
         }
 
         Pipeline.chain_tasks(pipeline_id, task_args)

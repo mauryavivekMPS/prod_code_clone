@@ -49,7 +49,8 @@ class CheckRejectedManuscriptTask(Task):
             tlogger,
             send_notification_email=True,
             notification_count=total_count,
-            run_monthly_job=task_args['run_monthly_job']
+            run_monthly_job=task_args['run_monthly_job'],
+            show_alerts = task_args['show_alerts'],
         )
 
         if pipeline_id in ("published_articles", "cohort_articles") and task_args['run_monthly_job']:
@@ -77,4 +78,5 @@ class CheckRejectedManuscriptTask(Task):
         # true up the count
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, count)
 
-        return {'count': count}
+        task_args['count'] = count
+        return task_args

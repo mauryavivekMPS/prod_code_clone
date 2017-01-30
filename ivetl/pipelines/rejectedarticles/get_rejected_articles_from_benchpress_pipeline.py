@@ -42,6 +42,7 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 'job_id': job_id,
                 'from_date': self.to_json_date(from_date),
                 'to_date': self.to_json_date(to_date),
+                'send_alerts': send_alerts,
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)

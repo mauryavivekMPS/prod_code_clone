@@ -71,7 +71,7 @@ class PrepareInputFileTask(Task):
                     target_file.flush()  # not sure why this is needed?
 
         target_file.close()
-        return {
-            'count': count,
-            'input_file': target_file_name,
-        }
+
+        task_args['count'] = count
+        task_args['input_file'] = target_file_name
+        return task_args

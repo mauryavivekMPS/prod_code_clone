@@ -55,6 +55,7 @@ class ArticleUsagePipeline(Pipeline):
                     'job_id': job_id,
                     'uploaded_files': files,
                     'preserve_incoming_files': preserve_incoming_files,
+                    'send_alerts': send_alerts,
                 }
 
                 # and run the pipeline!

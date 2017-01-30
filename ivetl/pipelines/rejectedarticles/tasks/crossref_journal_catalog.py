@@ -77,9 +77,5 @@ class XREFJournalCatalogTask(Task):
             else:
                 offset = -1
 
-        return {'count': count}
-
-
-
-
-
+        task_args['count'] = count
+        return task_args

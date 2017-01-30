@@ -78,10 +78,11 @@ class CustomSubscriberDataPipeline(Pipeline):
                     'job_id': job_id,
                     'uploaded_files': files,
                     'preserve_incoming_files': preserve_incoming_files,
+                    'send_alerts': send_alerts,
                 }
 
                 # and run the pipeline!
                 Pipeline.chain_tasks(pipeline_id, task_args)
 
             else:
-                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id, tlogger)
+                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id, show_alerts=task_args['show_alerts'])

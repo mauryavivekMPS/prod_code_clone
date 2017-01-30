@@ -33,6 +33,7 @@ class UpdateManuscriptsPipeline(Pipeline):
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'input_file': input_file,
+                'send_alerts': send_alerts,
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)

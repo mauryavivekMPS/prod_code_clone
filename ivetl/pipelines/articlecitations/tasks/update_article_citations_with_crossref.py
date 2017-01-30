@@ -22,13 +22,13 @@ class UpdateArticleCitationsWithCrossref(Task):
 
         if not publisher.supports_crossref:
             tlogger.info("Publisher is not configured for crossref")
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
             return {'count': count}
 
         product = common.PRODUCT_BY_ID[product_id]
         if product['cohort']:
             tlogger.info("Cohort product does not support crossref")
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
             return {'count': count}
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -149,8 +149,7 @@ class UpdateArticleCitationsWithCrossref(Task):
             job_id=job_id,
         )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

@@ -67,7 +67,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 )
 
         if pipeline_id == 'custom_article_data':
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, notification_count=count)
+            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, notification_count=count, show_alerts=task_args['show_alerts'])
 
         # leave existing task args in place, input_file and count, in particular
 

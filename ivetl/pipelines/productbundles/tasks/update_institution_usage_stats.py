@@ -53,8 +53,7 @@ class UpdateInstitutionUsageStatsTask(Task):
             else:
                 tlogger.info('No match found')
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

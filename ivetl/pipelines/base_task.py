@@ -54,7 +54,7 @@ class BaseTask(Task):
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
 
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, notification_count=None, run_monthly_job=False):
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, notification_count=None, run_monthly_job=False, show_alerts=False):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
@@ -95,7 +95,9 @@ class BaseTask(Task):
 
         self.process_datasources(publisher_id, product_id, pipeline_id, tlogger)
         self.process_chains(publisher_id, product_id, pipeline_id, tlogger, initiating_user_email)
-        self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job)
+
+        if show_alerts:
+            self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job)
 
     def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
         if (not common.IS_LOCAL) or (common.IS_LOCAL and common.PUBLISH_TO_TABLEAU_WHEN_LOCAL):

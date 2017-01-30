@@ -40,7 +40,7 @@ class UpdateAttributeValuesCacheTask(Task):
                 values_json=json.dumps(list(values))
             )
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, count)
 

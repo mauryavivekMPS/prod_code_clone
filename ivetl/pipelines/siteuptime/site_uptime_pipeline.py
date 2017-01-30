@@ -64,6 +64,7 @@ class SiteUptimePipeline(Pipeline):
             'from_date': self.to_json_date(from_date),
             'to_date': self.to_json_date(to_date),
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
+            'send_alerts': send_alerts,
         }
 
         Pipeline.chain_tasks(pipeline_id, task_args)

@@ -202,9 +202,8 @@ class InsertIntoCassandraDBTask(Task):
             pu['updated'] = updated
             pu.save()
 
-        return {
-            'count': count,
-        }
+        task_args['count'] = count
+        return task_args
 
 
 def unix_time(dt):

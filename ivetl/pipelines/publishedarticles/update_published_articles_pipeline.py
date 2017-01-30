@@ -55,6 +55,7 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
                 'run_monthly_job': run_monthly_job,
+                'send_alerts': send_alerts,
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)
