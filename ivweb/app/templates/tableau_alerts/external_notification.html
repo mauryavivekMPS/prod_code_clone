@@ -33,7 +33,8 @@
                 trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
                 publisherId: '{{ notification.publisher_id }}',
                 alertTemplateId: '{{ notification.template_id }}',
-                filters: {{ notification.alert_filters|safe }}
+                filters: {{ notification.alert_filters|safe }},
+                params: {{ notification.alert_params|safe }}
             });
         });
     </script>

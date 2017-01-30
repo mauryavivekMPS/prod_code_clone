@@ -62,18 +62,6 @@ def list_notifications(request):
     return response
 
 
-def external(request):
-    # url = 'http://10.0.0.143/trusted'
-    # data = {'username': 'admin'}
-    # response = requests.post(url, data=data)
-
-    token = 'xo7rzQo0jiG2kd70HW0uiF5r'
-
-    return render(request, 'notifications/external.html', {
-        'token': token,
-    })
-
-
 @login_required
 def include_notification_details(request):
     notification_summary_id = request.GET['notification_summary_id']

@@ -16,7 +16,7 @@ $.widget("custom.edittableaualertpage", {
         this.embeddedReportLoaded = false;
         this.viz = null;
 
-        $('#id_name, #id_attachment_only_emails, #id_full_emails').on('keyup', function() {
+        $('#id_name, #id_attachment_only_emails, #id_full_emails').on('keyup', function () {
             self._checkForm();
         });
 
@@ -159,7 +159,7 @@ $.widget("custom.edittableaualertpage", {
     _wireTemplateChoiceList: function () {
         var self = this;
         
-        $('.template-choice-list li').on('click', function() {
+        $('.template-choice-list li').on('click', function () {
             var selectedItem = $(this);
             var selectedTemplateId = selectedItem.attr('template_id');
 
@@ -175,7 +175,7 @@ $.widget("custom.edittableaualertpage", {
                 self.embeddedReportLoaded = false;
 
                 // wire up the alert name
-                selectedItem.find('input.threshold-input').on('keyup', function() {
+                selectedItem.find('input.threshold-input').on('keyup', function () {
                     self._updateAlertName();
                 });
                 self._updateAlertName();
@@ -211,7 +211,7 @@ $.widget("custom.edittableaualertpage", {
         $('.embedded-report-container').empty();
     },
 
-    _loadEmbeddedReport: function(useExistingFilters) {
+    _loadEmbeddedReport: function (useExistingFilters) {
         var self = this;
 
         console.log('_loadEmbeddedReport');
@@ -247,6 +247,7 @@ $.widget("custom.edittableaualertpage", {
                     };
 
                     if (useExistingFilters) {
+
                         // apply each of the filters
                         var existingFilters = JSON.parse($('#id_alert_filters').val());
                         $.each(Object.keys(existingFilters), function (index, name) {
@@ -255,11 +256,20 @@ $.widget("custom.edittableaualertpage", {
                                 vizOptions[name].push(value);
                             });
                         });
+
+                        // apply each of the params
+                        var existingParams = JSON.parse($('#id_alert_params').val());
+                        $.each(Object.keys(existingParams), function (index, name) {
+                            vizOptions[name] = [];
+                            $.each(existingParams[name], function (index, value) {
+                                vizOptions[name].push(value);
+                            });
+                        });
                     }
                     
                     var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
 
-                    viz.addEventListener(tableau.TableauEventName.FILTER_CHANGE, function(e) {
+                    viz.addEventListener(tableau.TableauEventName.FILTER_CHANGE, function (e) {
                         e.getFilterAsync().then(function (filter) {
                             self.filters[filter._caption] = [];
                             var selectedValues = filter.getAppliedValues();
@@ -291,7 +301,7 @@ $.widget("custom.edittableaualertpage", {
         }
     },
 
-    _checkForm: function() {
+    _checkForm: function () {
         var publisherId = $("#id_publisher_id option:selected").val();
         var templateId = $("#id_template_id").val();
 

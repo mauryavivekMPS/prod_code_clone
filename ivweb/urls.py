@@ -36,12 +36,11 @@ urlpatterns = [
     url(r'^tableaualerts/new/$', tableau_alerts.edit, name='tableau_alerts.new'),
     url(r'^tableaualerts/(?P<alert_id>[\w\-.]+)/$', tableau_alerts.edit, name='tableau_alerts.edit'),
 
-    # tablea external notifications
+    # tableau external notifications
     url(r'^n/(?P<notification_id>[\w\-.]+)/$', tableau_alerts.show_external_notification, name='tableau_alerts.show_external_notification'),
 
     # notifications
     url(r'^notifications/$', notifications.list_notifications, name='notifications.list'),
-    url(r'^external/$', notifications.external, name='notifications.external'),
 
     # journals and citable sections
     url(r'^journals/$', journals.list_journals, name='journals.list'),

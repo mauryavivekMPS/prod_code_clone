@@ -3,10 +3,11 @@ $.widget("custom.externalnotificationreportpage", {
         trustedReportUrl: '',
         publisherId: '',
         alertTemplateId: '',
-        filters: {}
+        filters: {},
+        params: {}
     },
 
-    _create: function() {
+    _create: function () {
         var self = this;
         var data = {
             template_id: self.options.alertTemplateId,
@@ -24,9 +25,17 @@ $.widget("custom.externalnotificationreportpage", {
                 };
 
                 // apply each of the filters
-                $.each(Object.keys(self.options.filters), function(index, name) {
+                $.each(Object.keys(self.options.filters), function (index, name) {
                     vizOptions[name] = [];
-                    $.each(self.options.filters[name], function(index, value) {
+                    $.each(self.options.filters[name], function (index, value) {
+                        vizOptions[name].push(value);
+                    });
+                });
+
+                // apply each of the params
+                $.each(Object.keys(self.options.params), function (index, name) {
+                    vizOptions[name] = [];
+                    $.each(self.options.params[name], function (index, value) {
                         vizOptions[name].push(value);
                     });
                 });
