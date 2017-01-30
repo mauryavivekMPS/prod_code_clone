@@ -198,6 +198,9 @@ $.widget("custom.edittableaualertpage", {
         // clear out existing filter selections
         this.filters = {};
 
+        // clear out existing parameter selections
+        this.parameters = {};
+
         var selectedTemplate = $('#id_template_id').val();
         if (selectedTemplate) {
             IvetlWeb.showLoading();
@@ -243,6 +246,14 @@ $.widget("custom.edittableaualertpage", {
                                 self.filters[filter._caption].push(value.value);
                             });
                             $('#id_alert_filters').val(JSON.stringify(self.filters));
+                            self._checkForm();
+                        });
+                    });
+
+                    viz.addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, function (e) {
+                        e.getParameterAsync().then(function (parameter) {
+                            self.parameters[parameter.getName()] = parameter.getCurrentValue().value;
+                            $('#id_alert_params').val(JSON.stringify(self.parameters));
                             self._checkForm();
                         });
                     });
@@ -306,6 +317,14 @@ $.widget("custom.edittableaualertpage", {
         }
         else {
             $('.filter-summary-item').html('No filters');
+        }
+
+        var parameters = $('#id_alert_params').val();
+        if (parameters) {
+            $('.parameter-summary-item').html('Apply parameters: ' + parameters);
+        }
+        else {
+            $('.parameter-summary-item').html('No parameters');
         }
     }
 });
