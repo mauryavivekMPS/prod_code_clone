@@ -9,9 +9,9 @@ def check_for_citation_amount(publisher_id):
 
 ALERT_TEMPLATES = {
     'hot-article-tracker': {
-        'choice_description': 'Hot Article Tracker',
-        'name_template': 'Hot Article Tracker Update',
-        'name': 'Hot Article Tracker',
+        'choice_description': 'IV: Hot Article Tracker',
+        'name_template': 'IV: Hot Article Tracker Update',
+        'name': 'IV: Hot Article Tracker',
         'workbooks': {
             'full': 'hot_article_tracker.twb',
             'configure': 'alert_hot_article_tracker_configure.twb',
@@ -22,9 +22,9 @@ ALERT_TEMPLATES = {
         'order': 1,
     },
     'rejected-article-tracker': {
-        'choice_description': 'Rejected Article Tracker',
-        'name_template': 'Rejected Article Tracker Update',
-        'name': 'Rejected Article Tracker',
+        'choice_description': 'IV: Rejected Article Tracker',
+        'name_template': 'IV: Rejected Article Tracker Update',
+        'name': 'IV: Rejected Article Tracker',
         'workbooks': {
             'full': 'rejected_article_tracker.twb',
             'configure': 'alert_rejected_article_tracker_configure.twb',
@@ -35,9 +35,9 @@ ALERT_TEMPLATES = {
         'order': 2,
     },
     'advance-correlator-citation-usage': {
-        'choice_description': 'Advanced Correlator of Citations & Usage',
-        'name_template': 'Advanced Correlator of Citations & Usage Update',
-        'name': 'Advanced Correlator of Citations & Usage',
+        'choice_description': 'IV: Advanced Correlator of Citations & Usage',
+        'name_template': 'IV: Advanced Correlator of Citations & Usage Update',
+        'name': 'IV: Advanced Correlator of Citations & Usage',
         'workbooks': {
             'full': 'advance_correlator_citation_usage.twb',
             'configure': 'alert_advance_correlator_citation_usage_configure.twb',

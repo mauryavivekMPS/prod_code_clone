@@ -8,7 +8,7 @@
         <div class="row header-row">
             <div class="col-md-12">
                 <h1>Alerts</h1>
-                <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Tableau Alert</a>
+                <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Alert</a>
                 <ul class="list-tabs">
                     <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
                     <li><a href="?filter=enabled" {% if filter_param == 'enabled' %}class="active"{% endif %}>Enabled</a></li>
@@ -39,10 +39,10 @@
                                         {{ alert.name }}
                                     </a>
                                     {% if alert.attachment_only_emails %}
-                                        <div class="alert-details"><b>Emails (with attachment):</b> {{ alert.attachment_only_emails|join:", " }}</div>
+                                        <div class="alert-details"><b>Email recipients with static PDF:</b> {{ alert.attachment_only_emails|join:", " }}</div>
                                     {% endif %}
                                     {% if alert.full_emails %}
-                                        <div class="alert-details"><b>Emails (with attachment and link):</b>{{ alert.full_emails|join:", " }}</div>
+                                        <div class="alert-details"><b>Emails recipients with PDF and link to active report:</b> {{ alert.full_emails|join:", " }}</div>
                                     {% endif %}
                                     {% if alert.has_params %}
                                         <div class="alert-details"><b>Parameters:</b> {{ alert.params_display_string }}</div>

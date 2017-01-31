@@ -21,7 +21,7 @@
                 <div class="col-md-12">
                     <ul class="wizard-tabs">
                         <li class="active choose-alert-tab active"><a href="#" class="choose-alert-button">1. Choose Alert</a></li>
-                        <li class="configure-notifications-tab"><a href="#" class="configure-notifications-button disabled">2. Configure Notifications</a></li>
+                        <li class="configure-notifications-tab"><a href="#" class="configure-notifications-button disabled">2. Configure Emails</a></li>
                         <li class="set-filters-tab filter-configuration"><a href="#" class="set-filters-button disabled">3. Set Filters</a></li>
                         <li class="review-tab">
                             <a href="#" class="review-button disabled">
@@ -57,7 +57,7 @@
                             <div class="alert-type-controls" style="display:none">
                                 <div class="row instruction-row">
                                     <div class="col-sm-8">
-                                        <p>Send me a notification:</p>
+                                        <p>Send me an email:</p>
                                     </div>
                                 </div>
 
@@ -67,7 +67,7 @@
                                             <li alert_type="scheduled" class="{% if template.type == 'scheduled' %}selected{% endif %}">
                                                 <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
                                                 <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
-                                                As soon as a report is updated with new data
+                                                As soon as the Vizor is updated with new data
                                             </li>
                                             <li alert_type="threshold" class="{% if template.type == 'threshold' %}selected{% endif %}">
                                                 <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
@@ -83,7 +83,7 @@
                            <div class="alert-choice-controls" style="display:none">
                                 <div class="row instruction-row">
                                     <div class="col-sm-8">
-                                        <p class="article-type-instructions-scheduled" {% if template.type != 'scheduled' %}style="display:none"{% endif %}>Include the following report:</p>
+                                        <p class="article-type-instructions-scheduled" {% if template.type != 'scheduled' %}style="display:none"{% endif %}>Include the following Vizor:</p>
                                         <p class="article-type-instructions-threshold" {% if template.type != 'threshold' %}style="display:none"{% endif %}>Notify me about:</p>
                                     </div>
                                 </div>
@@ -99,7 +99,7 @@
 
                             <div class="form-group row next-prev-row">
                                 <button type="button" class="btn btn-primary configure-notifications-button disabled" disabled="disabled">
-                                    Next, Configure Notifications <i class="lnr lnr-arrow-right right-arrow"></i>
+                                    Next, Configure Emails <i class="lnr lnr-arrow-right right-arrow"></i>
                                 </button>
                             </div>
                         </div>
@@ -107,7 +107,7 @@
                         <div id="step-configure-notifications" class="wizard-step" style="display:none">
                             <div class="row instruction-row">
                                 <div class="col-sm-8">
-                                    <p>Choose a title for the notification:</p>
+                                    <p>Choose a subject for the email:</p>
                                 </div>
                             </div>
 
@@ -119,7 +119,7 @@
 
                             <div class="row instruction-row">
                                 <div class="col-sm-8">
-                                    <p>Send a notification email with attached PDF report only to:</p>
+                                    <p>Send notification emails to the following recipients with an attached static PDF report:</p>
                                 </div>
                             </div>
 
@@ -131,7 +131,7 @@
 
                             <div class="row instruction-row">
                                 <div class="col-sm-8">
-                                    <p>Send a notification email with attached PDF report <b>and a link to the live report</b> to:</p>
+                                    <p>Send notifications emails to the following recipients with the PDF <b>and a link to the active report</b>:</p>
                                 </div>
                             </div>
 
@@ -143,7 +143,7 @@
 
                             <div class="row instruction-row">
                                 <div class="col-sm-8">
-                                    <p>Include the following customized message in the notification:</p>
+                                    <p>Include the following customized message in the email:</p>
                                 </div>
                             </div>
 
@@ -162,7 +162,7 @@
                             <div class="row widget-row">
                                 <div class="col-sm-8">
                                     <div class="checkbox">
-                                        <label>{{ form.send_with_no_data }} Send notifications even when there are no updates or matching records</label>
+                                        <label>{{ form.send_with_no_data }} Send notification emails even when there are no updates or matching records</label>
                                     </div>
                                 </div>
                             </div>
@@ -223,7 +223,7 @@
                                     Create Alert
                                 </button>
                                 <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled" name="send_notification" value="1">
-                                    Create Alert and Send Notification Now
+                                    Create Alert and Send Email Now
                                 </button>
                                 <span class="cancel">or <a href="../">Cancel</a></span>
                             </div>
@@ -234,33 +234,6 @@
             </div>
         </div>
 
-        {% if alert %}
-            <form id="archive-alert-form" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="alert_id" value="{{ form.initial.alert_id }}">
-                <input type="hidden" name="archive" value="{% if alert.archived %}off{% else %}on{% endif %}">
-            </form>
-
-            <div class="modal fade confirm-archive-alert" id="confirm-archive-alert-modal">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <h4 class="modal-title">{% if alert.archived %}Unarchive{% else %}Archive{% endif %} Alert</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p>Are you sure you want to {% if alert.archived %}un{% endif %}archive this alert?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary confirm-archive-alert-button">Yes, {% if alert.archived %}Unarchive{% else %}Archive{% endif %} Alert</button>
-                            <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
     </div>
 {% endblock %}
 
