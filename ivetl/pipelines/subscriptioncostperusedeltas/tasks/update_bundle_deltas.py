@@ -112,8 +112,10 @@ class UpdateBundleDeltasTask(Task):
                                 bundle_name=current_cost_per_use.bundle_name,
                                 usage_date=m,
                             )
-                            previous_ytd_total_usage += u.total_usage
-                            previous_ytd_amount += u.amount
+                            if u.total_usage:
+                                previous_ytd_total_usage += u.total_usage
+                            if u.amount:
+                                previous_ytd_amount += u.amount
                             if m == start_of_previous_year:
                                 found_first_ytd_cost_per_use = True
                         except SubscriptionCostPerUseByBundleStat.DoesNotExist:
@@ -133,8 +135,10 @@ class UpdateBundleDeltasTask(Task):
                                     bundle_name=current_cost_per_use.bundle_name,
                                     usage_date=m,
                                 )
-                                current_ytd_total_usage += u.total_usage
-                                current_ytd_amount += u.amount
+                                if u.total_usage:
+                                    current_ytd_total_usage += u.total_usage
+                                if u.amount:
+                                    current_ytd_amount += u.amount
                             except SubscriptionCostPerUseByBundleStat.DoesNotExist:
                                 pass
 
