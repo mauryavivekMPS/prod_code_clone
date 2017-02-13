@@ -110,11 +110,13 @@ class UpdateCostPerUseTask(Task):
 
                 total_amount = 0
                 for bundle_amount in s.bundle_amount.values():
-                    total_amount += bundle_amount
+                    if bundle_amount:
+                        total_amount += bundle_amount
 
                 total_usage = 0
                 for bundle_usage in s.bundle_usage.values():
-                    total_usage += bundle_usage
+                    if bundle_usage:
+                        total_usage += bundle_usage
 
                 s.total_amount = total_amount
                 s.total_usage = total_usage
