@@ -126,6 +126,10 @@
                             <div class="row widget-row">
                                 <div class="col-sm-8">
                                     {{ form.attachment_only_emails }}
+                                    <p class="attachment-only-emails-error-message emails-error-message" style="display: none">
+                                        <span class="lnr lnr-warning error-icon"></span>
+                                        One or more of the email addresses listed above is invalid
+                                    </p>
                                 </div>
                             </div>
 
@@ -138,6 +142,10 @@
                             <div class="row widget-row">
                                 <div class="col-sm-8">
                                     {{ form.full_emails }}
+                                    <p class="full-emails-error-message emails-error-message" style="display: none">
+                                        <span class="lnr lnr-warning error-icon"></span>
+                                        One or more of the email addresses listed above is invalid
+                                    </p>
                                 </div>
                             </div>
 
@@ -230,6 +238,22 @@
 
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade confirm-select-all-alert" id="confirm-select-all-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p class="confirm-select-all-question">Did you want to select all values for the <span class="filter-name"></span> filter
+                            or only the <span class="number-of-values"></span> specific values that are selected?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary use-all-values-button">Use All Values</button>
+                        <span class="or-text">or</span>
+                        <button type="button" class="btn btn-primary use-specific-values-button">Use Only <span class="number-of-values"></span> Selected Values</button>
+                    </div>
                 </div>
             </div>
         </div>

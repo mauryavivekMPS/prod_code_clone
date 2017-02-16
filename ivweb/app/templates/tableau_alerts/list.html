@@ -24,16 +24,18 @@
                         <tr>
                             <th>{% sort_column "Name" "name" sort_key sort_descending %}</th>
                             {% if not single_publisher_user %}
-                                <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
+                                <th>{% sort_column "Publisher" "publisher_name" sort_key sort_descending %}</th>
                             {% endif %}
                             <th>{% sort_column "Type" "template_id" sort_key sort_descending %}</th>
                             <th class="text-center">enabled</th>
+                            <th class="send-now-col"></th>
                             <th class="delete-col"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for alert in alerts %}
-                            <tr alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}">
+                            <tr alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}"
+                                attachment_only_emails="{{ alert.attachment_only_emails|join:", " }}" full_emails="{{ alert.full_emails|join:", " }}">
                                 <td>
                                     <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
                                         {{ alert.name }}
@@ -44,15 +46,12 @@
                                     {% if alert.full_emails %}
                                         <div class="alert-details"><b>Emails recipients with PDF and link to active report:</b> {{ alert.full_emails|join:", " }}</div>
                                     {% endif %}
-                                    {% if alert.has_params %}
-                                        <div class="alert-details"><b>Parameters:</b> {{ alert.params_display_string }}</div>
-                                    {% endif %}
-                                    {% if alert.has_filters %}
-                                        <div class="alert-details"><b>Filters:</b> {{ alert.filters_display_string }}</div>
+                                    {% if alert.has_params or alert.has_filters %}
+                                        <div class="alert-details"><b>Filters:</b> {{ alert.params_and_filters_display_string }}</div>
                                     {% endif %}
                                 </td>
                                 {% if not single_publisher_user %}
-                                    <td>{{ alert.publisher_id }}</td>
+                                    <td>{{ alert.publisher_name }}</td>
                                 {% endif %}
                                 <td>{{ alert.alert_type }}</td>
                                 <td class="text-center">
@@ -62,8 +61,18 @@
                                     </label>
                                 </td>
                                 <td>
-                                    <a href="#" class="delete-alert">
-                                        <span class="lnr lnr-trash2"></span> Delete</a>
+                                    <a href="#" class="send-alert-now alert-action-button">
+{#                                        <span class="lnr lnr-arrow-right"></span>#}
+                                        Send Now
+                                    </a>
+                                    <i class="fa fa-spinner fa-pulse alert-sending-now-icon" style="display:none"></i>
+                                    <span class="alert-sent-message" style="display:none">Sent</span>
+                                </td>
+                                <td>
+                                    <a href="#" class="delete-alert alert-action-button">
+                                        <span class="lnr lnr-trash2"></span>
+                                        Delete
+                                    </a>
                                     <i class="fa fa-spinner fa-pulse alert-deleting-icon" style="display:none"></i>
                                 </td>
                             </tr>
@@ -93,6 +102,29 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary confirm-delete-alert-button">Yes, Delete Alert</button>
+                        <span class="cancel">or <a href="#" data-dismiss="modal" class="cancel-delete-alert">Cancel</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade confirm-send-alert-now" id="confirm-send-alert-now-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close cancel-send-alert-now" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Send Alert Now</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p class="first-textarea-instruction">Process this alert now and send an email with a static PDF to:</p>
+                        <textarea class="form-control" name="attachment_only_emails" placeholder="Comma-separated emails"></textarea>
+                        <p class="second-textarea-instruction">And also send an email with the PDF <b>and a link to the active report</b> to:</p>
+                        <textarea class="form-control" name="full_emails" placeholder="Comma-separated emails"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary confirm-send-alert-now-button">Send Now</button>
                         <span class="cancel">or <a href="#" data-dismiss="modal" class="cancel-delete-alert">Cancel</a></span>
                     </div>
                 </div>

@@ -75,5 +75,64 @@ $.widget("custom.listtableaualertspage", {
 
             event.preventDefault();
         });
+
+        $('.send-alert-now').on('click', function (event) {
+            var button = $(this);
+            var row = button.closest('tr');
+            var alertId = row.attr('alert_id');
+            var publisherId = row.attr('publisher_id');
+            var fullEmails = row.attr('full_emails');
+            var attachmentOnlyEmails = row.attr('attachment_only_emails');
+
+            var m = $('#confirm-send-alert-now-modal');
+
+            var fullEmailsTextarea = m.find('textarea[name="full_emails"]');
+            var attachmentOnlyEmailsTextarea = m.find('textarea[name="attachment_only_emails"]');
+
+            fullEmailsTextarea.val(fullEmails);
+            attachmentOnlyEmailsTextarea.val(attachmentOnlyEmails);
+
+            var submitButton = m.find('.confirm-send-alert-now-button');
+            submitButton.on('click', function () {
+                button.hide();
+
+                var sendingNowIcon = button.closest('tr').find('.alert-sending-now-icon');
+                sendingNowIcon.show();
+
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+                m.modal('hide');
+
+                var data = {
+                    alert_id: alertId,
+                    publisher_id: publisherId,
+                    full_emails: fullEmailsTextarea.val(),
+                    attachment_only_emails: attachmentOnlyEmailsTextarea.val(),
+                    csrfmiddlewaretoken: self.options.csrfToken
+                };
+
+                $.post('/sendtableaualertnow/', data)
+                    .always(function () {
+                        setTimeout(function () {
+                            sendingNowIcon.hide();
+                            button.show();
+                        }, 3000)
+                    });
+            });
+
+            var cancelButton = m.find('.cancel-send-alert-now');
+            cancelButton.on('click', function () {
+                $(this).off('click');
+            });
+
+            m.modal();
+
+            m.on('hidden.bs.modal', function () {
+                submitButton.off('click');
+                m.off('hidden.bs.modal');
+            });
+
+            event.preventDefault();
+        });
     }
 });

@@ -1,3 +1,4 @@
+import re
 import logging
 import requests
 import datetime
@@ -35,6 +36,18 @@ def list_alerts(request):
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True
 
+    publisher_name_by_id = {}
+    for alert in alerts:
+
+        # add publisher name
+        if alert.publisher_id not in publisher_name_by_id:
+            publisher_name_by_id[alert.publisher_id] = PublisherMetadata.objects.get(publisher_id=alert.publisher_id).name
+        setattr(alert, 'publisher_name', publisher_name_by_id[alert.publisher_id])
+
+        # add alert type name
+        alert_type = ALERT_TEMPLATES[alert.template_id]
+        setattr(alert, 'alert_type', alert_type['name'])
+
     filter_param = request.GET.get('filter', request.COOKIES.get('tableau-alert-list-filter', 'all'))
 
     filtered_alerts = []
@@ -52,10 +65,6 @@ def list_alerts(request):
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('tableau-alert-list-sort', 'publisher_id'))
     sorted_alerts = sorted(filtered_alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
-    for alert in sorted_alerts:
-        alert_type = ALERT_TEMPLATES[alert.template_id]
-        setattr(alert, 'alert_type', alert_type['name'])
-
     response = render(request, 'tableau_alerts/list.html', {
         'alerts': sorted_alerts,
         'messages': messages,
@@ -70,6 +79,10 @@ def list_alerts(request):
     response.set_cookie('tableau-alert-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
+
+
+def _parse_email_list(s):
+    return [e.strip() for e in re.split('[\s,;]+', s) if s if e]
 
 
 class TableauAlertForm(forms.Form):
@@ -122,9 +135,10 @@ class TableauAlertForm(forms.Form):
             )
 
         attachment_only_emails_string = self.cleaned_data.get('attachment_only_emails')
+        attachment_only_emails = _parse_email_list(attachment_only_emails_string)
+
         full_emails_string = self.cleaned_data.get('full_emails')
-        attachment_only_emails = [email.strip() for email in attachment_only_emails_string.split(",") if attachment_only_emails_string]
-        full_emails = [email.strip() for email in full_emails_string.split(",") if full_emails_string]
+        full_emails = _parse_email_list(full_emails_string)
 
         alert.update(
             name=self.cleaned_data['name'],
@@ -301,6 +315,18 @@ def toggle_alert(request):
         enabled=enabled,
     )
 
+    return HttpResponse('ok')
+
+
+@login_required
+def send_alert_now(request):
+    alert_id = request.POST['alert_id']
+    alert = TableauAlert.objects.get(alert_id=alert_id)
+    attachment_only_emails_string = request.POST['attachment_only_emails']
+    attachment_only_emails = _parse_email_list(attachment_only_emails_string)
+    full_emails_string = request.POST['full_emails']
+    full_emails = _parse_email_list(full_emails_string)
+    process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails)
     return HttpResponse('ok')
 
 

@@ -105,7 +105,7 @@ def get_report_params_display_string(alert):
     return alert.report_id.title()
 
 
-def process_alert(alert):
+def process_alert(alert, attachment_only_emails_override=None, full_emails_override=None):
     # check for data
 
     t = TableauConnector(
@@ -121,8 +121,7 @@ def process_alert(alert):
     if export_workbook_id:
         workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
         workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
-        view_url = '%s/%s' % (workbook_url, workbook_home_view)
-        # TODO: add filters and params here!!
+        view_url = '%s/%s?%s' % (workbook_url, workbook_home_view, alert.params_and_filters_query_string)
         has_data = t.check_report_for_data(view_url)
 
     if has_data:
@@ -148,8 +147,8 @@ def process_alert(alert):
 
         # send any full emails
         if alert.full_emails:
-            # TODO: make notification URL absolute here!!
-            notification_url = '/n/%s/' % notification.notification_id
+            notification_url = '%s/n/%s/' % (common.IVETL_WEB_ADDRESS, notification.notification_id)
+
             # template = loader.get_template('reports/include/item_status_row.html')
             # context = RequestContext(request, {
             #     'item': item,

@@ -11,10 +11,20 @@ $.widget("custom.edittableaualertpage", {
         var self = this;
 
         this.filters = {};
+        this.parameters = {};
         this.selectedAlertType = null;
         this.hasFilterConfiguration = false;
         this.embeddedReportLoaded = false;
         this.viz = null;
+
+        this.emailSplitRegex = /[\s,;]+/;
+        this.emailTestRegex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+        this.validAttachmentOnlyEmailsTimeoutId = null;
+        this.validFullEmailsTimeoutId = null;
+
+        this.filtersHiddenInput = $('#id_alert_filters');
+        this.parametersHiddenInput = $('#id_alert_params');
 
         $('#id_name, #id_attachment_only_emails, #id_full_emails').on('keyup', function () {
             self._checkForm();
@@ -30,7 +40,7 @@ $.widget("custom.edittableaualertpage", {
             this.hasFilterConfiguration = selectedTemplate.attr('has_filter_configuration') == '1';
             self._updateFilterConfiguration();
             this.filters = JSON.parse($('#id_alert_filters').val());
-            this.params = JSON.parse($('#id_alert_params').val());
+            this.parameters = JSON.parse($('#id_alert_params').val());
             this._checkForm();
         }
         else {
@@ -158,7 +168,7 @@ $.widget("custom.edittableaualertpage", {
 
     _wireTemplateChoiceList: function () {
         var self = this;
-        
+
         $('.template-choice-list li').on('click', function () {
             var selectedItem = $(this);
             var selectedTemplateId = selectedItem.attr('template_id');
@@ -214,14 +224,6 @@ $.widget("custom.edittableaualertpage", {
     _loadEmbeddedReport: function (useExistingFilters) {
         var self = this;
 
-        console.log('_loadEmbeddedReport');
-
-        // clear out existing filter selections
-        this.filters = {};
-
-        // clear out existing parameter selections
-        this.parameters = {};
-
         var selectedTemplate = $('#id_template_id').val();
         if (selectedTemplate) {
             IvetlWeb.showLoading();
@@ -238,7 +240,7 @@ $.widget("custom.edittableaualertpage", {
                     var controls = $('.embedded-report-controls');
                     controls.show();
                     var reportContainer = controls.find('.embedded-report-container')[0];
-                    
+
                     var vizOptions = {
                         width: reportContainer.offsetWidth,
                         height: reportContainer.offsetHeight,
@@ -249,42 +251,75 @@ $.widget("custom.edittableaualertpage", {
                     if (useExistingFilters) {
 
                         // apply each of the filters
-                        var existingFilters = JSON.parse($('#id_alert_filters').val());
+                        var existingFilters = JSON.parse(self.filtersHiddenInput.val());
                         $.each(Object.keys(existingFilters), function (index, name) {
                             vizOptions[name] = [];
                             $.each(existingFilters[name], function (index, value) {
                                 vizOptions[name].push(value);
+                                console.log('apply filter: ' + name + ' = ' + value);
                             });
                         });
 
                         // apply each of the params
-                        var existingParams = JSON.parse($('#id_alert_params').val());
+                        var existingParams = JSON.parse(self.parametersHiddenInput.val());
                         $.each(Object.keys(existingParams), function (index, name) {
                             vizOptions[name] = [];
                             $.each(existingParams[name], function (index, value) {
                                 vizOptions[name].push(value);
+                                console.log('apply parameter: ' + name + ' = ' + value);
                             });
                         });
                     }
-                    
+                    else {
+                        // clear out existing filters and parameters
+                        self.filters = {};
+                        self.parameters = {};
+                        self.filtersHiddenInput.val('{}');
+                        self.parametersHiddenInput.val('{}');
+                    }
+
                     var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
 
                     viz.addEventListener(tableau.TableauEventName.FILTER_CHANGE, function (e) {
                         e.getFilterAsync().then(function (filter) {
-                            self.filters[filter._caption] = [];
+                            var filterName = filter._caption;
                             var selectedValues = filter.getAppliedValues();
-                            $.each(selectedValues, function (index, value) {
-                                self.filters[filter._caption].push(value.value);
-                            });
-                            $('#id_alert_filters').val(JSON.stringify(self.filters));
-                            self._checkForm();
+
+                            // figure out if anything has changed, in an effort to ignore repeated event firing
+                            var changed = false;
+                            if (filterName in self.filters && selectedValues.length == self.filters[filterName].length) {
+                                $.each(selectedValues, function (index, value) {
+                                    if (self.filters[filterName].indexOf(value.value) == -1) {
+                                        changed = true;
+                                        return false;
+                                    }
+                                });
+                            }
+                            else {
+                                changed = true;
+                            }
+
+                            if (changed) {
+                                self.filters[filterName] = [];
+                                $.each(selectedValues, function (index, value) {
+                                    console.log(value);
+                                    self.filters[filterName].push(value.value);
+                                });
+                                self.filtersHiddenInput.val(JSON.stringify(self.filters));
+                                self._checkForm();
+                                var numberOfSelectedValues = selectedValues.length;
+                                if (numberOfSelectedValues > 10) {
+                                    self._confirmSelectAll(filterName, numberOfSelectedValues)
+                                }
+                            }
                         });
                     });
 
                     viz.addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, function (e) {
                         e.getParameterAsync().then(function (parameter) {
-                            self.parameters[parameter.getName()] = parameter.getCurrentValue().value;
-                            $('#id_alert_params').val(JSON.stringify(self.parameters));
+                            var parameterName = parameter.getName();
+                            self.parameters[parameterName] = parameter.getCurrentValue().value;
+                            self.parametersHiddenInput.val(JSON.stringify(self.parameters));
                             self._checkForm();
                         });
                     });
@@ -301,7 +336,46 @@ $.widget("custom.edittableaualertpage", {
         }
     },
 
+    _confirmSelectAll: function (filterName, numberOfSelectedValues) {
+        var self = this;
+        var m = $('#confirm-select-all-modal');
+
+        m.find('.filter-name').html(filterName);
+        m.find('.number-of-values').html(numberOfSelectedValues);
+
+        var allValuesButton = m.find('.use-all-values-button');
+        var specificValuesButton = m.find('.use-specific-values-button');
+
+        var closeModal = function () {
+            allValuesButton.off('click');
+            specificValuesButton.off('click');
+            m.off('hidden.bs.modal');
+            m.modal('hide');
+        };
+
+        allValuesButton.on('click', function () {
+
+            // delete the value from filters
+            delete self.filters[filterName];
+            self.filtersHiddenInput.val(JSON.stringify(self.filters));
+
+            // reload the viz without that filter
+            self._clearEmbeddedReport();
+            self._loadEmbeddedReport(true);
+
+            closeModal();
+        });
+
+        specificValuesButton.on('click', function () {
+            // leave filters as-is
+            closeModal();
+        });
+
+        m.modal();
+    },
+
     _checkForm: function () {
+        var self = this;
         var publisherId = $("#id_publisher_id option:selected").val();
         var templateId = $("#id_template_id").val();
 
@@ -315,11 +389,62 @@ $.widget("custom.edittableaualertpage", {
         }
 
         var name = $('#id_name').val();
+
         var attachmentOnlyEmails = $('#id_attachment_only_emails').val();
+        var validAttachmentOnlyEmails = true;
+        var atLeastOneAttachmentOnlyEmail = false;
+        if (attachmentOnlyEmails) {
+            $.each(attachmentOnlyEmails.split(self.emailSplitRegex), function (index, email) {
+                email = email.trim();
+                if (email) {
+                    if (self.emailTestRegex.test(email)) {
+                        atLeastOneAttachmentOnlyEmail = true;
+                    }
+                    else {
+                        validAttachmentOnlyEmails = false;
+                    }
+                }
+            });
+        }
+
+        clearTimeout(self.validAttachmentOnlyEmailsTimeoutId);
+        if (validAttachmentOnlyEmails) {
+            $('.attachment-only-emails-error-message').hide();
+        }
+        else {
+            self.validAttachmentOnlyEmailsTimeoutId = setTimeout(function () {
+                $('.attachment-only-emails-error-message').show();
+            }, 1000);
+        }
+
         var fullEmails = $('#id_full_emails').val();
+        var validFullEmails = true;
+        var atLeastOneFullEmail = false;
+        if (fullEmails) {
+            $.each(fullEmails.split(self.emailSplitRegex), function (index, email) {
+                email = email.trim();
+                if (email) {
+                    if (self.emailTestRegex.test(email)) {
+                        atLeastOneFullEmail = true;
+                    }
+                    else {
+                        validFullEmails = false;
+                    }
+                }
+            });
+        }
 
-        if (name && (attachmentOnlyEmails || fullEmails)) {
+        clearTimeout(self.validFullEmailsTimeoutId);
+        if (validFullEmails) {
+            $('.full-emails-error-message').hide();
+        }
+        else {
+            self.validFullEmailsTimeoutId = setTimeout(function () {
+                $('.full-emails-error-message').show();
+            }, 1000);
+        }
 
+        if (name && (atLeastOneAttachmentOnlyEmail || atLeastOneFullEmail) && validAttachmentOnlyEmails && validFullEmails) {
             $('.set-filters-button').removeClass('disabled').prop('disabled', false);
             $('.name-summary-item').html('A new alert called: ' + name);
             if (attachmentOnlyEmails) {

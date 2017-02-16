@@ -102,9 +102,11 @@ urlpatterns = [
     url(r'^deleteuptimeoverride/$', uptime.delete_override, name='uptime.delete_override'),
     url(r'^deletetableaualert/$', tableau_alerts.delete_alert, name='tableau_alerts.delete_alert'),
     url(r'^toggletableaualert/$', tableau_alerts.toggle_alert, name='tableau_alerts.toggle_alert'),
+    url(r'^sendtableaualertnow/$', tableau_alerts.send_alert_now, name='tableau_alerts.send_alert_now'),
     url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
 
+    # for testing
     url(r'^showemail/$', tableau_alerts.show_email),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
