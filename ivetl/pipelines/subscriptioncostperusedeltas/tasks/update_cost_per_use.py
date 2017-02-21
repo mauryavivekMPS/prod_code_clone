@@ -1,4 +1,5 @@
 import datetime
+import decimal
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import InstitutionUsageStat, SubscriptionCostPerUseByBundleStat, SubscriptionCostPerUseBySubscriberStat
@@ -18,6 +19,9 @@ class UpdateCostPerUseTask(Task):
             'Full-text HTML Requests': 'html_usage',
             'Full-text PDF Requests': 'pdf_usage',
         }
+
+        total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
 
@@ -108,7 +112,7 @@ class UpdateCostPerUseTask(Task):
                 s.bundle_amount[bundle_stat.bundle_name] = bundle_stat.amount
                 s.bundle_usage[bundle_stat.bundle_name] = bundle_stat.total_usage
 
-                total_amount = 0
+                total_amount = decimal.Decimal(0.0)
                 for bundle_amount in s.bundle_amount.values():
                     if bundle_amount:
                         total_amount += bundle_amount
