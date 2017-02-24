@@ -1,8 +1,8 @@
 from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
+from ivetl.models.base import IvetlModel
 
 
-class PublishedArticle(Model):
+class PublishedArticle(IvetlModel):
     publisher_id = columns.Text(partition_key=True)
     article_doi = columns.Text(primary_key=True)
     article_issue = columns.Text()
@@ -84,3 +84,13 @@ class PublishedArticle(Model):
     citation_count = columns.Integer()
     is_tr_citable = columns.Boolean()
     updated = columns.DateTime()
+
+    tableau_filter_fields = [
+        'article_journal',
+        'article_type',
+        'subject_category',
+        'editor',
+        'custom',
+        'custom_2',
+        'custom_3',
+    ]

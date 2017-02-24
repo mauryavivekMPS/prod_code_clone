@@ -7,7 +7,7 @@ import cassandra.util
 from cassandra.cqlengine.query import BatchQuery
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Rejected_Articles
+from ivetl.models import RejectedArticles
 
 
 @app.task
@@ -38,12 +38,12 @@ class UpdateManuscriptsInCassandraTask(Task):
 
                 b = BatchQuery()
 
-                existing_record = Rejected_Articles.objects.filter(publisher_id=publisher, manuscript_id=manuscript_id).first()
+                existing_record = RejectedArticles.objects.filter(publisher_id=publisher, manuscript_id=manuscript_id).first()
 
                 if existing_record:
                     existing_record.batch(b).delete()
 
-                ra = Rejected_Articles()
+                ra = RejectedArticles()
 
                 ra['publisher_id'] = publisher
                 ra['rejected_article_id'] = cassandra.util.uuid_from_time(updated)

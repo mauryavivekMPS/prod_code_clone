@@ -6,7 +6,7 @@ from datetime import datetime
 import cassandra.util
 from cassandra.cqlengine.query import BatchQuery
 from ivetl.celery import app
-from ivetl.models import Publisher_Vizor_Updates, Rejected_Articles
+from ivetl.models import Publisher_Vizor_Updates, RejectedArticles
 from ivetl.pipelines.task import Task
 
 
@@ -39,7 +39,7 @@ class InsertIntoCassandraDBTask(Task):
 
                 b = BatchQuery()
 
-                existing_record = Rejected_Articles.objects.filter(publisher_id=publisher_id, manuscript_id=manuscript_id).first()
+                existing_record = RejectedArticles.objects.filter(publisher_id=publisher_id, manuscript_id=manuscript_id).first()
 
                 if existing_record:
                     if data['status'] == "Not Published":
@@ -92,7 +92,7 @@ class InsertIntoCassandraDBTask(Task):
                             tlogger.info("Manuscript changed status from last run, deleting existing record")
                             existing_record.batch(b).delete()
 
-                ra = Rejected_Articles()
+                ra = RejectedArticles()
 
                 ra['publisher_id'] = publisher_id
                 ra['rejected_article_id'] = cassandra.util.uuid_from_time(updated)
