@@ -18,7 +18,8 @@ import argparse
 from ivetl.tools import clean_tableau_filter_fields
 
 commands = [
-    'clean_filters',
+    'clean_filters_for_publisher',
+    'clean_filters_for_all_publishers',
 ]
 
 
@@ -35,7 +36,10 @@ if __name__ == "__main__":
 
     args, extra_args = first_parser.parse_known_args()
 
-    if args.command == 'clean_filters':
+    if args.command == 'clean_filters_for_publisher':
         second_parser.add_argument('publisher_id')
         clean_filters_args = second_parser.parse_args()
         clean_tableau_filter_fields.clean_filters_for_publisher(clean_filters_args.publisher_id)
+
+    elif args.command == 'clean_filters_for_all_publishers':
+        clean_tableau_filter_fields.clean_filters_for_all_publishers()
