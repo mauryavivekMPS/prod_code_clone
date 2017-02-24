@@ -1,8 +1,8 @@
 from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
+from ivetl.models.base import IvetlModel
 
 
-class Rejected_Articles(Model):
+class RejectedArticles(IvetlModel):
     publisher_id = columns.Text(primary_key=True)
     rejected_article_id = columns.TimeUUID(primary_key=True)
     article_type = columns.Text(required=False)
@@ -38,3 +38,14 @@ class Rejected_Articles(Model):
     mendeley_saves = columns.Integer(required=False)
     preprint_doi = columns.Text(required=False)
     updated = columns.DateTime()
+
+    tableau_filter_fields = [
+        'submitted_journal',
+        'reject_reason',
+        'subject_category',
+        'article_type',
+        'editor',
+        'custom',
+        'published_publisher',
+        'published_journal',
+    ]

@@ -4,7 +4,7 @@ import codecs
 from dateutil import parser
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import Article_Usage
+from ivetl.models import ArticleUsage
 
 
 @app.task
@@ -41,7 +41,7 @@ class InsertArticleUsageIntoCassandra(Task):
                     else:
                         usage = 0
 
-                    Article_Usage.objects(
+                    ArticleUsage.objects(
                         article_doi=doi,
                         publisher_id=publisher_id,
                         usage_type=usage_type,

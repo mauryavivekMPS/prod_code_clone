@@ -1,8 +1,8 @@
 from cassandra.cqlengine import columns
-from cassandra.cqlengine.models import Model
+from ivetl.models.base import IvetlModel
 
 
-class Subscriber(Model):
+class Subscriber(IvetlModel):
     publisher_id = columns.Text(partition_key=True)
     membership_no = columns.Text(primary_key=True, index=True)
     ac_database = columns.Text()
@@ -40,3 +40,11 @@ class Subscriber(Model):
     custom2 = columns.Text()
     custom3 = columns.Text()
     final_expiration_date = columns.DateTime()
+
+    tableau_filter_fields = [
+        'subscr_type_desc',
+        'sales_agent',
+        'custom1',
+        'custom2',
+        'custom3',
+    ]
