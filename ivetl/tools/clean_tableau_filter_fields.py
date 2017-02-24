@@ -1,4 +1,4 @@
-from ivetl.models import PublishedArticle, RejectedArticles, Subscriber
+from ivetl.models import PublisherMetadata, PublishedArticle, RejectedArticles, Subscriber
 
 models_with_filters = [
     PublishedArticle,
@@ -18,3 +18,9 @@ def clean_filters_for_publisher(publisher_id):
             count += 1
             if not count % 1000:
                 print(count)
+
+
+def clean_filters_for_all_publishers():
+    for publisher in PublisherMetadata.objects.all():
+        print('Cleaning filters for publisher: %s' % publisher.publisher_id)
+        clean_filters_for_publisher(publisher.publisher_id)
