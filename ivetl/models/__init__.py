@@ -9,11 +9,11 @@ from ivetl.models.article_citations import ArticleCitations
 from ivetl.models.IssnJournal import Issn_Journal
 from ivetl.models.pipeline_status import PipelineStatus
 from ivetl.models.pipeline_task_status import PipelineTaskStatus
-from ivetl.models.RejectedArticles import Rejected_Articles
+from ivetl.models.rejected_articles import RejectedArticles
 from ivetl.models.AuditLog import Audit_Log
 from ivetl.models.published_article_by_cohort import PublishedArticleByCohort
 from ivetl.models.ScopusApiKey import Scopus_Api_Key
-from ivetl.models.ArticleUsage import Article_Usage
+from ivetl.models.article_usage import ArticleUsage
 from ivetl.models.DoiTransformRule import Doi_Transform_Rule
 from ivetl.models.alert import Alert
 from ivetl.models.tableau_alert import TableauAlert

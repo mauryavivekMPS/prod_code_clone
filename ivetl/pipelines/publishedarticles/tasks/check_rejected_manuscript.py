@@ -1,6 +1,6 @@
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import PublishedArticle, Rejected_Articles, PipelineStatus
+from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
 from ivetl.pipelines.articlecitations import UpdateArticleCitationsPipeline
 from ivetl import utils
 
@@ -20,7 +20,7 @@ class CheckRejectedManuscriptTask(Task):
         articles = PublishedArticle.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(article_limit)
         rm_map = {}
 
-        rms = Rejected_Articles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
+        rms = RejectedArticles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
         for r in rms:
             if r.status != 'Not Published':
                 rm_map[r.crossref_doi] = r

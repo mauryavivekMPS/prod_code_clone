@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Article_Usage(Model):
+class ArticleUsage(Model):
     publisher_id = columns.Text(primary_key=True)
     article_doi = columns.Text(primary_key=True)
     usage_type = columns.Text(primary_key=True)

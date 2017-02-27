@@ -2,7 +2,7 @@ import csv
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import PublishedArticle, Article_Usage
+from ivetl.models import PublishedArticle, ArticleUsage
 
 
 @app.task
@@ -70,7 +70,7 @@ class ResolveArticleUsageData(Task):
                 month_usage_abstract_60 = 0
                 usage_start_date = None
 
-                for usage in Article_Usage.objects.filter(publisher_id=publisher_id, article_doi=doi):
+                for usage in ArticleUsage.objects.filter(publisher_id=publisher_id, article_doi=doi):
 
                     if not usage_start_date:
                         usage_start_date = usage.usage_start_date
