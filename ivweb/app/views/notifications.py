@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from ivetl.models import Notification_Summary, Alert
+from ivetl.models import NotificationSummary, Alert
 from ivetl.alerts import CHECKS, get_check_params_display_string, get_filter_params_display_string
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
@@ -22,7 +22,7 @@ def list_notifications(request):
 
     single_publisher_user = False
     if request.user.superuser:
-        filtered_notifications = Notification_Summary.objects.filter(dismissed=show_dismissed)
+        filtered_notifications = NotificationSummary.objects.filter(dismissed=show_dismissed)
         alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.all()}
     else:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
@@ -30,7 +30,7 @@ def list_notifications(request):
         # need to do this the long way because cassandra does not support IN for partition keys in certain situations
         filtered_notifications = []
         for publisher_id in accessible_publisher_ids:
-            for notification in Notification_Summary.objects.filter(publisher_id=publisher_id, dismissed=show_dismissed):
+            for notification in NotificationSummary.objects.filter(publisher_id=publisher_id, dismissed=show_dismissed):
                 filtered_notifications.append(notification)
 
         alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.filter(publisher_id__in=accessible_publisher_ids)}
@@ -66,7 +66,7 @@ def list_notifications(request):
 def include_notification_details(request):
     notification_summary_id = request.GET['notification_summary_id']
     publisher_id = request.GET['publisher_id']
-    notification_summary = Notification_Summary.objects.get(publisher_id=publisher_id, notification_summary_id=notification_summary_id)
+    notification_summary = NotificationSummary.objects.get(publisher_id=publisher_id, notification_summary_id=notification_summary_id)
     alert = Alert.objects.get(alert_id=notification_summary.alert_id)
     check = CHECKS[alert.check_id]
     values_list = json.loads(notification_summary.values_list_json)
@@ -130,7 +130,7 @@ def include_notification_details(request):
 def dismiss_notification(request):
     notification_summary_id = request.POST['notification_summary_id']
     publisher_id = request.POST['publisher_id']
-    notification_summary = Notification_Summary.objects.get(publisher_id=publisher_id, notification_summary_id=notification_summary_id)
+    notification_summary = NotificationSummary.objects.get(publisher_id=publisher_id, notification_summary_id=notification_summary_id)
     notification_summary.dismissed = True
     notification_summary.save()
     return HttpResponse('ok')

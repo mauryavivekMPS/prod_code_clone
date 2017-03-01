@@ -20,7 +20,7 @@ from ivetl.common import common
 from ivetl import utils
 from ivetl import tableau_alerts
 from ivetl.pipelines.pipeline import Pipeline
-from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, Audit_Log, SystemGlobal, PublisherJournal
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, AuditLog, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -357,7 +357,7 @@ def run(request, product_id, pipeline_id):
                     send_alerts=send_alerts,
                 ).delay()
 
-            Audit_Log.objects.create(
+            AuditLog.objects.create(
                 user_id=request.user.user_id,
                 event_time=datetime.datetime.now(),
                 action='run-pipeline',
@@ -622,7 +622,7 @@ def upload_pending_file_inline(request):
                 # make sure it's world readable, just to be safe
                 os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
-                Audit_Log.objects.create(
+                AuditLog.objects.create(
                     user_id=request.user.user_id,
                     event_time=datetime.datetime.now(),
                     action='upload-file',

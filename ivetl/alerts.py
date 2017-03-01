@@ -1,7 +1,7 @@
 import json
 import datetime
 from django.core.urlresolvers import reverse
-from ivetl.models import Alert, Notification, Notification_Summary, PublisherMetadata
+from ivetl.models import Alert, Notification, NotificationSummary, PublisherMetadata
 from ivetl.common import common
 
 
@@ -382,7 +382,7 @@ def send_alert_notifications(check_ids=[], publisher_id=None, product_id=None, p
 
                 values_list = [json.loads(n.values_json) for n in notifications_for_alert]
 
-                notification_summary = Notification_Summary.objects.create(
+                notification_summary = NotificationSummary.objects.create(
                     publisher_id=publisher_id,
                     alert_id=alert.alert_id,
                     product_id=product_id,

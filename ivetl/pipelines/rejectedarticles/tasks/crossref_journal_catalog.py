@@ -1,6 +1,6 @@
 import requests
 from cassandra.cqlengine.query import BatchQuery
-from ivetl.models.IssnJournal import Issn_Journal
+from ivetl.models.issn_journal import IssnJournal
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 
@@ -62,11 +62,11 @@ class XREFJournalCatalogTask(Task):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     if issn1 != "":
-                        Issn_Journal.batch(b).create(issn=issn1, journal=journal, publisher=publisher)
+                        IssnJournal.batch(b).create(issn=issn1, journal=journal, publisher=publisher)
                         #print(issn1)
 
                     if issn2 != "":
-                        Issn_Journal.batch(b).create(issn=issn2, journal=journal, publisher=publisher)
+                        IssnJournal.batch(b).create(issn=issn2, journal=journal, publisher=publisher)
                         #print(issn2)
 
                     #print(issn1 + "," + issn2 + ":: " + journal + " / " + publisher)
