@@ -1077,7 +1077,9 @@ def send_email(subject, body, to=EMAIL_TO, bcc=None, format="html"):
         elif format == 'test':
             message.set_text(body)
         message.set_from(EMAIL_FROM)
-        sg.send(message)
+        code, response_body = sg.send(message)
+        print('code is: %s' % code)
+        print('response body is: %s' % response_body)
     except:
         # do nothing
         print("sending of email failed")
