@@ -1,7 +1,8 @@
 import os
+import json
 import importlib
 import sendgrid
-import json
+from sendgrid.helpers.mail import Email, Content, Mail, CustomArg
 
 with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
@@ -1042,6 +1043,7 @@ EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
+SG_API_KEY = "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"
 
 FTP_ADMIN_BCC = 'vizor-support@highwire.org'
 
@@ -1064,22 +1066,14 @@ PINGDOM_ACCOUNTS = [
 ]
 
 
-def send_email(subject, body, to=EMAIL_TO, bcc=None, format="html"):
-    try:
-        sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
-        message = sendgrid.Mail()
-        message.add_to(to)
-        if bcc:
-            message.add_bcc(bcc)
-        message.set_subject(subject)
-        if format == 'html':
-            message.set_html(body)
-        elif format == 'test':
-            message.set_text(body)
-        message.set_from(EMAIL_FROM)
-        code, response_body = sg.send(message)
-        print('code is: %s' % code)
-        print('response body is: %s' % response_body)
-    except:
-        # do nothing
-        print("sending of email failed")
+def send_email(subject, body, to=EMAIL_TO, bcc=None, format="text/html", custom_args=None):
+    sg = sendgrid.SendGridAPIClient(apikey=SG_API_KEY)
+    from_email = Email(EMAIL_FROM)
+    to_email = Email(to)
+    content = Content(format, body)
+    mail = Mail(from_email, subject, to_email, content)
+    if custom_args:
+        for key, value in custom_args.items():
+            mail.add_custom_arg(CustomArg(key, value))
+    response = sg.client.mail.send.post(request_body=mail.get())
+    return response
