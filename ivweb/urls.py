@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from ivweb.app.views import auth, audit, home, users, alerts, notifications, journals, reports, uptime, publishers, pipelines
+from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines, sendgrid
 
 urlpatterns = [
 
@@ -31,9 +31,19 @@ urlpatterns = [
     url(r'^alerts/new/$', alerts.edit, name='alerts.new'),
     url(r'^alerts/(?P<alert_id>[\w\-.]+)/$', alerts.edit, name='alerts.edit'),
 
+    # tableau alerts
+    url(r'^tableaualerts/$', tableau_alerts.list_alerts, name='tableau_alerts.list'),
+    url(r'^tableaualerts/new/$', tableau_alerts.edit, name='tableau_alerts.new'),
+    url(r'^tableaualerts/(?P<alert_id>[\w\-.]+)/$', tableau_alerts.edit, name='tableau_alerts.edit'),
+
+    # sendgrid
+    url(r'^sendgrid/$', sendgrid.event_hook, name='sendgrid.event_hook'),
+
+    # tableau external notifications
+    url(r'^n/(?P<notification_id>[\w\-.]+)/$', tableau_alerts.show_external_notification, name='tableau_alerts.show_external_notification'),
+
     # notifications
     url(r'^notifications/$', notifications.list_notifications, name='notifications.list'),
-    url(r'^external/$', notifications.external, name='notifications.external'),
 
     # journals and citable sections
     url(r'^journals/$', journals.list_journals, name='journals.list'),
@@ -93,5 +103,13 @@ urlpatterns = [
     url(r'^updatereportitem/$', reports.update_item, name='reports.update_item'),
     url(r'^includereportitemstatuses/$', reports.include_item_statuses, name='reports.include_item_statuses'),
     url(r'^deleteuptimeoverride/$', uptime.delete_override, name='uptime.delete_override'),
+    url(r'^deletetableaualert/$', tableau_alerts.delete_alert, name='tableau_alerts.delete_alert'),
+    url(r'^toggletableaualert/$', tableau_alerts.toggle_alert, name='tableau_alerts.toggle_alert'),
+    url(r'^sendtableaualertnow/$', tableau_alerts.send_alert_now, name='tableau_alerts.send_alert_now'),
+    url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
+    url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
+
+    # for testing
+    url(r'^showemail/$', tableau_alerts.show_email),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

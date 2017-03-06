@@ -3,10 +3,10 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 from django.contrib.auth.hashers import make_password as django_make_password
 from django.contrib.auth.hashers import check_password as django_check_password
-from ivetl.models import Publisher_User, PublisherMetadata
+from ivetl.models import PublisherUser, PublisherMetadata
 
 
-class Anonymous_User(object):
+class AnonymousUser(object):
     user_id = ''
     email = ''
     staff = False
@@ -68,5 +68,5 @@ class User(Model):
         if self.superuser:
             return PublisherMetadata.objects.all()
         else:
-            publisher_id_list = [p.publisher_id for p in Publisher_User.objects.filter(user_id=self.user_id)]
+            publisher_id_list = [p.publisher_id for p in PublisherUser.objects.filter(user_id=self.user_id)]
             return PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)

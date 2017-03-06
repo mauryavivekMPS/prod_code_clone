@@ -1,7 +1,8 @@
 import os
+import json
 import importlib
 import sendgrid
-import json
+from sendgrid.helpers.mail import Email, Content, Mail, CustomArg
 
 with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
@@ -713,11 +714,17 @@ PRODUCT_GROUPS = [
         ],
         'tableau_workbooks': [
             'advance_correlator_citation_usage.twb',
+            'alert_advance_correlator_citation_usage_configure.twb',
+            'alert_advance_correlator_citation_usage_export.twb',
             'citation_distribution_surveyor.twb',
             'cohort_comparator.twb',
             'hot_article_tracker.twb',
+            'alert_hot_article_tracker_configure.twb',
+            'alert_hot_article_tracker_export.twb',
             'hot_object_tracker.twb',
             'rejected_article_tracker.twb',
+            'alert_rejected_article_tracker_configure.twb',
+            'alert_rejected_article_tracker_export.twb',
             'section_performance_analyzer.twb',
         ],
     },
@@ -740,6 +747,7 @@ PRODUCT_GROUPS = [
         ],
         'tableau_workbooks': [
             'uv_institutional_usage.twb',
+            'alert_uv_institutional_usage_export.twb',
             'uv_article_usage.twb',
         ]
     },
@@ -760,42 +768,94 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'rejected_article_tracker.twb',
         'name': 'Rejected Article Tracker',
+        'home_view': 'Overview',
+    },
+    {
+        'id': 'alert_rejected_article_tracker_configure.twb',
+        'name': 'alert_rejected_article_tracker_configure',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
+        'id': 'alert_rejected_article_tracker_export.twb',
+        'name': 'alert_rejected_article_tracker_export',
+        'home_view': 'ManuscriptInspector',
+        'admin_only': True,
     },
     {
         'id': 'section_performance_analyzer.twb',
         'name': 'Section Performance Analyzer',
+        'home_view': 'Overview',
     },
     {
         'id': 'hot_article_tracker.twb',
         'name': 'Hot Article Tracker',
+        'home_view': 'Overview',
+    },
+    {
+        'id': 'alert_hot_article_tracker_configure.twb',
+        'name': 'alert_hot_article_tracker_configure',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
+        'id': 'alert_hot_article_tracker_export.twb',
+        'name': 'alert_hot_article_tracker_export',
+        'home_view': 'ManuscriptInspector',
+        'admin_only': True,
     },
     {
         'id': 'hot_object_tracker.twb',
         'name': 'Hot Object Tracker',
+        'home_view': 'Overview',
     },
     {
         'id': 'citation_distribution_surveyor.twb',
         'name': 'Citation Distribution Surveyor',
+        'home_view': 'Overview',
     },
     {
         'id': 'advance_correlator_citation_usage.twb',
         'name': 'Advance Correlator of Citations & Usage',
+        'home_view': 'Overview',
+    },
+    {
+        'id': 'alert_advance_correlator_citation_usage_configure.twb',
+        'name': 'alert_advance_correlator_citation_usage_configure',
+        'home_view': 'Overview',
+        'admin_only': True,
+    },
+    {
+        'id': 'alert_advance_correlator_citation_usage_export.twb',
+        'name': 'alert_advance_correlator_citation_usage_export',
+        'home_view': 'ManuscriptInspector',
+        'admin_only': True,
     },
     {
         'id': 'cohort_comparator.twb',
         'name': 'Cohort Comparator',
+        'home_view': 'Overview',
     },
     {
         'id': 'uv_institutional_usage.twb',
         'name': 'UV: Institutional Usage',
+        'home_view': 'Overview',
+    },
+    {
+        'id': 'alert_uv_institutional_usage_export.twb',
+        'name': 'alert_uv_institutional_usage_export',
+        'home_view': 'ManuscriptInspector',
+        'admin_only': True,
     },
     {
         'id': 'uv_article_usage.twb',
         'name': 'UV: Article Usage',
+        'home_view': 'Overview',
     },
 ]  # type: list[dict]
 
 TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
+TABLEAU_WORKBOOKS_BY_NAME = {w['name']: w for w in TABLEAU_WORKBOOKS}
 TABLEAU_DATASOURCE_FILE_EXTENSION = '.tds'
 TABLEAU_WORKBOOK_FILE_EXTENSION = '.twb'
 TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE = 'blood'
@@ -969,6 +1029,7 @@ AWS_ACCESS_KEY_ID = ENV_PROPERTIES['aws']['access_key_id']
 AWS_SECRET_ACCESS_KEY = ENV_PROPERTIES['aws']['secret_access_key']
 
 TABLEAU_SERVER = os.environ.get('IVETL_TABLEAU_SERVER', '10.0.0.143')
+TABLEAU_IP = os.environ.get('IVETL_TABLEAU_IP', '10.0.0.143')
 TABLEAU_USERNAME = os.environ.get('IVETL_TABLEAU_USERNAME', 'admin')
 TABLEAU_PASSWORD = os.environ.get('IVETL_TABLEAU_PASSWORD', 'admin')
 
@@ -982,6 +1043,7 @@ EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
 SG_PWD = "Hello123!"
+SG_API_KEY = "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"
 
 FTP_ADMIN_BCC = 'vizor-support@highwire.org'
 
@@ -1004,20 +1066,14 @@ PINGDOM_ACCOUNTS = [
 ]
 
 
-def send_email(subject, body, to=EMAIL_TO, bcc=None, format="html"):
-    try:
-        sg = sendgrid.SendGridClient(SG_USERNAME, SG_PWD)
-        message = sendgrid.Mail()
-        message.add_to(to)
-        if bcc:
-            message.add_bcc(bcc)
-        message.set_subject(subject)
-        if format == 'html':
-            message.set_html(body)
-        elif format == 'test':
-            message.set_text(body)
-        message.set_from(EMAIL_FROM)
-        sg.send(message)
-    except:
-        # do nothing
-        print("sending of email failed")
+def send_email(subject, body, to=EMAIL_TO, bcc=None, format="text/html", custom_args=None):
+    sg = sendgrid.SendGridAPIClient(apikey=SG_API_KEY)
+    from_email = Email(EMAIL_FROM)
+    to_email = Email(to)
+    content = Content(format, body)
+    mail = Mail(from_email, subject, to_email, content)
+    if custom_args:
+        for key, value in custom_args.items():
+            mail.add_custom_arg(CustomArg(key, value))
+    response = sg.client.mail.send.post(request_body=mail.get())
+    return response

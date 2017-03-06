@@ -347,6 +347,7 @@ body {
 .demo #left-menu .demo_menu_item,
 .user #left-menu .user_menu_item,
 .alerts #left-menu .alert_menu_item,
+.tableau_alerts #left-menu .tableau_alert_menu_item,
 .notifications #left-menu .notification_menu_item,
 .journals #left-menu .journals_menu_item,
 .audit #left-menu .audit_menu_item,
@@ -466,7 +467,7 @@ body {
             }
         }
 
-        .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
+        .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-tableau-alert-button, .add-demo-button, .run-single-publisher-pipeline-button {
             margin-top: 21px;
             margin-left: 20px;
             float: left;
@@ -486,7 +487,7 @@ body {
                 margin-top: 12px;
             }
 
-            .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .run-single-publisher-pipeline-button {
+            .upload-button, .run-button, .add-new-item-button, .add-publisher-button, .add-user-button, .add-alert-button, .add-tableau-alert-button, .run-single-publisher-pipeline-button {
                 margin-top: 9px;
             }
 
@@ -1127,6 +1128,96 @@ ul.errorlist {
 
 th .status-icon {
     vertical-align: -2px;
+}
+
+// Toggle
+// -------------------------
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 17px;
+
+    &.disabled {
+        opacity: .5;
+    }
+
+    /* Hide default HTML checkbox */
+    input {
+        display: none;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ddd;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 13px;
+        width: 13px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked:not(:disabled) + .slider {
+        background-color: @color-secondary-2-3;
+    }
+
+    input:focus:not(:disabled) + .slider {
+        box-shadow: 0 0 1px @color-secondary-2-3;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(13px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 17px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+    &.small-switch {
+        width: 24px;
+        height: 15px;
+
+        .slider:before {
+            height: 11px;
+            width: 11px;
+            left: 2px;
+            bottom: 2px;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(9px);
+        }
+
+        .slider.round {
+            border-radius: 11px;
+        }
+    }
+}
+
+th .switch, td .switch {
+    margin-top: 2px;
 }
 
 
@@ -1808,6 +1899,11 @@ body.login {
 
 .additional-previous-runs {
     font-size: 13px;
+}
+
+.send-alerts-checkbox {
+    margin-top: 5px;
+    margin-bottom: 15px;
 }
 
 .run-pipeline-for-publisher-inline-form {
@@ -2659,7 +2755,231 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 }
 
 
-// Alert page
+// Alerts
+// -------------------------
+
+.alert-details {
+    font-size: 12px;
+}
+
+.wizard-tabs {
+    list-style: none;
+    padding-left: 0;
+    height: 41px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+
+    li {
+        float: left;
+
+        a {
+            padding: 8px 26px;
+
+            &.disabled {
+                color: #666;
+
+                &:focus, &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+
+        &.active {
+            a {
+                color: #333;
+                background-color: #fafafa;
+
+                &:focus, &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+}
+
+.alerts-table {
+    .delete-col {
+        width: 100px;
+    }
+
+    .send-now-col {
+        width: 100px;
+    }
+
+    .alert-action-button {
+        font-size: 12px;
+        opacity: .4;
+        //color: @brand-danger;
+        text-decoration: none;
+        border-radius: 3px;
+        padding: 5px 7px;
+
+        &:hover, &:focus {
+            //color: @brand-danger;
+            text-decoration: none;
+        }
+
+        &.delete-alert {
+            color: @brand-danger;
+
+            &:hover, &:focus {
+                color: @brand-danger;
+                background-color: #fff3f4;
+            }
+        }
+
+        .lnr {
+            font-size: 13px;
+            vertical-align: -1px;
+        }
+    }
+
+    tr:hover {
+        .alert-action-button {
+            opacity: 1;
+
+            &.delete-alert {
+                color: @brand-danger;
+            }
+        }
+    }
+
+    .alert-sending-now-icon {
+        margin-top: 2px;
+        margin-left: 8px;
+        font-size: 15px;
+    }
+}
+
+.confirm-send-alert-now {
+    .second-textarea-instruction {
+        margin-top: 20px;
+    }
+
+    textarea {
+        height: 100px;
+
+        &:last-of-type {
+            margin-bottom: 20px;
+        }
+    }
+}
+
+.choice-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1px;
+    margin-bottom: 0;
+
+    li {
+        border-top: 1px dotted #eee;
+        padding: 12px 9px;
+        color: #888;
+
+        &:hover, &.selected {
+            cursor: pointer;
+            background-color: #fafafa;
+            color: #333;
+        }
+
+        &.has-widgets {
+            padding-top: 8px;
+            padding-bottom: 8px;
+
+            input[type="text"] {
+                display: inline-block;
+                width: 50px;
+                height: 28px;
+                text-align: center;
+                margin-left: 5px;
+                margin-right: 5px;
+                padding-top: 2px;
+                padding-bottom: 3px;
+            }
+
+            .input-group {
+                display: inline-block;
+                width: 91px;
+                vertical-align: -10px;
+
+                input[type="text"] {
+                    margin-right: 0;
+                }
+            }
+        }
+
+        .choice-icon {
+            margin-right: 10px;
+            margin-left: 5px;
+            font-size: 11px;
+        }
+
+        .selected-choice-icon {
+            display: none;
+        }
+
+        .unselected-choice-icon {
+            color: #ccc;
+        }
+
+        &.selected {
+            .selected-choice-icon {
+                display: inline;
+            }
+
+            .unselected-choice-icon {
+                display: none;
+            }
+        }
+
+        .coming-soon {
+            font-size: 11px;
+            margin-left: 20px;
+            padding: 3px 8px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    }
+}
+
+.wizard-step {
+    padding: 0 15px;
+
+    .wizard-instruction {
+        margin-bottom: 0;
+    }
+
+    .widget-row {
+        margin-bottom: 26px;
+
+        .checkbox {
+            padding-left: 14px;
+            padding-top: 0;
+        }
+    }
+
+    .next-prev-row {
+        margin-top: 20px;
+
+        .right-arrow {
+            font-size: 12px;
+            margin-left: 5px;
+            vertical-align: -1px;
+        }
+    }
+
+    #id_attachment_only_emails, #id_full_emails {
+        height: 100px;
+    }
+
+    #id_custom_message {
+        height: 130px;
+    }
+}
+
 .alert-form .submit-row {
     padding-top: 50px;
     margin-bottom: 30px;
@@ -2671,22 +2991,121 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     top: -90px;
 }
 
-// External notification page
+.alert-summary-table {
+    margin-top: 15px;
+}
+
+.expired-message {
+    margin-top: 60px;
+    text-align: center;
+
+    .expired-icon {
+        font-size: 28px;
+    }
+}
+
+.emails-error-message {
+    font-size: 12px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    color: @brand-danger;
+
+    .error-icon {
+        margin-right: 5px;
+    }
+}
+
+.confirm-select-all-alert {
+    .filter-name, .number-of-values {
+        font-weight: 400;
+    }
+
+    .or-text {
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+}
+
+// External notification report page
 .external-notification-report {
     padding-top: 30px;
+    font-family: Helvetica, sans-serif;
+
+    .container-fluid {
+        width: 1030px !important;
+    }
 
     .notification-report-header-row {
-        padding-bottom: 20px;
+        padding-bottom: 16px;
     }
 
     .notification-report-tile-row {
         border-top: 1px dotted #ccc;
-        padding-top: 20px;
+        padding-top: 30px;
         padding-bottom: 20px;
+    }
+
+    .logo {
+        height: 30px;
+        float: left
+    }
+
+    h1 {
+        margin-left: 50px;
+        margin-top: 0;
+        margin-bottom: 5px;
+        padding-top: 0;
+        font-size: 24px;
+    }
+
+    .notification-date {
+        margin-left: 50px;
+        color: #888;
+        font-weight: 200;
+        font-size: 12px;
+
+        b {
+            font-weight: 200;
+            color: #333;
+        }
     }
 }
 
-// citable sections
+.embedded-report-controls > .row {
+    background: url(/static/dist/diagonal-noise.png) repeat center center fixed;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 5px;
+}
+
+.embedded-report-container {
+    &.configure-report {
+        height: 500px;
+    }
+}
+
+.alert-summary {
+    border: 1px dotted #ccc;
+    margin-left: 20px;
+    padding-left: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    padding-top: 5px;
+
+    h2.name {
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .properties li {
+        color: #666;
+    }
+}
+
+// Citable sections
 .journals {
     .journal-publisher-id {
         color: #777;

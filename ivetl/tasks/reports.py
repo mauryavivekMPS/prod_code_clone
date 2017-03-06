@@ -1,6 +1,6 @@
 import datetime
 from ivetl.common import common
-from ivetl.models import PublisherMetadata, Audit_Log, SingletonTaskStatus
+from ivetl.models import PublisherMetadata, AuditLog, SingletonTaskStatus
 from ivetl.connectors import TableauConnector
 from ivetl.celery import app
 
@@ -34,7 +34,7 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
             publisher.reports_user_id = user_id
             publisher.save()
 
-            Audit_Log.objects.create(
+            AuditLog.objects.create(
                 user_id=initiating_user_id,
                 event_time=datetime.datetime.now(),
                 action='setup-reports',
@@ -92,7 +92,7 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
                 if item_id in publisher.all_datasources:
                     t.add_datasource_to_project(publisher, item_id)
 
-        Audit_Log.objects.create(
+        AuditLog.objects.create(
             user_id=initiating_user_id,
             event_time=datetime.datetime.now(),
             action='update-' + item_type,

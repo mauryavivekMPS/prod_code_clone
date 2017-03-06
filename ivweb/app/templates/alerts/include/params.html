@@ -20,10 +20,3 @@
         </div>
     {% endfor %}
 {% endif %}
-
-<script>
-    $(function() {
-        EditAlertPage.setParams({{ check.check_type.params|safe|default:"{}" }});
-        EditAlertPage.checkForm();
-    });
-</script>

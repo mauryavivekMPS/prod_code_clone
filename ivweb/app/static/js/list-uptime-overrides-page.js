@@ -27,8 +27,8 @@ $.widget("custom.listuptimeoverridespage", {
                 m.modal('hide');
 
                 var data = {
-                    'override_id': overrideId,
-                    'csrfmiddlewaretoken': self.options.csrfToken
+                    override_id: overrideId,
+                    csrfmiddlewaretoken: self.options.csrfToken
                 };
 
                 $.post('/deleteuptimeoverride/', data)

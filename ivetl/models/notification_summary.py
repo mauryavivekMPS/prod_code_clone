@@ -3,7 +3,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Notification_Summary(Model):
+class NotificationSummary(Model):
     notification_summary_id = columns.UUID(primary_key=True, default=uuid.uuid4)
     alert_id = columns.UUID(primary_key=True)
     publisher_id = columns.Text(partition_key=True)

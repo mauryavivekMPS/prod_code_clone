@@ -9,7 +9,7 @@ from ivetl.models import PipelineStatus, PublisherMetadata
 @app.task
 class JR3InstitutionUsagePipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None, send_alerts=False):
         pipeline_id = 'jr3_institution_usage'
         now, today_label, job_id = self.generate_job_id()
 
@@ -51,6 +51,7 @@ class JR3InstitutionUsagePipeline(Pipeline):
                     'job_id': job_id,
                     'uploaded_files': files,
                     'preserve_incoming_files': preserve_incoming_files,
+                    'send_alerts': send_alerts,
                 }
 
                 # and run the pipeline!

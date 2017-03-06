@@ -3,7 +3,7 @@ import codecs
 import json
 import datetime
 from ivetl.celery import app
-from ivetl.models import PublishedArticle, ArticleCitations, Publisher_Vizor_Updates
+from ivetl.models import PublishedArticle, ArticleCitations, PublisherVizorUpdates
 from ivetl.pipelines.task import Task
 
 
@@ -106,12 +106,11 @@ class InsertScopusIntoCassandra(Task):
 
             tsv.close()
 
-            Publisher_Vizor_Updates.create(
+            PublisherVizorUpdates.create(
                 publisher_id=publisher_id,
                 vizor_id=pipeline_id,
                 updated=updated_date,
             )
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

@@ -6,7 +6,7 @@ from datetime import datetime
 import cassandra.util
 from cassandra.cqlengine.query import BatchQuery
 from ivetl.celery import app
-from ivetl.models import Publisher_Vizor_Updates, RejectedArticles
+from ivetl.models import PublisherVizorUpdates, RejectedArticles
 from ivetl.pipelines.task import Task
 
 
@@ -196,15 +196,14 @@ class InsertIntoCassandraDBTask(Task):
 
                 tlogger.info("Inserting record")
 
-            pu = Publisher_Vizor_Updates()
+            pu = PublisherVizorUpdates()
             pu['publisher_id'] = publisher_id
             pu['vizor_id'] = 'rejected_articles'
             pu['updated'] = updated
             pu.save()
 
-        return {
-            'count': count,
-        }
+        task_args['count'] = count
+        return task_args
 
 
 def unix_time(dt):

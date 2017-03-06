@@ -1,0 +1,294 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}{% if alert %}{{ alert.name }}{% else %}New Alert{% endif %}{% endblock %}
+{% block body_class %}tableau-alerts{% endblock %}
+
+{% block content %}
+    <div id="edit-tableau-alert-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'tableau_alerts.list' %}">Alerts</a></li>
+                    <li></li>
+                </ol>
+                <h1>{% if alert %}{{ alert.name }}{% else %}New Alert{% endif %}</h1>
+            </div>
+        </div>
+
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="wizard-tabs">
+                        <li class="active choose-alert-tab active"><a href="#" class="choose-alert-button">1. Choose Alert</a></li>
+                        <li class="configure-notifications-tab"><a href="#" class="configure-notifications-button disabled">2. Configure Emails</a></li>
+                        <li class="set-filters-tab filter-configuration"><a href="#" class="set-filters-button disabled">3. Set Filters</a></li>
+                        <li class="review-tab">
+                            <a href="#" class="review-button disabled">
+                                <span class="filter-configuration">4. Review and Save</span>
+                                <span class="no-filter-configuration" style="display:none">3. Review and Save</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <form class="form-horizontal alert-form" method="post">
+                        {% csrf_token %}
+                        {{ form.alert_id }}
+                        {{ form.template_id }}
+                        {{ form.alert_params }}
+                        {{ form.alert_filters }}
+
+                        <div id="step-choose-alert" class="wizard-step">
+
+                            <div class="publisher-controls" {% if single_publisher_user %}style="display:none"{% endif %}>
+                                <div class="row instruction-row">
+                                    <div class="col-sm-8">
+                                        <p>Select a publisher:</p>
+                                    </div>
+                                </div>
+
+                                <div class="row widget-row">
+                                    <div class="col-sm-8">
+                                        {{ form.publisher_id }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert-type-controls" style="display:none">
+                                <div class="row instruction-row">
+                                    <div class="col-sm-8">
+                                        <p>Send me an email:</p>
+                                    </div>
+                                </div>
+
+                                <div class="row widget-row">
+                                    <div class="col-sm-12">
+                                        <ul class="choice-list alert-type-choice-list">
+                                            <li alert_type="scheduled" class="{% if template.type == 'scheduled' %}selected{% endif %}">
+                                                <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
+                                                <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
+                                                As soon as the Vizor is updated with new data
+                                            </li>
+                                            <li alert_type="threshold" class="{% if template.type == 'threshold' %}selected{% endif %}">
+                                                <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
+                                                <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
+                                                When configured thresholds are exceeded, e.g. citations greater than <i>n</i>
+                                                <span class="coming-soon">Coming soon!</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                           <div class="alert-choice-controls" style="display:none">
+                                <div class="row instruction-row">
+                                    <div class="col-sm-8">
+                                        <p class="article-type-instructions-scheduled" {% if template.type != 'scheduled' %}style="display:none"{% endif %}>Include the following Vizor:</p>
+                                        <p class="article-type-instructions-threshold" {% if template.type != 'threshold' %}style="display:none"{% endif %}>Notify me about:</p>
+                                    </div>
+                                </div>
+
+                                <div class="row widget-row">
+                                    <div class="col-sm-12">
+                                        <div class="template-choices-control-container">
+                                            {% include "tableau_alerts/include/template_choices.html" %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row next-prev-row">
+                                <button type="button" class="btn btn-primary configure-notifications-button disabled" disabled="disabled">
+                                    Next, Configure Emails <i class="lnr lnr-arrow-right right-arrow"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="step-configure-notifications" class="wizard-step" style="display:none">
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Choose a subject for the email:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    {{ form.name }}
+                                </div>
+                            </div>
+
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Send notification emails to the following recipients with an attached static PDF report:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    {{ form.attachment_only_emails }}
+                                    <p class="attachment-only-emails-error-message emails-error-message" style="display: none">
+                                        <span class="lnr lnr-warning error-icon"></span>
+                                        One or more of the email addresses listed above is invalid
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Send emails to the following recipients with the PDF <b>and a link to the active report</b>:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    {{ form.full_emails }}
+                                    <p class="full-emails-error-message emails-error-message" style="display: none">
+                                        <span class="lnr lnr-warning error-icon"></span>
+                                        One or more of the email addresses listed above is invalid
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Include the following customized message in the email:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    {{ form.custom_message }}
+                                </div>
+                            </div>
+
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Notification options:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    <div class="checkbox">
+                                        <label>{{ form.send_with_no_data }} Send notification emails even when there are no updates or matching records</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row next-prev-row">
+                                <button type="button" class="btn btn-primary set-filters-button disabled" disabled="disabled">
+                                    Next, Set Filters <i class="lnr lnr-arrow-right right-arrow"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="step-set-filters" class="wizard-step" style="display:none">
+                            <div class="row instruction-row">
+                                <div class="col-sm-12">
+                                    <p>Use the filter controls in the embedded report below to narrow the set of articles included in this alert:</p>
+                                </div>
+                            </div>
+
+                            <div class="embedded-report-controls" style="display:none">
+                                <div class="row widget-row">
+                                    <div class="col-sm-12">
+                                        <div class="embedded-report-container configure-report"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row next-prev-row">
+                                <button type="button" class="btn btn-primary review-button disabled" disabled="disabled">
+                                    Next, Review and Save <i class="lnr lnr-arrow-right right-arrow"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div id="step-review" class="wizard-step" style="display:none">
+                            <div class="row instruction-row">
+                                <div class="col-sm-8">
+                                    <p>Your new alert is ready to be created with the following settings:</p>
+                                </div>
+                            </div>
+
+                            <div class="row widget-row">
+                                <div class="col-sm-8">
+                                    <table class="table alert-summary-table">
+                                        <tbody>
+                                            <tr>
+                                                <th>Alert Name:</th>
+                                                <td class="name-summary-item"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Publisher:</th>
+                                                <td class="publisher-summary-item"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Alert Type:</th>
+                                                <td class="alert-summary-item"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Attachment-only recipients:</th>
+                                                <td class="attachment-only-emails-summary-item"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Live report link recipients:</th>
+                                                <td class="full-emails-summary-item"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Report filters:</th>
+                                                <td class="filter-summary-item"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="form-group row next-prev-row">
+                                <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled">
+                                    Create Alert
+                                </button>
+                                <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled" name="send_notification" value="1">
+                                    Create Alert and Send Email Now
+                                </button>
+                                <span class="cancel">or <a href="../">Cancel</a></span>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade confirm-select-all-alert" id="confirm-select-all-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p class="confirm-select-all-question">Did you want to select all values for the <span class="filter-name"></span> filter
+                            or only the <span class="number-of-values"></span> specific values that are selected?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary use-all-values-button">Use All Values</button>
+                        <span class="or-text">or</span>
+                        <button type="button" class="btn btn-primary use-specific-values-button">Use Only <span class="number-of-values"></span> Selected Values</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#edit-tableau-alert-page').edittableaualertpage({
+                editExisting: {% if alert %}true{% else %}false{% endif %},
+                templateChoicesUrl: '{% url 'tableau_alerts.include_template_choices' %}',
+                trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
+                isSinglePublisherUser: {% if single_publisher_user %}true{% else %}false{% endif %}
+            });
+        });
+    </script>
+{% endblock %}

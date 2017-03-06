@@ -6,7 +6,7 @@ from ivetl.models import PublisherMetadata, PublisherJournal
 @app.task
 class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None, send_alerts=False):
         pipeline_id = "benchpress_rejected_articles"
 
         now, today_label, job_id = self.generate_job_id()
@@ -42,6 +42,7 @@ class GetRejectedArticlesFromBenchPressPipeline(Pipeline):
                 'job_id': job_id,
                 'from_date': self.to_json_date(from_date),
                 'to_date': self.to_json_date(to_date),
+                'send_alerts': send_alerts,
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)

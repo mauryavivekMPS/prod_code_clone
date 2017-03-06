@@ -59,7 +59,7 @@ class InsertArticleUsageIntoCassandra(Task):
 
         modified_articles_file.close()
 
-        return {
-            'count': count,
-            'input_file': modified_articles_file_name,
-        }
+        task_args['count'] = count
+        task_args['input_file'] = modified_articles_file_name
+        return task_args
+

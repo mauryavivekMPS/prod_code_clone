@@ -1,13 +1,16 @@
 import os
 import re
+import csv
 import untangle
 import requests
 import subprocess
 import time
+import tempfile
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
+from ivetl.models import WorkbookUrl
 
 
 class TableauConnector(BaseConnector):
@@ -207,7 +210,7 @@ class TableauConnector(BaseConnector):
         url = self.server_url + "/api/2.0/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
         response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
-        all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.workbooks.workbook]
+        all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id'], 'url': d['contentUrl']} for d in r.workbooks.workbook]
 
         if project_id:
             filtered_workbooks = [w for w in all_workbooks if w['project_id'] == project_id]
@@ -293,7 +296,16 @@ class TableauConnector(BaseConnector):
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
 
-        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response.raise_for_status()
+
+        r = untangle.parse(response.text).tsResponse
+
+        datasource_tableau_id = r.datasource['id']
+
+        return {
+            'tableau_id': datasource_tableau_id,
+        }
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
@@ -333,10 +345,38 @@ class TableauConnector(BaseConnector):
             'tableau_workbook': (publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, prepared_workbook_binary, 'application/octet-stream'),
         })
 
-        return requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response.raise_for_status()
+
+        r = untangle.parse(response.text).tsResponse
+
+        workbook_url = r.workbook['contentUrl']
+        workbook_tableau_id = r.workbook['id']
+
+        WorkbookUrl.objects(
+            publisher_id=publisher.publisher_id,
+            workbook_id=workbook_id,
+        ).update(
+            url=workbook_url
+        )
+
+        return {
+            'url': workbook_url,
+            'tableau_id': workbook_tableau_id,
+        }
+
+    def remove_group_permissions_for_workbook(self, group_id, workbook_tableau_id):
+        self._check_authentication()
+        for capability in ['Read', 'Filter', 'ViewUnderlyingData', 'ExportData', 'ExportImage']:
+            url = self.server_url + "/api/2.0/sites/%s/workbooks/%s/permissions/groups/%s/%s/Allow" % (
+                self.site_id,
+                workbook_tableau_id,
+                group_id,
+                capability
+            )
+            requests.delete(url, headers={'X-Tableau-Auth': self.token})
 
     def update_datasources_and_workbooks(self, publisher):
-
         required_datasource_ids = set()
         for product_group_id in publisher.supported_product_groups:
             for datasource_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources']:
@@ -362,14 +402,19 @@ class TableauConnector(BaseConnector):
 
         workbook_id_lookup = {w['name']: w['id'] for w in common.TABLEAU_WORKBOOKS}
         existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
-        existing_workbook_ids = set([workbook_id_lookup[w['name']] for w in existing_workbooks])
-        workbook_tableau_id_lookup = {workbook_id_lookup[d['name']]: d['id'] for d in existing_workbooks}
+        existing_workbook_ids = set([workbook_id_lookup[w['name']] for w in existing_workbooks if w['name'] in workbook_id_lookup])
+        workbook_tableau_id_lookup = {workbook_id_lookup[d['name']]: d['id'] for d in existing_workbooks if d['name'] in workbook_id_lookup}
 
         for workbook_id in existing_workbook_ids - required_workbook_ids:
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
-            self.add_workbook_to_project(publisher, workbook_id)
+            workbook_results = self.add_workbook_to_project(publisher, workbook_id)
+
+            # remove group permissions if this is an admin_only template
+            if common.TABLEAU_WORKBOOKS_BY_ID[workbook_id].get('admin_only', False):
+                workbook_tableau_id = workbook_results['tableau_id']
+                self.remove_group_permissions_for_workbook(publisher.reports_group_id, workbook_tableau_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 
@@ -388,5 +433,20 @@ class TableauConnector(BaseConnector):
 
         return project_id, group_id, user_id
 
-    def generate_png_report(self, view_url):
-        subprocess.call([common.TABCMD, 'get', view_url, '-f', '/tmp/image-test.png'] + self._tabcmd_login_params())
+    def check_report_for_data(self, view_url):
+        file_handle, file_path = tempfile.mkstemp()
+        subprocess.call([common.TABCMD, 'export', view_url, '--csv', '-f', file_path] + self._tabcmd_login_params())
+
+        num_records = 0
+        try:
+            with open(file_path) as f:
+                reader = csv.DictReader(f)
+                line = next(reader)
+                num_records = int(str(line['Number of Records'].replace(',', '')))
+        except:
+            # swallow everything, assume the worst
+            pass
+
+        os.remove(file_path)
+
+        return num_records > 0

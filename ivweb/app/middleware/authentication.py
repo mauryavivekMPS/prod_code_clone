@@ -1,4 +1,4 @@
-from ivetl.models import User, Anonymous_User
+from ivetl.models import User, AnonymousUser
 
 
 class AuthenticationMiddleware(object):
@@ -14,6 +14,6 @@ class AuthenticationMiddleware(object):
                 pass
 
         if not user:
-            user = Anonymous_User()
+            user = AnonymousUser()
 
         request.user = user

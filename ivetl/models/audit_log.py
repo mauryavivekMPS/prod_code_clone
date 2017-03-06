@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class Audit_Log(Model):
+class AuditLog(Model):
     user_id = columns.UUID(primary_key=True)
     event_time = columns.DateTime(primary_key=True)
     action = columns.Text(primary_key=True)

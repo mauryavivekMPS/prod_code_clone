@@ -6,7 +6,7 @@ from ivetl.models import PublisherMetadata
 @app.task
 class UpdateArticleCitationsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "article_citations"
         now, today_label, job_id = self.generate_job_id()
 
@@ -31,6 +31,7 @@ class UpdateArticleCitationsPipeline(Pipeline):
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'reprocess_errors': False,
+                'send_alerts': send_alerts,
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)

@@ -7,7 +7,7 @@ from ivetl.common import common
 @app.task
 class WeeklyAlertsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "weekly_site_uptime_alerts"
 
         # this pipeline operates on the global publisher ID
@@ -28,6 +28,7 @@ class WeeklyAlertsPipeline(Pipeline):
             'work_folder': work_folder,
             'job_id': job_id,
             'to_date': self.to_json_date(now - datetime.timedelta(days=1)),
+            'send_alerts': send_alerts,
         }
 
         Pipeline.chain_tasks(pipeline_id, task_args)

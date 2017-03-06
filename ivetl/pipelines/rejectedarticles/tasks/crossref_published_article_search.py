@@ -5,7 +5,7 @@ import json
 import re
 from datetime import timedelta
 from datetime import date
-from ivetl.models.IssnJournal import Issn_Journal
+from ivetl.models.issn_journal import IssnJournal
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import CrossrefConnector
@@ -156,7 +156,7 @@ class XREFPublishedArticleSearchTask(Task):
 
         # build Issn Journal List
         issn_journals = {}
-        for ij in Issn_Journal.objects.fetch_size(1000).limit(self.ISSN_JNL_QUERY_LIMIT):
+        for ij in IssnJournal.objects.fetch_size(1000).limit(self.ISSN_JNL_QUERY_LIMIT):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
 
         count = 0
@@ -433,7 +433,6 @@ class XREFPublishedArticleSearchTask(Task):
         target_file.close()
         matcher_debug_file.close()
 
-        return {
-            'input_file': target_file_name,
-            'count': count,
-        }
+        task_args['count'] = count
+        task_args['input_file'] = target_file_name
+        return task_args
