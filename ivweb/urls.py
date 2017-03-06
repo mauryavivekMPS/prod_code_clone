@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines
+from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines, sendgrid
 
 urlpatterns = [
 
@@ -35,6 +35,9 @@ urlpatterns = [
     url(r'^tableaualerts/$', tableau_alerts.list_alerts, name='tableau_alerts.list'),
     url(r'^tableaualerts/new/$', tableau_alerts.edit, name='tableau_alerts.new'),
     url(r'^tableaualerts/(?P<alert_id>[\w\-.]+)/$', tableau_alerts.edit, name='tableau_alerts.edit'),
+
+    # sendgrid
+    url(r'^sendgrid/$', sendgrid.event_hook, name='sendgrid.event_hook'),
 
     # tableau external notifications
     url(r'^n/(?P<notification_id>[\w\-.]+)/$', tableau_alerts.show_external_notification, name='tableau_alerts.show_external_notification'),

@@ -6,7 +6,7 @@ from cassandra.cqlengine.models import Model
 
 
 class TableauAlert(Model):
-    alert_id = columns.UUID(primary_key=True, default=uuid.uuid4, index=True)
+    alert_id = columns.UUID(primary_key=True, default=uuid.uuid4)
     publisher_id = columns.Text(partition_key=True)
     name = columns.Text()
     template_id = columns.Text(primary_key=True)
