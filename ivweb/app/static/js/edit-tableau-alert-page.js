@@ -381,8 +381,8 @@ $.widget("custom.edittableaualertpage", {
 
         if (publisherId && templateId) {
             $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
-            $('.publisher-summary-item').html('New alert for: ' + publisherId);
-            $('.alert-summary-item').html('Alert type: ' + templateId);
+            $('.publisher-summary-item').html(publisherId);
+            $('.alert-summary-item').html($('.template-choice-list .selected').text().trim());
         }
         else {
             $('.configure-notifications-button').addClass('disabled').prop('disabled', false);
@@ -446,18 +446,18 @@ $.widget("custom.edittableaualertpage", {
 
         if (name && (atLeastOneAttachmentOnlyEmail || atLeastOneFullEmail) && validAttachmentOnlyEmails && validFullEmails) {
             $('.set-filters-button').removeClass('disabled').prop('disabled', false);
-            $('.name-summary-item').html('A new alert called: ' + name);
+            $('.name-summary-item').html(name);
             if (attachmentOnlyEmails) {
-                $('.attachment-only-emails-summary-item').html('Attachment-only emails for: ' + attachmentOnlyEmails);
+                $('.attachment-only-emails-summary-item').html(attachmentOnlyEmails);
             }
             else {
-                $('.attachment-only-emails-summary-item').html('No attachment-only emails will be sent');
+                $('.attachment-only-emails-summary-item').html('None');
             }
             if (fullEmails) {
-                $('.full-emails-summary-item').html('Full emails for: ' + fullEmails);
+                $('.full-emails-summary-item').html(fullEmails);
             }
             else {
-                $('.full-emails-summary-item').html('No full emails will be sent');
+                $('.full-emails-summary-item').html('None');
             }
             $('.review-button').removeClass('disabled').prop('disabled', false);
             $('.submit-button').removeClass('disabled').prop('disabled', false);
@@ -470,7 +470,7 @@ $.widget("custom.edittableaualertpage", {
 
         var filters = $('#id_alert_filters').val();
         if (filters) {
-            $('.filter-summary-item').html('Apply filters: ' + filters);
+            $('.filter-summary-item').html(filters);
         }
         else {
             $('.filter-summary-item').html('No filters');
@@ -478,7 +478,7 @@ $.widget("custom.edittableaualertpage", {
 
         var parameters = $('#id_alert_params').val();
         if (parameters) {
-            $('.parameter-summary-item').html('Apply parameters: ' + parameters);
+            $('.parameter-summary-item').html(parameters);
         }
         else {
             $('.parameter-summary-item').html('No parameters');

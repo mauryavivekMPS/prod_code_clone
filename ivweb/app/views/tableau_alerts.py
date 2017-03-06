@@ -158,7 +158,7 @@ class TableauAlertForm(forms.Form):
 def edit(request, alert_id=None):
 
     if alert_id:
-        alert = TableauAlert.objects.get(alert_id=alert_id)
+        alert = TableauAlert.objects.allow_filtering().get(alert_id=alert_id)
         new = False
     else:
         alert = None
