@@ -34,167 +34,66 @@ class InsertIntoCassandraDBTask(Task):
 
                 tlogger.info("\n" + str(count-1) + " of " + str(total_count) + ". Processing record: " + publisher_id + " / " + manuscript_id)
 
+                # special case skip
                 if publisher_id == 'aaas' and (data['submitted_journal'] == 'Signaling' or data['submitted_journal'] == 'Translational Medicine'):
                     continue
 
-                b = BatchQuery()
+                authors_match_score = data.get('author_match_score')
+                if authors_match_score:
+                    authors_match_score = Decimal(authors_match_score)
 
-                existing_record = RejectedArticles.objects.filter(publisher_id=publisher_id, manuscript_id=manuscript_id).first()
+                crossref_match_score = data.get('xref_score')
+                if crossref_match_score:
+                    crossref_match_score = Decimal(crossref_match_score)
 
-                if existing_record:
-                    if data['status'] == "Not Published":
-                        if existing_record['status'] == "Not Published":
-                            tlogger.info("No change from previous run (Not Published), skipping")
-                            continue
-                        else:
-                            tlogger.info("Manuscript changed status from last run, deleting existing record")
-                            existing_record.batch(b).delete()
+                date_of_publication = data.get('xref_publishdate')
+                if date_of_publication:
+                    date_of_publication = to_datetime(date_of_publication)
 
-                    elif data['status'] == 'Published & Not Cited':
-                        if existing_record['status'] == "Published & Not Cited" and data['xref_doi'] == existing_record['crossref_doi']:
-                            tlogger.info("No change from previous run (Published & Not Cited), skipping")
+                date_of_rejection = data.get('date_of_rejection')
+                if date_of_rejection:
+                    date_of_rejection = to_datetime(date_of_rejection)
 
-                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
-                                existing_record['mendeley_saves'] = int(data['mendeley_saves'])
-                                existing_record.save()
+                RejectedArticles.objects(
+                    publisher_id=publisher_id,
+                    manuscript_id=manuscript_id
+                ).update(
+                    rejected_article_id=cassandra.util.uuid_from_time(updated),
+                    article_type=data.get('article_type'),
+                    authors_match_score=authors_match_score,
+                    citation_lookup_status=data.get('citation_lookup_status'),
+                    co_authors=data.get('co_authors'),
+                    corresponding_author=data.get('corresponding_author'),
+                    crossref_doi=data.get('xref_doi'),
+                    crossref_match_score=crossref_match_score,
+                    custom=data.get('custom'),
+                    date_of_publication=date_of_publication,
+                    date_of_rejection=date_of_rejection,
+                    editor=data.get('editor'),
+                    first_author=data.get('first_author'),
+                    keywords=data.get('keywords'),
+                    manuscript_title=data.get('title'),
+                    published_co_authors=data.get('xref_co_authors_ln_fn'),
+                    published_first_author=data.get('xref_first_author'),
+                    published_journal=data.get('xref_journal'),
+                    published_journal_issn=data.get('xref_journal_issn'),
+                    published_publisher=data.get('xref_published_publisher'),
+                    published_title=data.get('xref_title'),
+                    reject_reason=data.get('reject_reason'),
+                    scopus_doi_status=data.get('scopus_doi_status'),
+                    scopus_id=data.get('scopus_id'),
+                    source_file_name=data.get('source_file_name'),
+                    status=data.get('status'),
+                    subject_category=data.get('subject_category'),
+                    submitted_journal=data.get('submitted_journal'),
+                    preprint_doi=data.get('preprint_doi'),
+                    mendeley_saves=int(data.get('mendeley_saves', 0)),
+                    citations=int(data.get('citations', 0)),
+                    updated=updated,
+                    created=updated,
+                )
 
-                            continue
-                        else:
-                            tlogger.info("Manuscript changed status from last run, deleting existing record")
-                            existing_record.batch(b).delete()
-
-                    elif data['status'] == 'Published & Citation Info Unavailable':
-                        if existing_record['status'] == "Published & Citation Info Unavailable" and data['xref_doi'] == existing_record['crossref_doi']:
-                            tlogger.info("No change from previous run (Published & Citation Info Unavailable), skipping")
-
-                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
-                                existing_record['mendeley_saves'] = int(data['mendeley_saves'])
-                                existing_record.save()
-
-                            continue
-                        else:
-                            tlogger.info("Manuscript changed status from last run, deleting existing record")
-                            existing_record.batch(b).delete()
-
-                    elif data['status'] == "Published & Cited":
-                        if existing_record['status'] == "Published & Cited" and data['xref_doi'] == existing_record['crossref_doi']:
-                            tlogger.info("Matched (Published & Cited) in previous run, updating citation count")
-
-                            if 'citations' in data and data['citations'] is not None and (data['citations'] != ''):
-                                existing_record['citations'] = int(data.get('citations', 0))
-
-                            if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
-                                existing_record['mendeley_saves'] = int(data.get('mendeley_saves', 0))
-
-                            existing_record.save()
-                            continue
-                        else:
-                            tlogger.info("Manuscript changed status from last run, deleting existing record")
-                            existing_record.batch(b).delete()
-
-                ra = RejectedArticles()
-
-                ra['publisher_id'] = publisher_id
-                ra['rejected_article_id'] = cassandra.util.uuid_from_time(updated)
-                ra['manuscript_id'] = manuscript_id
-                ra['updated'] = updated
-                ra['created'] = updated
-
-                if 'article_type' in data and data['article_type'] is not None and (data['article_type'] != ''):
-                    ra['article_type'] = data['article_type']
-
-                if 'author_match_score' in data and data['author_match_score'] is not None and (data['author_match_score'] != ''):
-                    ra['authors_match_score'] = Decimal(data['author_match_score'])
-
-                if 'citation_lookup_status' in data and data['citation_lookup_status'] is not None and (data['citation_lookup_status'] != ''):
-                    ra['citation_lookup_status'] = data['citation_lookup_status']
-
-                if 'citations' in data and data['citations'] is not None and (data['citations'] != ''):
-                    ra['citations'] = int(data['citations'])
-
-                if 'co_authors' in data and data['co_authors'] is not None and (data['co_authors'] != ''):
-                    ra['co_authors'] = data['co_authors']
-
-                if 'corresponding_author' in data and data['corresponding_author'] is not None and (data['corresponding_author'] != ''):
-                    ra['corresponding_author'] = data['corresponding_author']
-
-                if 'xref_doi' in data and data['xref_doi'] is not None and (data['xref_doi'] != ''):
-                    ra['crossref_doi'] = data['xref_doi']
-
-                if 'xref_score' in data and data['xref_score'] is not None and (data['xref_score'] != ''):
-                    ra['crossref_match_score'] = Decimal(data['xref_score'])
-
-                if 'custom' in data and data['custom'] is not None and (data['custom'] != ''):
-                    ra['custom'] = data['custom']
-
-                if 'xref_publishdate' in data and data['xref_publishdate'] is not None and (data['xref_publishdate'] != ''):
-                    ra['date_of_publication'] = to_datetime(data['xref_publishdate'])
-
-                if 'date_of_rejection' in data and data['date_of_rejection'] is not None and (data['date_of_rejection'] != ''):
-                    ra['date_of_rejection'] = to_datetime(data['date_of_rejection'])
-
-                if 'editor' in data and data['editor'] is not None and (data['editor'] != ''):
-                    ra['editor'] = data['editor']
-
-                if 'first_author' in data and data['first_author'] is not None and (data['first_author'] != ''):
-                    ra['first_author'] = data['first_author']
-
-                if 'keywords' in data and data['keywords'] is not None and (data['keywords'] != ''):
-                    ra['keywords'] = data['keywords']
-
-                if 'title' in data and data['title'] is not None and (data['title'] != ''):
-                    ra['manuscript_title'] = data['title']
-
-                if 'xref_co_authors_ln_fn' in data and data['xref_co_authors_ln_fn'] is not None and (data['xref_co_authors_ln_fn'] != ''):
-                    ra['published_co_authors'] = data['xref_co_authors_ln_fn']
-
-                if 'xref_first_author' in data and data['xref_first_author'] is not None and (data['xref_first_author'] != ''):
-                    ra['published_first_author'] = data['xref_first_author']
-
-                if 'xref_journal' in data and data['xref_journal'] is not None and (data['xref_journal'] != ''):
-                    ra['published_journal'] = data['xref_journal']
-
-                if 'xref_journal_issn' in data and data['xref_journal_issn'] is not None and (data['xref_journal_issn'] != ''):
-                    ra['published_journal_issn'] = data['xref_journal_issn']
-
-                if 'xref_published_publisher' in data and data['xref_published_publisher'] is not None and (data['xref_published_publisher'] != ''):
-                    ra['published_publisher'] = data['xref_published_publisher']
-
-                if 'xref_title' in data and data['xref_title'] is not None and (data['xref_title'] != ''):
-                    ra['published_title'] = data['xref_title']
-
-                if 'reject_reason' in data and data['reject_reason'] is not None and (data['reject_reason'] != ''):
-                    ra['reject_reason'] = data['reject_reason']
-
-                if 'scopus_doi_status' in data and data['scopus_doi_status'] is not None and (data['scopus_doi_status'] != ''):
-                    ra['scopus_doi_status'] = data['scopus_doi_status']
-
-                if 'scopus_id' in data and data['scopus_id'] is not None and (data['scopus_id'] != ''):
-                    ra['scopus_id'] = data['scopus_id']
-
-                if 'source_file_name' in data and data['source_file_name'] is not None and (data['source_file_name'] != ''):
-                    ra['source_file_name'] = data['source_file_name']
-
-                if 'status' in data and data['status'] is not None and (data['status'] != ''):
-                    ra['status'] = data['status']
-
-                if 'subject_category' in data and data['subject_category'] is not None and (data['subject_category'] != ''):
-                    ra['subject_category'] = data['subject_category']
-
-                if 'submitted_journal' in data and data['submitted_journal'] is not None and (data['submitted_journal'] != ''):
-                    ra['submitted_journal'] = data['submitted_journal']
-
-                if 'mendeley_saves' in data and data['mendeley_saves'] is not None and (data['mendeley_saves'] != ''):
-                    ra['mendeley_saves'] = int(data['mendeley_saves'])
-
-                if 'preprint_doi' in data and data['preprint_doi'] is not None and (data['preprint_doi'] != ''):
-                    ra['preprint_doi'] = data['preprint_doi']
-
-                ra.batch(b).save()
-
-                b.execute()
-
-                tlogger.info("Inserting record")
+                tlogger.info("Inserting or updating record")
 
             pu = Publisher_Vizor_Updates()
             pu['publisher_id'] = publisher_id
