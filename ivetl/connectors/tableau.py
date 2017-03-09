@@ -91,7 +91,7 @@ class TableauConnector(BaseConnector):
 
     def add_group_to_project(self, group_id, project_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/projects/%s/permissions" % (self.site_id, project_id)
+        url = self.server_url + "/api/2.5/sites/%s/projects/%s/permissions" % (self.site_id, project_id)
 
         request_string = """
             <tsRequest>
@@ -100,16 +100,7 @@ class TableauConnector(BaseConnector):
                     <granteeCapabilities>
                         <group id="%s" />
                         <capabilities>
-                            <capability name="Connect" mode="Allow" />
                             <capability name="Read" mode="Allow" />
-                            <capability name="Filter" mode="Allow" />
-                            <capability name="ViewUnderlyingData" mode="Allow" />
-                            <capability name="ExportData" mode="Allow" />
-                            <capability name="ExportImage" mode="Allow" />
-                            <capability name="ViewComments" mode="Deny" />
-                            <capability name="AddComment" mode="Deny" />
-                            <capability name="WebAuthoring" mode="Deny" />
-                            <capability name="ShareView" mode="Deny" />
                         </capabilities>
                     </granteeCapabilities>
                 </permissions>
