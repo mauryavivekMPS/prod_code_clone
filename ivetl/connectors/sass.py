@@ -22,12 +22,12 @@ class SassConnector(BaseConnector):
     def __init__(self, tlogger=None):
         self.tlogger = tlogger
 
-    def get_metadata(self, publisher_id, hw_journal_code, hw_doi, tlogger=None):
+    def get_metadata(self, publisher_id, hw_journal_code, hw_doi):
         value = urllib.parse.urlencode({'value': hw_doi})
         url = self.SASSFS_BASE_URL + 'under=/' + hw_journal_code + '&' + value
 
-        tlogger.info("Looking up HREF on SASSFS:")
-        tlogger.info(url)
+        self._log("Looking up HREF on SASSFS:")
+        self._log(url)
 
         metadata = {}
 
@@ -45,13 +45,13 @@ class SassConnector(BaseConnector):
 
                     url = self.SASS_BASE_URL + href
 
-                    tlogger.info("Looking up details on SASS:")
-                    tlogger.info(url)
+                    self._log("Looking up details on SASS:")
+                    self._log(url)
 
                     r = requests.get(url, timeout=30)
 
                     if r.status_code == 404:
-                        tlogger.info('404 Not Found response from SASS for %s, skipping...' % href)
+                        self._log('404 Not Found response from SASS for %s, skipping...' % href)
                     else:
                         r.raise_for_status()
 
@@ -104,20 +104,20 @@ class SassConnector(BaseConnector):
                                 sub_article_type = sub_article_type.replace('\r', ' ')
                                 sub_article_type = sub_article_type.title()
 
-                        if publisher_id == 'pnas' or publisher_id == 'rup' and article_type is not None and article_type != '' and sub_article_type is not None and sub_article_type != '':
+                        if (publisher_id == 'pnas' or publisher_id == 'rup') and article_type and sub_article_type:
 
                             if publisher_id == 'rup':
                                 article_type = sub_article_type
                             else:
                                 article_type += ": " + sub_article_type
 
-                            tlogger.info("Article Type with Sub Type: " + article_type)
+                            self._log("Article Type with Sub Type: " + article_type)
 
                         if article_type is None or article_type == '':
                             article_type = "None"
 
                         metadata['article_type'] = article_type
-                        tlogger.info("Article Type: " + article_type)
+                        self._log("Article Type: " + article_type)
 
                         subject_category = None
                         sc = root.xpath('./nlm:article-categories/nlm:subj-group[@subj-group-type="hwp-journal-coll"]/nlm:subject', namespaces=common.ns)
@@ -135,22 +135,22 @@ class SassConnector(BaseConnector):
                             subject_category = "None"
 
                         metadata['subject_category'] = subject_category
-                        tlogger.info("Subject Category: " + subject_category)
+                        self._log("Subject Category: " + subject_category)
 
                 else:
-                    tlogger.info("No SASS HREF found for DOI: " + hw_doi)
+                    self._log("No SASS HREF found for DOI: " + hw_doi)
 
                 break
 
             except HTTPError as he:
                 if he.response.status_code == requests.codes.BAD_GATEWAY or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
-                    tlogger.info("HTTP 401/408/502 - HW API failed. Trying Again")
+                    self._log("HTTP 401/408/502 - HW API failed. Trying Again")
                     attempt += 1
                 else:
                     raise
 
             except Exception:
-                tlogger.info("General Exception - HW API failed. Trying Again")
+                self._log("General Exception - HW API failed. Trying Again")
                 attempt += 1
 
         return metadata
