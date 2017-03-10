@@ -23,7 +23,7 @@ class CheckRejectedManuscriptTask(Task):
         rms = RejectedArticles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
         for r in rms:
             if r.status != 'Not Published':
-                rm_map[r.crossref_doi] = r
+                rm_map[r.crossref_doi] = (r.manuscript_id, r.editor, r.date_of_rejection)
 
         count = 0
         for article in articles:
@@ -34,10 +34,11 @@ class CheckRejectedManuscriptTask(Task):
 
             rm = rm_map.get(article.article_doi)
             if rm:
+                manuscript_id, editor, date_of_rejection = rm
                 article.from_rejected_manuscript = True
-                article.rejected_manuscript_id = rm.manuscript_id
-                article.rejected_manuscript_editor = rm.editor
-                article.date_of_rejection = rm.date_of_rejection
+                article.rejected_manuscript_id = manuscript_id
+                article.rejected_manuscript_editor = editor
+                article.date_of_rejection = date_of_rejection
                 article.update()
                 tlogger.info("Article sourced from rejected manuscript.")
 
