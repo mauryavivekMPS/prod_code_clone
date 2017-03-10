@@ -110,7 +110,6 @@ def get_report_params_display_string(alert):
 
 def process_alert(alert, attachment_only_emails_override=None, full_emails_override=None):
     template = ALERT_TEMPLATES[alert.template_id]
-    export_workbook_id = template['workbooks'].get('export')
 
     t = TableauConnector(
         username=common.TABLEAU_USERNAME,
@@ -119,11 +118,12 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
     )
 
     has_data = True
+    export_workbook_id = template['workbooks'].get('export')
     if export_workbook_id:
-        workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
-        workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
-        view_url = '%s/%s?%s' % (workbook_url, workbook_home_view, alert.params_and_filters_query_string)
-        has_data = t.check_report_for_data(view_url)
+        export_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
+        export_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
+        export_view_url = '%s/%s?%s' % (export_workbook_url, export_workbook_home_view, alert.params_and_filters_query_string)
+        has_data = t.check_report_for_data(export_view_url)
 
     if has_data:
 
@@ -153,6 +153,12 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         from_email = Email(common.EMAIL_FROM)
         subject = alert.name
 
+        attachment_workbook_id = template['workbooks'].get('export')
+        attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
+        attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
+        attachment_view_url = '%s/%s?%s' % (attachment_workbook_url, attachment_workbook_home_view, alert.params_and_filters_query_string)
+        has_data = t.check_report_for_data(attachment_view_url)
+
         if attachment_only_emails:
             to_email = Email(attachment_only_emails)
 
@@ -167,6 +173,8 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
             mail.add_custom_arg(CustomArg('notification_id', str(notification.notification_id)))
             mail.add_custom_arg(CustomArg('alert_id', str(notification.alert_id)))
             mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
+
+            pdf_path = t.generate_pdf_report()
 
             attachment = Attachment()
             attachment.set_content("TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQ3JhcyBwdW12")
