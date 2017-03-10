@@ -23,7 +23,7 @@ class TableauConnector(BaseConnector):
         self.signed_in = False
 
     def sign_in(self):
-        url = self.server_url + "/api/2.0/auth/signin"
+        url = self.server_url + "/api/2.5/auth/signin"
 
         request_string = """
             <tsRequest>
@@ -56,7 +56,7 @@ class TableauConnector(BaseConnector):
 
     def create_project(self, project_name):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/projects" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/projects" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -73,7 +73,7 @@ class TableauConnector(BaseConnector):
 
     def create_group(self, group_name):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/groups" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/groups" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -112,7 +112,7 @@ class TableauConnector(BaseConnector):
 
     def create_user(self, username):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/users" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/users" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -130,7 +130,7 @@ class TableauConnector(BaseConnector):
 
     def set_user_password(self, user_id, password):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/users/%s" % (self.site_id, user_id)
+        url = self.server_url + "/api/2.5/sites/%s/users/%s" % (self.site_id, user_id)
 
         request_string = """
             <tsRequest>
@@ -143,7 +143,7 @@ class TableauConnector(BaseConnector):
 
     def add_user_to_group(self, user_id, group_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/groups/%s/users/" % (self.site_id, group_id)
+        url = self.server_url + "/api/2.5/sites/%s/groups/%s/users/" % (self.site_id, group_id)
 
         request_string = """
             <tsRequest>
@@ -157,30 +157,30 @@ class TableauConnector(BaseConnector):
     def list_account_things(self):
         self._check_authentication()
 
-        url = self.server_url + "/api/2.0/sites/%s/projects/" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/projects/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
-        url = self.server_url + "/api/2.0/sites/%s/groups/" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/groups/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
-        url = self.server_url + "/api/2.0/sites/%s/users/" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/users/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
-        url = self.server_url + "/api/2.0/sites/%s/datasources/" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/datasources/" % self.site_id
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
-        url = self.server_url + "/api/2.0/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
+        url = self.server_url + "/api/2.5/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
         response = requests.get(url, headers={'X-Tableau-Auth': self.token})
         print(response.text)
 
     def list_datasources(self, project_id=None):
         self._check_authentication()
 
-        url = self.server_url + "/api/2.0/sites/%s/datasources/" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/datasources/" % self.site_id
         response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
         all_datasources = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.datasources.datasource]
@@ -195,7 +195,7 @@ class TableauConnector(BaseConnector):
     def list_workbooks(self, project_id=None):
         self._check_authentication()
 
-        url = self.server_url + "/api/2.0/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
+        url = self.server_url + "/api/2.5/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
         response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
         r = untangle.parse(response.text).tsResponse
         all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.workbooks.workbook]
@@ -244,17 +244,17 @@ class TableauConnector(BaseConnector):
 
     def delete_datasource_from_project(self, tableau_datasource_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/datasources/%s" % (self.site_id, tableau_datasource_id)
+        url = self.server_url + "/api/2.5/sites/%s/datasources/%s" % (self.site_id, tableau_datasource_id)
         requests.delete(url, headers={'X-Tableau-Auth': self.token})
 
     def delete_workbook_from_project(self, tableau_workbook_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/workbooks/%s" % (self.site_id, tableau_workbook_id)
+        url = self.server_url + "/api/2.5/sites/%s/workbooks/%s" % (self.site_id, tableau_workbook_id)
         requests.delete(url, headers={'X-Tableau-Auth': self.token})
 
     def add_datasource_to_project(self, publisher, datasource_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/datasources/?overwrite=true" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/datasources/?overwrite=true" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -288,7 +288,7 @@ class TableauConnector(BaseConnector):
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.0/sites/%s/workbooks/?overwrite=true&workbookType=twb" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/workbooks/?overwrite=true&workbookType=twb" % self.site_id
 
         request_string = """
             <tsRequest>
