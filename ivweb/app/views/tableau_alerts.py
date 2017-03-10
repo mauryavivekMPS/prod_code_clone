@@ -357,4 +357,4 @@ def get_trusted_report_url(request):
 
 
 def show_email(request):
-    return render(request, 'tableau_alerts/email.html', {})
+    return render(request, 'tableau_alerts/full_email.html', {})

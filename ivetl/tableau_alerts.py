@@ -1,4 +1,7 @@
 import datetime
+from django.template import loader
+import sendgrid
+from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Attachment
 from ivetl.connectors import TableauConnector
 from ivetl.models import WorkbookUrl, TableauNotification
 from ivetl.common import common
@@ -106,16 +109,14 @@ def get_report_params_display_string(alert):
 
 
 def process_alert(alert, attachment_only_emails_override=None, full_emails_override=None):
-    # check for data
+    template = ALERT_TEMPLATES[alert.template_id]
+    export_workbook_id = template['workbooks'].get('export')
 
     t = TableauConnector(
         username=common.TABLEAU_USERNAME,
         password=common.TABLEAU_PASSWORD,
         server=common.TABLEAU_SERVER
     )
-
-    template = ALERT_TEMPLATES[alert.template_id]
-    export_workbook_id = template['workbooks'].get('export')
 
     has_data = True
     if export_workbook_id:
@@ -141,16 +142,47 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
             custom_message=alert.custom_message,
         )
 
-        # send any lite emails
-        if alert.attachment_only_emails:
-            pass
+        if attachment_only_emails_override or full_emails_override:
+            attachment_only_emails = attachment_only_emails_override
+            full_emails = full_emails_override
+        else:
+            attachment_only_emails = alert.attachment_only_emails
+            full_emails = alert.full_emails
 
-        # send any full emails
-        if alert.full_emails:
+        sg = sendgrid.SendGridAPIClient(apikey=common.SG_API_KEY)
+        from_email = Email(common.EMAIL_FROM)
+        subject = alert.name
+
+        if attachment_only_emails:
+            to_email = Email(attachment_only_emails)
+
+            template = loader.get_template('tableau_alerts/attachment_only_email.html')
+            html = template.render({
+                'notification': notification,
+            })
+            content = Content('text/html', html)
+
+            mail = Mail(from_email, subject, to_email, content)
+
+            mail.add_custom_arg(CustomArg('notification_id', str(notification.notification_id)))
+            mail.add_custom_arg(CustomArg('alert_id', str(notification.alert_id)))
+            mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
+
+            attachment = Attachment()
+            attachment.set_content("TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQ3JhcyBwdW12")
+            attachment.set_type("application/pdf")
+            attachment.set_filename("balance_001.pdf")
+            attachment.set_disposition("attachment")
+            attachment.set_content_id("Balance Sheet")
+            mail.add_attachment(attachment)
+
+            response = sg.client.mail.send.post(request_body=mail.get())
+
+        if full_emails:
             notification_url = '%s/n/%s/' % (common.IVETL_WEB_ADDRESS, notification.notification_id)
 
-            # template = loader.get_template('reports/include/item_status_row.html')
-            # context = RequestContext(request, {
-            #     'item': item,
-            # })
-            # item['html'] = template.render(context)
+            template = loader.get_template('tableau_alerts/full_email.html')
+            html = template.render({
+                'notification': notification,
+                'notification_url': notification_url,
+            })
