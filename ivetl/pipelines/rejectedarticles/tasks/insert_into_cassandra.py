@@ -41,8 +41,7 @@ class InsertIntoCassandraDBTask(Task):
                     r = RejectedArticles.objects.get(publisher_id=publisher_id, manuscript_id=manuscript_id)
                 except RejectedArticles.DoesNotExist:
                     r = RejectedArticles(publisher_id=publisher_id, manuscript_id=manuscript_id)
-
-                r.rejected_article_id = cassandra.util.uuid_from_time(updated)
+                    r.rejected_article_id = cassandra.util.uuid_from_time(updated)
 
                 article_type = data.get('article_type')
                 if article_type:
