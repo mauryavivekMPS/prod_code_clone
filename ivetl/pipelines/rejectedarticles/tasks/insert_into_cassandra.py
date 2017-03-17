@@ -42,6 +42,7 @@ class InsertIntoCassandraDBTask(Task):
                 except RejectedArticles.DoesNotExist:
                     r = RejectedArticles(publisher_id=publisher_id, manuscript_id=manuscript_id)
                     r.rejected_article_id = cassandra.util.uuid_from_time(updated)
+                    r.created = updated
 
                 article_type = data.get('article_type')
                 if article_type:
@@ -158,7 +159,6 @@ class InsertIntoCassandraDBTask(Task):
                 r.mendeley_saves = int(data.get('mendeley_saves', 0))
                 r.citations = int(data.get('citations', 0))
                 r.updated = updated
-                r.created = updated
 
                 r.save()
 
