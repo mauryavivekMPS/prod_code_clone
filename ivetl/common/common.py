@@ -2,7 +2,7 @@ import os
 import json
 import importlib
 import sendgrid
-from sendgrid.helpers.mail import Email, Content, Mail, CustomArg
+from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Personalization
 
 with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
@@ -1066,14 +1066,18 @@ PINGDOM_ACCOUNTS = [
 ]
 
 
-def send_email(subject, body, to=EMAIL_TO, bcc=None, format="text/html", custom_args=None):
+def send_email(subject, body, to=EMAIL_TO, bcc=None, email_format="text/html", custom_args=None):
     sg = sendgrid.SendGridAPIClient(apikey=SG_API_KEY)
     from_email = Email(EMAIL_FROM)
     to_email = Email(to)
-    content = Content(format, body)
+    content = Content(email_format, body)
     mail = Mail(from_email, subject, to_email, content)
+    personalization = Personalization()
+    if bcc:
+        personalization.add_bcc(Email(bcc))
     if custom_args:
         for key, value in custom_args.items():
             mail.add_custom_arg(CustomArg(key, value))
+    mail.add_personalization(personalization)
     response = sg.client.mail.send.post(request_body=mail.get())
     return response
