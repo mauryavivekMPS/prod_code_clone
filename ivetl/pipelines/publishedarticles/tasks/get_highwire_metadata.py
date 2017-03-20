@@ -98,7 +98,7 @@ class GetHighWireMetadataTask(Task):
         transform_rules_by_journal_code = {}
 
         doi_proxy = DoiProxyConnector()
-        sass = SassConnector()
+        sass = SassConnector(tlogger=tlogger)
 
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
@@ -163,15 +163,15 @@ class GetHighWireMetadataTask(Task):
                             hw_doi = transform_doi(doi, transform_spec)
 
                             # try transformed
-                            metadata = sass.get_metadata(publisher_id, hw_journal_code, hw_doi, tlogger)
+                            metadata = sass.get_metadata(publisher_id, hw_journal_code, hw_doi)
 
                             # fallback to uppercase
                             if not metadata:
-                                metadata = sass.get_metadata(publisher_id, hw_journal_code, doi.upper(), tlogger)
+                                metadata = sass.get_metadata(publisher_id, hw_journal_code, doi.upper())
 
                             # fallback to as-is
                             if not metadata:
-                                metadata = sass.get_metadata(publisher_id, hw_journal_code, doi, tlogger)
+                                metadata = sass.get_metadata(publisher_id, hw_journal_code, doi)
 
                             data.update(metadata)
 
