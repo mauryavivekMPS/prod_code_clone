@@ -354,6 +354,10 @@ class TableauConnector(BaseConnector):
             url=workbook_url
         )
 
+        # remove group permissions if this is an admin_only template
+        if workbook.get('admin_only', False):
+            self.remove_group_permissions_for_workbook(publisher.reports_group_id, workbook_tableau_id)
+
         return {
             'url': workbook_url,
             'tableau_id': workbook_tableau_id,
@@ -404,11 +408,6 @@ class TableauConnector(BaseConnector):
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
             workbook_results = self.add_workbook_to_project(publisher, workbook_id)
-
-            # remove group permissions if this is an admin_only template
-            if common.TABLEAU_WORKBOOKS_BY_ID[workbook_id].get('admin_only', False):
-                workbook_tableau_id = workbook_results['tableau_id']
-                self.remove_group_permissions_for_workbook(publisher.reports_group_id, workbook_tableau_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 
