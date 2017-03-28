@@ -332,8 +332,10 @@ class TableauConnector(BaseConnector):
         with open(os.path.join(common.TMP_DIR, publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION), "rb") as fh:
             prepared_workbook_binary = fh.read()
 
+        workbook_name = workbook['name'].replace('&', '&amp;')
+
         payload, content_type = self._make_multipart({
-            'request_payload': ('', request_string % (workbook['name'], publisher.reports_project_id), 'text/xml'),
+            'request_payload': ('', request_string % (workbook_name, publisher.reports_project_id), 'text/xml'),
             'tableau_workbook': (publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, prepared_workbook_binary, 'application/octet-stream'),
         })
 
