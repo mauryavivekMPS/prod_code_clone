@@ -22,7 +22,6 @@ import os
 # os.environ["DJANGO_SETTINGS_MODULE"] = "bloop.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ivweb.settings.prod")
 
-# TODO: these should not be duplicated from the conf.sh files, somehow...
 os.environ["IVETL_ROOT"] = "/iv/impactvizor-pipeline"
 os.environ["IVETL_TABLEAU_SERVER"] = "vizors.org"
 os.environ["IVETL_TABLEAU_USERNAME"] = "nmehta"

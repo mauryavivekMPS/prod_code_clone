@@ -1007,7 +1007,7 @@ sass_url = "http://sass.highwire.org"
 
 DEBUG_QUICKLY = bool(os.environ.get('IVETL_DEBUG_QUICKLY', False))
 
-PUBLISH_TO_TABLEAU_WHEN_LOCAL = os.environ.get('IVETL_PUBLISH_TO_TABLEAU_WHEN_LOCAL', '0') == '1'
+PUBLISH_TO_TABLEAU = os.environ.get('IVETL_PUBLISH_TO_TABLEAU', '1') == '1'
 
 IVETL_WEB_ADDRESS = os.environ.get('IVETL_WEB_ADDRESS', 'http://localhost:8000')
 
