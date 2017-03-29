@@ -288,10 +288,11 @@ def include_template_choices(request):
 
 @login_required
 def delete_alert(request):
+    publisher_id = request.POST['publisher_id']
     alert_id = request.POST['alert_id']
     expire_notifications = request.POST.get('expire_notifications', False)
 
-    alert = TableauAlert.objects.get(alert_id=alert_id)
+    alert = TableauAlert.objects.get(publisher_id=publisher_id, alert_id=alert_id)
     alert.update(
         enabled=False,
         archived=True,
@@ -307,10 +308,11 @@ def delete_alert(request):
 
 @login_required
 def toggle_alert(request):
+    publisher_id = request.POST['publisher_id']
     alert_id = request.POST['alert_id']
     enabled = request.POST.get('enabled')
 
-    alert = TableauAlert.objects.get(alert_id=alert_id)
+    alert = TableauAlert.objects.get(publisher_id=publisher_id, alert_id=alert_id)
     alert.update(
         enabled=enabled,
     )
@@ -320,8 +322,9 @@ def toggle_alert(request):
 
 @login_required
 def send_alert_now(request):
+    publisher_id = request.POST['publisher_id']
     alert_id = request.POST['alert_id']
-    alert = TableauAlert.objects.get(alert_id=alert_id)
+    alert = TableauAlert.objects.get(publisher_id=publisher_id, alert_id=alert_id)
     attachment_only_emails_string = request.POST['attachment_only_emails']
     attachment_only_emails = _parse_email_list(attachment_only_emails_string)
     full_emails_string = request.POST['full_emails']

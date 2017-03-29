@@ -407,7 +407,7 @@ class TableauConnector(BaseConnector):
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
-            workbook_results = self.add_workbook_to_project(publisher, workbook_id)
+            self.add_workbook_to_project(publisher, workbook_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
 
