@@ -34,6 +34,7 @@ os.environ["IVETL_RABBITMQ_BROKER_URL"] = "amqp://guest:guest@10.0.1.99:5672//"
 # temporarily
 
 os.environ["IVETL_TABLEAU_SERVER"] = "vizors.org"
+os.environ["IVETL_TABLEAU_IP"] = "10.0.1.37"
 os.environ["IVETL_TABLEAU_USERNAME"] = "nmehta"
 os.environ["IVETL_TABLEAU_PASSWORD"] = "Reena,1275"
 
