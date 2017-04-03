@@ -139,7 +139,8 @@ $.widget("custom.edittableaualertpage", {
         var alertTypeControls = $('.alert-type-controls');
         var alertChoiceControls = $('.alert-choice-controls');
 
-        if (!$('#id_publisher_id option:selected').val()) {
+        var publisherId = this._getSelectedPublisherId();
+        if (!publisherId) {
             alertTypeControls.hide();
             alertChoiceControls.hide();
         }
@@ -152,7 +153,7 @@ $.widget("custom.edittableaualertpage", {
             }
             else {
                 var data = {
-                    publisher_id: $('#id_publisher_id option:selected').val(),
+                    publisher_id: publisherId,
                     alert_type: self.selectedAlertType
                 };
 
@@ -229,7 +230,7 @@ $.widget("custom.edittableaualertpage", {
             IvetlWeb.showLoading();
 
             data = {
-                publisher_id: $("#id_publisher_id option:selected").val(),
+                publisher_id: this._getSelectedPublisherId(),
                 template_id: selectedTemplate,
                 embed_type: 'configure'
             };
@@ -374,9 +375,19 @@ $.widget("custom.edittableaualertpage", {
         m.modal();
     },
 
+    _getSelectedPublisherId: function () {
+        if (this.options.editExisting || this.options.isSinglePublisherUser) {
+            return $('#id_publisher_id').val();
+        }
+        else {
+            return $("#id_publisher_id option:selected").val();
+        }
+    },
+
     _checkForm: function () {
         var self = this;
-        var publisherId = $("#id_publisher_id option:selected").val();
+
+        var publisherId = this._getSelectedPublisherId();
         var templateId = $("#id_template_id").val();
 
         if (publisherId && templateId) {
