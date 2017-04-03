@@ -41,17 +41,29 @@
                         <div id="step-choose-alert" class="wizard-step">
 
                             <div class="publisher-controls" {% if single_publisher_user %}style="display:none"{% endif %}>
-                                <div class="row instruction-row">
-                                    <div class="col-sm-8">
-                                        <p>Select a publisher:</p>
+                                {% if alert %}
+                                    <div class="row instruction-row">
+                                        <div class="col-sm-8">
+                                            <p>For publisher:</p>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="row widget-row">
-                                    <div class="col-sm-8">
-                                        {{ form.publisher_id }}
+                                    <div class="row widget-row">
+                                        <div class="col-sm-8">
+                                            <span class="existing-alert-publisher-name">{{ publisher.name }}</span>
+                                        </div>
                                     </div>
-                                </div>
+                                {% else %}
+                                    <div class="row instruction-row">
+                                        <div class="col-sm-8">
+                                            <p>Select a publisher:</p>
+                                        </div>
+                                    </div>
+                                    <div class="row widget-row">
+                                        <div class="col-sm-8">
+                                            {{ form.publisher_id }}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="alert-type-controls" style="display:none">

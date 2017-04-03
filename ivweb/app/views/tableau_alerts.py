@@ -159,9 +159,11 @@ def edit(request, alert_id=None):
 
     if alert_id:
         alert = TableauAlert.objects.allow_filtering().get(alert_id=alert_id)
+        publisher = PublisherMetadata.objects.get(publisher_id=alert.publisher_id)
         new = False
     else:
         alert = None
+        publisher = None
         new = True
 
     single_publisher_user = False
@@ -211,6 +213,7 @@ def edit(request, alert_id=None):
     return render(request, 'tableau_alerts/new.html', {
         'form': form,
         'alert': alert,
+        'publisher': publisher,
         'template': alert_template,
         'template_choices': alert_template_choices,
         'single_publisher_user': single_publisher_user,
