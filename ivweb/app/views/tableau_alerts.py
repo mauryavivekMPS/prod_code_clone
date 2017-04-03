@@ -123,14 +123,16 @@ class TableauAlertForm(forms.Form):
 
     def save(self):
         alert_id = self.cleaned_data['alert_id']
-        template_id = self.cleaned_data["template_id"]
+        template_id = self.cleaned_data['template_id']
+        publisher_id = self.cleaned_data['publisher_id']
         if alert_id:
             alert = TableauAlert.objects.get(
+                publisher_id=publisher_id,
                 alert_id=alert_id,
             )
         else:
             alert = TableauAlert.objects.create(
-                publisher_id=self.cleaned_data['publisher_id'],
+                publisher_id=publisher_id,
                 template_id=template_id,
             )
 
