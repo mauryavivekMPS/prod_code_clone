@@ -384,6 +384,15 @@ $.widget("custom.edittableaualertpage", {
         }
     },
 
+    _getSelectedPublisherName: function () {
+        if (this.options.editExisting || this.options.isSinglePublisherUser) {
+            return $('#id_publisher_name').val();
+        }
+        else {
+            return $("#id_publisher_id option:selected").text();
+        }
+    },
+
     _checkForm: function () {
         var self = this;
 
@@ -392,7 +401,7 @@ $.widget("custom.edittableaualertpage", {
 
         if (publisherId && templateId) {
             $('.configure-notifications-button').removeClass('disabled').prop('disabled', false);
-            $('.publisher-summary-item').html(publisherId);
+            $('.publisher-summary-item').html(this._getSelectedPublisherName());
             $('.alert-summary-item').html($('.template-choice-list .selected').text().trim());
         }
         else {
@@ -479,20 +488,17 @@ $.widget("custom.edittableaualertpage", {
             $('.submit-button').addClass('disabled').prop('disabled', false);
         }
 
-        var filters = $('#id_alert_filters').val();
-        if (filters) {
+        var filtersString = $('#id_alert_filters').val();
+        var parametersString = $('#id_alert_params').val();
+
+        if ((filtersString && filtersString != '{}') || (parametersString && parametersString != '{}')) {
+            var filters = JSON.parse(filtersString);
+            var parameters = JSON.parse(parametersString);
+
             $('.filter-summary-item').html(filters);
         }
         else {
             $('.filter-summary-item').html('No filters');
-        }
-
-        var parameters = $('#id_alert_params').val();
-        if (parameters) {
-            $('.parameter-summary-item').html(parameters);
-        }
-        else {
-            $('.parameter-summary-item').html('No parameters');
         }
     }
 });

@@ -40,6 +40,7 @@
 
                         {% if single_publisher_user or alert %}
                             <input type="hidden" name="publisher_id" id="id_publisher_id" value="{{ form.initial.publisher_id }}">
+                            <input type="hidden" name="publisher_name" id="id_publisher_name" value="{{ publisher.name }}">
                         {% endif %}
 
                         <div id="step-choose-alert" class="wizard-step">
@@ -231,31 +232,33 @@
                             </div>
 
                             <div class="row widget-row">
-                                <div class="col-sm-8">
+                                <div class="col-sm-10">
                                     <table class="table alert-summary-table">
                                         <tbody>
                                             <tr>
                                                 <th>Alert Name:</th>
                                                 <td class="name-summary-item"></td>
                                             </tr>
-                                            <tr>
-                                                <th>Publisher:</th>
-                                                <td class="publisher-summary-item"></td>
-                                            </tr>
+                                            {% if not single_publisher_user %}
+                                                <tr>
+                                                    <th>Publisher:</th>
+                                                    <td class="publisher-summary-item"></td>
+                                                </tr>
+                                            {% endif %}
                                             <tr>
                                                 <th>Alert Type:</th>
                                                 <td class="alert-summary-item"></td>
                                             </tr>
                                             <tr>
-                                                <th>Attachment-only recipients:</th>
+                                                <th>Attachment-Only Recipients:</th>
                                                 <td class="attachment-only-emails-summary-item"></td>
                                             </tr>
                                             <tr>
-                                                <th>Live report link recipients:</th>
+                                                <th>Live Report Link Recipients:</th>
                                                 <td class="full-emails-summary-item"></td>
                                             </tr>
                                             <tr>
-                                                <th>Report filters:</th>
+                                                <th>Report Filters:</th>
                                                 <td class="filter-summary-item"></td>
                                             </tr>
                                         </tbody>
