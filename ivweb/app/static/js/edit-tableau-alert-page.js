@@ -508,10 +508,15 @@ $.widget("custom.edittableaualertpage", {
         var hasFilters = filterSummary.find('.has-filters');
         var noFilters = filterSummary.find('.no-filters');
         if ((filtersString && filtersString != '{}') || (parametersString && parametersString != '{}')) {
-            var filters = JSON.parse(filtersString);
-            var parameters = JSON.parse(parametersString);
+            var allFilters = JSON.parse(filtersString);
+            $.extend(allFilters, JSON.parse(parametersString));
 
-            // $('.filter-summary-item').html(filters);
+            var filterHtml = '';
+            for (var filterName in allFilters) {
+                filterHtml += '<p>' + filterName + ' =' + 'foo</p>';
+            }
+            filterSummary.find('.filter-details').html(filterHtml);
+
             noFilters.hide();
             hasFilters.show();
         }
