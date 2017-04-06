@@ -134,7 +134,7 @@ $.widget("custom.edittableaualertpage", {
 
         var filterSummaryItem = this.element.find('.filter-summary-item');
         var filterDetails = this.element.find('.filter-details');
-        this.element.find('.filter-details-toggle').on('click', function () {
+        this.element.find('.filter-details-toggle').on('click', function (event) {
             if (filterDetails.is(':visible')) {
                 filterDetails.hide();
                 filterSummaryItem.removeClass('dropup');
@@ -143,6 +143,7 @@ $.widget("custom.edittableaualertpage", {
                 filterDetails.show();
                 filterSummaryItem.addClass('dropup');
             }
+            event.preventDefault();
         })
     },
 
@@ -513,9 +514,27 @@ $.widget("custom.edittableaualertpage", {
 
             var filterHtml = '';
             for (var filterName in allFilters) {
-                filterHtml += '<p>' + filterName + ' =' + 'foo</p>';
+                var filterValues = allFilters[filterName];
+                var filterValuesString = '';
+                if ($.isArray(filterValues)) {
+                    filterValuesString = filterValues.join(', ');
+                }
+                else {
+                    filterValuesString = filterValues.toString();
+                }
+                filterHtml += '<p>' + filterName + ' = ' + filterValuesString + '</p>';
             }
             filterSummary.find('.filter-details').html(filterHtml);
+
+            var filterToggleLabel = '';
+            var numFilters = Object.keys(allFilters).length;
+            if (numFilters > 1) {
+                filterToggleLabel = numFilters + ' filters';
+            }
+            else {
+                filterToggleLabel = '1 filter';
+            }
+            filterSummary.find('.filter-details-toggle').text(filterToggleLabel);
 
             noFilters.hide();
             hasFilters.show();

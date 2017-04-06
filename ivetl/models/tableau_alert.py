@@ -56,6 +56,13 @@ class TableauAlert(Model):
         return self._generate_dict_display_string(params_and_filters)
 
     @property
+    def params_and_filters_names_string(self):
+        params_and_filters = []
+        params_and_filters.extend(json.loads(self.alert_filters).keys())
+        params_and_filters.extend(json.loads(self.alert_params).keys())
+        return ', '.join(params_and_filters)
+
+    @property
     def params_and_filters_query_string(self):
         params_and_filters = {}
         params_and_filters.update(json.loads(self.alert_filters))

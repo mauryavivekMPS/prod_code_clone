@@ -47,7 +47,7 @@
                                         <div class="alert-details"><b>Emails recipients with PDF and link to active report:</b> {{ alert.full_emails|join:", " }}</div>
                                     {% endif %}
                                     {% if alert.has_params or alert.has_filters %}
-                                        <div class="alert-details"><b>Filters:</b> {{ alert.params_and_filters_display_string }}</div>
+                                        <div class="alert-details"><b>Filters:</b> {{ alert.params_and_filters_names_string }}</div>
                                     {% endif %}
                                 </td>
                                 {% if not single_publisher_user %}
@@ -62,7 +62,6 @@
                                 </td>
                                 <td>
                                     <a href="#" class="send-alert-now alert-action-button">
-{#                                        <span class="lnr lnr-arrow-right"></span>#}
                                         Send Now
                                     </a>
                                     <i class="fa fa-spinner fa-pulse alert-sending-now-icon" style="display:none"></i>
