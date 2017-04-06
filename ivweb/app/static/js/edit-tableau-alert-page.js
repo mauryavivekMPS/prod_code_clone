@@ -131,6 +131,19 @@ $.widget("custom.edittableaualertpage", {
             }
             event.preventDefault();
         });
+
+        var filterSummaryItem = this.element.find('.filter-summary-item');
+        var filterDetails = this.element.find('.filter-details');
+        this.element.find('.filter-details-toggle').on('click', function () {
+            if (filterDetails.is(':visible')) {
+                filterDetails.hide();
+                filterSummaryItem.removeClass('dropup');
+            }
+            else {
+                filterDetails.show();
+                filterSummaryItem.addClass('dropup');
+            }
+        })
     },
 
     _updateTemplateChoices: function () {
@@ -491,14 +504,20 @@ $.widget("custom.edittableaualertpage", {
         var filtersString = $('#id_alert_filters').val();
         var parametersString = $('#id_alert_params').val();
 
+        var filterSummary = $('.filter-summary-item');
+        var hasFilters = filterSummary.find('.has-filters');
+        var noFilters = filterSummary.find('.no-filters');
         if ((filtersString && filtersString != '{}') || (parametersString && parametersString != '{}')) {
             var filters = JSON.parse(filtersString);
             var parameters = JSON.parse(parametersString);
 
-            $('.filter-summary-item').html(filters);
+            // $('.filter-summary-item').html(filters);
+            noFilters.hide();
+            hasFilters.show();
         }
         else {
-            $('.filter-summary-item').html('No filters');
+            noFilters.show();
+            hasFilters.hide();
         }
     }
 });
