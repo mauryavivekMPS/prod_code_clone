@@ -1,0 +1,72 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Pipelines{% endblock %}
+{% block body_class %}all_pipelines{% endblock %}
+{% block content %}
+    <div class="row header-row">
+        <div class="col-md-12">
+            <h1>Recent Jobs</h1>
+            <ul class="list-tabs">
+                <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                <li><a href="?filter=in-progress" {% if filter_param == 'in-progress' %}class="active"{% endif %}>Running</a></li>
+                <li><a href="?filter=completed" {% if filter_param == 'completed' %}class="active"{% endif %}>Completed</a></li>
+                <li><a href="?filter=error" {% if filter_param == 'error' %}class="active"{% endif %}>Errors</a></li>
+            </ul>
+            <p class="recent-jobs-description">(includes recent {{ num_recent_days }} days ordered by start time)</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="status-col pipeline-status-col">{% status_icon %}</th>
+                        <th>Job</th>
+                        <th>Publisher</th>
+                        <th>Pipeline</th>
+                        <th>Current Task</th>
+                        <th class="time-col">Start Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if not runs_by_publisher %}
+                        <tr class="recent-jobs-row publisher-summary-row">
+                            <td colspan="6">No matching jobs</td>
+                        </tr>
+                    {% else %}
+                        {% for publisher_runs in runs_by_publisher %}
+                            {% for run in publisher_runs.runs %}
+                                <tr class="recent-jobs-row publisher-summary-row">
+                                    <td class="status-col pipeline-status-col">
+                                        <span class="summary-value">{% status_icon run.run %}</span>
+                                    </td>
+                                    <td><a href="{% url 'pipelines.list' run.product.id run.pipeline.id %}#job-{{ run.run.job_id }}">{{ run.run.display_name }}</a></td>
+                                    <td>{{ publisher_runs.publisher.publisher_id }}</td>
+                                    <td>
+                                        <span class="product-name">{{ run.product.name }} /</span>
+                                        {{ run.pipeline.name }}
+                                    </td>
+                                    <td>
+                                        {{ run.run.current_task }}
+                                        <span class="task-count">({{ run.run.current_task_count }} of {{ run.run.total_task_count }})</span>
+                                    </td>
+                                    <td><span class="summary-value">{{ run.run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#edit-tableau-alert-page').allpipelinespage();
+        });
+    </script>
+{% endblock %}

@@ -22,7 +22,7 @@ class PipelineStatus(Model):
     stop_instruction = columns.Text()
 
     def display_name(self):
-        return 'Run %s' % self.job_id[self.job_id.rindex('_') + 1:]
+        return self.job_id[self.job_id.rindex('_') + 1:]
 
     def percent_complete(self):
         if self.total_task_count and self.current_task_count:

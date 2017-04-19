@@ -1039,6 +1039,8 @@ MENDELEY_CLIENT_SECRET = '3a9Zm5QXutiCHdqR'
 FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
 RABBITMQ_BROKER_URL = os.environ.get('IVETL_RABBITMQ_BROKER_URL', 'amqp://guest:guest@127.0.0.1:5672//')
 
+RATE_LIMITER_SERVER = os.environ.get('IVETL_RATE_LIMITER_SERVER', '127.0.0.1:8082')
+
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"

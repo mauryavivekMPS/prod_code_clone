@@ -17,7 +17,7 @@ urlpatterns = [
 
     # homepage
     url(r'^$', home.home, name='home'),
-    url(r'^pipelines/$', home.all_pipelines, name='all_pipelines'),
+    url(r'^jobs/$', home.recent_jobs, name='recent_jobs'),
     url(r'^growth/$', home.growth, name='growth'),
     url(r'^performance/$', home.performance, name='performance'),
 

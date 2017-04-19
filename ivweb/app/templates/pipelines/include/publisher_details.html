@@ -3,6 +3,7 @@
 <tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ publisher_runs.recent_run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ publisher_runs.recent_task.status }}">
     {% if not all_pipelines %}
         <td class="status-col pipeline-status-col">
+            <a name="job-{{ publisher_runs.recent_run.job_id }}" class="slip-under-header"></a>
             {% if publisher_runs.runs %}
                 <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
                     {% status_icon publisher_runs.recent_run %}
@@ -22,9 +23,9 @@
     {% endif %}
     <td {% if not all_pipelines and not request.user.superuser %}colspan="2"{% endif %}>
         {% if not all_pipelines and request.user.superuser %}
-            <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.publisher.display_name }}</a>
+            <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.publisher.publisher_id }}</a>
         {% else %}
-            {{ publisher_runs.publisher.display_name }}
+            {{ publisher_runs.publisher.publisher_id }}
         {% endif %}
         {% if publisher_runs.runs %}
             <span class="recent-run summary-value" {% if opened %}style="display:none"{% endif %}> &ndash;
@@ -92,7 +93,7 @@
                 </td>
                 <td class="opener-col"></td>
                 <td class="run-col">
-                    <span class="run-name">{{ run_item.run.display_name }}</span>
+                    <span class="run-name">Job {{ run_item.run.display_name }}</span>
                     {% if forloop.first %}
                         <div class="dropdown {{ publisher_runs.publisher.publisher_id }}_job-actions-dropdown job-actions-dropdown" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">
                             <a class="job-actions-menu-icon" href="#" data-toggle="dropdown"><span class="lnr lnr-cog"></span></a>

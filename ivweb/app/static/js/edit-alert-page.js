@@ -8,13 +8,13 @@ $.widget("custom.editalertpage", {
         initialParams: {}
     },
 
-    _create: function() {
+    _create: function () {
         var self = this;
 
         this.params = [];
         this.filters = [];
 
-        $('#id_publisher_id').on('change', function() {
+        $('#id_publisher_id').on('change', function () {
             self._updateCheckChoices();
         });
         if (!this.options.selectedCheck) {
@@ -22,17 +22,17 @@ $.widget("custom.editalertpage", {
         }
         this._wireUpCheckChoices();
 
-        $('#id_name, #id_comma_separated_emails').on('keyup', function() {
+        $('#id_name, #id_comma_separated_emails').on('keyup', function () {
             self._checkForm();
         });
 
-        $('#id_enabled').on('change', function() {
+        $('#id_enabled').on('change', function () {
             self._checkForm();
         });
 
         var m = $('#confirm-archive-alert-modal');
 
-        m.find('.confirm-archive-alert-button').on('click', function() {
+        m.find('.confirm-archive-alert-button').on('click', function () {
             IvetlWeb.showLoading();
             m.modal('hide');
             $('#archive-alert-form').submit();
@@ -84,22 +84,22 @@ $.widget("custom.editalertpage", {
         }
 
         var gotParamValues = true;
-        $.each(this.params, function(index, param) {
+        $.each(this.params, function (index, param) {
             var requirement = $('.' + param.name + '-requirement');
             var value = $('#id_param_' + param.name).val();
 
             var isValid = false;
             if (value) {
-                if (param.type == 'integer') {
+                if (param.type === 'integer') {
                     isValid = self._isIntegerValue(value);
                 }
-                else if (param.type == 'float') {
+                else if (param.type === 'float') {
                     isValid = self._isFloatValue(value);
                 }
-                else if (param.type == 'percentage-integer') {
+                else if (param.type === 'percentage-integer') {
                     isValid = self._isPercentageIntegerValue(value);
                 }
-                else if (param.type == 'percentage-float') {
+                else if (param.type === 'percentage-float') {
                     isValid = self._isPercentageFloatValue(value);
                 }
             }
@@ -121,22 +121,22 @@ $.widget("custom.editalertpage", {
         }
     },
 
-    _setParams: function(newParams) {
+    _setParams: function (newParams) {
         var self = this;
         this.params = newParams;
-        $.each(this.params, function(index, param) {
+        $.each(this.params, function (index, param) {
             $('.requirements-items .param-requirement').remove();
             $('.requirements-items').append('<li class="' + param.name + '-requirement param-requirement">' + param.requirement_text + '<span class="lnr lnr-check checkmark"></span></li>');
-            $('#id_param_' + param.name).on('keyup', function() {
+            $('#id_param_' + param.name).on('keyup', function () {
                 self._checkForm();
             });
         });
     },
 
-    _setFilters: function(newFilters) {
+    _setFilters: function (newFilters) {
         var self = this;
         this.filters = newFilters;
-        $.each(this.filters, function(index, filter) {
+        $.each(this.filters, function (index, filter) {
             var filterElement = $('#id_filter_' + filter.name);
 
             filterElement.typeahead({
@@ -145,13 +145,13 @@ $.widget("custom.editalertpage", {
                 autoSelect: true
             });
 
-            filterElement.on('keyup', function() {
+            filterElement.on('keyup', function () {
                 self._checkForm();
             });
         });
     },
 
-    _updateFilters: function() {
+    _updateFilters: function () {
         var self = this;
         var checkId = $('#id_check_id option:selected').val();
         var publisherId = $("#id_publisher_id option:selected").val();
@@ -164,11 +164,11 @@ $.widget("custom.editalertpage", {
         IvetlWeb.showLoading();
 
         $.get(this.options.alertFiltersUrl, data)
-            .done(function(response) {
+            .done(function (response) {
                 $('.alert-filters').html(response.html);
                 self._setFilters(response.filters)
             })
-            .always(function() {
+            .always(function () {
                 IvetlWeb.hideLoading();
             });
     },
@@ -184,14 +184,14 @@ $.widget("custom.editalertpage", {
         this._checkForm();
     },
 
-    _wireUpCheckChoices: function() {
+    _wireUpCheckChoices: function () {
         var self = this;
-        $('#id_check_id').on('change', function() {
+        $('#id_check_id').on('change', function () {
             self._onPublisherOrCheckChange();
         });
     },
 
-    _updateCheckChoices: function() {
+    _updateCheckChoices: function () {
         var self = this;
 
         var data = [
@@ -199,14 +199,14 @@ $.widget("custom.editalertpage", {
         ];
 
         $.get(this.options.checkChoicesUrl, data)
-            .done(function(html) {
+            .done(function (html) {
                 $('.check-control-container').html(html);
                 self._wireUpCheckChoices();
                 self._onPublisherOrCheckChange();
             });
     },
 
-    _updateParams: function() {
+    _updateParams: function () {
         var self = this;
         var checkId = $('#id_check_id option:selected').val();
 
@@ -218,11 +218,11 @@ $.widget("custom.editalertpage", {
 
         IvetlWeb.showLoading();
         $.get(this.options.alertParamsUrl, data)
-            .done(function(response) {
+            .done(function (response) {
                 $('.alert-params').html(response.html);
                 self._setParams(response.params);
             })
-            .always(function() {
+            .always(function () {
                 IvetlWeb.hideLoading();
             });
     }

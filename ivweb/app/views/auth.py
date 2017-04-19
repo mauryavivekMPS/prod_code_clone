@@ -35,7 +35,8 @@ class UserSettingsForm(forms.Form):
     email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'style': 'display:none'}), required=False)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
+    password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password again', 'style': 'display:none'}), required=False)
 
     def __init__(self, *args, instance, **kwargs):
         self.instance = instance

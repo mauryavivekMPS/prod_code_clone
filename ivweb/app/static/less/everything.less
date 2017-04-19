@@ -291,6 +291,11 @@ body {
     top: @navbar-height;
     padding-top: 24px;
 
+    // to make it scrolling
+    bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
     .list-title {
         margin-bottom: 6px;
 
@@ -1341,6 +1346,12 @@ th .switch, td .switch {
 // Miscellaneous
 // -------------------------
 
+.slip-under-header {
+    display: block;
+    position: relative;
+    top: -80px;
+}
+
 .top-right-widget {
     margin-top: 15px;
     float: right;
@@ -2020,6 +2031,25 @@ body.login {
         }
     }
 }
+
+
+// Recent jobs page
+// -------------------------
+
+.recent-jobs-row {
+    .product-name, .task-count {
+        color: #999;
+    }
+}
+
+.recent-jobs-description {
+    font-size: 12px;
+    color: #999;
+    margin-top: 26px;
+    float: left;
+    margin-left: 29px;
+}
+
 
 // Reports update page
 // -------------------------
@@ -3046,7 +3076,10 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 }
 
+
 // External notification report page
+// -------------------------
+
 .external-notification-report {
     padding-top: 30px;
     font-family: Helvetica, sans-serif;
@@ -3125,9 +3158,24 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 }
 
+
 // Citable sections
+// -------------------------
+
 .journals {
     .journal-publisher-id {
         color: #777;
+    }
+}
+
+
+// User settings
+// -------------------------
+
+.user-settings-page {
+    .password-error-message {
+        color: @brand-danger;
+        font-size: 12px;
+        padding-top: 10px;
     }
 }
