@@ -63,11 +63,17 @@ class TableauAlert(Model):
         return ', '.join(params_and_filters)
 
     @property
-    def params_and_filters_query_string(self):
+    def params_and_filters_query_string(self, url_encoded=True):
         params_and_filters = {}
         params_and_filters.update(json.loads(self.alert_filters))
         params_and_filters.update(json.loads(self.alert_params))
-        return self._generate_dict_display_string(params_and_filters)
+
+        if url_encoded:
+            s = urllib.parse.urlencode(params_and_filters)
+        else:
+            s = self._generate_dict_display_string(params_and_filters)
+
+        return s
 
     @property
     def has_params(self):
