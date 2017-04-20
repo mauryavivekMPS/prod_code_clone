@@ -10,11 +10,12 @@ class TableauAlert(Model):
     publisher_id = columns.Text(partition_key=True)
     name = columns.Text()
     template_id = columns.Text(primary_key=True)
-    alert_params = columns.Text()
-    alert_filters = columns.Text()
+    alert_params = columns.Text(default='{}')
+    alert_filters = columns.Text(default='{}')
     attachment_only_emails = columns.List(columns.Text())
     full_emails = columns.List(columns.Text())
     custom_message = columns.Text()
+    send_with_no_data = columns.Boolean()
     enabled = columns.Boolean()
     archived = columns.Boolean(index=True)
 
@@ -63,17 +64,11 @@ class TableauAlert(Model):
         return ', '.join(params_and_filters)
 
     @property
-    def params_and_filters_query_string(self, url_encoded=True):
+    def params_and_filters_query_string(self):
         params_and_filters = {}
         params_and_filters.update(json.loads(self.alert_filters))
         params_and_filters.update(json.loads(self.alert_params))
-
-        if url_encoded:
-            s = urllib.parse.urlencode(params_and_filters)
-        else:
-            s = self._generate_dict_display_string(params_and_filters)
-
-        return s
+        return urllib.parse.urlencode(params_and_filters)
 
     @property
     def has_params(self):

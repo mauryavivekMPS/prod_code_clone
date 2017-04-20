@@ -1,10 +1,13 @@
+import os
 import datetime
-from django.template import loader
 import sendgrid
+import base64
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Attachment
+from django.template import loader
 from ivetl.connectors import TableauConnector
 from ivetl.models import WorkbookUrl, TableauNotification
 from ivetl.common import common
+import traceback
 
 
 def check_for_citation_amount(publisher_id):
@@ -20,6 +23,7 @@ ALERT_TEMPLATES = {
             'configure': 'alert_hot_article_tracker_configure.twb',
             'export': 'alert_hot_article_tracker_export.twb',
         },
+        'thumbnail': 'thumbnail-hot-article-tracker.png',
         'frequency': 'monthly',
         'type': 'scheduled',
         'order': 1,
@@ -33,6 +37,7 @@ ALERT_TEMPLATES = {
             'configure': 'alert_rejected_article_tracker_configure.twb',
             'export': 'alert_rejected_article_tracker_export.twb',
         },
+        'thumbnail': 'thumbnail-rejected-article-tracker.png',
         'frequency': 'quarterly',
         'type': 'scheduled',
         'order': 2,
@@ -46,6 +51,7 @@ ALERT_TEMPLATES = {
             'configure': 'alert_advance_correlator_citation_usage_configure.twb',
             'export': 'alert_advance_correlator_citation_usage_export.twb',
         },
+        'thumbnail': 'thumbnail-advanced-correlator.png',
         'frequency': 'monthly',
         'type': 'scheduled',
         'order': 3,
@@ -58,6 +64,7 @@ ALERT_TEMPLATES = {
             'full': 'uv_institutional_usage.twb',
             'export': 'alert_uv_institutional_usage_export.twb',
         },
+        'thumbnail': 'thumbnail-institutional-usage.png',
         'frequency': 'monthly',
         'type': 'scheduled',
         'order': 4,
@@ -117,15 +124,23 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         server=common.TABLEAU_SERVER
     )
 
-    has_data = True
-    export_workbook_id = template['workbooks'].get('export')
-    if export_workbook_id:
-        export_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
-        export_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
-        export_view_url = '%s/%s?%s' % (export_workbook_url, export_workbook_home_view, alert.params_and_filters_query_string)
-        has_data = t.check_report_for_data(export_view_url)
+    run_notification = False
 
-    if has_data:
+    if alert.send_with_no_data:
+        run_notification = True
+    else:
+        has_data = False
+        export_workbook_id = template['workbooks'].get('export')
+        if export_workbook_id:
+            export_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
+            export_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
+            export_view_url = '%s/%s?%s' % (export_workbook_url.url, export_workbook_home_view, alert.params_and_filters_query_string)
+            has_data = t.check_report_for_data(export_view_url)
+
+        if has_data:
+            run_notification = True
+
+    if run_notification:
 
         # create notification record
         now = datetime.datetime.now()
@@ -153,43 +168,81 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         from_email = Email(common.EMAIL_FROM)
         subject = alert.name
 
-        attachment_workbook_id = template['workbooks'].get('export')
+        attachment_workbook_id = template['workbooks'].get('full')
         attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=attachment_workbook_id)
         attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[attachment_workbook_id]['home_view']
-        attachment_view_url = '%s/%s?%s' % (attachment_workbook_url, attachment_workbook_home_view, alert.params_and_filters_query_string)
+        attachment_view_url = 'views/%s/%s?%s' % (attachment_workbook_url.url, attachment_workbook_home_view, alert.params_and_filters_query_string)
+
+        attachment_filename = '%s %s.pdf' % (alert.name.replace('/', '-').replace('\\', '-'), now.strftime('%Y-%m-%d'))
+        attachment_content_id = 'report'
+
+        pdf_path = t.generate_pdf_report(attachment_view_url)
+        pdf_content = open(pdf_path, 'rb').read()
+        encoded_pdf_content = base64.b64encode(pdf_content).decode()
+
+        email_template = loader.get_template('tableau_alerts/notification_email.html')
 
         if attachment_only_emails:
-            to_email = Email(attachment_only_emails)
-
-            template = loader.get_template('tableau_alerts/attachment_only_email.html')
-            html = template.render({
+            html = email_template.render({
                 'notification': notification,
+                'include_live_report_link': False,
             })
             content = Content('text/html', html)
 
-            mail = Mail(from_email, subject, to_email, content)
+            for to_email_address in attachment_only_emails:
+                to_email = Email(to_email_address)
+                mail = Mail(from_email, subject, to_email, content)
 
-            mail.add_custom_arg(CustomArg('notification_id', str(notification.notification_id)))
-            mail.add_custom_arg(CustomArg('alert_id', str(notification.alert_id)))
-            mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
+                mail.add_custom_arg(CustomArg('notification_id', str(notification.notification_id)))
+                mail.add_custom_arg(CustomArg('alert_id', str(notification.alert_id)))
+                mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
 
-            pdf_path = t.generate_pdf_report()
+                attachment = Attachment()
+                attachment.set_content(encoded_pdf_content)
+                attachment.set_type("application/pdf")
+                attachment.set_filename(attachment_filename)
+                attachment.set_disposition("attachment")
+                attachment.set_content_id(attachment_content_id)
+                mail.add_attachment(attachment)
 
-            attachment = Attachment()
-            attachment.set_content("TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQ3JhcyBwdW12")
-            attachment.set_type("application/pdf")
-            attachment.set_filename("balance_001.pdf")
-            attachment.set_disposition("attachment")
-            attachment.set_content_id("Balance Sheet")
-            mail.add_attachment(attachment)
-
-            response = sg.client.mail.send.post(request_body=mail.get())
+                sg.client.mail.send.post(request_body=mail.get())
 
         if full_emails:
             notification_url = '%s/n/%s/' % (common.IVETL_WEB_ADDRESS, notification.notification_id)
 
-            template = loader.get_template('tableau_alerts/full_email.html')
-            html = template.render({
+            html = email_template.render({
                 'notification': notification,
+                'include_live_report_link': True,
                 'notification_url': notification_url,
             })
+            content = Content('text/html', html)
+
+            thumbnail_path = os.path.join(common.IVETL_ROOT, 'ivweb/app/static/images', template['thumbnail'])
+            thumbnail_content = open(thumbnail_path, 'rb').read()
+            encoded_thumbnail_content = base64.b64encode(thumbnail_content).decode()
+
+            for to_email_address in full_emails:
+                to_email = Email(to_email_address)
+                mail = Mail(from_email, subject, to_email, content)
+
+                mail.add_custom_arg(CustomArg('notification_id', str(notification.notification_id)))
+                mail.add_custom_arg(CustomArg('alert_id', str(notification.alert_id)))
+                mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
+
+                attachment = Attachment()
+                attachment.set_content(encoded_pdf_content)
+                attachment.set_type("application/pdf")
+                attachment.set_filename(attachment_filename)
+                attachment.set_disposition("attachment")
+                attachment.set_content_id(attachment_content_id)
+                mail.add_attachment(attachment)
+
+                thumbnail_attachment = Attachment()
+                thumbnail_attachment.set_content(encoded_thumbnail_content)
+                thumbnail_attachment.set_type("png")
+                thumbnail_attachment.set_filename(template['thumbnail'])
+                thumbnail_attachment.set_disposition("inline")
+                thumbnail_attachment.set_content_id('thumbnail')
+                mail.add_attachment(thumbnail_attachment)
+
+                sg.client.mail.send.post(request_body=mail.get())

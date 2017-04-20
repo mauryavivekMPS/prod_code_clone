@@ -142,13 +142,22 @@ class TableauAlertForm(forms.Form):
         full_emails_string = self.cleaned_data.get('full_emails')
         full_emails = _parse_email_list(full_emails_string)
 
+        alert_params_string = self.cleaned_data.get('alert_params')
+        if not alert_params_string:
+            alert_params_string = '{}'
+
+        alert_filters_string = self.cleaned_data.get('alert_filters')
+        if not alert_filters_string:
+            alert_filters_string = '{}'
+
         alert.update(
             name=self.cleaned_data['name'],
-            alert_params=self.cleaned_data.get('alert_params', '{}'),
-            alert_filters=self.cleaned_data.get('alert_filters', '{}'),
+            alert_params=alert_params_string,
+            alert_filters=alert_filters_string,
             attachment_only_emails=attachment_only_emails,
             full_emails=full_emails,
             custom_message=self.cleaned_data['custom_message'],
+            send_with_no_data=self.cleaned_data['send_with_no_data'],
             enabled=True,
             archived=False,
         )
@@ -365,4 +374,4 @@ def get_trusted_report_url(request):
 
 
 def show_email(request):
-    return render(request, 'tableau_alerts/full_email.html', {})
+    return render(request, 'tableau_alerts/notification_email.html', {})

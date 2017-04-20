@@ -10,6 +10,7 @@ CREATE TABLE tableau_alert (
   attachment_only_emails list<text>,
   full_emails list<text>,
   custom_message text,
+  send_with_no_data boolean,
   enabled boolean,
   archived boolean,
   PRIMARY KEY ((publisher_id), template_id, alert_id)

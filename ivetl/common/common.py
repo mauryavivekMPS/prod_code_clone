@@ -790,7 +790,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'hot_article_tracker.twb',
         'name': 'Hot Article Tracker',
-        'home_view': 'Overview',
+        'home_view': 'HotArticleTracker',
     },
     {
         'id': 'alert_hot_article_tracker_configure.twb',
@@ -817,7 +817,7 @@ TABLEAU_WORKBOOKS = [
     {
         'id': 'advance_correlator_citation_usage.twb',
         'name': 'Advance Correlator of Citations & Usage',
-        'home_view': 'Overview',
+        'home_view': 'Section-to-SectionComparator',
     },
     {
         'id': 'alert_advance_correlator_citation_usage_configure.twb',
