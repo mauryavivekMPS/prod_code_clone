@@ -16,7 +16,7 @@ def open_cassandra_connection():
             common.CASSANDRA_IP_LIST,
             common.CASSANDRA_KEYSPACE_IV,
             # protocol_version=3,
-            request_timeout=20,  # double the default timeout
+            # request_timeout=20,  # double the default timeout
         )
     else:
         connection.setup(

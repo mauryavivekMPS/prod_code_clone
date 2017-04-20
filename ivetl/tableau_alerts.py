@@ -154,10 +154,9 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         subject = alert.name
 
         attachment_workbook_id = template['workbooks'].get('export')
-        attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
-        attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
+        attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=attachment_workbook_id)
+        attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[attachment_workbook_id]['home_view']
         attachment_view_url = '%s/%s?%s' % (attachment_workbook_url, attachment_workbook_home_view, alert.params_and_filters_query_string)
-        has_data = t.check_report_for_data(attachment_view_url)
 
         if attachment_only_emails:
             to_email = Email(attachment_only_emails)

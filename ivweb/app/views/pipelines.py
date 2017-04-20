@@ -331,7 +331,7 @@ def run(request, product_id, pipeline_id):
             # look for a job_id, if found restart the job
             job_id = request.POST.get('restart_job_id')
 
-            if request.POST['send_alerts']:
+            if request.POST.get('send_alerts'):
                 send_alerts = True
             else:
                 send_alerts = False
