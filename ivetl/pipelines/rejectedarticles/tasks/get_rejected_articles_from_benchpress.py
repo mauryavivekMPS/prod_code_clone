@@ -62,6 +62,7 @@ class GetRejectedArticlesFromBenchPressTask(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         files = []
+        count = 0
 
         if journals_with_benchpress:
 
@@ -71,8 +72,6 @@ class GetRejectedArticlesFromBenchPressTask(Task):
                 password=common.NETSITE_PASSWORD,
                 missing_host_key=spur.ssh.MissingHostKey.accept
             )
-
-            count = 0
 
             for journal_code in journals_with_benchpress:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
@@ -101,7 +100,6 @@ class GetRejectedArticlesFromBenchPressTask(Task):
                     tlogger.error('Unexpected output from benchpress script: %s' % result_text)
                     raise Exception
 
-        return {
-            'input_files': files,
-            'count': total_count,
-        }
+        task_args['count'] = count
+        task_args['input_files'] = files
+        return task_args

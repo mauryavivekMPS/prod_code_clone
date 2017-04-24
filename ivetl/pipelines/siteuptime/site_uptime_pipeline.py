@@ -9,7 +9,7 @@ from ivetl.common import common
 @app.task
 class SiteUptimePipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None, run_daily_uptime_alerts=False):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None, run_daily_uptime_alerts=False, send_alerts=False):
         pipeline_id = "site_uptime"
 
         # this pipeline operates on the global publisher ID
@@ -64,6 +64,7 @@ class SiteUptimePipeline(Pipeline):
             'from_date': self.to_json_date(from_date),
             'to_date': self.to_json_date(to_date),
             'run_daily_uptime_alerts': run_daily_uptime_alerts,
+            'send_alerts': send_alerts,
         }
 
         Pipeline.chain_tasks(pipeline_id, task_args)

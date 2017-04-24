@@ -102,9 +102,10 @@ class ScopusConnector(BaseConnector):
 
         return scopus_id, scopus_cited_by_count, scopus_subtype
 
-    def get_citations(self, article_scopus_id, is_cohort, tlogger, should_get_citation_details=None):
+    def get_citations(self, article_scopus_id, is_cohort, tlogger, should_get_citation_details=None, existing_count=None):
         offset = 0
-        citations = []
+        citations_to_be_processed = []
+        collected_citations = []
 
         self.count += 1
 
@@ -157,6 +158,7 @@ class ScopusConnector(BaseConnector):
 
                         for scopus_citation in scopus_data['search-results']['entry']:
 
+                            # skip records with invalid IDs
                             if 'eid' not in scopus_citation or scopus_citation['eid'].strip() == '':
                                 continue
 
@@ -170,66 +172,7 @@ class ScopusConnector(BaseConnector):
                                 tlogger.info('Skipping citation without a valid DOI')
                                 continue
 
-                            if should_get_citation_details:
-                                if not should_get_citation_details(doi):
-                                    tlogger.info('Skipping: %s' % doi)
-                                    continue
-
-                            scopus_id = None
-                            if 'eid' in scopus_citation and (scopus_citation['eid'] != 0):
-                                scopus_id = scopus_citation['eid']
-
-                            citation_date = None
-                            cr_article = crossref.get_article(doi)
-
-                            if cr_article is None or cr_article['date'] is None:
-                                if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
-                                    citation_date = scopus_citation['prism:coverDate']
-                            else:
-                                citation_date = cr_article['date'].strftime('%Y-%m-%d')
-
-                            first_author = None
-                            if 'dc:creator' in scopus_citation and (scopus_citation['dc:creator'] != 0):
-                                first_author = scopus_citation['dc:creator']
-
-                            issue = None
-                            if 'prism:issueIdentifier' in scopus_citation and (scopus_citation['prism:issueIdentifier'] != 0):
-                                issue = scopus_citation['prism:issueIdentifier']
-
-                            journal_issn = None
-                            if 'prism:issn' in scopus_citation and (scopus_citation['prism:issn'] != 0):
-                                journal_issn = scopus_citation['prism:issn']
-
-                            journal_title = None
-                            if 'prism:publicationName' in scopus_citation and (scopus_citation['prism:publicationName'] != 0):
-                                journal_title = scopus_citation['prism:publicationName']
-
-                            pages = None
-                            if 'prism:pageRange' in scopus_citation and (scopus_citation['prism:pageRange'] != 0):
-                                pages = scopus_citation['prism:pageRange']
-
-                            title = None
-                            if 'dc:title' in scopus_citation and (scopus_citation['dc:title'] != 0):
-                                title = scopus_citation['dc:title']
-
-                            volume = None
-                            if 'prism:volume' in scopus_citation and (scopus_citation['prism:volume'] != 0):
-                                volume = scopus_citation['prism:volume']
-
-                            citations.append({
-                                'doi': doi,
-                                'scopus_id': scopus_id,
-                                'date': citation_date,
-                                'first_author': first_author,
-                                'issue': issue,
-                                'journal_issn': journal_issn,
-                                'journal_title': journal_title,
-                                'pages': pages,
-                                'title': title,
-                                'volume': volume,
-                                'source': 'Scopus',
-                                'is_cohort': is_cohort
-                            })
+                            citations_to_be_processed.append(scopus_citation)
 
                         total_results = int(scopus_data['search-results']['opensearch:totalResults'])
                         if self.ITEMS_PER_PAGE + offset < total_results:
@@ -242,7 +185,77 @@ class ScopusConnector(BaseConnector):
             else:
                 raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
-        return citations
+            if not existing_count or (existing_count and existing_count != len(citations_to_be_processed)):
+
+                for scopus_citation in citations_to_be_processed:
+
+                    if 'prism:doi' in scopus_citation and (scopus_citation['prism:doi'] != ''):
+                        doi = scopus_citation['prism:doi']
+                    else:
+                        doi = scopus_citation['eid']
+
+                    if should_get_citation_details:
+                        if not should_get_citation_details(doi):
+                            tlogger.info('Skipping: %s' % doi)
+                            continue
+
+                    scopus_id = None
+                    if 'eid' in scopus_citation and (scopus_citation['eid'] != 0):
+                        scopus_id = scopus_citation['eid']
+
+                    citation_date = None
+                    cr_article = crossref.get_article(doi)
+
+                    if cr_article is None or cr_article['date'] is None:
+                        if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
+                            citation_date = scopus_citation['prism:coverDate']
+                    else:
+                        citation_date = cr_article['date'].strftime('%Y-%m-%d')
+
+                    first_author = None
+                    if 'dc:creator' in scopus_citation and (scopus_citation['dc:creator'] != 0):
+                        first_author = scopus_citation['dc:creator']
+
+                    issue = None
+                    if 'prism:issueIdentifier' in scopus_citation and (scopus_citation['prism:issueIdentifier'] != 0):
+                        issue = scopus_citation['prism:issueIdentifier']
+
+                    journal_issn = None
+                    if 'prism:issn' in scopus_citation and (scopus_citation['prism:issn'] != 0):
+                        journal_issn = scopus_citation['prism:issn']
+
+                    journal_title = None
+                    if 'prism:publicationName' in scopus_citation and (scopus_citation['prism:publicationName'] != 0):
+                        journal_title = scopus_citation['prism:publicationName']
+
+                    pages = None
+                    if 'prism:pageRange' in scopus_citation and (scopus_citation['prism:pageRange'] != 0):
+                        pages = scopus_citation['prism:pageRange']
+
+                    title = None
+                    if 'dc:title' in scopus_citation and (scopus_citation['dc:title'] != 0):
+                        title = scopus_citation['dc:title']
+
+                    volume = None
+                    if 'prism:volume' in scopus_citation and (scopus_citation['prism:volume'] != 0):
+                        volume = scopus_citation['prism:volume']
+
+                    collected_citations.append({
+                        'doi': doi,
+                        'scopus_id': scopus_id,
+                        'date': citation_date,
+                        'first_author': first_author,
+                        'issue': issue,
+                        'journal_issn': journal_issn,
+                        'journal_title': journal_title,
+                        'pages': pages,
+                        'title': title,
+                        'volume': volume,
+                        'source': 'Scopus',
+                        'is_cohort': is_cohort
+                    })
+
+        return collected_citations
 
     @staticmethod
     def check_for_auth_error(root):

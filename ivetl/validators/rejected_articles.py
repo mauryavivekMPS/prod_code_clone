@@ -9,12 +9,13 @@ class RejectedArticlesValidator(BaseValidator):
     def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
         errors = []
         total_count = 0
+
         for f in files:
             file_name = os.path.basename(f)
             try:
                 with codecs.open(f, encoding='utf-8') as tsv:
                     count = 0
-                    for line in csv.reader(tsv, delimiter='\t'):
+                    for line in csv.reader(tsv, delimiter='\t', quoting=csv.QUOTE_NONE):
                         if line:
                             if increment_count_func:
                                 count = increment_count_func(count)

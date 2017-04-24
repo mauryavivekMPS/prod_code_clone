@@ -1,0 +1,41 @@
+{% extends "base_single_col.html" %}
+{% block title %}{{ notification.name }}{% endblock %}
+{% block body_class %}external-notification-report{% endblock %}
+
+{% block content %}
+    <div id="external-notification-report-page">
+        <div class="row notification-report-header-row">
+            <div class="col-md-12">
+                <img class="logo" src="/static/dist/transparent-logo.png">
+                <h1>{{ notification.name }}</h1>
+                <p class="notification-date">Generated on <b>{{ notification.notification_date|date:"l, F d, Y" }}</b></p>
+            </div>
+        </div>
+
+{#        <div class="row notification-report-tile-row">#}
+{#            <div class="col-md-12">#}
+{#                This is a tile with text.#}
+{#            </div>#}
+{#        </div>#}
+
+        <div class="row notification-report-tile-row">
+            <div class="col-md-12">
+                <div class="embedded-report-container full-report"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            $('#external-notification-report-page').externalnotificationreportpage({
+                trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
+                publisherId: '{{ notification.publisher_id }}',
+                alertTemplateId: '{{ notification.template_id }}',
+                filters: {{ notification.alert_filters|safe }},
+                params: {{ notification.alert_params|safe }}
+            });
+        });
+    </script>
+{% endblock %}

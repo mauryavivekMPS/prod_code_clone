@@ -1,22 +1,10 @@
-#!/usr/bin/env python
-
-import django
-django.setup()
-
-import sys
 import os
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from cassandra.cqlengine import connection
 
 
-if __name__ == "__main__":
-
+def import_tables(input_dir='.'):
     open_cassandra_connection()
-
-    if len(sys.argv) == 2:
-        input_dir = sys.argv[1]
-    else:
-        input_dir = '.'
 
     file_paths = filter(os.path.isfile, [os.path.join(input_dir, f) for f in os.listdir(input_dir) if f.endswith('.csv')])
 
@@ -32,6 +20,7 @@ if __name__ == "__main__":
             for line in f.readlines():
                 s = 'insert into %s (%s) values (%s);' % (table_name, cols, line.strip().replace("\\n", "\n"))
                 connection.execute(s)
+                print(s)
                 line_count += 1
 
         print('Loaded %s values' % line_count)

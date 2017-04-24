@@ -12,7 +12,7 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.common import common
-from ivetl.models import PublisherMetadata, User, Audit_Log
+from ivetl.models import PublisherMetadata, User, AuditLog
 
 
 class IvetlAuthorizer(DummyAuthorizer):
@@ -144,7 +144,7 @@ class IvetlHandler(FTPHandler):
 
                 self.log('Finished starting pipeline: %s' % pipeline['id'])
 
-                Audit_Log.objects.create(
+                AuditLog.objects.create(
                     user_id=user.user_id,
                     event_time=datetime.datetime.now(),
                     action='run-pipeline',

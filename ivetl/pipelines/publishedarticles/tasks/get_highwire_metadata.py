@@ -5,7 +5,7 @@ import re
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector, SassConnector
-from ivetl.models import PublisherJournal, Doi_Transform_Rule
+from ivetl.models import PublisherJournal, DoiTransformRule
 from ivetl.pipelines.task import Task
 
 
@@ -125,7 +125,7 @@ class GetHighWireMetadataTask(Task):
 
                     # check that we have the rules loaded
                     if hw_journal_code not in transform_rules_by_journal_code:
-                        rules = Doi_Transform_Rule.objects.filter(journal_code=hw_journal_code, type='hw-doi')
+                        rules = DoiTransformRule.objects.filter(journal_code=hw_journal_code, type='hw-doi')
                         transform_rules_by_journal_code[hw_journal_code] = list(rules)
 
                     # find the matching rule
@@ -144,7 +144,7 @@ class GetHighWireMetadataTask(Task):
                             transform_spec = generate_transform_spec(hw_doi)
 
                             # save it to the db
-                            new_rule = Doi_Transform_Rule.objects.create(
+                            new_rule = DoiTransformRule.objects.create(
                                 journal_code=hw_journal_code,
                                 type='hw-doi',
                                 match_expression=match_expression,
