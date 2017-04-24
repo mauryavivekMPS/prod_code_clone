@@ -24,6 +24,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ivweb.settings.prod")
 
 os.environ["IVETL_ROOT"] = "/iv/impactvizor-pipeline"
 os.environ["IVETL_TABLEAU_SERVER"] = "vizors.org"
+os.environ["IVETL_TABLEAU_IP"] = "10.0.1.37"
 os.environ["IVETL_TABLEAU_USERNAME"] = "nmehta"
 os.environ["IVETL_TABLEAU_PASSWORD"] = "Reena,1275"
 os.environ["IVETL_CASSANDRA_IP"] = "10.0.1.59,10.0.1.196,10.0.1.40"
