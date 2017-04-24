@@ -10,19 +10,12 @@ class RejectedArticlesValidator(BaseValidator):
         errors = []
         total_count = 0
 
-        def reader_without_line_sep(f):
-            while True:
-                line = next(f)
-                yield line.replace('\u2028', '')
-                # yield next(f).replace('\u2028', '')
-                continue
-
         for f in files:
             file_name = os.path.basename(f)
             try:
                 with codecs.open(f, encoding='utf-8') as tsv:
                     count = 0
-                    for line in csv.reader(reader_without_line_sep(tsv), delimiter='\t', quoting=csv.QUOTE_NONE):
+                    for line in csv.reader(tsv, delimiter='\t', quoting=csv.QUOTE_NONE):
                         if line:
                             if increment_count_func:
                                 count = increment_count_func(count)
