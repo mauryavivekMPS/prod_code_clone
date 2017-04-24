@@ -1075,11 +1075,20 @@ def send_email(subject, body, to=EMAIL_TO, bcc=None, email_format="text/html", c
     content = Content(email_format, body)
     mail = Mail(from_email, subject, to_email, content)
     personalization = Personalization()
+
+    use_personalization = False
+
     if bcc:
         personalization.add_bcc(Email(bcc))
+        use_personalization = True
+
     if custom_args:
         for key, value in custom_args.items():
             mail.add_custom_arg(CustomArg(key, value))
-    mail.add_personalization(personalization)
+        use_personalization = True
+
+    if use_personalization:
+        mail.add_personalization(personalization)
+
     response = sg.client.mail.send.post(request_body=mail.get())
     return response
