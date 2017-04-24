@@ -5,7 +5,7 @@ from decimal import Decimal
 from datetime import datetime
 import cassandra.util
 from ivetl.celery import app
-from ivetl.models import Publisher_Vizor_Updates, RejectedArticles
+from ivetl.models import PublisherVizorUpdates, RejectedArticles
 from ivetl.pipelines.task import Task
 
 
@@ -156,23 +156,32 @@ class InsertIntoCassandraDBTask(Task):
                 if date_of_rejection:
                     r.date_of_rejection = to_datetime(date_of_rejection)
 
-                r.mendeley_saves = int(data.get('mendeley_saves', 0))
-                r.citations = int(data.get('citations', 0))
+                mendeley_saves = data.get('mendeley_saves')
+                if not mendeley_saves:
+                    r.mendeley_saves = 0
+                else:
+                    r.mendeley_saves = int(mendeley_saves)
+
+                citations = data.get('citations')
+                if not citations:
+                    r.citations = 0
+                else:
+                    r.citations = int(citations)
+
                 r.updated = updated
 
                 r.save()
 
                 tlogger.info("Inserting or updating record")
 
-            pu = Publisher_Vizor_Updates()
+            pu = PublisherVizorUpdates()
             pu['publisher_id'] = publisher_id
             pu['vizor_id'] = 'rejected_articles'
             pu['updated'] = updated
             pu.save()
 
-        return {
-            'count': count,
-        }
+        task_args['count'] = count
+        return task_args
 
 
 def unix_time(dt):
@@ -188,9 +197,9 @@ def unix_time_millis(dt):
 def to_datetime(mdy_str):
 
     if '-' in mdy_str:
-         dor_parts = mdy_str.split('-')
+        dor_parts = mdy_str.split('-')
     else:
-         dor_parts = mdy_str.split('/')
+        dor_parts = mdy_str.split('/')
 
     dor_month = int(dor_parts[0])
     dor_day = int(dor_parts[1])

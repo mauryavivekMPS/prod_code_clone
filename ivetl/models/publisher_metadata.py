@@ -1,6 +1,6 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
-from ivetl.models import Publisher_User, PublisherJournal
+from ivetl.models import PublisherUser, PublisherJournal
 from ivetl.common import common
 
 
@@ -68,4 +68,4 @@ class PublisherMetadata(Model):
         return all_workbooks_for_publisher
 
     def users(self):
-        return Publisher_User.objects.allow_filtering().filter(publisher_id=self.publisher_id)
+        return PublisherUser.objects.allow_filtering().filter(publisher_id=self.publisher_id)

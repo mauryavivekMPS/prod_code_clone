@@ -79,6 +79,5 @@ class LoadDrupalMetadataTask(Task):
                                 launch_date=launch_date,
                             )
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

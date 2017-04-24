@@ -5,7 +5,7 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import User, Publisher_User, Audit_Log, PublisherMetadata
+from ivetl.models import User, PublisherUser, AuditLog, PublisherMetadata
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 def list_users(request, publisher_id=None):
     if publisher_id:
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
-        publisher_users = [u.user_id for u in Publisher_User.objects.allow_filtering().filter(publisher_id=publisher_id)]
+        publisher_users = [u.user_id for u in PublisherUser.objects.allow_filtering().filter(publisher_id=publisher_id)]
         users = User.objects.filter(user_id__in=publisher_users)
     else:
         publisher = None
@@ -56,7 +56,7 @@ class AdminUserForm(forms.Form):
             initial = dict(instance)
             initial.pop('password')  # clear out the encoded password
             if not for_publisher:
-                initial['publishers'] = ', '.join([p.publisher_id for p in Publisher_User.objects.filter(user_id=instance.user_id)])
+                initial['publishers'] = ', '.join([p.publisher_id for p in PublisherUser.objects.filter(user_id=instance.user_id)])
         else:
             self.instance = None
 
@@ -88,7 +88,7 @@ class AdminUserForm(forms.Form):
             )
 
             # add perms for just the current publisher
-            Publisher_User.objects.create(user_id=user.user_id, publisher_id=self.for_publisher.publisher_id)
+            PublisherUser.objects.create(user_id=user.user_id, publisher_id=self.for_publisher.publisher_id)
 
         else:
             user.update(
@@ -102,13 +102,13 @@ class AdminUserForm(forms.Form):
             publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
 
             # delete existing
-            for publisher_user in Publisher_User.objects.filter(user_id=user.user_id):
+            for publisher_user in PublisherUser.objects.filter(user_id=user.user_id):
                 publisher_user.delete()
 
             # and recreate
             for publisher_id in publisher_id_list:
                 if publisher_id:
-                    Publisher_User.objects.create(user_id=user.user_id, publisher_id=publisher_id)
+                    PublisherUser.objects.create(user_id=user.user_id, publisher_id=publisher_id)
 
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data['password'])
@@ -131,7 +131,7 @@ def edit(request, publisher_id=None, user_id=None):
         form = AdminUserForm(request.POST, instance=user, for_publisher=publisher)
         if form.is_valid():
             user = form.save()
-            Audit_Log.objects.create(
+            AuditLog.objects.create(
                 user_id=request.user.user_id,
                 event_time=datetime.datetime.now(),
                 action='edit-user' if user_id else 'create-user',

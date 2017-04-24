@@ -1,0 +1,14 @@
+{% extends "base_single_col.html" %}
+{% block title %}{{ notification.name }}{% endblock %}
+{% block body_class %}external-notification-report{% endblock %}
+
+{% block content %}
+    <div id="external-notification-report-page">
+        <div class="row">
+            <div class="col-md-12 expired-message">
+                <p><i class="lnr lnr-prohibited expired-icon"></i></p>
+                <p>This notification has expired.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

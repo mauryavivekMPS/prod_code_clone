@@ -56,6 +56,5 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
                         amount=amount,
                     )
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

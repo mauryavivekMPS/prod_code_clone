@@ -3,7 +3,7 @@ import unittest
 import datetime
 from dateutil import parser
 from ivetl.models import (PublisherMetadata, PipelineStatus, PublishedArticle, ArticleCitations,
-                          Publisher_Vizor_Updates, PublishedArticleValues, PipelineTaskStatus)
+                          PublisherVizorUpdates, PublishedArticleValues, PipelineTaskStatus)
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 
@@ -66,7 +66,7 @@ class PipelineTestCase(unittest.TestCase):
             PublishedArticleValues.objects(publisher_id='test').delete()
             ArticleCitations.objects(publisher_id='test').delete()
             PipelineStatus.objects(publisher_id='test').delete()
-            Publisher_Vizor_Updates.objects(publisher_id='test').delete()
+            PublisherVizorUpdates.objects(publisher_id='test').delete()
             publisher.delete()
 
         except PublisherMetadata.DoesNotExist:

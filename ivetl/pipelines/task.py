@@ -24,6 +24,10 @@ class Task(BaseTask):
         pipeline_id = new_task_args.pop('pipeline_id')
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
+        # special handling of alerts flag to prevent it getting wiped away by individual tasks
+        show_alerts = new_task_args.get('show_alerts', False)
+        new_task_args['show_alerts'] = show_alerts
+
         stop_task = False
         try:
             pipeline_status = PipelineStatus.objects.get(
@@ -68,6 +72,7 @@ class Task(BaseTask):
             task_result['work_folder'] = work_folder
             task_result['job_id'] = job_id
             task_result['pipeline_id'] = pipeline_id
+            task_result['show_alerts'] = show_alerts
             task_result['current_task_count'] = current_task_count
 
         else:

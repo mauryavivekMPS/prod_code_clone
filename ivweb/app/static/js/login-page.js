@@ -1,14 +1,15 @@
 $.widget("custom.loginpage", {
     
     _create: function() {
-        $('#id_email').on('keyup', this._checkForm).focus();
-        $('#id_password').on('keyup', this._checkForm);
+        $('#id_email').on('keyup change', this._checkForm).focus();
+        $('#id_password').on('keyup change', this._checkForm);
 
         $('#login-button').click(function () {
             $(this).fadeOut(100, function() {
                 $('#login-loading').fadeIn(100);
             });
         });
+        this._checkForm();
     },
 
     _checkForm: function() {

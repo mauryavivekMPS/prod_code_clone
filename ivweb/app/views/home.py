@@ -1,3 +1,4 @@
+import datetime
 import humanize
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -100,10 +101,20 @@ def home(request):
 
 
 @login_required
-def all_pipelines(request):
+def recent_jobs(request):
     if not request.user.superuser:
         return HttpResponseRedirect(reverse('home'))
     else:
+
+        filter_param = request.GET.get('filter', request.COOKIES.get('jobs-list-filter', 'all'))
+
+        viewable_statuses = []
+        if filter_param in ('all', 'in-progress'):
+            viewable_statuses.append('in-progress')
+        if filter_param in ('all', 'completed'):
+            viewable_statuses.append('completed')
+        if filter_param in ('all', 'error'):
+            viewable_statuses.append('error')
 
         all_publishers = request.user.get_accessible_publishers()
 
@@ -113,14 +124,16 @@ def all_pipelines(request):
         # temporary run storage by publisher ID
         runs_by_pub = {p.publisher_id: {'publisher': p, 'runs': []} for p in all_publishers}
 
-        # get any reasonably recent in progress runs
-        in_progress_runs = [run for run in PipelineStatus.objects().limit(1000) if run.status == 'completed']
+        num_recent_days = 14
+        earliest_start_time = datetime.datetime.now() - datetime.timedelta(days=num_recent_days)
+
+        # get anything within the past two weeks
+        recent_runs = [run for run in PipelineStatus.objects().limit(500) if run.status in viewable_statuses and run.start_time > earliest_start_time]
 
         # sort the runs by pub
-        for run in in_progress_runs:
+        for run in recent_runs:
             tasks = PipelineTaskStatus.objects(publisher_id=run.publisher_id, product_id=run.product_id, pipeline_id=run.pipeline_id, job_id=run.job_id)
             sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
-            # TODO: order runs by product/pipeline order
             runs_by_pub[run.publisher_id]['runs'].append({
                 'run': run,
                 'tasks': sorted_tasks,
@@ -136,9 +149,15 @@ def all_pipelines(request):
                     'runs': runs_by_pub[publisher.publisher_id]['runs'],
                 })
 
-        return render(request, 'all_pipelines.html', {
+        response = render(request, 'recent_jobs.html', {
             'runs_by_publisher': ordered_runs,
+            'filter_param': filter_param,
+            'num_recent_days': num_recent_days,
         })
+
+        response.set_cookie('jobs-list-filter', value=filter_param, max_age=30 * 24 * 60 * 60)
+
+        return response
 
 
 @login_required
