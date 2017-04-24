@@ -42,6 +42,9 @@ class CheckRejectedManuscriptTask(Task):
                 article.update()
                 tlogger.info("Article sourced from rejected manuscript.")
 
+        # TODO: check to see why this wasn't being populated by the dropdown restart menu
+        run_monthly_jobs = task_args.get('run_monthly_job', False)
+
         self.pipeline_ended(
             publisher_id,
             product_id,
@@ -50,11 +53,11 @@ class CheckRejectedManuscriptTask(Task):
             tlogger,
             send_notification_email=True,
             notification_count=total_count,
-            run_monthly_job=task_args['run_monthly_job'],
-            show_alerts = task_args['show_alerts'],
+            run_monthly_job=run_monthly_jobs,
+            show_alerts=task_args.get('show_alerts', False),  # TODO: check to see if this is also definitively set
         )
 
-        if pipeline_id in ("published_articles", "cohort_articles") and task_args['run_monthly_job']:
+        if pipeline_id in ("published_articles", "cohort_articles") and run_monthly_jobs:
             pipeline_status = PipelineStatus.objects.get(
                 publisher_id=publisher_id,
                 product_id=product_id,
