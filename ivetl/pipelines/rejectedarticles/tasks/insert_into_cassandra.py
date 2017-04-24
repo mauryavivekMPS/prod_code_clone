@@ -156,8 +156,14 @@ class InsertIntoCassandraDBTask(Task):
                 if date_of_rejection:
                     r.date_of_rejection = to_datetime(date_of_rejection)
 
-                r.mendeley_saves = int(data.get('mendeley_saves', 0))
-                r.citations = int(data.get('citations', 0))
+                mendeley_saves = data.get('mendeley_saves')
+                if mendeley_saves is not None:
+                    r.mendeley_saves = int(mendeley_saves)
+
+                citations = data.get('citations')
+                if citations is not None:
+                    r.citations = int(citations)
+
                 r.updated = updated
 
                 r.save()
