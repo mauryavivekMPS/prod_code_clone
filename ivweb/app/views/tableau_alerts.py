@@ -112,7 +112,7 @@ class TableauAlertForm(forms.Form):
         super(TableauAlertForm, self).__init__(initial=initial, *args, **kwargs)
 
         if user.superuser:
-            publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all() if p.publisher_id in ('blood', 'portland', 'aan', 'cob')]
+            publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
             publisher_choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
 
