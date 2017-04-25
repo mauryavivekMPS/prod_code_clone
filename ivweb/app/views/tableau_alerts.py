@@ -365,10 +365,13 @@ def get_trusted_report_url(request):
     # get the trusted token from Tableau
     token = get_trusted_token()
 
-    # TODO: this https needs to be conditional for QA vs prod
+    if common.TABLEAU_HTTPS:
+        scheme = 'https'
+    else:
+        scheme = 'http'
 
     # construct the full URL
-    url = 'https://%s/trusted/%s/views/%s/%s' % (common.TABLEAU_SERVER, token, workbook_url.url, workbook_home_view)
+    url = '%s://%s/trusted/%s/views/%s/%s' % (scheme, common.TABLEAU_SERVER, token, workbook_url.url, workbook_home_view)
 
     return JsonResponse({
         'url': url,
