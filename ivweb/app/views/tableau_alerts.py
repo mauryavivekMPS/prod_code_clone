@@ -116,7 +116,7 @@ class TableauAlertForm(forms.Form):
         else:
             publisher_choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
 
-        self.fields['publisher_id'].choices = publisher_choices
+        self.fields['publisher_id'].choices = sorted(publisher_choices, key=lambda p: p[0])
 
         if len(publisher_choices) > 1:
             self.fields['publisher_id'].choices.insert(0, ('', 'Select a publisher'))
