@@ -57,7 +57,7 @@ class CrossrefConnector(BaseConnector):
                 'article_count': article_count
             }
 
-        except (json.JSONDecodeError, ValueError):
+        except (ValueError):
             pass
 
         return journal
@@ -68,7 +68,7 @@ class CrossrefConnector(BaseConnector):
 
         try:
             article_json = json.loads(article_response_text)
-        except json.JSONDecodeError:
+        except ValueError:
             article_json = None
 
         article = None
@@ -157,7 +157,7 @@ class CrossrefConnector(BaseConnector):
 
         try:
             search_results_json = json.loads(search_response_text)
-        except json.JSONDecodeError:
+        except ValueError:
             search_results_json = None
 
         return search_results_json
