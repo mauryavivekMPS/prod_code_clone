@@ -106,7 +106,7 @@ class ScopusConnector(BaseConnector):
         offset = 0
         citations_to_be_processed = []
         collected_citations = []
-
+        skipped = False
         self.count += 1
 
         url_api = self.BASE_SCOPUS_URL_JSON + self.apikeys[self.count % len(self.apikeys)] + '&'
@@ -186,6 +186,7 @@ class ScopusConnector(BaseConnector):
                 raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
             if not existing_count or (existing_count and existing_count != len(citations_to_be_processed)):
+                skipped = False
 
                 for scopus_citation in citations_to_be_processed:
 
@@ -254,8 +255,10 @@ class ScopusConnector(BaseConnector):
                         'source': 'Scopus',
                         'is_cohort': is_cohort
                     })
+            else:
+                skipped = True
 
-        return collected_citations
+        return collected_citations, skipped
 
     @staticmethod
     def check_for_auth_error(root):

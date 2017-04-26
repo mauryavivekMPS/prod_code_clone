@@ -1030,6 +1030,7 @@ AWS_SECRET_ACCESS_KEY = ENV_PROPERTIES['aws']['secret_access_key']
 
 TABLEAU_SERVER = os.environ.get('IVETL_TABLEAU_SERVER', '10.0.0.143')
 TABLEAU_IP = os.environ.get('IVETL_TABLEAU_IP', '10.0.0.143')
+TABLEAU_HTTPS = os.environ.get('IVETL_TABLEAU_HTTPS', '0') == '1'
 TABLEAU_USERNAME = os.environ.get('IVETL_TABLEAU_USERNAME', 'admin')
 TABLEAU_PASSWORD = os.environ.get('IVETL_TABLEAU_PASSWORD', 'admin')
 
