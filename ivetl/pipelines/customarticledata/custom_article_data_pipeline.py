@@ -9,7 +9,7 @@ from ivetl.models import PublisherMetadata, PipelineStatus
 @app.task
 class CustomArticleDataPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None, send_alerts=False):
         pipeline_id = 'custom_article_data'
         now, today_label, job_id = self.generate_job_id()
         product = common.PRODUCT_BY_ID[product_id]
@@ -55,6 +55,7 @@ class CustomArticleDataPipeline(Pipeline):
                     'job_id': job_id,
                     'uploaded_files': files,
                     'preserve_incoming_files': preserve_incoming_files,
+                    'send_alerts': send_alerts,
                 }
 
                 # and run the pipeline!

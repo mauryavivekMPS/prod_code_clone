@@ -57,7 +57,6 @@ class GetChecksTask(Task):
                 row = "%s\t%s\n" % (check['id'], json.dumps(check_with_details))
                 target_file.write(row)
 
-        return {
-            'count': total_count,
-            'input_file': target_file_name,
-        }
+        task_args['count'] = count
+        task_args['input_file'] = target_file_name
+        return task_args

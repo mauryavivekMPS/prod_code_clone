@@ -38,7 +38,7 @@ class ScopusIdLookupTask(Task):
             target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
 
         pm = PublisherMetadata.objects.filter(publisher_id=publisher_id).first()
-        connector = ScopusConnector(pm.scopus_api_keys)
+        scopus = ScopusConnector(pm.scopus_api_keys)
 
         count = 0
         error_count = 0
@@ -73,7 +73,7 @@ class ScopusIdLookupTask(Task):
 
                 else:
                     try:
-                        scopus_id, scopus_cited_by, scopus_subtype = connector.get_entry(
+                        scopus_id, scopus_cited_by, scopus_subtype = scopus.get_entry(
                             doi,
                             tlogger,
                             data.get('ISSN'),

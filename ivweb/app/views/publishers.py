@@ -10,7 +10,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherMetadata, Publisher_User, Audit_Log, PublisherJournal, Scopus_Api_Key, Demo
+from ivetl.models import PublisherMetadata, PublisherUser, AuditLog, PublisherJournal, ScopusApiKey, Demo
 from ivetl.tasks import update_reports_for_publisher
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -347,7 +347,7 @@ class PublisherForm(forms.Form):
 
             if not self.instance and self.cleaned_data['use_scopus_api_keys_from_pool']:
                 # grab 5 API keys from the pool
-                for key in Scopus_Api_Key.objects.all()[:5]:
+                for key in ScopusApiKey.objects.all()[:5]:
                     scopus_api_keys.append(key.key)
                     key.delete()
 
@@ -435,7 +435,7 @@ def edit(request, publisher_id=None):
 
     # bail quickly if there are no API keys
     if is_new:
-        if Scopus_Api_Key.objects.count() < 5:
+        if ScopusApiKey.objects.count() < 5:
             return HttpResponseRedirect(reverse('publishers.list') + '?from=no-keys')
 
     from_value = ''
@@ -449,12 +449,12 @@ def edit(request, publisher_id=None):
 
             if is_new:
                 if not request.user.superuser:
-                    Publisher_User.objects.create(
+                    PublisherUser.objects.create(
                         user_id=request.user.user_id,
                         publisher_id=publisher.publisher_id,
                     )
 
-                Audit_Log.objects.create(
+                AuditLog.objects.create(
                     user_id=request.user.user_id,
                     event_time=datetime.datetime.now(),
                     action='create-publisher' if is_new else 'edit-publisher',

@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.models import PublishedArticle, PublishedArticleByCohort, Publisher_Vizor_Updates, PublisherMetadata, ArticleCitations, PublishedArticleValues, Issn_Journal
+from ivetl.models import PublishedArticle, PublishedArticleByCohort, PublisherVizorUpdates, PublisherMetadata, ArticleCitations, PublishedArticleValues, IssnJournal
 from ivetl.pipelines.task import Task
 
 
@@ -31,7 +31,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
         # Build Issn Journal List
         issn_journals = {}
-        for ij in Issn_Journal.objects.fetch_size(1000).limit(100000):
+        for ij in IssnJournal.objects.fetch_size(1000).limit(100000):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
 
         pm = PublisherMetadata.filter(publisher_id=publisher_id).first()

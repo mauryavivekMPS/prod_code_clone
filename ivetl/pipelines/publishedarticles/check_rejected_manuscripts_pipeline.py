@@ -6,7 +6,7 @@ from ivetl.models import PublisherMetadata
 @app.task
 class CheckRejectedManuscriptsPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "check_rejected_manuscripts"
 
         now, today_label, job_id = self.generate_job_id()
@@ -33,6 +33,7 @@ class CheckRejectedManuscriptsPipeline(Pipeline):
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'max_articles_to_process': max_articles_to_process,
+                'send_alerts': send_alerts,
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)

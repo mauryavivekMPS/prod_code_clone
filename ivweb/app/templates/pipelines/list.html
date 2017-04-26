@@ -13,6 +13,7 @@
                     <input type="hidden" id="id_from_date" name="from_date">
                     <input type="hidden" id="id_to_date" name="to_date">
                 {% endif %}
+                <input type="hidden" name="send_alerts" value="">
             </form>
         {% else %}
             <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
@@ -21,6 +22,7 @@
                     <input type="hidden" id="id_from_date" name="from_date">
                     <input type="hidden" id="id_to_date" name="to_date">
                 {% endif %}
+                <input type="hidden" name="send_alerts" value="">
             </form>
         {% endif %}
     {% endif %}
@@ -102,6 +104,14 @@
                                 <input type="text" id="id_run_one_modal_to_date" class="form-control date-control" value="{{ to_date }}">
                             </p>
                         {% endif %}
+                        {% if has_alerts %}
+                            <div class="checkbox send-alerts-checkbox">
+                                <label>
+                                    <input type="checkbox" name="send_alerts" value="1">
+                                    Send any alerts associated with this pipeline
+                                </label>
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary confirm-run-one-submit-button">Yes, Run Pipeline</button>
@@ -135,6 +145,14 @@
                             {% else %}
                                 <p>Are you sure you want to run the {{ pipeline.name }} pipeline?</p>
                             {% endif %}
+                            {% if has_alerts %}
+                                <div class="checkbox send-alerts-checkbox">
+                                    <label>
+                                        <input type="checkbox" name="send_alerts" value="1">
+                                        Send any alerts associated with this pipeline
+                                    </label>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary confirm-run-single-publisher-pipeline-submit-button">Yes, Run Pipeline</button>
@@ -166,6 +184,14 @@
                                 {% endif %}
                             {% else %}
                                 <p>Are you sure you want to run the {{ pipeline.name }} pipeline for all publishers?</p>
+                            {% endif %}
+                            {% if has_alerts %}
+                                <div class="checkbox send-alerts-checkbox">
+                                    <label>
+                                        <input type="checkbox" name="send_alerts" value="1">
+                                        Send any alerts associated with this pipeline
+                                    </label>
+                                </div>
                             {% endif %}
                         </div>
                         <div class="modal-footer">

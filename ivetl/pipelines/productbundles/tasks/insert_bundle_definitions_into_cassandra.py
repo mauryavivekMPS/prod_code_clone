@@ -41,6 +41,5 @@ class InsertBundleDefinitionsIntoCassandraTask(Task):
                         journal_issns=issns,
                     )
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

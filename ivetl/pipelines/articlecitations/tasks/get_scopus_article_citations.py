@@ -38,7 +38,7 @@ class GetScopusArticleCitations(Task):
             target_file.write('PUBLISHER_ID\tDOI\tDATA\n')
 
         pm = PublisherMetadata.objects.get(publisher_id=publisher_id)
-        connector = ScopusConnector(pm.scopus_api_keys)
+        scopus = ScopusConnector(pm.scopus_api_keys)
 
         if product['cohort']:
             articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=True).fetch_size(1000).limit(self.QUERY_LIMIT)
@@ -77,11 +77,12 @@ class GetScopusArticleCitations(Task):
 
             citations = []
             try:
-                citations = connector.get_citations(
+                citations, skipped = scopus.get_citations(
                     article.article_scopus_id,
                     article.is_cohort,
                     tlogger,
-                    should_get_citation_details=should_get_citation_details
+                    should_get_citation_details=should_get_citation_details,
+                    existing_count=article.scopus_citation_count
                 )
 
             except MaxTriesAPIError:
@@ -91,11 +92,12 @@ class GetScopusArticleCitations(Task):
             if error_count >= self.MAX_ERROR_COUNT:
                     raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
 
-            new_citations_count = len(citations)
-            tlogger.info("%s citations retrieved from Scopus." % new_citations_count)
-
-            row = "%s\t%s\t%s\n" % (publisher_id, doi, json.dumps(citations))
-            target_file.write(row)
+            if skipped:
+                tlogger.info('No new citations found, skipping article')
+            else:
+                tlogger.info("%s citations retrieved from Scopus" % len(citations))
+                row = "%s\t%s\t%s\n" % (publisher_id, doi, json.dumps(citations))
+                target_file.write(row)
 
         target_file.close()
 

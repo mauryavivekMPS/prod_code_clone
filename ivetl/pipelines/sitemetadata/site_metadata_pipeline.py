@@ -6,7 +6,7 @@ from ivetl.common import common
 @app.task
 class SiteMetadataPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
         pipeline_id = "site_metadata"
 
         now, today_label, job_id = self.generate_job_id()
@@ -26,6 +26,7 @@ class SiteMetadataPipeline(Pipeline):
             'product_id': product_id,
             'work_folder': work_folder,
             'job_id': job_id,
+            'send_alerts': send_alerts,
         }
 
         Pipeline.chain_tasks(pipeline_id, task_args)

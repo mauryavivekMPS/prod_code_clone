@@ -15,11 +15,13 @@ import django
 django.setup()
 
 import argparse
-from ivetl.tools import clean_tableau_filter_fields
+from ivetl.tools import clean_tableau_filter_fields, export_from_cassandra, import_to_cassandra
 
 commands = [
     'clean_filters_for_publisher',
     'clean_filters_for_all_publishers',
+    'export',
+    'import',
 ]
 
 
@@ -43,3 +45,14 @@ if __name__ == "__main__":
 
     elif args.command == 'clean_filters_for_all_publishers':
         clean_tableau_filter_fields.clean_filters_for_all_publishers()
+
+    elif args.command == 'export':
+        second_parser.add_argument('--output_dir', dest='output_dir', default='.')
+        second_parser.add_argument('--models', nargs='*', dest='models')
+        export_args = second_parser.parse_args()
+        export_from_cassandra.export_tables(output_dir=export_args.output_dir, models=export_args.models)
+
+    elif args.command == 'import':
+        second_parser.add_argument('--input_dir', dest='input_dir', default='.')
+        import_args = second_parser.parse_args()
+        import_to_cassandra.import_tables(input_dir=import_args.input_dir)

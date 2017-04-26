@@ -23,8 +23,6 @@ class UpdateInstitutionUsageStatsTask(Task):
                 year=stat.usage_date.year,
             )
 
-            tlogger.info('Matching stat: %s, %s, %s' % (stat.publisher_id, stat.counter_type, stat.journal))
-
             # find one with a matching ISSN
             match = None
             for subscription in matching_subscriptions:
@@ -43,18 +41,14 @@ class UpdateInstitutionUsageStatsTask(Task):
                     pass
 
             if match:
-                tlogger.info('Found match, updating with bundle info: %s' % match.bundle_name)
                 stat.update(
                     bundle_name=match.bundle_name,
                     trial=match.trial,
                     trial_expiration_date=match.trial_expiration_date,
                     amount=match.amount,
                 )
-            else:
-                tlogger.info('No match found')
 
-        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger)
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
-        return {
-            'count': count
-        }
+        task_args['count'] = count
+        return task_args

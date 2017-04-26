@@ -1,0 +1,25 @@
+<div style="background: url(http://manage.vizors.org/static/dist/diagonal-noise.png) repeat center center fixed; width: 100%; height:{% if include_live_report_link %}600px;{% else %}350px;{% endif %} padding-top:10px">
+    <div style="background-color: white; border: 1px dotted #ccc; padding: 20px 30px {% if include_live_report_link %}20px;{% else %}40px;{% endif %} width: 600px; margin: 20px auto 10px">
+        <div>
+            <img src="http://manage.vizors.org/static/dist/transparent-logo.png" style="height: 36px; float: left; margin-top: 3px;">
+            <h1 style="margin-left: 50px; font-size: 20px; font-weight: 400; margin-bottom: 1px;">{{ notification.name }}</h1>
+            <div style="margin-left: 50px; font-weight: 200; font-size: 12px; color: #888">Generated on <span>{{ notification.notification_date|date:"l, F d, Y" }}</span></div>
+        </div>
+        <p style="margin-top: 20px; margin-left: 50px;">Hi there,</p>
+        {% if include_live_report_link %}
+            <p style="margin-left: 50px;">There is a new {{ notification.name }} update available on ImpactVizor:</p>
+            <div style="text-align: center;">
+                <img src="cid:thumbnail" style="width: 340px">
+            </div>
+            <p style="text-align: center; font-size: 12px; margin-top: 0; margin-bottom: 20px;"><a href="{{ notification_url }}">View the report online</a></p>
+            <p style="margin-left: 50px;">You can <a href="{{ notification_url }}">view the live report online</a> or open the attached PDF.
+                If you have any questions or would like to modify your notification preferences, please contact your ImpactVizor administrator.</p>
+        {% else %}
+            <p style="margin-left: 50px;">The latest {{ notification.name }} is ready and attached.</p>
+            <p style="margin-left: 50px;">If you have any questions or would like to modify your notification preferences, please contact your
+                ImpactVizor administrator.</p>
+        {% endif %}
+        <p style="margin-left: 50px;">Thanks,</p>
+        <p style="margin-left: 50px;">The ImpactVizor Team</p>
+    </div>
+</div>

@@ -165,7 +165,6 @@ class ClassifyChecksTask(Task):
                     row = "%s\t%s\n" % (check['id'], json.dumps(check))
                     target_file.write(row)
 
-        return {
-            'count': count,
-            'input_file': target_file_name,
-        }
+        task_args['count'] = count
+        task_args['input_file'] = target_file_name
+        return task_args

@@ -1,10 +1,10 @@
-import re
 import requests
 import time
+import json
 from bs4 import BeautifulSoup
 from datetime import datetime
-
 from ivetl.connectors.base import BaseConnector, MaxTriesAPIError, AuthorizationAPIError
+from ivetl.common import common
 
 
 class CrossrefConnector(BaseConnector):
@@ -15,7 +15,6 @@ class CrossrefConnector(BaseConnector):
 
     connector_name = 'Crossref'
     max_attempts = 7
-    request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
         self.username = username
@@ -24,53 +23,51 @@ class CrossrefConnector(BaseConnector):
 
     def get_citations(self, doi):
         url = '%s?usr=%s&pwd=%s&doi=%s&format=unixsd' % (self.BASE_CITATION_URL, self.username, self.password, doi)
-        r = self.get_with_retry(url)
-        soup = BeautifulSoup(r.content, 'xml')
+        response_text = self.get_with_retry(url)
+        soup = BeautifulSoup(response_text, 'xml')
         citations = [e.text for e in soup.find_all('doi', type="journal_article")]
         return citations
 
     def get_example_doi_for_journal(self, issn):
         url = self.BASE_WORKS_URL % issn
-        r = self.get_with_retry(url)
-        first_doi = r.json()['message']['items'][0]['DOI']
+        response_text = self.get_with_retry(url)
+        first_doi = json.loads(response_text)['message']['items'][0]['DOI']
         return first_doi
 
     def get_journal_info(self, issn, year):
-        url = self.BASE_JNL_URL % issn
-        #print(url)
-        r = self.get_with_retry(url)
-
         journal = None
 
         try:
-            if r.json():
-                jnl_name = r.json()['message']['title']
-                publisher_name = r.json()['message']['publisher']
+            journal_response_url = self.BASE_JNL_URL % issn
+            journal_response_text = self.get_with_retry(journal_response_url)
+            journal_response_json = json.loads(journal_response_text)
 
-                url = self.BASE_JNL_URL % issn + "/works?rows=1&filter=from-pub-date:" + str(year) + \
-                      "-01-01,until-pub-date:" + str(year) + "-12-31"
+            journal_name = journal_response_json['message']['title']
+            publisher_name = journal_response_json['message']['publisher']
 
-                #print(url)
-                r = self.get_with_retry(url)
+            works_url = self.BASE_JNL_URL % issn + "/works?rows=1&filter=from-pub-date:" + str(year) + "-01-01,until-pub-date:" + str(year) + "-12-31"
+            works_response_text = self.get_with_retry(works_url)
 
-                article_count = r.json()['message']['total-results']
+            works_response_json = json.loads(works_response_text)
+            article_count = works_response_json['message']['total-results']
 
-                journal = {
-                    'name': jnl_name,
-                    'publisher': publisher_name,
-                    'article_count': article_count
-                }
-        except ValueError:
+            journal = {
+                'name': journal_name,
+                'publisher': publisher_name,
+                'article_count': article_count
+            }
+
+        except (ValueError):
             pass
 
         return journal
 
     def get_article(self, doi):
         url = '%s/%s' % (self.BASE_ARTICLE_URL, doi)
-        r = self.get_with_retry(url)
+        article_response_text = self.get_with_retry(url)
 
         try:
-            article_json = r.json()
+            article_json = json.loads(article_response_text)
         except ValueError:
             article_json = None
 
@@ -156,10 +153,10 @@ class CrossrefConnector(BaseConnector):
 
         self.log('search url: %s' % url)
 
-        r = self.get_with_retry(url)
+        search_response_text = self.get_with_retry(url)
 
         try:
-            search_results_json = r.json()
+            search_results_json = json.loads(search_response_text)
         except ValueError:
             search_results_json = None
 
@@ -168,7 +165,6 @@ class CrossrefConnector(BaseConnector):
     def get_with_retry(self, url):
         attempt = 0
         success = False
-        r = None
 
         def _pause_for_retry():
             if attempt == self.max_attempts - 3:
@@ -180,34 +176,35 @@ class CrossrefConnector(BaseConnector):
             else:
                 time.sleep(0.2)
 
+        response_text = None
         while not success and attempt < self.max_attempts:
-            try:
-                r = requests.get(url, timeout=self.request_timeout)
-                r.raise_for_status()
-                self.check_for_auth_error(r)
-                success = True
-            except requests.HTTPError as http_error:
-                if http_error.response.status_code == requests.codes.NOT_FOUND:
-                    return r
-                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
-                    self.log("Crossref API timed out. Trying again...")
-                    _pause_for_retry()
-                    attempt += 1
-                elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
-                    self.log("Crossref API 500 error. Trying again...")
-                    _pause_for_retry()
-                    attempt += 1
-                else:
-                    raise http_error
-            except Exception:
-                    self.log("General Exception - CrossRef API failed. Trying again...")
-                    _pause_for_retry()
-                    attempt += 1
+            limit_request = {
+                'type': 'GET',
+                'service': 'crossref',
+                'url': url,
+            }
+
+            r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=300)  # long timeout to account for queuing
+            limit_response = r.json()
+            response_status_code = limit_response['status_code']
+            response_text = limit_response['text']
+
+            if response_status_code in (requests.codes.REQUEST_TIMEOUT, requests.codes.UNAUTHORIZED):
+                self.log("Crossref API timed out. Trying again...")
+                _pause_for_retry()
+                attempt += 1
+            elif response_status_code in (requests.codes.INTERNAL_SERVER_ERROR, requests.codes.BAD_GATEWAY):
+                self.log("Crossref API 500 error. Trying again...")
+                _pause_for_retry()
+                attempt += 1
+
+            self.check_for_auth_error(response_text)
+            success = True
 
         if not success:
             raise MaxTriesAPIError(self.max_attempts)
 
-        return r
+        return response_text
 
     def log(self, message):
         if self.tlogger:
@@ -228,7 +225,7 @@ class CrossrefConnector(BaseConnector):
                         parts = date_parts[:1] + [1, 1]
 
         if parts:
-            return '%s-%s-%s' % tuple(parts)
+            return '%s-%s-%s' % (parts[0], parts[1], parts[2])
 
         return None
 
@@ -248,9 +245,9 @@ class CrossrefConnector(BaseConnector):
 
         return datetime(year, month, day)
 
-    def check_for_auth_error(self, r):
-        if 'Incorrect password for username' in r.text:
-            raise AuthorizationAPIError(r.text)
+    def check_for_auth_error(self, response_text):
+        if 'Incorrect password for username' in response_text:
+            raise AuthorizationAPIError(response_text)
 
     def solr_encode(self, url_fragment):
         return url_fragment.replace(' ', '+')\
