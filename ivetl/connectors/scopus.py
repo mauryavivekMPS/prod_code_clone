@@ -197,7 +197,7 @@ class ScopusConnector(BaseConnector):
 
                     if should_get_citation_details:
                         if not should_get_citation_details(doi):
-                            tlogger.info('Skipping: %s' % doi)
+                            tlogger.info('Skipping because we already have details: %s' % doi)
                             continue
 
                     scopus_id = None

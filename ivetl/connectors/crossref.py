@@ -185,21 +185,31 @@ class CrossrefConnector(BaseConnector):
             }
 
             r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=300)  # long timeout to account for queuing
-            limit_response = r.json()
-            response_status_code = limit_response['status_code']
-            response_text = limit_response['text']
+            try:
+                limit_response = r.json()
+                response_status_code = limit_response['status_code']
+                response_text = limit_response['text']
+                complete_response = True
+            except ValueError:
+                complete_response = False
 
-            if response_status_code in (requests.codes.REQUEST_TIMEOUT, requests.codes.UNAUTHORIZED):
-                self.log("Crossref API timed out. Trying again...")
+            if complete_response:
+                if response_status_code in (requests.codes.REQUEST_TIMEOUT, requests.codes.UNAUTHORIZED):
+                    self.log("Crossref API timed out. Trying again...")
+                    _pause_for_retry()
+                    attempt += 1
+                elif response_status_code in (requests.codes.INTERNAL_SERVER_ERROR, requests.codes.BAD_GATEWAY):
+                    self.log("Crossref API 500 error. Trying again...")
+                    _pause_for_retry()
+                    attempt += 1
+
+                self.check_for_auth_error(response_text)
+                success = True
+
+            else:
+                self.log('Unexpected response from the rate limiter. Trying again...')
                 _pause_for_retry()
                 attempt += 1
-            elif response_status_code in (requests.codes.INTERNAL_SERVER_ERROR, requests.codes.BAD_GATEWAY):
-                self.log("Crossref API 500 error. Trying again...")
-                _pause_for_retry()
-                attempt += 1
-
-            self.check_for_auth_error(response_text)
-            success = True
 
         if not success:
             raise MaxTriesAPIError(self.max_attempts)
