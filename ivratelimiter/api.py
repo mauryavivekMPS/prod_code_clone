@@ -44,7 +44,7 @@ def rate_limited(max_per_second):
     return decorate
 
 
-@rate_limited(18)
+# @rate_limited(18)
 def do_crossref_request(url):
     log.info('requested crossref: %s' % url)
     return requests.get(url, timeout=30)
@@ -64,20 +64,25 @@ def limit():
     #     'url': 'http://api.foo.com/?a=1&b=4',
     # }
 
-    request_type = request.json['type']
-    service = request.json['service']
-    url = request.json['url']
+    try:
+        request_type = request.json['type']
+        service = request.json['service']
+        url = request.json['url']
 
-    log.info('queued %s: %s' % (service, url))
+        log.info('queued %s: %s' % (service, url))
 
-    if request_type == 'GET':
-        service_response = SERVICES[service](url)
-        wrapped_response = {
-            'limit_status': 'ok',
-            'status_code': service_response.status_code,
-            'text': service_response.text,
-        }
-    else:
+        if request_type == 'GET':
+            service_response = SERVICES[service](url)
+            wrapped_response = {
+                'limit_status': 'ok',
+                'status_code': service_response.status_code,
+                'text': service_response.text,
+            }
+        else:
+            wrapped_response = {
+                'limit_status': 'error',
+            }
+    except:
         wrapped_response = {
             'limit_status': 'error',
         }
