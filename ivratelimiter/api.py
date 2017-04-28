@@ -2,6 +2,7 @@ import time
 import threading
 import requests
 import logging
+import traceback
 from functools import wraps
 from flask import Flask, request, jsonify
 
@@ -46,7 +47,7 @@ def rate_limited(max_per_second):
 
 # @rate_limited(18)
 def do_crossref_request(url):
-    log.info('requested crossref: %s' % url)
+    log.info('Requested crossref: %s' % url)
     return requests.get(url, timeout=30)
 
 
@@ -64,12 +65,14 @@ def limit():
     #     'url': 'http://api.foo.com/?a=1&b=4',
     # }
 
+    url = ''
+
     try:
         request_type = request.json['type']
         service = request.json['service']
         url = request.json['url']
 
-        log.info('queued %s: %s' % (service, url))
+        log.info('Queued %s: %s' % (service, url))
 
         if request_type == 'GET':
             service_response = SERVICES[service](url)
@@ -79,11 +82,14 @@ def limit():
                 'text': service_response.text,
             }
         else:
+            log.info('Only GET is supported, returning an error response')
             wrapped_response = {
                 'limit_status': 'error',
             }
 
     except:
+        log.info('Unexpected exception on: %s' % url)
+        log.info(traceback.format_exc())
         wrapped_response = {
             'limit_status': 'error',
         }
