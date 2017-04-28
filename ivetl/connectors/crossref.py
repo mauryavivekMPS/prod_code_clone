@@ -168,12 +168,16 @@ class CrossrefConnector(BaseConnector):
 
         def _pause_for_retry():
             if attempt == self.max_attempts - 3:
+                self.log('Pause 30 for retry')
                 time.sleep(30)
             elif attempt == self.max_attempts - 2:
-                time.sleep(300)
+                self.log('Pause 150 for retry')
+                time.sleep(150)
             elif attempt == self.max_attempts - 1:
-                time.sleep(600)
+                self.log('Pause 300 for retry')
+                time.sleep(300)
             else:
+                self.log('Pause 0.2 for retry')
                 time.sleep(0.2)
 
         response_text = None
@@ -184,16 +188,20 @@ class CrossrefConnector(BaseConnector):
                 'url': url,
             }
 
+            completed_response = False
+
             r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=300)  # long timeout to account for queuing
             try:
                 limit_response = r.json()
-                response_status_code = limit_response['status_code']
-                response_text = limit_response['text']
-                complete_response = True
-            except ValueError:
-                complete_response = False
+                if limit_response.get('limit_status', 'error') == 'ok':
+                    response_status_code = limit_response['status_code']
+                    response_text = limit_response['text']
+                    completed_response = True
 
-            if complete_response:
+            except ValueError:
+                pass
+
+            if completed_response:
                 if response_status_code in (requests.codes.REQUEST_TIMEOUT, requests.codes.UNAUTHORIZED):
                     self.log("Crossref API timed out. Trying again...")
                     _pause_for_retry()
