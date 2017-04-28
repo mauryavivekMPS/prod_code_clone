@@ -82,6 +82,7 @@ def limit():
             wrapped_response = {
                 'limit_status': 'error',
             }
+
     except:
         wrapped_response = {
             'limit_status': 'error',
