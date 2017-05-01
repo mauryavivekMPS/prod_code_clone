@@ -33,10 +33,10 @@ class TableauAlert(Model):
         display_strings = []
         for n, v in d.items():
             if type(v) == list:
-                value_string = ','.join(urllib.parse.quote(v))
+                value_string = ','.join(v)
             else:
                 value_string = v
-            display_strings.append('%s=%s' % (n, value_string))
+            display_strings.append('%s=%s' % (urllib.parse.quote(n), urllib.parse.quote(value_string)))
         return '&'.join(display_strings)
 
     @property
@@ -68,7 +68,8 @@ class TableauAlert(Model):
         params_and_filters = {}
         params_and_filters.update(json.loads(self.alert_filters))
         params_and_filters.update(json.loads(self.alert_params))
-        return urllib.parse.urlencode(params_and_filters)
+        # return urllib.parse.urlencode(params_and_filters, quote_via=urllib.parse.quote)
+        return self._generate_dict_query_string(params_and_filters)
 
     @property
     def has_params(self):
