@@ -19,6 +19,11 @@
             <p style="margin-left: 50px;">If you have any questions or would like to modify your notification preferences, please contact your
                 ImpactVizor administrator.</p>
         {% endif %}
+        {% if notification.custom_message %}
+            <hr style="margin-left: 50px; border-bottom: none; border-top: 1px dotted #ccc;">
+            <p style="margin-left: 50px; font-style: italic">{{ notification.custom_message }}</p>
+            <hr style="margin-left: 50px; border-bottom: none; border-top: 1px dotted #ccc;">
+        {% endif %}
         <p style="margin-left: 50px;">Thanks,</p>
         <p style="margin-left: 50px;">The ImpactVizor Team</p>
     </div>
