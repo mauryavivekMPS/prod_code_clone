@@ -27,7 +27,7 @@ export IVETL_TABLEAU_USERNAME
 IVETL_TABLEAU_PASSWORD=Reena,1275
 export IVETL_TABLEAU_PASSWORD
 
-IVETL_WEB_ADDRESS=http://manage.vizors.org
+IVETL_WEB_ADDRESS=https://manage.vizors.org
 export IVETL_WEB_ADDRESS
 
 DJANGO_SETTINGS_MODULE=ivweb.settings.prod
