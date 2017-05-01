@@ -209,17 +209,15 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
 
         if full_emails:
             notification_url = '%s/n/%s/' % (common.IVETL_WEB_ADDRESS, notification.notification_id)
+            thumbnail_url = '%s/static/dist/%s' % (common.IVETL_WEB_ADDRESS, template['thumbnail'])
 
             html = email_template.render({
                 'notification': notification,
                 'include_live_report_link': True,
                 'notification_url': notification_url,
+                'thumbnail_url': thumbnail_url,
             })
             content = Content('text/html', html)
-
-            thumbnail_path = os.path.join(common.IVETL_ROOT, 'ivweb/app/static/images', template['thumbnail'])
-            thumbnail_content = open(thumbnail_path, 'rb').read()
-            encoded_thumbnail_content = base64.b64encode(thumbnail_content).decode()
 
             for to_email_address in full_emails:
                 to_email = Email(to_email_address)
@@ -236,13 +234,5 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
                 attachment.set_disposition("attachment")
                 attachment.set_content_id(attachment_content_id)
                 mail.add_attachment(attachment)
-
-                thumbnail_attachment = Attachment()
-                thumbnail_attachment.set_content(encoded_thumbnail_content)
-                thumbnail_attachment.set_type("png")
-                thumbnail_attachment.set_filename(template['thumbnail'])
-                thumbnail_attachment.set_disposition("inline")
-                thumbnail_attachment.set_content_id('thumbnail')
-                mail.add_attachment(thumbnail_attachment)
 
                 sg.client.mail.send.post(request_body=mail.get())

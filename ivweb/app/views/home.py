@@ -128,7 +128,7 @@ def recent_jobs(request):
         earliest_start_time = datetime.datetime.now() - datetime.timedelta(days=num_recent_days)
 
         # get anything within the past two weeks
-        recent_runs = [run for run in PipelineStatus.objects().limit(500) if run.status in viewable_statuses and run.start_time > earliest_start_time]
+        recent_runs = [run for run in PipelineStatus.objects().fetch_size(1000).limit(100000) if run.status in viewable_statuses and run.start_time > earliest_start_time]
 
         # sort the runs by pub
         for run in recent_runs:
