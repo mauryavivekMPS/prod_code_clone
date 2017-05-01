@@ -317,7 +317,6 @@ $.widget("custom.edittableaualertpage", {
                             if (changed) {
                                 self.filters[filterName] = [];
                                 $.each(selectedValues, function (index, value) {
-                                    console.log(value);
                                     self.filters[filterName].push(value.value);
                                 });
                                 self.filtersHiddenInput.val(JSON.stringify(self.filters));
@@ -333,7 +332,7 @@ $.widget("custom.edittableaualertpage", {
                     viz.addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, function (e) {
                         e.getParameterAsync().then(function (parameter) {
                             var parameterName = parameter.getName();
-                            self.parameters[parameterName] = parameter.getCurrentValue().value;
+                            self.parameters[parameterName] = [parameter.getCurrentValue().value];
                             self.parametersHiddenInput.val(JSON.stringify(self.parameters));
                             self._checkForm();
                         });

@@ -23,9 +23,9 @@ class TableauAlert(Model):
         display_strings = []
         for n, v in d.items():
             if type(v) == list:
-                value_string = ', '.join(v)
+                value_string = ', '.join([str(each_v) for each_v in v])
             else:
-                value_string = v
+                value_string = str(v)
             display_strings.append('%s = %s' % (n, value_string))
         return ', '.join(display_strings)
 
@@ -33,9 +33,9 @@ class TableauAlert(Model):
         display_strings = []
         for n, v in d.items():
             if type(v) == list:
-                value_string = ','.join(v)
+                value_string = ','.join([str(each_v) for each_v in v])
             else:
-                value_string = v
+                value_string = str(v)
             display_strings.append('%s=%s' % (urllib.parse.quote(n), urllib.parse.quote(value_string)))
         return '&'.join(display_strings)
 
