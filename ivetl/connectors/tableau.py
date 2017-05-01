@@ -56,7 +56,7 @@ class TableauConnector(BaseConnector):
             self.sign_in()
 
     def _tabcmd_login_params(self):
-        return ['-s', self.server, '-u', self.username, '-p', self.password]
+        return ['-s', self.server + ':80', '-u', self.username, '-p', self.password]
 
     def create_project(self, project_name):
         self._check_authentication()
@@ -449,4 +449,5 @@ class TableauConnector(BaseConnector):
             timestamp = str(int(datetime.datetime.now().timestamp()))
             path = os.path.join(common.TMP_DIR, '%s-%s.pdf' % (view_url[:view_url.index('?')].replace('/', '-'), timestamp))
         subprocess.call([common.TABCMD, 'get', view_url, '-f', path] + self._tabcmd_login_params())
+        print(" ".join([common.TABCMD, 'get', view_url, '-f', path] + self._tabcmd_login_params()))
         return path
