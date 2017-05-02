@@ -27,7 +27,7 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
 
                     membership_no = line[CustomSubscriberDataPipeline.FIELD_NAMES['membership_no']]
                     try:
-                        subscriber = Subscriber.objects.get(membership_no=membership_no)
+                        subscriber = Subscriber.objects.get(publisher_id=publisher_id, membership_no=membership_no)
                     except Subscriber.DoesNotExist:
                         tlogger.info('Subscriber %s not found, skipping...' % membership_no)
                         continue
