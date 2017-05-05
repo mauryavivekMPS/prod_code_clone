@@ -3,6 +3,7 @@ $.widget("custom.externalnotificationreportpage", {
         trustedReportUrl: '',
         publisherId: '',
         alertTemplateId: '',
+        filterWorksheetName: '',
         filters: {},
         params: {}
     },
@@ -10,8 +11,8 @@ $.widget("custom.externalnotificationreportpage", {
     _create: function () {
         var self = this;
         var data = {
-            template_id: self.options.alertTemplateId,
-            publisher_id: self.options.publisherId,
+            template_id: this.options.alertTemplateId,
+            publisher_id: this.options.publisherId,
             embed_type: 'full'
         };
         $.get(this.options.trustedReportUrl, data)
@@ -19,25 +20,54 @@ $.widget("custom.externalnotificationreportpage", {
                 var trustedReportUrl = response.url;
                 var reportContainer = $('.embedded-report-container')[0];
 
+                var allExistingFilters = self.options.filters;
+                $.extend(allExistingFilters, self.options.params);
+
                 var vizOptions = {
                     hideTabs: false,
-                    hideToolbar: true
+                    hideToolbar: true,
+                    onFirstInteractive: function () {
+                        var workbook = viz.getWorkbook();
+                        var activeSheet = workbook.getActiveSheet();
+
+                        if (activeSheet.getSheetType() != 'worksheet') {
+                            var allWorksheets = activeSheet.getWorksheets();
+                            for (var i = 0; i < allWorksheets.length; i++) {
+                                var worksheet = allWorksheets[i];
+                                if (worksheet.getName() == self.options.filterWorksheetName) {
+                                    activeSheet = worksheet;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // ranges and excluded values get applied after load
+                        $.each(Object.keys(allExistingFilters), function (index, name) {
+                            var filter = allExistingFilters[name];
+
+                            if (filter.type == 'categorical' && filter.exclude) {
+                                activeSheet.applyFilterAsync(name, filter.values, tableauSoftware.FilterUpdateType.REMOVE);
+                            }
+                            else if (filter.type == 'quantitative') {
+                                var minDate = new Date(filter.min);
+                                var maxDate = new Date(filter.max);
+                                activeSheet.applyRangeFilterAsync(name, {min: minDate, max: maxDate})
+                                    .otherwise(function (err) {
+                                        console.log('Error setting range filter: ' + err);
+                                    });
+                            }
+                        });
+                    }
                 };
 
-                // apply each of the filters
-                $.each(Object.keys(self.options.filters), function (index, name) {
-                    vizOptions[name] = [];
-                    $.each(self.options.filters[name], function (index, value) {
-                        vizOptions[name].push(value);
-                    });
-                });
-
-                // apply each of the params
-                $.each(Object.keys(self.options.params), function (index, name) {
-                    vizOptions[name] = [];
-                    $.each(self.options.params[name], function (index, value) {
-                        vizOptions[name].push(value);
-                    });
+                $.each(Object.keys(allExistingFilters), function (index, name) {
+                    var filter = allExistingFilters[name];
+                    if (filter.type == 'categorical' && !filter.exclude) {
+                        vizOptions[name] = [];
+                        $.each(filter.values, function (index, value) {
+                            vizOptions[name].push(value);
+                        });
+                    }
                 });
 
                 var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);

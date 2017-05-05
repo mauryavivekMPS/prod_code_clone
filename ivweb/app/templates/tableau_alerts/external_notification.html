@@ -33,6 +33,7 @@
                 trustedReportUrl: '{% url 'tableau_alerts.get_trusted_report_url' %}',
                 publisherId: '{{ notification.publisher_id }}',
                 alertTemplateId: '{{ notification.template_id }}',
+                filterWorksheetName: '{{ template.filter_worksheet_name }}',
                 filters: {{ notification.alert_filters|safe }},
                 params: {{ notification.alert_params|safe }}
             });

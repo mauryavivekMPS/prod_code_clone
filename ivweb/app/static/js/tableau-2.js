@@ -1,7059 +1,7534 @@
-//! tableau-2.0.0.js
-//
-
-(function() {
-
-
-// (function() {
-
-////////////////////////////////////////////////////////////////////////////////
-// Utility methods (generated via Script.IsNull, etc.)
-////////////////////////////////////////////////////////////////////////////////
-
-var ss = {
-  version: '0.7.4.0',
-
-  isUndefined: function (o) {
-    return (o === undefined);
-  },
-
-  isNull: function (o) {
-    return (o === null);
-  },
-
-  isNullOrUndefined: function (o) {
-    return (o === null) || (o === undefined);
-  },
-
-  isValue: function (o) {
-    return (o !== null) && (o !== undefined);
-  }
-};
-
-// If the browser does not support Object.keys this alternative
-// function returns the same list without using the keys method.
-// This code was found in mscorlib.js (BUGZID:116352)
-if (!Object.keys) {
-  Object.keys = function Object$keys(d) {
-    var keys = [];
-    for (var key in d) {
-      keys.push(key);
-    }
-    return keys;
-  }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Type System Implementation
-////////////////////////////////////////////////////////////////////////////////
-
-
-var Type = Function;
-var originalRegistrationFunctions = {
-  registerNamespace: { isPrototype: false, func: Type.registerNamespace },
-  registerInterface: { isPrototype: true, func: Type.prototype.registerInterface },
-  registerClass: { isPrototype: true, func: Type.prototype.registerClass },
-  registerEnum: { isPrototype: true, func: Type.prototype.registerEnum }
-};
-
-var tab = {};
-var tabBootstrap = {};
-
-Type.registerNamespace = function (name) {
-  if (name === "tableauSoftware") {
-    window.tableauSoftware = window.tableau = window.tableauSoftware || {};
-  }
-};
-
-Type.prototype.registerInterface = function (name) {
-};
-
-Type.prototype.registerEnum = function (name, flags) {
-  for (var field in this.prototype) {
-    this[field] = this.prototype[field];
-  }
-};
-
-Type.prototype.registerClass = function (name, baseType, interfaceType) {
-  var that = this;
-  this.prototype.constructor = this;
-  this.__baseType = baseType || Object;
-  if (baseType) {
-    this.__basePrototypePending = true;
-    this.__setupBase = function () {
-      Type$setupBase(that);
-    };
-    this.initializeBase = function (instance, args) {
-      Type$initializeBase(that, instance, args);
-    };
-    this.callBaseMethod = function (instance, name, args) {
-      Type$callBaseMethod(that, instance, name, args);
-    };
-  }
-};
-
-function Type$setupBase(that) {
-  if (that.__basePrototypePending) {
-    var baseType = that.__baseType;
-    if (baseType.__basePrototypePending) {
-      baseType.__setupBase();
-    }
-
-    for (var memberName in baseType.prototype) {
-      var memberValue = baseType.prototype[memberName];
-      if (!that.prototype[memberName]) {
-        that.prototype[memberName] = memberValue;
-      }
-    }
-
-    delete that.__basePrototypePending;
-    delete that.__setupBase;
-  }
-}
-
-function Type$initializeBase(that, instance, args) {
-  if (that.__basePrototypePending) {
-    that.__setupBase();
-  }
-
-  if (!args) {
-    that.__baseType.apply(instance);
-  }
-  else {
-    that.__baseType.apply(instance, args);
-  }
-}
-
-function Type$callBaseMethod(that, instance, name, args) {
-  var baseMethod = that.__baseType.prototype[name];
-  if (!args) {
-    return baseMethod.apply(instance);
-  }
-  else {
-    return baseMethod.apply(instance, args);
-  }
-}
-
-// Restore the original functions on the Type (Function) object so that we
-// don't pollute the global namespace.
-function restoreTypeSystem() {
-  for (var regFuncName in originalRegistrationFunctions) {
-    if (!originalRegistrationFunctions.hasOwnProperty(regFuncName)) { continue; }
-
-    var original = originalRegistrationFunctions[regFuncName];
-    var typeOrPrototype = original.isPrototype ? Type.prototype : Type;
-    if (original.func) {
-      typeOrPrototype[regFuncName] = original.func;
-    } else {
-      delete typeOrPrototype[regFuncName];
-    }
-  }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Delegate
-////////////////////////////////////////////////////////////////////////////////
-
-ss.Delegate = function Delegate$() {
-};
-
-ss.Delegate.registerClass('Delegate');
-
-ss.Delegate.empty = function() { };
-
-ss.Delegate._contains = function Delegate$_contains(targets, object, method) {
-  for (var i = 0; i < targets.length; i += 2) {
-    if (targets[i] === object && targets[i + 1] === method) {
-      return true;
-    }
-  }
-  return false;
-};
-
-ss.Delegate._create = function Delegate$_create(targets) {
-  var delegate = function() {
-    if (targets.length == 2) {
-      return targets[1].apply(targets[0], arguments);
-    }
-    else {
-      var clone = targets.concat();
-      for (var i = 0; i < clone.length; i += 2) {
-        if (ss.Delegate._contains(targets, clone[i], clone[i + 1])) {
-          clone[i + 1].apply(clone[i], arguments);
-        }
-      }
-      return null;
-    }
-  };
-  delegate._targets = targets;
-
-  return delegate;
-};
-
-ss.Delegate.create = function Delegate$create(object, method) {
-  if (!object) {
-    return method;
-  }
-  return ss.Delegate._create([object, method]);
-};
-
-ss.Delegate.combine = function Delegate$combine(delegate1, delegate2) {
-  if (!delegate1) {
-    if (!delegate2._targets) {
-      return ss.Delegate.create(null, delegate2);
-    }
-    return delegate2;
-  }
-  if (!delegate2) {
-    if (!delegate1._targets) {
-      return ss.Delegate.create(null, delegate1);
-    }
-    return delegate1;
-  }
-
-  var targets1 = delegate1._targets ? delegate1._targets : [null, delegate1];
-  var targets2 = delegate2._targets ? delegate2._targets : [null, delegate2];
-
-  return ss.Delegate._create(targets1.concat(targets2));
-};
-
-ss.Delegate.remove = function Delegate$remove(delegate1, delegate2) {
-  if (!delegate1 || (delegate1 === delegate2)) {
-    return null;
-  }
-  if (!delegate2) {
-    return delegate1;
-  }
-
-  var targets = delegate1._targets;
-  var object = null;
-  var method;
-  if (delegate2._targets) {
-    object = delegate2._targets[0];
-    method = delegate2._targets[1];
-  }
-  else {
-    method = delegate2;
-  }
-
-  for (var i = 0; i < targets.length; i += 2) {
-    if ((targets[i] === object) && (targets[i + 1] === method)) {
-      if (targets.length == 2) {
-        return null;
-      }
-      targets.splice(i, 2);
-      return ss.Delegate._create(targets);
-    }
-  }
-
-  return delegate1;
-};
-
-
-////////////////////////////////////////////////////////////////////////////////
-// IEnumerator
-
-ss.IEnumerator = function IEnumerator$() { };
-ss.IEnumerator.prototype = {
-  get_current: null,
-  moveNext: null,
-  reset: null
-};
-
-ss.IEnumerator.getEnumerator = function ss_IEnumerator$getEnumerator(enumerable) {
-  if (enumerable) {
-    return enumerable.getEnumerator ? enumerable.getEnumerator() : new ss.ArrayEnumerator(enumerable);
-  }
-  return null;
-}
-
-// ss.IEnumerator.registerInterface('IEnumerator');
-
-////////////////////////////////////////////////////////////////////////////////
-// IEnumerable
-
-ss.IEnumerable = function IEnumerable$() { };
-ss.IEnumerable.prototype = {
-  getEnumerator: null
-};
-// ss.IEnumerable.registerInterface('IEnumerable');
-
-////////////////////////////////////////////////////////////////////////////////
-// ArrayEnumerator
-
-ss.ArrayEnumerator = function ArrayEnumerator$(array) {
-  this._array = array;
-  this._index = -1;
-  this.current = null;
-}
-ss.ArrayEnumerator.prototype = {
-  moveNext: function ArrayEnumerator$moveNext() {
-    this._index++;
-    this.current = this._array[this._index];
-    return (this._index < this._array.length);
-  },
-  reset: function ArrayEnumerator$reset() {
-    this._index = -1;
-    this.current = null;
-  }
-};
-
-// ss.ArrayEnumerator.registerClass('ArrayEnumerator', null, ss.IEnumerator);
-
-////////////////////////////////////////////////////////////////////////////////
-// IDisposable
-
-ss.IDisposable = function IDisposable$() { };
-ss.IDisposable.prototype = {
-  dispose: null
-};
-// ss.IDisposable.registerInterface('IDisposable');
-
-////////////////////////////////////////////////////////////////////////////////
-// StringBuilder
-
-ss.StringBuilder = function StringBuilder$(s) {
-  this._parts = !ss.isNullOrUndefined(s) ? [s] : [];
-  this.isEmpty = this._parts.length == 0;
-}
-ss.StringBuilder.prototype = {
-  append: function StringBuilder$append(s) {
-    if (!ss.isNullOrUndefined(s)) {
-      //this._parts.add(s);
-      this._parts.push(s);
-      this.isEmpty = false;
-    }
-    return this;
-  },
-
-  appendLine: function StringBuilder$appendLine(s) {
-    this.append(s);
-    this.append('\r\n');
-    this.isEmpty = false;
-    return this;
-  },
-
-  clear: function StringBuilder$clear() {
-    this._parts = [];
-    this.isEmpty = true;
-  },
-
-  toString: function StringBuilder$toString(s) {
-    return this._parts.join(s || '');
-  }
-};
-
-ss.StringBuilder.registerClass('StringBuilder');
-
-////////////////////////////////////////////////////////////////////////////////
-// EventArgs
-
-ss.EventArgs = function EventArgs$() {
-}
-ss.EventArgs.registerClass('EventArgs');
-
-ss.EventArgs.Empty = new ss.EventArgs();
-
-////////////////////////////////////////////////////////////////////////////////
-// CancelEventArgs
-
-ss.CancelEventArgs = function CancelEventArgs$() {
-    ss.CancelEventArgs.initializeBase(this);
-    this.cancel = false;
-}
-ss.CancelEventArgs.registerClass('CancelEventArgs', ss.EventArgs);
-
-////////////////////////////////////////////////////////////////////////////////
-// Tuple
-
-ss.Tuple = function (first, second, third) {
-  this.first = first;
-  this.second = second;
-  if (arguments.length == 3) {
-    this.third = third;
-  }
-}
-ss.Tuple.registerClass('Tuple');
-
-
-//})();
-
-//! tabcoreslim.debug.js
-//
-
-// (function() {
-
-Type.registerNamespace('tab');
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.EscapingUtil
-
-tab.EscapingUtil = function tab_EscapingUtil() {
-}
-tab.EscapingUtil.escapeHtml = function tab_EscapingUtil$escapeHtml(html) {
-    var escaped = (html || '');
-    escaped = escaped.replace(new RegExp('&', 'g'), '&amp;');
-    escaped = escaped.replace(new RegExp('<', 'g'), '&lt;');
-    escaped = escaped.replace(new RegExp('>', 'g'), '&gt;');
-    escaped = escaped.replace(new RegExp('"', 'g'), '&quot;');
-    escaped = escaped.replace(new RegExp("'", 'g'), '&#39;');
-    escaped = escaped.replace(new RegExp('/', 'g'), '&#47;');
-    return escaped;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.WindowHelper
-
-tab.WindowHelper = function tab_WindowHelper(window) {
-    this._window = window;
-}
-tab.WindowHelper.get_windowSelf = function tab_WindowHelper$get_windowSelf() {
-    return window.self;
-}
-tab.WindowHelper.close = function tab_WindowHelper$close(window) {
-    window.close();
-}
-tab.WindowHelper.getOpener = function tab_WindowHelper$getOpener(window) {
-    return window.opener;
-}
-tab.WindowHelper.getLocation = function tab_WindowHelper$getLocation(window) {
-    return window.location;
-}
-tab.WindowHelper.getPathAndSearch = function tab_WindowHelper$getPathAndSearch(window) {
-    return window.location.pathname + window.location.search;
-}
-tab.WindowHelper.setLocationHref = function tab_WindowHelper$setLocationHref(window, href) {
-    window.location.href = href;
-}
-tab.WindowHelper.locationReplace = function tab_WindowHelper$locationReplace(window, url) {
-    window.location.replace(url);
-}
-tab.WindowHelper.open = function tab_WindowHelper$open(href, target, options) {
-    return window.open(href, target, options);
-}
-tab.WindowHelper.reload = function tab_WindowHelper$reload(w, foreGet) {
-    w.location.reload(foreGet);
-}
-tab.WindowHelper.requestAnimationFrame = function tab_WindowHelper$requestAnimationFrame(action) {
-    return tab.WindowHelper._requestAnimationFrameFunc(action);
-}
-tab.WindowHelper.cancelAnimationFrame = function tab_WindowHelper$cancelAnimationFrame(animationId) {
-    if (ss.isValue(animationId)) {
-        tab.WindowHelper._cancelAnimationFrameFunc(animationId);
-    }
-}
-tab.WindowHelper._setDefaultRequestAnimationFrameImpl = function tab_WindowHelper$_setDefaultRequestAnimationFrameImpl() {
-    var lastTime = 0;
-    tab.WindowHelper._requestAnimationFrameFunc = function(callback) {
-        var curTime = new Date().getTime();
-        var timeToCall = Math.max(0, 16 - (curTime - lastTime));
-        lastTime = curTime + timeToCall;
-        var id = window.setTimeout(function() {
-            callback();
-        }, timeToCall);
-        return id;
-    };
-}
-tab.WindowHelper.prototype = {
-    _window: null,
-    
-    get_pageXOffset: function tab_WindowHelper$get_pageXOffset() {
-        return tab.WindowHelper._pageXOffsetFunc(this._window);
-    },
-    
-    get_pageYOffset: function tab_WindowHelper$get_pageYOffset() {
-        return tab.WindowHelper._pageYOffsetFunc(this._window);
-    },
-    
-    get_clientWidth: function tab_WindowHelper$get_clientWidth() {
-        return tab.WindowHelper._clientWidthFunc(this._window);
-    },
-    
-    get_clientHeight: function tab_WindowHelper$get_clientHeight() {
-        return tab.WindowHelper._clientHeightFunc(this._window);
-    },
-    
-    get_innerWidth: function tab_WindowHelper$get_innerWidth() {
-        return tab.WindowHelper._innerWidthFunc(this._window);
-    },
-    
-    get_outerWidth: function tab_WindowHelper$get_outerWidth() {
-        return tab.WindowHelper._outerWidthFunc(this._window);
-    },
-    
-    get_innerHeight: function tab_WindowHelper$get_innerHeight() {
-        return tab.WindowHelper._innerHeightFunc(this._window);
-    },
-    
-    get_outerHeight: function tab_WindowHelper$get_outerHeight() {
-        return tab.WindowHelper._outerHeightFunc(this._window);
-    },
-    
-    get_screenLeft: function tab_WindowHelper$get_screenLeft() {
-        return tab.WindowHelper._screenLeftFunc(this._window);
-    },
-    
-    get_screenTop: function tab_WindowHelper$get_screenTop() {
-        return tab.WindowHelper._screenTopFunc(this._window);
-    }
-}
-
-
-tab.EscapingUtil.registerClass('tab.EscapingUtil');
-tab.WindowHelper.registerClass('tab.WindowHelper');
-tab.WindowHelper._innerWidthFunc = null;
-tab.WindowHelper._innerHeightFunc = null;
-tab.WindowHelper._clientWidthFunc = null;
-tab.WindowHelper._clientHeightFunc = null;
-tab.WindowHelper._pageXOffsetFunc = null;
-tab.WindowHelper._pageYOffsetFunc = null;
-tab.WindowHelper._screenLeftFunc = null;
-tab.WindowHelper._screenTopFunc = null;
-tab.WindowHelper._outerWidthFunc = null;
-tab.WindowHelper._outerHeightFunc = null;
-tab.WindowHelper._requestAnimationFrameFunc = null;
-tab.WindowHelper._cancelAnimationFrameFunc = null;
+/*! tableau-2.1.2 */
 (function () {
-    if (('innerWidth' in window)) {
-        tab.WindowHelper._innerWidthFunc = function(w) {
-            return w.innerWidth;
-        };
-    }
-    else {
-        tab.WindowHelper._innerWidthFunc = function(w) {
-            return w.document.documentElement.offsetWidth;
-        };
-    }
-    if (('outerWidth' in window)) {
-        tab.WindowHelper._outerWidthFunc = function(w) {
-            return w.outerWidth;
-        };
-    }
-    else {
-        tab.WindowHelper._outerWidthFunc = tab.WindowHelper._innerWidthFunc;
-    }
-    if (('innerHeight' in window)) {
-        tab.WindowHelper._innerHeightFunc = function(w) {
-            return w.innerHeight;
-        };
-    }
-    else {
-        tab.WindowHelper._innerHeightFunc = function(w) {
-            return w.document.documentElement.offsetHeight;
-        };
-    }
-    if (('outerHeight' in window)) {
-        tab.WindowHelper._outerHeightFunc = function(w) {
-            return w.outerHeight;
-        };
-    }
-    else {
-        tab.WindowHelper._outerHeightFunc = tab.WindowHelper._innerHeightFunc;
-    }
-    if (('clientWidth' in window)) {
-        tab.WindowHelper._clientWidthFunc = function(w) {
-            return w.clientWidth;
-        };
-    }
-    else {
-        tab.WindowHelper._clientWidthFunc = function(w) {
-            return w.document.documentElement.clientWidth;
-        };
-    }
-    if (('clientHeight' in window)) {
-        tab.WindowHelper._clientHeightFunc = function(w) {
-            return w.clientHeight;
-        };
-    }
-    else {
-        tab.WindowHelper._clientHeightFunc = function(w) {
-            return w.document.documentElement.clientHeight;
-        };
-    }
-    if (ss.isValue(window.self.pageXOffset)) {
-        tab.WindowHelper._pageXOffsetFunc = function(w) {
-            return w.pageXOffset;
-        };
-    }
-    else {
-        tab.WindowHelper._pageXOffsetFunc = function(w) {
-            return w.document.documentElement.scrollLeft;
-        };
-    }
-    if (ss.isValue(window.self.pageYOffset)) {
-        tab.WindowHelper._pageYOffsetFunc = function(w) {
-            return w.pageYOffset;
-        };
-    }
-    else {
-        tab.WindowHelper._pageYOffsetFunc = function(w) {
-            return w.document.documentElement.scrollTop;
-        };
-    }
-    if (('screenLeft' in window)) {
-        tab.WindowHelper._screenLeftFunc = function(w) {
-            return w.screenLeft;
-        };
-    }
-    else {
-        tab.WindowHelper._screenLeftFunc = function(w) {
-            return w.screenX;
-        };
-    }
-    if (('screenTop' in window)) {
-        tab.WindowHelper._screenTopFunc = function(w) {
-            return w.screenTop;
-        };
-    }
-    else {
-        tab.WindowHelper._screenTopFunc = function(w) {
-            return w.screenY;
-        };
-    }
-    var DefaultRequestName = 'requestAnimationFrame';
-    var DefaultCancelName = 'cancelAnimationFrame';
-    var vendors = [ 'ms', 'moz', 'webkit', 'o' ];
-    var requestFuncName = null;
-    var cancelFuncName = null;
-    if ((DefaultRequestName in window)) {
-        requestFuncName = DefaultRequestName;
-    }
-    if ((DefaultCancelName in window)) {
-        cancelFuncName = DefaultCancelName;
-    }
-    for (var ii = 0; ii < vendors.length && (requestFuncName == null || cancelFuncName == null); ++ii) {
-        var vendor = vendors[ii];
-        var funcName = vendor + 'RequestAnimationFrame';
-        if (requestFuncName == null && (funcName in window)) {
-            requestFuncName = funcName;
-        }
-        if (cancelFuncName == null) {
-            funcName = vendor + 'CancelAnimationFrame';
-            if ((funcName in window)) {
-                cancelFuncName = funcName;
-            }
-            funcName = vendor + 'CancelRequestAnimationFrame';
-            if ((funcName in window)) {
-                cancelFuncName = funcName;
-            }
-        }
-    }
-    if (requestFuncName != null) {
-        tab.WindowHelper._requestAnimationFrameFunc = function(callback) {
-            return window[requestFuncName](callback);
-        };
-    }
-    else {
-        tab.WindowHelper._setDefaultRequestAnimationFrameImpl();
-    }
-    if (cancelFuncName != null) {
-        tab.WindowHelper._cancelAnimationFrameFunc = function(animationId) {
-            window[cancelFuncName](animationId);
-        };
-    }
-    else {
-        tab.WindowHelper._cancelAnimationFrameFunc = function(id) {
-            window.clearTimeout(id);
-        };
-    }
-})();
-
-// }());
-
-
-
-Type.registerNamespace('tab');
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._SheetInfoImpl
-
-tab.$create__SheetInfoImpl = function tab__SheetInfoImpl(name, sheetType, index, size, workbook, url, isActive, isHidden, zoneId) {
-    var $o = { };
-    $o.name = name;
-    $o.sheetType = sheetType;
-    $o.index = index;
-    $o.size = size;
-    $o.workbook = workbook;
-    $o.url = url;
-    $o.isActive = isActive;
-    $o.isHidden = isHidden;
-    $o.zoneId = zoneId;
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._dashboardZoneInfo
-
-tab.$create__dashboardZoneInfo = function tab__dashboardZoneInfo(name, objectType, position, size, zoneId) {
-    var $o = { };
-    $o._name = name;
-    $o._objectType = objectType;
-    $o._position = position;
-    $o._size = size;
-    $o._zoneId = zoneId;
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._StoryPointInfoImpl
-
-tab.$create__StoryPointInfoImpl = function tab__StoryPointInfoImpl(caption, index, storyPointId, isActive, isUpdated, parentStoryImpl) {
-    var $o = { };
-    $o.caption = caption;
-    $o.index = index;
-    $o.storyPointId = storyPointId;
-    $o.isActive = isActive;
-    $o.isUpdated = isUpdated;
-    $o.parentStoryImpl = parentStoryImpl;
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._ApiCommand
-
-tab._ApiCommand = function tab__ApiCommand(name, sourceId, handlerId, parameters) {
-    this._name = name;
-    this._sourceId = sourceId;
-    this._handlerId = handlerId;
-    this._parameters = parameters;
-}
-tab._ApiCommand.parse = function tab__ApiCommand$parse(serialized) {
-    var name;
-    var index = serialized.indexOf(',');
-    if (index < 0) {
-        name = serialized;
-        return new tab._ApiCommand(name, null, null, null);
-    }
-    name = serialized.substr(0, index);
-    var sourceId;
-    var secondPart = serialized.substr(index + 1);
-    index = secondPart.indexOf(',');
-    if (index < 0) {
-        sourceId = secondPart;
-        return new tab._ApiCommand(name, sourceId, null, null);
-    }
-    sourceId = secondPart.substr(0, index);
-    var handlerId;
-    var thirdPart = secondPart.substr(index + 1);
-    index = thirdPart.indexOf(',');
-    if (index < 0) {
-        handlerId = thirdPart;
-        return new tab._ApiCommand(name, sourceId, handlerId, null);
-    }
-    handlerId = thirdPart.substr(0, index);
-    var parameters = thirdPart.substr(index + 1);
-    tab._ApiCommand.lastResponseMessage = serialized;
-    if (name === 'api.GetClientInfoCommand') {
-        tab._ApiCommand.lastClientInfoResponseMessage = serialized;
-    }
-    return new tab._ApiCommand(name, sourceId, handlerId, parameters);
-}
-tab._ApiCommand.prototype = {
-    _name: null,
-    _handlerId: null,
-    _sourceId: null,
-    _parameters: null,
-    
-    get_name: function tab__ApiCommand$get_name() {
-        return this._name;
-    },
-    
-    get_handlerId: function tab__ApiCommand$get_handlerId() {
-        return this._handlerId;
-    },
-    
-    get_sourceId: function tab__ApiCommand$get_sourceId() {
-        return this._sourceId;
-    },
-    
-    get_parameters: function tab__ApiCommand$get_parameters() {
-        return this._parameters;
-    },
-    
-    get_isApiCommandName: function tab__ApiCommand$get_isApiCommandName() {
-        return !this.get_rawName().indexOf('api.', 0);
-    },
-    
-    get_rawName: function tab__ApiCommand$get_rawName() {
-        return this._name;
-    },
-    
-    serialize: function tab__ApiCommand$serialize() {
-        var message = [];
-        message.push(this._name);
-        message.push(this._sourceId);
-        message.push(this._handlerId);
-        if (ss.isValue(this._parameters)) {
-            message.push(this._parameters);
-        }
-        var serializedMessage = message.join(',');
-        tab._ApiCommand.lastRequestMessage = serializedMessage;
-        return serializedMessage;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._ApiServerResultParser
-
-tab._ApiServerResultParser = function tab__ApiServerResultParser(serverResult) {
-    var param = JSON.parse(serverResult);
-    this._commandResult = param['api.commandResult'];
-    this._commandData = param['api.commandData'];
-}
-tab._ApiServerResultParser.prototype = {
-    _commandResult: null,
-    _commandData: null,
-    
-    get_result: function tab__ApiServerResultParser$get_result() {
-        return this._commandResult;
-    },
-    
-    get_data: function tab__ApiServerResultParser$get_data() {
-        return this._commandData;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._ApiServerNotification
-
-tab._ApiServerNotification = function tab__ApiServerNotification(workbookName, worksheetName, data) {
-    this._workbookName = workbookName;
-    this._worksheetName = worksheetName;
-    this._data = data;
-}
-tab._ApiServerNotification.deserialize = function tab__ApiServerNotification$deserialize(json) {
-    var param = JSON.parse(json);
-    var workbookName = param['api.workbookName'];
-    var worksheetName = param['api.worksheetName'];
-    var data = param['api.commandData'];
-    return new tab._ApiServerNotification(workbookName, worksheetName, data);
-}
-tab._ApiServerNotification.prototype = {
-    _workbookName: null,
-    _worksheetName: null,
-    _data: null,
-    
-    get_workbookName: function tab__ApiServerNotification$get_workbookName() {
-        return this._workbookName;
-    },
-    
-    get_worksheetName: function tab__ApiServerNotification$get_worksheetName() {
-        return this._worksheetName;
-    },
-    
-    get_data: function tab__ApiServerNotification$get_data() {
-        return this._data;
-    },
-    
-    serialize: function tab__ApiServerNotification$serialize() {
-        var serialized = {};
-        serialized['api.workbookName'] = this._workbookName;
-        serialized['api.worksheetName'] = this._worksheetName;
-        serialized['api.commandData'] = this._data;
-        return JSON.stringify(serialized);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._CommandReturnHandler
-
-tab._CommandReturnHandler = function tab__CommandReturnHandler(commandName, successCallbackTiming, successCallback, errorCallback) {
-    this._commandName = commandName;
-    this._successCallback = successCallback;
-    this._successCallbackTiming = successCallbackTiming;
-    this._errorCallback = errorCallback;
-}
-tab._CommandReturnHandler.prototype = {
-    _commandName: null,
-    _successCallbackTiming: 0,
-    _successCallback: null,
-    _errorCallback: null,
-    
-    get_commandName: function tab__CommandReturnHandler$get_commandName() {
-        return this._commandName;
-    },
-    
-    get_successCallback: function tab__CommandReturnHandler$get_successCallback() {
-        return this._successCallback;
-    },
-    
-    get_successCallbackTiming: function tab__CommandReturnHandler$get_successCallbackTiming() {
-        return this._successCallbackTiming;
-    },
-    
-    get_errorCallback: function tab__CommandReturnHandler$get_errorCallback() {
-        return this._errorCallback;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._crossDomainMessageRouter
-
-tab._crossDomainMessageRouter = function tab__crossDomainMessageRouter() {
-    this._handlers = {};
-    this._commandCallbacks = {};
-    this._customViewLoadCallbacks = {};
-    this._commandReturnAfterStateReadyQueues = {};
-    if (tab._Utility.hasWindowAddEventListener()) {
-        window.addEventListener('message', this._getHandleCrossDomainMessageDelegate(), false);
-    }
-    else if (tab._Utility.hasDocumentAttachEvent()) {
-        document.attachEvent('onmessage', this._getHandleCrossDomainMessageDelegate());
-        window.attachEvent('onmessage', this._getHandleCrossDomainMessageDelegate());
-    }
-    else {
-        window.onmessage = this._getHandleCrossDomainMessageDelegate();
-    }
-    this._nextHandlerId = this._nextCommandId = 0;
-}
-tab._crossDomainMessageRouter.prototype = {
-    _nextHandlerId: 0,
-    _nextCommandId: 0,
-    
-    registerHandler: function tab__crossDomainMessageRouter$registerHandler(handler) {
-        var uniqueId = 'handler' + this._nextHandlerId;
-        if (ss.isValue(handler.get_handlerId()) || ss.isValue(this._handlers[handler.get_handlerId()])) {
-            throw tab._TableauException.createInternalError("Handler '" + handler.get_handlerId() + "' is already registered.");
-        }
-        this._nextHandlerId++;
-        handler.set_handlerId(uniqueId);
-        this._handlers[uniqueId] = handler;
-        handler.add_customViewsListLoad(ss.Delegate.create(this, this._handleCustomViewsListLoad));
-        handler.add_stateReadyForQuery(ss.Delegate.create(this, this._handleStateReadyForQuery));
-    },
-    
-    unregisterHandler: function tab__crossDomainMessageRouter$unregisterHandler(handler) {
-        if (ss.isValue(handler.get_handlerId()) || ss.isValue(this._handlers[handler.get_handlerId()])) {
-            delete this._handlers[handler.get_handlerId()];
-            handler.remove_customViewsListLoad(ss.Delegate.create(this, this._handleCustomViewsListLoad));
-            handler.remove_stateReadyForQuery(ss.Delegate.create(this, this._handleStateReadyForQuery));
-        }
-    },
-    
-    sendCommand: function tab__crossDomainMessageRouter$sendCommand(source, commandParameters, returnHandler) {
-        var iframe = source.get_iframe();
-        var handlerId = source.get_handlerId();
-        if (!tab._Utility.hasWindowPostMessage() || ss.isNullOrUndefined(iframe) || ss.isNullOrUndefined(iframe.contentWindow)) {
-            return;
-        }
-        var sourceId = 'cmd' + this._nextCommandId;
-        this._nextCommandId++;
-        var callbackMap = this._commandCallbacks[handlerId];
-        if (ss.isNullOrUndefined(callbackMap)) {
-            callbackMap = {};
-            this._commandCallbacks[handlerId] = callbackMap;
-        }
-        callbackMap[sourceId] = returnHandler;
-        var commandName = returnHandler.get_commandName();
-        if (commandName === 'api.ShowCustomViewCommand') {
-            var customViewCallbackMap = this._customViewLoadCallbacks[handlerId];
-            if (ss.isNullOrUndefined(customViewCallbackMap)) {
-                customViewCallbackMap = {};
-                this._customViewLoadCallbacks[handlerId] = customViewCallbackMap;
-            }
-            customViewCallbackMap[sourceId] = returnHandler;
-        }
-        var serializedParams = null;
-        if (ss.isValue(commandParameters)) {
-            serializedParams = tab.JsonUtil.toJson(commandParameters, false, '');
-        }
-        var command = new tab._ApiCommand(commandName, sourceId, handlerId, serializedParams);
-        var message = command.serialize();
-        if (tab._Utility.isPostMessageSynchronous()) {
-            window.setTimeout(function() {
-                iframe.contentWindow.postMessage(message, source.get_serverRoot());
-            }, 0);
-        }
-        else {
-            iframe.contentWindow.postMessage(message, source.get_serverRoot());
-        }
-    },
-    
-    _handleCustomViewsListLoad: function tab__crossDomainMessageRouter$_handleCustomViewsListLoad(source) {
-        var handlerId = source.get_handlerId();
-        var customViewCallbackMap = this._customViewLoadCallbacks[handlerId];
-        if (ss.isNullOrUndefined(customViewCallbackMap)) {
-            return;
-        }
-        var $dict1 = customViewCallbackMap;
-        for (var $key2 in $dict1) {
-            var customViewCallback = { key: $key2, value: $dict1[$key2] };
-            var returnHandler = customViewCallback.value;
-            if (ss.isValue(returnHandler.get_successCallback())) {
-                returnHandler.get_successCallback()(null);
-            }
-        }
-        delete this._customViewLoadCallbacks[handlerId];
-    },
-    
-    _handleStateReadyForQuery: function tab__crossDomainMessageRouter$_handleStateReadyForQuery(source) {
-        var queue = this._commandReturnAfterStateReadyQueues[source.get_handlerId()];
-        if (tab._Utility.isNullOrEmpty(queue)) {
-            return;
-        }
-        while (queue.length > 0) {
-            var successCallback = queue.pop();
-            if (ss.isValue(successCallback)) {
-                successCallback();
-            }
-        }
-    },
-    
-    _getHandleCrossDomainMessageDelegate: function tab__crossDomainMessageRouter$_getHandleCrossDomainMessageDelegate() {
-        return ss.Delegate.create(this, function(e) {
-            this._handleCrossDomainMessage(e);
-        });
-    },
-    
-    _handleCrossDomainMessage: function tab__crossDomainMessageRouter$_handleCrossDomainMessage(e) {
-        if (ss.isNullOrUndefined(e.data)) {
-            return;
-        }
-        var command = tab._ApiCommand.parse(e.data);
-        var rawName = command.get_rawName();
-        var handlerId = command.get_handlerId();
-        var handler = this._handlers[handlerId];
-        if (ss.isNullOrUndefined(handler) || handler.get_handlerId() !== command.get_handlerId()) {
-            handler = new tab._doNothingCrossDomainHandler();
-        }
-        if (command.get_isApiCommandName()) {
-            if (command.get_sourceId() === 'xdomainSourceId') {
-                handler.handleEventNotification(command.get_name(), command.get_parameters());
-                if (command.get_name() === 'api.FirstVizSizeKnownEvent') {
-                    e.source.postMessage('tableau.bootstrap', '*');
-                }
-            }
-            else {
-                this._handleCrossDomainResponse(command);
-            }
-        }
-        else {
-            this._handleLegacyNotifications(rawName, e, handler);
-        }
-    },
-    
-    _handleCrossDomainResponse: function tab__crossDomainMessageRouter$_handleCrossDomainResponse(command) {
-        var commandCallbackMap = this._commandCallbacks[command.get_handlerId()];
-        var returnHandler = (ss.isValue(commandCallbackMap)) ? commandCallbackMap[command.get_sourceId()] : null;
-        if (ss.isNullOrUndefined(returnHandler)) {
-            return;
-        }
-        delete commandCallbackMap[command.get_sourceId()];
-        if (command.get_name() !== returnHandler.get_commandName()) {
-            return;
-        }
-        var crossDomainResult = new tab._ApiServerResultParser(command.get_parameters());
-        var commandResult = crossDomainResult.get_data();
-        if (crossDomainResult.get_result() === 'api.success') {
-            switch (returnHandler.get_successCallbackTiming()) {
-                case 0:
-                    if (ss.isValue(returnHandler.get_successCallback())) {
-                        returnHandler.get_successCallback()(commandResult);
-                    }
-                    break;
-                case 1:
-                    var postponedCallback = function() {
-                        if (ss.isValue(returnHandler.get_successCallback())) {
-                            returnHandler.get_successCallback()(commandResult);
-                        }
-                    };
-                    var queue = this._commandReturnAfterStateReadyQueues[command.get_handlerId()];
-                    if (ss.isNullOrUndefined(queue)) {
-                        queue = [];
-                        this._commandReturnAfterStateReadyQueues[command.get_handlerId()] = queue;
-                    }
-                    queue.push(postponedCallback);
-                    break;
-                default:
-                    throw tab._TableauException.createInternalError('Unknown timing value: ' + returnHandler.get_successCallbackTiming());
-            }
-        }
-        else if (ss.isValue(returnHandler.get_errorCallback())) {
-            var remoteError = crossDomainResult.get_result() === 'api.remotefailed';
-            returnHandler.get_errorCallback()(remoteError, commandResult);
-        }
-    },
-    
-    _handleLegacyNotifications: function tab__crossDomainMessageRouter$_handleLegacyNotifications(messageName, e, handler) {
-        if (messageName === 'layoutInfoReq') {
-            tab._VizManagerImpl._sendVizOffsets();
-            this._postLayoutInfo(e.source);
-        }
-        else if (messageName === 'tableau.completed' || messageName === 'completed') {
-            handler.handleVizLoad();
-        }
-    },
-    
-    _postLayoutInfo: function tab__crossDomainMessageRouter$_postLayoutInfo(source) {
-        if (!tab._Utility.hasWindowPostMessage()) {
-            return;
-        }
-        var win = new tab.WindowHelper(window.self);
-        var width = (ss.isValue(win.get_innerWidth())) ? win.get_innerWidth() : document.documentElement.offsetWidth;
-        var height = (ss.isValue(win.get_innerHeight())) ? win.get_innerHeight() : document.documentElement.offsetHeight;
-        var left = (ss.isValue(win.get_pageXOffset())) ? win.get_pageXOffset() : document.documentElement.scrollLeft;
-        var top = (ss.isValue(win.get_pageYOffset())) ? win.get_pageYOffset() : document.documentElement.scrollTop;
-        var msgArr = [];
-        msgArr.push('layoutInfoResp');
-        msgArr.push(left);
-        msgArr.push(top);
-        msgArr.push(width);
-        msgArr.push(height);
-        source.postMessage(msgArr.join(','), '*');
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._doNothingCrossDomainHandler
-
-tab._doNothingCrossDomainHandler = function tab__doNothingCrossDomainHandler() {
-}
-tab._doNothingCrossDomainHandler.prototype = {
-    _handlerId: null,
-    
-    add_customViewsListLoad: function tab__doNothingCrossDomainHandler$add_customViewsListLoad(value) {
-        this.__customViewsListLoad = ss.Delegate.combine(this.__customViewsListLoad, value);
-    },
-    remove_customViewsListLoad: function tab__doNothingCrossDomainHandler$remove_customViewsListLoad(value) {
-        this.__customViewsListLoad = ss.Delegate.remove(this.__customViewsListLoad, value);
-    },
-    
-    __customViewsListLoad: null,
-    
-    add_stateReadyForQuery: function tab__doNothingCrossDomainHandler$add_stateReadyForQuery(value) {
-        this.__stateReadyForQuery = ss.Delegate.combine(this.__stateReadyForQuery, value);
-    },
-    remove_stateReadyForQuery: function tab__doNothingCrossDomainHandler$remove_stateReadyForQuery(value) {
-        this.__stateReadyForQuery = ss.Delegate.remove(this.__stateReadyForQuery, value);
-    },
-    
-    __stateReadyForQuery: null,
-    
-    get_iframe: function tab__doNothingCrossDomainHandler$get_iframe() {
-        return null;
-    },
-    
-    get_handlerId: function tab__doNothingCrossDomainHandler$get_handlerId() {
-        return this._handlerId;
-    },
-    set_handlerId: function tab__doNothingCrossDomainHandler$set_handlerId(value) {
-        this._handlerId = value;
-        return value;
-    },
-    
-    get_serverRoot: function tab__doNothingCrossDomainHandler$get_serverRoot() {
-        return '*';
-    },
-    
-    handleVizLoad: function tab__doNothingCrossDomainHandler$handleVizLoad() {
-    },
-    
-    handleEventNotification: function tab__doNothingCrossDomainHandler$handleEventNotification(eventName, parameters) {
-    },
-    
-    _silenceTheCompilerWarning: function tab__doNothingCrossDomainHandler$_silenceTheCompilerWarning() {
-        this.__customViewsListLoad(null);
-        this.__stateReadyForQuery(null);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.CrossDomainMessagingOptions
-
-tab.CrossDomainMessagingOptions = function tab_CrossDomainMessagingOptions(router, handler) {
-    tab._Param.verifyValue(router, 'router');
-    tab._Param.verifyValue(handler, 'handler');
-    this._router = router;
-    this._handler = handler;
-}
-tab.CrossDomainMessagingOptions.prototype = {
-    _router: null,
-    _handler: null,
-    
-    get_router: function tab_CrossDomainMessagingOptions$get_router() {
-        return this._router;
-    },
-    
-    get_handler: function tab_CrossDomainMessagingOptions$get_handler() {
-        return this._handler;
-    },
-    
-    sendCommand: function tab_CrossDomainMessagingOptions$sendCommand(commandParameters, returnHandler) {
-        this._router.sendCommand(this._handler, commandParameters, returnHandler);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._enums
-
-tab._enums = function tab__enums() {
-}
-tab._enums._normalizePeriodType = function tab__enums$_normalizePeriodType(rawValue, paramName) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, paramName, tableauSoftware.PeriodType, true);
-}
-tab._enums._normalizeDateRangeType = function tab__enums$_normalizeDateRangeType(rawValue, paramName) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, paramName, tableauSoftware.DateRangeType, true);
-}
-tab._enums._normalizeFilterUpdateType = function tab__enums$_normalizeFilterUpdateType(rawValue, paramName) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, paramName, tableauSoftware.FilterUpdateType, true);
-}
-tab._enums._normalizeSelectionUpdateType = function tab__enums$_normalizeSelectionUpdateType(rawValue, paramName) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, paramName, tableauSoftware.SelectionUpdateType, true);
-}
-tab._enums._isSelectionUpdateType = function tab__enums$_isSelectionUpdateType(rawValue) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue.toString() : '';
-    return tab._enums._normalizeEnum(rawString, '', tableauSoftware.SelectionUpdateType, false) != null;
-}
-tab._enums._normalizeNullOption = function tab__enums$_normalizeNullOption(rawValue, paramName) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, paramName, tableauSoftware.NullOption, true);
-}
-tab._enums._normalizeSheetSizeBehavior = function tab__enums$_normalizeSheetSizeBehavior(rawValue, paramName) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, paramName, tableauSoftware.SheetSizeBehavior, true);
-}
-tab._enums._normalizeTableauEventName = function tab__enums$_normalizeTableauEventName(rawValue) {
-    var rawString = (ss.isValue(rawValue)) ? rawValue : '';
-    return tab._enums._normalizeEnum(rawString, '', tableauSoftware.TableauEventName, false);
-}
-tab._enums._normalizeEnum = function tab__enums$_normalizeEnum(rawValue, paramName, enumObject, throwOnInvalid) {
-    if (ss.isValue(rawValue)) {
-        var lookup = rawValue.toString().toUpperCase();
-        var $dict1 = enumObject;
-        for (var $key2 in $dict1) {
-            var entry = { key: $key2, value: $dict1[$key2] };
-            var compareValue = entry.value.toString().toUpperCase();
-            if (lookup === compareValue) {
-                return entry.value;
-            }
-        }
-    }
-    if (throwOnInvalid) {
-        throw tab._TableauException.createInvalidParameter(paramName);
-    }
-    return null;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._ApiBootstrap
-
-tab._ApiBootstrap = function tab__ApiBootstrap() {
-}
-tab._ApiBootstrap.initialize = function tab__ApiBootstrap$initialize() {
-    tab._ApiObjectRegistry.registerCrossDomainMessageRouter(function() {
-        return new tab._crossDomainMessageRouter();
-    });
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._ApiObjectRegistry
-
-tab._ApiObjectRegistry = function tab__ApiObjectRegistry() {
-}
-tab._ApiObjectRegistry.registerCrossDomainMessageRouter = function tab__ApiObjectRegistry$registerCrossDomainMessageRouter(objectCreationFunc) {
-    return tab._ApiObjectRegistry._registerType('ICrossDomainMessageRouter', objectCreationFunc);
-}
-tab._ApiObjectRegistry.getCrossDomainMessageRouter = function tab__ApiObjectRegistry$getCrossDomainMessageRouter() {
-    return tab._ApiObjectRegistry._getSingleton('ICrossDomainMessageRouter');
-}
-tab._ApiObjectRegistry.disposeCrossDomainMessageRouter = function tab__ApiObjectRegistry$disposeCrossDomainMessageRouter() {
-    tab._ApiObjectRegistry._clearSingletonInstance('ICrossDomainMessageRouter');
-}
-tab._ApiObjectRegistry._registerType = function tab__ApiObjectRegistry$_registerType(interfaceTypeName, objectCreationFunc) {
-    if (ss.isNullOrUndefined(tab._ApiObjectRegistry._creationRegistry)) {
-        tab._ApiObjectRegistry._creationRegistry = {};
-    }
-    var previousType = tab._ApiObjectRegistry._creationRegistry[interfaceTypeName];
-    tab._ApiObjectRegistry._creationRegistry[interfaceTypeName] = objectCreationFunc;
-    return previousType;
-}
-tab._ApiObjectRegistry._createType = function tab__ApiObjectRegistry$_createType(interfaceTypeName) {
-    if (ss.isNullOrUndefined(tab._ApiObjectRegistry._creationRegistry)) {
-        throw tab._TableauException.createInternalError('No types registered');
-    }
-    var creationFunc = tab._ApiObjectRegistry._creationRegistry[interfaceTypeName];
-    if (ss.isNullOrUndefined(creationFunc)) {
-        throw tab._TableauException.createInternalError("No creation function has been registered for interface type '" + interfaceTypeName + "'.");
-    }
-    var instance = creationFunc();
-    return instance;
-}
-tab._ApiObjectRegistry._getSingleton = function tab__ApiObjectRegistry$_getSingleton(interfaceTypeName) {
-    if (ss.isNullOrUndefined(tab._ApiObjectRegistry._singletonInstanceRegistry)) {
-        tab._ApiObjectRegistry._singletonInstanceRegistry = {};
-    }
-    var instance = tab._ApiObjectRegistry._singletonInstanceRegistry[interfaceTypeName];
-    if (ss.isNullOrUndefined(instance)) {
-        instance = tab._ApiObjectRegistry._createType(interfaceTypeName);
-        tab._ApiObjectRegistry._singletonInstanceRegistry[interfaceTypeName] = instance;
-    }
-    return instance;
-}
-tab._ApiObjectRegistry._clearSingletonInstance = function tab__ApiObjectRegistry$_clearSingletonInstance(interfaceTypeName) {
-    if (ss.isNullOrUndefined(tab._ApiObjectRegistry._singletonInstanceRegistry)) {
-        return null;
-    }
-    var instance = tab._ApiObjectRegistry._singletonInstanceRegistry[interfaceTypeName];
-    delete tab._ApiObjectRegistry._singletonInstanceRegistry[interfaceTypeName];
-    return instance;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._CustomViewImpl
-
-tab._CustomViewImpl = function tab__CustomViewImpl(workbookImpl, name, messagingOptions) {
-    this._workbookImpl = workbookImpl;
-    this._name = name;
-    this._messagingOptions = messagingOptions;
-    this._isPublic = false;
-    this._isDefault = false;
-    this._isStale = false;
-}
-tab._CustomViewImpl._getAsync = function tab__CustomViewImpl$_getAsync(eventContext) {
-    var deferred = new tab._Deferred();
-    deferred.resolve(eventContext.get__customViewImpl().get__customView());
-    return deferred.get_promise();
-}
-tab._CustomViewImpl._createNew = function tab__CustomViewImpl$_createNew(workbookImpl, messagingOptions, apiPresModel, defaultId) {
-    var cv = new tab._CustomViewImpl(workbookImpl, apiPresModel.name, messagingOptions);
-    cv._isPublic = apiPresModel.isPublic;
-    cv._url = apiPresModel.url;
-    cv._ownerName = apiPresModel.owner.friendlyName;
-    cv._isDefault = ss.isValue(defaultId) && defaultId === apiPresModel.id;
-    cv._presModel = apiPresModel;
-    return cv;
-}
-tab._CustomViewImpl._saveNewAsync = function tab__CustomViewImpl$_saveNewAsync(workbookImpl, messagingOptions, name) {
-    var deferred = new tab._Deferred();
-    var param = {};
-    param['api.customViewName'] = name;
-    var returnHandler = tab._CustomViewImpl._createCustomViewCommandReturnHandler('api.SaveNewCustomViewCommand', deferred, function(result) {
-        tab._CustomViewImpl._processCustomViewUpdate(workbookImpl, messagingOptions, result, true);
-        var newView = null;
-        if (ss.isValue(workbookImpl.get__updatedCustomViews())) {
-            newView = workbookImpl.get__updatedCustomViews().get_item(0);
-        }
-        deferred.resolve(newView);
-    });
-    messagingOptions.sendCommand(param, returnHandler);
-    return deferred.get_promise();
-}
-tab._CustomViewImpl._showCustomViewAsync = function tab__CustomViewImpl$_showCustomViewAsync(workbookImpl, messagingOptions, serverCustomizedView) {
-    var deferred = new tab._Deferred();
-    var param = {};
-    if (ss.isValue(serverCustomizedView)) {
-        param['api.customViewParam'] = serverCustomizedView;
-    }
-    var returnHandler = tab._CustomViewImpl._createCustomViewCommandReturnHandler('api.ShowCustomViewCommand', deferred, function(result) {
-        var cv = workbookImpl.get_activeCustomView();
-        deferred.resolve(cv);
-    });
-    messagingOptions.sendCommand(param, returnHandler);
-    return deferred.get_promise();
-}
-tab._CustomViewImpl._makeCurrentCustomViewDefaultAsync = function tab__CustomViewImpl$_makeCurrentCustomViewDefaultAsync(workbookImpl, messagingOptions) {
-    var deferred = new tab._Deferred();
-    var param = {};
-    var returnHandler = tab._CustomViewImpl._createCustomViewCommandReturnHandler('api.MakeCurrentCustomViewDefaultCommand', deferred, function(result) {
-        var cv = workbookImpl.get_activeCustomView();
-        deferred.resolve(cv);
-    });
-    messagingOptions.sendCommand(param, returnHandler);
-    return deferred.get_promise();
-}
-tab._CustomViewImpl._getCustomViewsAsync = function tab__CustomViewImpl$_getCustomViewsAsync(workbookImpl, messagingOptions) {
-    var deferred = new tab._Deferred();
-    var returnHandler = new tab._CommandReturnHandler('api.FetchCustomViewsCommand', 0, function(result) {
-        tab._CustomViewImpl._processCustomViews(workbookImpl, messagingOptions, result);
-        deferred.resolve(workbookImpl.get__customViews()._toApiCollection());
-    }, function(remoteError, message) {
-        deferred.reject(tab._TableauException.create('serverError', message));
-    });
-    messagingOptions.sendCommand(null, returnHandler);
-    return deferred.get_promise();
-}
-tab._CustomViewImpl._processCustomViews = function tab__CustomViewImpl$_processCustomViews(workbookImpl, messagingOptions, info) {
-    tab._CustomViewImpl._processCustomViewUpdate(workbookImpl, messagingOptions, info, false);
-}
-tab._CustomViewImpl._processCustomViewUpdate = function tab__CustomViewImpl$_processCustomViewUpdate(workbookImpl, messagingOptions, info, doUpdateList) {
-    if (doUpdateList) {
-        workbookImpl.set__updatedCustomViews(new tab._Collection());
-    }
-    workbookImpl.set__currentCustomView(null);
-    var currentViewName = null;
-    if (ss.isValue(info.currentView)) {
-        currentViewName = info.currentView.name;
-    }
-    var defaultId = info.defaultCustomViewId;
-    if (doUpdateList && ss.isValue(info.newView)) {
-        var newViewImpl = tab._CustomViewImpl._createNew(workbookImpl, messagingOptions, info.newView, defaultId);
-        workbookImpl.get__updatedCustomViews()._add(newViewImpl.get__name(), newViewImpl.get__customView());
-    }
-    workbookImpl.set__removedCustomViews(workbookImpl.get__customViews());
-    workbookImpl.set__customViews(new tab._Collection());
-    if (ss.isValue(info.customViews)) {
-        var list = info.customViews;
-        if (list.length > 0) {
-            for (var i = 0; i < list.length; i++) {
-                var customViewImpl = tab._CustomViewImpl._createNew(workbookImpl, messagingOptions, list[i], defaultId);
-                workbookImpl.get__customViews()._add(customViewImpl.get__name(), customViewImpl.get__customView());
-                if (workbookImpl.get__removedCustomViews()._has(customViewImpl.get__name())) {
-                    workbookImpl.get__removedCustomViews()._remove(customViewImpl.get__name());
-                }
-                else if (doUpdateList) {
-                    if (!workbookImpl.get__updatedCustomViews()._has(customViewImpl.get__name())) {
-                        workbookImpl.get__updatedCustomViews()._add(customViewImpl.get__name(), customViewImpl.get__customView());
-                    }
-                }
-                if (ss.isValue(currentViewName) && customViewImpl.get__name() === currentViewName) {
-                    workbookImpl.set__currentCustomView(customViewImpl.get__customView());
-                }
-            }
-        }
-    }
-}
-tab._CustomViewImpl._createCustomViewCommandReturnHandler = function tab__CustomViewImpl$_createCustomViewCommandReturnHandler(commandName, deferred, successCallback) {
-    var errorCallback = function(remoteError, message) {
-        deferred.reject(tab._TableauException.create('serverError', message));
-    };
-    return new tab._CommandReturnHandler(commandName, 0, successCallback, errorCallback);
-}
-tab._CustomViewImpl.prototype = {
-    _customView: null,
-    _presModel: null,
-    _workbookImpl: null,
-    _messagingOptions: null,
-    _name: null,
-    _ownerName: null,
-    _url: null,
-    _isPublic: false,
-    _isDefault: false,
-    _isStale: false,
-    
-    get__customView: function tab__CustomViewImpl$get__customView() {
-        if (this._customView == null) {
-            this._customView = new tableauSoftware.CustomView(this);
-        }
-        return this._customView;
-    },
-    
-    get__workbook: function tab__CustomViewImpl$get__workbook() {
-        return this._workbookImpl.get_workbook();
-    },
-    
-    get__url: function tab__CustomViewImpl$get__url() {
-        return this._url;
-    },
-    
-    get__name: function tab__CustomViewImpl$get__name() {
-        return this._name;
-    },
-    set__name: function tab__CustomViewImpl$set__name(value) {
-        if (this._isStale) {
-            throw tab._TableauException.create('staleDataReference', 'Stale data');
-        }
-        this._name = value;
-        return value;
-    },
-    
-    get__ownerName: function tab__CustomViewImpl$get__ownerName() {
-        return this._ownerName;
-    },
-    
-    get__advertised: function tab__CustomViewImpl$get__advertised() {
-        return this._isPublic;
-    },
-    set__advertised: function tab__CustomViewImpl$set__advertised(value) {
-        if (this._isStale) {
-            throw tab._TableauException.create('staleDataReference', 'Stale data');
-        }
-        this._isPublic = value;
-        return value;
-    },
-    
-    get__isDefault: function tab__CustomViewImpl$get__isDefault() {
-        return this._isDefault;
-    },
-    
-    saveAsync: function tab__CustomViewImpl$saveAsync() {
-        if (this._isStale || ss.isNullOrUndefined(this._presModel)) {
-            throw tab._TableauException.create('staleDataReference', 'Stale data');
-        }
-        this._presModel.isPublic = this._isPublic;
-        this._presModel.name = this._name;
-        var deferred = new tab._Deferred();
-        var param = {};
-        param['api.customViewParam'] = this._presModel;
-        var returnHandler = tab._CustomViewImpl._createCustomViewCommandReturnHandler('api.UpdateCustomViewCommand', deferred, ss.Delegate.create(this, function(result) {
-            tab._CustomViewImpl._processCustomViewUpdate(this._workbookImpl, this._messagingOptions, result, true);
-            deferred.resolve(this.get__customView());
-        }));
-        this._messagingOptions.sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _removeAsync: function tab__CustomViewImpl$_removeAsync() {
-        var deferred = new tab._Deferred();
-        var param = {};
-        param['api.customViewParam'] = this._presModel;
-        var returnHandler = tab._CustomViewImpl._createCustomViewCommandReturnHandler('api.RemoveCustomViewCommand', deferred, ss.Delegate.create(this, function(result) {
-            this._isStale = true;
-            tab._CustomViewImpl._processCustomViews(this._workbookImpl, this._messagingOptions, result);
-            deferred.resolve(this.get__customView());
-        }));
-        this._messagingOptions.sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _showAsync: function tab__CustomViewImpl$_showAsync() {
-        if (this._isStale || ss.isNullOrUndefined(this._presModel)) {
-            throw tab._TableauException.create('staleDataReference', 'Stale data');
-        }
-        return tab._CustomViewImpl._showCustomViewAsync(this._workbookImpl, this._messagingOptions, this._presModel);
-    },
-    
-    _isDifferent: function tab__CustomViewImpl$_isDifferent(other) {
-        return (this._ownerName !== other._ownerName || this._url !== other._url || this._isPublic !== other._isPublic || this._isDefault !== other._isDefault);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._DashboardImpl
-
-tab._DashboardImpl = function tab__DashboardImpl(sheetInfoImpl, workbookImpl, messagingOptions) {
-    this._worksheets$1 = new tab._Collection();
-    this._dashboardObjects$1 = new tab._Collection();
-    tab._DashboardImpl.initializeBase(this, [ sheetInfoImpl, workbookImpl, messagingOptions ]);
-}
-tab._DashboardImpl.prototype = {
-    _dashboard$1: null,
-    
-    get_sheet: function tab__DashboardImpl$get_sheet() {
-        return this.get_dashboard();
-    },
-    
-    get_dashboard: function tab__DashboardImpl$get_dashboard() {
-        if (this._dashboard$1 == null) {
-            this._dashboard$1 = new tableauSoftware.Dashboard(this);
-        }
-        return this._dashboard$1;
-    },
-    
-    get_worksheets: function tab__DashboardImpl$get_worksheets() {
-        return this._worksheets$1;
-    },
-    
-    get_objects: function tab__DashboardImpl$get_objects() {
-        return this._dashboardObjects$1;
-    },
-    
-    _addObjects: function tab__DashboardImpl$_addObjects(zones, findSheetFunc) {
-        this._dashboardObjects$1 = new tab._Collection();
-        this._worksheets$1 = new tab._Collection();
-        for (var i = 0; i < zones.length; i++) {
-            var zone = zones[i];
-            var worksheet = null;
-            if (zones[i]._objectType === 'worksheet') {
-                var name = zone._name;
-                if (ss.isNullOrUndefined(name)) {
-                    continue;
-                }
-                var index = this._worksheets$1.get__length();
-                var size = tab.SheetSizeFactory.createAutomatic();
-                var isActive = false;
-                var publishedSheetInfo = findSheetFunc(name);
-                var isHidden = ss.isNullOrUndefined(publishedSheetInfo);
-                var url = (isHidden) ? '' : publishedSheetInfo.getUrl();
-                var sheetInfoImpl = tab.$create__SheetInfoImpl(name, 'worksheet', index, size, this.get_workbook(), url, isActive, isHidden, zone._zoneId);
-                var worksheetImpl = new tab._WorksheetImpl(sheetInfoImpl, this.get_workbookImpl(), this.get_messagingOptions(), this);
-                worksheet = worksheetImpl.get_worksheet();
-                this._worksheets$1._add(name, worksheetImpl.get_worksheet());
-            }
-            var obj = new tableauSoftware.DashboardObject(zone, this.get_dashboard(), worksheet);
-            this._dashboardObjects$1._add(i.toString(), obj);
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._DataSourceImpl
-
-tab._DataSourceImpl = function tab__DataSourceImpl(name, isPrimary) {
-    this._fields = new tab._Collection();
-    tab._Param.verifyString(name, 'name');
-    this._name = name;
-    this._isPrimary = isPrimary;
-}
-tab._DataSourceImpl.processDataSource = function tab__DataSourceImpl$processDataSource(dataSourcePm) {
-    var dataSourceImpl = new tab._DataSourceImpl(dataSourcePm.name, dataSourcePm.isPrimary);
-    var fields = (dataSourcePm.fields || new Array(0));
-    var $enum1 = ss.IEnumerator.getEnumerator(fields);
-    while ($enum1.moveNext()) {
-        var fieldPm = $enum1.current;
-        var field = new tableauSoftware.Field(dataSourceImpl.get_dataSource(), fieldPm.name, fieldPm.role, fieldPm.aggregation);
-        dataSourceImpl.addField(field);
-    }
-    return dataSourceImpl;
-}
-tab._DataSourceImpl.processDataSourcesForWorksheet = function tab__DataSourceImpl$processDataSourcesForWorksheet(pm) {
-    var dataSources = new tab._Collection();
-    var primaryDataSourceImpl = null;
-    var $enum1 = ss.IEnumerator.getEnumerator(pm.dataSources);
-    while ($enum1.moveNext()) {
-        var dataSourcePm = $enum1.current;
-        var dataSourceImpl = tab._DataSourceImpl.processDataSource(dataSourcePm);
-        if (dataSourcePm.isPrimary) {
-            primaryDataSourceImpl = dataSourceImpl;
-        }
-        else {
-            dataSources._add(dataSourcePm.name, dataSourceImpl.get_dataSource());
-        }
-    }
-    if (ss.isValue(primaryDataSourceImpl)) {
-        dataSources._addToFirst(primaryDataSourceImpl.get_name(), primaryDataSourceImpl.get_dataSource());
-    }
-    return dataSources;
-}
-tab._DataSourceImpl.prototype = {
-    _name: null,
-    _isPrimary: false,
-    _dataSource: null,
-    
-    get_dataSource: function tab__DataSourceImpl$get_dataSource() {
-        if (this._dataSource == null) {
-            this._dataSource = new tableauSoftware.DataSource(this);
-        }
-        return this._dataSource;
-    },
-    
-    get_name: function tab__DataSourceImpl$get_name() {
-        return this._name;
-    },
-    
-    get_fields: function tab__DataSourceImpl$get_fields() {
-        return this._fields;
-    },
-    
-    get_isPrimary: function tab__DataSourceImpl$get_isPrimary() {
-        return this._isPrimary;
-    },
-    
-    addField: function tab__DataSourceImpl$addField(field) {
-        this._fields._add(field.getName(), field);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._deferredUtil
-
-tab._deferredUtil = function tab__deferredUtil() {
-}
-tab._deferredUtil.coerceToTrustedPromise = function tab__deferredUtil$coerceToTrustedPromise(promiseOrValue) {
-    var promise;
-    if (promiseOrValue instanceof tableauSoftware.Promise) {
-        promise = promiseOrValue;
-    }
-    else {
-        if (ss.isValue(promiseOrValue) && typeof(promiseOrValue.valueOf) === 'function') {
-            promiseOrValue = promiseOrValue.valueOf();
-        }
-        if (tab._deferredUtil.isPromise(promiseOrValue)) {
-            var deferred = new tab._DeferredImpl();
-            (promiseOrValue).then(ss.Delegate.create(deferred, deferred.resolve), ss.Delegate.create(deferred, deferred.reject));
-            promise = deferred.get_promise();
-        }
-        else {
-            promise = tab._deferredUtil.resolved(promiseOrValue);
-        }
-    }
-    return promise;
-}
-tab._deferredUtil.reject = function tab__deferredUtil$reject(promiseOrValue) {
-    return tab._deferredUtil.coerceToTrustedPromise(promiseOrValue).then(function(value) {
-        return tab._deferredUtil.rejected(value);
-    }, null);
-}
-tab._deferredUtil.resolved = function tab__deferredUtil$resolved(value) {
-    var p = new tab._PromiseImpl(function(callback, errback) {
-        try {
-            return tab._deferredUtil.coerceToTrustedPromise((ss.isValue(callback)) ? callback(value) : value);
-        }
-        catch (e) {
-            return tab._deferredUtil.rejected(e);
-        }
-    });
-    return p;
-}
-tab._deferredUtil.rejected = function tab__deferredUtil$rejected(reason) {
-    var p = new tab._PromiseImpl(function(callback, errback) {
-        try {
-            return (ss.isValue(errback)) ? tab._deferredUtil.coerceToTrustedPromise(errback(reason)) : tab._deferredUtil.rejected(reason);
-        }
-        catch (e) {
-            return tab._deferredUtil.rejected(e);
-        }
-    });
-    return p;
-}
-tab._deferredUtil.isPromise = function tab__deferredUtil$isPromise(promiseOrValue) {
-    return ss.isValue(promiseOrValue) && typeof(promiseOrValue.then) === 'function';
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._CollectionImpl
-
-tab._CollectionImpl = function tab__CollectionImpl() {
-    this._items = [];
-    this._itemMap = {};
-}
-tab._CollectionImpl.prototype = {
-    
-    get__length: function tab__CollectionImpl$get__length() {
-        return this._items.length;
-    },
-    
-    get__rawArray: function tab__CollectionImpl$get__rawArray() {
-        return this._items;
-    },
-    
-    _get: function tab__CollectionImpl$_get(key) {
-        var validKey = this._ensureValidKey(key);
-        if (ss.isValue(this._itemMap[validKey])) {
-            return this._itemMap[validKey];
-        }
-        return undefined;
-    },
-    
-    _has: function tab__CollectionImpl$_has(key) {
-        return ss.isValue(this._get(key));
-    },
-    
-    _add: function tab__CollectionImpl$_add(key, item) {
-        this._verifyKeyAndItemParameters(key, item);
-        var validKey = this._ensureValidKey(key);
-        this._items.push(item);
-        this._itemMap[validKey] = item;
-    },
-    
-    _addToFirst: function tab__CollectionImpl$_addToFirst(key, item) {
-        this._verifyKeyAndItemParameters(key, item);
-        var validKey = this._ensureValidKey(key);
-        this._items.unshift(item);
-        this._itemMap[validKey] = item;
-    },
-    
-    _remove: function tab__CollectionImpl$_remove(key) {
-        var validKey = this._ensureValidKey(key);
-        if (ss.isValue(this._itemMap[validKey])) {
-            var item = this._itemMap[validKey];
-            delete this._itemMap[validKey];
-            for (var index = 0; index < this._items.length; index++) {
-                if (this._items[index] === item) {
-                    this._items.splice(index, 1);
-                    break;
-                }
-            }
-        }
-    },
-    
-    _toApiCollection: function tab__CollectionImpl$_toApiCollection() {
-        var clone = this._items.concat();
-        clone.get = ss.Delegate.create(this, function(key) {
-            return this._get(key);
-        });
-        clone.has = ss.Delegate.create(this, function(key) {
-            return this._has(key);
-        });
-        return clone;
-    },
-    
-    _verifyUniqueKeyParameter: function tab__CollectionImpl$_verifyUniqueKeyParameter(key) {
-        if (tab._Utility.isNullOrEmpty(key)) {
-            throw new Error('Null key');
-        }
-        if (this._has(key)) {
-            throw new Error("Duplicate key '" + key + "'");
-        }
-    },
-    
-    _verifyKeyAndItemParameters: function tab__CollectionImpl$_verifyKeyAndItemParameters(key, item) {
-        this._verifyUniqueKeyParameter(key);
-        if (ss.isNullOrUndefined(item)) {
-            throw new Error('Null item');
-        }
-    },
-    
-    _ensureValidKey: function tab__CollectionImpl$_ensureValidKey(key) {
-        return '_' + key;
-    },
-    get_item: function tab__CollectionImpl$get_item(index) {
-        return this._items[index];
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._DeferredImpl
-
-tab._DeferredImpl = function tab__DeferredImpl() {
-    this._listeners = [];
-    this._promise = new tab._PromiseImpl(ss.Delegate.create(this, this.then));
-    this._thenFunc = ss.Delegate.create(this, this._preResolutionThen);
-    this._resolveFunc = ss.Delegate.create(this, this._transitionToFulfilled);
-}
-tab._DeferredImpl.prototype = {
-    _promise: null,
-    _thenFunc: null,
-    _resolveFunc: null,
-    
-    get_promise: function tab__DeferredImpl$get_promise() {
-        return this._promise;
-    },
-    
-    all: function tab__DeferredImpl$all(promisesOrValues) {
-        var allDone = new tab._DeferredImpl();
-        var length = promisesOrValues.length;
-        var toResolve = length;
-        var results = [];
-        if (!length) {
-            allDone.resolve(results);
-            return allDone.get_promise();
-        }
-        var resolveOne = function(promiseOrValue, index) {
-            var promise = tab._deferredUtil.coerceToTrustedPromise(promiseOrValue);
-            promise.then(function(returnValue) {
-                results[index] = returnValue;
-                toResolve--;
-                if (!toResolve) {
-                    allDone.resolve(results);
-                }
-                return null;
-            }, function(e) {
-                allDone.reject(e);
-                return null;
-            });
-        };
-        for (var i = 0; i < length; i++) {
-            resolveOne(promisesOrValues[i], i);
-        }
-        return allDone.get_promise();
-    },
-    
-    then: function tab__DeferredImpl$then(callback, errback) {
-        return this._thenFunc(callback, errback);
-    },
-    
-    resolve: function tab__DeferredImpl$resolve(promiseOrValue) {
-        return this._resolveFunc(promiseOrValue);
-    },
-    
-    reject: function tab__DeferredImpl$reject(e) {
-        return this._resolveFunc(tab._deferredUtil.rejected(e));
-    },
-    
-    _preResolutionThen: function tab__DeferredImpl$_preResolutionThen(callback, errback) {
-        var deferred = new tab._DeferredImpl();
-        this._listeners.push(function(promise) {
-            promise.then(callback, errback).then(ss.Delegate.create(deferred, deferred.resolve), ss.Delegate.create(deferred, deferred.reject));
-        });
-        return deferred.get_promise();
-    },
-    
-    _transitionToFulfilled: function tab__DeferredImpl$_transitionToFulfilled(completed) {
-        var completedPromise = tab._deferredUtil.coerceToTrustedPromise(completed);
-        this._thenFunc = completedPromise.then;
-        this._resolveFunc = tab._deferredUtil.coerceToTrustedPromise;
-        for (var i = 0; i < this._listeners.length; i++) {
-            var listener = this._listeners[i];
-            listener(completedPromise);
-        }
-        this._listeners = null;
-        return completedPromise;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._PromiseImpl
-
-tab._PromiseImpl = function tab__PromiseImpl(thenFunc) {
-    this.then = thenFunc;
-}
-tab._PromiseImpl.prototype = {
-    then: null,
-    
-    always: function tab__PromiseImpl$always(callback) {
-        return this.then(callback, callback);
-    },
-    
-    otherwise: function tab__PromiseImpl$otherwise(errback) {
-        return this.then(null, errback);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._markImpl
-
-tab._markImpl = function tab__markImpl(tupleIdOrPairs) {
-    this._collection = new tab._Collection();
-    if (tab._jQueryShim.isArray(tupleIdOrPairs)) {
-        var pairArr = tupleIdOrPairs;
-        for (var i = 0; i < pairArr.length; i++) {
-            var pair = pairArr[i];
-            if (!ss.isValue(pair.fieldName)) {
-                throw tab._TableauException.createInvalidParameter('pair.fieldName');
-            }
-            if (!ss.isValue(pair.value)) {
-                throw tab._TableauException.createInvalidParameter('pair.value');
-            }
-            var p = new tableauSoftware.Pair(pair.fieldName, pair.value);
-            this._collection._add(p.fieldName, p);
-        }
-    }
-    else {
-        this._tupleId = tupleIdOrPairs;
-    }
-}
-tab._markImpl._processSelectedMarks = function tab__markImpl$_processSelectedMarks(marksPresModel) {
-    var marks = new tab._Collection();
-    if (ss.isNullOrUndefined(marksPresModel) || tab._Utility.isNullOrEmpty(marksPresModel.marks)) {
-        return marks;
-    }
-    var $enum1 = ss.IEnumerator.getEnumerator(marksPresModel.marks);
-    while ($enum1.moveNext()) {
-        var markPresModel = $enum1.current;
-        var tupleId = markPresModel.tupleId;
-        var mark = new tableauSoftware.Mark(tupleId);
-        marks._add(tupleId.toString(), mark);
-        var $enum2 = ss.IEnumerator.getEnumerator(markPresModel.pairs);
-        while ($enum2.moveNext()) {
-            var pairPresModel = $enum2.current;
-            var value = tab._Utility.convertRawValue(pairPresModel.value, pairPresModel.valueDataType);
-            var pair = new tableauSoftware.Pair(pairPresModel.fieldName, value);
-            pair.formattedValue = pairPresModel.formattedValue;
-            if (!mark._impl.get__pairs()._has(pair.fieldName)) {
-                mark._impl._addPair(pair);
-            }
-        }
-    }
-    return marks;
-}
-tab._markImpl.prototype = {
-    _clonedPairs: null,
-    _tupleId: 0,
-    
-    get__pairs: function tab__markImpl$get__pairs() {
-        return this._collection;
-    },
-    
-    get__tupleId: function tab__markImpl$get__tupleId() {
-        return this._tupleId;
-    },
-    
-    get__clonedPairs: function tab__markImpl$get__clonedPairs() {
-        if (this._clonedPairs == null) {
-            this._clonedPairs = this._collection._toApiCollection();
-        }
-        return this._clonedPairs;
-    },
-    
-    _addPair: function tab__markImpl$_addPair(pair) {
-        this._collection._add(pair.fieldName, pair);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._Param
-
-tab._Param = function tab__Param() {
-}
-tab._Param.verifyString = function tab__Param$verifyString(argumentValue, argumentName) {
-    if (ss.isNullOrUndefined(argumentValue) || !argumentValue.length) {
-        throw tab._TableauException.createInternalStringArgumentException(argumentName);
-    }
-}
-tab._Param.verifyValue = function tab__Param$verifyValue(argumentValue, argumentName) {
-    if (ss.isNullOrUndefined(argumentValue)) {
-        throw tab._TableauException.createInternalNullArgumentException(argumentName);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._parameterImpl
-
-tab._parameterImpl = function tab__parameterImpl(pm) {
-    this._name = pm.name;
-    this._currentValue = tab._Utility.getDataValue(pm.currentValue);
-    this._dataType = pm.dataType;
-    this._allowableValuesType = pm.allowableValuesType;
-    if (ss.isValue(pm.allowableValues) && this._allowableValuesType === 'list') {
-        this._allowableValues = [];
-        var $enum1 = ss.IEnumerator.getEnumerator(pm.allowableValues);
-        while ($enum1.moveNext()) {
-            var adv = $enum1.current;
-            this._allowableValues.push(tab._Utility.getDataValue(adv));
-        }
-    }
-    if (this._allowableValuesType === 'range') {
-        this._minValue = tab._Utility.getDataValue(pm.minValue);
-        this._maxValue = tab._Utility.getDataValue(pm.maxValue);
-        this._stepSize = pm.stepSize;
-        if ((this._dataType === 'date' || this._dataType === 'datetime') && ss.isValue(this._stepSize) && ss.isValue(pm.dateStepPeriod)) {
-            this._dateStepPeriod = pm.dateStepPeriod;
-        }
-    }
-}
-tab._parameterImpl.prototype = {
-    _parameter: null,
-    _name: null,
-    _currentValue: null,
-    _dataType: null,
-    _allowableValuesType: null,
-    _allowableValues: null,
-    _minValue: null,
-    _maxValue: null,
-    _stepSize: null,
-    _dateStepPeriod: null,
-    
-    get__parameter: function tab__parameterImpl$get__parameter() {
-        if (this._parameter == null) {
-            this._parameter = new tableauSoftware.Parameter(this);
-        }
-        return this._parameter;
-    },
-    
-    get__name: function tab__parameterImpl$get__name() {
-        return this._name;
-    },
-    
-    get__currentValue: function tab__parameterImpl$get__currentValue() {
-        return this._currentValue;
-    },
-    
-    get__dataType: function tab__parameterImpl$get__dataType() {
-        return this._dataType;
-    },
-    
-    get__allowableValuesType: function tab__parameterImpl$get__allowableValuesType() {
-        return this._allowableValuesType;
-    },
-    
-    get__allowableValues: function tab__parameterImpl$get__allowableValues() {
-        return this._allowableValues;
-    },
-    
-    get__minValue: function tab__parameterImpl$get__minValue() {
-        return this._minValue;
-    },
-    
-    get__maxValue: function tab__parameterImpl$get__maxValue() {
-        return this._maxValue;
-    },
-    
-    get__stepSize: function tab__parameterImpl$get__stepSize() {
-        return this._stepSize;
-    },
-    
-    get__dateStepPeriod: function tab__parameterImpl$get__dateStepPeriod() {
-        return this._dateStepPeriod;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._SheetImpl
-
-tab._SheetImpl = function tab__SheetImpl(sheetInfoImpl, workbookImpl, messagingOptions) {
-    tab._Param.verifyValue(sheetInfoImpl, 'sheetInfoImpl');
-    tab._Param.verifyValue(workbookImpl, 'workbookImpl');
-    tab._Param.verifyValue(messagingOptions, 'messagingOptions');
-    this._name = sheetInfoImpl.name;
-    this._index = sheetInfoImpl.index;
-    this._isActive = sheetInfoImpl.isActive;
-    this._isHidden = sheetInfoImpl.isHidden;
-    this._sheetType = sheetInfoImpl.sheetType;
-    this._size = sheetInfoImpl.size;
-    this._url = sheetInfoImpl.url;
-    this._workbookImpl = workbookImpl;
-    this._messagingOptions = messagingOptions;
-    this._zoneId = sheetInfoImpl.zoneId;
-}
-tab._SheetImpl._convertValueToIntIfValid = function tab__SheetImpl$_convertValueToIntIfValid(value) {
-    if (ss.isValue(value)) {
-        return tab._Utility.toInt(value);
-    }
-    return value;
-}
-tab._SheetImpl._normalizeSheetSize = function tab__SheetImpl$_normalizeSheetSize(size) {
-    var behavior = tab._enums._normalizeSheetSizeBehavior(size.behavior, 'size.behavior');
-    var minSize = size.minSize;
-    if (ss.isValue(minSize)) {
-        minSize = tab.$create_Size(tab._SheetImpl._convertValueToIntIfValid(size.minSize.width), tab._SheetImpl._convertValueToIntIfValid(size.minSize.height));
-    }
-    var maxSize = size.maxSize;
-    if (ss.isValue(maxSize)) {
-        maxSize = tab.$create_Size(tab._SheetImpl._convertValueToIntIfValid(size.maxSize.width), tab._SheetImpl._convertValueToIntIfValid(size.maxSize.height));
-    }
-    return tab.$create_SheetSize(behavior, minSize, maxSize);
-}
-tab._SheetImpl.prototype = {
-    _name: null,
-    _index: 0,
-    _isActive: false,
-    _isHidden: false,
-    _sheetType: null,
-    _size: null,
-    _url: null,
-    _workbookImpl: null,
-    _messagingOptions: null,
-    _parentStoryPointImpl: null,
-    _zoneId: 0,
-    
-    get_name: function tab__SheetImpl$get_name() {
-        return this._name;
-    },
-    
-    get_index: function tab__SheetImpl$get_index() {
-        return this._index;
-    },
-    
-    get_workbookImpl: function tab__SheetImpl$get_workbookImpl() {
-        return this._workbookImpl;
-    },
-    
-    get_workbook: function tab__SheetImpl$get_workbook() {
-        return this._workbookImpl.get_workbook();
-    },
-    
-    get_url: function tab__SheetImpl$get_url() {
-        if (this._isHidden) {
-            throw tab._TableauException.createNoUrlForHiddenWorksheet();
-        }
-        return this._url;
-    },
-    
-    get_size: function tab__SheetImpl$get_size() {
-        return this._size;
-    },
-    
-    get_isHidden: function tab__SheetImpl$get_isHidden() {
-        return this._isHidden;
-    },
-    
-    get_isActive: function tab__SheetImpl$get_isActive() {
-        return this._isActive;
-    },
-    set_isActive: function tab__SheetImpl$set_isActive(value) {
-        this._isActive = value;
-        return value;
-    },
-    
-    get_isDashboard: function tab__SheetImpl$get_isDashboard() {
-        return this._sheetType === 'dashboard';
-    },
-    
-    get_sheetType: function tab__SheetImpl$get_sheetType() {
-        return this._sheetType;
-    },
-    
-    get_parentStoryPoint: function tab__SheetImpl$get_parentStoryPoint() {
-        if (ss.isValue(this._parentStoryPointImpl)) {
-            return this._parentStoryPointImpl.get_storyPoint();
-        }
-        return null;
-    },
-    
-    get_parentStoryPointImpl: function tab__SheetImpl$get_parentStoryPointImpl() {
-        return this._parentStoryPointImpl;
-    },
-    set_parentStoryPointImpl: function tab__SheetImpl$set_parentStoryPointImpl(value) {
-        if (this._sheetType === 'story') {
-            throw tab._TableauException.createInternalError('A story cannot be a child of another story.');
-        }
-        this._parentStoryPointImpl = value;
-        return value;
-    },
-    
-    get_zoneId: function tab__SheetImpl$get_zoneId() {
-        return this._zoneId;
-    },
-    
-    get_messagingOptions: function tab__SheetImpl$get_messagingOptions() {
-        return this._messagingOptions;
-    },
-    
-    changeSizeAsync: function tab__SheetImpl$changeSizeAsync(newSize) {
-        newSize = tab._SheetImpl._normalizeSheetSize(newSize);
-        if (this._sheetType === 'worksheet' && newSize.behavior !== 'automatic') {
-            throw tab._TableauException.createInvalidSizeBehaviorOnWorksheet();
-        }
-        var deferred = new tab._Deferred();
-        if (this._size.behavior === newSize.behavior && newSize.behavior === 'automatic') {
-            deferred.resolve(newSize);
-            return deferred.get_promise();
-        }
-        var dict = this._processSheetSize(newSize);
-        var param = {};
-        param['api.setSheetSizeName'] = this._name;
-        param['api.minWidth'] = dict['api.minWidth'];
-        param['api.minHeight'] = dict['api.minHeight'];
-        param['api.maxWidth'] = dict['api.maxWidth'];
-        param['api.maxHeight'] = dict['api.maxHeight'];
-        var returnHandler = new tab._CommandReturnHandler('api.SetSheetSizeCommand', 1, ss.Delegate.create(this, function(result) {
-            this.get_workbookImpl()._update(ss.Delegate.create(this, function() {
-                var updatedSize = this.get_workbookImpl().get_publishedSheets()._get(this.get_name()).getSize();
-                deferred.resolve(updatedSize);
-            }));
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    sendCommand: function tab__SheetImpl$sendCommand(commandParameters, returnHandler) {
-        this._messagingOptions.sendCommand(commandParameters, returnHandler);
-    },
-    
-    _processSheetSize: function tab__SheetImpl$_processSheetSize(newSize) {
-        var fixedSheetSize = null;
-        if (ss.isNullOrUndefined(newSize) || ss.isNullOrUndefined(newSize.behavior) || (newSize.behavior !== 'automatic' && ss.isNullOrUndefined(newSize.minSize) && ss.isNullOrUndefined(newSize.maxSize))) {
-            throw tab._TableauException.createInvalidSheetSizeParam();
-        }
-        var minWidth = 0;
-        var minHeight = 0;
-        var maxWidth = 0;
-        var maxHeight = 0;
-        var dict = {};
-        dict['api.minWidth'] = 0;
-        dict['api.minHeight'] = 0;
-        dict['api.maxWidth'] = 0;
-        dict['api.maxHeight'] = 0;
-        if (newSize.behavior === 'automatic') {
-            fixedSheetSize = tab.$create_SheetSize('automatic', undefined, undefined);
-        }
-        else if (newSize.behavior === 'atmost') {
-            if (ss.isNullOrUndefined(newSize.maxSize) || ss.isNullOrUndefined(newSize.maxSize.width) || ss.isNullOrUndefined(newSize.maxSize.height)) {
-                throw tab._TableauException.createMissingMaxSize();
-            }
-            if (newSize.maxSize.width < 0 || newSize.maxSize.height < 0) {
-                throw tab._TableauException.createInvalidSizeValue();
-            }
-            dict['api.maxWidth'] = newSize.maxSize.width;
-            dict['api.maxHeight'] = newSize.maxSize.height;
-            fixedSheetSize = tab.$create_SheetSize('atmost', undefined, newSize.maxSize);
-        }
-        else if (newSize.behavior === 'atleast') {
-            if (ss.isNullOrUndefined(newSize.minSize) || ss.isNullOrUndefined(newSize.minSize.width) || ss.isNullOrUndefined(newSize.minSize.height)) {
-                throw tab._TableauException.createMissingMinSize();
-            }
-            if (newSize.minSize.width < 0 || newSize.minSize.height < 0) {
-                throw tab._TableauException.createInvalidSizeValue();
-            }
-            dict['api.minWidth'] = newSize.minSize.width;
-            dict['api.minHeight'] = newSize.minSize.height;
-            fixedSheetSize = tab.$create_SheetSize('atleast', newSize.minSize, undefined);
-        }
-        else if (newSize.behavior === 'range') {
-            if (ss.isNullOrUndefined(newSize.minSize) || ss.isNullOrUndefined(newSize.maxSize) || ss.isNullOrUndefined(newSize.minSize.width) || ss.isNullOrUndefined(newSize.maxSize.width) || ss.isNullOrUndefined(newSize.minSize.height) || ss.isNullOrUndefined(newSize.maxSize.height)) {
-                throw tab._TableauException.createMissingMinMaxSize();
-            }
-            if (newSize.minSize.width < 0 || newSize.minSize.height < 0 || newSize.maxSize.width < 0 || newSize.maxSize.height < 0 || newSize.minSize.width > newSize.maxSize.width || newSize.minSize.height > newSize.maxSize.height) {
-                throw tab._TableauException.createInvalidRangeSize();
-            }
-            dict['api.minWidth'] = newSize.minSize.width;
-            dict['api.minHeight'] = newSize.minSize.height;
-            dict['api.maxWidth'] = newSize.maxSize.width;
-            dict['api.maxHeight'] = newSize.maxSize.height;
-            fixedSheetSize = tab.$create_SheetSize('range', newSize.minSize, newSize.maxSize);
-        }
-        else if (newSize.behavior === 'exactly') {
-            if (ss.isValue(newSize.minSize) && ss.isValue(newSize.maxSize) && ss.isValue(newSize.minSize.width) && ss.isValue(newSize.maxSize.width) && ss.isValue(newSize.minSize.height) && ss.isValue(newSize.maxSize.height)) {
-                minWidth = newSize.minSize.width;
-                minHeight = newSize.minSize.height;
-                maxWidth = newSize.maxSize.width;
-                maxHeight = newSize.maxSize.height;
-                if (minWidth !== maxWidth || minHeight !== maxHeight) {
-                    throw tab._TableauException.createSizeConflictForExactly();
-                }
-            }
-            else if (ss.isValue(newSize.minSize) && ss.isValue(newSize.minSize.width) && ss.isValue(newSize.minSize.height)) {
-                minWidth = newSize.minSize.width;
-                minHeight = newSize.minSize.height;
-                maxWidth = minWidth;
-                maxHeight = minHeight;
-            }
-            else if (ss.isValue(newSize.maxSize) && ss.isValue(newSize.maxSize.width) && ss.isValue(newSize.maxSize.height)) {
-                maxWidth = newSize.maxSize.width;
-                maxHeight = newSize.maxSize.height;
-                minWidth = maxWidth;
-                minHeight = maxHeight;
-            }
-            dict['api.minWidth'] = minWidth;
-            dict['api.minHeight'] = minHeight;
-            dict['api.maxWidth'] = maxWidth;
-            dict['api.maxHeight'] = maxHeight;
-            fixedSheetSize = tab.$create_SheetSize('exactly', tab.$create_Size(minWidth, minHeight), tab.$create_Size(maxWidth, maxHeight));
-        }
-        this._size = fixedSheetSize;
-        return dict;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._StoryImpl
-
-tab._StoryImpl = function tab__StoryImpl(sheetInfoImpl, workbookImpl, messagingOptions, storyPm, findSheetFunc) {
-    tab._StoryImpl.initializeBase(this, [ sheetInfoImpl, workbookImpl, messagingOptions ]);
-    tab._Param.verifyValue(storyPm, 'storyPm');
-    tab._Param.verifyValue(findSheetFunc, 'findSheetFunc');
-    this._findSheetFunc$1 = findSheetFunc;
-    this.update(storyPm);
-}
-tab._StoryImpl.prototype = {
-    _activeStoryPointImpl$1: null,
-    _findSheetFunc$1: null,
-    _story$1: null,
-    _storyPointsInfo$1: null,
-    
-    add_activeStoryPointChange: function tab__StoryImpl$add_activeStoryPointChange(value) {
-        this.__activeStoryPointChange$1 = ss.Delegate.combine(this.__activeStoryPointChange$1, value);
-    },
-    remove_activeStoryPointChange: function tab__StoryImpl$remove_activeStoryPointChange(value) {
-        this.__activeStoryPointChange$1 = ss.Delegate.remove(this.__activeStoryPointChange$1, value);
-    },
-    
-    __activeStoryPointChange$1: null,
-    
-    get_activeStoryPointImpl: function tab__StoryImpl$get_activeStoryPointImpl() {
-        return this._activeStoryPointImpl$1;
-    },
-    
-    get_sheet: function tab__StoryImpl$get_sheet() {
-        return this.get_story();
-    },
-    
-    get_story: function tab__StoryImpl$get_story() {
-        if (this._story$1 == null) {
-            this._story$1 = new tableauSoftware.Story(this);
-        }
-        return this._story$1;
-    },
-    
-    get_storyPointsInfo: function tab__StoryImpl$get_storyPointsInfo() {
-        return this._storyPointsInfo$1;
-    },
-    
-    update: function tab__StoryImpl$update(storyPm) {
-        var activeStoryPointContainedSheetInfo = null;
-        var newActiveStoryPointInfoImpl = null;
-        this._storyPointsInfo$1 = (this._storyPointsInfo$1 || new Array(storyPm.storyPoints.length));
-        for (var i = 0; i < storyPm.storyPoints.length; i++) {
-            var storyPointPm = storyPm.storyPoints[i];
-            var caption = storyPointPm.caption;
-            var isActive = i === storyPm.activeStoryPointIndex;
-            var storyPointInfoImpl = tab.$create__StoryPointInfoImpl(caption, i, storyPointPm.storyPointId, isActive, storyPointPm.isUpdated, this);
-            if (ss.isNullOrUndefined(this._storyPointsInfo$1[i])) {
-                this._storyPointsInfo$1[i] = new tableauSoftware.StoryPointInfo(storyPointInfoImpl);
-            }
-            else if (this._storyPointsInfo$1[i]._impl.storyPointId === storyPointInfoImpl.storyPointId) {
-                var existing = this._storyPointsInfo$1[i]._impl;
-                existing.caption = storyPointInfoImpl.caption;
-                existing.index = storyPointInfoImpl.index;
-                existing.isActive = isActive;
-                existing.isUpdated = storyPointInfoImpl.isUpdated;
-            }
-            else {
-                this._storyPointsInfo$1[i] = new tableauSoftware.StoryPointInfo(storyPointInfoImpl);
-            }
-            if (isActive) {
-                activeStoryPointContainedSheetInfo = storyPointPm.containedSheetInfo;
-                newActiveStoryPointInfoImpl = storyPointInfoImpl;
-            }
-        }
-        var deleteCount = this._storyPointsInfo$1.length - storyPm.storyPoints.length;
-        this._storyPointsInfo$1.splice(storyPm.storyPoints.length, deleteCount);
-        var activeStoryPointChanged = ss.isNullOrUndefined(this._activeStoryPointImpl$1) || this._activeStoryPointImpl$1.get_storyPointId() !== newActiveStoryPointInfoImpl.storyPointId;
-        if (ss.isValue(this._activeStoryPointImpl$1) && activeStoryPointChanged) {
-            this._activeStoryPointImpl$1.set_isActive(false);
-        }
-        var previouslyActiveStoryPoint = this._activeStoryPointImpl$1;
-        if (activeStoryPointChanged) {
-            var containedSheetImpl = tab._StoryPointImpl.createContainedSheet(activeStoryPointContainedSheetInfo, this.get_workbookImpl(), this.get_messagingOptions(), this._findSheetFunc$1);
-            this._activeStoryPointImpl$1 = new tab._StoryPointImpl(newActiveStoryPointInfoImpl, containedSheetImpl);
-        }
-        else {
-            this._activeStoryPointImpl$1.set_isActive(newActiveStoryPointInfoImpl.isActive);
-            this._activeStoryPointImpl$1.set_isUpdated(newActiveStoryPointInfoImpl.isUpdated);
-        }
-        if (activeStoryPointChanged && ss.isValue(previouslyActiveStoryPoint)) {
-            this._raiseActiveStoryPointChange$1(this._storyPointsInfo$1[previouslyActiveStoryPoint.get_index()], this._activeStoryPointImpl$1.get_storyPoint());
-        }
-    },
-    
-    activatePreviousStoryPointAsync: function tab__StoryImpl$activatePreviousStoryPointAsync() {
-        return this._activatePreviousNextStoryPointAsync$1('api.ActivatePreviousStoryPoint');
-    },
-    
-    activateNextStoryPointAsync: function tab__StoryImpl$activateNextStoryPointAsync() {
-        return this._activatePreviousNextStoryPointAsync$1('api.ActivateNextStoryPoint');
-    },
-    
-    activateStoryPointAsync: function tab__StoryImpl$activateStoryPointAsync(index) {
-        var deferred = new tab._Deferred();
-        if (index < 0 || index >= this._storyPointsInfo$1.length) {
-            throw tab._TableauException.createIndexOutOfRange(index);
-        }
-        var previouslyActiveStoryPointImpl = this.get_activeStoryPointImpl();
-        var commandParameters = {};
-        commandParameters['api.storyPointIndex'] = index;
-        var returnHandler = new tab._CommandReturnHandler('api.ActivateStoryPoint', 0, ss.Delegate.create(this, function(result) {
-            var activeStoryPointPm = result;
-            this._updateActiveState$1(previouslyActiveStoryPointImpl, activeStoryPointPm);
-            deferred.resolve(this._activeStoryPointImpl$1.get_storyPoint());
-        }), function(remoteError, errorMessage) {
-            deferred.reject(tab._TableauException.createServerError(errorMessage));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    revertStoryPointAsync: function tab__StoryImpl$revertStoryPointAsync(index) {
-        index = (index || this._activeStoryPointImpl$1.get_index());
-        if (index < 0 || index >= this._storyPointsInfo$1.length) {
-            throw tab._TableauException.createIndexOutOfRange(index);
-        }
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        commandParameters['api.storyPointIndex'] = index;
-        var returnHandler = new tab._CommandReturnHandler('api.RevertStoryPoint', 0, ss.Delegate.create(this, function(result) {
-            var updatedStoryPointPm = result;
-            this._updateStoryPointInfo$1(index, updatedStoryPointPm);
-            deferred.resolve(this._storyPointsInfo$1[index]);
-        }), function(remoteError, errorMessage) {
-            deferred.reject(tab._TableauException.createServerError(errorMessage));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _activatePreviousNextStoryPointAsync$1: function tab__StoryImpl$_activatePreviousNextStoryPointAsync$1(commandName) {
-        if (commandName !== 'api.ActivatePreviousStoryPoint' && commandName !== 'api.ActivateNextStoryPoint') {
-            throw tab._TableauException.createInternalError("commandName '" + commandName + "' is invalid.");
-        }
-        var deferred = new tab._Deferred();
-        var previouslyActiveStoryPointImpl = this.get_activeStoryPointImpl();
-        var commandParameters = {};
-        var returnHandler = new tab._CommandReturnHandler(commandName, 0, ss.Delegate.create(this, function(result) {
-            var activeStoryPointPm = result;
-            this._updateActiveState$1(previouslyActiveStoryPointImpl, activeStoryPointPm);
-            deferred.resolve(this._activeStoryPointImpl$1.get_storyPoint());
-        }), function(remoteError, errorMessage) {
-            deferred.reject(tab._TableauException.createServerError(errorMessage));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _updateStoryPointInfo$1: function tab__StoryImpl$_updateStoryPointInfo$1(index, newStoryPointPm) {
-        var existingImpl = this._storyPointsInfo$1[index]._impl;
-        if (existingImpl.storyPointId !== newStoryPointPm.storyPointId) {
-            throw tab._TableauException.createInternalError("We should not be updating a story point where the IDs don't match. Existing storyPointID=" + existingImpl.storyPointId + ', newStoryPointID=' + newStoryPointPm.storyPointId);
-        }
-        existingImpl.caption = newStoryPointPm.caption;
-        existingImpl.isUpdated = newStoryPointPm.isUpdated;
-        if (newStoryPointPm.storyPointId === this._activeStoryPointImpl$1.get_storyPointId()) {
-            this._activeStoryPointImpl$1.set_isUpdated(newStoryPointPm.isUpdated);
-        }
-    },
-    
-    _updateActiveState$1: function tab__StoryImpl$_updateActiveState$1(previouslyActiveStoryPointImpl, newActiveStoryPointPm) {
-        var newActiveIndex = newActiveStoryPointPm.index;
-        if (previouslyActiveStoryPointImpl.get_index() === newActiveIndex) {
-            return;
-        }
-        var oldStoryPointInfo = this._storyPointsInfo$1[previouslyActiveStoryPointImpl.get_index()];
-        var newStoryPointInfoImpl = this._storyPointsInfo$1[newActiveIndex]._impl;
-        var containedSheetImpl = tab._StoryPointImpl.createContainedSheet(newActiveStoryPointPm.containedSheetInfo, this.get_workbookImpl(), this.get_messagingOptions(), this._findSheetFunc$1);
-        newStoryPointInfoImpl.isActive = true;
-        this._activeStoryPointImpl$1 = new tab._StoryPointImpl(newStoryPointInfoImpl, containedSheetImpl);
-        previouslyActiveStoryPointImpl.set_isActive(false);
-        oldStoryPointInfo._impl.isActive = false;
-        this._raiseActiveStoryPointChange$1(oldStoryPointInfo, this._activeStoryPointImpl$1.get_storyPoint());
-    },
-    
-    _raiseActiveStoryPointChange$1: function tab__StoryImpl$_raiseActiveStoryPointChange$1(oldStoryPointInfo, newStoryPoint) {
-        if (this.__activeStoryPointChange$1 != null) {
-            this.__activeStoryPointChange$1(oldStoryPointInfo, newStoryPoint);
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._StoryPointImpl
-
-tab._StoryPointImpl = function tab__StoryPointImpl(storyPointInfoImpl, containedSheetImpl) {
-    this._isActive = storyPointInfoImpl.isActive;
-    this._isUpdated = storyPointInfoImpl.isUpdated;
-    this._caption = storyPointInfoImpl.caption;
-    this._index = storyPointInfoImpl.index;
-    this._parentStoryImpl = storyPointInfoImpl.parentStoryImpl;
-    this._storyPointId = storyPointInfoImpl.storyPointId;
-    this._containedSheetImpl = containedSheetImpl;
-    if (ss.isValue(containedSheetImpl)) {
-        this._containedSheetImpl.set_parentStoryPointImpl(this);
-        if (containedSheetImpl.get_sheetType() === 'dashboard') {
-            var containedDashboardImpl = this._containedSheetImpl;
-            for (var i = 0; i < containedDashboardImpl.get_worksheets().get__length(); i++) {
-                var worksheet = containedDashboardImpl.get_worksheets().get_item(i);
-                worksheet._impl.set_parentStoryPointImpl(this);
-            }
-        }
-    }
-}
-tab._StoryPointImpl.createContainedSheet = function tab__StoryPointImpl$createContainedSheet(containedSheetInfo, workbookImpl, messagingOptions, findSheetFunc) {
-    var containedSheetType = containedSheetInfo.sheetType;
-    var index = -1;
-    var size = tab.SheetSizeFactory.createAutomatic();
-    var isActive = false;
-    var publishedSheetInfo = findSheetFunc(containedSheetInfo.name);
-    var isHidden = ss.isNullOrUndefined(publishedSheetInfo);
-    var url = (isHidden) ? '' : publishedSheetInfo.getUrl();
-    var sheetInfoImpl = tab.$create__SheetInfoImpl(containedSheetInfo.name, containedSheetType, index, size, workbookImpl.get_workbook(), url, isActive, isHidden, containedSheetInfo.zoneId);
-    if (containedSheetInfo.sheetType === 'worksheet') {
-        var parentDashboardImpl = null;
-        var worksheetImpl = new tab._WorksheetImpl(sheetInfoImpl, workbookImpl, messagingOptions, parentDashboardImpl);
-        return worksheetImpl;
-    }
-    else if (containedSheetInfo.sheetType === 'dashboard') {
-        var dashboardImpl = new tab._DashboardImpl(sheetInfoImpl, workbookImpl, messagingOptions);
-        var dashboardZones = tab._WorkbookImpl._createDashboardZones(containedSheetInfo.dashboardZones);
-        dashboardImpl._addObjects(dashboardZones, findSheetFunc);
-        return dashboardImpl;
-    }
-    else if (containedSheetInfo.sheetType === 'story') {
-        throw tab._TableauException.createInternalError('Cannot have a story embedded within another story.');
-    }
-    else {
-        throw tab._TableauException.createInternalError("Unknown sheet type '" + containedSheetInfo.sheetType + "'");
-    }
-}
-tab._StoryPointImpl.prototype = {
-    _caption: null,
-    _index: 0,
-    _isActive: false,
-    _isUpdated: false,
-    _containedSheetImpl: null,
-    _parentStoryImpl: null,
-    _storyPoint: null,
-    _storyPointId: 0,
-    
-    get_caption: function tab__StoryPointImpl$get_caption() {
-        return this._caption;
-    },
-    
-    get_containedSheetImpl: function tab__StoryPointImpl$get_containedSheetImpl() {
-        return this._containedSheetImpl;
-    },
-    
-    get_index: function tab__StoryPointImpl$get_index() {
-        return this._index;
-    },
-    
-    get_isActive: function tab__StoryPointImpl$get_isActive() {
-        return this._isActive;
-    },
-    set_isActive: function tab__StoryPointImpl$set_isActive(value) {
-        this._isActive = value;
-        return value;
-    },
-    
-    get_isUpdated: function tab__StoryPointImpl$get_isUpdated() {
-        return this._isUpdated;
-    },
-    set_isUpdated: function tab__StoryPointImpl$set_isUpdated(value) {
-        this._isUpdated = value;
-        return value;
-    },
-    
-    get_parentStoryImpl: function tab__StoryPointImpl$get_parentStoryImpl() {
-        return this._parentStoryImpl;
-    },
-    
-    get_storyPoint: function tab__StoryPointImpl$get_storyPoint() {
-        if (this._storyPoint == null) {
-            this._storyPoint = new tableauSoftware.StoryPoint(this);
-        }
-        return this._storyPoint;
-    },
-    
-    get_storyPointId: function tab__StoryPointImpl$get_storyPointId() {
-        return this._storyPointId;
-    },
-    
-    _toInfoImpl: function tab__StoryPointImpl$_toInfoImpl() {
-        return tab.$create__StoryPointInfoImpl(this._caption, this._index, this._storyPointId, this._isActive, this._isUpdated, this._parentStoryImpl);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.StoryPointInfoImplUtil
-
-tab.StoryPointInfoImplUtil = function tab_StoryPointInfoImplUtil() {
-}
-tab.StoryPointInfoImplUtil.clone = function tab_StoryPointInfoImplUtil$clone(impl) {
-    return tab.$create__StoryPointInfoImpl(impl.caption, impl.index, impl.storyPointId, impl.isActive, impl.isUpdated, impl.parentStoryImpl);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._TableauException
-
-tab._TableauException = function tab__TableauException() {
-}
-tab._TableauException.create = function tab__TableauException$create(id, message) {
-    var x = new Error(message);
-    x.tableauSoftwareErrorCode = id;
-    return x;
-}
-tab._TableauException.createInternalError = function tab__TableauException$createInternalError(details) {
-    if (ss.isValue(details)) {
-        return tab._TableauException.create('internalError', 'Internal error. Please contact Tableau support with the following information: ' + details);
-    }
-    else {
-        return tab._TableauException.create('internalError', 'Internal error. Please contact Tableau support');
-    }
-}
-tab._TableauException.createInternalNullArgumentException = function tab__TableauException$createInternalNullArgumentException(argumentName) {
-    return tab._TableauException.createInternalError("Null/undefined argument '" + argumentName + "'.");
-}
-tab._TableauException.createInternalStringArgumentException = function tab__TableauException$createInternalStringArgumentException(argumentName) {
-    return tab._TableauException.createInternalError("Invalid string argument '" + argumentName + "'.");
-}
-tab._TableauException.createServerError = function tab__TableauException$createServerError(message) {
-    return tab._TableauException.create('serverError', message);
-}
-tab._TableauException.createNotActiveSheet = function tab__TableauException$createNotActiveSheet() {
-    return tab._TableauException.create('notActiveSheet', 'Operation not allowed on non-active sheet');
-}
-tab._TableauException.createInvalidCustomViewName = function tab__TableauException$createInvalidCustomViewName(customViewName) {
-    return tab._TableauException.create('invalidCustomViewName', 'Invalid custom view name: ' + customViewName);
-}
-tab._TableauException.createInvalidParameter = function tab__TableauException$createInvalidParameter(paramName) {
-    return tab._TableauException.create('invalidParameter', 'Invalid parameter: ' + paramName);
-}
-tab._TableauException.createInvalidFilterFieldNameOrValue = function tab__TableauException$createInvalidFilterFieldNameOrValue(fieldName) {
-    return tab._TableauException.create('invalidFilterFieldNameOrValue', 'Invalid filter field name or value: ' + fieldName);
-}
-tab._TableauException.createInvalidDateParameter = function tab__TableauException$createInvalidDateParameter(paramName) {
-    return tab._TableauException.create('invalidDateParameter', 'Invalid date parameter: ' + paramName);
-}
-tab._TableauException.createNullOrEmptyParameter = function tab__TableauException$createNullOrEmptyParameter(paramName) {
-    return tab._TableauException.create('nullOrEmptyParameter', 'Parameter cannot be null or empty: ' + paramName);
-}
-tab._TableauException.createMissingMaxSize = function tab__TableauException$createMissingMaxSize() {
-    return tab._TableauException.create('missingMaxSize', 'Missing maxSize for SheetSizeBehavior.ATMOST');
-}
-tab._TableauException.createMissingMinSize = function tab__TableauException$createMissingMinSize() {
-    return tab._TableauException.create('missingMinSize', 'Missing minSize for SheetSizeBehavior.ATLEAST');
-}
-tab._TableauException.createMissingMinMaxSize = function tab__TableauException$createMissingMinMaxSize() {
-    return tab._TableauException.create('missingMinMaxSize', 'Missing minSize or maxSize for SheetSizeBehavior.RANGE');
-}
-tab._TableauException.createInvalidRangeSize = function tab__TableauException$createInvalidRangeSize() {
-    return tab._TableauException.create('invalidSize', 'Missing minSize or maxSize for SheetSizeBehavior.RANGE');
-}
-tab._TableauException.createInvalidSizeValue = function tab__TableauException$createInvalidSizeValue() {
-    return tab._TableauException.create('invalidSize', 'Size value cannot be less than zero');
-}
-tab._TableauException.createInvalidSheetSizeParam = function tab__TableauException$createInvalidSheetSizeParam() {
-    return tab._TableauException.create('invalidSize', 'Invalid sheet size parameter');
-}
-tab._TableauException.createSizeConflictForExactly = function tab__TableauException$createSizeConflictForExactly() {
-    return tab._TableauException.create('invalidSize', 'Conflicting size values for SheetSizeBehavior.EXACTLY');
-}
-tab._TableauException.createInvalidSizeBehaviorOnWorksheet = function tab__TableauException$createInvalidSizeBehaviorOnWorksheet() {
-    return tab._TableauException.create('invalidSizeBehaviorOnWorksheet', 'Only SheetSizeBehavior.AUTOMATIC is allowed on Worksheets');
-}
-tab._TableauException.createNoUrlForHiddenWorksheet = function tab__TableauException$createNoUrlForHiddenWorksheet() {
-    return tab._TableauException.create('noUrlForHiddenWorksheet', 'Hidden worksheets do not have a URL.');
-}
-tab._TableauException._createInvalidAggregationFieldName = function tab__TableauException$_createInvalidAggregationFieldName(fieldName) {
-    return tab._TableauException.create('invalidAggregationFieldName', "Invalid aggregation type for field '" + fieldName + "'");
-}
-tab._TableauException.createIndexOutOfRange = function tab__TableauException$createIndexOutOfRange(index) {
-    return tab._TableauException.create('indexOutOfRange', "Index '" + index + "' is out of range.");
-}
-tab._TableauException.createUnsupportedEventName = function tab__TableauException$createUnsupportedEventName(eventName) {
-    return tab._TableauException.create('unsupportedEventName', "Unsupported event '" + eventName + "'.");
-}
-tab._TableauException.createBrowserNotCapable = function tab__TableauException$createBrowserNotCapable() {
-    return tab._TableauException.create('browserNotCapable', 'This browser is incapable of supporting the Tableau JavaScript API.');
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._Utility
-
-tab._Utility = function tab__Utility() {
-}
-tab._Utility.hasOwnProperty = function tab__Utility$hasOwnProperty(value, field) {
-    return value.hasOwnProperty(field);
-}
-tab._Utility.isNullOrEmpty = function tab__Utility$isNullOrEmpty(value) {
-    return ss.isNullOrUndefined(value) || (value['length'] || 0) <= 0;
-}
-tab._Utility.isString = function tab__Utility$isString(value) {
-    return typeof(value) === 'string';
-}
-tab._Utility.isNumber = function tab__Utility$isNumber(value) {
-    return typeof(value) === 'number';
-}
-tab._Utility.isDate = function tab__Utility$isDate(value) {
-    if (typeof(value) === 'object' && (value instanceof Date)) {
-        return true;
-    }
-    else if (Object.prototype.toString.call(value) !== '[object Date]') {
-        return false;
-    }
-    return !isNaN((value).getTime());
-}
-tab._Utility.isDateValid = function tab__Utility$isDateValid(dt) {
-    return !isNaN(dt.getTime());
-}
-tab._Utility.indexOf = function tab__Utility$indexOf(array, searchElement, fromIndex) {
-    if (ss.isValue((Array).prototype['indexOf'])) {
-        return array.indexOf(searchElement, fromIndex);
-    }
-    fromIndex = (fromIndex || 0);
-    var length = array.length;
-    if (length > 0) {
-        for (var index = fromIndex; index < length; index++) {
-            if (array[index] === searchElement) {
-                return index;
-            }
-        }
-    }
-    return -1;
-}
-tab._Utility.contains = function tab__Utility$contains(array, searchElement, fromIndex) {
-    var index = tab._Utility.indexOf(array, searchElement, fromIndex);
-    return index >= 0;
-}
-tab._Utility.getTopmostWindow = function tab__Utility$getTopmostWindow() {
-    var win = window.self;
-    while (ss.isValue(win.parent) && win.parent !== win) {
-        win = win.parent;
-    }
-    return win;
-}
-tab._Utility.toInt = function tab__Utility$toInt(value) {
-    if (tab._Utility.isNumber(value)) {
-        return value;
-    }
-    return parseInt(value.toString(), 10);
-}
-tab._Utility.hasClass = function tab__Utility$hasClass(element, className) {
-    var regexClass = new RegExp('[\\n\\t\\r]', 'g');
-    return ss.isValue(element) && (' ' + element.className + ' ').replace(regexClass, ' ').indexOf(' ' + className + ' ') > -1;
-}
-tab._Utility.findParentWithClassName = function tab__Utility$findParentWithClassName(element, className, stopAtElement) {
-    var parent = (ss.isValue(element)) ? element.parentNode : null;
-    stopAtElement = (stopAtElement || document.body);
-    while (parent != null) {
-        if (tab._Utility.hasClass(parent, className)) {
-            return parent;
-        }
-        if (parent === stopAtElement) {
-            parent = null;
-        }
-        else {
-            parent = parent.parentNode;
-        }
-    }
-    return parent;
-}
-tab._Utility.hasJsonParse = function tab__Utility$hasJsonParse() {
-    return ss.isValue(window.JSON) && ss.isValue(window.JSON.parse);
-}
-tab._Utility.hasWindowPostMessage = function tab__Utility$hasWindowPostMessage() {
-    return ss.isValue(window.postMessage);
-}
-tab._Utility.isPostMessageSynchronous = function tab__Utility$isPostMessageSynchronous() {
-    if (tab._Utility.isIE()) {
-        var msieRegEx = new RegExp('(msie) ([\\w.]+)');
-        var matches = msieRegEx.exec(window.navigator.userAgent.toLowerCase());
-        var versionStr = (matches[2] || '0');
-        var version = parseInt(versionStr, 10);
-        return version <= 8;
-    }
-    return false;
-}
-tab._Utility.hasDocumentAttachEvent = function tab__Utility$hasDocumentAttachEvent() {
-    return ss.isValue(document.attachEvent);
-}
-tab._Utility.hasWindowAddEventListener = function tab__Utility$hasWindowAddEventListener() {
-    return ss.isValue(window.addEventListener);
-}
-tab._Utility.isElementOfTag = function tab__Utility$isElementOfTag(element, tagName) {
-    return ss.isValue(element) && element.nodeType === 1 && element.tagName.toLowerCase() === tagName.toLowerCase();
-}
-tab._Utility.elementToString = function tab__Utility$elementToString(element) {
-    var str = new ss.StringBuilder();
-    str.append(element.tagName.toLowerCase());
-    if (!tab._Utility.isNullOrEmpty(element.id)) {
-        str.append('#').append(element.id);
-    }
-    if (!tab._Utility.isNullOrEmpty(element.className)) {
-        var classes = element.className.split(' ');
-        str.append('.').append(classes.join('.'));
-    }
-    return str.toString();
-}
-tab._Utility.tableauGCS = function tab__Utility$tableauGCS(e) {
-    if (ss.isValue(window.getComputedStyle)) {
-        return window.getComputedStyle(e);
-    }
-    else {
-        return e.currentStyle;
-    }
-}
-tab._Utility.isIE = function tab__Utility$isIE() {
-    return window.navigator.userAgent.indexOf('MSIE') > -1 && ss.isNullOrUndefined(window.opera);
-}
-tab._Utility.isSafari = function tab__Utility$isSafari() {
-    var ua = window.navigator.userAgent;
-    var isChrome = ua.indexOf('Chrome') >= 0;
-    return ua.indexOf('Safari') >= 0 && !isChrome;
-}
-tab._Utility.mobileDetect = function tab__Utility$mobileDetect() {
-    var ua = window.navigator.userAgent;
-    if (ua.indexOf('iPad') !== -1) {
-        return true;
-    }
-    if (ua.indexOf('Android') !== -1) {
-        return true;
-    }
-    if ((ua.indexOf('AppleWebKit') !== -1) && (ua.indexOf('Mobile') !== -1)) {
-        return true;
-    }
-    return false;
-}
-tab._Utility.elementOffset = function tab__Utility$elementOffset(element) {
-    var rect = null;
-    rect = element.getBoundingClientRect();
-    var elementTop = rect.top;
-    var elementLeft = rect.left;
-    var win = new tab.WindowHelper(window.self);
-    var docElement = window.document.documentElement;
-    var x = elementLeft + win.get_pageXOffset() - docElement.clientLeft;
-    var y = elementTop + win.get_pageYOffset() - docElement.clientTop;
-    return tab.$create_Point(x, y);
-}
-tab._Utility.convertRawValue = function tab__Utility$convertRawValue(rawValue, dataType) {
-    if (ss.isNullOrUndefined(rawValue)) {
-        return null;
-    }
-    switch (dataType) {
-        case 'bool':
-            return rawValue;
-        case 'date':
-            return new Date(rawValue);
-        case 'number':
-            if (rawValue == null) {
-                return Number.NaN;
-            }
-            return rawValue;
-        case 'string':
-        default:
-            return rawValue;
-    }
-}
-tab._Utility.getDataValue = function tab__Utility$getDataValue(dv) {
-    if (ss.isNullOrUndefined(dv)) {
-        return tab.$create_DataValue(null, null, null);
-    }
-    return tab.$create_DataValue(tab._Utility.convertRawValue(dv.value, dv.type), dv.formattedValue, dv.aliasedValue);
-}
-tab._Utility.serializeDateForServer = function tab__Utility$serializeDateForServer(date) {
-    var serializedDate = '';
-    if (ss.isValue(date) && tab._Utility.isDate(date)) {
-        var year = date.getUTCFullYear();
-        var month = date.getUTCMonth() + 1;
-        var day = date.getUTCDate();
-        var hh = date.getUTCHours();
-        var mm = date.getUTCMinutes();
-        var sec = date.getUTCSeconds();
-        serializedDate = year + '-' + month + '-' + day + ' ' + hh + ':' + mm + ':' + sec;
-    }
-    return serializedDate;
-}
-tab._Utility.computeContentSize = function tab__Utility$computeContentSize(element) {
-    var style = tab._Utility._getComputedStyle(element);
-    var paddingLeft = parseFloat(style.paddingLeft);
-    var paddingTop = parseFloat(style.paddingTop);
-    var paddingRight = parseFloat(style.paddingRight);
-    var paddingBottom = parseFloat(style.paddingBottom);
-    var width = element.clientWidth - Math.round(paddingLeft + paddingRight);
-    var height = element.clientHeight - Math.round(paddingTop + paddingBottom);
-    return tab.$create_Size(width, height);
-}
-tab._Utility._getComputedStyle = function tab__Utility$_getComputedStyle(element) {
-    if (ss.isValue(window.getComputedStyle)) {
-        if (ss.isValue(element.ownerDocument.defaultView.opener)) {
-            return element.ownerDocument.defaultView.getComputedStyle(element, null);
-        }
-        return window.getComputedStyle(element, null);
-    }
-    else if (ss.isValue(element.currentStyle)) {
-        return element.currentStyle;
-    }
-    return element.style;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.VizImpl
-
-tab.VizImpl = function tab_VizImpl(messageRouter, viz, parentElement, url, options) {
-    if (!tab._Utility.hasWindowPostMessage() || !tab._Utility.hasJsonParse()) {
-        throw tab._TableauException.createBrowserNotCapable();
-    }
-    this._messagingOptions = new tab.CrossDomainMessagingOptions(messageRouter, this);
-    this._viz = viz;
-    if (ss.isNullOrUndefined(parentElement) || parentElement.nodeType !== 1) {
-        parentElement = document.body;
-    }
-    this._parameters = new tab._VizParameters(parentElement, url, options);
-    if (ss.isValue(options)) {
-        this._onFirstInteractiveCallback = options.onFirstInteractive;
-        this._onFirstVizSizeKnownCallback = options.onFirstVizSizeKnown;
-    }
-}
-tab.VizImpl.prototype = {
-    _workbookTabSwitchHandler: null,
-    _viz: null,
-    _iframe: null,
-    _parameters: null,
-    _initialAvailableSize: null,
-    _instanceId: null,
-    _workbookImpl: null,
-    _onFirstInteractiveCallback: null,
-    _onFirstVizSizeKnownCallback: null,
-    _onFirstInteractiveAlreadyCalled: false,
-    _areTabsHidden: false,
-    _isToolbarHidden: false,
-    _areAutomaticUpdatesPaused: false,
-    _messagingOptions: null,
-    _vizSize: null,
-    _windowResizeHandler: null,
-    _initializingWorkbookImpl: false,
-    
-    add_customViewsListLoad: function tab_VizImpl$add_customViewsListLoad(value) {
-        this.__customViewsListLoad = ss.Delegate.combine(this.__customViewsListLoad, value);
-    },
-    remove_customViewsListLoad: function tab_VizImpl$remove_customViewsListLoad(value) {
-        this.__customViewsListLoad = ss.Delegate.remove(this.__customViewsListLoad, value);
-    },
-    
-    __customViewsListLoad: null,
-    
-    add_stateReadyForQuery: function tab_VizImpl$add_stateReadyForQuery(value) {
-        this.__stateReadyForQuery = ss.Delegate.combine(this.__stateReadyForQuery, value);
-    },
-    remove_stateReadyForQuery: function tab_VizImpl$remove_stateReadyForQuery(value) {
-        this.__stateReadyForQuery = ss.Delegate.remove(this.__stateReadyForQuery, value);
-    },
-    
-    __stateReadyForQuery: null,
-    
-    add__marksSelection: function tab_VizImpl$add__marksSelection(value) {
-        this.__marksSelection = ss.Delegate.combine(this.__marksSelection, value);
-    },
-    remove__marksSelection: function tab_VizImpl$remove__marksSelection(value) {
-        this.__marksSelection = ss.Delegate.remove(this.__marksSelection, value);
-    },
-    
-    __marksSelection: null,
-    
-    add__filterChange: function tab_VizImpl$add__filterChange(value) {
-        this.__filterChange = ss.Delegate.combine(this.__filterChange, value);
-    },
-    remove__filterChange: function tab_VizImpl$remove__filterChange(value) {
-        this.__filterChange = ss.Delegate.remove(this.__filterChange, value);
-    },
-    
-    __filterChange: null,
-    
-    add__parameterValueChange: function tab_VizImpl$add__parameterValueChange(value) {
-        this.__parameterValueChange = ss.Delegate.combine(this.__parameterValueChange, value);
-    },
-    remove__parameterValueChange: function tab_VizImpl$remove__parameterValueChange(value) {
-        this.__parameterValueChange = ss.Delegate.remove(this.__parameterValueChange, value);
-    },
-    
-    __parameterValueChange: null,
-    
-    add__customViewLoad: function tab_VizImpl$add__customViewLoad(value) {
-        this.__customViewLoad = ss.Delegate.combine(this.__customViewLoad, value);
-    },
-    remove__customViewLoad: function tab_VizImpl$remove__customViewLoad(value) {
-        this.__customViewLoad = ss.Delegate.remove(this.__customViewLoad, value);
-    },
-    
-    __customViewLoad: null,
-    
-    add__customViewSave: function tab_VizImpl$add__customViewSave(value) {
-        this.__customViewSave = ss.Delegate.combine(this.__customViewSave, value);
-    },
-    remove__customViewSave: function tab_VizImpl$remove__customViewSave(value) {
-        this.__customViewSave = ss.Delegate.remove(this.__customViewSave, value);
-    },
-    
-    __customViewSave: null,
-    
-    add__customViewRemove: function tab_VizImpl$add__customViewRemove(value) {
-        this.__customViewRemove = ss.Delegate.combine(this.__customViewRemove, value);
-    },
-    remove__customViewRemove: function tab_VizImpl$remove__customViewRemove(value) {
-        this.__customViewRemove = ss.Delegate.remove(this.__customViewRemove, value);
-    },
-    
-    __customViewRemove: null,
-    
-    add__customViewSetDefault: function tab_VizImpl$add__customViewSetDefault(value) {
-        this.__customViewSetDefault = ss.Delegate.combine(this.__customViewSetDefault, value);
-    },
-    remove__customViewSetDefault: function tab_VizImpl$remove__customViewSetDefault(value) {
-        this.__customViewSetDefault = ss.Delegate.remove(this.__customViewSetDefault, value);
-    },
-    
-    __customViewSetDefault: null,
-    
-    add__tabSwitch: function tab_VizImpl$add__tabSwitch(value) {
-        this.__tabSwitch = ss.Delegate.combine(this.__tabSwitch, value);
-    },
-    remove__tabSwitch: function tab_VizImpl$remove__tabSwitch(value) {
-        this.__tabSwitch = ss.Delegate.remove(this.__tabSwitch, value);
-    },
-    
-    __tabSwitch: null,
-    
-    add__storyPointSwitch: function tab_VizImpl$add__storyPointSwitch(value) {
-        this.__storyPointSwitch = ss.Delegate.combine(this.__storyPointSwitch, value);
-    },
-    remove__storyPointSwitch: function tab_VizImpl$remove__storyPointSwitch(value) {
-        this.__storyPointSwitch = ss.Delegate.remove(this.__storyPointSwitch, value);
-    },
-    
-    __storyPointSwitch: null,
-    
-    add__vizResize: function tab_VizImpl$add__vizResize(value) {
-        this.__vizResize = ss.Delegate.combine(this.__vizResize, value);
-    },
-    remove__vizResize: function tab_VizImpl$remove__vizResize(value) {
-        this.__vizResize = ss.Delegate.remove(this.__vizResize, value);
-    },
-    
-    __vizResize: null,
-    
-    get_handlerId: function tab_VizImpl$get_handlerId() {
-        return this._parameters.handlerId;
-    },
-    set_handlerId: function tab_VizImpl$set_handlerId(value) {
-        this._parameters.handlerId = value;
-        return value;
-    },
-    
-    get_iframe: function tab_VizImpl$get_iframe() {
-        return this._iframe;
-    },
-    
-    get_instanceId: function tab_VizImpl$get_instanceId() {
-        return this._instanceId;
-    },
-    
-    get_serverRoot: function tab_VizImpl$get_serverRoot() {
-        return this._parameters.serverRoot;
-    },
-    
-    get__viz: function tab_VizImpl$get__viz() {
-        return this._viz;
-    },
-    
-    get__areTabsHidden: function tab_VizImpl$get__areTabsHidden() {
-        return this._areTabsHidden;
-    },
-    
-    get__isToolbarHidden: function tab_VizImpl$get__isToolbarHidden() {
-        return this._isToolbarHidden;
-    },
-    
-    get__isHidden: function tab_VizImpl$get__isHidden() {
-        return this._iframe.style.display === 'none';
-    },
-    
-    get__parentElement: function tab_VizImpl$get__parentElement() {
-        return this._parameters.parentElement;
-    },
-    
-    get__url: function tab_VizImpl$get__url() {
-        return this._parameters.get_baseUrl();
-    },
-    
-    get__workbook: function tab_VizImpl$get__workbook() {
-        return this._workbookImpl.get_workbook();
-    },
-    
-    get__workbookImpl: function tab_VizImpl$get__workbookImpl() {
-        return this._workbookImpl;
-    },
-    
-    get__areAutomaticUpdatesPaused: function tab_VizImpl$get__areAutomaticUpdatesPaused() {
-        return this._areAutomaticUpdatesPaused;
-    },
-    
-    get__vizSize: function tab_VizImpl$get__vizSize() {
-        return this._vizSize;
-    },
-    
-    getCurrentUrlAsync: function tab_VizImpl$getCurrentUrlAsync() {
-        var deferred = new tab._Deferred();
-        var returnHandler = new tab._CommandReturnHandler('api.GetCurrentUrlCommand', 0, function(result) {
-            deferred.resolve(result);
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createInternalError(message));
-        });
-        this._sendCommand(null, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    handleVizLoad: function tab_VizImpl$handleVizLoad() {
-        this._sendVizOffset();
-        if (ss.isNullOrUndefined(this._workbookImpl)) {
-            this._workbookImpl = new tab._WorkbookImpl(this, this._messagingOptions, ss.Delegate.create(this, function() {
-                this._onWorkbookInteractive();
-            }));
-        }
-        else if (!this._initializingWorkbookImpl) {
-            this._workbookImpl._update(ss.Delegate.create(this, function() {
-                this._onWorkbookInteractive();
-            }));
-        }
-    },
-    
-    _calculateFrameSize: function tab_VizImpl$_calculateFrameSize(availableSize) {
-        var chromeHeight = this._vizSize.chromeHeight;
-        var sheetSize = this._vizSize.sheetSize;
-        var width = 0;
-        var height = 0;
-        if (sheetSize.behavior === 'exactly') {
-            width = sheetSize.maxSize.width;
-            height = sheetSize.maxSize.height + chromeHeight;
-        }
-        else {
-            var minWidth;
-            var maxWidth;
-            var minHeight;
-            var maxHeight;
-            switch (sheetSize.behavior) {
-                case 'range':
-                    minWidth = sheetSize.minSize.width;
-                    maxWidth = sheetSize.maxSize.width;
-                    minHeight = sheetSize.minSize.height + chromeHeight;
-                    maxHeight = sheetSize.maxSize.height + chromeHeight;
-                    width = Math.max(minWidth, Math.min(maxWidth, availableSize.width));
-                    height = Math.max(minHeight, Math.min(maxHeight, availableSize.height));
-                    break;
-                case 'atleast':
-                    minWidth = sheetSize.minSize.width;
-                    minHeight = sheetSize.minSize.height + chromeHeight;
-                    width = Math.max(minWidth, availableSize.width);
-                    height = Math.max(minHeight, availableSize.height);
-                    break;
-                case 'atmost':
-                    maxWidth = sheetSize.maxSize.width;
-                    maxHeight = sheetSize.maxSize.height + chromeHeight;
-                    width = Math.min(maxWidth, availableSize.width);
-                    height = Math.min(maxHeight, availableSize.height);
-                    break;
-                case 'automatic':
-                    width = availableSize.width;
-                    height = Math.max(availableSize.height, chromeHeight);
-                    break;
-                default:
-                    throw tab._TableauException.createInternalError('Unknown SheetSizeBehavior for viz: ' + sheetSize.behavior);
-            }
-        }
-        return tab.$create_Size(width, height);
-    },
-    
-    _getNewFrameSize: function tab_VizImpl$_getNewFrameSize() {
-        var availableSize;
-        if (ss.isValue(this._initialAvailableSize)) {
-            availableSize = this._initialAvailableSize;
-            this._initialAvailableSize = null;
-        }
-        else {
-            availableSize = tab._Utility.computeContentSize(this.get__parentElement());
-        }
-        this._raiseVizResizeEvent(availableSize);
-        return this._calculateFrameSize(availableSize);
-    },
-    
-    _refreshSize: function tab_VizImpl$_refreshSize() {
-        var frameSize = this._getNewFrameSize();
-        this._setFrameSize(frameSize.width + 'px', frameSize.height + 'px');
-        var resizeAttempts = 10;
-        for (var i = 0; i < resizeAttempts; i++) {
-            var newFrameSize = this._getNewFrameSize();
-            if (JSON.stringify(frameSize) === JSON.stringify(newFrameSize)) {
-                return;
-            }
-            frameSize = newFrameSize;
-            this._setFrameSize(frameSize.width + 'px', frameSize.height + 'px');
-        }
-        throw tab._TableauException.create('maxVizResizeAttempts', 'Viz resize limit hit. The calculated iframe size did not stabilize after ' + resizeAttempts + ' resizes.');
-    },
-    
-    handleEventNotification: function tab_VizImpl$handleEventNotification(eventName, eventParameters) {
-        var notif = tab._ApiServerNotification.deserialize(eventParameters);
-        if (eventName === 'api.FirstVizSizeKnownEvent') {
-            var size = JSON.parse(notif.get_data());
-            this._handleInitialVizSize(size);
-        }
-        else if (eventName === 'api.VizInteractiveEvent') {
-            this._instanceId = notif.get_data();
-            if (ss.isValue(this._workbookImpl) && this._workbookImpl.get_name() === notif.get_workbookName()) {
-                this._onWorkbookInteractive();
-            }
-            this._raiseStateReadyForQuery();
-        }
-        else if (eventName === 'api.MarksSelectionChangedEvent') {
-            if (this.__marksSelection != null) {
-                if (this._workbookImpl.get_name() === notif.get_workbookName()) {
-                    var worksheetImpl = null;
-                    var activeSheetImpl = this._workbookImpl.get_activeSheetImpl();
-                    if (activeSheetImpl.get_name() === notif.get_worksheetName()) {
-                        worksheetImpl = activeSheetImpl;
-                    }
-                    else if (activeSheetImpl.get_isDashboard()) {
-                        var db = activeSheetImpl;
-                        worksheetImpl = db.get_worksheets()._get(notif.get_worksheetName())._impl;
-                    }
-                    if (ss.isValue(worksheetImpl)) {
-                        worksheetImpl.set_selectedMarks(null);
-                        this.__marksSelection(new tab.MarksEvent('marksselection', this._viz, worksheetImpl));
-                    }
-                }
-            }
-        }
-        else if (eventName === 'api.FilterChangedEvent') {
-            if (this.__filterChange != null) {
-                if (this._workbookImpl.get_name() === notif.get_workbookName()) {
-                    var worksheetImpl = null;
-                    var activeSheetImpl = this._workbookImpl.get_activeSheetImpl();
-                    if (activeSheetImpl.get_name() === notif.get_worksheetName()) {
-                        worksheetImpl = activeSheetImpl;
-                    }
-                    else if (activeSheetImpl.get_isDashboard()) {
-                        var db = activeSheetImpl;
-                        worksheetImpl = db.get_worksheets()._get(notif.get_worksheetName())._impl;
-                    }
-                    if (ss.isValue(worksheetImpl)) {
-                        var results = JSON.parse(notif.get_data());
-                        var filterFieldName = results[0];
-                        var filterCaption = results[1];
-                        this.__filterChange(new tab.FilterEvent('filterchange', this._viz, worksheetImpl, filterFieldName, filterCaption));
-                    }
-                }
-            }
-        }
-        else if (eventName === 'api.ParameterChangedEvent') {
-            if (this.__parameterValueChange != null) {
-                if (this._workbookImpl.get_name() === notif.get_workbookName()) {
-                    this._workbookImpl.set__lastChangedParameterImpl(null);
-                    var parameterName = notif.get_data();
-                    this._raiseParameterValueChange(parameterName);
-                }
-            }
-        }
-        else if (eventName === 'api.CustomViewsListLoadedEvent') {
-            var info = JSON.parse(notif.get_data());
-            var process = ss.Delegate.create(this, function() {
-                tab._CustomViewImpl._processCustomViews(this._workbookImpl, this._messagingOptions, info);
-            });
-            var raiseEvents = ss.Delegate.create(this, function() {
-                this._raiseCustomViewsListLoad();
-                if (this.__customViewLoad != null && !info.customViewLoaded) {
-                    this._raiseCustomViewLoad(this._workbookImpl.get_activeCustomView());
-                }
-            });
-            if (ss.isNullOrUndefined(this._workbookImpl)) {
-                this._initializingWorkbookImpl = true;
-                this._workbookImpl = new tab._WorkbookImpl(this, this._messagingOptions, ss.Delegate.create(this, function() {
-                    process();
-                    this._onWorkbookInteractive(raiseEvents);
-                    this._initializingWorkbookImpl = false;
-                }));
-            }
-            else {
-                process();
-                this._ensureCalledAfterFirstInteractive(raiseEvents);
-            }
-        }
-        else if (eventName === 'api.CustomViewUpdatedEvent') {
-            var info = JSON.parse(notif.get_data());
-            if (ss.isNullOrUndefined(this._workbookImpl)) {
-                this._workbookImpl = new tab._WorkbookImpl(this, this._messagingOptions, ss.Delegate.create(this, function() {
-                    this._onWorkbookInteractive();
-                }));
-            }
-            if (ss.isValue(this._workbookImpl)) {
-                tab._CustomViewImpl._processCustomViewUpdate(this._workbookImpl, this._messagingOptions, info, true);
-            }
-            if (this.__customViewSave != null) {
-                var updated = this._workbookImpl.get__updatedCustomViews()._toApiCollection();
-                for (var i = 0, len = updated.length; i < len; i++) {
-                    this._raiseCustomViewSave(updated[i]);
-                }
-            }
-        }
-        else if (eventName === 'api.CustomViewRemovedEvent') {
-            if (this.__customViewRemove != null) {
-                var removed = this._workbookImpl.get__removedCustomViews()._toApiCollection();
-                for (var i = 0, len = removed.length; i < len; i++) {
-                    this._raiseCustomViewRemove(removed[i]);
-                }
-            }
-        }
-        else if (eventName === 'api.CustomViewSetDefaultEvent') {
-            var info = JSON.parse(notif.get_data());
-            if (ss.isValue(this._workbookImpl)) {
-                tab._CustomViewImpl._processCustomViews(this._workbookImpl, this._messagingOptions, info);
-            }
-            if (this.__customViewSetDefault != null) {
-                var updated = this._workbookImpl.get__updatedCustomViews()._toApiCollection();
-                for (var i = 0, len = updated.length; i < len; i++) {
-                    this._raiseCustomViewSetDefault(updated[i]);
-                }
-            }
-        }
-        else if (eventName === 'api.TabSwitchEvent') {
-            this._workbookImpl._update(ss.Delegate.create(this, function() {
-                if (ss.isValue(this._workbookTabSwitchHandler)) {
-                    this._workbookTabSwitchHandler();
-                }
-                if (this._workbookImpl.get_name() === notif.get_workbookName()) {
-                    var oldSheetName = notif.get_worksheetName();
-                    var currSheetName = notif.get_data();
-                    this._raiseTabSwitch(oldSheetName, currSheetName);
-                }
-                this._onWorkbookInteractive();
-            }));
-        }
-        else if (eventName === 'api.StorytellingStateChangedEvent') {
-            var storyImpl = this._workbookImpl.get_activeSheetImpl();
-            if (storyImpl.get_sheetType() === 'story') {
-                storyImpl.update(JSON.parse(notif.get_data()));
-            }
-        }
-    },
-    
-    addEventListener: function tab_VizImpl$addEventListener(eventName, handler) {
-        var normalizedEventName = tab._enums._normalizeTableauEventName(eventName);
-        if (normalizedEventName === 'marksselection') {
-            this.add__marksSelection(handler);
-        }
-        else if (normalizedEventName === 'parametervaluechange') {
-            this.add__parameterValueChange(handler);
-        }
-        else if (normalizedEventName === 'filterchange') {
-            this.add__filterChange(handler);
-        }
-        else if (normalizedEventName === 'customviewload') {
-            this.add__customViewLoad(handler);
-        }
-        else if (normalizedEventName === 'customviewsave') {
-            this.add__customViewSave(handler);
-        }
-        else if (normalizedEventName === 'customviewremove') {
-            this.add__customViewRemove(handler);
-        }
-        else if (normalizedEventName === 'customviewsetdefault') {
-            this.add__customViewSetDefault(handler);
-        }
-        else if (normalizedEventName === 'tabswitch') {
-            this.add__tabSwitch(handler);
-        }
-        else if (normalizedEventName === 'storypointswitch') {
-            this.add__storyPointSwitch(handler);
-        }
-        else if (normalizedEventName === 'vizresize') {
-            this.add__vizResize(handler);
-        }
-        else {
-            throw tab._TableauException.createUnsupportedEventName(eventName);
-        }
-    },
-    
-    removeEventListener: function tab_VizImpl$removeEventListener(eventName, handler) {
-        var normalizedEventName = tab._enums._normalizeTableauEventName(eventName);
-        if (normalizedEventName === 'marksselection') {
-            this.remove__marksSelection(handler);
-        }
-        else if (normalizedEventName === 'parametervaluechange') {
-            this.remove__parameterValueChange(handler);
-        }
-        else if (normalizedEventName === 'filterchange') {
-            this.remove__filterChange(handler);
-        }
-        else if (normalizedEventName === 'customviewload') {
-            this.remove__customViewLoad(handler);
-        }
-        else if (normalizedEventName === 'customviewsave') {
-            this.remove__customViewSave(handler);
-        }
-        else if (normalizedEventName === 'customviewremove') {
-            this.remove__customViewRemove(handler);
-        }
-        else if (normalizedEventName === 'customviewsetdefault') {
-            this.remove__customViewSetDefault(handler);
-        }
-        else if (normalizedEventName === 'tabswitch') {
-            this.remove__tabSwitch(handler);
-        }
-        else if (normalizedEventName === 'storypointswitch') {
-            this.remove__storyPointSwitch(handler);
-        }
-        else if (normalizedEventName === 'vizresize') {
-            this.remove__vizResize(handler);
-        }
-        else {
-            throw tab._TableauException.createUnsupportedEventName(eventName);
-        }
-    },
-    
-    _dispose: function tab_VizImpl$_dispose() {
-        if (ss.isValue(this._iframe)) {
-            this._iframe.parentNode.removeChild(this._iframe);
-            this._iframe = null;
-        }
-        tab._VizManagerImpl._unregisterViz(this._viz);
-        this._messagingOptions.get_router().unregisterHandler(this);
-        this._removeWindowResizeHandler();
-    },
-    
-    _show: function tab_VizImpl$_show() {
-        this._iframe.style.display = 'block';
-        this._iframe.style.visibility = 'visible';
-    },
-    
-    _hide: function tab_VizImpl$_hide() {
-        this._iframe.style.display = 'none';
-    },
-    
-    _makeInvisible: function tab_VizImpl$_makeInvisible() {
-        this._iframe.style.visibility = 'hidden';
-    },
-    
-    _showExportImageDialog: function tab_VizImpl$_showExportImageDialog() {
-        this._invokeCommand('showExportImageDialog');
-    },
-    
-    _showExportDataDialog: function tab_VizImpl$_showExportDataDialog(sheetOrInfoOrName) {
-        var sheetName = this._verifyOperationAllowedOnActiveSheetOrSheetWithinActiveDashboard(sheetOrInfoOrName);
-        this._invokeCommand('showExportDataDialog', sheetName);
-    },
-    
-    _showExportCrossTabDialog: function tab_VizImpl$_showExportCrossTabDialog(sheetOrInfoOrName) {
-        var sheetName = this._verifyOperationAllowedOnActiveSheetOrSheetWithinActiveDashboard(sheetOrInfoOrName);
-        this._invokeCommand('showExportCrosstabDialog', sheetName);
-    },
-    
-    _showExportPDFDialog: function tab_VizImpl$_showExportPDFDialog() {
-        this._invokeCommand('showExportPDFDialog');
-    },
-    
-    _revertAllAsync: function tab_VizImpl$_revertAllAsync() {
-        var deferred = new tab._Deferred();
-        var returnHandler = new tab._CommandReturnHandler('api.RevertAllCommand', 1, function(result) {
-            deferred.resolve();
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(null, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _refreshDataAsync: function tab_VizImpl$_refreshDataAsync() {
-        var deferred = new tab._Deferred();
-        var returnHandler = new tab._CommandReturnHandler('api.RefreshDataCommand', 1, function(result) {
-            deferred.resolve();
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(null, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _showShareDialog: function tab_VizImpl$_showShareDialog() {
-        this._invokeCommand('showShareDialog');
-    },
-    
-    _showDownloadWorkbookDialog: function tab_VizImpl$_showDownloadWorkbookDialog() {
-        if (this.get__workbookImpl().get_isDownloadAllowed()) {
-            this._invokeCommand('showDownloadWorkbookDialog');
-        }
-        else {
-            throw tab._TableauException.create('downloadWorkbookNotAllowed', 'Download workbook is not allowed');
-        }
-    },
-    
-    _pauseAutomaticUpdatesAsync: function tab_VizImpl$_pauseAutomaticUpdatesAsync() {
-        return this._invokeAutomaticUpdatesCommandAsync('pauseAutomaticUpdates');
-    },
-    
-    _resumeAutomaticUpdatesAsync: function tab_VizImpl$_resumeAutomaticUpdatesAsync() {
-        return this._invokeAutomaticUpdatesCommandAsync('resumeAutomaticUpdates');
-    },
-    
-    _toggleAutomaticUpdatesAsync: function tab_VizImpl$_toggleAutomaticUpdatesAsync() {
-        return this._invokeAutomaticUpdatesCommandAsync('toggleAutomaticUpdates');
-    },
-    
-    _setFrameSize: function tab_VizImpl$_setFrameSize(width, height) {
-        this._parameters.width = width;
-        this._parameters.height = height;
-        this._iframe.style.width = this._parameters.width;
-        this._iframe.style.height = this._parameters.height;
-    },
-    
-    _setFrameSizeAndUpdate: function tab_VizImpl$_setFrameSizeAndUpdate(width, height) {
-        this._raiseVizResizeEvent(tab.$create_Size(-1, -1));
-        this._setFrameSize(width, height);
-        this._workbookImpl._updateActiveSheetAsync();
-    },
-    
-    _setAreAutomaticUpdatesPaused: function tab_VizImpl$_setAreAutomaticUpdatesPaused(value) {
-        this._areAutomaticUpdatesPaused = value;
-    },
-    
-    _contentRootElement: function tab_VizImpl$_contentRootElement() {
-        return this._parameters.parentElement;
-    },
-    
-    _create: function tab_VizImpl$_create() {
-        try {
-            tab._VizManagerImpl._registerViz(this._viz);
-        }
-        catch (e) {
-            this._dispose();
-            throw e;
-        }
-        if (!this._parameters.fixedSize) {
-            this._initialAvailableSize = tab._Utility.computeContentSize(this.get__parentElement());
-            if (!this._initialAvailableSize.width || !this._initialAvailableSize.height) {
-                this._initialAvailableSize = tab.$create_Size(800, 600);
-            }
-            this._iframe = this._createIframe();
-            this._makeInvisible();
-        }
-        else {
-            this._iframe = this._createIframe();
-            this._show();
-        }
-        if (!tab._Utility.hasWindowPostMessage()) {
-            if (tab._Utility.isIE()) {
-                this._iframe.onreadystatechange = this._getOnCheckForDoneDelegate();
-            }
-            else {
-                this._iframe.onload = this._getOnCheckForDoneDelegate();
-            }
-        }
-        this._isToolbarHidden = !this._parameters.toolbar;
-        this._areTabsHidden = !this._parameters.tabs;
-        this._messagingOptions.get_router().registerHandler(this);
-        this._iframe.src = this._parameters.get_url();
-    },
-    
-    _sendVizOffset: function tab_VizImpl$_sendVizOffset() {
-        if (!tab._Utility.hasWindowPostMessage() || ss.isNullOrUndefined(this._iframe) || !ss.isValue(this._iframe.contentWindow)) {
-            return;
-        }
-        var offset = tab._Utility.elementOffset(this._iframe);
-        var param = [];
-        param.push('vizOffsetResp');
-        param.push(offset.x);
-        param.push(offset.y);
-        this._iframe.contentWindow.postMessage(param.join(','), '*');
-    },
-    
-    _sendCommand: function tab_VizImpl$_sendCommand(commandParameters, returnHandler) {
-        this._messagingOptions.sendCommand(commandParameters, returnHandler);
-    },
-    
-    _raiseParameterValueChange: function tab_VizImpl$_raiseParameterValueChange(parameterName) {
-        if (this.__parameterValueChange != null) {
-            this.__parameterValueChange(new tab.ParameterEvent('parametervaluechange', this._viz, parameterName));
-        }
-    },
-    
-    _raiseCustomViewLoad: function tab_VizImpl$_raiseCustomViewLoad(customView) {
-        if (this.__customViewLoad != null) {
-            this.__customViewLoad(new tab.CustomViewEvent('customviewload', this._viz, (ss.isValue(customView)) ? customView._impl : null));
-        }
-    },
-    
-    _raiseCustomViewSave: function tab_VizImpl$_raiseCustomViewSave(customView) {
-        if (this.__customViewSave != null) {
-            this.__customViewSave(new tab.CustomViewEvent('customviewsave', this._viz, customView._impl));
-        }
-    },
-    
-    _raiseCustomViewRemove: function tab_VizImpl$_raiseCustomViewRemove(customView) {
-        if (this.__customViewRemove != null) {
-            this.__customViewRemove(new tab.CustomViewEvent('customviewremove', this._viz, customView._impl));
-        }
-    },
-    
-    _raiseCustomViewSetDefault: function tab_VizImpl$_raiseCustomViewSetDefault(customView) {
-        if (this.__customViewSetDefault != null) {
-            this.__customViewSetDefault(new tab.CustomViewEvent('customviewsetdefault', this._viz, customView._impl));
-        }
-    },
-    
-    _raiseTabSwitch: function tab_VizImpl$_raiseTabSwitch(oldSheetName, newSheetName) {
-        if (this.__tabSwitch != null) {
-            this.__tabSwitch(new tab.TabSwitchEvent('tabswitch', this._viz, oldSheetName, newSheetName));
-        }
-    },
-    
-    raiseStoryPointSwitch: function tab_VizImpl$raiseStoryPointSwitch(oldStoryPointInfo, newStoryPoint) {
-        if (this.__storyPointSwitch != null) {
-            this.__storyPointSwitch(new tab.StoryPointSwitchEvent('storypointswitch', this._viz, oldStoryPointInfo, newStoryPoint));
-        }
-    },
-    
-    _raiseStateReadyForQuery: function tab_VizImpl$_raiseStateReadyForQuery() {
-        if (this.__stateReadyForQuery != null) {
-            this.__stateReadyForQuery(this);
-        }
-    },
-    
-    _raiseCustomViewsListLoad: function tab_VizImpl$_raiseCustomViewsListLoad() {
-        if (this.__customViewsListLoad != null) {
-            this.__customViewsListLoad(this);
-        }
-    },
-    
-    _raiseVizResizeEvent: function tab_VizImpl$_raiseVizResizeEvent(availableSize) {
-        if (this.__vizResize != null) {
-            this.__vizResize(new tab.VizResizeEvent('vizresize', this._viz, availableSize));
-        }
-    },
-    
-    _verifyOperationAllowedOnActiveSheetOrSheetWithinActiveDashboard: function tab_VizImpl$_verifyOperationAllowedOnActiveSheetOrSheetWithinActiveDashboard(sheetOrInfoOrName) {
-        if (ss.isNullOrUndefined(sheetOrInfoOrName)) {
-            return null;
-        }
-        var sheetImpl = this._workbookImpl._findActiveSheetOrSheetWithinActiveDashboard(sheetOrInfoOrName);
-        if (ss.isNullOrUndefined(sheetImpl)) {
-            throw tab._TableauException.createNotActiveSheet();
-        }
-        return sheetImpl.get_name();
-    },
-    
-    _invokeAutomaticUpdatesCommandAsync: function tab_VizImpl$_invokeAutomaticUpdatesCommandAsync(command) {
-        if (command !== 'pauseAutomaticUpdates' && command !== 'resumeAutomaticUpdates' && command !== 'toggleAutomaticUpdates') {
-            throw tab._TableauException.createInternalError(null);
-        }
-        var param = {};
-        param['api.invokeCommandName'] = command;
-        var deferred = new tab._Deferred();
-        var returnHandler = new tab._CommandReturnHandler('api.InvokeCommandCommand', 0, ss.Delegate.create(this, function(result) {
-            var pm = result;
-            if (ss.isValue(pm) && ss.isValue(pm.isAutoUpdate)) {
-                this._areAutomaticUpdatesPaused = !pm.isAutoUpdate;
-            }
-            deferred.resolve(this._areAutomaticUpdatesPaused);
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _invokeCommand: function tab_VizImpl$_invokeCommand(command, sheetName) {
-        if (command !== 'showExportImageDialog' && command !== 'showExportDataDialog' && command !== 'showExportCrosstabDialog' && command !== 'showExportPDFDialog' && command !== 'showShareDialog' && command !== 'showDownloadWorkbookDialog') {
-            throw tab._TableauException.createInternalError(null);
-        }
-        var param = {};
-        param['api.invokeCommandName'] = command;
-        if (ss.isValue(sheetName)) {
-            param['api.invokeCommandParam'] = sheetName;
-        }
-        var returnHandler = new tab._CommandReturnHandler('api.InvokeCommandCommand', 0, null, null);
-        this._sendCommand(param, returnHandler);
-    },
-    
-    _onWorkbookInteractive: function tab_VizImpl$_onWorkbookInteractive(actionAfterFirstInteractive) {
-        if (!this._onFirstInteractiveAlreadyCalled) {
-            var callback = this._onFirstInteractiveCallback;
-            window.setTimeout(ss.Delegate.create(this, function() {
-                if (ss.isValue(callback)) {
-                    callback(new tab.TableauEvent('firstinteractive', this._viz));
-                }
-                if (ss.isValue(actionAfterFirstInteractive)) {
-                    actionAfterFirstInteractive();
-                }
-            }), 0);
-            this._onFirstInteractiveAlreadyCalled = true;
-        }
-        this._raiseStateReadyForQuery();
-    },
-    
-    _ensureCalledAfterFirstInteractive: function tab_VizImpl$_ensureCalledAfterFirstInteractive(action) {
-        var start = new Date();
-        var poll = null;
-        poll = ss.Delegate.create(this, function() {
-            var now = new Date();
-            if (this._onFirstInteractiveAlreadyCalled) {
-                action();
-            }
-            else if (now - start > 5 * 60 * 1000) {
-                throw tab._TableauException.createInternalError('Timed out while waiting for the viz to become interactive');
-            }
-            else {
-                window.setTimeout(poll, 10);
-            }
-        });
-        poll();
-    },
-    
-    _checkForDone: function tab_VizImpl$_checkForDone() {
-        if (tab._Utility.isIE()) {
-            if (this._iframe.readyState === 'complete') {
-                this.handleVizLoad();
-            }
-        }
-        else {
-            this.handleVizLoad();
-        }
-    },
-    
-    _onCheckForDone: function tab_VizImpl$_onCheckForDone() {
-        window.setTimeout(ss.Delegate.create(this, this._checkForDone), 3000);
-    },
-    
-    _createIframe: function tab_VizImpl$_createIframe() {
-        if (ss.isNullOrUndefined(this._contentRootElement())) {
-            return null;
-        }
-        var ifr = document.createElement('IFrame');
-        ifr.frameBorder = '0';
-        ifr.setAttribute('allowTransparency', 'true');
-        ifr.marginHeight = '0';
-        ifr.marginWidth = '0';
-        ifr.style.display = 'block';
-        if (this._parameters.fixedSize) {
-            ifr.style.width = this._parameters.width;
-            ifr.style.height = this._parameters.height;
-        }
-        else {
-            ifr.style.width = '1px';
-            ifr.style.height = '1px';
-            ifr.setAttribute('scrolling', 'no');
-        }
-        if (tab._Utility.isSafari()) {
-            ifr.addEventListener('mousewheel', ss.Delegate.create(this, this._onIframeMouseWheel), false);
-        }
-        this._contentRootElement().appendChild(ifr);
-        return ifr;
-    },
-    
-    _onIframeMouseWheel: function tab_VizImpl$_onIframeMouseWheel(e) {
-    },
-    
-    _getOnCheckForDoneDelegate: function tab_VizImpl$_getOnCheckForDoneDelegate() {
-        return ss.Delegate.create(this, function(e) {
-            this._onCheckForDone();
-        });
-    },
-    
-    _handleInitialVizSize: function tab_VizImpl$_handleInitialVizSize(vizAndChromeSize) {
-        var sheetSize = tab.SheetSizeFactory.fromSizeConstraints(vizAndChromeSize.sizeConstraints);
-        this._vizSize = tab.$create_VizSize(sheetSize, vizAndChromeSize.chromeHeight);
-        if (ss.isValue(this._onFirstVizSizeKnownCallback)) {
-            this._onFirstVizSizeKnownCallback(new tab.FirstVizSizeKnownEvent('firstvizsizeknown', this._viz, this._vizSize));
-        }
-        if (this._parameters.fixedSize) {
-            return;
-        }
-        this._refreshSize();
-        this._addWindowResizeHandler();
-        this._show();
-    },
-    
-    _removeWindowResizeHandler: function tab_VizImpl$_removeWindowResizeHandler() {
-        if (ss.isNullOrUndefined(this._windowResizeHandler)) {
-            return;
-        }
-        if (tab._Utility.hasWindowAddEventListener()) {
-            window.removeEventListener('resize', this._windowResizeHandler, false);
-        }
-        else {
-            window.self.detachEvent('onresize', this._windowResizeHandler);
-        }
-        this._windowResizeHandler = null;
-    },
-    
-    _addWindowResizeHandler: function tab_VizImpl$_addWindowResizeHandler() {
-        if (ss.isValue(this._windowResizeHandler)) {
-            return;
-        }
-        this._windowResizeHandler = ss.Delegate.create(this, function() {
-            this._refreshSize();
-        });
-        if (tab._Utility.hasWindowAddEventListener()) {
-            window.addEventListener('resize', this._windowResizeHandler, false);
-        }
-        else {
-            window.self.attachEvent('onresize', this._windowResizeHandler);
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._VizManagerImpl
-
-tab._VizManagerImpl = function tab__VizManagerImpl() {
-}
-tab._VizManagerImpl.get__clonedVizs = function tab__VizManagerImpl$get__clonedVizs() {
-    return tab._VizManagerImpl._vizs.concat();
-}
-tab._VizManagerImpl._registerViz = function tab__VizManagerImpl$_registerViz(viz) {
-    tab._VizManagerImpl._verifyVizNotAlreadyParented(viz);
-    tab._VizManagerImpl._vizs.push(viz);
-}
-tab._VizManagerImpl._unregisterViz = function tab__VizManagerImpl$_unregisterViz(viz) {
-    for (var i = 0, len = tab._VizManagerImpl._vizs.length; i < len; i++) {
-        if (tab._VizManagerImpl._vizs[i] === viz) {
-            tab._VizManagerImpl._vizs.splice(i, 1);
-            break;
-        }
-    }
-}
-tab._VizManagerImpl._sendVizOffsets = function tab__VizManagerImpl$_sendVizOffsets() {
-    for (var i = 0, len = tab._VizManagerImpl._vizs.length; i < len; i++) {
-        tab._VizManagerImpl._vizs[i]._impl._sendVizOffset();
-    }
-}
-tab._VizManagerImpl._verifyVizNotAlreadyParented = function tab__VizManagerImpl$_verifyVizNotAlreadyParented(viz) {
-    var parent = viz.getParentElement();
-    for (var i = 0, len = tab._VizManagerImpl._vizs.length; i < len; i++) {
-        if (tab._VizManagerImpl._vizs[i].getParentElement() === parent) {
-            var message = "Another viz is already present in element '" + tab._Utility.elementToString(parent) + "'.";
-            throw tab._TableauException.create('vizAlreadyInManager', message);
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._VizParameters
-
-tab._VizParameters = function tab__VizParameters(element, url, options) {
-    if (ss.isNullOrUndefined(element) || ss.isNullOrUndefined(url)) {
-        throw tab._TableauException.create('noUrlOrParentElementNotFound', 'URL is empty or Parent element not found');
-    }
-    if (ss.isNullOrUndefined(options)) {
-        options = {};
-        options.hideTabs = false;
-        options.hideToolbar = false;
-        options.onFirstInteractive = null;
-    }
-    if (ss.isValue(options.height) || ss.isValue(options.width)) {
-        this.fixedSize = true;
-        if (tab._Utility.isNumber(options.height)) {
-            options.height = options.height.toString() + 'px';
-        }
-        if (tab._Utility.isNumber(options.width)) {
-            options.width = options.width.toString() + 'px';
-        }
-        this.height = (ss.isValue(options.height)) ? options.height.toString() : null;
-        this.width = (ss.isValue(options.width)) ? options.width.toString() : null;
-    }
-    else {
-        this.fixedSize = false;
-    }
-    this.tabs = !(options.hideTabs || false);
-    this.toolbar = !(options.hideToolbar || false);
-    this.parentElement = element;
-    this._createOptions = options;
-    this.toolBarPosition = options.toolbarPosition;
-    var urlParts = url.split('?');
-    this._urlFromApi = urlParts[0];
-    if (urlParts.length === 2) {
-        this.userSuppliedParameters = urlParts[1];
-    }
-    else {
-        this.userSuppliedParameters = '';
-    }
-    var r = new RegExp('.*?[^/:]/', '').exec(this._urlFromApi);
-    if (ss.isNullOrUndefined(r) || (r[0].toLowerCase().indexOf('http://') === -1 && r[0].toLowerCase().indexOf('https://') === -1)) {
-        throw tab._TableauException.create('invalidUrl', 'Invalid url');
-    }
-    this.host_url = r[0].toLowerCase();
-    this.name = this._urlFromApi.replace(r[0], '');
-    this.name = this.name.replace('views/', '');
-    this.serverRoot = decodeURIComponent(this.host_url);
-}
-tab._VizParameters.prototype = {
-    name: '',
-    host_url: null,
-    tabs: false,
-    toolbar: false,
-    toolBarPosition: null,
-    handlerId: null,
-    width: null,
-    height: null,
-    serverRoot: null,
-    parentElement: null,
-    userSuppliedParameters: null,
-    fixedSize: false,
-    _urlFromApi: null,
-    _createOptions: null,
-    
-    get_url: function tab__VizParameters$get_url() {
-        return this._constructUrl();
-    },
-    
-    get_baseUrl: function tab__VizParameters$get_baseUrl() {
-        return this._urlFromApi;
-    },
-    
-    _constructUrl: function tab__VizParameters$_constructUrl() {
-        var url = [];
-        url.push(this.get_baseUrl());
-        url.push('?');
-        if (this.userSuppliedParameters.length > 0) {
-            url.push(this.userSuppliedParameters);
-            url.push('&');
-        }
-        url.push(':embed=y');
-        url.push('&:showVizHome=n');
-        url.push('&:jsdebug=y');
-        if (!this.fixedSize) {
-            url.push('&:bootstrapWhenNotified=y');
-        }
-        if (!this.tabs) {
-            url.push('&:tabs=n');
-        }
-        if (!this.toolbar) {
-            url.push('&:toolbar=n');
-        }
-        else if (!ss.isNullOrUndefined(this.toolBarPosition)) {
-            url.push('&:toolbar=');
-            url.push(this.toolBarPosition);
-        }
-        var userOptions = this._createOptions;
-        var $dict1 = userOptions;
-        for (var $key2 in $dict1) {
-            var entry = { key: $key2, value: $dict1[$key2] };
-            if (entry.key !== 'embed' && entry.key !== 'height' && entry.key !== 'width' && entry.key !== 'autoSize' && entry.key !== 'hideTabs' && entry.key !== 'hideToolbar' && entry.key !== 'onFirstInteractive' && entry.key !== 'onFirstVizSizeKnown' && entry.key !== 'toolbarPosition' && entry.key !== 'instanceIdToClone') {
-                url.push('&');
-                url.push(encodeURIComponent(entry.key));
-                url.push('=');
-                url.push(encodeURIComponent(entry.value.toString()));
-            }
-        }
-        url.push('&:apiID=' + this.handlerId);
-        if (ss.isValue(this._createOptions.instanceIdToClone)) {
-            url.push('#' + this._createOptions.instanceIdToClone);
-        }
-        return url.join('');
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._WorkbookImpl
-
-tab._WorkbookImpl = function tab__WorkbookImpl(vizImpl, messagingOptions, callback) {
-    this._publishedSheetsInfo = new tab._Collection();
-    this._customViews = new tab._Collection();
-    this._updatedCustomViews = new tab._Collection();
-    this._removedCustomViews = new tab._Collection();
-    this._vizImpl = vizImpl;
-    this._messagingOptions = messagingOptions;
-    this._getClientInfo(callback);
-}
-tab._WorkbookImpl._createDashboardZones = function tab__WorkbookImpl$_createDashboardZones(zones) {
-    zones = (zones || []);
-    var zonesInfo = [];
-    for (var i = 0; i < zones.length; i++) {
-        var zone = zones[i];
-        var objectType = zone.zoneType;
-        var size = tab.$create_Size(zone.width, zone.height);
-        var position = tab.$create_Point(zone.x, zone.y);
-        var name = zone.name;
-        var zoneInfo = tab.$create__dashboardZoneInfo(name, objectType, position, size, zone.zoneId);
-        zonesInfo.push(zoneInfo);
-    }
-    return zonesInfo;
-}
-tab._WorkbookImpl._extractSheetName = function tab__WorkbookImpl$_extractSheetName(sheetOrInfoOrName) {
-    if (ss.isNullOrUndefined(sheetOrInfoOrName)) {
-        return null;
-    }
-    if (tab._Utility.isString(sheetOrInfoOrName)) {
-        return sheetOrInfoOrName;
-    }
-    var info = sheetOrInfoOrName;
-    var getName = ss.Delegate.create(info, info.getName);
-    if (ss.isValue(getName)) {
-        return getName();
-    }
-    return null;
-}
-tab._WorkbookImpl._createSheetSize = function tab__WorkbookImpl$_createSheetSize(sheetInfo) {
-    if (ss.isNullOrUndefined(sheetInfo)) {
-        return tab.SheetSizeFactory.createAutomatic();
-    }
-    return tab.SheetSizeFactory.fromSizeConstraints(sheetInfo.sizeConstraints);
-}
-tab._WorkbookImpl._processParameters = function tab__WorkbookImpl$_processParameters(paramList) {
-    var parameters = new tab._Collection();
-    var $enum1 = ss.IEnumerator.getEnumerator(paramList.parameters);
-    while ($enum1.moveNext()) {
-        var model = $enum1.current;
-        var paramImpl = new tab._parameterImpl(model);
-        parameters._add(paramImpl.get__name(), paramImpl.get__parameter());
-    }
-    return parameters;
-}
-tab._WorkbookImpl._findAndCreateParameterImpl = function tab__WorkbookImpl$_findAndCreateParameterImpl(parameterName, paramList) {
-    var $enum1 = ss.IEnumerator.getEnumerator(paramList.parameters);
-    while ($enum1.moveNext()) {
-        var model = $enum1.current;
-        if (model.name === parameterName) {
-            return new tab._parameterImpl(model);
-        }
-    }
-    return null;
-}
-tab._WorkbookImpl.prototype = {
-    _workbook: null,
-    _vizImpl: null,
-    _name: null,
-    _activeSheetImpl: null,
-    _activatingHiddenSheetImpl: null,
-    _isDownloadAllowed: false,
-    _messagingOptions: null,
-    
-    get_workbook: function tab__WorkbookImpl$get_workbook() {
-        if (ss.isNullOrUndefined(this._workbook)) {
-            this._workbook = new tableauSoftware.Workbook(this);
-        }
-        return this._workbook;
-    },
-    
-    get_viz: function tab__WorkbookImpl$get_viz() {
-        return this._vizImpl.get__viz();
-    },
-    
-    get_publishedSheets: function tab__WorkbookImpl$get_publishedSheets() {
-        return this._publishedSheetsInfo;
-    },
-    
-    get_name: function tab__WorkbookImpl$get_name() {
-        return this._name;
-    },
-    
-    get_activeSheetImpl: function tab__WorkbookImpl$get_activeSheetImpl() {
-        return this._activeSheetImpl;
-    },
-    
-    get_activeCustomView: function tab__WorkbookImpl$get_activeCustomView() {
-        return this._currentCustomView;
-    },
-    
-    get_isDownloadAllowed: function tab__WorkbookImpl$get_isDownloadAllowed() {
-        return this._isDownloadAllowed;
-    },
-    
-    _findActiveSheetOrSheetWithinActiveDashboard: function tab__WorkbookImpl$_findActiveSheetOrSheetWithinActiveDashboard(sheetOrInfoOrName) {
-        if (ss.isNullOrUndefined(this._activeSheetImpl)) {
-            return null;
-        }
-        var sheetName = tab._WorkbookImpl._extractSheetName(sheetOrInfoOrName);
-        if (ss.isNullOrUndefined(sheetName)) {
-            return null;
-        }
-        if (sheetName === this._activeSheetImpl.get_name()) {
-            return this._activeSheetImpl;
-        }
-        if (this._activeSheetImpl.get_isDashboard()) {
-            var dashboardImpl = this._activeSheetImpl;
-            var sheet = dashboardImpl.get_worksheets()._get(sheetName);
-            if (ss.isValue(sheet)) {
-                return sheet._impl;
-            }
-        }
-        return null;
-    },
-    
-    _setActiveSheetAsync: function tab__WorkbookImpl$_setActiveSheetAsync(sheetNameOrInfoOrIndex) {
-        if (tab._Utility.isNumber(sheetNameOrInfoOrIndex)) {
-            var index = sheetNameOrInfoOrIndex;
-            if (index < this._publishedSheetsInfo.get__length() && index >= 0) {
-                return this._activateSheetWithInfoAsync(this._publishedSheetsInfo.get_item(index)._impl);
-            }
-            else {
-                throw tab._TableauException.createIndexOutOfRange(index);
-            }
-        }
-        var sheetName = tab._WorkbookImpl._extractSheetName(sheetNameOrInfoOrIndex);
-        var sheetInfo = this._publishedSheetsInfo._get(sheetName);
-        if (ss.isValue(sheetInfo)) {
-            return this._activateSheetWithInfoAsync(sheetInfo._impl);
-        }
-        else if (this._activeSheetImpl.get_isDashboard()) {
-            var d = this._activeSheetImpl;
-            var sheet = d.get_worksheets()._get(sheetName);
-            if (ss.isValue(sheet)) {
-                this._activatingHiddenSheetImpl = null;
-                var sheetUrl = '';
-                if (sheet.getIsHidden()) {
-                    this._activatingHiddenSheetImpl = sheet._impl;
-                }
-                else {
-                    sheetUrl = sheet._impl.get_url();
-                }
-                return this._activateSheetInternalAsync(sheet._impl.get_name(), sheetUrl);
-            }
-        }
-        throw tab._TableauException.create('sheetNotInWorkbook', 'Sheet is not found in Workbook');
-    },
-    
-    _revertAllAsync: function tab__WorkbookImpl$_revertAllAsync() {
-        var deferred = new tab._Deferred();
-        var returnHandler = new tab._CommandReturnHandler('api.RevertAllCommand', 1, function(result) {
-            deferred.resolve();
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(null, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _update: function tab__WorkbookImpl$_update(callback) {
-        this._getClientInfo(callback);
-    },
-    
-    _activateSheetWithInfoAsync: function tab__WorkbookImpl$_activateSheetWithInfoAsync(sheetInfoImpl) {
-        return this._activateSheetInternalAsync(sheetInfoImpl.name, sheetInfoImpl.url);
-    },
-    
-    _activateSheetInternalAsync: function tab__WorkbookImpl$_activateSheetInternalAsync(sheetName, sheetUrl) {
-        var deferred = new tab._Deferred();
-        if (ss.isValue(this._activeSheetImpl) && sheetName === this._activeSheetImpl.get_name()) {
-            deferred.resolve(this._activeSheetImpl.get_sheet());
-            return deferred.get_promise();
-        }
-        var param = {};
-        param['api.switchToSheetName'] = sheetName;
-        param['api.switchToRepositoryUrl'] = sheetUrl;
-        param['api.oldRepositoryUrl'] = this._activeSheetImpl.get_url();
-        var returnHandler = new tab._CommandReturnHandler('api.SwitchActiveSheetCommand', 0, ss.Delegate.create(this, function(result) {
-            this._vizImpl._workbookTabSwitchHandler = ss.Delegate.create(this, function() {
-                this._vizImpl._workbookTabSwitchHandler = null;
-                deferred.resolve(this._activeSheetImpl.get_sheet());
-            });
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _updateActiveSheetAsync: function tab__WorkbookImpl$_updateActiveSheetAsync() {
-        var deferred = new tab._Deferred();
-        var param = {};
-        param['api.switchToSheetName'] = this._activeSheetImpl.get_name();
-        param['api.switchToRepositoryUrl'] = this._activeSheetImpl.get_url();
-        param['api.oldRepositoryUrl'] = this._activeSheetImpl.get_url();
-        var returnHandler = new tab._CommandReturnHandler('api.UpdateActiveSheetCommand', 0, ss.Delegate.create(this, function(result) {
-            deferred.resolve(this._activeSheetImpl.get_sheet());
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _sendCommand: function tab__WorkbookImpl$_sendCommand(commandParameters, returnHandler) {
-        this._messagingOptions.sendCommand(commandParameters, returnHandler);
-    },
-    
-    _getClientInfo: function tab__WorkbookImpl$_getClientInfo(callback) {
-        var returnHandler = new tab._CommandReturnHandler('api.GetClientInfoCommand', 0, ss.Delegate.create(this, function(result) {
-            var clientInfo = result;
-            this._processInfo(clientInfo);
-            if (ss.isValue(callback)) {
-                callback();
-            }
-        }), null);
-        this._sendCommand(null, returnHandler);
-    },
-    
-    _processInfo: function tab__WorkbookImpl$_processInfo(clientInfo) {
-        this._name = clientInfo.workbookName;
-        this._isDownloadAllowed = clientInfo.isDownloadAllowed;
-        this._vizImpl._setAreAutomaticUpdatesPaused(!clientInfo.isAutoUpdate);
-        this._createSheetsInfo(clientInfo);
-        this._initializeActiveSheet(clientInfo);
-    },
-    
-    _initializeActiveSheet: function tab__WorkbookImpl$_initializeActiveSheet(clientInfo) {
-        var currentSheetName = clientInfo.currentSheetName;
-        var newActiveSheetInfo = this._publishedSheetsInfo._get(currentSheetName);
-        if (ss.isNullOrUndefined(newActiveSheetInfo) && ss.isNullOrUndefined(this._activatingHiddenSheetImpl)) {
-            throw tab._TableauException.createInternalError('The active sheet was not specified in baseSheets');
-        }
-        if (ss.isValue(this._activeSheetImpl) && this._activeSheetImpl.get_name() === currentSheetName) {
-            return;
-        }
-        if (ss.isValue(this._activeSheetImpl)) {
-            this._activeSheetImpl.set_isActive(false);
-            var oldActiveSheetInfo = this._publishedSheetsInfo._get(this._activeSheetImpl.get_name());
-            if (ss.isValue(oldActiveSheetInfo)) {
-                oldActiveSheetInfo._impl.isActive = false;
-            }
-            if (this._activeSheetImpl.get_sheetType() === 'story') {
-                var storyImpl = this._activeSheetImpl;
-                storyImpl.remove_activeStoryPointChange(ss.Delegate.create(this._vizImpl, this._vizImpl.raiseStoryPointSwitch));
-            }
-        }
-        if (ss.isValue(this._activatingHiddenSheetImpl)) {
-            var infoImpl = tab.$create__SheetInfoImpl(this._activatingHiddenSheetImpl.get_name(), 'worksheet', -1, this._activatingHiddenSheetImpl.get_size(), this.get_workbook(), '', true, true, 4294967295);
-            this._activatingHiddenSheetImpl = null;
-            this._activeSheetImpl = new tab._WorksheetImpl(infoImpl, this, this._messagingOptions, null);
-        }
-        else {
-            var baseSheet = null;
-            for (var i = 0, len = clientInfo.publishedSheets.length; i < len; i++) {
-                if (clientInfo.publishedSheets[i].name === currentSheetName) {
-                    baseSheet = clientInfo.publishedSheets[i];
-                    break;
-                }
-            }
-            if (ss.isNullOrUndefined(baseSheet)) {
-                throw tab._TableauException.createInternalError('No base sheet was found corresponding to the active sheet.');
-            }
-            var findSheetFunc = ss.Delegate.create(this, function(sheetName) {
-                return this._publishedSheetsInfo._get(sheetName);
-            });
-            if (baseSheet.sheetType === 'dashboard') {
-                var dashboardImpl = new tab._DashboardImpl(newActiveSheetInfo._impl, this, this._messagingOptions);
-                this._activeSheetImpl = dashboardImpl;
-                var dashboardFrames = tab._WorkbookImpl._createDashboardZones(clientInfo.dashboardZones);
-                dashboardImpl._addObjects(dashboardFrames, findSheetFunc);
-            }
-            else if (baseSheet.sheetType === 'story') {
-                var storyImpl = new tab._StoryImpl(newActiveSheetInfo._impl, this, this._messagingOptions, clientInfo.story, findSheetFunc);
-                this._activeSheetImpl = storyImpl;
-                storyImpl.add_activeStoryPointChange(ss.Delegate.create(this._vizImpl, this._vizImpl.raiseStoryPointSwitch));
-            }
-            else {
-                this._activeSheetImpl = new tab._WorksheetImpl(newActiveSheetInfo._impl, this, this._messagingOptions, null);
-            }
-            newActiveSheetInfo._impl.isActive = true;
-        }
-        this._activeSheetImpl.set_isActive(true);
-    },
-    
-    _createSheetsInfo: function tab__WorkbookImpl$_createSheetsInfo(clientInfo) {
-        var baseSheets = clientInfo.publishedSheets;
-        if (ss.isNullOrUndefined(baseSheets)) {
-            return;
-        }
-        for (var index = 0; index < baseSheets.length; index++) {
-            var baseSheet = baseSheets[index];
-            var sheetName = baseSheet.name;
-            var sheetInfo = this._publishedSheetsInfo._get(sheetName);
-            var size = tab._WorkbookImpl._createSheetSize(baseSheet);
-            if (ss.isNullOrUndefined(sheetInfo)) {
-                var isActive = sheetName === clientInfo.currentSheetName;
-                var sheetType = baseSheet.sheetType;
-                var sheetInfoImpl = tab.$create__SheetInfoImpl(sheetName, sheetType, index, size, this.get_workbook(), baseSheet.repositoryUrl, isActive, false, 4294967295);
-                sheetInfo = new tableauSoftware.SheetInfo(sheetInfoImpl);
-                this._publishedSheetsInfo._add(sheetName, sheetInfo);
-            }
-            else {
-                sheetInfo._impl.size = size;
-            }
-        }
-    },
-    
-    _currentCustomView: null,
-    
-    get__customViews: function tab__WorkbookImpl$get__customViews() {
-        return this._customViews;
-    },
-    set__customViews: function tab__WorkbookImpl$set__customViews(value) {
-        this._customViews = value;
-        return value;
-    },
-    
-    get__updatedCustomViews: function tab__WorkbookImpl$get__updatedCustomViews() {
-        return this._updatedCustomViews;
-    },
-    set__updatedCustomViews: function tab__WorkbookImpl$set__updatedCustomViews(value) {
-        this._updatedCustomViews = value;
-        return value;
-    },
-    
-    get__removedCustomViews: function tab__WorkbookImpl$get__removedCustomViews() {
-        return this._removedCustomViews;
-    },
-    set__removedCustomViews: function tab__WorkbookImpl$set__removedCustomViews(value) {
-        this._removedCustomViews = value;
-        return value;
-    },
-    
-    get__currentCustomView: function tab__WorkbookImpl$get__currentCustomView() {
-        return this._currentCustomView;
-    },
-    set__currentCustomView: function tab__WorkbookImpl$set__currentCustomView(value) {
-        this._currentCustomView = value;
-        return value;
-    },
-    
-    _getCustomViewsAsync: function tab__WorkbookImpl$_getCustomViewsAsync() {
-        return tab._CustomViewImpl._getCustomViewsAsync(this, this._messagingOptions);
-    },
-    
-    _showCustomViewAsync: function tab__WorkbookImpl$_showCustomViewAsync(customViewName) {
-        if (ss.isNullOrUndefined(customViewName) || tab._Utility.isNullOrEmpty(customViewName)) {
-            return tab._CustomViewImpl._showCustomViewAsync(this, this._messagingOptions, null);
-        }
-        else {
-            var cv = this._customViews._get(customViewName);
-            if (ss.isNullOrUndefined(cv)) {
-                var deferred = new tab._Deferred();
-                deferred.reject(tab._TableauException.createInvalidCustomViewName(customViewName));
-                return deferred.get_promise();
-            }
-            return cv._impl._showAsync();
-        }
-    },
-    
-    _removeCustomViewAsync: function tab__WorkbookImpl$_removeCustomViewAsync(customViewName) {
-        if (tab._Utility.isNullOrEmpty(customViewName)) {
-            throw tab._TableauException.createNullOrEmptyParameter('customViewName');
-        }
-        var cv = this._customViews._get(customViewName);
-        if (ss.isNullOrUndefined(cv)) {
-            var deferred = new tab._Deferred();
-            deferred.reject(tab._TableauException.createInvalidCustomViewName(customViewName));
-            return deferred.get_promise();
-        }
-        return cv._impl._removeAsync();
-    },
-    
-    _rememberCustomViewAsync: function tab__WorkbookImpl$_rememberCustomViewAsync(customViewName) {
-        if (tab._Utility.isNullOrEmpty(customViewName)) {
-            throw tab._TableauException.createInvalidParameter('customViewName');
-        }
-        return tab._CustomViewImpl._saveNewAsync(this, this._messagingOptions, customViewName);
-    },
-    
-    _setActiveCustomViewAsDefaultAsync: function tab__WorkbookImpl$_setActiveCustomViewAsDefaultAsync() {
-        return tab._CustomViewImpl._makeCurrentCustomViewDefaultAsync(this, this._messagingOptions);
-    },
-    
-    _parameters: null,
-    _lastChangedParameterImpl: null,
-    
-    get__lastChangedParameterImpl: function tab__WorkbookImpl$get__lastChangedParameterImpl() {
-        return this._lastChangedParameterImpl;
-    },
-    set__lastChangedParameterImpl: function tab__WorkbookImpl$set__lastChangedParameterImpl(value) {
-        this._lastChangedParameterImpl = value;
-        return value;
-    },
-    
-    get__parameters: function tab__WorkbookImpl$get__parameters() {
-        return this._parameters;
-    },
-    
-    _getSingleParameterAsync: function tab__WorkbookImpl$_getSingleParameterAsync(parameterName) {
-        var deferred = new tab._Deferred();
-        if (ss.isValue(this._lastChangedParameterImpl)) {
-            deferred.resolve(this._lastChangedParameterImpl.get__parameter());
-            return deferred.get_promise();
-        }
-        var commandParameters = {};
-        var returnHandler = new tab._CommandReturnHandler('api.FetchParametersCommand', 0, ss.Delegate.create(this, function(result) {
-            var paramList = result;
-            var parameterImpl = tab._WorkbookImpl._findAndCreateParameterImpl(parameterName, paramList);
-            this._lastChangedParameterImpl = parameterImpl;
-            deferred.resolve(parameterImpl.get__parameter());
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _getParametersAsync: function tab__WorkbookImpl$_getParametersAsync() {
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        var returnHandler = new tab._CommandReturnHandler('api.FetchParametersCommand', 0, ss.Delegate.create(this, function(result) {
-            var paramList = result;
-            this._parameters = tab._WorkbookImpl._processParameters(paramList);
-            deferred.resolve(this.get__parameters()._toApiCollection());
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this._sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _changeParameterValueAsync: function tab__WorkbookImpl$_changeParameterValueAsync(parameterName, value) {
-        var deferred = new tab._Deferred();
-        var parameterImpl = null;
-        if (ss.isValue(this._parameters)) {
-            if (ss.isNullOrUndefined(this._parameters._get(parameterName))) {
-                deferred.reject(tab._TableauException.createInvalidParameter(parameterName));
-                return deferred.get_promise();
-            }
-            parameterImpl = this._parameters._get(parameterName)._impl;
-            if (ss.isNullOrUndefined(parameterImpl)) {
-                deferred.reject(tab._TableauException.createInvalidParameter(parameterName));
-                return deferred.get_promise();
-            }
-        }
-        var param = {};
-        param['api.setParameterName'] = (ss.isValue(this._parameters)) ? parameterImpl.get__name() : parameterName;
-        if (ss.isValue(value) && tab._Utility.isDate(value)) {
-            var date = value;
-            var dateStr = tab._Utility.serializeDateForServer(date);
-            param['api.setParameterValue'] = dateStr;
-        }
-        else {
-            param['api.setParameterValue'] = (ss.isValue(value)) ? value.toString() : null;
-        }
-        this._lastChangedParameterImpl = null;
-        var returnHandler = new tab._CommandReturnHandler('api.SetParameterValueCommand', 0, ss.Delegate.create(this, function(result) {
-            var pm = result;
-            if (ss.isNullOrUndefined(pm)) {
-                deferred.reject(tab._TableauException.create('serverError', 'server error'));
-                return;
-            }
-            if (!pm.isValidPresModel) {
-                deferred.reject(tab._TableauException.createInvalidParameter(parameterName));
-                return;
-            }
-            var paramUpdated = new tab._parameterImpl(pm);
-            this._lastChangedParameterImpl = paramUpdated;
-            deferred.resolve(paramUpdated.get__parameter());
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createInvalidParameter(parameterName));
-        });
-        this._sendCommand(param, returnHandler);
-        return deferred.get_promise();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._WorksheetImpl
-
-tab._WorksheetImpl = function tab__WorksheetImpl(sheetInfoImpl, workbookImpl, messagingOptions, parentDashboardImpl) {
-    this._filters$1 = new tab._Collection();
-    this._selectedMarks$1 = new tab._Collection();
-    tab._WorksheetImpl.initializeBase(this, [ sheetInfoImpl, workbookImpl, messagingOptions ]);
-    this._parentDashboardImpl$1 = parentDashboardImpl;
-}
-tab._WorksheetImpl._filterCommandError = function tab__WorksheetImpl$_filterCommandError(rawPm) {
-    var commandError = rawPm;
-    if (ss.isValue(commandError) && ss.isValue(commandError.errorCode)) {
-        var additionalInfo = commandError.additionalInformation;
-        switch (commandError.errorCode) {
-            case 'invalidFilterFieldName':
-            case 'invalidFilterFieldValue':
-                return tab._TableauException.create(commandError.errorCode, additionalInfo);
-            case 'invalidAggregationFieldName':
-                return tab._TableauException._createInvalidAggregationFieldName(additionalInfo);
-            default:
-                return tab._TableauException.createServerError(additionalInfo);
-        }
-    }
-    return null;
-}
-tab._WorksheetImpl._normalizeRangeFilterOption$1 = function tab__WorksheetImpl$_normalizeRangeFilterOption$1(filterOptions) {
-    if (ss.isNullOrUndefined(filterOptions)) {
-        throw tab._TableauException.createNullOrEmptyParameter('filterOptions');
-    }
-    if (ss.isNullOrUndefined(filterOptions.min) && ss.isNullOrUndefined(filterOptions.max)) {
-        throw tab._TableauException.create('invalidParameter', 'At least one of filterOptions.min or filterOptions.max must be specified.');
-    }
-    var fixedUpFilterOptions = {};
-    if (ss.isValue(filterOptions.min)) {
-        fixedUpFilterOptions.min = filterOptions.min;
-    }
-    if (ss.isValue(filterOptions.max)) {
-        fixedUpFilterOptions.max = filterOptions.max;
-    }
-    if (ss.isValue(filterOptions.nullOption)) {
-        fixedUpFilterOptions.nullOption = tab._enums._normalizeNullOption(filterOptions.nullOption, 'filterOptions.nullOption');
-    }
-    return fixedUpFilterOptions;
-}
-tab._WorksheetImpl._normalizeRelativeDateFilterOptions$1 = function tab__WorksheetImpl$_normalizeRelativeDateFilterOptions$1(filterOptions) {
-    if (ss.isNullOrUndefined(filterOptions)) {
-        throw tab._TableauException.createNullOrEmptyParameter('filterOptions');
-    }
-    var fixedUpFilterOptions = {};
-    fixedUpFilterOptions.rangeType = tab._enums._normalizeDateRangeType(filterOptions.rangeType, 'filterOptions.rangeType');
-    fixedUpFilterOptions.periodType = tab._enums._normalizePeriodType(filterOptions.periodType, 'filterOptions.periodType');
-    if (fixedUpFilterOptions.rangeType === 'lastn' || fixedUpFilterOptions.rangeType === 'nextn') {
-        if (ss.isNullOrUndefined(filterOptions.rangeN)) {
-            throw tab._TableauException.create('missingRangeNForRelativeDateFilters', 'Missing rangeN field for a relative date filter of LASTN or NEXTN.');
-        }
-        fixedUpFilterOptions.rangeN = tab._Utility.toInt(filterOptions.rangeN);
-    }
-    if (ss.isValue(filterOptions.anchorDate)) {
-        if (!tab._Utility.isDate(filterOptions.anchorDate) || !tab._Utility.isDateValid(filterOptions.anchorDate)) {
-            throw tab._TableauException.createInvalidDateParameter('filterOptions.anchorDate');
-        }
-        fixedUpFilterOptions.anchorDate = filterOptions.anchorDate;
-    }
-    return fixedUpFilterOptions;
-}
-tab._WorksheetImpl._createFilterCommandReturnHandler$1 = function tab__WorksheetImpl$_createFilterCommandReturnHandler$1(commandName, fieldName, deferred) {
-    return new tab._CommandReturnHandler(commandName, 1, function(result) {
-        var error = tab._WorksheetImpl._filterCommandError(result);
-        if (error == null) {
-            deferred.resolve(fieldName);
-        }
-        else {
-            deferred.reject(error);
-        }
-    }, function(remoteError, message) {
-        if (remoteError) {
-            deferred.reject(tab._TableauException.createInvalidFilterFieldNameOrValue(fieldName));
-        }
-        else {
-            var error = tab._TableauException.create('filterCannotBePerformed', message);
-            deferred.reject(error);
-        }
-    });
-}
-tab._WorksheetImpl._createSelectionCommandError$1 = function tab__WorksheetImpl$_createSelectionCommandError$1(rawPm) {
-    var commandError = rawPm;
-    if (ss.isValue(commandError) && ss.isValue(commandError.errorCode)) {
-        var additionalInfo = commandError.additionalInformation;
-        switch (commandError.errorCode) {
-            case 'invalidSelectionFieldName':
-            case 'invalidSelectionValue':
-            case 'invalidSelectionDate':
-                return tab._TableauException.create(commandError.errorCode, additionalInfo);
-        }
-    }
-    return null;
-}
-tab._WorksheetImpl.prototype = {
-    _worksheet$1: null,
-    _parentDashboardImpl$1: null,
-    
-    get_sheet: function tab__WorksheetImpl$get_sheet() {
-        return this.get_worksheet();
-    },
-    
-    get_worksheet: function tab__WorksheetImpl$get_worksheet() {
-        if (this._worksheet$1 == null) {
-            this._worksheet$1 = new tableauSoftware.Worksheet(this);
-        }
-        return this._worksheet$1;
-    },
-    
-    get_parentDashboardImpl: function tab__WorksheetImpl$get_parentDashboardImpl() {
-        return this._parentDashboardImpl$1;
-    },
-    
-    get_parentDashboard: function tab__WorksheetImpl$get_parentDashboard() {
-        if (ss.isValue(this._parentDashboardImpl$1)) {
-            return this._parentDashboardImpl$1.get_dashboard();
-        }
-        return null;
-    },
-    
-    _getDataSourcesAsync: function tab__WorksheetImpl$_getDataSourcesAsync() {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        commandParameters['api.worksheetName'] = this.get_name();
-        var returnHandler = new tab._CommandReturnHandler('api.GetDataSourcesCommand', 0, function(result) {
-            var dataSourcesPm = result;
-            var dataSources = tab._DataSourceImpl.processDataSourcesForWorksheet(dataSourcesPm);
-            deferred.resolve(dataSources._toApiCollection());
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _getDataSourceAsync: function tab__WorksheetImpl$_getDataSourceAsync(dataSourceName) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        commandParameters['api.dataSourceName'] = dataSourceName;
-        commandParameters['api.worksheetName'] = this.get_name();
-        var returnHandler = new tab._CommandReturnHandler('api.GetDataSourceCommand', 0, function(result) {
-            var dataSourcePm = result;
-            var dataSourceImpl = tab._DataSourceImpl.processDataSource(dataSourcePm);
-            if (ss.isValue(dataSourceImpl)) {
-                deferred.resolve(dataSourceImpl.get_dataSource());
-            }
-            else {
-                deferred.reject(tab._TableauException.createServerError("Data source '" + dataSourceName + "' not found"));
-            }
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _verifyActiveSheetOrEmbeddedInActiveDashboard$1: function tab__WorksheetImpl$_verifyActiveSheetOrEmbeddedInActiveDashboard$1() {
-        var isRootAndActiveWorksheet = this.get_isActive();
-        var isWithinActiveDashboard = ss.isValue(this._parentDashboardImpl$1) && this._parentDashboardImpl$1.get_isActive();
-        var isWithinActiveStoryPoint = ss.isValue(this.get_parentStoryPointImpl()) && this.get_parentStoryPointImpl().get_parentStoryImpl().get_isActive();
-        if (!isRootAndActiveWorksheet && !isWithinActiveDashboard && !isWithinActiveStoryPoint) {
-            throw tab._TableauException.createNotActiveSheet();
-        }
-    },
-    
-    _addVisualIdToCommand$1: function tab__WorksheetImpl$_addVisualIdToCommand$1(commandParameters) {
-        if (ss.isValue(this.get_parentStoryPointImpl())) {
-            var visualId = {};
-            visualId.worksheet = this.get_name();
-            if (ss.isValue(this.get_parentDashboardImpl())) {
-                visualId.dashboard = this.get_parentDashboardImpl().get_name();
-            }
-            visualId.flipboardZoneId = this.get_parentStoryPointImpl().get_containedSheetImpl().get_zoneId();
-            visualId.storyboard = this.get_parentStoryPointImpl().get_parentStoryImpl().get_name();
-            visualId.storyPointId = this.get_parentStoryPointImpl().get_storyPointId();
-            commandParameters['api.visualId'] = visualId;
-        }
-        else {
-            commandParameters['api.worksheetName'] = this.get_name();
-            if (ss.isValue(this.get_parentDashboardImpl())) {
-                commandParameters['api.dashboardName'] = this.get_parentDashboardImpl().get_name();
-            }
-        }
-    },
-    
-    get__filters: function tab__WorksheetImpl$get__filters() {
-        return this._filters$1;
-    },
-    set__filters: function tab__WorksheetImpl$set__filters(value) {
-        this._filters$1 = value;
-        return value;
-    },
-    
-    _getFilterAsync: function tab__WorksheetImpl$_getFilterAsync(fieldName, fieldCaption, options) {
-        if (!tab._Utility.isNullOrEmpty(fieldName) && !tab._Utility.isNullOrEmpty(fieldCaption)) {
-            throw tab._TableauException.createInternalError('Only fieldName OR fieldCaption is allowed, not both.');
-        }
-        options = (options || {});
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        this._addVisualIdToCommand$1(commandParameters);
-        if (!tab._Utility.isNullOrEmpty(fieldCaption) && tab._Utility.isNullOrEmpty(fieldName)) {
-            commandParameters['api.fieldCaption'] = fieldCaption;
-        }
-        if (!tab._Utility.isNullOrEmpty(fieldName)) {
-            commandParameters['api.fieldName'] = fieldName;
-        }
-        commandParameters['api.filterHierarchicalLevels'] = 0;
-        commandParameters['api.ignoreDomain'] = (options.ignoreDomain || false);
-        var returnHandler = new tab._CommandReturnHandler('api.GetOneFilterInfoCommand', 0, ss.Delegate.create(this, function(result) {
-            var error = tab._WorksheetImpl._filterCommandError(result);
-            if (error == null) {
-                var filterJson = result;
-                var filter = tableauSoftware.Filter._createFilter(this, filterJson);
-                deferred.resolve(filter);
-            }
-            else {
-                deferred.reject(error);
-            }
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _getFiltersAsync: function tab__WorksheetImpl$_getFiltersAsync(options) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        options = (options || {});
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        this._addVisualIdToCommand$1(commandParameters);
-        commandParameters['api.ignoreDomain'] = (options.ignoreDomain || false);
-        var returnHandler = new tab._CommandReturnHandler('api.GetFiltersListCommand', 0, ss.Delegate.create(this, function(result) {
-            var filtersListJson = result;
-            this.set__filters(tableauSoftware.Filter._processFiltersList(this, filtersListJson));
-            deferred.resolve(this.get__filters()._toApiCollection());
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _applyFilterAsync: function tab__WorksheetImpl$_applyFilterAsync(fieldName, values, updateType, options) {
-        return this._applyFilterWithValuesInternalAsync$1(fieldName, values, updateType, options);
-    },
-    
-    _clearFilterAsync: function tab__WorksheetImpl$_clearFilterAsync(fieldName) {
-        return this._clearFilterInternalAsync$1(fieldName);
-    },
-    
-    _applyRangeFilterAsync: function tab__WorksheetImpl$_applyRangeFilterAsync(fieldName, options) {
-        var fixedUpFilterOptions = tab._WorksheetImpl._normalizeRangeFilterOption$1(options);
-        return this._applyRangeFilterInternalAsync$1(fieldName, fixedUpFilterOptions);
-    },
-    
-    _applyRelativeDateFilterAsync: function tab__WorksheetImpl$_applyRelativeDateFilterAsync(fieldName, options) {
-        var fixedUpFilterOptions = tab._WorksheetImpl._normalizeRelativeDateFilterOptions$1(options);
-        return this._applyRelativeDateFilterInternalAsync$1(fieldName, fixedUpFilterOptions);
-    },
-    
-    _applyHierarchicalFilterAsync: function tab__WorksheetImpl$_applyHierarchicalFilterAsync(fieldName, values, updateType, options) {
-        if (ss.isNullOrUndefined(values) && updateType !== 'all') {
-            throw tab._TableauException.createInvalidParameter('values');
-        }
-        return this._applyHierarchicalFilterInternalAsync$1(fieldName, values, updateType, options);
-    },
-    
-    _clearFilterInternalAsync$1: function tab__WorksheetImpl$_clearFilterInternalAsync$1(fieldName) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        if (tab._Utility.isNullOrEmpty(fieldName)) {
-            throw tab._TableauException.createNullOrEmptyParameter('fieldName');
-        }
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        commandParameters['api.fieldCaption'] = fieldName;
-        this._addVisualIdToCommand$1(commandParameters);
-        var returnHandler = tab._WorksheetImpl._createFilterCommandReturnHandler$1('api.ClearFilterCommand', fieldName, deferred);
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _applyFilterWithValuesInternalAsync$1: function tab__WorksheetImpl$_applyFilterWithValuesInternalAsync$1(fieldName, values, updateType, options) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        if (tab._Utility.isNullOrEmpty(fieldName)) {
-            throw tab._TableauException.createNullOrEmptyParameter('fieldName');
-        }
-        updateType = tab._enums._normalizeFilterUpdateType(updateType, 'updateType');
-        var fieldValues = [];
-        if (tab._jQueryShim.isArray(values)) {
-            for (var i = 0; i < values.length; i++) {
-                fieldValues.push(values[i].toString());
-            }
-        }
-        else if (ss.isValue(values)) {
-            fieldValues.push(values.toString());
-        }
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        commandParameters['api.fieldCaption'] = fieldName;
-        commandParameters['api.filterUpdateType'] = updateType;
-        commandParameters['api.exclude'] = (ss.isValue(options) && options.isExcludeMode) ? true : false;
-        if (updateType !== 'all') {
-            commandParameters['api.filterCategoricalValues'] = fieldValues;
-        }
-        this._addVisualIdToCommand$1(commandParameters);
-        var returnHandler = tab._WorksheetImpl._createFilterCommandReturnHandler$1('api.ApplyCategoricalFilterCommand', fieldName, deferred);
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _applyRangeFilterInternalAsync$1: function tab__WorksheetImpl$_applyRangeFilterInternalAsync$1(fieldName, filterOptions) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        if (tab._Utility.isNullOrEmpty(fieldName)) {
-            throw tab._TableauException.createNullOrEmptyParameter('fieldName');
-        }
-        if (ss.isNullOrUndefined(filterOptions)) {
-            throw tab._TableauException.createNullOrEmptyParameter('filterOptions');
-        }
-        var commandParameters = {};
-        commandParameters['api.fieldCaption'] = fieldName;
-        if (ss.isValue(filterOptions.min)) {
-            if (tab._Utility.isDate(filterOptions.min)) {
-                var dt = filterOptions.min;
-                if (tab._Utility.isDateValid(dt)) {
-                    commandParameters['api.filterRangeMin'] = tab._Utility.serializeDateForServer(dt);
-                }
-                else {
-                    throw tab._TableauException.createInvalidDateParameter('filterOptions.min');
-                }
-            }
-            else {
-                commandParameters['api.filterRangeMin'] = filterOptions.min;
-            }
-        }
-        if (ss.isValue(filterOptions.max)) {
-            if (tab._Utility.isDate(filterOptions.max)) {
-                var dt = filterOptions.max;
-                if (tab._Utility.isDateValid(dt)) {
-                    commandParameters['api.filterRangeMax'] = tab._Utility.serializeDateForServer(dt);
-                }
-                else {
-                    throw tab._TableauException.createInvalidDateParameter('filterOptions.max');
-                }
-            }
-            else {
-                commandParameters['api.filterRangeMax'] = filterOptions.max;
-            }
-        }
-        if (ss.isValue(filterOptions.nullOption)) {
-            commandParameters['api.filterRangeNullOption'] = filterOptions.nullOption;
-        }
-        this._addVisualIdToCommand$1(commandParameters);
-        var deferred = new tab._Deferred();
-        var returnHandler = tab._WorksheetImpl._createFilterCommandReturnHandler$1('api.ApplyRangeFilterCommand', fieldName, deferred);
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _applyRelativeDateFilterInternalAsync$1: function tab__WorksheetImpl$_applyRelativeDateFilterInternalAsync$1(fieldName, filterOptions) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        if (tab._Utility.isNullOrEmpty(fieldName)) {
-            throw tab._TableauException.createInvalidParameter('fieldName');
-        }
-        else if (ss.isNullOrUndefined(filterOptions)) {
-            throw tab._TableauException.createInvalidParameter('filterOptions');
-        }
-        var commandParameters = {};
-        commandParameters['api.fieldCaption'] = fieldName;
-        if (ss.isValue(filterOptions)) {
-            commandParameters['api.filterPeriodType'] = filterOptions.periodType;
-            commandParameters['api.filterDateRangeType'] = filterOptions.rangeType;
-            if (filterOptions.rangeType === 'lastn' || filterOptions.rangeType === 'nextn') {
-                if (ss.isNullOrUndefined(filterOptions.rangeN)) {
-                    throw tab._TableauException.create('missingRangeNForRelativeDateFilters', 'Missing rangeN field for a relative date filter of LASTN or NEXTN.');
-                }
-                commandParameters['api.filterDateRange'] = filterOptions.rangeN;
-            }
-            if (ss.isValue(filterOptions.anchorDate)) {
-                commandParameters['api.filterDateArchorValue'] = tab._Utility.serializeDateForServer(filterOptions.anchorDate);
-            }
-        }
-        this._addVisualIdToCommand$1(commandParameters);
-        var deferred = new tab._Deferred();
-        var returnHandler = tab._WorksheetImpl._createFilterCommandReturnHandler$1('api.ApplyRelativeDateFilterCommand', fieldName, deferred);
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _applyHierarchicalFilterInternalAsync$1: function tab__WorksheetImpl$_applyHierarchicalFilterInternalAsync$1(fieldName, values, updateType, options) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        if (tab._Utility.isNullOrEmpty(fieldName)) {
-            throw tab._TableauException.createNullOrEmptyParameter('fieldName');
-        }
-        updateType = tab._enums._normalizeFilterUpdateType(updateType, 'updateType');
-        var fieldValues = null;
-        var levelValues = null;
-        if (tab._jQueryShim.isArray(values)) {
-            fieldValues = [];
-            var arr = values;
-            for (var i = 0; i < arr.length; i++) {
-                fieldValues.push(arr[i].toString());
-            }
-        }
-        else if (tab._Utility.isString(values)) {
-            fieldValues = [];
-            fieldValues.push(values.toString());
-        }
-        else if (ss.isValue(values) && ss.isValue(values.levels)) {
-            var levelValue = values.levels;
-            levelValues = [];
-            if (tab._jQueryShim.isArray(levelValue)) {
-                var levels = levelValue;
-                for (var i = 0; i < levels.length; i++) {
-                    levelValues.push(levels[i].toString());
-                }
-            }
-            else {
-                levelValues.push(levelValue.toString());
-            }
-        }
-        else if (ss.isValue(values)) {
-            throw tab._TableauException.createInvalidParameter('values');
-        }
-        var commandParameters = {};
-        commandParameters['api.fieldCaption'] = fieldName;
-        commandParameters['api.filterUpdateType'] = updateType;
-        commandParameters['api.exclude'] = (ss.isValue(options) && options.isExcludeMode) ? true : false;
-        if (fieldValues != null) {
-            commandParameters['api.filterHierarchicalValues'] = tab.JsonUtil.toJson(fieldValues, false, '');
-        }
-        if (levelValues != null) {
-            commandParameters['api.filterHierarchicalLevels'] = tab.JsonUtil.toJson(levelValues, false, '');
-        }
-        this._addVisualIdToCommand$1(commandParameters);
-        var deferred = new tab._Deferred();
-        var returnHandler = tab._WorksheetImpl._createFilterCommandReturnHandler$1('api.ApplyHierarchicalFilterCommand', fieldName, deferred);
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    get_selectedMarks: function tab__WorksheetImpl$get_selectedMarks() {
-        return this._selectedMarks$1;
-    },
-    set_selectedMarks: function tab__WorksheetImpl$set_selectedMarks(value) {
-        this._selectedMarks$1 = value;
-        return value;
-    },
-    
-    _clearSelectedMarksAsync: function tab__WorksheetImpl$_clearSelectedMarksAsync() {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        this._addVisualIdToCommand$1(commandParameters);
-        commandParameters['api.filterUpdateType'] = 'replace';
-        var returnHandler = new tab._CommandReturnHandler('api.SelectMarksCommand', 1, function(result) {
-            deferred.resolve();
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _selectMarksAsync: function tab__WorksheetImpl$_selectMarksAsync(fieldNameOrFieldValuesMap, valueOrUpdateType, updateType) {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        if (fieldNameOrFieldValuesMap == null && valueOrUpdateType == null) {
-            return this._clearSelectedMarksAsync();
-        }
-        if (tab._Utility.isString(fieldNameOrFieldValuesMap) && (tab._jQueryShim.isArray(valueOrUpdateType) || tab._Utility.isString(valueOrUpdateType) || !tab._enums._isSelectionUpdateType(valueOrUpdateType))) {
-            return this._selectMarksWithFieldNameAndValueAsync$1(fieldNameOrFieldValuesMap, valueOrUpdateType, updateType);
-        }
-        else if (tab._jQueryShim.isArray(fieldNameOrFieldValuesMap)) {
-            return this._selectMarksWithMarksArrayAsync$1(fieldNameOrFieldValuesMap, valueOrUpdateType);
-        }
-        else {
-            return this._selectMarksWithMultiDimOptionAsync$1(fieldNameOrFieldValuesMap, valueOrUpdateType);
-        }
-    },
-    
-    _getSelectedMarksAsync: function tab__WorksheetImpl$_getSelectedMarksAsync() {
-        this._verifyActiveSheetOrEmbeddedInActiveDashboard$1();
-        var deferred = new tab._Deferred();
-        var commandParameters = {};
-        this._addVisualIdToCommand$1(commandParameters);
-        var returnHandler = new tab._CommandReturnHandler('api.FetchSelectedMarksCommand', 0, ss.Delegate.create(this, function(result) {
-            var pm = result;
-            this._selectedMarks$1 = tab._markImpl._processSelectedMarks(pm);
-            deferred.resolve(this._selectedMarks$1._toApiCollection());
-        }), function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    },
-    
-    _selectMarksWithFieldNameAndValueAsync$1: function tab__WorksheetImpl$_selectMarksWithFieldNameAndValueAsync$1(fieldName, value, updateType) {
-        var catNameList = [];
-        var catValueList = [];
-        var hierNameList = [];
-        var hierValueList = [];
-        var rangeNameList = [];
-        var rangeValueList = [];
-        this._parseMarksParam$1(catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, fieldName, value);
-        return this._selectMarksWithValuesAsync$1(null, catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, updateType);
-    },
-    
-    _selectMarksWithMultiDimOptionAsync$1: function tab__WorksheetImpl$_selectMarksWithMultiDimOptionAsync$1(fieldValuesMap, updateType) {
-        var dict = fieldValuesMap;
-        var catNameList = [];
-        var catValueList = [];
-        var hierNameList = [];
-        var hierValueList = [];
-        var rangeNameList = [];
-        var rangeValueList = [];
-        var $dict1 = dict;
-        for (var $key2 in $dict1) {
-            var ent = { key: $key2, value: $dict1[$key2] };
-            if (fieldValuesMap.hasOwnProperty(ent.key)) {
-                if (!tab._jQueryShim.isFunction(dict[ent.key])) {
-                    this._parseMarksParam$1(catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, ent.key, ent.value);
-                }
-            }
-        }
-        return this._selectMarksWithValuesAsync$1(null, catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, updateType);
-    },
-    
-    _selectMarksWithMarksArrayAsync$1: function tab__WorksheetImpl$_selectMarksWithMarksArrayAsync$1(marksArray, updateType) {
-        var catNameList = [];
-        var catValueList = [];
-        var hierNameList = [];
-        var hierValueList = [];
-        var rangeNameList = [];
-        var rangeValueList = [];
-        var tupleIdList = [];
-        for (var i = 0; i < marksArray.length; i++) {
-            var mark = marksArray[i];
-            if (ss.isValue(mark._impl.get__tupleId()) && mark._impl.get__tupleId() > 0) {
-                tupleIdList.push(mark._impl.get__tupleId());
-            }
-            else {
-                var pairs = mark._impl.get__pairs();
-                for (var j = 0; j < pairs.get__length(); j++) {
-                    var pair = pairs.get_item(j);
-                    if (pair.hasOwnProperty('fieldName') && pair.hasOwnProperty('value') && !tab._jQueryShim.isFunction(pair.fieldName) && !tab._jQueryShim.isFunction(pair.value)) {
-                        this._parseMarksParam$1(catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, pair.fieldName, pair.value);
-                    }
-                }
-            }
-        }
-        return this._selectMarksWithValuesAsync$1(tupleIdList, catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, updateType);
-    },
-    
-    _parseMarksParam$1: function tab__WorksheetImpl$_parseMarksParam$1(catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, fieldName, value) {
-        var sourceOptions = value;
-        if (tab._WorksheetImpl._regexHierarchicalFieldName$1.test(fieldName)) {
-            this._addToParamLists$1(hierNameList, hierValueList, fieldName, value);
-        }
-        else if (ss.isValue(sourceOptions.min) || ss.isValue(sourceOptions.max)) {
-            var range = {};
-            if (ss.isValue(sourceOptions.min)) {
-                if (tab._Utility.isDate(sourceOptions.min)) {
-                    var dt = sourceOptions.min;
-                    if (tab._Utility.isDateValid(dt)) {
-                        range.min = tab._Utility.serializeDateForServer(dt);
-                    }
-                    else {
-                        throw tab._TableauException.createInvalidDateParameter('options.min');
-                    }
-                }
-                else {
-                    range.min = sourceOptions.min;
-                }
-            }
-            if (ss.isValue(sourceOptions.max)) {
-                if (tab._Utility.isDate(sourceOptions.max)) {
-                    var dt = sourceOptions.max;
-                    if (tab._Utility.isDateValid(dt)) {
-                        range.max = tab._Utility.serializeDateForServer(dt);
-                    }
-                    else {
-                        throw tab._TableauException.createInvalidDateParameter('options.max');
-                    }
-                }
-                else {
-                    range.max = sourceOptions.max;
-                }
-            }
-            if (ss.isValue(sourceOptions.nullOption)) {
-                var nullOption = tab._enums._normalizeNullOption(sourceOptions.nullOption, 'options.nullOption');
-                range.nullOption = nullOption;
-            }
-            else {
-                range.nullOption = 'allValues';
-            }
-            var jsonValue = tab.JsonUtil.toJson(range, false, '');
-            this._addToParamLists$1(rangeNameList, rangeValueList, fieldName, jsonValue);
-        }
-        else {
-            this._addToParamLists$1(catNameList, catValueList, fieldName, value);
-        }
-    },
-    
-    _addToParamLists$1: function tab__WorksheetImpl$_addToParamLists$1(paramNameList, paramValueList, paramName, paramValue) {
-        var markValues = [];
-        if (tab._jQueryShim.isArray(paramValue)) {
-            var values = paramValue;
-            for (var i = 0; i < values.length; i++) {
-                markValues.push(values[i]);
-            }
-        }
-        else {
-            markValues.push(paramValue);
-        }
-        paramValueList.push(markValues);
-        paramNameList.push(paramName);
-    },
-    
-    _selectMarksWithValuesAsync$1: function tab__WorksheetImpl$_selectMarksWithValuesAsync$1(tupleIdList, catNameList, catValueList, hierNameList, hierValueList, rangeNameList, rangeValueList, updateType) {
-        var commandParameters = {};
-        this._addVisualIdToCommand$1(commandParameters);
-        updateType = tab._enums._normalizeSelectionUpdateType(updateType, 'updateType');
-        commandParameters['api.filterUpdateType'] = updateType;
-        if (!tab._Utility.isNullOrEmpty(tupleIdList)) {
-            commandParameters['api.tupleIds'] = tab.JsonUtil.toJson(tupleIdList, false, '');
-        }
-        if (!tab._Utility.isNullOrEmpty(catNameList) && !tab._Utility.isNullOrEmpty(catValueList)) {
-            commandParameters['api.categoricalFieldCaption'] = tab.JsonUtil.toJson(catNameList, false, '');
-            var markValues = [];
-            for (var i = 0; i < catValueList.length; i++) {
-                var values = tab.JsonUtil.toJson(catValueList[i], false, '');
-                markValues.push(values);
-            }
-            commandParameters['api.categoricalMarkValues'] = tab.JsonUtil.toJson(markValues, false, '');
-        }
-        if (!tab._Utility.isNullOrEmpty(hierNameList) && !tab._Utility.isNullOrEmpty(hierValueList)) {
-            commandParameters['api.hierarchicalFieldCaption'] = tab.JsonUtil.toJson(hierNameList, false, '');
-            var markValues = [];
-            for (var i = 0; i < hierValueList.length; i++) {
-                var values = tab.JsonUtil.toJson(hierValueList[i], false, '');
-                markValues.push(values);
-            }
-            commandParameters['api.hierarchicalMarkValues'] = tab.JsonUtil.toJson(markValues, false, '');
-        }
-        if (!tab._Utility.isNullOrEmpty(rangeNameList) && !tab._Utility.isNullOrEmpty(rangeValueList)) {
-            commandParameters['api.rangeFieldCaption'] = tab.JsonUtil.toJson(rangeNameList, false, '');
-            var markValues = [];
-            for (var i = 0; i < rangeValueList.length; i++) {
-                var values = tab.JsonUtil.toJson(rangeValueList[i], false, '');
-                markValues.push(values);
-            }
-            commandParameters['api.rangeMarkValues'] = tab.JsonUtil.toJson(markValues, false, '');
-        }
-        if (tab._Utility.isNullOrEmpty(commandParameters['api.tupleIds']) && tab._Utility.isNullOrEmpty(commandParameters['api.categoricalFieldCaption']) && tab._Utility.isNullOrEmpty(commandParameters['api.hierarchicalFieldCaption']) && tab._Utility.isNullOrEmpty(commandParameters['api.rangeFieldCaption'])) {
-            throw tab._TableauException.createInvalidParameter('fieldNameOrFieldValuesMap');
-        }
-        var deferred = new tab._Deferred();
-        var returnHandler = new tab._CommandReturnHandler('api.SelectMarksCommand', 1, function(result) {
-            var error = tab._WorksheetImpl._createSelectionCommandError$1(result);
-            if (error == null) {
-                deferred.resolve();
-            }
-            else {
-                deferred.reject(error);
-            }
-        }, function(remoteError, message) {
-            deferred.reject(tab._TableauException.createServerError(message));
-        });
-        this.sendCommand(commandParameters, returnHandler);
-        return deferred.get_promise();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.JsonUtil
-
-tab.JsonUtil = function tab_JsonUtil() {
-}
-tab.JsonUtil.parseJson = function tab_JsonUtil$parseJson(jsonValue) {
-    return tab._jQueryShim.parseJSON(jsonValue);
-}
-tab.JsonUtil.toJson = function tab_JsonUtil$toJson(it, pretty, indentStr) {
-    pretty = (pretty || false);
-    indentStr = (indentStr || '');
-    var stack = [];
-    return tab.JsonUtil._serialize(it, pretty, indentStr, stack);
-}
-tab.JsonUtil._indexOf = function tab_JsonUtil$_indexOf(array, searchElement, fromIndex) {
-    if (ss.isValue((Array).prototype['indexOf'])) {
-        return array.indexOf(searchElement, fromIndex);
-    }
-    fromIndex = (fromIndex || 0);
-    var length = array.length;
-    if (length > 0) {
-        for (var index = fromIndex; index < length; index++) {
-            if (array[index] === searchElement) {
-                return index;
-            }
-        }
-    }
-    return -1;
-}
-tab.JsonUtil._contains = function tab_JsonUtil$_contains(array, searchElement, fromIndex) {
-    var index = tab.JsonUtil._indexOf(array, searchElement, fromIndex);
-    return index >= 0;
-}
-tab.JsonUtil._serialize = function tab_JsonUtil$_serialize(it, pretty, indentStr, stack) {
-    if (tab.JsonUtil._contains(stack, it)) {
-        throw Error.createError('The object contains recursive reference of sub-objects', null);
-    }
-    if (ss.isUndefined(it)) {
-        return 'undefined';
-    }
-    if (it == null) {
-        return 'null';
-    }
-    var objtype = tab._jQueryShim.type(it);
-    if (objtype === 'number' || objtype === 'boolean') {
-        return it.toString();
-    }
-    if (objtype === 'string') {
-        return tab.JsonUtil._escapeString(it);
-    }
-    stack.push(it);
-    var newObj;
-    indentStr = (indentStr || '');
-    var nextIndent = (pretty) ? indentStr + '\t' : '';
-    var tf = (it.__json__ || it.json);
-    if (tab._jQueryShim.isFunction(tf)) {
-        var jsonCallback = tf;
-        newObj = jsonCallback(it);
-        if (it !== newObj) {
-            var res = tab.JsonUtil._serialize(newObj, pretty, nextIndent, stack);
-            stack.pop();
-            return res;
-        }
-    }
-    if (ss.isValue(it.nodeType) && ss.isValue(it.cloneNode)) {
-        throw Error.createError("Can't serialize DOM nodes", null);
-    }
-    var separator = (pretty) ? ' ' : '';
-    var newLine = (pretty) ? '\n' : '';
-    if (tab._jQueryShim.isArray(it)) {
-        return tab.JsonUtil._serializeArray(it, pretty, indentStr, stack, nextIndent, newLine);
-    }
-    if (objtype === 'function') {
-        stack.pop();
-        return null;
-    }
-    return tab.JsonUtil._serializeGeneric(it, pretty, indentStr, stack, nextIndent, newLine, separator);
-}
-tab.JsonUtil._serializeGeneric = function tab_JsonUtil$_serializeGeneric(it, pretty, indentStr, stack, nextIndent, newLine, separator) {
-    var d = it;
-    var bdr = new ss.StringBuilder('{');
-    var init = false;
-    var $dict1 = d;
-    for (var $key2 in $dict1) {
-        var e = { key: $key2, value: $dict1[$key2] };
-        var keyStr;
-        var val;
-        if (typeof(e.key) === 'number') {
-            keyStr = '"' + e.key + '"';
-        }
-        else if (typeof(e.key) === 'string') {
-            keyStr = tab.JsonUtil._escapeString(e.key);
-        }
-        else {
-            continue;
-        }
-        val = tab.JsonUtil._serialize(e.value, pretty, nextIndent, stack);
-        if (val == null) {
-            continue;
-        }
-        if (init) {
-            bdr.append(',');
-        }
-        bdr.append(newLine + nextIndent + keyStr + ':' + separator + val);
-        init = true;
-    }
-    bdr.append(newLine + indentStr + '}');
-    stack.pop();
-    return bdr.toString();
-}
-tab.JsonUtil._serializeArray = function tab_JsonUtil$_serializeArray(it, pretty, indentStr, stack, nextIndent, newLine) {
-    var initialized = false;
-    var sb = new ss.StringBuilder('[');
-    var a = it;
-    for (var i = 0; i < a.length; i++) {
-        var o = a[i];
-        var s = tab.JsonUtil._serialize(o, pretty, nextIndent, stack);
-        if (s == null) {
-            s = 'undefined';
-        }
-        if (initialized) {
-            sb.append(',');
-        }
-        sb.append(newLine + nextIndent + s);
-        initialized = true;
-    }
-    sb.append(newLine + indentStr + ']');
-    stack.pop();
-    return sb.toString();
-}
-tab.JsonUtil._escapeString = function tab_JsonUtil$_escapeString(str) {
-    str = ('"' + str.replace(/(["\\])/g, '\\$1') + '"');
-    str = str.replace(new RegExp('[\u000c]', 'g'), '\\f');
-    str = str.replace(new RegExp('[\u0008]', 'g'), '\\b');
-    str = str.replace(new RegExp('[\n]', 'g'), '\\n');
-    str = str.replace(new RegExp('[\t]', 'g'), '\\t');
-    str = str.replace(new RegExp('[\r]', 'g'), '\\r');
-    return str;
-}
-
-
-Type.registerNamespace('tableauSoftware');
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.DataValue
-
-tab.$create_DataValue = function tab_DataValue(value, formattedValue, aliasedValue) {
-    var $o = { };
-    $o.value = value;
-    if (tab._Utility.isNullOrEmpty(aliasedValue)) {
-        $o.formattedValue = formattedValue;
-    }
-    else {
-        $o.formattedValue = aliasedValue;
-    }
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.VizSize
-
-tab.$create_VizSize = function tab_VizSize(sheetSize, chromeHeight) {
-    var $o = { };
-    $o.sheetSize = sheetSize;
-    $o.chromeHeight = chromeHeight;
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.Point
-
-tab.$create_Point = function tab_Point(x, y) {
-    var $o = { };
-    $o.x = x;
-    $o.y = y;
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.Size
-
-tab.$create_Size = function tab_Size(width, height) {
-    var $o = { };
-    $o.width = width;
-    $o.height = height;
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.SheetSize
-
-tab.$create_SheetSize = function tab_SheetSize(behavior, minSize, maxSize) {
-    var $o = { };
-    $o.behavior = (behavior || 'automatic');
-    if (ss.isValue(minSize)) {
-        $o.minSize = minSize;
-    }
-    if (ss.isValue(maxSize)) {
-        $o.maxSize = maxSize;
-    }
-    return $o;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.CustomView
-
-tableauSoftware.CustomView = function tableauSoftware_CustomView(customViewImpl) {
-    this._impl = customViewImpl;
-}
-tableauSoftware.CustomView.prototype = {
-    _impl: null,
-    
-    getWorkbook: function tableauSoftware_CustomView$getWorkbook() {
-        return this._impl.get__workbook();
-    },
-    
-    getUrl: function tableauSoftware_CustomView$getUrl() {
-        return this._impl.get__url();
-    },
-    
-    getName: function tableauSoftware_CustomView$getName() {
-        return this._impl.get__name();
-    },
-    
-    setName: function tableauSoftware_CustomView$setName(value) {
-        this._impl.set__name(value);
-    },
-    
-    getOwnerName: function tableauSoftware_CustomView$getOwnerName() {
-        return this._impl.get__ownerName();
-    },
-    
-    getAdvertised: function tableauSoftware_CustomView$getAdvertised() {
-        return this._impl.get__advertised();
-    },
-    
-    setAdvertised: function tableauSoftware_CustomView$setAdvertised(value) {
-        this._impl.set__advertised(value);
-    },
-    
-    getDefault: function tableauSoftware_CustomView$getDefault() {
-        return this._impl.get__isDefault();
-    },
-    
-    saveAsync: function tableauSoftware_CustomView$saveAsync() {
-        return this._impl.saveAsync();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.CustomViewEvent
-
-tab.CustomViewEvent = function tab_CustomViewEvent(eventName, viz, customViewImpl) {
-    tab.CustomViewEvent.initializeBase(this, [ eventName, viz ]);
-    this._context$1 = new tab._customViewEventContext(viz._impl.get__workbookImpl(), customViewImpl);
-}
-tab.CustomViewEvent.prototype = {
-    _context$1: null,
-    
-    getCustomViewAsync: function tab_CustomViewEvent$getCustomViewAsync() {
-        var deferred = new tab._Deferred();
-        var customView = null;
-        if (ss.isValue(this._context$1.get__customViewImpl())) {
-            customView = this._context$1.get__customViewImpl().get__customView();
-        }
-        deferred.resolve(customView);
-        return deferred.get_promise();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._customViewEventContext
-
-tab._customViewEventContext = function tab__customViewEventContext(workbook, customViewImpl) {
-    tab._customViewEventContext.initializeBase(this, [ workbook, null ]);
-    this._customViewImpl$1 = customViewImpl;
-}
-tab._customViewEventContext.prototype = {
-    _customViewImpl$1: null,
-    
-    get__customViewImpl: function tab__customViewEventContext$get__customViewImpl() {
-        return this._customViewImpl$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Dashboard
-
-tableauSoftware.Dashboard = function tableauSoftware_Dashboard(dashboardImpl) {
-    tableauSoftware.Dashboard.initializeBase(this, [ dashboardImpl ]);
-}
-tableauSoftware.Dashboard.prototype = {
-    _impl: null,
-    
-    getParentStoryPoint: function tableauSoftware_Dashboard$getParentStoryPoint() {
-        return this._impl.get_parentStoryPoint();
-    },
-    
-    getObjects: function tableauSoftware_Dashboard$getObjects() {
-        return this._impl.get_objects()._toApiCollection();
-    },
-    
-    getWorksheets: function tableauSoftware_Dashboard$getWorksheets() {
-        return this._impl.get_worksheets()._toApiCollection();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.DashboardObject
-
-tableauSoftware.DashboardObject = function tableauSoftware_DashboardObject(frameInfo, dashboard, worksheet) {
-    if (frameInfo._objectType === 'worksheet' && ss.isNullOrUndefined(worksheet)) {
-        throw tab._TableauException.createInternalError('worksheet parameter is required for WORKSHEET objects');
-    }
-    else if (frameInfo._objectType !== 'worksheet' && ss.isValue(worksheet)) {
-        throw tab._TableauException.createInternalError('worksheet parameter should be undefined for non-WORKSHEET objects');
-    }
-    this._zoneInfo = frameInfo;
-    this._dashboard = dashboard;
-    this._worksheet = worksheet;
-}
-tableauSoftware.DashboardObject.prototype = {
-    _zoneInfo: null,
-    _dashboard: null,
-    _worksheet: null,
-    
-    getObjectType: function tableauSoftware_DashboardObject$getObjectType() {
-        return this._zoneInfo._objectType;
-    },
-    
-    getDashboard: function tableauSoftware_DashboardObject$getDashboard() {
-        return this._dashboard;
-    },
-    
-    getWorksheet: function tableauSoftware_DashboardObject$getWorksheet() {
-        return this._worksheet;
-    },
-    
-    getPosition: function tableauSoftware_DashboardObject$getPosition() {
-        return this._zoneInfo._position;
-    },
-    
-    getSize: function tableauSoftware_DashboardObject$getSize() {
-        return this._zoneInfo._size;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.DataSource
-
-tableauSoftware.DataSource = function tableauSoftware_DataSource(impl) {
-    this._impl = impl;
-}
-tableauSoftware.DataSource.prototype = {
-    _impl: null,
-    
-    getName: function tableauSoftware_DataSource$getName() {
-        return this._impl.get_name();
-    },
-    
-    getFields: function tableauSoftware_DataSource$getFields() {
-        return this._impl.get_fields()._toApiCollection();
-    },
-    
-    getIsPrimary: function tableauSoftware_DataSource$getIsPrimary() {
-        return this._impl.get_isPrimary();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Field
-
-tableauSoftware.Field = function tableauSoftware_Field(dataSource, name, fieldRoleType, fieldAggrType) {
-    this._dataSource = dataSource;
-    this._name = name;
-    this._fieldRoleType = fieldRoleType;
-    this._fieldAggrType = fieldAggrType;
-}
-tableauSoftware.Field.prototype = {
-    _dataSource: null,
-    _name: null,
-    _fieldRoleType: null,
-    _fieldAggrType: null,
-    
-    getDataSource: function tableauSoftware_Field$getDataSource() {
-        return this._dataSource;
-    },
-    
-    getName: function tableauSoftware_Field$getName() {
-        return this._name;
-    },
-    
-    getRole: function tableauSoftware_Field$getRole() {
-        return this._fieldRoleType;
-    },
-    
-    getAggregation: function tableauSoftware_Field$getAggregation() {
-        return this._fieldAggrType;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.CategoricalFilter
-
-tableauSoftware.CategoricalFilter = function tableauSoftware_CategoricalFilter(worksheetImpl, pm) {
-    tableauSoftware.CategoricalFilter.initializeBase(this, [ worksheetImpl, pm ]);
-    this._initializeFromJson$1(pm);
-}
-tableauSoftware.CategoricalFilter.prototype = {
-    _isExclude$1: false,
-    _appliedValues$1: null,
-    
-    getIsExcludeMode: function tableauSoftware_CategoricalFilter$getIsExcludeMode() {
-        return this._isExclude$1;
-    },
-    
-    getAppliedValues: function tableauSoftware_CategoricalFilter$getAppliedValues() {
-        return this._appliedValues$1;
-    },
-    
-    _updateFromJson: function tableauSoftware_CategoricalFilter$_updateFromJson(pm) {
-        this._initializeFromJson$1(pm);
-    },
-    
-    _initializeFromJson$1: function tableauSoftware_CategoricalFilter$_initializeFromJson$1(pm) {
-        this._isExclude$1 = pm.isExclude;
-        if (ss.isValue(pm.appliedValues)) {
-            this._appliedValues$1 = [];
-            var $enum1 = ss.IEnumerator.getEnumerator(pm.appliedValues);
-            while ($enum1.moveNext()) {
-                var v = $enum1.current;
-                this._appliedValues$1.push(tab._Utility.getDataValue(v));
-            }
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Filter
-
-tableauSoftware.Filter = function tableauSoftware_Filter(worksheetImpl, pm) {
-    this._worksheetImpl = worksheetImpl;
-    this._initializeFromJson(pm);
-}
-tableauSoftware.Filter._createFilter = function tableauSoftware_Filter$_createFilter(worksheetImpl, pm) {
-    switch (pm.filterType) {
-        case 'categorical':
-            return new tableauSoftware.CategoricalFilter(worksheetImpl, pm);
-        case 'relativedate':
-            return new tableauSoftware.RelativeDateFilter(worksheetImpl, pm);
-        case 'hierarchical':
-            return new tableauSoftware.HierarchicalFilter(worksheetImpl, pm);
-        case 'quantitative':
-            return new tableauSoftware.QuantitativeFilter(worksheetImpl, pm);
-    }
-    return null;
-}
-tableauSoftware.Filter._processFiltersList = function tableauSoftware_Filter$_processFiltersList(worksheetImpl, filtersListDict) {
-    var filters = new tab._Collection();
-    var $enum1 = ss.IEnumerator.getEnumerator(filtersListDict.filters);
-    while ($enum1.moveNext()) {
-        var filterPm = $enum1.current;
-        var filter = tableauSoftware.Filter._createFilter(worksheetImpl, filterPm);
-        filters._add(filterPm.caption, filter);
-    }
-    return filters;
-}
-tableauSoftware.Filter.prototype = {
-    _worksheetImpl: null,
-    _type: null,
-    _caption: null,
-    _field: null,
-    _dataSourceName: null,
-    _fieldRole: null,
-    _fieldAggregation: null,
-    
-    getFilterType: function tableauSoftware_Filter$getFilterType() {
-        return this._type;
-    },
-    
-    getFieldName: function tableauSoftware_Filter$getFieldName() {
-        return this._caption;
-    },
-    
-    getWorksheet: function tableauSoftware_Filter$getWorksheet() {
-        return this._worksheetImpl.get_worksheet();
-    },
-    
-    getFieldAsync: function tableauSoftware_Filter$getFieldAsync() {
-        var deferred = new tab._Deferred();
-        if (this._field == null) {
-            var rejected = function(e) {
-                deferred.reject(e);
-                return null;
+    /*! BEGIN MscorlibSlim */
+    var global = {};
+    (function (global) {
+        "use strict";
+        var ss = {__assemblies: {}};
+        ss.initAssembly = function assembly(obj, name, res) {
+            res = res || {};
+            obj.name = name;
+            obj.toString = function () {
+                return this.name
             };
-            var fulfilled = ss.Delegate.create(this, function(value) {
-                this._field = new tableauSoftware.Field(value, this._caption, this._fieldRole, this._fieldAggregation);
-                deferred.resolve(this._field);
-                return null;
+            obj.__types = {};
+            obj.getResourceNames = function () {
+                return Object.keys(res)
+            };
+            obj.getResourceDataBase64 = function (name) {
+                return res[name] || null
+            };
+            obj.getResourceData = function (name) {
+                var r = res[name];
+                return r ? ss.dec64(r) : null
+            };
+            ss.__assemblies[name] = obj
+        };
+        ss.initAssembly(ss, 'mscorlib');
+        ss.getAssemblies = function ss$getAssemblies() {
+            return Object.keys(ss.__assemblies).map(function (n) {
+                return ss.__assemblies[n]
+            })
+        };
+        ss.isNullOrUndefined = function ss$isNullOrUndefined(o) {
+            return (o === null) || (o === undefined)
+        };
+        ss.isValue = function ss$isValue(o) {
+            return (o !== null) && (o !== undefined)
+        };
+        ss.referenceEquals = function ss$referenceEquals(a, b) {
+            return ss.isValue(a) ? a === b : !ss.isValue(b)
+        };
+        ss.mkdict = function ss$mkdict() {
+            var a = (arguments.length != 1 ? arguments : arguments[0]);
+            var r = {};
+            for (var i = 0; i < a.length; i += 2) {
+                r[a[i]] = a[i + 1]
+            }
+            return r
+        };
+        ss.clone = function ss$clone(t, o) {
+            return o ? t.$clone(o) : o
+        };
+        ss.coalesce = function ss$coalesce(a, b) {
+            return ss.isValue(a) ? a : b
+        };
+        ss.isDate = function ss$isDate(obj) {
+            return Object.prototype.toString.call(obj) === '[object Date]'
+        };
+        ss.isArray = function ss$isArray(obj) {
+            return Object.prototype.toString.call(obj) === '[object Array]'
+        };
+        ss.isTypedArrayType = function ss$isTypedArrayType(type) {
+            return ['Float32Array', 'Float64Array', 'Int8Array', 'Int16Array', 'Int32Array', 'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray'].indexOf(ss.getTypeFullName(type)) >= 0
+        };
+        ss.isArrayOrTypedArray = function ss$isArray(obj) {
+            return ss.isArray(obj) || ss.isTypedArrayType(ss.getInstanceType(obj))
+        };
+        ss.getHashCode = function ss$getHashCode(obj) {
+            if (!ss.isValue(obj))throw new ss_NullReferenceException('Cannot get hash code of null'); else if (typeof(obj.getHashCode) === 'function')return obj.getHashCode(); else if (typeof(obj) === 'boolean') {
+                return obj ? 1 : 0
+            } else if (typeof(obj) === 'number') {
+                var s = obj.toExponential();
+                s = s.substr(0, s.indexOf('e'));
+                return parseInt(s.replace('.', ''), 10) & 0xffffffff
+            } else if (typeof(obj) === 'string') {
+                var res = 0;
+                for (var i = 0; i < obj.length; i++)res = (res * 31 + obj.charCodeAt(i)) & 0xffffffff;
+                return res
+            } else if (ss.isDate(obj)) {
+                return obj.valueOf() & 0xffffffff
+            } else {
+                return ss.defaultHashCode(obj)
+            }
+        };
+        ss.defaultHashCode = function ss$defaultHashCode(obj) {
+            return obj.$__hashCode__ || (obj.$__hashCode__ = (Math.random() * 0x100000000) | 0)
+        };
+        ss.equals = function ss$equals(a, b) {
+            if (!ss.isValue(a))throw new ss_NullReferenceException('Object is null'); else if (a !== ss && typeof(a.equals) === 'function')return a.equals(b);
+            if (ss.isDate(a) && ss.isDate(b))return a.valueOf() === b.valueOf(); else if (typeof(a) === 'function' && typeof(b) === 'function')return ss.delegateEquals(a, b); else if (ss.isNullOrUndefined(a) && ss.isNullOrUndefined(b))return true; else return a === b
+        };
+        ss.compare = function ss$compare(a, b) {
+            if (!ss.isValue(a))throw new ss_NullReferenceException('Object is null'); else if (typeof(a) === 'number' || typeof(a) === 'string' || typeof(a) === 'boolean')return a < b ? -1 : (a > b ? 1 : 0); else if (ss.isDate(a))return ss.compare(a.valueOf(), b.valueOf()); else return a.compareTo(b)
+        };
+        ss.equalsT = function ss$equalsT(a, b) {
+            if (!ss.isValue(a))throw new ss_NullReferenceException('Object is null'); else if (typeof(a) === 'number' || typeof(a) === 'string' || typeof(a) === 'boolean')return a === b; else if (ss.isDate(a))return a.valueOf() === b.valueOf(); else return a.equalsT(b)
+        };
+        ss.staticEquals = function ss$staticEquals(a, b) {
+            if (!ss.isValue(a))return !ss.isValue(b); else return ss.isValue(b) ? ss.equals(a, b) : false
+        };
+        ss.shallowCopy = function ss$shallowCopy(source, target) {
+            var keys = Object.keys(source);
+            for (var i = 0, l = keys.length; i < l; i++) {
+                var k = keys[i];
+                target[k] = source[k]
+            }
+        };
+        ss.isLower = function ss$isLower(c) {
+            var s = String.fromCharCode(c);
+            return s === s.toLowerCase() && s !== s.toUpperCase()
+        };
+        ss.isUpper = function ss$isUpper(c) {
+            var s = String.fromCharCode(c);
+            return s !== s.toLowerCase() && s === s.toUpperCase()
+        };
+        if (typeof(window) == 'object') {
+            if (!window.Element) {
+                window.Element = function () {
+                };
+                window.Element.isInstanceOfType = function (instance) {
+                    return instance && typeof instance.constructor === 'undefined' && typeof instance.tagName === 'string'
+                }
+            }
+            window.Element.__typeName = 'Element'
+        }
+        ss.clearKeys = function ss$clearKeys(d) {
+            for (var n in d) {
+                if (d.hasOwnProperty(n)) delete d[n]
+            }
+        };
+        ss.keyExists = function ss$keyExists(d, key) {
+            return d[key] !== undefined
+        };
+        if (!Object.keys) {
+            Object.keys = (function () {
+                var hasOwnProperty = Object.prototype.hasOwnProperty, hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'), dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'], dontEnumsLength = dontEnums.length;
+                return function (obj) {
+                    if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+                        throw new TypeError('Object.keys called on non-object')
+                    }
+                    var result = [], prop, i;
+                    for (prop in obj) {
+                        if (hasOwnProperty.call(obj, prop)) {
+                            result.push(prop)
+                        }
+                    }
+                    if (hasDontEnumBug) {
+                        for (i = 0; i < dontEnumsLength; i++) {
+                            if (hasOwnProperty.call(obj, dontEnums[i])) {
+                                result.push(dontEnums[i])
+                            }
+                        }
+                    }
+                    return result
+                }
+            }())
+        }
+        ss.getKeyCount = function ss$getKeyCount(d) {
+            return Object.keys(d).length
+        };
+        ss.__genericCache = {};
+        ss._makeGenericTypeName = function ss$_makeGenericTypeName(genericType, typeArguments) {
+            var result = genericType.__typeName;
+            for (var i = 0; i < typeArguments.length; i++)result += (i === 0 ? '[' : ',') + '[' + ss.getTypeQName(typeArguments[i]) + ']';
+            result += ']';
+            return result
+        };
+        ss.makeGenericType = function ss$makeGenericType(genericType, typeArguments) {
+            var name = ss._makeGenericTypeName(genericType, typeArguments);
+            return ss.__genericCache[name] || genericType.apply(null, typeArguments)
+        };
+        ss.registerGenericClassInstance = function ss$registerGenericClassInstance(instance, genericType, typeArguments, members, baseType, interfaceTypes) {
+            var name = ss._makeGenericTypeName(genericType, typeArguments);
+            ss.__genericCache[name] = instance;
+            instance.__typeName = name;
+            instance.__genericTypeDefinition = genericType;
+            instance.__typeArguments = typeArguments;
+            ss.initClass(instance, genericType.__assembly, members, baseType(), interfaceTypes())
+        };
+        ss.registerGenericInterfaceInstance = function ss$registerGenericInterfaceInstance(instance, genericType, typeArguments, members, baseInterfaces) {
+            var name = ss._makeGenericTypeName(genericType, typeArguments);
+            ss.__genericCache[name] = instance;
+            instance.__typeName = name;
+            instance.__genericTypeDefinition = genericType;
+            instance.__typeArguments = typeArguments;
+            ss.initInterface(instance, genericType.__assembly, members, baseInterfaces())
+        };
+        ss.isGenericTypeDefinition = function ss$isGenericTypeDefinition(type) {
+            return type.__isGenericTypeDefinition || false
+        };
+        ss.getGenericTypeDefinition = function ss$getGenericTypeDefinition(type) {
+            return type.__genericTypeDefinition || null
+        };
+        ss.getGenericParameterCount = function ss$getGenericParameterCount(type) {
+            return type.__typeArgumentCount || 0
+        };
+        ss.getGenericArguments = function ss$getGenericArguments(type) {
+            return type.__typeArguments || null
+        };
+        ss.setMetadata = function ss$_setMetadata(type, metadata) {
+            if (metadata.members) {
+                for (var i = 0; i < metadata.members.length; i++) {
+                    var m = metadata.members[i];
+                    m.typeDef = type;
+                    if (m.adder) m.adder.typeDef = type;
+                    if (m.remover) m.remover.typeDef = type;
+                    if (m.getter) m.getter.typeDef = type;
+                    if (m.setter) m.setter.typeDef = type
+                }
+            }
+            type.__metadata = metadata;
+            if (metadata.variance) {
+                type.isAssignableFrom = function (source) {
+                    var check = function (target, type) {
+                        if (type.__genericTypeDefinition === target.__genericTypeDefinition && type.__typeArguments.length == target.__typeArguments.length) {
+                            for (var i = 0; i < target.__typeArguments.length; i++) {
+                                var v = target.__metadata.variance[i], t = target.__typeArguments[i], s = type.__typeArguments[i];
+                                switch (v) {
+                                    case 1:
+                                        if (!ss.isAssignableFrom(t, s))return false;
+                                        break;
+                                    case 2:
+                                        if (!ss.isAssignableFrom(s, t))return false;
+                                        break;
+                                    default:
+                                        if (s !== t)return false
+                                }
+                            }
+                            return true
+                        }
+                        return false
+                    };
+                    if (source.__interface && check(this, source))return true;
+                    var ifs = ss.getInterfaces(source);
+                    for (var i = 0; i < ifs.length; i++) {
+                        if (ifs[i] === this || check(this, ifs[i]))return true
+                    }
+                    return false
+                }
+            }
+        };
+        ss.setMetadata = function ss$_setMetadata(type, metadata) {
+        };
+        ss.initClass = function ss$initClass(ctor, asm, members, baseType, interfaces) {
+            ctor.__class = true;
+            ctor.__assembly = asm;
+            if (!ctor.__typeArguments) asm.__types[ctor.__typeName] = ctor;
+            if (baseType && baseType !== Object) {
+                var f = function () {
+                };
+                f.prototype = baseType.prototype;
+                ctor.prototype = new f;
+                ctor.prototype.constructor = ctor
+            }
+            ss.shallowCopy(members, ctor.prototype);
+            if (interfaces) ctor.__interfaces = interfaces
+        };
+        ss.initGenericClass = function ss$initGenericClass(ctor, asm, typeArgumentCount) {
+            ctor.__class = true;
+            ctor.__assembly = asm;
+            asm.__types[ctor.__typeName] = ctor;
+            ctor.__typeArgumentCount = typeArgumentCount;
+            ctor.__isGenericTypeDefinition = true
+        };
+        ss.initInterface = function ss$initInterface(ctor, asm, members, baseInterfaces) {
+            ctor.__interface = true;
+            ctor.__assembly = asm;
+            if (!ctor.__typeArguments) asm.__types[ctor.__typeName] = ctor;
+            if (baseInterfaces) ctor.__interfaces = baseInterfaces;
+            ss.shallowCopy(members, ctor.prototype);
+            ctor.isAssignableFrom = function (type) {
+                return ss.contains(ss.getInterfaces(type), this)
+            }
+        };
+        ss.initGenericInterface = function ss$initGenericClass(ctor, asm, typeArgumentCount) {
+            ctor.__interface = true;
+            ctor.__assembly = asm;
+            asm.__types[ctor.__typeName] = ctor;
+            ctor.__typeArgumentCount = typeArgumentCount;
+            ctor.__isGenericTypeDefinition = true
+        };
+        ss.initEnum = function ss$initEnum(ctor, asm, members, namedValues) {
+            ctor.__enum = true;
+            ctor.__assembly = asm;
+            asm.__types[ctor.__typeName] = ctor;
+            ss.shallowCopy(members, ctor.prototype);
+            ctor.getDefaultValue = ctor.createInstance = function () {
+                return namedValues ? null : 0
+            };
+            ctor.isInstanceOfType = function (instance) {
+                return typeof(instance) == (namedValues ? 'string' : 'number')
+            }
+        };
+        ss.getBaseType = function ss$getBaseType(type) {
+            if (type === Object || type.__interface) {
+                return null
+            } else if (Object.getPrototypeOf) {
+                return Object.getPrototypeOf(type.prototype).constructor
+            } else {
+                var p = type.prototype;
+                if (Object.prototype.hasOwnProperty.call(p, 'constructor')) {
+                    try {
+                        var ownValue = p.constructor;
+                        delete p.constructor;
+                        return p.constructor
+                    } finally {
+                        p.constructor = ownValue
+                    }
+                }
+                return p.constructor
+            }
+        };
+        ss.getTypeFullName = function ss$getTypeFullName(type) {
+            return type.__typeName || type.name || (type.toString().match(/^\s*function\s*([^\s(]+)/) || [])[1] || 'Object'
+        };
+        ss.getTypeQName = function ss$getTypeFullName(type) {
+            return ss.getTypeFullName(type) + (type.__assembly ? ', ' + type.__assembly.name : '')
+        };
+        ss.getTypeName = function ss$getTypeName(type) {
+            var fullName = ss.getTypeFullName(type);
+            var bIndex = fullName.indexOf('[');
+            var nsIndex = fullName.lastIndexOf('.', bIndex >= 0 ? bIndex : fullName.length);
+            return nsIndex > 0 ? fullName.substr(nsIndex + 1) : fullName
+        };
+        ss.getTypeNamespace = function ss$getTypeNamespace(type) {
+            var fullName = ss.getTypeFullName(type);
+            var bIndex = fullName.indexOf('[');
+            var nsIndex = fullName.lastIndexOf('.', bIndex >= 0 ? bIndex : fullName.length);
+            return nsIndex > 0 ? fullName.substr(0, nsIndex) : ''
+        };
+        ss.getTypeAssembly = function ss$getTypeAssembly(type) {
+            if (ss.contains([Date, Number, Boolean, String, Function, Array], type))return ss; else return type.__assembly || null
+        };
+        ss._getAssemblyType = function ss$_getAssemblyType(asm, name) {
+            var result = [];
+            if (asm.__types) {
+                return asm.__types[name] || null
+            } else {
+                var a = name.split('.');
+                for (var i = 0; i < a.length; i++) {
+                    asm = asm[a[i]];
+                    if (!ss.isValue(asm))return null
+                }
+                if (typeof asm !== 'function')return null;
+                return asm
+            }
+        };
+        ss.getAssemblyTypes = function ss$getAssemblyTypes(asm) {
+            var result = [];
+            if (asm.__types) {
+                for (var t in asm.__types) {
+                    if (asm.__types.hasOwnProperty(t)) result.push(asm.__types[t])
+                }
+            } else {
+                var traverse = function (s, n) {
+                    for (var c in s) {
+                        if (s.hasOwnProperty(c)) traverse(s[c], c)
+                    }
+                    if (typeof(s) === 'function' && ss.isUpper(n.charCodeAt(0))) result.push(s)
+                };
+                traverse(asm, '')
+            }
+            return result
+        };
+        ss.createAssemblyInstance = function ss$createAssemblyInstance(asm, typeName) {
+            var t = ss.getType(typeName, asm);
+            return t ? ss.createInstance(t) : null
+        };
+        ss.getInterfaces = function ss$getInterfaces(type) {
+            if (type.__interfaces)return type.__interfaces; else if (type === Date || type === Number)return [ss_IEquatable, ss_IComparable, ss_IFormattable]; else if (type === Boolean || type === String)return [ss_IEquatable, ss_IComparable]; else if (type === Array || ss.isTypedArrayType(type))return [ss_IEnumerable, ss_ICollection, ss_IList]; else return []
+        };
+        ss.isInstanceOfType = function ss$isInstanceOfType(instance, type) {
+            if (ss.isNullOrUndefined(instance))return false;
+            if (typeof(type.isInstanceOfType) === 'function')return type.isInstanceOfType(instance);
+            return ss.isAssignableFrom(type, ss.getInstanceType(instance))
+        };
+        ss.isAssignableFrom = function ss$isAssignableFrom(target, type) {
+            return target === type || (typeof(target.isAssignableFrom) === 'function' && target.isAssignableFrom(type)) || type.prototype instanceof target
+        };
+        ss.isClass = function Type$isClass(type) {
+            return (type.__class == true || type === Array || type === Function || type === RegExp || type === String || type === Error || type === Object)
+        };
+        ss.isEnum = function Type$isEnum(type) {
+            return !!type.__enum
+        };
+        ss.isFlags = function Type$isFlags(type) {
+            return type.__metadata && type.__metadata.enumFlags || false
+        };
+        ss.isInterface = function Type$isInterface(type) {
+            return !!type.__interface
+        };
+        ss.safeCast = function ss$safeCast(instance, type) {
+            if (type === true)return instance; else if (type === false)return null; else return ss.isInstanceOfType(instance, type) ? instance : null
+        };
+        ss.cast = function ss$cast(instance, type) {
+            if (instance === null || typeof(instance) === 'undefined')return instance; else if (type === true || (type !== false && ss.isInstanceOfType(instance, type)))return instance;
+            throw new ss_InvalidCastException('Cannot cast object to type ' + ss.getTypeFullName(type))
+        };
+        ss.getInstanceType = function ss$getInstanceType(instance) {
+            if (!ss.isValue(instance))throw new ss_NullReferenceException('Cannot get type of null');
+            try {
+                return instance.constructor
+            } catch (ex) {
+                return Object
+            }
+        };
+        ss._getType = function (typeName, asm, re) {
+            var outer = !re;
+            re = re || /[[,\]]/g;
+            var last = re.lastIndex, m = re.exec(typeName), tname, targs = [];
+            if (m) {
+                tname = typeName.substring(last, m.index);
+                switch (m[0]) {
+                    case'[':
+                        if (typeName[m.index + 1] != '[')return null;
+                        for (; ;) {
+                            re.exec(typeName);
+                            var t = ss._getType(typeName, global, re);
+                            if (!t)return null;
+                            targs.push(t);
+                            m = re.exec(typeName);
+                            if (m[0] === ']')break; else if (m[0] !== ',')return null
+                        }
+                        m = re.exec(typeName);
+                        if (m && m[0] === ',') {
+                            re.exec(typeName);
+                            if (!(asm = ss.__assemblies[(re.lastIndex > 0 ? typeName.substring(m.index + 1, re.lastIndex - 1) : typeName.substring(m.index + 1)).trim()]))return null
+                        }
+                        break;
+                    case']':
+                        break;
+                    case',':
+                        re.exec(typeName);
+                        if (!(asm = ss.__assemblies[(re.lastIndex > 0 ? typeName.substring(m.index + 1, re.lastIndex - 1) : typeName.substring(m.index + 1)).trim()]))return null;
+                        break
+                }
+            } else {
+                tname = typeName.substring(last)
+            }
+            if (outer && re.lastIndex)return null;
+            var t = ss._getAssemblyType(asm, tname.trim());
+            return targs.length ? ss.makeGenericType(t, targs) : t
+        };
+        ss.getType = function ss$getType(typeName, asm) {
+            return typeName ? ss._getType(typeName, asm || global) : null
+        };
+        ss.getDefaultValue = function ss$getDefaultValue(type) {
+            if (typeof(type.getDefaultValue) === 'function')return type.getDefaultValue(); else if (type === Boolean)return false; else if (type === Date)return new Date(0); else if (type === Number)return 0;
+            return null
+        };
+        ss.createInstance = function ss$createInstance(type) {
+            if (typeof(type.createInstance) === 'function')return type.createInstance(); else if (type === Boolean)return false; else if (type === Date)return new Date(0); else if (type === Number)return 0; else if (type === String)return ''; else return new type
+        };
+        var ss_IFormattable = function IFormattable$() {
+        };
+        ss_IFormattable.__typeName = 'ss.IFormattable';
+        ss.IFormattable = ss_IFormattable;
+        ss.initInterface(ss_IFormattable, ss, {format: null});
+        var ss_IComparable = function IComparable$() {
+        };
+        ss_IComparable.__typeName = 'ss.IComparable';
+        ss.IComparable = ss_IComparable;
+        ss.initInterface(ss_IComparable, ss, {compareTo: null});
+        var ss_IEquatable = function IEquatable$() {
+        };
+        ss_IEquatable.__typeName = 'ss.IEquatable';
+        ss.IEquatable = ss_IEquatable;
+        ss.initInterface(ss_IEquatable, ss, {equalsT: null});
+        ss.isNullOrEmptyString = function ss$isNullOrEmptyString(s) {
+            return !s || !s.length
+        };
+        if (!String.prototype.trim) {
+            String.prototype.trim = function String$trim() {
+                return ss.trimStartString(ss.trimEndString(this))
+            }
+        }
+        ss.trimEndString = function ss$trimEndString(s, chars) {
+            return s.replace(chars ? new RegExp('[' + String.fromCharCode.apply(null, chars) + ']+$') : /\s*$/, '')
+        };
+        ss.trimStartString = function ss$trimStartString(s, chars) {
+            return s.replace(chars ? new RegExp('^[' + String.fromCharCode.apply(null, chars) + ']+') : /^\s*/, '')
+        };
+        ss.trimString = function ss$trimString(s, chars) {
+            return ss.trimStartString(ss.trimEndString(s, chars), chars)
+        };
+        ss.arrayClone = function ss$arrayClone(arr) {
+            if (arr.length === 1) {
+                return [arr[0]]
+            } else {
+                return Array.apply(null, arr)
+            }
+        };
+        if (!Array.prototype.map) {
+            Array.prototype.map = function Array$map(callback, instance) {
+                var length = this.length;
+                var mapped = new Array(length);
+                for (var i = 0; i < length; i++) {
+                    if (i in this) {
+                        mapped[i] = callback.call(instance, this[i], i, this)
+                    }
+                }
+                return mapped
+            }
+        }
+        if (!Array.prototype.some) {
+            Array.prototype.some = function Array$some(callback, instance) {
+                var length = this.length;
+                for (var i = 0; i < length; i++) {
+                    if (i in this && callback.call(instance, this[i], i, this)) {
+                        return true
+                    }
+                }
+                return false
+            }
+        }
+        if (!Array.prototype.forEach) {
+            Array.prototype.forEach = function (callback, thisArg) {
+                var T, k;
+                if (this == null) {
+                    throw new TypeError(' this is null or not defined')
+                }
+                var O = Object(this);
+                var len = O.length >>> 0;
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + ' is not a function')
+                }
+                if (arguments.length > 1) {
+                    T = thisArg
+                }
+                k = 0;
+                while (k < len) {
+                    var kValue;
+                    if (k in O) {
+                        kValue = O[k];
+                        callback.call(T, kValue, k, O)
+                    }
+                    k++
+                }
+            }
+        }
+        if (!Array.prototype.filter) {
+            Array.prototype.filter = function (fun) {
+                if (this === void 0 || this === null) {
+                    throw new TypeError
+                }
+                var t = Object(this);
+                var len = t.length >>> 0;
+                if (typeof fun !== 'function') {
+                    throw new TypeError
+                }
+                var res = [];
+                var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+                for (var i = 0; i < len; i++) {
+                    if (i in t) {
+                        var val = t[i];
+                        if (fun.call(thisArg, val, i, t)) {
+                            res.push(val)
+                        }
+                    }
+                }
+                return res
+            }
+        }
+        ss._delegateContains = function ss$_delegateContains(targets, object, method) {
+            for (var i = 0; i < targets.length; i += 2) {
+                if (targets[i] === object && targets[i + 1] === method) {
+                    return true
+                }
+            }
+            return false
+        };
+        ss._mkdel = function ss$_mkdel(targets) {
+            var delegate = function () {
+                if (targets.length == 2) {
+                    return targets[1].apply(targets[0], arguments)
+                } else {
+                    var clone = ss.arrayClone(targets);
+                    for (var i = 0; i < clone.length; i += 2) {
+                        if (ss._delegateContains(targets, clone[i], clone[i + 1])) {
+                            clone[i + 1].apply(clone[i], arguments)
+                        }
+                    }
+                    return null
+                }
+            };
+            delegate._targets = targets;
+            return delegate
+        };
+        ss.mkdel = function ss$mkdel(object, method) {
+            if (!object) {
+                return method
+            }
+            return ss._mkdel([object, method])
+        };
+        ss.delegateCombine = function ss$delegateCombine(delegate1, delegate2) {
+            if (!delegate1) {
+                if (!delegate2._targets) {
+                    return ss.mkdel(null, delegate2)
+                }
+                return delegate2
+            }
+            if (!delegate2) {
+                if (!delegate1._targets) {
+                    return ss.mkdel(null, delegate1)
+                }
+                return delegate1
+            }
+            var targets1 = delegate1._targets ? delegate1._targets : [null, delegate1];
+            var targets2 = delegate2._targets ? delegate2._targets : [null, delegate2];
+            return ss._mkdel(targets1.concat(targets2))
+        };
+        ss.delegateRemove = function ss$delegateRemove(delegate1, delegate2) {
+            if (!delegate1 || (delegate1 === delegate2)) {
+                return null
+            }
+            if (!delegate2) {
+                return delegate1
+            }
+            var targets = delegate1._targets;
+            var object = null;
+            var method;
+            if (delegate2._targets) {
+                object = delegate2._targets[0];
+                method = delegate2._targets[1]
+            } else {
+                method = delegate2
+            }
+            for (var i = 0; i < targets.length; i += 2) {
+                if ((targets[i] === object) && (targets[i + 1] === method)) {
+                    if (targets.length == 2) {
+                        return null
+                    }
+                    var t = ss.arrayClone(targets);
+                    t.splice(i, 2);
+                    return ss._mkdel(t)
+                }
+            }
+            return delegate1
+        };
+        ss.delegateEquals = function ss$delegateEquals(a, b) {
+            if (a === b)return true;
+            if (!a._targets && !b._targets)return false;
+            var ta = a._targets || [null, a], tb = b._targets || [null, b];
+            if (ta.length != tb.length)return false;
+            for (var i = 0; i < ta.length; i++) {
+                if (ta[i] !== tb[i])return false
+            }
+            return true
+        };
+        var ss_Enum = function Enum$() {
+        };
+        ss_Enum.__typeName = 'ss.Enum';
+        ss.Enum = ss_Enum;
+        ss.initClass(ss_Enum, ss, {});
+        ss_Enum.getValues = function Enum$getValues(enumType) {
+            var parts = [];
+            var values = enumType.prototype;
+            for (var i in values) {
+                if (values.hasOwnProperty(i)) parts.push(values[i])
+            }
+            return parts
+        };
+        var ss_IEnumerator = function IEnumerator$() {
+        };
+        ss_IEnumerator.__typeName = 'ss.IEnumerator';
+        ss.IEnumerator = ss_IEnumerator;
+        ss.initInterface(ss_IEnumerator, ss, {current: null, moveNext: null, reset: null}, [ss_IDisposable]);
+        var ss_IEnumerable = function IEnumerable$() {
+        };
+        ss_IEnumerable.__typeName = 'ss.IEnumerable';
+        ss.IEnumerable = ss_IEnumerable;
+        ss.initInterface(ss_IEnumerable, ss, {getEnumerator: null});
+        ss.getEnumerator = function ss$getEnumerator(obj) {
+            return obj.getEnumerator ? obj.getEnumerator() : new ss_ArrayEnumerator(obj)
+        };
+        var ss_ICollection = function ICollection$() {
+        };
+        ss_ICollection.__typeName = 'ss.ICollection';
+        ss.ICollection = ss_ICollection;
+        ss.initInterface(ss_ICollection, ss, {get_count: null, add: null, clear: null, contains: null, remove: null});
+        ss.count = function ss$count(obj) {
+            return obj.get_count ? obj.get_count() : obj.length
+        };
+        ss.add = function ss$add(obj, item) {
+            if (obj.add) obj.add(item); else if (ss.isArray(obj)) obj.push(item); else throw new ss_NotSupportedException
+        };
+        ss.clear = function ss$clear(obj) {
+            if (obj.clear) obj.clear(); else if (ss.isArray(obj)) obj.length = 0; else throw new ss_NotSupportedException
+        };
+        ss.remove = function ss$remove(obj, item) {
+            if (obj.remove)return obj.remove(item); else if (ss.isArray(obj)) {
+                var index = ss.indexOf(obj, item);
+                if (index >= 0) {
+                    obj.splice(index, 1);
+                    return true
+                }
+                return false
+            } else throw new ss_NotSupportedException
+        };
+        ss.contains = function ss$contains(obj, item) {
+            if (obj.contains)return obj.contains(item); else return ss.indexOf(obj, item) >= 0
+        };
+        var ss_IEqualityComparer = function IEqualityComparer$() {
+        };
+        ss_IEqualityComparer.__typeName = 'ss.IEqualityComparer';
+        ss.IEqualityComparer = ss_IEqualityComparer;
+        ss.initInterface(ss_IEqualityComparer, ss, {areEqual: null, getObjectHashCode: null});
+        var ss_IComparer = function IComparer$() {
+        };
+        ss_IComparer.__typeName = 'ss.IComparer';
+        ss.IComparer = ss_IComparer;
+        ss.initInterface(ss_IComparer, ss, {compare: null});
+        ss.unbox = function ss$unbox(instance) {
+            if (!ss.isValue(instance))throw new ss_InvalidOperationException('Nullable object must have a value.');
+            return instance
+        };
+        var ss_Nullable$1 = function Nullable$1$(T) {
+            var $type = function () {
+            };
+            $type.isInstanceOfType = function (instance) {
+                return ss.isInstanceOfType(instance, T)
+            };
+            ss.registerGenericClassInstance($type, ss_Nullable$1, [T], {}, function () {
+                return null
+            }, function () {
+                return []
             });
-            this._worksheetImpl._getDataSourceAsync(this._dataSourceName).then(fulfilled, rejected);
+            return $type
+        };
+        ss_Nullable$1.__typeName = 'ss.Nullable$1';
+        ss.Nullable$1 = ss_Nullable$1;
+        ss.initGenericClass(ss_Nullable$1, ss, 1);
+        ss_Nullable$1.eq = function Nullable$eq(a, b) {
+            return !ss.isValue(a) ? !ss.isValue(b) : (a === b)
+        };
+        ss_Nullable$1.ne = function Nullable$eq(a, b) {
+            return !ss.isValue(a) ? ss.isValue(b) : (a !== b)
+        };
+        ss_Nullable$1.le = function Nullable$le(a, b) {
+            return ss.isValue(a) && ss.isValue(b) && a <= b
+        };
+        ss_Nullable$1.ge = function Nullable$ge(a, b) {
+            return ss.isValue(a) && ss.isValue(b) && a >= b
+        };
+        ss_Nullable$1.lt = function Nullable$lt(a, b) {
+            return ss.isValue(a) && ss.isValue(b) && a < b
+        };
+        ss_Nullable$1.gt = function Nullable$gt(a, b) {
+            return ss.isValue(a) && ss.isValue(b) && a > b
+        };
+        ss_Nullable$1.sub = function Nullable$sub(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a - b : null
+        };
+        ss_Nullable$1.add = function Nullable$add(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a + b : null
+        };
+        ss_Nullable$1.mod = function Nullable$mod(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a % b : null
+        };
+        ss_Nullable$1.div = function Nullable$divf(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a / b : null
+        };
+        ss_Nullable$1.mul = function Nullable$mul(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a * b : null
+        };
+        ss_Nullable$1.band = function Nullable$band(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a & b : null
+        };
+        ss_Nullable$1.bor = function Nullable$bor(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a | b : null
+        };
+        ss_Nullable$1.xor = function Nullable$xor(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a ^ b : null
+        };
+        ss_Nullable$1.shl = function Nullable$shl(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a << b : null
+        };
+        ss_Nullable$1.srs = function Nullable$srs(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a >> b : null
+        };
+        ss_Nullable$1.sru = function Nullable$sru(a, b) {
+            return ss.isValue(a) && ss.isValue(b) ? a >>> b : null
+        };
+        ss_Nullable$1.and = function Nullable$and(a, b) {
+            if (a === true && b === true)return true; else if (a === false || b === false)return false; else return null
+        };
+        ss_Nullable$1.or = function Nullable$or(a, b) {
+            if (a === true || b === true)return true; else if (a === false && b === false)return false; else return null
+        };
+        ss_Nullable$1.not = function Nullable$not(a) {
+            return ss.isValue(a) ? !a : null
+        };
+        ss_Nullable$1.neg = function Nullable$neg(a) {
+            return ss.isValue(a) ? -a : null
+        };
+        ss_Nullable$1.pos = function Nullable$pos(a) {
+            return ss.isValue(a) ? +a : null
+        };
+        ss_Nullable$1.cpl = function Nullable$cpl(a) {
+            return ss.isValue(a) ? ~a : null
+        };
+        ss_Nullable$1.lift = function Nullable$lift() {
+            for (var i = 0; i < arguments.length; i++) {
+                if (!ss.isValue(arguments[i]))return null
+            }
+            return arguments[0].apply(null, Array.prototype.slice.call(arguments, 1))
+        };
+        var ss_IList = function IList$() {
+        };
+        ss_IList.__typeName = 'ss.IList';
+        ss.IList = ss_IList;
+        ss.initInterface(ss_IList, ss, {get_item: null, set_item: null, indexOf: null, insert: null, removeAt: null}, [ss_ICollection, ss_IEnumerable]);
+        ss.getItem = function ss$getItem(obj, index) {
+            return obj.get_item ? obj.get_item(index) : obj[index]
+        };
+        ss.setItem = function ss$setItem(obj, index, value) {
+            obj.set_item ? obj.set_item(index, value) : (obj[index] = value)
+        };
+        ss.indexOf = function ss$indexOf(obj, item) {
+            var itemType = typeof(item);
+            if ((!item || typeof(item.equals) !== 'function') && typeof(obj.indexOf) === 'function') {
+                return obj.indexOf(item)
+            } else if (ss.isArrayOrTypedArray(obj)) {
+                for (var i = 0; i < obj.length; i++) {
+                    if (ss.staticEquals(obj[i], item)) {
+                        return i
+                    }
+                }
+                return -1
+            } else return obj.indexOf(item)
+        };
+        ss.insert = function ss$insert(obj, index, item) {
+            if (obj.insert) obj.insert(index, item); else if (ss.isArray(obj)) obj.splice(index, 0, item); else throw new ss_NotSupportedException
+        };
+        ss.removeAt = function ss$removeAt(obj, index) {
+            if (obj.removeAt) obj.removeAt(index); else if (ss.isArray(obj)) obj.splice(index, 1); else throw new ss_NotSupportedException
+        };
+        var ss_IDictionary = function IDictionary$() {
+        };
+        ss_IDictionary.__typeName = 'ss.IDictionary';
+        ss.IDictionary = ss_IDictionary;
+        ss.initInterface(ss_IDictionary, ss, {
+            get_item: null,
+            set_item: null,
+            get_keys: null,
+            get_values: null,
+            containsKey: null,
+            add: null,
+            remove: null,
+            tryGetValue: null
+        }, [ss_IEnumerable]);
+        var ss_Int32 = function Int32$() {
+        };
+        ss_Int32.__typeName = 'ss.Int32';
+        ss.Int32 = ss_Int32;
+        ss.initClass(ss_Int32, ss, {}, Object, [ss_IEquatable, ss_IComparable, ss_IFormattable]);
+        ss_Int32.__class = false;
+        ss_Int32.isInstanceOfType = function Int32$isInstanceOfType(instance) {
+            return typeof(instance) === 'number' && isFinite(instance) && Math.round(instance, 0) == instance
+        };
+        ss_Int32.getDefaultValue = ss_Int32.createInstance = function Int32$getDefaultValue() {
+            return 0
+        };
+        ss_Int32.div = function Int32$div(a, b) {
+            if (!ss.isValue(a) || !ss.isValue(b))return null;
+            if (b === 0)throw new ss_DivideByZeroException;
+            return ss_Int32.trunc(a / b)
+        };
+        ss_Int32.trunc = function Int32$trunc(n) {
+            return ss.isValue(n) ? (n > 0 ? Math.floor(n) : Math.ceil(n)) : null
+        };
+        ss_Int32.tryParse = function Int32$tryParse(s, result, min, max) {
+            result.$ = 0;
+            if (!/^[+-]?[0-9]+$/.test(s))return 0;
+            var n = parseInt(s, 10);
+            if (n < min || n > max)return false;
+            result.$ = n;
+            return true
+        };
+        var ss_JsDate = function JsDate$() {
+        };
+        ss_JsDate.__typeName = 'ss.JsDate';
+        ss.JsDate = ss_JsDate;
+        ss.initClass(ss_JsDate, ss, {}, Object, [ss_IEquatable, ss_IComparable]);
+        ss_JsDate.createInstance = function JsDate$createInstance() {
+            return new Date
+        };
+        ss_JsDate.isInstanceOfType = function JsDate$isInstanceOfType(instance) {
+            return instance instanceof Date
+        };
+        var ss_ArrayEnumerator = function ArrayEnumerator$(array) {
+            this._array = array;
+            this._index = -1
+        };
+        ss_ArrayEnumerator.__typeName = 'ss.ArrayEnumerator';
+        ss.ArrayEnumerator = ss_ArrayEnumerator;
+        ss.initClass(ss_ArrayEnumerator, ss, {
+            moveNext: function ArrayEnumerator$moveNext() {
+                this._index++;
+                return (this._index < this._array.length)
+            }, reset: function ArrayEnumerator$reset() {
+                this._index = -1
+            }, current: function ArrayEnumerator$current() {
+                if (this._index < 0 || this._index >= this._array.length)throw'Invalid operation';
+                return this._array[this._index]
+            }, dispose: function ArrayEnumerator$dispose() {
+            }
+        }, null, [ss_IEnumerator, ss_IDisposable]);
+        var ss_ObjectEnumerator = function ObjectEnumerator$(o) {
+            this._keys = Object.keys(o);
+            this._index = -1;
+            this._object = o
+        };
+        ss_ObjectEnumerator.__typeName = 'ss.ObjectEnumerator';
+        ss.ObjectEnumerator = ss_ObjectEnumerator;
+        ss.initClass(ss_ObjectEnumerator, ss, {
+            moveNext: function ObjectEnumerator$moveNext() {
+                this._index++;
+                return (this._index < this._keys.length)
+            }, reset: function ObjectEnumerator$reset() {
+                this._index = -1
+            }, current: function ObjectEnumerator$current() {
+                if (this._index < 0 || this._index >= this._keys.length)throw new ss_InvalidOperationException('Invalid operation');
+                var k = this._keys[this._index];
+                return {key: k, value: this._object[k]}
+            }, dispose: function ObjectEnumerator$dispose() {
+            }
+        }, null, [ss_IEnumerator, ss_IDisposable]);
+        var ss_EqualityComparer = function EqualityComparer$() {
+        };
+        ss_EqualityComparer.__typeName = 'ss.EqualityComparer';
+        ss.EqualityComparer = ss_EqualityComparer;
+        ss.initClass(ss_EqualityComparer, ss, {
+            areEqual: function EqualityComparer$areEqual(x, y) {
+                return ss.staticEquals(x, y)
+            }, getObjectHashCode: function EqualityComparer$getObjectHashCode(obj) {
+                return ss.isValue(obj) ? ss.getHashCode(obj) : 0
+            }
+        }, null, [ss_IEqualityComparer]);
+        ss_EqualityComparer.def = new ss_EqualityComparer;
+        var ss_Comparer = function Comparer$(f) {
+            this.f = f
+        };
+        ss_Comparer.__typeName = 'ss.Comparer';
+        ss.Comparer = ss_Comparer;
+        ss.initClass(ss_Comparer, ss, {
+            compare: function Comparer$compare(x, y) {
+                return this.f(x, y)
+            }
+        }, null, [ss_IComparer]);
+        ss_Comparer.def = new ss_Comparer(function Comparer$defaultCompare(a, b) {
+            if (!ss.isValue(a))return !ss.isValue(b) ? 0 : -1; else if (!ss.isValue(b))return 1; else return ss.compare(a, b)
+        });
+        var ss_IDisposable = function IDisposable$() {
+        };
+        ss_IDisposable.__typeName = 'ss.IDisposable';
+        ss.IDisposable = ss_IDisposable;
+        ss.initInterface(ss_IDisposable, ss, {dispose: null});
+        var ss_StringBuilder = function StringBuilder$(s) {
+            this._parts = (ss.isValue(s) && s != '') ? [s] : [];
+            this.length = ss.isValue(s) ? s.length : 0
+        };
+        ss_StringBuilder.__typeName = 'ss.StringBuilder';
+        ss.StringBuilder = ss_StringBuilder;
+        ss.initClass(ss_StringBuilder, ss, {
+            append: function StringBuilder$append(o) {
+                if (ss.isValue(o)) {
+                    var s = o.toString();
+                    ss.add(this._parts, s);
+                    this.length += s.length
+                }
+                return this
+            }, appendChar: function StringBuilder$appendChar(c) {
+                return this.append(String.fromCharCode(c))
+            }, appendLine: function StringBuilder$appendLine(s) {
+                this.append(s);
+                this.append('\r\n');
+                return this
+            }, appendLineChar: function StringBuilder$appendLineChar(c) {
+                return this.appendLine(String.fromCharCode(c))
+            }, clear: function StringBuilder$clear() {
+                this._parts = [];
+                this.length = 0
+            }, toString: function StringBuilder$toString() {
+                return this._parts.join('')
+            }
+        });
+        var ss_EventArgs = function EventArgs$() {
+        };
+        ss_EventArgs.__typeName = 'ss.EventArgs';
+        ss.EventArgs = ss_EventArgs;
+        ss.initClass(ss_EventArgs, ss, {});
+        ss_EventArgs.Empty = new ss_EventArgs;
+        var ss_Exception = function Exception$(message, innerException) {
+            this._message = message || 'An error occurred.';
+            this._innerException = innerException || null;
+            this._error = new Error
+        };
+        ss_Exception.__typeName = 'ss.Exception';
+        ss.Exception = ss_Exception;
+        ss.initClass(ss_Exception, ss, {
+            get_message: function Exception$get_message() {
+                return this._message
+            }, get_innerException: function Exception$get_innerException() {
+                return this._innerException
+            }, get_stack: function Exception$get_stack() {
+                return this._error.stack
+            }, toString: function Exception$toString() {
+                var message = this._message;
+                var exception = this;
+                if (ss.isNullOrEmptyString(message)) {
+                    if (ss.isValue(ss.getInstanceType(exception)) && ss.isValue(ss.getTypeFullName(ss.getInstanceType(exception)))) {
+                        message = ss.getTypeFullName(ss.getInstanceType(exception))
+                    } else {
+                        message = '[object Exception]'
+                    }
+                }
+                return message
+            }
+        });
+        ss_Exception.wrap = function Exception$wrap(o) {
+            if (ss.isInstanceOfType(o, ss_Exception)) {
+                return o
+            } else if (o instanceof TypeError) {
+                return new ss_NullReferenceException(o.message, new ss_JsErrorException(o))
+            } else if (o instanceof RangeError) {
+                return new ss_ArgumentOutOfRangeException(null, o.message, new ss_JsErrorException(o))
+            } else if (o instanceof Error) {
+                return new ss_JsErrorException(o)
+            } else {
+                return new ss_Exception(o.toString())
+            }
+        };
+        var ss_NotImplementedException = function NotImplementedException$(message, innerException) {
+            ss_Exception.call(this, message || 'The method or operation is not implemented.', innerException)
+        };
+        ss_NotImplementedException.__typeName = 'ss.NotImplementedException';
+        ss.NotImplementedException = ss_NotImplementedException;
+        ss.initClass(ss_NotImplementedException, ss, {}, ss_Exception);
+        var ss_NotSupportedException = function NotSupportedException$(message, innerException) {
+            ss_Exception.call(this, message || 'Specified method is not supported.', innerException)
+        };
+        ss_NotSupportedException.__typeName = 'ss.NotSupportedException';
+        ss.NotSupportedException = ss_NotSupportedException;
+        ss.initClass(ss_NotSupportedException, ss, {}, ss_Exception);
+        var ss_AggregateException = function AggregateException$(message, innerExceptions) {
+            this.innerExceptions = ss.isValue(innerExceptions) ? ss.arrayFromEnumerable(innerExceptions) : [];
+            ss_Exception.call(this, message || 'One or more errors occurred.', this.innerExceptions.length ? this.innerExceptions[0] : null)
+        };
+        ss_AggregateException.__typeName = 'ss.AggregateException';
+        ss.AggregateException = ss_AggregateException;
+        ss.initClass(ss_AggregateException, ss, {
+            flatten: function AggregateException$flatten() {
+                var inner = [];
+                for (var i = 0; i < this.innerExceptions.length; i++) {
+                    var e = this.innerExceptions[i];
+                    if (ss.isInstanceOfType(e, ss_AggregateException)) {
+                        inner.push.apply(inner, e.flatten().innerExceptions)
+                    } else {
+                        inner.push(e)
+                    }
+                }
+                return new ss_AggregateException(this._message, inner)
+            }
+        }, ss_Exception);
+        var ss_PromiseException = function PromiseException(args, message, innerException) {
+            ss_Exception.call(this, message || (args.length && args[0] ? args[0].toString() : 'An error occurred'), innerException);
+            this.arguments = ss.arrayClone(args)
+        };
+        ss_PromiseException.__typeName = 'ss.PromiseException';
+        ss.PromiseException = ss_PromiseException;
+        ss.initClass(ss_PromiseException, ss, {
+            get_arguments: function PromiseException$get_arguments() {
+                return this._arguments
+            }
+        }, ss_Exception);
+        var ss_JsErrorException = function JsErrorException$(error, message, innerException) {
+            ss_Exception.call(this, message || error.message, innerException);
+            this.error = error
+        };
+        ss_JsErrorException.__typeName = 'ss.JsErrorException';
+        ss.JsErrorException = ss_JsErrorException;
+        ss.initClass(ss_JsErrorException, ss, {
+            get_stack: function Exception$get_stack() {
+                return this.error.stack
+            }
+        }, ss_Exception);
+        var ss_ArgumentException = function ArgumentException$(message, paramName, innerException) {
+            ss_Exception.call(this, message || 'Value does not fall within the expected range.', innerException);
+            this.paramName = paramName || null
+        };
+        ss_ArgumentException.__typeName = 'ss.ArgumentException';
+        ss.ArgumentException = ss_ArgumentException;
+        ss.initClass(ss_ArgumentException, ss, {}, ss_Exception);
+        var ss_ArgumentNullException = function ArgumentNullException$(paramName, message, innerException) {
+            if (!message) {
+                message = 'Value cannot be null.';
+                if (paramName) message += '\nParameter name: ' + paramName
+            }
+            ss_ArgumentException.call(this, message, paramName, innerException)
+        };
+        ss_ArgumentNullException.__typeName = 'ss.ArgumentNullException';
+        ss.ArgumentNullException = ss_ArgumentNullException;
+        ss.initClass(ss_ArgumentNullException, ss, {}, ss_ArgumentException);
+        var ss_ArgumentOutOfRangeException = function ArgumentOutOfRangeException$(paramName, message, innerException, actualValue) {
+            if (!message) {
+                message = 'Value is out of range.';
+                if (paramName) message += '\nParameter name: ' + paramName
+            }
+            ss_ArgumentException.call(this, message, paramName, innerException);
+            this.actualValue = actualValue || null
+        };
+        ss_ArgumentOutOfRangeException.__typeName = 'ss.ArgumentOutOfRangeException';
+        ss.ArgumentOutOfRangeException = ss_ArgumentOutOfRangeException;
+        ss.initClass(ss_ArgumentOutOfRangeException, ss, {}, ss_ArgumentException);
+        var ss_FormatException = function FormatException$(message, innerException) {
+            ss_Exception.call(this, message || 'Invalid format.', innerException)
+        };
+        ss_FormatException.__typeName = 'ss.FormatException';
+        ss.FormatException = ss_FormatException;
+        ss.initClass(ss_FormatException, ss, {}, ss_Exception);
+        var ss_DivideByZeroException = function DivideByZeroException$(message, innerException) {
+            ss_Exception.call(this, message || 'Division by 0.', innerException)
+        };
+        ss_DivideByZeroException.__typeName = 'ss.DivideByZeroException';
+        ss.DivideByZeroException = ss_DivideByZeroException;
+        ss.initClass(ss_DivideByZeroException, ss, {}, ss_Exception);
+        var ss_InvalidCastException = function InvalidCastException$(message, innerException) {
+            ss_Exception.call(this, message || 'The cast is not valid.', innerException)
+        };
+        ss_InvalidCastException.__typeName = 'ss.InvalidCastException';
+        ss.InvalidCastException = ss_InvalidCastException;
+        ss.initClass(ss_InvalidCastException, ss, {}, ss_Exception);
+        var ss_InvalidOperationException = function InvalidOperationException$(message, innerException) {
+            ss_Exception.call(this, message || 'Operation is not valid due to the current state of the object.', innerException)
+        };
+        ss_InvalidOperationException.__typeName = 'ss.InvalidOperationException';
+        ss.InvalidOperationException = ss_InvalidOperationException;
+        ss.initClass(ss_InvalidOperationException, ss, {}, ss_Exception);
+        var ss_NullReferenceException = function NullReferenceException$(message, innerException) {
+            ss_Exception.call(this, message || 'Object is null.', innerException)
+        };
+        ss_NullReferenceException.__typeName = 'ss.NullReferenceException';
+        ss.NullReferenceException = ss_NullReferenceException;
+        ss.initClass(ss_NullReferenceException, ss, {}, ss_Exception);
+        var ss_KeyNotFoundException = function KeyNotFoundException$(message, innerException) {
+            ss_Exception.call(this, message || 'Key not found.', innerException)
+        };
+        ss_KeyNotFoundException.__typeName = 'ss.KeyNotFoundException';
+        ss.KeyNotFoundException = ss_KeyNotFoundException;
+        ss.initClass(ss_KeyNotFoundException, ss, {}, ss_Exception);
+        var ss_AmbiguousMatchException = function AmbiguousMatchException$(message, innerException) {
+            ss_Exception.call(this, message || 'Ambiguous match.', innerException)
+        };
+        ss_AmbiguousMatchException.__typeName = 'ss.AmbiguousMatchException';
+        ss.AmbiguousMatchException = ss_AmbiguousMatchException;
+        ss.initClass(ss_AmbiguousMatchException, ss, {}, ss_Exception);
+        var ss_IteratorBlockEnumerable = function IteratorBlockEnumerable$(getEnumerator, $this) {
+            this._getEnumerator = getEnumerator;
+            this._this = $this
+        };
+        ss_IteratorBlockEnumerable.__typeName = 'ss.IteratorBlockEnumerable';
+        ss.IteratorBlockEnumerable = ss_IteratorBlockEnumerable;
+        ss.initClass(ss_IteratorBlockEnumerable, ss, {
+            getEnumerator: function IteratorBlockEnumerable$getEnumerator() {
+                return this._getEnumerator.call(this._this)
+            }
+        }, null, [ss_IEnumerable]);
+        var ss_IteratorBlockEnumerator = function IteratorBlockEnumerator$(moveNext, getCurrent, dispose, $this) {
+            this._moveNext = moveNext;
+            this._getCurrent = getCurrent;
+            this._dispose = dispose;
+            this._this = $this
+        };
+        ss_IteratorBlockEnumerator.__typeName = 'ss.IteratorBlockEnumerator';
+        ss.IteratorBlockEnumerator = ss_IteratorBlockEnumerator;
+        ss.initClass(ss_IteratorBlockEnumerator, ss, {
+            moveNext: function IteratorBlockEnumerator$moveNext() {
+                try {
+                    return this._moveNext.call(this._this)
+                } catch (ex) {
+                    if (this._dispose) this._dispose.call(this._this);
+                    throw ex
+                }
+            }, current: function IteratorBlockEnumerator$current() {
+                return this._getCurrent.call(this._this)
+            }, reset: function IteratorBlockEnumerator$reset() {
+                throw new ss_NotSupportedException('Reset is not supported.')
+            }, dispose: function IteratorBlockEnumerator$dispose() {
+                if (this._dispose) this._dispose.call(this._this)
+            }
+        }, null, [ss_IEnumerator, ss_IDisposable]);
+        var ss_Lazy = function Lazy$(valueFactory) {
+            this._valueFactory = valueFactory;
+            this.isValueCreated = false
+        };
+        ss_Lazy.__typeName = 'ss.Lazy';
+        ss.Lazy = ss_Lazy;
+        ss.initClass(ss_Lazy, ss, {
+            value: function Lazy$value() {
+                if (!this.isValueCreated) {
+                    this._value = this._valueFactory();
+                    delete this._valueFactory;
+                    this.isValueCreated = true
+                }
+                return this._value
+            }
+        });
+        if (typeof(global.HTMLElement) === 'undefined') {
+            global.HTMLElement = Element
         }
-        else {
-            window.setTimeout(ss.Delegate.create(this, function() {
-                deferred.resolve(this._field);
-            }), 0);
+        if (typeof(global.MessageEvent) === 'undefined') {
+            global.MessageEvent = Event
         }
-        return deferred.get_promise();
-    },
-    
-    _update: function tableauSoftware_Filter$_update(pm) {
-        this._initializeFromJson(pm);
-        this._updateFromJson(pm);
-    },
-    
-    _addFieldParams: function tableauSoftware_Filter$_addFieldParams(param) {
-    },
-    
-    _initializeFromJson: function tableauSoftware_Filter$_initializeFromJson(pm) {
-        this._caption = pm.caption;
-        this._type = pm.filterType;
-        this._field = null;
-        this._dataSourceName = pm.dataSourceName;
-        this._fieldRole = (pm.fieldRole || 0);
-        this._fieldAggregation = (pm.fieldAggregation || 0);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.FilterEvent
-
-tab.FilterEvent = function tab_FilterEvent(eventName, viz, worksheetImpl, fieldName, filterCaption) {
-    tab.FilterEvent.initializeBase(this, [ eventName, viz, worksheetImpl ]);
-    this._filterCaption$2 = filterCaption;
-    this._context$2 = new tab._filterEventContext(viz._impl.get__workbookImpl(), worksheetImpl, fieldName, filterCaption);
-}
-tab.FilterEvent.prototype = {
-    _filterCaption$2: null,
-    _context$2: null,
-    
-    getFieldName: function tab_FilterEvent$getFieldName() {
-        return this._filterCaption$2;
-    },
-    
-    getFilterAsync: function tab_FilterEvent$getFilterAsync() {
-        return this._context$2.get__worksheetImpl()._getFilterAsync(this._context$2.get__filterFieldName(), null, null);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._filterEventContext
-
-tab._filterEventContext = function tab__filterEventContext(workbookImpl, worksheetImpl, fieldFieldName, filterCaption) {
-    tab._filterEventContext.initializeBase(this, [ workbookImpl, worksheetImpl ]);
-    this._fieldFieldName$1 = fieldFieldName;
-    this._filterCaption$1 = filterCaption;
-}
-tab._filterEventContext.prototype = {
-    _fieldFieldName$1: null,
-    _filterCaption$1: null,
-    
-    get__filterFieldName: function tab__filterEventContext$get__filterFieldName() {
-        return this._fieldFieldName$1;
-    },
-    
-    get__filterCaption: function tab__filterEventContext$get__filterCaption() {
-        return this._filterCaption$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.HierarchicalFilter
-
-tableauSoftware.HierarchicalFilter = function tableauSoftware_HierarchicalFilter(worksheetImpl, pm) {
-    tableauSoftware.HierarchicalFilter.initializeBase(this, [ worksheetImpl, pm ]);
-    this._initializeFromJson$1(pm);
-}
-tableauSoftware.HierarchicalFilter.prototype = {
-    _levels$1: 0,
-    
-    _addFieldParams: function tableauSoftware_HierarchicalFilter$_addFieldParams(param) {
-        param['api.filterHierarchicalLevels'] = this._levels$1;
-    },
-    
-    _updateFromJson: function tableauSoftware_HierarchicalFilter$_updateFromJson(pm) {
-        this._initializeFromJson$1(pm);
-    },
-    
-    _initializeFromJson$1: function tableauSoftware_HierarchicalFilter$_initializeFromJson$1(pm) {
-        this._levels$1 = pm.levels;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.QuantitativeFilter
-
-tableauSoftware.QuantitativeFilter = function tableauSoftware_QuantitativeFilter(worksheetImpl, pm) {
-    tableauSoftware.QuantitativeFilter.initializeBase(this, [ worksheetImpl, pm ]);
-    this._initializeFromJson$1(pm);
-}
-tableauSoftware.QuantitativeFilter.prototype = {
-    _domainMin$1: null,
-    _domainMax$1: null,
-    _min$1: null,
-    _max$1: null,
-    _includeNullValues$1: false,
-    
-    getMin: function tableauSoftware_QuantitativeFilter$getMin() {
-        return this._min$1;
-    },
-    
-    getMax: function tableauSoftware_QuantitativeFilter$getMax() {
-        return this._max$1;
-    },
-    
-    getIncludeNullValues: function tableauSoftware_QuantitativeFilter$getIncludeNullValues() {
-        return this._includeNullValues$1;
-    },
-    
-    getDomainMin: function tableauSoftware_QuantitativeFilter$getDomainMin() {
-        return this._domainMin$1;
-    },
-    
-    getDomainMax: function tableauSoftware_QuantitativeFilter$getDomainMax() {
-        return this._domainMax$1;
-    },
-    
-    _updateFromJson: function tableauSoftware_QuantitativeFilter$_updateFromJson(pm) {
-        this._initializeFromJson$1(pm);
-    },
-    
-    _initializeFromJson$1: function tableauSoftware_QuantitativeFilter$_initializeFromJson$1(pm) {
-        this._domainMin$1 = tab._Utility.getDataValue(pm.domainMinValue);
-        this._domainMax$1 = tab._Utility.getDataValue(pm.domainMaxValue);
-        this._min$1 = tab._Utility.getDataValue(pm.minValue);
-        this._max$1 = tab._Utility.getDataValue(pm.maxValue);
-        this._includeNullValues$1 = pm.includeNullValues;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.RelativeDateFilter
-
-tableauSoftware.RelativeDateFilter = function tableauSoftware_RelativeDateFilter(worksheetImpl, pm) {
-    tableauSoftware.RelativeDateFilter.initializeBase(this, [ worksheetImpl, pm ]);
-    this._initializeFromJson$1(pm);
-}
-tableauSoftware.RelativeDateFilter.prototype = {
-    _periodType$1: null,
-    _rangeType$1: null,
-    _rangeN$1: 0,
-    
-    getPeriod: function tableauSoftware_RelativeDateFilter$getPeriod() {
-        return this._periodType$1;
-    },
-    
-    getRange: function tableauSoftware_RelativeDateFilter$getRange() {
-        return this._rangeType$1;
-    },
-    
-    getRangeN: function tableauSoftware_RelativeDateFilter$getRangeN() {
-        return this._rangeN$1;
-    },
-    
-    _updateFromJson: function tableauSoftware_RelativeDateFilter$_updateFromJson(pm) {
-        this._initializeFromJson$1(pm);
-    },
-    
-    _initializeFromJson$1: function tableauSoftware_RelativeDateFilter$_initializeFromJson$1(pm) {
-        if (ss.isValue(pm.periodType)) {
-            this._periodType$1 = tab._enums._normalizePeriodType(pm.periodType, 'periodType');
-        }
-        if (ss.isValue(pm.rangeType)) {
-            this._rangeType$1 = tab._enums._normalizeDateRangeType(pm.rangeType, 'rangeType');
-        }
-        if (ss.isValue(pm.rangeN)) {
-            this._rangeN$1 = pm.rangeN;
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.FirstVizSizeKnownEvent
-
-tab.FirstVizSizeKnownEvent = function tab_FirstVizSizeKnownEvent(eventName, viz, vizSize) {
-    tab.FirstVizSizeKnownEvent.initializeBase(this, [ eventName, viz ]);
-    this._vizSize$1 = vizSize;
-}
-tab.FirstVizSizeKnownEvent.prototype = {
-    _vizSize$1: null,
-    
-    getVizSize: function tab_FirstVizSizeKnownEvent$getVizSize() {
-        return this._vizSize$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Version
-
-tableauSoftware.Version = function tableauSoftware_Version(major, minor, patch, metadata) {
-    this._major = major;
-    this._minor = minor;
-    this._patch = patch;
-    this._metadata = metadata || null;
-}
-tableauSoftware.Version.getCurrent = function tableauSoftware_Version$getCurrent() {
-    return tableauSoftware.Version._currentVersion;
-}
-tableauSoftware.Version.prototype = {
-    _major: 0,
-    _minor: 0,
-    _patch: 0,
-    _metadata: null,
-    
-    getMajor: function tableauSoftware_Version$getMajor() {
-        return this._major;
-    },
-    
-    getMinor: function tableauSoftware_Version$getMinor() {
-        return this._minor;
-    },
-    
-    getPatch: function tableauSoftware_Version$getPatch() {
-        return this._patch;
-    },
-    
-    getMetadata: function tableauSoftware_Version$getMetadata() {
-        return this._metadata;
-    },
-    
-    toString: function tableauSoftware_Version$toString() {
-        var version = this._major + '.' + this._minor + '.' + this._patch;
-        if (ss.isValue(this._metadata) && this._metadata.length > 0) {
-            version += '-' + this._metadata;
-        }
-        return version;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.VizResizeEvent
-
-tab.VizResizeEvent = function tab_VizResizeEvent(eventName, viz, availableSize) {
-    tab.VizResizeEvent.initializeBase(this, [ eventName, viz ]);
-    this._availableSize$1 = availableSize;
-}
-tab.VizResizeEvent.prototype = {
-    _availableSize$1: null,
-    
-    getAvailableSize: function tab_VizResizeEvent$getAvailableSize() {
-        return this._availableSize$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Mark
-
-tableauSoftware.Mark = function tableauSoftware_Mark(tupleId) {
-    this._impl = new tab._markImpl(tupleId);
-}
-tableauSoftware.Mark.prototype = {
-    _impl: null,
-    
-    getPairs: function tableauSoftware_Mark$getPairs() {
-        return this._impl.get__clonedPairs();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.MarksEvent
-
-tab.MarksEvent = function tab_MarksEvent(eventName, viz, worksheetImpl) {
-    tab.MarksEvent.initializeBase(this, [ eventName, viz, worksheetImpl ]);
-    this._context$2 = new tab._marksEventContext(viz._impl.get__workbookImpl(), worksheetImpl);
-}
-tab.MarksEvent.prototype = {
-    _context$2: null,
-    
-    getMarksAsync: function tab_MarksEvent$getMarksAsync() {
-        var worksheetImpl = this._context$2.get__worksheetImpl();
-        if (ss.isValue(worksheetImpl.get_selectedMarks())) {
-            var deferred = new tab._Deferred();
-            return deferred.resolve(worksheetImpl.get_selectedMarks()._toApiCollection());
-        }
-        return worksheetImpl._getSelectedMarksAsync();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._marksEventContext
-
-tab._marksEventContext = function tab__marksEventContext(workbookImpl, worksheetImpl) {
-    tab._marksEventContext.initializeBase(this, [ workbookImpl, worksheetImpl ]);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Pair
-
-tableauSoftware.Pair = function tableauSoftware_Pair(fieldName, value) {
-    this.fieldName = fieldName;
-    this.value = value;
-    this.formattedValue = (ss.isValue(value)) ? value.toString() : '';
-}
-tableauSoftware.Pair.prototype = {
-    fieldName: null,
-    value: null,
-    formattedValue: null
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Parameter
-
-tableauSoftware.Parameter = function tableauSoftware_Parameter(impl) {
-    this._impl = impl;
-}
-tableauSoftware.Parameter.prototype = {
-    _impl: null,
-    
-    getName: function tableauSoftware_Parameter$getName() {
-        return this._impl.get__name();
-    },
-    
-    getCurrentValue: function tableauSoftware_Parameter$getCurrentValue() {
-        return this._impl.get__currentValue();
-    },
-    
-    getDataType: function tableauSoftware_Parameter$getDataType() {
-        return this._impl.get__dataType();
-    },
-    
-    getAllowableValuesType: function tableauSoftware_Parameter$getAllowableValuesType() {
-        return this._impl.get__allowableValuesType();
-    },
-    
-    getAllowableValues: function tableauSoftware_Parameter$getAllowableValues() {
-        return this._impl.get__allowableValues();
-    },
-    
-    getMinValue: function tableauSoftware_Parameter$getMinValue() {
-        return this._impl.get__minValue();
-    },
-    
-    getMaxValue: function tableauSoftware_Parameter$getMaxValue() {
-        return this._impl.get__maxValue();
-    },
-    
-    getStepSize: function tableauSoftware_Parameter$getStepSize() {
-        return this._impl.get__stepSize();
-    },
-    
-    getDateStepPeriod: function tableauSoftware_Parameter$getDateStepPeriod() {
-        return this._impl.get__dateStepPeriod();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.ParameterEvent
-
-tab.ParameterEvent = function tab_ParameterEvent(eventName, viz, parameterName) {
-    tab.ParameterEvent.initializeBase(this, [ eventName, viz ]);
-    this._context$1 = new tab._parameterEventContext(viz._impl.get__workbookImpl(), parameterName);
-}
-tab.ParameterEvent.prototype = {
-    _context$1: null,
-    
-    getParameterName: function tab_ParameterEvent$getParameterName() {
-        return this._context$1.get__parameterName();
-    },
-    
-    getParameterAsync: function tab_ParameterEvent$getParameterAsync() {
-        return this._context$1.get__workbookImpl()._getSingleParameterAsync(this._context$1.get__parameterName());
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._parameterEventContext
-
-tab._parameterEventContext = function tab__parameterEventContext(workbookImpl, parameterName) {
-    tab._parameterEventContext.initializeBase(this, [ workbookImpl, null ]);
-    this._parameterName$1 = parameterName;
-}
-tab._parameterEventContext.prototype = {
-    _parameterName$1: null,
-    
-    get__parameterName: function tab__parameterEventContext$get__parameterName() {
-        return this._parameterName$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Sheet
-
-tableauSoftware.Sheet = function tableauSoftware_Sheet(sheetImpl) {
-    tab._Param.verifyValue(sheetImpl, 'sheetImpl');
-    this._impl = sheetImpl;
-}
-tableauSoftware.Sheet.prototype = {
-    _impl: null,
-    
-    getName: function tableauSoftware_Sheet$getName() {
-        return this._impl.get_name();
-    },
-    
-    getIndex: function tableauSoftware_Sheet$getIndex() {
-        return this._impl.get_index();
-    },
-    
-    getWorkbook: function tableauSoftware_Sheet$getWorkbook() {
-        return this._impl.get_workbookImpl().get_workbook();
-    },
-    
-    getSize: function tableauSoftware_Sheet$getSize() {
-        return this._impl.get_size();
-    },
-    
-    getIsHidden: function tableauSoftware_Sheet$getIsHidden() {
-        return this._impl.get_isHidden();
-    },
-    
-    getIsActive: function tableauSoftware_Sheet$getIsActive() {
-        return this._impl.get_isActive();
-    },
-    
-    getSheetType: function tableauSoftware_Sheet$getSheetType() {
-        return this._impl.get_sheetType();
-    },
-    
-    getUrl: function tableauSoftware_Sheet$getUrl() {
-        return this._impl.get_url();
-    },
-    
-    changeSizeAsync: function tableauSoftware_Sheet$changeSizeAsync(size) {
-        return this._impl.changeSizeAsync(size);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.SheetInfo
-
-tableauSoftware.SheetInfo = function tableauSoftware_SheetInfo(impl) {
-    this._impl = impl;
-}
-tableauSoftware.SheetInfo.prototype = {
-    _impl: null,
-    
-    getName: function tableauSoftware_SheetInfo$getName() {
-        return this._impl.name;
-    },
-    
-    getSheetType: function tableauSoftware_SheetInfo$getSheetType() {
-        return this._impl.sheetType;
-    },
-    
-    getSize: function tableauSoftware_SheetInfo$getSize() {
-        return this._impl.size;
-    },
-    
-    getIndex: function tableauSoftware_SheetInfo$getIndex() {
-        return this._impl.index;
-    },
-    
-    getUrl: function tableauSoftware_SheetInfo$getUrl() {
-        return this._impl.url;
-    },
-    
-    getIsActive: function tableauSoftware_SheetInfo$getIsActive() {
-        return this._impl.isActive;
-    },
-    
-    getIsHidden: function tableauSoftware_SheetInfo$getIsHidden() {
-        return this._impl.isHidden;
-    },
-    
-    getWorkbook: function tableauSoftware_SheetInfo$getWorkbook() {
-        return this._impl.workbook;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.SheetSizeFactory
-
-tab.SheetSizeFactory = function tab_SheetSizeFactory() {
-}
-tab.SheetSizeFactory.createAutomatic = function tab_SheetSizeFactory$createAutomatic() {
-    var size = tab.$create_SheetSize('automatic', null, null);
-    return size;
-}
-tab.SheetSizeFactory.fromSizeConstraints = function tab_SheetSizeFactory$fromSizeConstraints(vizSizePresModel) {
-    var minHeight = vizSizePresModel.minHeight;
-    var minWidth = vizSizePresModel.minWidth;
-    var maxHeight = vizSizePresModel.maxHeight;
-    var maxWidth = vizSizePresModel.maxWidth;
-    var behavior = 'automatic';
-    var minSize = null;
-    var maxSize = null;
-    if (!minHeight && !minWidth) {
-        if (!maxHeight && !maxWidth) {
-        }
-        else {
-            behavior = 'atmost';
-            maxSize = tab.$create_Size(maxWidth, maxHeight);
-        }
-    }
-    else if (!maxHeight && !maxWidth) {
-        behavior = 'atleast';
-        minSize = tab.$create_Size(minWidth, minHeight);
-    }
-    else if (maxHeight === minHeight && maxWidth === minWidth) {
-        behavior = 'exactly';
-        minSize = tab.$create_Size(minWidth, minHeight);
-        maxSize = tab.$create_Size(minWidth, minHeight);
-    }
-    else {
-        behavior = 'range';
-        minSize = tab.$create_Size(minWidth, minHeight);
-        maxSize = tab.$create_Size(maxWidth, maxHeight);
-    }
-    return tab.$create_SheetSize(behavior, minSize, maxSize);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Story
-
-tableauSoftware.Story = function tableauSoftware_Story(storyImpl) {
-    tableauSoftware.Story.initializeBase(this, [ storyImpl ]);
-}
-tableauSoftware.Story.prototype = {
-    _impl: null,
-    
-    getActiveStoryPoint: function tableauSoftware_Story$getActiveStoryPoint() {
-        return this._impl.get_activeStoryPointImpl().get_storyPoint();
-    },
-    
-    getStoryPointsInfo: function tableauSoftware_Story$getStoryPointsInfo() {
-        return this._impl.get_storyPointsInfo();
-    },
-    
-    activatePreviousStoryPointAsync: function tableauSoftware_Story$activatePreviousStoryPointAsync() {
-        return this._impl.activatePreviousStoryPointAsync();
-    },
-    
-    activateNextStoryPointAsync: function tableauSoftware_Story$activateNextStoryPointAsync() {
-        return this._impl.activateNextStoryPointAsync();
-    },
-    
-    activateStoryPointAsync: function tableauSoftware_Story$activateStoryPointAsync(index) {
-        return this._impl.activateStoryPointAsync(index);
-    },
-    
-    revertStoryPointAsync: function tableauSoftware_Story$revertStoryPointAsync(index) {
-        return this._impl.revertStoryPointAsync(index);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.StoryPoint
-
-tableauSoftware.StoryPoint = function tableauSoftware_StoryPoint(impl) {
-    this._impl = impl;
-}
-tableauSoftware.StoryPoint.prototype = {
-    _impl: null,
-    
-    getCaption: function tableauSoftware_StoryPoint$getCaption() {
-        return this._impl.get_caption();
-    },
-    
-    getContainedSheet: function tableauSoftware_StoryPoint$getContainedSheet() {
-        return (ss.isValue(this._impl.get_containedSheetImpl())) ? this._impl.get_containedSheetImpl().get_sheet() : null;
-    },
-    
-    getIndex: function tableauSoftware_StoryPoint$getIndex() {
-        return this._impl.get_index();
-    },
-    
-    getIsActive: function tableauSoftware_StoryPoint$getIsActive() {
-        return this._impl.get_isActive();
-    },
-    
-    getIsUpdated: function tableauSoftware_StoryPoint$getIsUpdated() {
-        return this._impl.get_isUpdated();
-    },
-    
-    getParentStory: function tableauSoftware_StoryPoint$getParentStory() {
-        return this._impl.get_parentStoryImpl().get_story();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.StoryPointInfo
-
-tableauSoftware.StoryPointInfo = function tableauSoftware_StoryPointInfo(impl) {
-    this._impl = impl;
-}
-tableauSoftware.StoryPointInfo.prototype = {
-    _impl: null,
-    
-    getCaption: function tableauSoftware_StoryPointInfo$getCaption() {
-        return this._impl.caption;
-    },
-    
-    getIndex: function tableauSoftware_StoryPointInfo$getIndex() {
-        return this._impl.index;
-    },
-    
-    getIsActive: function tableauSoftware_StoryPointInfo$getIsActive() {
-        return this._impl.isActive;
-    },
-    
-    getIsUpdated: function tableauSoftware_StoryPointInfo$getIsUpdated() {
-        return this._impl.isUpdated;
-    },
-    
-    getParentStory: function tableauSoftware_StoryPointInfo$getParentStory() {
-        return this._impl.parentStoryImpl.get_story();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.StoryPointSwitchEvent
-
-tab.StoryPointSwitchEvent = function tab_StoryPointSwitchEvent(eventName, viz, oldStoryPointInfo, newStoryPoint) {
-    tab.StoryPointSwitchEvent.initializeBase(this, [ eventName, viz ]);
-    this._oldStoryPointInfo$1 = oldStoryPointInfo;
-    this._newStoryPoint$1 = newStoryPoint;
-}
-tab.StoryPointSwitchEvent.prototype = {
-    _oldStoryPointInfo$1: null,
-    _newStoryPoint$1: null,
-    
-    getOldStoryPointInfo: function tab_StoryPointSwitchEvent$getOldStoryPointInfo() {
-        return this._oldStoryPointInfo$1;
-    },
-    
-    getNewStoryPoint: function tab_StoryPointSwitchEvent$getNewStoryPoint() {
-        return this._newStoryPoint$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.TableauEvent
-
-tab.TableauEvent = function tab_TableauEvent(eventName, viz) {
-    this._viz = viz;
-    this._eventName = eventName;
-}
-tab.TableauEvent.prototype = {
-    _viz: null,
-    _eventName: null,
-    
-    getViz: function tab_TableauEvent$getViz() {
-        return this._viz;
-    },
-    
-    getEventName: function tab_TableauEvent$getEventName() {
-        return this._eventName;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.EventContext
-
-tab.EventContext = function tab_EventContext(workbookImpl, worksheetImpl) {
-    this._workbookImpl = workbookImpl;
-    this._worksheetImpl = worksheetImpl;
-}
-tab.EventContext.prototype = {
-    _workbookImpl: null,
-    _worksheetImpl: null,
-    
-    get__workbookImpl: function tab_EventContext$get__workbookImpl() {
-        return this._workbookImpl;
-    },
-    
-    get__worksheetImpl: function tab_EventContext$get__worksheetImpl() {
-        return this._worksheetImpl;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.TabSwitchEvent
-
-tab.TabSwitchEvent = function tab_TabSwitchEvent(eventName, viz, oldName, newName) {
-    tab.TabSwitchEvent.initializeBase(this, [ eventName, viz ]);
-    this._oldName$1 = oldName;
-    this._newName$1 = newName;
-}
-tab.TabSwitchEvent.prototype = {
-    _oldName$1: null,
-    _newName$1: null,
-    
-    getOldSheetName: function tab_TabSwitchEvent$getOldSheetName() {
-        return this._oldName$1;
-    },
-    
-    getNewSheetName: function tab_TabSwitchEvent$getNewSheetName() {
-        return this._newName$1;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Viz
-
-tableauSoftware.Viz = function tableauSoftware_Viz(parentElement, url, options) {
-    var messageRouter = tab._ApiObjectRegistry.getCrossDomainMessageRouter();
-    this._impl = new tab.VizImpl(messageRouter, this, parentElement, url, options);
-    this._impl._create();
-}
-tableauSoftware.Viz.getLastRequestMessage = function tableauSoftware_Viz$getLastRequestMessage() {
-    return tab._ApiCommand.lastRequestMessage;
-}
-tableauSoftware.Viz.getLastResponseMessage = function tableauSoftware_Viz$getLastResponseMessage() {
-    return tab._ApiCommand.lastResponseMessage;
-}
-tableauSoftware.Viz.getLastClientInfoResponseMessage = function tableauSoftware_Viz$getLastClientInfoResponseMessage() {
-    return tab._ApiCommand.lastClientInfoResponseMessage;
-}
-tableauSoftware.Viz.prototype = {
-    _impl: null,
-    
-    getAreTabsHidden: function tableauSoftware_Viz$getAreTabsHidden() {
-        return this._impl.get__areTabsHidden();
-    },
-    
-    getIsToolbarHidden: function tableauSoftware_Viz$getIsToolbarHidden() {
-        return this._impl.get__isToolbarHidden();
-    },
-    
-    getIsHidden: function tableauSoftware_Viz$getIsHidden() {
-        return this._impl.get__isHidden();
-    },
-    
-    getInstanceId: function tableauSoftware_Viz$getInstanceId() {
-        return this._impl.get_instanceId();
-    },
-    
-    getParentElement: function tableauSoftware_Viz$getParentElement() {
-        return this._impl.get__parentElement();
-    },
-    
-    getUrl: function tableauSoftware_Viz$getUrl() {
-        return this._impl.get__url();
-    },
-    
-    getVizSize: function tableauSoftware_Viz$getVizSize() {
-        return this._impl.get__vizSize();
-    },
-    
-    getWorkbook: function tableauSoftware_Viz$getWorkbook() {
-        return this._impl.get__workbook();
-    },
-    
-    getAreAutomaticUpdatesPaused: function tableauSoftware_Viz$getAreAutomaticUpdatesPaused() {
-        return this._impl.get__areAutomaticUpdatesPaused();
-    },
-    
-    getCurrentUrlAsync: function tableauSoftware_Viz$getCurrentUrlAsync() {
-        return this._impl.getCurrentUrlAsync();
-    },
-    
-    addEventListener: function tableauSoftware_Viz$addEventListener(eventName, handler) {
-        this._impl.addEventListener(eventName, handler);
-    },
-    
-    removeEventListener: function tableauSoftware_Viz$removeEventListener(eventName, handler) {
-        this._impl.removeEventListener(eventName, handler);
-    },
-    
-    dispose: function tableauSoftware_Viz$dispose() {
-        this._impl._dispose();
-    },
-    
-    show: function tableauSoftware_Viz$show() {
-        this._impl._show();
-    },
-    
-    hide: function tableauSoftware_Viz$hide() {
-        this._impl._hide();
-    },
-    
-    showExportDataDialog: function tableauSoftware_Viz$showExportDataDialog(worksheetWithinDashboard) {
-        this._impl._showExportDataDialog(worksheetWithinDashboard);
-    },
-    
-    showExportCrossTabDialog: function tableauSoftware_Viz$showExportCrossTabDialog(worksheetWithinDashboard) {
-        this._impl._showExportCrossTabDialog(worksheetWithinDashboard);
-    },
-    
-    showExportImageDialog: function tableauSoftware_Viz$showExportImageDialog() {
-        this._impl._showExportImageDialog();
-    },
-    
-    showExportPDFDialog: function tableauSoftware_Viz$showExportPDFDialog() {
-        this._impl._showExportPDFDialog();
-    },
-    
-    revertAllAsync: function tableauSoftware_Viz$revertAllAsync() {
-        return this._impl._revertAllAsync();
-    },
-    
-    refreshDataAsync: function tableauSoftware_Viz$refreshDataAsync() {
-        return this._impl._refreshDataAsync();
-    },
-    
-    showShareDialog: function tableauSoftware_Viz$showShareDialog() {
-        this._impl._showShareDialog();
-    },
-    
-    showDownloadWorkbookDialog: function tableauSoftware_Viz$showDownloadWorkbookDialog() {
-        this._impl._showDownloadWorkbookDialog();
-    },
-    
-    pauseAutomaticUpdatesAsync: function tableauSoftware_Viz$pauseAutomaticUpdatesAsync() {
-        return this._impl._pauseAutomaticUpdatesAsync();
-    },
-    
-    resumeAutomaticUpdatesAsync: function tableauSoftware_Viz$resumeAutomaticUpdatesAsync() {
-        return this._impl._resumeAutomaticUpdatesAsync();
-    },
-    
-    toggleAutomaticUpdatesAsync: function tableauSoftware_Viz$toggleAutomaticUpdatesAsync() {
-        return this._impl._toggleAutomaticUpdatesAsync();
-    },
-    
-    refreshSize: function tableauSoftware_Viz$refreshSize() {
-        this._impl._refreshSize();
-    },
-    
-    setFrameSize: function tableauSoftware_Viz$setFrameSize(width, height) {
-        var widthString = width;
-        var heightString = height;
-        if (tab._Utility.isNumber(width)) {
-            widthString = width + 'px';
-        }
-        if (tab._Utility.isNumber(height)) {
-            heightString = height + 'px';
-        }
-        this._impl._setFrameSizeAndUpdate(widthString, heightString);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.VizManager
-
-tableauSoftware.VizManager = function tableauSoftware_VizManager() {
-}
-tableauSoftware.VizManager.getVizs = function tableauSoftware_VizManager$getVizs() {
-    return tab._VizManagerImpl.get__clonedVizs();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Workbook
-
-tableauSoftware.Workbook = function tableauSoftware_Workbook(workbookImpl) {
-    this._workbookImpl = workbookImpl;
-}
-tableauSoftware.Workbook.prototype = {
-    _workbookImpl: null,
-    
-    getViz: function tableauSoftware_Workbook$getViz() {
-        return this._workbookImpl.get_viz();
-    },
-    
-    getPublishedSheetsInfo: function tableauSoftware_Workbook$getPublishedSheetsInfo() {
-        return this._workbookImpl.get_publishedSheets()._toApiCollection();
-    },
-    
-    getName: function tableauSoftware_Workbook$getName() {
-        return this._workbookImpl.get_name();
-    },
-    
-    getActiveSheet: function tableauSoftware_Workbook$getActiveSheet() {
-        return this._workbookImpl.get_activeSheetImpl().get_sheet();
-    },
-    
-    getActiveCustomView: function tableauSoftware_Workbook$getActiveCustomView() {
-        return this._workbookImpl.get_activeCustomView();
-    },
-    
-    activateSheetAsync: function tableauSoftware_Workbook$activateSheetAsync(sheetNameOrIndex) {
-        return this._workbookImpl._setActiveSheetAsync(sheetNameOrIndex);
-    },
-    
-    revertAllAsync: function tableauSoftware_Workbook$revertAllAsync() {
-        return this._workbookImpl._revertAllAsync();
-    },
-    
-    getCustomViewsAsync: function tableauSoftware_Workbook$getCustomViewsAsync() {
-        return this._workbookImpl._getCustomViewsAsync();
-    },
-    
-    showCustomViewAsync: function tableauSoftware_Workbook$showCustomViewAsync(customViewName) {
-        return this._workbookImpl._showCustomViewAsync(customViewName);
-    },
-    
-    removeCustomViewAsync: function tableauSoftware_Workbook$removeCustomViewAsync(customViewName) {
-        return this._workbookImpl._removeCustomViewAsync(customViewName);
-    },
-    
-    rememberCustomViewAsync: function tableauSoftware_Workbook$rememberCustomViewAsync(customViewName) {
-        return this._workbookImpl._rememberCustomViewAsync(customViewName);
-    },
-    
-    setActiveCustomViewAsDefaultAsync: function tableauSoftware_Workbook$setActiveCustomViewAsDefaultAsync() {
-        return this._workbookImpl._setActiveCustomViewAsDefaultAsync();
-    },
-    
-    getParametersAsync: function tableauSoftware_Workbook$getParametersAsync() {
-        return this._workbookImpl._getParametersAsync();
-    },
-    
-    changeParameterValueAsync: function tableauSoftware_Workbook$changeParameterValueAsync(parameterName, value) {
-        return this._workbookImpl._changeParameterValueAsync(parameterName, value);
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tableauSoftware.Worksheet
-
-tableauSoftware.Worksheet = function tableauSoftware_Worksheet(impl) {
-    tableauSoftware.Worksheet.initializeBase(this, [ impl ]);
-}
-tableauSoftware.Worksheet.prototype = {
-    _impl: null,
-    
-    getParentDashboard: function tableauSoftware_Worksheet$getParentDashboard() {
-        return this._impl.get_parentDashboard();
-    },
-    
-    getParentStoryPoint: function tableauSoftware_Worksheet$getParentStoryPoint() {
-        return this._impl.get_parentStoryPoint();
-    },
-    
-    getDataSourcesAsync: function tableauSoftware_Worksheet$getDataSourcesAsync() {
-        return this._impl._getDataSourcesAsync();
-    },
-    
-    getFilterAsync: function tableauSoftware_Worksheet$getFilterAsync(fieldName, options) {
-        return this._impl._getFilterAsync(null, fieldName, options);
-    },
-    
-    getFiltersAsync: function tableauSoftware_Worksheet$getFiltersAsync(options) {
-        return this._impl._getFiltersAsync(options);
-    },
-    
-    applyFilterAsync: function tableauSoftware_Worksheet$applyFilterAsync(fieldName, values, updateType, options) {
-        return this._impl._applyFilterAsync(fieldName, values, updateType, options);
-    },
-    
-    clearFilterAsync: function tableauSoftware_Worksheet$clearFilterAsync(fieldName) {
-        return this._impl._clearFilterAsync(fieldName);
-    },
-    
-    applyRangeFilterAsync: function tableauSoftware_Worksheet$applyRangeFilterAsync(fieldName, options) {
-        return this._impl._applyRangeFilterAsync(fieldName, options);
-    },
-    
-    applyRelativeDateFilterAsync: function tableauSoftware_Worksheet$applyRelativeDateFilterAsync(fieldName, options) {
-        return this._impl._applyRelativeDateFilterAsync(fieldName, options);
-    },
-    
-    applyHierarchicalFilterAsync: function tableauSoftware_Worksheet$applyHierarchicalFilterAsync(fieldName, values, updateType, options) {
-        return this._impl._applyHierarchicalFilterAsync(fieldName, values, updateType, options);
-    },
-    
-    clearSelectedMarksAsync: function tableauSoftware_Worksheet$clearSelectedMarksAsync() {
-        return this._impl._clearSelectedMarksAsync();
-    },
-    
-    selectMarksAsync: function tableauSoftware_Worksheet$selectMarksAsync(fieldNameOrFieldValuesMap, valueOrUpdateType, updateType) {
-        return this._impl._selectMarksAsync(fieldNameOrFieldValuesMap, valueOrUpdateType, updateType);
-    },
-    
-    getSelectedMarksAsync: function tableauSoftware_Worksheet$getSelectedMarksAsync() {
-        return this._impl._getSelectedMarksAsync();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab.WorksheetEvent
-
-tab.WorksheetEvent = function tab_WorksheetEvent(eventName, viz, worksheetImpl) {
-    tab.WorksheetEvent.initializeBase(this, [ eventName, viz ]);
-    this._worksheetImpl$1 = worksheetImpl;
-}
-tab.WorksheetEvent.prototype = {
-    _worksheetImpl$1: null,
-    
-    getWorksheet: function tab_WorksheetEvent$getWorksheet() {
-        return this._worksheetImpl$1.get_worksheet();
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// tab._jQueryShim
-
-tab._jQueryShim = function tab__jQueryShim() {
-}
-tab._jQueryShim.isFunction = function tab__jQueryShim$isFunction(obj) {
-    return tab._jQueryShim.type(obj) === 'function';
-}
-tab._jQueryShim.isArray = function tab__jQueryShim$isArray(obj) {
-    if (ss.isValue(Array.isArray)) {
-        return Array.isArray(obj);
-    }
-    return tab._jQueryShim.type(obj) === 'array';
-}
-tab._jQueryShim.type = function tab__jQueryShim$type(obj) {
-    return (obj == null) ? String(obj) : (tab._jQueryShim._class2type[tab._jQueryShim._toString.call(obj)] || 'object');
-}
-tab._jQueryShim.trim = function tab__jQueryShim$trim(text) {
-    if (ss.isValue(tab._jQueryShim._trim)) {
-        return (text == null) ? '' : tab._jQueryShim._trim.call(text);
-    }
-    return (text == null) ? '' : text.replace(tab._jQueryShim._trimLeft, '').replace(tab._jQueryShim._trimRight, '');
-}
-tab._jQueryShim.parseJSON = function tab__jQueryShim$parseJSON(data) {
-    if (typeof(data) !== 'string' || ss.isNullOrUndefined(data)) {
-        return null;
-    }
-    data = tab._jQueryShim.trim(data);
-    if (window.JSON && window.JSON.parse) {
-        return window.JSON.parse(data);
-    }
-    if (tab._jQueryShim._rvalidchars.test(data.replace(tab._jQueryShim._rvalidescape, '@').replace(tab._jQueryShim._rvalidtokens, ']').replace(tab._jQueryShim._rvalidbraces, ''))) {
-        return (new Function("return " + data))();
-    }
-    throw new Error('Invalid JSON: ' + data);
-}
-
-
-tab._ApiCommand.registerClass('tab._ApiCommand');
-tab._ApiServerResultParser.registerClass('tab._ApiServerResultParser');
-tab._ApiServerNotification.registerClass('tab._ApiServerNotification');
-tab._CommandReturnHandler.registerClass('tab._CommandReturnHandler');
-tab._crossDomainMessageRouter.registerClass('tab._crossDomainMessageRouter', null, tab.ICrossDomainMessageRouter);
-tab._doNothingCrossDomainHandler.registerClass('tab._doNothingCrossDomainHandler', null, tab.ICrossDomainMessageHandler);
-tab.CrossDomainMessagingOptions.registerClass('tab.CrossDomainMessagingOptions');
-tab._enums.registerClass('tab._enums');
-tab._ApiBootstrap.registerClass('tab._ApiBootstrap');
-tab._ApiObjectRegistry.registerClass('tab._ApiObjectRegistry');
-tab._CustomViewImpl.registerClass('tab._CustomViewImpl');
-tab._SheetImpl.registerClass('tab._SheetImpl');
-tab._DashboardImpl.registerClass('tab._DashboardImpl', tab._SheetImpl);
-tab._DataSourceImpl.registerClass('tab._DataSourceImpl');
-tab._deferredUtil.registerClass('tab._deferredUtil');
-tab._CollectionImpl.registerClass('tab._CollectionImpl');
-tab._DeferredImpl.registerClass('tab._DeferredImpl');
-tab._PromiseImpl.registerClass('tab._PromiseImpl');
-tab._markImpl.registerClass('tab._markImpl');
-tab._Param.registerClass('tab._Param');
-tab._parameterImpl.registerClass('tab._parameterImpl');
-tab._StoryImpl.registerClass('tab._StoryImpl', tab._SheetImpl);
-tab._StoryPointImpl.registerClass('tab._StoryPointImpl');
-tab.StoryPointInfoImplUtil.registerClass('tab.StoryPointInfoImplUtil');
-tab._TableauException.registerClass('tab._TableauException');
-tab._Utility.registerClass('tab._Utility');
-tab.VizImpl.registerClass('tab.VizImpl', null, tab.ICrossDomainMessageHandler);
-tab._VizManagerImpl.registerClass('tab._VizManagerImpl');
-tab._VizParameters.registerClass('tab._VizParameters');
-tab._WorkbookImpl.registerClass('tab._WorkbookImpl');
-tab._WorksheetImpl.registerClass('tab._WorksheetImpl', tab._SheetImpl);
-tab.JsonUtil.registerClass('tab.JsonUtil');
-tableauSoftware.CustomView.registerClass('tableauSoftware.CustomView');
-tab.TableauEvent.registerClass('tab.TableauEvent');
-tab.CustomViewEvent.registerClass('tab.CustomViewEvent', tab.TableauEvent);
-tab.EventContext.registerClass('tab.EventContext');
-tab._customViewEventContext.registerClass('tab._customViewEventContext', tab.EventContext);
-tableauSoftware.Sheet.registerClass('tableauSoftware.Sheet');
-tableauSoftware.Dashboard.registerClass('tableauSoftware.Dashboard', tableauSoftware.Sheet);
-tableauSoftware.DashboardObject.registerClass('tableauSoftware.DashboardObject');
-tableauSoftware.DataSource.registerClass('tableauSoftware.DataSource');
-tableauSoftware.Field.registerClass('tableauSoftware.Field');
-tableauSoftware.Filter.registerClass('tableauSoftware.Filter');
-tableauSoftware.CategoricalFilter.registerClass('tableauSoftware.CategoricalFilter', tableauSoftware.Filter);
-tab.WorksheetEvent.registerClass('tab.WorksheetEvent', tab.TableauEvent);
-tab.FilterEvent.registerClass('tab.FilterEvent', tab.WorksheetEvent);
-tab._filterEventContext.registerClass('tab._filterEventContext', tab.EventContext);
-tableauSoftware.HierarchicalFilter.registerClass('tableauSoftware.HierarchicalFilter', tableauSoftware.Filter);
-tableauSoftware.QuantitativeFilter.registerClass('tableauSoftware.QuantitativeFilter', tableauSoftware.Filter);
-tableauSoftware.RelativeDateFilter.registerClass('tableauSoftware.RelativeDateFilter', tableauSoftware.Filter);
-tab.FirstVizSizeKnownEvent.registerClass('tab.FirstVizSizeKnownEvent', tab.TableauEvent);
-tableauSoftware.Version.registerClass('tableauSoftware.Version');
-tab.VizResizeEvent.registerClass('tab.VizResizeEvent', tab.TableauEvent);
-tableauSoftware.Mark.registerClass('tableauSoftware.Mark');
-tab.MarksEvent.registerClass('tab.MarksEvent', tab.WorksheetEvent);
-tab._marksEventContext.registerClass('tab._marksEventContext', tab.EventContext);
-tableauSoftware.Pair.registerClass('tableauSoftware.Pair');
-tableauSoftware.Parameter.registerClass('tableauSoftware.Parameter');
-tab.ParameterEvent.registerClass('tab.ParameterEvent', tab.TableauEvent);
-tab._parameterEventContext.registerClass('tab._parameterEventContext', tab.EventContext);
-tableauSoftware.SheetInfo.registerClass('tableauSoftware.SheetInfo');
-tab.SheetSizeFactory.registerClass('tab.SheetSizeFactory');
-tableauSoftware.Story.registerClass('tableauSoftware.Story', tableauSoftware.Sheet);
-tableauSoftware.StoryPoint.registerClass('tableauSoftware.StoryPoint');
-tableauSoftware.StoryPointInfo.registerClass('tableauSoftware.StoryPointInfo');
-tab.StoryPointSwitchEvent.registerClass('tab.StoryPointSwitchEvent', tab.TableauEvent);
-tab.TabSwitchEvent.registerClass('tab.TabSwitchEvent', tab.TableauEvent);
-tableauSoftware.Viz.registerClass('tableauSoftware.Viz');
-tableauSoftware.VizManager.registerClass('tableauSoftware.VizManager');
-tableauSoftware.Workbook.registerClass('tableauSoftware.Workbook');
-tableauSoftware.Worksheet.registerClass('tableauSoftware.Worksheet', tableauSoftware.Sheet);
-tab._jQueryShim.registerClass('tab._jQueryShim');
-tab._ApiCommand.crossDomainEventNotificationId = 'xdomainSourceId';
-tab._ApiCommand.lastRequestMessage = null;
-tab._ApiCommand.lastResponseMessage = null;
-tab._ApiCommand.lastClientInfoResponseMessage = null;
-tab._ApiObjectRegistry._creationRegistry = null;
-tab._ApiObjectRegistry._singletonInstanceRegistry = null;
-tab._SheetImpl.noZoneId = 4294967295;
-tab._VizManagerImpl._vizs = [];
-tab._WorksheetImpl._regexHierarchicalFieldName$1 = new RegExp('\\[[^\\]]+\\]\\.', 'g');
-tableauSoftware.Version._currentVersion = new tableauSoftware.Version(2, 0, 0, null);
-tab._jQueryShim._class2type = { '[object Boolean]': 'boolean', '[object Number]': 'number', '[object String]': 'string', '[object Function]': 'function', '[object Array]': 'array', '[object Date]': 'date', '[object RegExp]': 'regexp', '[object Object]': 'object' };
-tab._jQueryShim._trim = String.prototype.trim;
-tab._jQueryShim._toString = Object.prototype.toString;
-tab._jQueryShim._trimLeft = new RegExp('^[\\s\\xA0]+');
-tab._jQueryShim._trimRight = new RegExp('[\\s\\xA0]+$');
-tab._jQueryShim._rvalidchars = new RegExp('^[\\],:{}\\s]*$');
-tab._jQueryShim._rvalidescape = new RegExp('\\\\(?:["\\\\\\/bfnrt]|u[0-9a-fA-F]{4})', 'g');
-tab._jQueryShim._rvalidtokens = new RegExp('"[^"\\\\\\n\\r]*"|true|false|null|-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?', 'g');
-tab._jQueryShim._rvalidbraces = new RegExp('(?:^|:|,)(?:\\s*\\[)+', 'g');
-
-tableauSoftware.Promise = tab._PromiseImpl;
-tab._Deferred = tab._DeferredImpl;
-tab._Collection = tab._CollectionImpl;
-
-////////////////////////////////////////////////////////////////////////////////
-// Enums
-////////////////////////////////////////////////////////////////////////////////
-
-tableauSoftware.DashboardObjectType = {
-  BLANK: 'blank',
-  WORKSHEET: 'worksheet',
-  QUICK_FILTER: 'quickFilter',
-  PARAMETER_CONTROL: 'parameterControl',
-  PAGE_FILTER: 'pageFilter',
-  LEGEND: 'legend',
-  TITLE: 'title',
-  TEXT: 'text',
-  IMAGE: 'image',
-  WEB_PAGE: 'webPage'
-};
-
-tableauSoftware.FilterType = {
-  CATEGORICAL: 'categorical',
-  QUANTITATIVE: 'quantitative',
-  HIERARCHICAL: 'hierarchical',
-  RELATIVEDATE: 'relativedate'
-};
-
-tableauSoftware.ParameterDataType = {
-  FLOAT: 'float',
-  INTEGER: 'integer',
-  STRING: 'string',
-  BOOLEAN: 'boolean',
-  DATE: 'date',
-  DATETIME: 'datetime'
-};
-
-tableauSoftware.ParameterAllowableValuesType = {
-  ALL: 'all',
-  LIST: 'list',
-  RANGE: 'range'
-};
-
-tableauSoftware.PeriodType = {
-  YEAR: 'year',
-  QUARTER: 'quarter',
-  MONTH: 'month',
-  WEEK: 'week',
-  DAY: 'day',
-  HOUR: 'hour',
-  MINUTE: 'minute',
-  SECOND: 'second'
-};
-
-tableauSoftware.DateRangeType = {
-  LAST: 'last',
-  LASTN: 'lastn',
-  NEXT: 'next',
-  NEXTN: 'nextn',
-  CURR: 'curr',
-  TODATE: 'todate'
-};
-
-tableauSoftware.SheetSizeBehavior = {
-  AUTOMATIC: 'automatic',
-  EXACTLY: 'exactly',
-  RANGE: 'range',
-  ATLEAST: 'atleast',
-  ATMOST: 'atmost'
-};
-
-tableauSoftware.SheetType = {
-  WORKSHEET: 'worksheet',
-  DASHBOARD: 'dashboard',
-  STORY: 'story'
-};
-
-tableauSoftware.FilterUpdateType = {
-  ALL: 'all',
-  REPLACE: 'replace',
-  ADD: 'add',
-  REMOVE: 'remove'
-};
-
-tableauSoftware.SelectionUpdateType = {
-  REPLACE: 'replace',
-  ADD: 'add',
-  REMOVE: 'remove'
-};
-
-tableauSoftware.NullOption = {
-  NULL_VALUES: 'nullValues',
-  NON_NULL_VALUES: 'nonNullValues',
-  ALL_VALUES: 'allValues'
-};
-
-tableauSoftware.ErrorCode = {
-  INTERNAL_ERROR: 'internalError',
-  SERVER_ERROR: 'serverError',
-  INVALID_AGGREGATION_FIELD_NAME: 'invalidAggregationFieldName',
-  INVALID_PARAMETER: 'invalidParameter',
-  INVALID_URL: 'invalidUrl',
-  STALE_DATA_REFERENCE: 'staleDataReference',
-  VIZ_ALREADY_IN_MANAGER: 'vizAlreadyInManager',
-  NO_URL_OR_PARENT_ELEMENT_NOT_FOUND: 'noUrlOrParentElementNotFound',
-  INVALID_FILTER_FIELDNAME: 'invalidFilterFieldName',
-  INVALID_FILTER_FIELDVALUE: 'invalidFilterFieldValue',
-  INVALID_FILTER_FIELDNAME_OR_VALUE: 'invalidFilterFieldNameOrValue',
-  FILTER_CANNOT_BE_PERFORMED: 'filterCannotBePerformed',
-  NOT_ACTIVE_SHEET: 'notActiveSheet',
-  INVALID_CUSTOM_VIEW_NAME: 'invalidCustomViewName',
-  MISSING_RANGEN_FOR_RELATIVE_DATE_FILTERS: 'missingRangeNForRelativeDateFilters',
-  MISSING_MAX_SIZE: 'missingMaxSize',
-  MISSING_MIN_SIZE: 'missingMinSize',
-  MISSING_MINMAX_SIZE: 'missingMinMaxSize',
-  INVALID_SIZE: 'invalidSize',
-  INVALID_SIZE_BEHAVIOR_ON_WORKSHEET: 'invalidSizeBehaviorOnWorksheet',
-  SHEET_NOT_IN_WORKBOOK: 'sheetNotInWorkbook',
-  INDEX_OUT_OF_RANGE: 'indexOutOfRange',
-  DOWNLOAD_WORKBOOK_NOT_ALLOWED: 'downloadWorkbookNotAllowed',
-  NULL_OR_EMPTY_PARAMETER: 'nullOrEmptyParameter',
-  BROWSER_NOT_CAPABLE: 'browserNotCapable',
-  UNSUPPORTED_EVENT_NAME: 'unsupportedEventName',
-  INVALID_DATE_PARAMETER: 'invalidDateParameter',
-  INVALID_SELECTION_FIELDNAME: 'invalidSelectionFieldName',
-  INVALID_SELECTION_VALUE: 'invalidSelectionValue',
-  INVALID_SELECTION_DATE: 'invalidSelectionDate',
-  NO_URL_FOR_HIDDEN_WORKSHEET: 'noUrlForHiddenWorksheet',
-  MAX_VIZ_RESIZE_ATTEMPTS: 'maxVizResizeAttempts'
-};
-
-tableauSoftware.TableauEventName = {
-  CUSTOM_VIEW_LOAD: 'customviewload',
-  CUSTOM_VIEW_REMOVE: 'customviewremove',
-  CUSTOM_VIEW_SAVE: 'customviewsave',
-  CUSTOM_VIEW_SET_DEFAULT: 'customviewsetdefault',
-  FILTER_CHANGE: 'filterchange',
-  FIRST_INTERACTIVE: 'firstinteractive',
-  FIRST_VIZ_SIZE_KNOWN: 'firstvizsizeknown',
-  MARKS_SELECTION: 'marksselection',
-  PARAMETER_VALUE_CHANGE: 'parametervaluechange',
-  STORY_POINT_SWITCH: 'storypointswitch',
-  TAB_SWITCH: 'tabswitch',
-  VIZ_RESIZE: 'vizresize'
-};
-
-tableauSoftware.FieldRoleType = {
-  DIMENSION: 'dimension',
-  MEASURE: 'measure',
-  UNKNOWN: 'unknown'
-};
-
-tableauSoftware.FieldAggregationType = {
-  SUM: 'SUM',
-  AVG: 'AVG',
-  MIN: 'MIN',
-  MAX: 'MAX',
-  STDEV: 'STDEV',
-  STDEVP: 'STDEVP',
-  VAR: 'VAR',
-  VARP: 'VARP',
-  COUNT: 'COUNT',
-  COUNTD: 'COUNTD',
-  MEDIAN: 'MEDIAN',
-  ATTR: 'ATTR',
-  NONE: 'NONE',
-  PERCENTILE: 'PERCENTILE',
-  YEAR: 'YEAR',
-  QTR: 'QTR',
-  MONTH: 'MONTH',
-  DAY: 'DAY',
-  HOUR: 'HOUR',
-  MINUTE: 'MINUTE',
-  SECOND: 'SECOND',
-  WEEK: 'WEEK',
-  WEEKDAY: 'WEEKDAY',
-  MONTHYEAR: 'MONTHYEAR',
-  MDY: 'MDY',
-  END: 'END',
-  TRUNC_YEAR: 'TRUNC_YEAR',
-  TRUNC_QTR: 'TRUNC_QTR',
-  TRUNC_MONTH: 'TRUNC_MONTH',
-  TRUNC_WEEK: 'TRUNC_WEEK',
-  TRUNC_DAY: 'TRUNC_DAY',
-  TRUNC_HOUR: 'TRUNC_HOUR',
-  TRUNC_MINUTE: 'TRUNC_MINUTE',
-  TRUNC_SECOND: 'TRUNC_SECOND',
-  QUART1: 'QUART1',
-  QUART3: 'QUART3',
-  SKEWNESS: 'SKEWNESS',
-  KURTOSIS: 'KURTOSIS',
-  INOUT: 'INOUT',
-  SUM_XSQR: 'SUM_XSQR',
-  USER: 'USER'
-};
-
-tableauSoftware.ToolbarPosition = {
-  TOP: 'top',
-  BOTTOM: 'bottom'
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// API Initialization
-////////////////////////////////////////////////////////////////////////////////
-
-// Clean up the mscorlib stuff.
-restoreTypeSystem();
-
-tab._ApiBootstrap.initialize();
+        Date.now = Date.now || function () {
+                return +new Date
+            };
+        global.ss = ss
+    })(global);
+    var ss = global.ss;
+    var HTMLElement = global.HTMLElement;
+    var MessageEvent = global.MessageEvent;
+    /*! BEGIN CoreSlim */
+    (function () {
+        'dont use strict';
+        var a = {};
+        global.tab = global.tab || {};
+        ss.initAssembly(a, 'tabcoreslim');
+        var b = function () {
+        };
+        b.__typeName = 'tab.EscapingUtil';
+        b.escapeHtml = function (e) {
+            var f = ss.coalesce(e, '');
+            f = f.replace(new RegExp('&', 'g'), '&amp;');
+            f = f.replace(new RegExp('<', 'g'), '&lt;');
+            f = f.replace(new RegExp('>', 'g'), '&gt;');
+            f = f.replace(new RegExp('"', 'g'), '&quot;');
+            f = f.replace(new RegExp("'", 'g'), '&#39;');
+            f = f.replace(new RegExp('/', 'g'), '&#47;');
+            return f
+        };
+        global.tab.EscapingUtil = b;
+        var c = function () {
+        };
+        c.__typeName = 'tab.ScriptEx';
+        global.tab.ScriptEx = c;
+        var d = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        d.__typeName = 'tab.WindowHelper';
+        d.get_windowSelf = function () {
+            return window.self
+        };
+        d.get_selection = function () {
+            if (typeof(window['getSelection']) === 'function') {
+                return window.getSelection()
+            } else if (typeof(document['getSelection']) === 'function') {
+                return document.getSelection()
+            }
+            return null
+        };
+        d.close = function (e) {
+            e.close()
+        };
+        d.getOpener = function (e) {
+            return e.opener
+        };
+        d.getLocation = function (e) {
+            return e.location
+        };
+        d.getPathAndSearch = function (e) {
+            return e.location.pathname + e.location.search
+        };
+        d.setLocationHref = function (e, f) {
+            e.location.href = f
+        };
+        d.locationReplace = function (e, f) {
+            e.location.replace(f)
+        };
+        d.open = function (e, f, g) {
+            return window.open(e, f, g)
+        };
+        d.reload = function (e, f) {
+            e.location.reload(f)
+        };
+        d.requestAnimationFrame = function (e) {
+            return d.$c(e)
+        };
+        d.cancelAnimationFrame = function (e) {
+            if (ss.isValue(e)) {
+                d.$b(e)
+            }
+        };
+        d.setTimeout = function (e, f) {
+            return window.setTimeout(e, f)
+        };
+        d.addListener = function (e, f, g) {
+            if ('addEventListener' in e) {
+                e.addEventListener(f, g, false)
+            } else {
+                e.attachEvent('on' + f, g)
+            }
+        };
+        d.removeListener = function (e, f, g) {
+            if ('removeEventListener' in e) {
+                e.removeEventListener(f, g, false)
+            } else {
+                e.detachEvent('on' + f, g)
+            }
+        };
+        d.$0 = function () {
+            var e = 0;
+            d.$c = function (f) {
+                var g = (new Date).getTime();
+                var h = Math.max(0, 16 - (g - e));
+                e = g + h;
+                var i = window.setTimeout(f, h);
+                return i
+            }
+        };
+        d.clearSelection = function () {
+            var e = d.get_selection();
+            if (ss.isValue(e)) {
+                if (typeof(e['removeAllRanges']) === 'function') {
+                    e.removeAllRanges()
+                } else if (typeof(e['empty']) === 'function') {
+                    e['empty']()
+                }
+            }
+        };
+        global.tab.WindowHelper = d;
+        ss.initClass(b, a, {});
+        ss.initClass(c, a, {});
+        ss.initClass(d, a, {
+            get_pageXOffset: function () {
+                return d.$7(this.$0)
+            }, get_pageYOffset: function () {
+                return d.$8(this.$0)
+            }, get_clientWidth: function () {
+                return d.$2(this.$0)
+            }, get_clientHeight: function () {
+                return d.$1(this.$0)
+            }, get_innerWidth: function () {
+                return d.$4(this.$0)
+            }, get_outerWidth: function () {
+                return d.$6(this.$0)
+            }, get_innerHeight: function () {
+                return d.$3(this.$0)
+            }, get_outerHeight: function () {
+                return d.$5(this.$0)
+            }, get_screenLeft: function () {
+                return d.$9(this.$0)
+            }, get_screenTop: function () {
+                return d.$a(this.$0)
+            }, isQuirksMode: function () {
+                return document.compatMode === 'BackCompat'
+            }
+        });
+        (function () {
+            d.$4 = null;
+            d.$3 = null;
+            d.$2 = null;
+            d.$1 = null;
+            d.$7 = null;
+            d.$8 = null;
+            d.$9 = null;
+            d.$a = null;
+            d.$6 = null;
+            d.$5 = null;
+            d.$c = null;
+            d.$b = null;
+            if ('innerWidth' in window) {
+                d.$4 = function (m) {
+                    return m.innerWidth
+                }
+            } else {
+                d.$4 = function (m) {
+                    return m.document.documentElement.offsetWidth
+                }
+            }
+            if ('outerWidth' in window) {
+                d.$6 = function (m) {
+                    return m.outerWidth
+                }
+            } else {
+                d.$6 = d.$4
+            }
+            if ('innerHeight' in window) {
+                d.$3 = function (m) {
+                    return m.innerHeight
+                }
+            } else {
+                d.$3 = function (m) {
+                    return m.document.documentElement.offsetHeight
+                }
+            }
+            if ('outerHeight' in window) {
+                d.$5 = function (m) {
+                    return m.outerHeight
+                }
+            } else {
+                d.$5 = d.$3
+            }
+            if ('clientWidth' in window) {
+                d.$2 = function (m) {
+                    return m['clientWidth']
+                }
+            } else {
+                d.$2 = function (m) {
+                    return m.document.documentElement.clientWidth
+                }
+            }
+            if ('clientHeight' in window) {
+                d.$1 = function (m) {
+                    return m['clientHeight']
+                }
+            } else {
+                d.$1 = function (m) {
+                    return m.document.documentElement.clientHeight
+                }
+            }
+            if (ss.isValue(window.self.pageXOffset)) {
+                d.$7 = function (m) {
+                    return m.pageXOffset
+                }
+            } else {
+                d.$7 = function (m) {
+                    return m.document.documentElement.scrollLeft
+                }
+            }
+            if (ss.isValue(window.self.pageYOffset)) {
+                d.$8 = function (m) {
+                    return m.pageYOffset
+                }
+            } else {
+                d.$8 = function (m) {
+                    return m.document.documentElement.scrollTop
+                }
+            }
+            if ('screenLeft' in window) {
+                d.$9 = function (m) {
+                    return m.screenLeft
+                }
+            } else {
+                d.$9 = function (m) {
+                    return m.screenX
+                }
+            }
+            if ('screenTop' in window) {
+                d.$a = function (m) {
+                    return m.screenTop
+                }
+            } else {
+                d.$a = function (m) {
+                    return m.screenY
+                }
+            }
+            {
+                var e = 'requestAnimationFrame';
+                var f = 'cancelAnimationFrame';
+                var g = ['ms', 'moz', 'webkit', 'o'];
+                var h = null;
+                var i = null;
+                if (e in window) {
+                    h = e
+                }
+                if (f in window) {
+                    i = f
+                }
+                for (var j = 0; j < g.length && (ss.isNullOrUndefined(h) || ss.isNullOrUndefined(i)); ++j) {
+                    var k = g[j];
+                    var l = k + 'RequestAnimationFrame';
+                    if (ss.isNullOrUndefined(h) && l in window) {
+                        h = l
+                    }
+                    if (ss.isNullOrUndefined(i)) {
+                        l = k + 'CancelAnimationFrame';
+                        if (l in window) {
+                            i = l
+                        }
+                        l = k + 'CancelRequestAnimationFrame';
+                        if (l in window) {
+                            i = l
+                        }
+                    }
+                }
+                if (ss.isValue(h)) {
+                    d.$c = function (m) {
+                        return window[h](m)
+                    }
+                } else {
+                    d.$0()
+                }
+                if (ss.isValue(i)) {
+                    d.$b = function (m) {
+                        window[i](m)
+                    }
+                } else {
+                    d.$b = function (m) {
+                        window.clearTimeout(m)
+                    }
+                }
+            }
+        })()
+    })();
+    var tab = global.tab;
+    /*! API */
+    (function () {
+        'dont use strict';
+        var a = {};
+        global.tab = global.tab || {};
+        global.tableauSoftware = global.tableauSoftware || {};
+        ss.initAssembly(a, 'Tableau.JavaScript.Vql.Api');
+        var b = function () {
+            this.$a = 0;
+            this.$9 = {};
+            this.$6 = {};
+            this.$8 = {};
+            this.$7 = {};
+            if (K.hasWindowAddEventListener()) {
+                window.addEventListener('message', ss.mkdel(this, this.$1), false)
+            } else if (K.hasDocumentAttachEvent()) {
+                var e = ss.mkdel(this, this.$1);
+                document.attachEvent('onmessage', e);
+                window.attachEvent('onmessage', e)
+            } else {
+                window.onmessage = ss.mkdel(this, this.$1)
+            }
+            this.$a = 0
+        };
+        b.__typeName = 'tab.$0';
+        var c = function () {
+            this.$2 = null;
+            this.$1$1 = null;
+            this.$1$2 = null
+        };
+        c.__typeName = 'tab.$1';
+        var d = function (e, cf) {
+            bm.call(this, e, cf)
+        };
+        d.__typeName = 'tab.$10';
+        var f = function (e, cf) {
+            this.$2 = null;
+            bm.call(this, e, null);
+            this.$2 = cf
+        };
+        f.__typeName = 'tab.$11';
+        var g = function (e, cf) {
+            this.$2 = null;
+            bm.call(this, e, null);
+            this.$2 = cf
+        };
+        g.__typeName = 'tab.$2';
+        var h = function (e, cf, cg, ch) {
+            this.$3 = null;
+            this.$4 = null;
+            bm.call(this, e, cf);
+            this.$3 = cg;
+            this.$4 = ch
+        };
+        h.__typeName = 'tab.$3';
+        var i = function (e, cf) {
+            bm.call(this, e, cf)
+        };
+        i.__typeName = 'tab.$4';
+        var j = function () {
+        };
+        j.__typeName = 'tab.$5';
+        var k = function () {
+        };
+        k.__typeName = 'tab.$6';
+        k.$0 = function (e) {
+            var cf;
+            if (e instanceof tableauSoftware.Promise) {
+                cf = e
+            } else {
+                if (ss.isValue(e) && typeof(e['valueOf']) === 'function') {
+                    e = e['valueOf']()
+                }
+                if (k.$1(e)) {
+                    var cg = new z;
+                    e.then(ss.mkdel(cg, cg.resolve), ss.mkdel(cg, cg.reject));
+                    cf = cg.get_promise()
+                } else {
+                    cf = k.$4(e)
+                }
+            }
+            return cf
+        };
+        k.$2 = function (e) {
+            return k.$0(e).then(function (cf) {
+                return k.$3(cf)
+            }, null)
+        };
+        k.$4 = function (cf) {
+            var cg = new C(function (ch, ci) {
+                try {
+                    return k.$0((ss.isValue(ch) ? ch(cf) : cf))
+                } catch (cj) {
+                    var e = ss.Exception.wrap(cj);
+                    return k.$3(e)
+                }
+            });
+            return cg
+        };
+        k.$3 = function (cf) {
+            var cg = new C(function (ch, ci) {
+                try {
+                    return (ss.isValue(ci) ? k.$0(ci(cf)) : k.$3(cf))
+                } catch (cj) {
+                    var e = ss.Exception.wrap(cj);
+                    return k.$3(e)
+                }
+            });
+            return cg
+        };
+        k.$1 = function (e) {
+            return ss.isValue(e) && typeof(e['then']) === 'function'
+        };
+        var l = function (e) {
+            this.$4 = null;
+            this.$5 = new tab._Collection;
+            this.$6 = 0;
+            if (A.isArray(e)) {
+                var cf = e;
+                for (var cg = 0; cg < cf.length; cg++) {
+                    var ch = cf[cg];
+                    if (!ss.isValue(ch.fieldName)) {
+                        throw J.createInvalidParameter('pair.fieldName')
+                    }
+                    if (!ss.isValue(ch.value)) {
+                        throw J.createInvalidParameter('pair.value')
+                    }
+                    var ci = new bR(ch.fieldName, ch.value);
+                    this.$5._add(ci.fieldName, ci)
+                }
+            } else {
+                this.$6 = e
+            }
+        };
+        l.__typeName = 'tab.$7';
+        l.$0 = function (e) {
+            var cf = new tab._Collection;
+            if (ss.isNullOrUndefined(e) || K.isNullOrEmpty(e.marks)) {
+                return cf
+            }
+            for (var cg = 0; cg < e.marks.length; cg++) {
+                var ch = e.marks[cg];
+                var ci = ch.tupleId;
+                var cj = new bQ(ci);
+                cf._add(ci.toString(), cj);
+                for (var ck = 0; ck < ch.pairs.length; ck++) {
+                    var cl = ch.pairs[ck];
+                    var cm = K.convertRawValue(cl.value, cl.valueDataType);
+                    var cn = new bR(cl.fieldName, cm);
+                    cn.formattedValue = cl.formattedValue;
+                    if (!cj.$0.$2()._has(cn.fieldName)) {
+                        cj.$0.$0(cn)
+                    }
+                }
+            }
+            return cf
+        };
+        var m = function (e) {
+            this.$i = null;
+            this.$h = null;
+            this.$c = null;
+            this.$d = null;
+            this.$b = null;
+            this.$a = null;
+            this.$g = null;
+            this.$f = null;
+            this.$j = null;
+            this.$e = null;
+            this.$h = e.name;
+            this.$c = K.getDataValue(e.currentValue);
+            this.$d = S.convertParameterDataType(e.dataType);
+            this.$b = S.convertParameterAllowableValuesType(e.allowableValuesType);
+            if (ss.isValue(e.allowableValues) && this.$b === 'list') {
+                this.$a = [];
+                for (var cf = 0; cf < e.allowableValues.length; cf++) {
+                    var cg = e.allowableValues[cf];
+                    this.$a.push(K.getDataValue(cg))
+                }
+            }
+            if (this.$b === 'range') {
+                this.$g = K.getDataValue(e.minValue);
+                this.$f = K.getDataValue(e.maxValue);
+                this.$j = e.stepSize;
+                if ((this.$d === 'date' || this.$d === 'datetime') && ss.isValue(this.$j) && ss.isValue(e.dateStepPeriod)) {
+                    this.$e = S.convertPeriodType(e.dateStepPeriod)
+                }
+            }
+        };
+        m.__typeName = 'tab.$8';
+        var n = function () {
+        };
+        n.__typeName = 'tab.$9';
+        n.$2 = function (e) {
+            return function (cf, cg) {
+                if (ss.isValue(cf)) {
+                    var ch = cf.toString().toUpperCase();
+                    var ci = ss.Enum.getValues(e);
+                    for (var cj = 0; cj < ci.length; cj++) {
+                        var ck = ci[cj];
+                        var cl = ck.toUpperCase();
+                        if (ss.referenceEquals(ch, cl)) {
+                            cg.$ = ck;
+                            return true
+                        }
+                    }
+                }
+                cg.$ = ss.getDefaultValue(e);
+                return false
+            }
+        };
+        n.$1 = function (e) {
+            return function (cf, cg) {
+                var ch = {};
+                if (!n.$2(e).call(null, cf, ch)) {
+                    throw J.createInvalidParameter(cg)
+                }
+                return ch.$
+            }
+        };
+        n.$0 = function (e) {
+            return function (cf) {
+                var cg = {};
+                var ch = n.$2(e).call(null, cf, cg);
+                return ch
+            }
+        };
+        var o = function () {
+        };
+        o.__typeName = 'tab._ApiBootstrap';
+        o.initialize = function () {
+            q.registerCrossDomainMessageRouter(function () {
+                return new b
+            })
+        };
+        global.tab._ApiBootstrap = o;
+        var p = function (e, cf, cg, ch) {
+            this.$1$1 = null;
+            this.$1$2 = null;
+            this.$1$3 = null;
+            this.$1$4 = null;
+            this.set_name(e);
+            this.set_commandId(cf);
+            this.set_hostId(cg);
+            this.set_parameters(ch)
+        };
+        p.__typeName = 'tab._ApiCommand';
+        p.generateNextCommandId = function () {
+            var e = 'cmd' + p.$0;
+            p.$0++;
+            return e
+        };
+        p.parse = function (e) {
+            var cf;
+            var cg = e.indexOf(String.fromCharCode(44));
+            if (cg < 0) {
+                cf = e;
+                return new p(cf, null, null, null)
+            }
+            cf = e.substr(0, cg);
+            var ch;
+            var ci = e.substr(cg + 1);
+            cg = ci.indexOf(String.fromCharCode(44));
+            if (cg < 0) {
+                ch = ci;
+                return new p(cf, ch, null, null)
+            }
+            ch = ci.substr(0, cg);
+            var cj;
+            var ck = ci.substr(cg + 1);
+            cg = ck.indexOf(String.fromCharCode(44));
+            if (cg < 0) {
+                cj = ck;
+                return new p(cf, ch, cj, null)
+            }
+            cj = ck.substr(0, cg);
+            var cl = ck.substr(cg + 1);
+            return new p(cf, ch, cj, cl)
+        };
+        global.tab._ApiCommand = p;
+        var q = function () {
+        };
+        q.__typeName = 'tab._ApiObjectRegistry';
+        q.registerCrossDomainMessageRouter = function (e) {
+            return q.$3(br).call(null, e)
+        };
+        q.getCrossDomainMessageRouter = function () {
+            return q.$2(br).call(null)
+        };
+        q.disposeCrossDomainMessageRouter = function () {
+            q.$0(br).call(null)
+        };
+        q.$3 = function (e) {
+            return function (cf) {
+                if (ss.isNullOrUndefined(q.$4)) {
+                    q.$4 = {}
+                }
+                var cg = ss.getTypeFullName(e);
+                var ch = q.$4[cg];
+                q.$4[cg] = cf;
+                return ch
+            }
+        };
+        q.$1 = function (e) {
+            return function () {
+                if (ss.isNullOrUndefined(q.$4)) {
+                    throw J.createInternalError('No types registered')
+                }
+                var cf = ss.getTypeFullName(e);
+                var cg = q.$4[cf];
+                if (ss.isNullOrUndefined(cg)) {
+                    throw J.createInternalError("No creation function has been registered for interface type '" + cf + "'.")
+                }
+                var ch = cg();
+                return ch
+            }
+        };
+        q.$2 = function (e) {
+            return function () {
+                if (ss.isNullOrUndefined(q.$5)) {
+                    q.$5 = {}
+                }
+                var cf = ss.getTypeFullName(e);
+                var cg = q.$5[cf];
+                if (ss.isNullOrUndefined(cg)) {
+                    cg = q.$1(e).call(null);
+                    q.$5[cf] = cg
+                }
+                return cg
+            }
+        };
+        q.$0 = function (e) {
+            return function () {
+                if (ss.isNullOrUndefined(q.$5)) {
+                    return null
+                }
+                var cf = ss.getTypeFullName(e);
+                var cg = q.$5[cf];
+                delete q.$5[cf];
+                return cg
+            }
+        };
+        global.tab._ApiObjectRegistry = q;
+        var r = function (e, cf, cg) {
+            this.$1 = null;
+            this.$2 = null;
+            this.$0 = null;
+            this.$1 = e;
+            this.$2 = cf;
+            this.$0 = cg
+        };
+        r.__typeName = 'tab._ApiServerNotification';
+        r.deserialize = function (e) {
+            var cf = JSON.parse(e);
+            var cg = cf['api.workbookName'];
+            var ch = cf['api.worksheetName'];
+            var ci = cf['api.commandData'];
+            return new r(cg, ch, ci)
+        };
+        global.tab._ApiServerNotification = r;
+        var s = function (e) {
+            this.$1 = null;
+            this.$0 = null;
+            var cf = JSON.parse(e);
+            this.$1 = cf['api.commandResult'];
+            this.$0 = cf['api.commandData']
+        };
+        s.__typeName = 'tab._ApiServerResultParser';
+        global.tab._ApiServerResultParser = s;
+        var t = function () {
+            this.$4 = [];
+            this.$3 = {}
+        };
+        t.__typeName = 'tab._CollectionImpl';
+        global.tab._CollectionImpl = t;
+        var u = function (e, cf, cg, ch) {
+            this.$1 = null;
+            this.$0 = null;
+            this.$3 = false;
+            this.$2 = 0;
+            B.verifyString(e, 'Column Field Name');
+            this.$1 = e;
+            this.$0 = cf;
+            this.$3 = ss.coalesce(cg, false);
+            this.$2 = ch
+        };
+        u.__typeName = 'tab._ColumnImpl';
+        global.tab._ColumnImpl = u;
+        var v = function (e, cf, cg) {
+            this.$c = null;
+            this.$j = null;
+            this.$l = null;
+            this.$g = null;
+            this.$h = null;
+            this.$i = null;
+            this.$k = null;
+            this.$e = false;
+            this.$d = false;
+            this.$f = false;
+            this.$l = e;
+            this.$h = cf;
+            this.$g = cg;
+            this.$e = false;
+            this.$d = false;
+            this.$f = false
+        };
+        v.__typeName = 'tab._CustomViewImpl';
+        v._getAsync = function (e) {
+            var cf = new tab._Deferred;
+            cf.resolve(e.get__customViewImpl().$5());
+            return cf.get_promise()
+        };
+        v._createNew = function (e, cf, cg, ch) {
+            var ci = new v(e, cg.name, cf);
+            ci.$e = cg.isPublic;
+            ci.$k = cg.url;
+            ci.$i = cg.owner.friendlyName;
+            ci.$d = ss.isValue(ch) && ss.unbox(ch) === cg.id;
+            ci.$j = cg;
+            return ci
+        };
+        v._saveNewAsync = function (e, cf, cg) {
+            var ch = new tab._Deferred;
+            var ci = {};
+            ci['api.customViewName'] = cg;
+            var cj = v.$0('api.SaveNewCustomViewCommand', ch, function (ck) {
+                v._processCustomViewUpdate(e, cf, ck, true);
+                var cl = null;
+                if (ss.isValue(e.$p())) {
+                    cl = e.$p().get_item(0)
+                }
+                ch.resolve(cl)
+            });
+            cf.sendCommand(Object).call(cf, ci, cj);
+            return ch.get_promise()
+        };
+        v._showCustomViewAsync = function (e, cf, cg) {
+            var ch = new tab._Deferred;
+            var ci = {};
+            if (ss.isValue(cg)) {
+                ci['api.customViewParam'] = cg
+            }
+            var cj = v.$0('api.ShowCustomViewCommand', ch, function (ck) {
+                var cl = e.get_activeCustomView();
+                ch.resolve(cl)
+            });
+            cf.sendCommand(Object).call(cf, ci, cj);
+            return ch.get_promise()
+        };
+        v._makeCurrentCustomViewDefaultAsync = function (e, cf) {
+            var cg = new tab._Deferred;
+            var ch = {};
+            var ci = v.$0('api.MakeCurrentCustomViewDefaultCommand', cg, function (cj) {
+                var ck = e.get_activeCustomView();
+                cg.resolve(ck)
+            });
+            cf.sendCommand(Object).call(cf, ch, ci);
+            return cg.get_promise()
+        };
+        v._getCustomViewsAsync = function (e, cf) {
+            var cg = new tab._Deferred;
+            var ch = new (ss.makeGenericType(bh, [Object]))('api.FetchCustomViewsCommand', 0, function (ci) {
+                v._processCustomViews(e, cf, ci);
+                cg.resolve(e.$i()._toApiCollection())
+            }, function (ci, cj) {
+                cg.reject(J.create('serverError', cj))
+            });
+            cf.sendCommand(Object).call(cf, null, ch);
+            return cg.get_promise()
+        };
+        v._processCustomViews = function (e, cf, cg) {
+            v._processCustomViewUpdate(e, cf, cg, false)
+        };
+        v._processCustomViewUpdate = function (e, cf, cg, ch) {
+            if (ch) {
+                e.$q(new tab._Collection)
+            }
+            e.$h(null);
+            var ci = null;
+            if (ss.isValue(cg.currentView)) {
+                ci = cg.currentView.name
+            }
+            var cj = cg.defaultCustomViewId;
+            if (ch && ss.isValue(cg.newView)) {
+                var ck = v._createNew(e, cf, cg.newView, cj);
+                e.$p()._add(ck.$7(), ck.$5())
+            }
+            e.$o(e.$i());
+            e.$j(new tab._Collection);
+            if (ss.isValue(cg.customViews)) {
+                var cl = cg.customViews;
+                if (cl.length > 0) {
+                    for (var cm = 0; cm < cl.length; cm++) {
+                        var cn = v._createNew(e, cf, cl[cm], cj);
+                        e.$i()._add(cn.$7(), cn.$5());
+                        if (e.$n()._has(cn.$7())) {
+                            e.$n()._remove(cn.$7())
+                        } else if (ch) {
+                            if (!e.$p()._has(cn.$7())) {
+                                e.$p()._add(cn.$7(), cn.$5())
+                            }
+                        }
+                        if (ss.isValue(ci) && ss.referenceEquals(cn.$7(), ci)) {
+                            e.$h(cn.$5())
+                        }
+                    }
+                }
+            }
+        };
+        v.$0 = function (e, cf, cg) {
+            var ch = function (ci, cj) {
+                cf.reject(J.create('serverError', cj))
+            };
+            return new (ss.makeGenericType(bh, [Object]))(e, 0, cg, ch)
+        };
+        var w = function (e, cf, cg) {
+            this.$d = null;
+            this.$f = new tab._Collection;
+            this.$e = new tab._Collection;
+            E.call(this, e, cf, cg)
+        };
+        w.__typeName = 'tab._DashboardImpl';
+        global.tab._DashboardImpl = w;
+        var x = function (e, cf) {
+            this.$3 = null;
+            this.$1 = new tab._Collection;
+            this.$2 = false;
+            this.$0 = null;
+            B.verifyString(e, 'name');
+            this.$3 = e;
+            this.$2 = cf
+        };
+        x.__typeName = 'tab._DataSourceImpl';
+        x.processDataSource = function (e) {
+            var cf = new x(e.name, e.isPrimary);
+            var cg = ss.coalesce(e.fields, []);
+            for (var ch = 0; ch < cg.length; ch++) {
+                var ci = cg[ch];
+                var cj = S.convertFieldRole(ci.role);
+                var ck = S.convertFieldAggregation(ci.aggregation);
+                var cl = new bN(cf.get_dataSource(), ci.name, cj, ck);
+                cf.addField(cl)
+            }
+            return cf
+        };
+        x.processDataSourcesForWorksheet = function (e) {
+            var cf = new tab._Collection;
+            var cg = null;
+            for (var ch = 0; ch < e.dataSources.length; ch++) {
+                var ci = e.dataSources[ch];
+                var cj = x.processDataSource(ci);
+                if (ci.isPrimary) {
+                    cg = cj
+                } else {
+                    cf._add(ci.name, cj.get_dataSource())
+                }
+            }
+            if (ss.isValue(cg)) {
+                cf._addToFirst(cg.get_name(), cg.get_dataSource())
+            }
+            return cf
+        };
+        global.tab._DataSourceImpl = x;
+        var y = function (e, cf, cg, ch) {
+            this.$2 = null;
+            this.$3 = null;
+            this.$4 = 0;
+            this.$0 = null;
+            this.$1 = false;
+            this.$3 = e;
+            this.$4 = cg;
+            this.$0 = ch;
+            this.$1 = cf;
+            this.$2 = (cf ? 'Summary Data Table' : 'Underlying Data Table')
+        };
+        y.__typeName = 'tab._DataTableImpl';
+        y.processGetDataPresModel = function (e) {
+            var cf = y.$1(e.dataTable);
+            var cg = y.$0(e.headers);
+            var ch = new y(cf, e.isSummary, cf.length, cg);
+            return new bM(ch)
+        };
+        y.$1 = function (e) {
+            var cf = [];
+            for (var cg = 0; cg < e.length; cg++) {
+                var ch = e[cg];
+                var ci = [];
+                for (var cj = 0; cj < ch.length; cj++) {
+                    var ck = ch[cj];
+                    ci.push(K.getDataValue(ck))
+                }
+                cf.push(ci)
+            }
+            return cf
+        };
+        y.$0 = function (e) {
+            var cf = [];
+            for (var cg = 0; cg < e.length; cg++) {
+                var ch = e[cg];
+                var ci = new u(ch.fieldName, S.convertDataType(ch.dataType), ch.isReferenced, ch.index);
+                cf.push(new bH(ci))
+            }
+            return cf
+        };
+        global.tab._DataTableImpl = y;
+        var z = function () {
+            this.$3 = null;
+            this.$5 = null;
+            this.$2 = [];
+            this.$4 = null;
+            this.$3 = new C(ss.mkdel(this, this.then));
+            this.$5 = ss.mkdel(this, this.$0);
+            this.$4 = ss.mkdel(this, this.$1)
+        };
+        z.__typeName = 'tab._DeferredImpl';
+        global.tab._DeferredImpl = z;
+        var A = function () {
+        };
+        A.__typeName = 'tab._jQueryShim';
+        A.isFunction = function (e) {
+            return A.type(e) === 'function'
+        };
+        A.isArray = function (e) {
+            if (ss.isValue(Array['isArray'])) {
+                return Array['isArray'](e)
+            }
+            return A.type(e) === 'array'
+        };
+        A.type = function (e) {
+            return (ss.isNullOrUndefined(e) ? String(e) : (A.$8[A.$d.call(e)] || 'object'))
+        };
+        A.trim = function (e) {
+            if (ss.isValue(A.$e)) {
+                return (ss.isNullOrUndefined(e) ? '' : A.$e.call(e))
+            }
+            return (ss.isNullOrUndefined(e) ? '' : e.toString().replace(A.$f, '').replace(A.$g, ''))
+        };
+        A.parseJSON = function (e) {
+            if (typeof(e) !== 'string' || ss.isNullOrUndefined(e)) {
+                return null
+            }
+            e = A.trim(e);
+            if (ss.isValue(JSON) && ss.isValue(JSON['parse'])) {
+                return JSON.parse(e)
+            }
+            if (A.$a.test(e.replace(A.$b, '@').replace(A.$c, ']').replace(A.$9, ''))) {
+                return (new Function('return ' + e))()
+            }
+            throw new ss.Exception('Invalid JSON: ' + e)
+        };
+        global.tab._jQueryShim = A;
+        var B = function () {
+        };
+        B.__typeName = 'tab._Param';
+        B.verifyString = function (e, cf) {
+            if (ss.isNullOrUndefined(e) || e.length === 0) {
+                throw J.createInternalStringArgumentException(cf)
+            }
+        };
+        B.verifyValue = function (e, cf) {
+            if (ss.isNullOrUndefined(e)) {
+                throw J.createInternalNullArgumentException(cf)
+            }
+        };
+        global.tab._Param = B;
+        var C = function (e) {
+            this.then = null;
+            this.then = e
+        };
+        C.__typeName = 'tab._PromiseImpl';
+        global.tab._PromiseImpl = C;
+        var D = function (e, cf, cg, ch) {
+            this.left = 0;
+            this.top = 0;
+            this.width = 0;
+            this.height = 0;
+            this.left = e;
+            this.top = cf;
+            this.width = cg;
+            this.height = ch
+        };
+        D.__typeName = 'tab._Rect';
+        global.tab._Rect = D;
+        var E = function (e, cf, cg) {
+            this.$5 = null;
+            this.$1 = 0;
+            this.$2 = false;
+            this.$3 = false;
+            this.$7 = null;
+            this.$8 = null;
+            this.$9 = null;
+            this.$a = null;
+            this.$4 = null;
+            this.$6 = null;
+            this.$b = 0;
+            B.verifyValue(e, 'sheetInfoImpl');
+            B.verifyValue(cf, 'workbookImpl');
+            B.verifyValue(cg, 'messagingOptions');
+            this.$5 = e.name;
+            this.$1 = e.index;
+            this.$2 = e.isActive;
+            this.$3 = e.isHidden;
+            this.$7 = e.sheetType;
+            this.$8 = e.size;
+            this.$9 = e.url;
+            this.$a = cf;
+            this.$4 = cg;
+            this.$b = e.zoneId
+        };
+        E.__typeName = 'tab._SheetImpl';
+        E.$0 = function (e) {
+            if (ss.isValue(e)) {
+                return K.toInt(e)
+            }
+            return e
+        };
+        E.$1 = function (e) {
+            var cf = n.$1(bd).call(null, e.behavior, 'size.behavior');
+            var cg = e.minSize;
+            if (ss.isValue(cg)) {
+                cg = bx.$ctor(E.$0(e.minSize.width), E.$0(e.minSize.height))
+            }
+            var ch = e.maxSize;
+            if (ss.isValue(ch)) {
+                ch = bx.$ctor(E.$0(e.maxSize.width), E.$0(e.maxSize.height))
+            }
+            return bv.$ctor(cf, cg, ch)
+        };
+        global.tab._SheetImpl = E;
+        var F = function () {
+        };
+        F.__typeName = 'tab._SheetInfoImpl';
+        F.$ctor = function (e, cf, cg, ch, ci, cj, ck, cl, cm) {
+            var cn = new Object;
+            cn.name = null;
+            cn.index = 0;
+            cn.workbook = null;
+            cn.url = null;
+            cn.isHidden = false;
+            cn.sheetType = null;
+            cn.zoneId = 0;
+            cn.size = null;
+            cn.isActive = false;
+            cn.name = e;
+            cn.sheetType = cf;
+            cn.index = cg;
+            cn.size = ch;
+            cn.workbook = ci;
+            cn.url = cj;
+            cn.isActive = ck;
+            cn.isHidden = cl;
+            cn.zoneId = cm;
+            return cn
+        };
+        global.tab._SheetInfoImpl = F;
+        var G = function (e, cf, cg, ch, ci) {
+            this.$g = null;
+            this.$h = null;
+            this.$i = null;
+            this.$j = null;
+            this.$2$1 = null;
+            E.call(this, e, cf, cg);
+            B.verifyValue(ch, 'storyPm');
+            B.verifyValue(ci, 'findSheetFunc');
+            this.$h = ci;
+            this.update(ch)
+        };
+        G.__typeName = 'tab._StoryImpl';
+        global.tab._StoryImpl = G;
+        var H = function (e, cf) {
+            this.$1 = null;
+            this.$3 = 0;
+            this.$4 = false;
+            this.$5 = false;
+            this.$2 = null;
+            this.$6 = null;
+            this.$7 = null;
+            this.$8 = 0;
+            this.$4 = e.isActive;
+            this.$5 = e.isUpdated;
+            this.$1 = e.caption;
+            this.$3 = e.index;
+            this.$6 = e.parentStoryImpl;
+            this.$8 = e.storyPointId;
+            this.$2 = cf;
+            if (ss.isValue(cf)) {
+                this.$2.set_parentStoryPointImpl(this);
+                if (cf.get_sheetType() === 'dashboard') {
+                    var cg = this.$2;
+                    for (var ch = 0; ch < cg.get_worksheets().get__length(); ch++) {
+                        var ci = cg.get_worksheets().get_item(ch);
+                        ci._impl.set_parentStoryPointImpl(this)
+                    }
+                }
+            }
+        };
+        H.__typeName = 'tab._StoryPointImpl';
+        H.createContainedSheet = function (e, cf, cg, ch) {
+            var ci = S.convertSheetType(e.sheetType);
+            var cj = -1;
+            var ck = bw.createAutomatic();
+            var cl = false;
+            var cm = ch(e.name);
+            var cn = ss.isNullOrUndefined(cm);
+            var co = (cn ? '' : cm.getUrl());
+            var cp = F.$ctor(e.name, ci, cj, ck, cf.get_workbook(), co, cl, cn, e.zoneId);
+            if (e.sheetType === 'worksheet') {
+                var cq = null;
+                var cr = new O(cp, cf, cg, cq);
+                return cr
+            } else if (e.sheetType === 'dashboard') {
+                var cs = new w(cp, cf, cg);
+                var ct = N.$0(e.dashboardZones);
+                cs.$c(ct, ch);
+                return cs
+            } else if (e.sheetType === 'story') {
+                throw J.createInternalError('Cannot have a story embedded within another story.')
+            } else {
+                throw J.createInternalError("Unknown sheet type '" + e.sheetType + "'")
+            }
+        };
+        global.tab._StoryPointImpl = H;
+        var I = function () {
+        };
+        I.__typeName = 'tab._StoryPointInfoImpl';
+        I.$ctor = function (e, cf, cg, ch, ci, cj) {
+            var ck = new Object;
+            ck.storyPointId = 0;
+            ck.parentStoryImpl = null;
+            ck.caption = null;
+            ck.index = 0;
+            ck.isActive = false;
+            ck.isUpdated = false;
+            ck.caption = e;
+            ck.index = cf;
+            ck.storyPointId = cg;
+            ck.isActive = ch;
+            ck.isUpdated = ci;
+            ck.parentStoryImpl = cj;
+            return ck
+        };
+        global.tab._StoryPointInfoImpl = I;
+        var J = function () {
+        };
+        J.__typeName = 'tab._TableauException';
+        J.create = function (e, cf) {
+            var cg = new ss.Exception(cf);
+            cg['tableauSoftwareErrorCode'] = e;
+            return cg
+        };
+        J.createInternalError = function (e) {
+            if (ss.isValue(e)) {
+                return J.create('internalError', 'Internal error. Please contact Tableau support with the following information: ' + e)
+            } else {
+                return J.create('internalError', 'Internal error. Please contact Tableau support')
+            }
+        };
+        J.createInternalNullArgumentException = function (e) {
+            return J.createInternalError("Null/undefined argument '" + e + "'.")
+        };
+        J.createInternalStringArgumentException = function (e) {
+            return J.createInternalError("Invalid string argument '" + e + "'.")
+        };
+        J.createServerError = function (e) {
+            return J.create('serverError', e)
+        };
+        J.createNotActiveSheet = function () {
+            return J.create('notActiveSheet', 'Operation not allowed on non-active sheet')
+        };
+        J.createInvalidCustomViewName = function (e) {
+            return J.create('invalidCustomViewName', 'Invalid custom view name: ' + e)
+        };
+        J.createInvalidParameter = function (e) {
+            return J.create('invalidParameter', 'Invalid parameter: ' + e)
+        };
+        J.createInvalidFilterFieldNameOrValue = function (e) {
+            return J.create('invalidFilterFieldNameOrValue', 'Invalid filter field name or value: ' + e)
+        };
+        J.createInvalidDateParameter = function (e) {
+            return J.create('invalidDateParameter', 'Invalid date parameter: ' + e)
+        };
+        J.createNullOrEmptyParameter = function (e) {
+            return J.create('nullOrEmptyParameter', 'Parameter cannot be null or empty: ' + e)
+        };
+        J.createMissingMaxSize = function () {
+            return J.create('missingMaxSize', 'Missing maxSize for SheetSizeBehavior.ATMOST')
+        };
+        J.createMissingMinSize = function () {
+            return J.create('missingMinSize', 'Missing minSize for SheetSizeBehavior.ATLEAST')
+        };
+        J.createMissingMinMaxSize = function () {
+            return J.create('missingMinMaxSize', 'Missing minSize or maxSize for SheetSizeBehavior.RANGE')
+        };
+        J.createInvalidRangeSize = function () {
+            return J.create('invalidSize', 'Missing minSize or maxSize for SheetSizeBehavior.RANGE')
+        };
+        J.createInvalidSizeValue = function () {
+            return J.create('invalidSize', 'Size value cannot be less than zero')
+        };
+        J.createInvalidSheetSizeParam = function () {
+            return J.create('invalidSize', 'Invalid sheet size parameter')
+        };
+        J.createSizeConflictForExactly = function () {
+            return J.create('invalidSize', 'Conflicting size values for SheetSizeBehavior.EXACTLY')
+        };
+        J.createInvalidSizeBehaviorOnWorksheet = function () {
+            return J.create('invalidSizeBehaviorOnWorksheet', 'Only SheetSizeBehavior.AUTOMATIC is allowed on Worksheets')
+        };
+        J.createNoUrlForHiddenWorksheet = function () {
+            return J.create('noUrlForHiddenWorksheet', 'Hidden worksheets do not have a URL.')
+        };
+        J.$0 = function (e) {
+            return J.create('invalidAggregationFieldName', "Invalid aggregation type for field '" + e + "'")
+        };
+        J.createIndexOutOfRange = function (e) {
+            return J.create('indexOutOfRange', "Index '" + e + "' is out of range.")
+        };
+        J.createUnsupportedEventName = function (e) {
+            return J.create('unsupportedEventName', "Unsupported event '" + e + "'.")
+        };
+        J.createBrowserNotCapable = function () {
+            return J.create('browserNotCapable', 'This browser is incapable of supporting the Tableau JavaScript API.')
+        };
+        global.tab._TableauException = J;
+        var K = function () {
+        };
+        K.__typeName = 'tab._Utility';
+        K.isNullOrEmpty = function (e) {
+            return ss.isNullOrUndefined(e) || (e['length'] || 0) <= 0
+        };
+        K.isString = function (e) {
+            return typeof(e) === 'string'
+        };
+        K.isNumber = function (e) {
+            return typeof(e) === 'number'
+        };
+        K.isDate = function (e) {
+            if (typeof(e) === 'object' && ss.isInstanceOfType(e, ss.JsDate)) {
+                return true
+            } else if (Object.prototype.toString.call(e) !== '[object Date]') {
+                return false
+            }
+            return !isNaN(e.getTime())
+        };
+        K.isDateValid = function (e) {
+            return !isNaN(e.getTime())
+        };
+        K.indexOf = function (e, cf, cg) {
+            if (ss.isValue(Array.prototype['indexOf'])) {
+                return e['indexOf'](cf, cg)
+            }
+            cg = cg || 0;
+            var ch = e.length;
+            if (ch > 0) {
+                for (var ci = cg; ci < ch; ci++) {
+                    if (ss.referenceEquals(e[ci], cf)) {
+                        return ci
+                    }
+                }
+            }
+            return -1
+        };
+        K.contains = function (e, cf, cg) {
+            var ch = K.indexOf(e, cf, cg);
+            return ch >= 0
+        };
+        K.getTopmostWindow = function () {
+            var e = window.self;
+            while (ss.isValue(e.parent) && !ss.referenceEquals(e.parent, e)) {
+                e = e.parent
+            }
+            return e
+        };
+        K.toInt = function (e) {
+            if (K.isNumber(e)) {
+                return ss.Int32.trunc(e)
+            }
+            var cf = parseInt(e.toString(), 10);
+            if (isNaN(cf)) {
+                return 0
+            }
+            return cf
+        };
+        K.hasClass = function (e, cf) {
+            var cg = new RegExp('[\\n\\t\\r]', 'g');
+            return ss.isValue(e) && (' ' + e.className + ' ').replace(cg, ' ').indexOf(' ' + cf + ' ') > -1
+        };
+        K.findParentWithClassName = function (e, cf, cg) {
+            var ch = (ss.isValue(e) ? e.parentNode : null);
+            cg = cg || document.body;
+            while (ss.isValue(ch)) {
+                if (K.hasClass(ch, cf)) {
+                    return ch
+                }
+                if (ss.referenceEquals(ch, cg)) {
+                    ch = null
+                } else {
+                    ch = ch.parentNode
+                }
+            }
+            return ch
+        };
+        K.hasJsonParse = function () {
+            return ss.isValue(JSON) && ss.isValue(JSON.parse)
+        };
+        K.hasWindowPostMessage = function () {
+            return ss.isValue(window.postMessage)
+        };
+        K.isPostMessageSynchronous = function () {
+            if (K.isIE()) {
+                var e = new RegExp('(msie) ([\\w.]+)');
+                var cf = e.exec(window.navigator.userAgent.toLowerCase());
+                var cg = cf[2] || '0';
+                var ch = parseInt(cg, 10);
+                return ch <= 8
+            }
+            return false
+        };
+        K.hasDocumentAttachEvent = function () {
+            return ss.isValue(document.attachEvent)
+        };
+        K.hasWindowAddEventListener = function () {
+            return ss.isValue(window.addEventListener)
+        };
+        K.isElementOfTag = function (e, cf) {
+            return ss.isValue(e) && e.nodeType === 1 && ss.referenceEquals(e.tagName.toLowerCase(), cf.toLowerCase())
+        };
+        K.elementToString = function (e) {
+            var cf = new ss.StringBuilder;
+            cf.append(e.tagName.toLowerCase());
+            if (!K.isNullOrEmpty(e.id)) {
+                cf.append('#').append(e.id)
+            }
+            if (!K.isNullOrEmpty(e.className)) {
+                var cg = e.className.split(' ');
+                cf.append('.').append(cg.join('.'))
+            }
+            return cf.toString()
+        };
+        K.tableauGCS = function (e) {
+            if (typeof(window['getComputedStyle']) === 'function') {
+                return window.getComputedStyle(e)
+            } else {
+                return e['currentStyle']
+            }
+        };
+        K.isIE = function () {
+            return window.navigator.userAgent.indexOf('MSIE') > -1 && ss.isNullOrUndefined(window.opera)
+        };
+        K.isSafari = function () {
+            var e = window.navigator.userAgent;
+            var cf = e.indexOf('Chrome') >= 0;
+            return e.indexOf('Safari') >= 0 && !cf
+        };
+        K.mobileDetect = function () {
+            var e = window.navigator.userAgent;
+            if (e.indexOf('iPad') !== -1) {
+                return true
+            }
+            if (e.indexOf('Android') !== -1) {
+                return true
+            }
+            if (e.indexOf('AppleWebKit') !== -1 && e.indexOf('Mobile') !== -1) {
+                return true
+            }
+            return false
+        };
+        K.visibleContentRectInDocumentCoordinates = function (e) {
+            var cf = K.contentRectInDocumentCoordinates(e);
+            for (var cg = e.parentElement; ss.isValue(cg) && ss.isValue(cg.parentElement); cg = cg.parentElement) {
+                var ch = K.$0(cg).overflow;
+                if (ch === 'auto' || ch === 'scroll' || ch === 'hidden') {
+                    cf = cf.intersect(K.contentRectInDocumentCoordinates(cg))
+                }
+            }
+            var ci = K.contentRectInDocumentCoordinates(document.documentElement);
+            var cj = new tab.WindowHelper(window.self);
+            if (cj.isQuirksMode()) {
+                ci.height = document.body.clientHeight - ci.left;
+                ci.width = document.body.clientWidth - ci.top
+            }
+            ci.left += cj.get_pageXOffset();
+            ci.top += cj.get_pageYOffset();
+            return cf.intersect(ci)
+        };
+        K.contentRectInDocumentCoordinates = function (e) {
+            var cf = K.getBoundingClientRect(e);
+            var cg = K.$0(e);
+            var ch = K.toInt(cg.paddingLeft);
+            var ci = K.toInt(cg.paddingTop);
+            var cj = K.toInt(cg.borderLeftWidth);
+            var ck = K.toInt(cg.borderTopWidth);
+            var cl = K.computeContentSize(e);
+            var cm = new tab.WindowHelper(window.self);
+            var cn = cf.left + ch + cj + cm.get_pageXOffset();
+            var co = cf.top + ci + ck + cm.get_pageYOffset();
+            return new D(cn, co, cl.width, cl.height)
+        };
+        K.getBoundingClientRect = function (e) {
+            var cf = e.getBoundingClientRect();
+            var cg = ss.Int32.trunc(cf.top);
+            var ch = ss.Int32.trunc(cf.left);
+            var ci = ss.Int32.trunc(cf.right);
+            var cj = ss.Int32.trunc(cf.bottom);
+            return new D(ch, cg, ci - ch, cj - cg)
+        };
+        K.convertRawValue = function (e, cf) {
+            if (ss.isNullOrUndefined(e)) {
+                return null
+            }
+            switch (cf) {
+                case'bool': {
+                    return e
+                }
+                case'date':
+                case'number': {
+                    if (ss.isNullOrUndefined(e)) {
+                        return Number.NaN
+                    }
+                    return e
+                }
+                default:
+                case'string': {
+                    return e
+                }
+            }
+        };
+        K.getDataValue = function (e) {
+            if (ss.isNullOrUndefined(e)) {
+                return bl.$ctor(null, null, null)
+            }
+            return bl.$ctor(K.convertRawValue(e.value, e.type), e.formattedValue, e.aliasedValue)
+        };
+        K.serializeDateForServer = function (e) {
+            var cf = '';
+            if (ss.isValue(e) && K.isDate(e)) {
+                var cg = e.getUTCFullYear();
+                var ch = e.getUTCMonth() + 1;
+                var ci = e.getUTCDate();
+                var cj = e.getUTCHours();
+                var ck = e.getUTCMinutes();
+                var cl = e.getUTCSeconds();
+                cf = cg + '-' + ch + '-' + ci + ' ' + cj + ':' + ck + ':' + cl
+            }
+            return cf
+        };
+        K.computeContentSize = function (e) {
+            var cf = K.$0(e);
+            var cg = parseFloat(cf.paddingLeft);
+            var ch = parseFloat(cf.paddingTop);
+            var ci = parseFloat(cf.paddingRight);
+            var cj = parseFloat(cf.paddingBottom);
+            var ck = e.clientWidth - Math.round(cg + ci);
+            var cl = e.clientHeight - Math.round(ch + cj);
+            return bx.$ctor(ck, cl)
+        };
+        K.$0 = function (e) {
+            if (typeof(window['getComputedStyle']) === 'function') {
+                if (ss.isValue(e.ownerDocument.defaultView.opener)) {
+                    return e.ownerDocument.defaultView.getComputedStyle(e)
+                }
+                return window.getComputedStyle(e)
+            } else if (ss.isValue(e['currentStyle'])) {
+                return e['currentStyle']
+            }
+            return e.style
+        };
+        K.roundVizSizeInPixels = function (e) {
+            if (ss.isNullOrUndefined(e) || !(e.indexOf('px') !== -1)) {
+                return e
+            }
+            var cf = parseFloat(e.split('px')[0]);
+            return Math.round(cf) + 'px'
+        };
+        global.tab._Utility = K;
+        var L = function () {
+        };
+        L.__typeName = 'tab._VizManagerImpl';
+        L.$4 = function () {
+            return L.$5.concat()
+        };
+        L.$0 = function (e) {
+            L.$3(e);
+            L.$5.push(e)
+        };
+        L.$2 = function (e) {
+            for (var cf = 0, cg = L.$5.length; cf < cg; cf++) {
+                if (ss.referenceEquals(L.$5[cf], e)) {
+                    L.$5.splice(cf, 1);
+                    break
+                }
+            }
+        };
+        L.$1 = function () {
+            for (var e = 0, cf = L.$5.length; e < cf; e++) {
+                L.$5[e]._impl.$M()
+            }
+        };
+        L.$3 = function (e) {
+            var cf = e.getParentElement();
+            for (var cg = 0, ch = L.$5.length; cg < ch; cg++) {
+                if (ss.referenceEquals(L.$5[cg].getParentElement(), cf)) {
+                    var ci = "Another viz is already present in element '" + K.elementToString(cf) + "'.";
+                    throw J.create('vizAlreadyInManager', ci)
+                }
+            }
+        };
+        var M = function (e, cf, cg) {
+            this.name = '';
+            this.host_url = null;
+            this.tabs = false;
+            this.toolbar = false;
+            this.toolBarPosition = null;
+            this.device = null;
+            this.hostId = null;
+            this.width = null;
+            this.height = null;
+            this.parentElement = null;
+            this.userSuppliedParameters = null;
+            this.staticImageUrl = null;
+            this.fixedSize = false;
+            this.displayStaticImage = false;
+            this.$2 = null;
+            this.$1 = null;
+            if (ss.isNullOrUndefined(e) || ss.isNullOrUndefined(cf)) {
+                throw J.create('noUrlOrParentElementNotFound', 'URL is empty or Parent element not found')
+            }
+            if (ss.isNullOrUndefined(cg)) {
+                cg = new Object;
+                cg.hideTabs = false;
+                cg.hideToolbar = false;
+                cg.onFirstInteractive = null
+            }
+            if (ss.isValue(cg.height) || ss.isValue(cg.width)) {
+                this.fixedSize = true;
+                if (K.isNumber(cg.height)) {
+                    cg.height = cg.height.toString() + 'px'
+                }
+                if (K.isNumber(cg.width)) {
+                    cg.width = cg.width.toString() + 'px'
+                }
+                this.height = (ss.isValue(cg.height) ? K.roundVizSizeInPixels(cg.height.toString()) : null);
+                this.width = (ss.isValue(cg.width) ? K.roundVizSizeInPixels(cg.width.toString()) : null)
+            } else {
+                this.fixedSize = false
+            }
+            this.displayStaticImage = cg.displayStaticImage || false;
+            this.staticImageUrl = cg.staticImageUrl || '';
+            this.tabs = !(cg.hideTabs || false);
+            this.toolbar = !(cg.hideToolbar || false);
+            this.device = cg.device;
+            this.parentElement = e;
+            this.$1 = cg;
+            this.toolBarPosition = cg.toolbarPosition;
+            var ch = cf.split('?');
+            this.$2 = ch[0];
+            if (ch.length === 2) {
+                this.userSuppliedParameters = ch[1]
+            } else {
+                this.userSuppliedParameters = ''
+            }
+            var ci = (new RegExp('.*?[^/:]/', '')).exec(this.$2);
+            if (ss.isNullOrUndefined(ci) || ci[0].toLowerCase().indexOf('http://') === -1 && ci[0].toLowerCase().indexOf('https://') === -1) {
+                throw J.create('invalidUrl', 'Invalid url')
+            }
+            this.host_url = ci[0].toLowerCase();
+            this.name = this.$2.replace(ci[0], '');
+            this.name = this.name.replace('views/', '')
+        };
+        M.__typeName = 'tab._VizParameters';
+        global.tab._VizParameters = M;
+        var N = function (e, cf, cg) {
+            this.$E = null;
+            this.$D = null;
+            this.$y = null;
+            this.$s = null;
+            this.$r = null;
+            this.$A = new tab._Collection;
+            this.$v = false;
+            this.$x = null;
+            this.$t = null;
+            this.$u = new tab._Collection;
+            this.$C = new tab._Collection;
+            this.$B = new tab._Collection;
+            this.$z = null;
+            this.$w = null;
+            this.$D = e;
+            this.$x = cf;
+            this.$5(cg)
+        };
+        N.__typeName = 'tab._WorkbookImpl';
+        N.$0 = function (e) {
+            e = ss.coalesce(e, []);
+            var cf = [];
+            for (var cg = 0; cg < e.length; cg++) {
+                var ch = e[cg];
+                var ci = S.convertDashboardObjectType(ch.zoneType);
+                var cj = bx.$ctor(ch.width, ch.height);
+                var ck = bu.$ctor(ch.x, ch.y);
+                var cl = ch.name;
+                var cm = {name: cl, objectType: ci, position: ck, size: cj, zoneId: ch.zoneId};
+                cf.push(cm)
+            }
+            return cf
+        };
+        N.$2 = function (e) {
+            if (ss.isNullOrUndefined(e)) {
+                return null
+            }
+            if (K.isString(e)) {
+                return e
+            }
+            var cf = ss.safeCast(e, bV);
+            if (ss.isValue(cf)) {
+                return cf.getName()
+            }
+            var cg = ss.safeCast(e, bW);
+            if (ss.isValue(cg)) {
+                return cg.getName()
+            }
+            return null
+        };
+        N.$1 = function (e) {
+            if (ss.isNullOrUndefined(e)) {
+                return bw.createAutomatic()
+            }
+            return bw.fromSizeConstraints(e.sizeConstraints)
+        };
+        N.$4 = function (e) {
+            var cf = new tab._Collection;
+            for (var cg = 0; cg < e.parameters.length; cg++) {
+                var ch = e.parameters[cg];
+                var ci = new m(ch);
+                cf._add(ci.$7(), ci.$8())
+            }
+            return cf
+        };
+        N.$3 = function (e, cf) {
+            for (var cg = 0; cg < cf.parameters.length; cg++) {
+                var ch = cf.parameters[cg];
+                if (ss.referenceEquals(ch.name, e)) {
+                    return new m(ch)
+                }
+            }
+            return null
+        };
+        global.tab._WorkbookImpl = N;
+        var O = function (e, cf, cg, ch) {
+            this.$K = null;
+            this.$I = null;
+            this.$H = new tab._Collection;
+            this.$J = new tab._Collection;
+            this.highlightedMarks = null;
+            E.call(this, e, cf, cg);
+            this.$I = ch
+        };
+        O.__typeName = 'tab._WorksheetImpl';
+        O.$2 = function (e) {
+            var cf = e;
+            if (ss.isValue(cf) && ss.isValue(cf.errorCode)) {
+                var cg = (ss.isValue(cf.additionalInformation) ? cf.additionalInformation.toString() : '');
+                switch (cf.errorCode) {
+                    case'invalidFilterFieldName': {
+                        return J.create('invalidFilterFieldName', cg)
+                    }
+                    case'invalidFilterFieldValue': {
+                        return J.create('invalidFilterFieldValue', cg)
+                    }
+                    case'invalidAggregationFieldName': {
+                        return J.$0(cg)
+                    }
+                    default: {
+                        return J.createServerError(cg)
+                    }
+                }
+            }
+            return null
+        };
+        O.$3 = function (e) {
+            if (ss.isNullOrUndefined(e)) {
+                throw J.createNullOrEmptyParameter('filterOptions')
+            }
+            if (ss.isNullOrUndefined(e.min) && ss.isNullOrUndefined(e.max)) {
+                throw J.create('invalidParameter', 'At least one of filterOptions.min or filterOptions.max must be specified.')
+            }
+            var cf = new Object;
+            if (ss.isValue(e.min)) {
+                cf.min = e.min
+            }
+            if (ss.isValue(e.max)) {
+                cf.max = e.max
+            }
+            if (ss.isValue(e.nullOption)) {
+                cf.nullOption = n.$1(Y).call(null, e.nullOption, 'filterOptions.nullOption')
+            }
+            return cf
+        };
+        O.$4 = function (e) {
+            if (ss.isNullOrUndefined(e)) {
+                throw J.createNullOrEmptyParameter('filterOptions')
+            }
+            var cf = new Object;
+            cf.rangeType = n.$1(Q).call(null, e.rangeType, 'filterOptions.rangeType');
+            cf.periodType = n.$1(bb).call(null, e.periodType, 'filterOptions.periodType');
+            if (cf.rangeType === 'lastn' || cf.rangeType === 'nextn') {
+                if (ss.isNullOrUndefined(e.rangeN)) {
+                    throw J.create('missingRangeNForRelativeDateFilters', 'Missing rangeN field for a relative date filter of LASTN or NEXTN.')
+                }
+                cf.rangeN = K.toInt(e.rangeN)
+            }
+            if (ss.isValue(e.anchorDate)) {
+                if (!K.isDate(e.anchorDate) || !K.isDateValid(e.anchorDate)) {
+                    throw J.createInvalidDateParameter('filterOptions.anchorDate')
+                }
+                cf.anchorDate = e.anchorDate
+            }
+            return cf
+        };
+        O.$0 = function (e, cf, cg) {
+            return new (ss.makeGenericType(bh, [Object]))(e, 1, function (ch) {
+                var ci = O.$2(ch);
+                if (ss.isNullOrUndefined(ci)) {
+                    cg.resolve(cf)
+                } else {
+                    cg.reject(ci)
+                }
+            }, function (ch, ci) {
+                if (ch) {
+                    cg.reject(J.createInvalidFilterFieldNameOrValue(cf))
+                } else {
+                    var cj = J.create('filterCannotBePerformed', ci);
+                    cg.reject(cj)
+                }
+            })
+        };
+        O.$1 = function (e) {
+            var cf = e;
+            if (ss.isValue(cf) && ss.isValue(cf.errorCode)) {
+                var cg = (ss.isValue(cf.additionalInformation) ? cf.additionalInformation.toString() : '');
+                switch (cf.errorCode) {
+                    case'invalidSelectionFieldName': {
+                        return J.create('invalidSelectionFieldName', cg)
+                    }
+                    case'invalidSelectionValue': {
+                        return J.create('invalidSelectionValue', cg)
+                    }
+                    case'invalidSelectionDate': {
+                        return J.create('invalidSelectionDate', cg)
+                    }
+                }
+            }
+            return null
+        };
+        global.tab._WorksheetImpl = O;
+        var P = function () {
+        };
+        P.__typeName = 'tab.ApiDashboardObjectType';
+        global.tab.ApiDashboardObjectType = P;
+        var Q = function () {
+        };
+        Q.__typeName = 'tab.ApiDateRangeType';
+        global.tab.ApiDateRangeType = Q;
+        var R = function () {
+        };
+        R.__typeName = 'tab.ApiDeviceType';
+        global.tab.ApiDeviceType = R;
+        var S = function () {
+        };
+        S.__typeName = 'tab.ApiEnumConverter';
+        S.convertDashboardObjectType = function (e) {
+            switch (e) {
+                case'blank': {
+                    return 'blank'
+                }
+                case'image': {
+                    return 'image'
+                }
+                case'legend': {
+                    return 'legend'
+                }
+                case'pageFilter': {
+                    return 'pageFilter'
+                }
+                case'parameterControl': {
+                    return 'parameterControl'
+                }
+                case'quickFilter': {
+                    return 'quickFilter'
+                }
+                case'text': {
+                    return 'text'
+                }
+                case'title': {
+                    return 'title'
+                }
+                case'webPage': {
+                    return 'webPage'
+                }
+                case'worksheet': {
+                    return 'worksheet'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainDashboardObjectType: ' + e)
+                }
+            }
+        };
+        S.convertDateRange = function (e) {
+            switch (e) {
+                case'curr': {
+                    return 'curr'
+                }
+                case'last': {
+                    return 'last'
+                }
+                case'lastn': {
+                    return 'lastn'
+                }
+                case'next': {
+                    return 'next'
+                }
+                case'nextn': {
+                    return 'nextn'
+                }
+                case'todate': {
+                    return 'todate'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainDateRangeType: ' + e)
+                }
+            }
+        };
+        S.convertFieldAggregation = function (e) {
+            switch (e) {
+                case'ATTR': {
+                    return 'ATTR'
+                }
+                case'AVG': {
+                    return 'AVG'
+                }
+                case'COUNT': {
+                    return 'COUNT'
+                }
+                case'COUNTD': {
+                    return 'COUNTD'
+                }
+                case'DAY': {
+                    return 'DAY'
+                }
+                case'END': {
+                    return 'END'
+                }
+                case'HOUR': {
+                    return 'HOUR'
+                }
+                case'INOUT': {
+                    return 'INOUT'
+                }
+                case'KURTOSIS': {
+                    return 'KURTOSIS'
+                }
+                case'MAX': {
+                    return 'MAX'
+                }
+                case'MDY': {
+                    return 'MDY'
+                }
+                case'MEDIAN': {
+                    return 'MEDIAN'
+                }
+                case'MIN': {
+                    return 'MIN'
+                }
+                case'MINUTE': {
+                    return 'MINUTE'
+                }
+                case'MONTH': {
+                    return 'MONTH'
+                }
+                case'MONTHYEAR': {
+                    return 'MONTHYEAR'
+                }
+                case'NONE': {
+                    return 'NONE'
+                }
+                case'PERCENTILE': {
+                    return 'PERCENTILE'
+                }
+                case'QUART1': {
+                    return 'QUART1'
+                }
+                case'QUART3': {
+                    return 'QUART3'
+                }
+                case'QTR': {
+                    return 'QTR'
+                }
+                case'SECOND': {
+                    return 'SECOND'
+                }
+                case'SKEWNESS': {
+                    return 'SKEWNESS'
+                }
+                case'STDEV': {
+                    return 'STDEV'
+                }
+                case'STDEVP': {
+                    return 'STDEVP'
+                }
+                case'SUM': {
+                    return 'SUM'
+                }
+                case'SUM_XSQR': {
+                    return 'SUM_XSQR'
+                }
+                case'TRUNC_DAY': {
+                    return 'TRUNC_DAY'
+                }
+                case'TRUNC_HOUR': {
+                    return 'TRUNC_HOUR'
+                }
+                case'TRUNC_MINUTE': {
+                    return 'TRUNC_MINUTE'
+                }
+                case'TRUNC_MONTH': {
+                    return 'TRUNC_MONTH'
+                }
+                case'TRUNC_QTR': {
+                    return 'TRUNC_QTR'
+                }
+                case'TRUNC_SECOND': {
+                    return 'TRUNC_SECOND'
+                }
+                case'TRUNC_WEEK': {
+                    return 'TRUNC_WEEK'
+                }
+                case'TRUNC_YEAR': {
+                    return 'TRUNC_YEAR'
+                }
+                case'USER': {
+                    return 'USER'
+                }
+                case'VAR': {
+                    return 'VAR'
+                }
+                case'VARP': {
+                    return 'VARP'
+                }
+                case'WEEK': {
+                    return 'WEEK'
+                }
+                case'WEEKDAY': {
+                    return 'WEEKDAY'
+                }
+                case'YEAR': {
+                    return 'YEAR'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainFieldAggregationType: ' + e)
+                }
+            }
+        };
+        S.convertFieldRole = function (e) {
+            switch (e) {
+                case'dimension': {
+                    return 'dimension'
+                }
+                case'measure': {
+                    return 'measure'
+                }
+                case'unknown': {
+                    return 'unknown'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainFieldRoleType: ' + e)
+                }
+            }
+        };
+        S.convertFilterType = function (e) {
+            switch (e) {
+                case'categorical': {
+                    return 'categorical'
+                }
+                case'hierarchical': {
+                    return 'hierarchical'
+                }
+                case'quantitative': {
+                    return 'quantitative'
+                }
+                case'relativedate': {
+                    return 'relativedate'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainFilterType: ' + e)
+                }
+            }
+        };
+        S.convertParameterAllowableValuesType = function (e) {
+            switch (e) {
+                case'all': {
+                    return 'all'
+                }
+                case'list': {
+                    return 'list'
+                }
+                case'range': {
+                    return 'range'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainParameterAllowableValuesType: ' + e)
+                }
+            }
+        };
+        S.convertParameterDataType = function (e) {
+            switch (e) {
+                case'boolean': {
+                    return 'boolean'
+                }
+                case'date': {
+                    return 'date'
+                }
+                case'datetime': {
+                    return 'datetime'
+                }
+                case'float': {
+                    return 'float'
+                }
+                case'integer': {
+                    return 'integer'
+                }
+                case'string': {
+                    return 'string'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainParameterDataType: ' + e)
+                }
+            }
+        };
+        S.convertPeriodType = function (e) {
+            switch (e) {
+                case'year': {
+                    return 'year'
+                }
+                case'quarter': {
+                    return 'quarter'
+                }
+                case'month': {
+                    return 'month'
+                }
+                case'week': {
+                    return 'week'
+                }
+                case'day': {
+                    return 'day'
+                }
+                case'hour': {
+                    return 'hour'
+                }
+                case'minute': {
+                    return 'minute'
+                }
+                case'second': {
+                    return 'second'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainPeriodType: ' + e)
+                }
+            }
+        };
+        S.convertSheetType = function (e) {
+            switch (e) {
+                case'worksheet': {
+                    return 'worksheet'
+                }
+                case'dashboard': {
+                    return 'dashboard'
+                }
+                case'story': {
+                    return 'story'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainSheetType: ' + e)
+                }
+            }
+        };
+        S.convertDataType = function (e) {
+            switch (e) {
+                case'boolean': {
+                    return 'boolean'
+                }
+                case'date': {
+                    return 'date'
+                }
+                case'datetime': {
+                    return 'datetime'
+                }
+                case'float': {
+                    return 'float'
+                }
+                case'integer': {
+                    return 'integer'
+                }
+                case'string': {
+                    return 'string'
+                }
+                default: {
+                    throw J.createInternalError('Unknown ApiCrossDomainParameterDataType: ' + e)
+                }
+            }
+        };
+        global.tab.ApiEnumConverter = S;
+        var T = function () {
+        };
+        T.__typeName = 'tab.ApiErrorCode';
+        global.tab.ApiErrorCode = T;
+        var U = function () {
+        };
+        U.__typeName = 'tab.ApiFieldAggregationType';
+        global.tab.ApiFieldAggregationType = U;
+        var V = function () {
+        };
+        V.__typeName = 'tab.ApiFieldRoleType';
+        global.tab.ApiFieldRoleType = V;
+        var W = function () {
+        };
+        W.__typeName = 'tab.ApiFilterType';
+        global.tab.ApiFilterType = W;
+        var X = function () {
+        };
+        X.__typeName = 'tab.ApiFilterUpdateType';
+        global.tab.ApiFilterUpdateType = X;
+        var Y = function () {
+        };
+        Y.__typeName = 'tab.ApiNullOption';
+        global.tab.ApiNullOption = Y;
+        var Z = function () {
+        };
+        Z.__typeName = 'tab.ApiParameterAllowableValuesType';
+        global.tab.ApiParameterAllowableValuesType = Z;
+        var ba = function () {
+        };
+        ba.__typeName = 'tab.ApiParameterDataType';
+        global.tab.ApiParameterDataType = ba;
+        var bb = function () {
+        };
+        bb.__typeName = 'tab.ApiPeriodType';
+        global.tab.ApiPeriodType = bb;
+        var bc = function () {
+        };
+        bc.__typeName = 'tab.ApiSelectionUpdateType';
+        global.tab.ApiSelectionUpdateType = bc;
+        var bd = function () {
+        };
+        bd.__typeName = 'tab.ApiSheetSizeBehavior';
+        global.tab.ApiSheetSizeBehavior = bd;
+        var be = function () {
+        };
+        be.__typeName = 'tab.ApiSheetType';
+        global.tab.ApiSheetType = be;
+        var bf = function () {
+        };
+        bf.__typeName = 'tab.ApiTableauEventName';
+        global.tab.ApiTableauEventName = bf;
+        var bg = function () {
+        };
+        bg.__typeName = 'tab.ApiToolbarPosition';
+        global.tab.ApiToolbarPosition = bg;
+        var bh = function (e) {
+            var cf = function (cg, ch, ci, cj) {
+                this.$0 = null;
+                this.$3 = 0;
+                this.$2 = null;
+                this.$1 = null;
+                this.$0 = cg;
+                this.$2 = ci;
+                this.$3 = ch;
+                this.$1 = cj
+            };
+            ss.registerGenericClassInstance(cf, bh, [e], {
+                get_commandName: function () {
+                    return this.$0
+                }, get_successCallback: function () {
+                    return this.$2
+                }, get_successCallbackTiming: function () {
+                    return this.$3
+                }, get_errorCallback: function () {
+                    return this.$1
+                }
+            }, function () {
+                return null
+            }, function () {
+                return []
+            });
+            return cf
+        };
+        bh.__typeName = 'tab.CommandReturnHandler$1';
+        ss.initGenericClass(bh, a, 1);
+        global.tab.CommandReturnHandler$1 = bh;
+        var bi = function (e, cf) {
+            this.$1 = null;
+            this.$0 = null;
+            B.verifyValue(e, 'router');
+            B.verifyValue(cf, 'handler');
+            this.$1 = e;
+            this.$0 = cf
+        };
+        bi.__typeName = 'tab.CrossDomainMessagingOptions';
+        global.tab.CrossDomainMessagingOptions = bi;
+        var bj = function (e, cf, cg) {
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$2 = new g(cf._impl.get__workbookImpl(), cg)
+        };
+        bj.__typeName = 'tab.CustomViewEvent';
+        global.tab.CustomViewEvent = bj;
+        var bk = function () {
+        };
+        bk.__typeName = 'tab.DataType';
+        global.tab.DataType = bk;
+        var bl = function () {
+        };
+        bl.__typeName = 'tab.DataValue';
+        bl.$ctor = function (e, cf, cg) {
+            var ch = new Object;
+            ch.value = null;
+            ch.formattedValue = null;
+            ch.value = e;
+            if (K.isNullOrEmpty(cg)) {
+                ch.formattedValue = cf
+            } else {
+                ch.formattedValue = cg
+            }
+            return ch
+        };
+        global.tab.DataValue = bl;
+        var bm = function (e, cf) {
+            this.$0 = null;
+            this.$1 = null;
+            this.$0 = e;
+            this.$1 = cf
+        };
+        bm.__typeName = 'tab.EventContext';
+        global.tab.EventContext = bm;
+        var bn = function (e, cf, cg, ch, ci) {
+            this.$4 = null;
+            this.$3 = null;
+            bF.call(this, e, cf, cg);
+            this.$4 = ci;
+            this.$3 = new h(cf._impl.get__workbookImpl(), cg, ch, ci)
+        };
+        bn.__typeName = 'tab.FilterEvent';
+        global.tab.FilterEvent = bn;
+        var bo = function (e, cf, cg) {
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$2 = cg
+        };
+        bo.__typeName = 'tab.FirstVizSizeKnownEvent';
+        global.tab.FirstVizSizeKnownEvent = bo;
+        var bp = function (e, cf, cg) {
+            this.$3 = null;
+            bF.call(this, e, cf, cg);
+            this.$3 = new i(cf._impl.get__workbookImpl(), cg)
+        };
+        bp.__typeName = 'tab.HighlightEvent';
+        global.tab.HighlightEvent = bp;
+        var bq = function () {
+        };
+        bq.__typeName = 'tab.ICrossDomainMessageHandler';
+        global.tab.ICrossDomainMessageHandler = bq;
+        var br = function () {
+        };
+        br.__typeName = 'tab.ICrossDomainMessageRouter';
+        global.tab.ICrossDomainMessageRouter = br;
+        var bs = function (e, cf, cg) {
+            this.$3 = null;
+            bF.call(this, e, cf, cg);
+            this.$3 = new d(cf._impl.get__workbookImpl(), cg)
+        };
+        bs.__typeName = 'tab.MarksEvent';
+        global.tab.MarksEvent = bs;
+        var bt = function (e, cf, cg) {
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$2 = new f(cf._impl.get__workbookImpl(), cg)
+        };
+        bt.__typeName = 'tab.ParameterEvent';
+        global.tab.ParameterEvent = bt;
+        var bu = function () {
+        };
+        bu.__typeName = 'tab.Point';
+        bu.$ctor = function (e, cf) {
+            var cg = new Object;
+            cg.x = 0;
+            cg.y = 0;
+            cg.x = e;
+            cg.y = cf;
+            return cg
+        };
+        global.tab.Point = bu;
+        var bv = function () {
+        };
+        bv.__typeName = 'tab.SheetSize';
+        bv.$ctor = function (e, cf, cg) {
+            var ch = new Object;
+            ch.behavior = null;
+            ch.minSize = null;
+            ch.maxSize = null;
+            ch.behavior = ss.coalesce(e, 'automatic');
+            if (ss.isValue(cf)) {
+                ch.minSize = cf
+            } else {
+                delete ch['minSize']
+            }
+            if (ss.isValue(cg)) {
+                ch.maxSize = cg
+            } else {
+                delete ch['maxSize']
+            }
+            return ch
+        };
+        global.tab.SheetSize = bv;
+        var bw = function () {
+        };
+        bw.__typeName = 'tab.SheetSizeFactory';
+        bw.createAutomatic = function () {
+            var e = bv.$ctor('automatic', null, null);
+            return e
+        };
+        bw.fromSizeConstraints = function (e) {
+            var cf = e.minHeight;
+            var cg = e.minWidth;
+            var ch = e.maxHeight;
+            var ci = e.maxWidth;
+            var cj = 'automatic';
+            var ck = null;
+            var cl = null;
+            if (cf === 0 && cg === 0) {
+                if (ch === 0 && ci === 0) {
+                } else {
+                    cj = 'atmost';
+                    cl = bx.$ctor(ci, ch)
+                }
+            } else if (ch === 0 && ci === 0) {
+                cj = 'atleast';
+                ck = bx.$ctor(cg, cf)
+            } else if (ch === cf && ci === cg && cg > 0) {
+                cj = 'exactly';
+                ck = bx.$ctor(cg, cf);
+                cl = bx.$ctor(cg, cf)
+            } else {
+                cj = 'range';
+                if (cg === 0 && ci === 0) {
+                    ci = 2147483647
+                }
+                ck = bx.$ctor(cg, cf);
+                cl = bx.$ctor(ci, ch)
+            }
+            return bv.$ctor(cj, ck, cl)
+        };
+        global.tab.SheetSizeFactory = bw;
+        var bx = function () {
+        };
+        bx.__typeName = 'tab.Size';
+        bx.$ctor = function (e, cf) {
+            var cg = new Object;
+            cg.width = 0;
+            cg.height = 0;
+            cg.width = e;
+            cg.height = cf;
+            return cg
+        };
+        global.tab.Size = bx;
+        var by = function () {
+        };
+        by.__typeName = 'tab.StoryPointInfoImplUtil';
+        by.clone = function (e) {
+            return I.$ctor(e.caption, e.index, e.storyPointId, e.isActive, e.isUpdated, e.parentStoryImpl)
+        };
+        global.tab.StoryPointInfoImplUtil = by;
+        var bz = function (e, cf, cg, ch) {
+            this.$3 = null;
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$3 = cg;
+            this.$2 = ch
+        };
+        bz.__typeName = 'tab.StoryPointSwitchEvent';
+        global.tab.StoryPointSwitchEvent = bz;
+        var bA = function (e, cf) {
+            this.$1 = null;
+            this.$0 = null;
+            this.$1 = cf;
+            this.$0 = e
+        };
+        bA.__typeName = 'tab.TableauEvent';
+        global.tab.TableauEvent = bA;
+        var bB = function (e, cf, cg, ch) {
+            this.$3 = null;
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$3 = cg;
+            this.$2 = ch
+        };
+        bB.__typeName = 'tab.TabSwitchEvent';
+        global.tab.TabSwitchEvent = bB;
+        var bC = function (e, cf, cg, ch, ci) {
+            this.$18 = null;
+            this.$1m = null;
+            this.$1b = null;
+            this.$1l = null;
+            this.$1k = null;
+            this.$1c = null;
+            this.$1e = null;
+            this.$1p = null;
+            this.$1i = null;
+            this.$1j = null;
+            this.$1h = false;
+            this.$1a = false;
+            this.$1f = false;
+            this.$19 = false;
+            this.$1g = null;
+            this.$1n = null;
+            this.$1o = null;
+            this.$1d = false;
+            this.$1$1 = null;
+            this.$1$2 = null;
+            this.$1$3 = null;
+            this.$1$4 = null;
+            this.$1$5 = null;
+            this.$1$6 = null;
+            this.$1$7 = null;
+            this.$1$8 = null;
+            this.$1$9 = null;
+            this.$1$10 = null;
+            this.$1$11 = null;
+            this.$1$12 = null;
+            this.$1$13 = null;
+            if (!K.hasWindowPostMessage() || !K.hasJsonParse()) {
+                throw J.createBrowserNotCapable()
+            }
+            this.$1g = new bi(e, this);
+            this.$1m = cf;
+            if (ss.isNullOrUndefined(cg) || cg.nodeType !== 1) {
+                cg = document.body
+            }
+            this.$1k = new M(cg, ch, ci);
+            if (ss.isValue(ci)) {
+                this.$1i = ci.onFirstInteractive;
+                this.$1j = ci.onFirstVizSizeKnown
+            }
+        };
+        bC.__typeName = 'tab.VizImpl';
+        global.tab.VizImpl = bC;
+        var bD = function (e, cf, cg) {
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$2 = cg
+        };
+        bD.__typeName = 'tab.VizResizeEvent';
+        global.tab.VizResizeEvent = bD;
+        var bE = function () {
+        };
+        bE.__typeName = 'tab.VizSize';
+        bE.$ctor = function (e, cf) {
+            var cg = new Object;
+            cg.sheetSize = null;
+            cg.chromeHeight = 0;
+            cg.sheetSize = e;
+            cg.chromeHeight = cf;
+            return cg
+        };
+        global.tab.VizSize = bE;
+        var bF = function (e, cf, cg) {
+            this.$2 = null;
+            bA.call(this, e, cf);
+            this.$2 = cg
+        };
+        bF.__typeName = 'tab.WorksheetEvent';
+        global.tab.WorksheetEvent = bF;
+        var bG = function (e, cf) {
+            this.$a = false;
+            this.$9 = null;
+            bO.call(this, e, cf);
+            this.$8(cf)
+        };
+        bG.__typeName = 'tableauSoftware.CategoricalFilter';
+        global.tableauSoftware.CategoricalFilter = bG;
+        var bH = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        bH.__typeName = 'tableauSoftware.Column';
+        global.tableauSoftware.Column = bH;
+        var bI = function (e) {
+            this._impl = null;
+            this._impl = e
+        };
+        bI.__typeName = 'tableauSoftware.CustomView';
+        global.tableauSoftware.CustomView = bI;
+        var bJ = function (e) {
+            this._impl = null;
+            bV.call(this, e)
+        };
+        bJ.__typeName = 'tableauSoftware.Dashboard';
+        global.tableauSoftware.Dashboard = bJ;
+        var bK = function (e, cf, cg) {
+            this.$2 = null;
+            this.$0 = null;
+            this.$1 = null;
+            if (e.objectType === 'worksheet' && ss.isNullOrUndefined(cg)) {
+                throw J.createInternalError('worksheet parameter is required for WORKSHEET objects')
+            } else if (e.objectType !== 'worksheet' && ss.isValue(cg)) {
+                throw J.createInternalError('worksheet parameter should be undefined for non-WORKSHEET objects')
+            }
+            this.$2 = e;
+            this.$0 = cf;
+            this.$1 = cg
+        };
+        bK.__typeName = 'tableauSoftware.DashboardObject';
+        global.tableauSoftware.DashboardObject = bK;
+        var bL = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        bL.__typeName = 'tableauSoftware.DataSource';
+        global.tableauSoftware.DataSource = bL;
+        var bM = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        bM.__typeName = 'tableauSoftware.DataTable';
+        global.tableauSoftware.DataTable = bM;
+        var bN = function (e, cf, cg, ch) {
+            this.$0 = null;
+            this.$3 = null;
+            this.$2 = null;
+            this.$1 = null;
+            this.$0 = e;
+            this.$3 = cf;
+            this.$2 = cg;
+            this.$1 = ch
+        };
+        bN.__typeName = 'tableauSoftware.Field';
+        global.tableauSoftware.Field = bN;
+        var bO = function (e, cf) {
+            this.$7 = null;
+            this.$6 = null;
+            this.$1 = null;
+            this.$3 = null;
+            this.$2 = null;
+            this.$5 = null;
+            this.$4 = null;
+            this.$7 = e;
+            this.$0(cf)
+        };
+        bO.__typeName = 'tableauSoftware.Filter';
+        bO.$0 = function (e, cf) {
+            switch (cf.filterType) {
+                case'categorical': {
+                    return new bG(e, cf)
+                }
+                case'relativedate': {
+                    return new bU(e, cf)
+                }
+                case'hierarchical': {
+                    return new bP(e, cf)
+                }
+                case'quantitative': {
+                    return new bT(e, cf)
+                }
+            }
+            return null
+        };
+        bO.processFiltersList = function (e, cf) {
+            var cg = new tab._Collection;
+            for (var ch = 0; ch < cf.filters.length; ch++) {
+                var ci = cf.filters[ch];
+                if (!cg._has(ci.caption)) {
+                    cg._add(ci.caption, ci.caption)
+                }
+            }
+            var cj = new tab._Collection;
+            for (var ck = 0; ck < cf.filters.length; ck++) {
+                var cl = cf.filters[ck];
+                var cm = bO.$0(e, cl);
+                if (!cj._has(cl.caption)) {
+                    cj._add(cl.caption, cm);
+                    continue
+                }
+                var cn = cl.caption.toString() + '_' + cl.filterType.toString();
+                var co = cn;
+                var cp = 1;
+                while (cg._has(co)) {
+                    co = cn + '_' + cp;
+                    cp++
+                }
+                cj._add(co, cm)
+            }
+            return cj
+        };
+        global.tableauSoftware.Filter = bO;
+        var bP = function (e, cf) {
+            this.$9 = 0;
+            bO.call(this, e, cf);
+            this.$8(cf)
+        };
+        bP.__typeName = 'tableauSoftware.HierarchicalFilter';
+        global.tableauSoftware.HierarchicalFilter = bP;
+        var bQ = function (e) {
+            this.$0 = null;
+            this.$0 = new l(e)
+        };
+        bQ.__typeName = 'tableauSoftware.Mark';
+        global.tableauSoftware.Mark = bQ;
+        var bR = function (e, cf) {
+            this.fieldName = null;
+            this.value = null;
+            this.formattedValue = null;
+            this.fieldName = e;
+            this.value = cf;
+            this.formattedValue = (ss.isValue(cf) ? cf.toString() : '')
+        };
+        bR.__typeName = 'tableauSoftware.Pair';
+        global.tableauSoftware.Pair = bR;
+        var bS = function (e) {
+            this._impl = null;
+            this._impl = e
+        };
+        bS.__typeName = 'tableauSoftware.Parameter';
+        global.tableauSoftware.Parameter = bS;
+        var bT = function (e, cf) {
+            this.$a = null;
+            this.$9 = null;
+            this.$d = null;
+            this.$c = null;
+            this.$b = false;
+            bO.call(this, e, cf);
+            this.$8(cf)
+        };
+        bT.__typeName = 'tableauSoftware.QuantitativeFilter';
+        global.tableauSoftware.QuantitativeFilter = bT;
+        var bU = function (e, cf) {
+            this.$9 = null;
+            this.$b = null;
+            this.$a = 0;
+            bO.call(this, e, cf);
+            this.$8(cf)
+        };
+        bU.__typeName = 'tableauSoftware.RelativeDateFilter';
+        global.tableauSoftware.RelativeDateFilter = bU;
+        var bV = function (e) {
+            this._impl = null;
+            B.verifyValue(e, 'sheetImpl');
+            this._impl = e
+        };
+        bV.__typeName = 'tableauSoftware.Sheet';
+        global.tableauSoftware.Sheet = bV;
+        var bW = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        bW.__typeName = 'tableauSoftware.SheetInfo';
+        global.tableauSoftware.SheetInfo = bW;
+        var bX = function (e) {
+            this._impl = null;
+            bV.call(this, e)
+        };
+        bX.__typeName = 'tableauSoftware.Story';
+        global.tableauSoftware.Story = bX;
+        var bY = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        bY.__typeName = 'tableauSoftware.StoryPoint';
+        global.tableauSoftware.StoryPoint = bY;
+        var bZ = function (e) {
+            this._impl = null;
+            this._impl = e
+        };
+        bZ.__typeName = 'tableauSoftware.StoryPointInfo';
+        global.tableauSoftware.StoryPointInfo = bZ;
+        var ca = function (e, cf, cg, ch) {
+            this.$0 = 0;
+            this.$2 = 0;
+            this.$3 = 0;
+            this.$1 = null;
+            this.$0 = e;
+            this.$2 = cf;
+            this.$3 = cg;
+            this.$1 = ss.coalesce(ch, null)
+        };
+        ca.__typeName = 'tableauSoftware.Version';
+        ca.getCurrent = function () {
+            return ca.$0
+        };
+        global.tableauSoftware.Version = ca;
+        var cb = function (e, cf, cg) {
+            this._impl = null;
+            var ch = q.getCrossDomainMessageRouter();
+            this._impl = new bC(ch, this, e, cf, cg);
+            this._impl.$4()
+        };
+        cb.__typeName = 'tableauSoftware.Viz';
+        global.tableauSoftware.Viz = cb;
+        var cc = function () {
+        };
+        cc.__typeName = 'tableauSoftware.VizManager';
+        cc.getVizs = function () {
+            return L.$4()
+        };
+        global.tableauSoftware.VizManager = cc;
+        var cd = function (e) {
+            this.$0 = null;
+            this.$0 = e
+        };
+        cd.__typeName = 'tableauSoftware.Workbook';
+        global.tableauSoftware.Workbook = cd;
+        var ce = function (e) {
+            this._impl = null;
+            bV.call(this, e)
+        };
+        ce.__typeName = 'tableauSoftware.Worksheet';
+        global.tableauSoftware.Worksheet = ce;
+        ss.initInterface(br, a, {registerHandler: null, unregisterHandler: null, sendCommand: null});
+        ss.initClass(b, a, {
+            registerHandler: function (e) {
+                var cf = 'host' + this.$a;
+                if (ss.isValue(e.get_hostId()) || ss.isValue(this.$9[e.get_hostId()])) {
+                    throw J.createInternalError("Host '" + e.get_hostId() + "' is already registered.")
+                }
+                this.$a++;
+                e.set_hostId(cf);
+                this.$9[cf] = e;
+                e.add_customViewsListLoad(ss.mkdel(this, this.$3));
+                e.add_stateReadyForQuery(ss.mkdel(this, this.$5))
+            }, unregisterHandler: function (e) {
+                if (ss.isValue(e.get_hostId()) || ss.isValue(this.$9[e.get_hostId()])) {
+                    delete this.$9[e.get_hostId()];
+                    e.remove_customViewsListLoad(ss.mkdel(this, this.$3));
+                    e.remove_stateReadyForQuery(ss.mkdel(this, this.$5))
+                }
+            }, sendCommand: function (e) {
+                return function (cf, cg, ch) {
+                    var ci = cf.get_iframe();
+                    var cj = cf.get_hostId();
+                    if (!K.hasWindowPostMessage() || ss.isNullOrUndefined(ci) || ss.isNullOrUndefined(ci.contentWindow)) {
+                        return
+                    }
+                    var ck = p.generateNextCommandId();
+                    var cl = this.$6[cj];
+                    if (ss.isNullOrUndefined(cl)) {
+                        cl = {};
+                        this.$6[cj] = cl
+                    }
+                    cl[ck] = ch;
+                    var cm = ch.get_commandName();
+                    if (cm === 'api.ShowCustomViewCommand') {
+                        var cn = this.$8[cj];
+                        if (ss.isNullOrUndefined(cn)) {
+                            cn = [];
+                            this.$8[cj] = cn
+                        }
+                        cn.push(ch)
+                    }
+                    var co = null;
+                    if (ss.isValue(cg)) {
+                        co = JSON.stringify(cg)
+                    }
+                    var cp = new p(cm, ck, cj, co);
+                    var cq = cp.serialize();
+                    if (K.isPostMessageSynchronous()) {
+                        window.setTimeout(function () {
+                            ci.contentWindow.postMessage(cq, '*')
+                        }, 0)
+                    } else {
+                        ci.contentWindow.postMessage(cq, '*')
+                    }
+                }
+            }, $3: function (e) {
+                var cf = e.get_hostId();
+                var cg = this.$8[cf];
+                if (ss.isNullOrUndefined(cg)) {
+                    return
+                }
+                for (var ch = 0; ch < cg.length; ch++) {
+                    var ci = cg[ch];
+                    if (!ss.staticEquals(ci.get_successCallback(), null)) {
+                        ci.get_successCallback()(null)
+                    }
+                }
+                delete this.$8[cf]
+            }, $5: function (e) {
+                var cf = this.$7[e.get_hostId()];
+                if (K.isNullOrEmpty(cf)) {
+                    return
+                }
+                while (cf.length > 0) {
+                    var cg = cf.pop();
+                    if (ss.isValue(cg)) {
+                        cg()
+                    }
+                }
+            }, $1: function (e) {
+                var cf = e;
+                if (ss.isNullOrUndefined(cf.data)) {
+                    return
+                }
+                var cg = p.parse(cf.data.toString());
+                var ch = cg.get_rawName();
+                var ci = cg.get_hostId();
+                var cj = this.$9[ci];
+                if (ss.isNullOrUndefined(cj) || !ss.referenceEquals(cj.get_hostId(), cg.get_hostId())) {
+                    cj = this.$0(cf)
+                }
+                if (cg.get_isApiCommandName()) {
+                    if (cg.get_commandId() === 'xdomainSourceId') {
+                        cj.handleEventNotification(cg.get_name(), cg.get_parameters());
+                        if (cg.get_name() === 'api.FirstVizSizeKnownEvent') {
+                            cf.source.postMessage('tableau.bootstrap', '*')
+                        }
+                    } else {
+                        this.$2(cg)
+                    }
+                } else {
+                    this.$4(ch, cj)
+                }
+            }, $2: function (e) {
+                var cf = this.$6[e.get_hostId()];
+                var cg = (ss.isValue(cf) ? cf[e.get_commandId()] : null);
+                if (ss.isNullOrUndefined(cg)) {
+                    return
+                }
+                delete cf[e.get_commandId()];
+                if (e.get_name() !== cg.get_commandName()) {
+                    return
+                }
+                var ch = new s(e.get_parameters());
+                var ci = ch.get_data();
+                if (ch.get_result() === 'api.success') {
+                    switch (cg.get_successCallbackTiming()) {
+                        case 0: {
+                            if (ss.isValue(cg.get_successCallback())) {
+                                cg.get_successCallback()(ci)
+                            }
+                            break
+                        }
+                        case 1: {
+                            var cj = function () {
+                                if (ss.isValue(cg.get_successCallback())) {
+                                    cg.get_successCallback()(ci)
+                                }
+                            };
+                            var ck = this.$7[e.get_hostId()];
+                            if (ss.isNullOrUndefined(ck)) {
+                                ck = [];
+                                this.$7[e.get_hostId()] = ck
+                            }
+                            ck.push(cj);
+                            break
+                        }
+                        default: {
+                            throw J.createInternalError('Unknown timing value: ' + cg.get_successCallbackTiming())
+                        }
+                    }
+                } else if (ss.isValue(cg.get_errorCallback())) {
+                    var cl = ch.get_result() === 'api.remotefailed';
+                    var cm = (ss.isValue(ci) ? ci.toString() : '');
+                    cg.get_errorCallback()(cl, cm)
+                }
+            }, $4: function (e, cf) {
+                if (e === 'layoutInfoReq') {
+                    L.$1()
+                } else if (e === 'tableau.completed' || e === 'completed') {
+                    cf.handleVizLoad()
+                } else if (e === 'tableau.listening') {
+                    cf.handleVizListening()
+                }
+            }, $0: function (e) {
+                var cf = new ss.ObjectEnumerator(this.$9);
+                try {
+                    while (cf.moveNext()) {
+                        var cg = cf.current();
+                        if (this.$9.hasOwnProperty(cg.key) && ss.referenceEquals(cg.value.get_iframe().contentWindow, e.source)) {
+                            return cg.value
+                        }
+                    }
+                } finally {
+                    cf.dispose()
+                }
+                return new c
+            }
+        }, null, [br]);
+        ss.initInterface(bq, a, {
+            add_customViewsListLoad: null,
+            remove_customViewsListLoad: null,
+            add_stateReadyForQuery: null,
+            remove_stateReadyForQuery: null,
+            get_iframe: null,
+            get_hostId: null,
+            set_hostId: null,
+            handleVizLoad: null,
+            handleVizListening: null,
+            handleEventNotification: null
+        });
+        ss.initClass(c, a, {
+            add_customViewsListLoad: function (e) {
+                this.$1$1 = ss.delegateCombine(this.$1$1, e)
+            }, remove_customViewsListLoad: function (e) {
+                this.$1$1 = ss.delegateRemove(this.$1$1, e)
+            }, add_stateReadyForQuery: function (e) {
+                this.$1$2 = ss.delegateCombine(this.$1$2, e)
+            }, remove_stateReadyForQuery: function (e) {
+                this.$1$2 = ss.delegateRemove(this.$1$2, e)
+            }, get_iframe: function () {
+                return null
+            }, get_hostId: function () {
+                return this.$2
+            }, set_hostId: function (e) {
+                this.$2 = e
+            }, $1: function () {
+                return '*'
+            }, handleVizLoad: function () {
+            }, handleVizListening: function () {
+            }, handleEventNotification: function (e, cf) {
+            }, $0: function () {
+                this.$1$1(null);
+                this.$1$2(null)
+            }
+        }, null, [bq]);
+        ss.initClass(bm, a, {
+            get__workbookImpl: function () {
+                return this.$0
+            }, get__worksheetImpl: function () {
+                return this.$1
+            }
+        });
+        ss.initClass(d, a, {}, bm);
+        ss.initClass(f, a, {
+            get__parameterName: function () {
+                return this.$2
+            }
+        }, bm);
+        ss.initClass(g, a, {
+            get__customViewImpl: function () {
+                return this.$2
+            }
+        }, bm);
+        ss.initClass(h, a, {
+            get__filterFieldName: function () {
+                return this.$3
+            }, $2: function () {
+                return this.$4
+            }
+        }, bm);
+        ss.initClass(i, a, {}, bm);
+        ss.initClass(j, a, {});
+        ss.initClass(k, a, {});
+        ss.initClass(l, a, {
+            $2: function () {
+                return this.$5
+            }, $3: function () {
+                return this.$6
+            }, $1: function () {
+                if (ss.isNullOrUndefined(this.$4)) {
+                    this.$4 = this.$5._toApiCollection()
+                }
+                return this.$4
+            }, $0: function (e) {
+                this.$5._add(e.fieldName, e)
+            }
+        });
+        ss.initClass(m, a, {
+            $8: function () {
+                if (ss.isNullOrUndefined(this.$i)) {
+                    this.$i = new bS(this)
+                }
+                return this.$i
+            }, $7: function () {
+                return this.$h
+            }, $2: function () {
+                return this.$c
+            }, $3: function () {
+                return this.$d
+            }, $1: function () {
+                return this.$b
+            }, $0: function () {
+                return this.$a
+            }, $6: function () {
+                return this.$g
+            }, $5: function () {
+                return this.$f
+            }, $9: function () {
+                return this.$j
+            }, $4: function () {
+                return this.$e
+            }
+        });
+        ss.initClass(n, a, {});
+        ss.initClass(o, a, {});
+        ss.initClass(p, a, {
+            get_name: function () {
+                return this.$1$1
+            }, set_name: function (e) {
+                this.$1$1 = e
+            }, get_hostId: function () {
+                return this.$1$2
+            }, set_hostId: function (e) {
+                this.$1$2 = e
+            }, get_commandId: function () {
+                return this.$1$3
+            }, set_commandId: function (e) {
+                this.$1$3 = e
+            }, get_parameters: function () {
+                return this.$1$4
+            }, set_parameters: function (e) {
+                this.$1$4 = e
+            }, get_isApiCommandName: function () {
+                return this.get_rawName().indexOf('api.', 0) === 0
+            }, get_rawName: function () {
+                return this.get_name().toString()
+            }, serialize: function () {
+                var e = [];
+                e.push(this.get_name());
+                e.push(this.get_commandId());
+                e.push(this.get_hostId());
+                if (ss.isValue(this.get_parameters())) {
+                    e.push(this.get_parameters())
+                }
+                var cf = e.join(',');
+                return cf
+            }
+        });
+        ss.initClass(q, a, {});
+        ss.initClass(r, a, {
+            get_workbookName: function () {
+                return this.$1
+            }, get_worksheetName: function () {
+                return this.$2
+            }, get_data: function () {
+                return this.$0
+            }, serialize: function () {
+                var e = {};
+                e['api.workbookName'] = this.$1;
+                e['api.worksheetName'] = this.$2;
+                e['api.commandData'] = this.$0;
+                return JSON.stringify(e)
+            }
+        });
+        ss.initClass(s, a, {
+            get_result: function () {
+                return this.$1
+            }, get_data: function () {
+                return this.$0
+            }
+        });
+        ss.initClass(t, a, {
+            get__length: function () {
+                return this.$4.length
+            }, get__rawArray: function () {
+                return this.$4
+            }, get_item: function (e) {
+                return this.$4[e]
+            }, _get: function (e) {
+                var cf = this.$0(e);
+                if (ss.isValue(this.$3[cf])) {
+                    return this.$3[cf]
+                }
+                return undefined
+            }, _has: function (e) {
+                return ss.isValue(this._get(e))
+            }, _add: function (e, cf) {
+                this.$1(e, cf);
+                var cg = this.$0(e);
+                this.$4.push(cf);
+                this.$3[cg] = cf
+            }, _addToFirst: function (e, cf) {
+                this.$1(e, cf);
+                var cg = this.$0(e);
+                this.$4.unshift(cf);
+                this.$3[cg] = cf
+            }, _remove: function (e) {
+                var cf = this.$0(e);
+                if (ss.isValue(this.$3[cf])) {
+                    var cg = this.$3[cf];
+                    delete this.$3[cf];
+                    for (var ch = 0; ch < this.$4.length; ch++) {
+                        if (ss.referenceEquals(this.$4[ch], cg)) {
+                            this.$4.splice(ch, 1);
+                            break
+                        }
+                    }
+                }
+            }, _toApiCollection: function () {
+                var e = this.$4.concat();
+                e.get = ss.mkdel(this, function (cf) {
+                    return this._get(cf)
+                });
+                e.has = ss.mkdel(this, function (cf) {
+                    return this._has(cf)
+                });
+                return e
+            }, $2: function (e) {
+                if (K.isNullOrEmpty(e)) {
+                    throw new ss.Exception('Null key')
+                }
+                if (this._has(e)) {
+                    throw new ss.Exception("Duplicate key '" + e + "'")
+                }
+            }, $1: function (e, cf) {
+                this.$2(e);
+                if (ss.isNullOrUndefined(cf)) {
+                    throw new ss.Exception('Null item')
+                }
+            }, $0: function (e) {
+                return '_' + e
+            }
+        });
+        ss.initClass(u, a, {
+            get_fieldName: function () {
+                return this.$1
+            }, get_dataType: function () {
+                return this.$0
+            }, get_isReferenced: function () {
+                return this.$3
+            }, get_index: function () {
+                return this.$2
+            }
+        });
+        ss.initClass(v, a, {
+            $5: function () {
+                if (ss.isNullOrUndefined(this.$c)) {
+                    this.$c = new bI(this)
+                }
+                return this.$c
+            }, $b: function () {
+                return this.$l.get_workbook()
+            }, $a: function () {
+                return this.$k
+            }, $7: function () {
+                return this.$h
+            }, $8: function (e) {
+                if (this.$f) {
+                    throw J.create('staleDataReference', 'Stale data')
+                }
+                this.$h = e
+            }, $9: function () {
+                return this.$i
+            }, $3: function () {
+                return this.$e
+            }, $4: function (e) {
+                if (this.$f) {
+                    throw J.create('staleDataReference', 'Stale data')
+                }
+                this.$e = e
+            }, $6: function () {
+                return this.$d
+            }, $2: function () {
+                if (this.$f || ss.isNullOrUndefined(this.$j)) {
+                    throw J.create('staleDataReference', 'Stale data')
+                }
+                this.$j.isPublic = this.$e;
+                this.$j.name = this.$h;
+                var e = new tab._Deferred;
+                var cf = {};
+                cf['api.customViewParam'] = this.$j;
+                var cg = v.$0('api.UpdateCustomViewCommand', e, ss.mkdel(this, function (ch) {
+                    v._processCustomViewUpdate(this.$l, this.$g, ch, true);
+                    e.resolve(this.$5())
+                }));
+                this.$g.sendCommand(Object).call(this.$g, cf, cg);
+                return e.get_promise()
+            }, $1: function () {
+                var e = new tab._Deferred;
+                var cf = {};
+                cf['api.customViewParam'] = this.$j;
+                var cg = v.$0('api.RemoveCustomViewCommand', e, ss.mkdel(this, function (ch) {
+                    this.$f = true;
+                    v._processCustomViews(this.$l, this.$g, ch);
+                    e.resolve(this.$5())
+                }));
+                this.$g.sendCommand(Object).call(this.$g, cf, cg);
+                return e.get_promise()
+            }, _showAsync: function () {
+                if (this.$f || ss.isNullOrUndefined(this.$j)) {
+                    throw J.create('staleDataReference', 'Stale data')
+                }
+                return v._showCustomViewAsync(this.$l, this.$g, this.$j)
+            }, $0: function (e) {
+                return !ss.referenceEquals(this.$i, e.$i) || !ss.referenceEquals(this.$k, e.$k) || this.$e !== e.$e || this.$d !== e.$d
+            }
+        });
+        ss.initClass(E, a, {
+            get_sheet: null, get_name: function () {
+                return this.$5
+            }, get_index: function () {
+                return this.$1
+            }, get_workbookImpl: function () {
+                return this.$a
+            }, get_workbook: function () {
+                return this.$a.get_workbook()
+            }, get_url: function () {
+                if (this.$3) {
+                    throw J.createNoUrlForHiddenWorksheet()
+                }
+                return this.$9
+            }, get_size: function () {
+                return this.$8
+            }, get_isHidden: function () {
+                return this.$3
+            }, get_isActive: function () {
+                return this.$2
+            }, set_isActive: function (e) {
+                this.$2 = e
+            }, get_isDashboard: function () {
+                return this.$7 === 'dashboard'
+            }, get_isStory: function () {
+                return this.$7 === 'story'
+            }, get_sheetType: function () {
+                return this.$7
+            }, get_parentStoryPoint: function () {
+                if (ss.isValue(this.$6)) {
+                    return this.$6.get_storyPoint()
+                }
+                return null
+            }, get_parentStoryPointImpl: function () {
+                return this.$6
+            }, set_parentStoryPointImpl: function (e) {
+                if (this.$7 === 'story') {
+                    throw J.createInternalError('A story cannot be a child of another story.')
+                }
+                this.$6 = e
+            }, get_zoneId: function () {
+                return this.$b
+            }, get_messagingOptions: function () {
+                return this.$4
+            }, changeSizeAsync: function (e) {
+                e = E.$1(e);
+                if (this.$7 === 'worksheet' && e.behavior !== 'automatic') {
+                    throw J.createInvalidSizeBehaviorOnWorksheet()
+                }
+                var cf = new tab._Deferred;
+                if (this.$8.behavior === e.behavior && e.behavior === 'automatic') {
+                    cf.resolve(e);
+                    return cf.get_promise()
+                }
+                var cg = this.$0(e);
+                var ch = {};
+                ch['api.setSheetSizeName'] = this.$5;
+                ch['api.minWidth'] = cg['api.minWidth'];
+                ch['api.minHeight'] = cg['api.minHeight'];
+                ch['api.maxWidth'] = cg['api.maxWidth'];
+                ch['api.maxHeight'] = cg['api.maxHeight'];
+                var ci = new (ss.makeGenericType(bh, [Object]))('api.SetSheetSizeCommand', 1, ss.mkdel(this, function (cj) {
+                    this.get_workbookImpl()._update(ss.mkdel(this, function () {
+                        var ck = this.get_workbookImpl().get_publishedSheets()._get(this.get_name()).getSize();
+                        cf.resolve(ck)
+                    }))
+                }), function (cj, ck) {
+                    cf.reject(J.createServerError(ck))
+                });
+                this.sendCommand(Object).call(this, ch, ci);
+                return cf.get_promise()
+            }, sendCommand: function (e) {
+                return function (cf, cg) {
+                    this.$4.sendCommand(e).call(this.$4, cf, cg)
+                }
+            }, $0: function (e) {
+                var cf = null;
+                if (ss.isNullOrUndefined(e) || ss.isNullOrUndefined(e.behavior) || e.behavior !== 'automatic' && ss.isNullOrUndefined(e.minSize) && ss.isNullOrUndefined(e.maxSize)) {
+                    throw J.createInvalidSheetSizeParam()
+                }
+                var cg = 0;
+                var ch = 0;
+                var ci = 0;
+                var cj = 0;
+                var ck = {};
+                ck['api.minWidth'] = 0;
+                ck['api.minHeight'] = 0;
+                ck['api.maxWidth'] = 0;
+                ck['api.maxHeight'] = 0;
+                if (e.behavior === 'automatic') {
+                    cf = bv.$ctor('automatic', undefined, undefined)
+                } else if (e.behavior === 'atmost') {
+                    if (ss.isNullOrUndefined(e.maxSize) || ss.isNullOrUndefined(e.maxSize.width) || ss.isNullOrUndefined(e.maxSize.height)) {
+                        throw J.createMissingMaxSize()
+                    }
+                    if (e.maxSize.width < 0 || e.maxSize.height < 0) {
+                        throw J.createInvalidSizeValue()
+                    }
+                    ck['api.maxWidth'] = e.maxSize.width;
+                    ck['api.maxHeight'] = e.maxSize.height;
+                    cf = bv.$ctor('atmost', undefined, e.maxSize)
+                } else if (e.behavior === 'atleast') {
+                    if (ss.isNullOrUndefined(e.minSize) || ss.isNullOrUndefined(e.minSize.width) || ss.isNullOrUndefined(e.minSize.height)) {
+                        throw J.createMissingMinSize()
+                    }
+                    if (e.minSize.width < 0 || e.minSize.height < 0) {
+                        throw J.createInvalidSizeValue()
+                    }
+                    ck['api.minWidth'] = e.minSize.width;
+                    ck['api.minHeight'] = e.minSize.height;
+                    cf = bv.$ctor('atleast', e.minSize, undefined)
+                } else if (e.behavior === 'range') {
+                    if (ss.isNullOrUndefined(e.minSize) || ss.isNullOrUndefined(e.maxSize) || ss.isNullOrUndefined(e.minSize.width) || ss.isNullOrUndefined(e.maxSize.width) || ss.isNullOrUndefined(e.minSize.height) || ss.isNullOrUndefined(e.maxSize.height)) {
+                        throw J.createMissingMinMaxSize()
+                    }
+                    if (e.minSize.width < 0 || e.minSize.height < 0 || e.maxSize.width < 0 || e.maxSize.height < 0 || e.minSize.width > e.maxSize.width || e.minSize.height > e.maxSize.height) {
+                        throw J.createInvalidRangeSize()
+                    }
+                    ck['api.minWidth'] = e.minSize.width;
+                    ck['api.minHeight'] = e.minSize.height;
+                    ck['api.maxWidth'] = e.maxSize.width;
+                    ck['api.maxHeight'] = e.maxSize.height;
+                    cf = bv.$ctor('range', e.minSize, e.maxSize)
+                } else if (e.behavior === 'exactly') {
+                    if (ss.isValue(e.minSize) && ss.isValue(e.maxSize) && ss.isValue(e.minSize.width) && ss.isValue(e.maxSize.width) && ss.isValue(e.minSize.height) && ss.isValue(e.maxSize.height)) {
+                        cg = e.minSize.width;
+                        ch = e.minSize.height;
+                        ci = e.maxSize.width;
+                        cj = e.maxSize.height;
+                        if (cg !== ci || ch !== cj) {
+                            throw J.createSizeConflictForExactly()
+                        }
+                    } else if (ss.isValue(e.minSize) && ss.isValue(e.minSize.width) && ss.isValue(e.minSize.height)) {
+                        cg = e.minSize.width;
+                        ch = e.minSize.height;
+                        ci = cg;
+                        cj = ch
+                    } else if (ss.isValue(e.maxSize) && ss.isValue(e.maxSize.width) && ss.isValue(e.maxSize.height)) {
+                        ci = e.maxSize.width;
+                        cj = e.maxSize.height;
+                        cg = ci;
+                        ch = cj
+                    }
+                    ck['api.minWidth'] = cg;
+                    ck['api.minHeight'] = ch;
+                    ck['api.maxWidth'] = ci;
+                    ck['api.maxHeight'] = cj;
+                    cf = bv.$ctor('exactly', bx.$ctor(cg, ch), bx.$ctor(ci, cj))
+                }
+                this.$8 = cf;
+                return ck
+            }
+        });
+        ss.initClass(w, a, {
+            get_sheet: function () {
+                return this.get_dashboard()
+            }, get_dashboard: function () {
+                if (ss.isNullOrUndefined(this.$d)) {
+                    this.$d = new bJ(this)
+                }
+                return this.$d
+            }, get_worksheets: function () {
+                return this.$f
+            }, get_objects: function () {
+                return this.$e
+            }, $c: function (e, cf) {
+                this.$e = new tab._Collection;
+                this.$f = new tab._Collection;
+                for (var cg = 0; cg < e.length; cg++) {
+                    var ch = e[cg];
+                    var ci = null;
+                    if (e[cg].objectType === 'worksheet') {
+                        var cj = ch.name;
+                        if (ss.isNullOrUndefined(cj)) {
+                            continue
+                        }
+                        var ck = this.$f.get__length();
+                        var cl = bw.createAutomatic();
+                        var cm = false;
+                        var cn = cf(cj);
+                        var co = ss.isNullOrUndefined(cn);
+                        var cp = (co ? '' : cn.getUrl());
+                        var cq = F.$ctor(cj, 'worksheet', ck, cl, this.get_workbook(), cp, cm, co, ch.zoneId);
+                        var cr = new O(cq, this.get_workbookImpl(), this.get_messagingOptions(), this);
+                        ci = cr.get_worksheet();
+                        this.$f._add(cj, cr.get_worksheet())
+                    }
+                    var cs = new bK(ch, this.get_dashboard(), ci);
+                    this.$e._add(cg.toString(), cs)
+                }
+            }
+        }, E);
+        ss.initClass(x, a, {
+            get_dataSource: function () {
+                if (ss.isNullOrUndefined(this.$0)) {
+                    this.$0 = new bL(this)
+                }
+                return this.$0
+            }, get_name: function () {
+                return this.$3
+            }, get_fields: function () {
+                return this.$1
+            }, get_isPrimary: function () {
+                return this.$2
+            }, addField: function (e) {
+                this.$1._add(e.getName(), e)
+            }
+        });
+        ss.initClass(y, a, {
+            get_name: function () {
+                return this.$2
+            }, get_rows: function () {
+                return this.$3
+            }, get_columns: function () {
+                return this.$0
+            }, get_totalRowCount: function () {
+                return this.$4
+            }, get_isSummaryData: function () {
+                return this.$1
+            }
+        });
+        ss.initClass(z, a, {
+            get_promise: function () {
+                return this.$3
+            }, all: function (e) {
+                var cf = new z;
+                var cg = e.length;
+                var ch = cg;
+                var ci = [];
+                if (cg === 0) {
+                    cf.resolve(ci);
+                    return cf.get_promise()
+                }
+                var cj = function (cl, cm) {
+                    var cn = k.$0(cl);
+                    cn.then(function (co) {
+                        ci[cm] = co;
+                        ch--;
+                        if (ch === 0) {
+                            cf.resolve(ci)
+                        }
+                        return null
+                    }, function (co) {
+                        cf.reject(co);
+                        return null
+                    })
+                };
+                for (var ck = 0; ck < cg; ck++) {
+                    cj(e[ck], ck)
+                }
+                return cf.get_promise()
+            }, then: function (e, cf) {
+                return this.$5(e, cf)
+            }, resolve: function (e) {
+                return this.$4(e)
+            }, reject: function (e) {
+                return this.$4(k.$3(e))
+            }, $0: function (e, cf) {
+                var cg = new z;
+                this.$2.push(function (ch) {
+                    ch.then(e, cf).then(ss.mkdel(cg, cg.resolve), ss.mkdel(cg, cg.reject))
+                });
+                return cg.get_promise()
+            }, $1: function (e) {
+                var cf = k.$0(e);
+                this.$5 = cf.then;
+                this.$4 = k.$0;
+                for (var cg = 0; cg < this.$2.length; cg++) {
+                    var ch = this.$2[cg];
+                    ch(cf)
+                }
+                this.$2 = null;
+                return cf
+            }
+        });
+        ss.initClass(A, a, {});
+        ss.initClass(B, a, {});
+        ss.initClass(C, a, {
+            always: function (e) {
+                return this.then(e, e)
+            }, otherwise: function (e) {
+                return this.then(null, e)
+            }
+        });
+        ss.initClass(D, a, {
+            intersect: function (e) {
+                var cf = Math.max(this.left, e.left);
+                var cg = Math.max(this.top, e.top);
+                var ch = Math.min(this.left + this.width, e.left + e.width);
+                var ci = Math.min(this.top + this.height, e.top + e.height);
+                if (ch <= cf || ci <= cg) {
+                    return new D(0, 0, 0, 0)
+                }
+                return new D(cf, cg, ch - cf, ci - cg)
+            }
+        });
+        ss.initClass(F, a, {}, Object);
+        ss.initClass(G, a, {
+            add_activeStoryPointChange: function (e) {
+                this.$2$1 = ss.delegateCombine(this.$2$1, e)
+            }, remove_activeStoryPointChange: function (e) {
+                this.$2$1 = ss.delegateRemove(this.$2$1, e)
+            }, get_activeStoryPointImpl: function () {
+                return this.$g
+            }, get_sheet: function () {
+                return this.get_story()
+            }, get_story: function () {
+                if (ss.isNullOrUndefined(this.$i)) {
+                    this.$i = new bX(this)
+                }
+                return this.$i
+            }, get_storyPointsInfo: function () {
+                return this.$j
+            }, update: function (e) {
+                var cf = null;
+                var cg = null;
+                this.$j = this.$j || new Array(e.storyPoints.length);
+                for (var ch = 0; ch < e.storyPoints.length; ch++) {
+                    var ci = e.storyPoints[ch];
+                    var cj = ci.caption;
+                    var ck = ch === e.activeStoryPointIndex;
+                    var cl = I.$ctor(cj, ch, ci.storyPointId, ck, ci.isUpdated, this);
+                    if (ss.isNullOrUndefined(this.$j[ch])) {
+                        this.$j[ch] = new bZ(cl)
+                    } else if (this.$j[ch]._impl.storyPointId === cl.storyPointId) {
+                        var cm = this.$j[ch]._impl;
+                        cm.caption = cl.caption;
+                        cm.index = cl.index;
+                        cm.isActive = ck;
+                        cm.isUpdated = cl.isUpdated
+                    } else {
+                        this.$j[ch] = new bZ(cl)
+                    }
+                    if (ck) {
+                        cf = ci.containedSheetInfo;
+                        cg = cl
+                    }
+                }
+                var cn = this.$j.length - e.storyPoints.length;
+                this.$j.splice(e.storyPoints.length, cn);
+                var co = ss.isNullOrUndefined(this.$g) || this.$g.get_storyPointId() !== cg.storyPointId;
+                if (ss.isValue(this.$g) && co) {
+                    this.$g.set_isActive(false)
+                }
+                var cp = this.$g;
+                if (co) {
+                    var cq = H.createContainedSheet(cf, this.get_workbookImpl(), this.get_messagingOptions(), this.$h);
+                    this.$g = new H(cg, cq)
+                } else {
+                    this.$g.set_isActive(cg.isActive);
+                    this.$g.set_isUpdated(cg.isUpdated)
+                }
+                if (co && ss.isValue(cp)) {
+                    this.$d(this.$j[cp.get_index()], this.$g.get_storyPoint())
+                }
+            }, activatePreviousStoryPointAsync: function () {
+                return this.$c('api.ActivatePreviousStoryPoint')
+            }, activateNextStoryPointAsync: function () {
+                return this.$c('api.ActivateNextStoryPoint')
+            }, activateStoryPointAsync: function (e) {
+                var cf = new tab._Deferred;
+                if (e < 0 || e >= this.$j.length) {
+                    throw J.createIndexOutOfRange(e)
+                }
+                var cg = this.get_activeStoryPointImpl();
+                var ch = {};
+                ch['api.storyPointIndex'] = e;
+                var ci = new (ss.makeGenericType(bh, [Object]))('api.ActivateStoryPoint', 0, ss.mkdel(this, function (cj) {
+                    this.$e(cg, cj);
+                    cf.resolve(this.$g.get_storyPoint())
+                }), function (cj, ck) {
+                    cf.reject(J.createServerError(ck))
+                });
+                this.sendCommand(Object).call(this, ch, ci);
+                return cf.get_promise()
+            }, revertStoryPointAsync: function (e) {
+                e = e || this.$g.get_index();
+                if (e < 0 || e >= this.$j.length) {
+                    throw J.createIndexOutOfRange(e)
+                }
+                var cf = new tab._Deferred;
+                var cg = {};
+                cg['api.storyPointIndex'] = e;
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.RevertStoryPoint', 0, ss.mkdel(this, function (ci) {
+                    this.$f(e, ci);
+                    cf.resolve(this.$j[e])
+                }), function (ci, cj) {
+                    cf.reject(J.createServerError(cj))
+                });
+                this.sendCommand(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $c: function (e) {
+                if (e !== 'api.ActivatePreviousStoryPoint' && e !== 'api.ActivateNextStoryPoint') {
+                    throw J.createInternalError("commandName '" + e + "' is invalid.")
+                }
+                var cf = new tab._Deferred;
+                var cg = this.get_activeStoryPointImpl();
+                var ch = {};
+                var ci = new (ss.makeGenericType(bh, [Object]))(e, 0, ss.mkdel(this, function (cj) {
+                    this.$e(cg, cj);
+                    cf.resolve(this.$g.get_storyPoint())
+                }), function (cj, ck) {
+                    cf.reject(J.createServerError(ck))
+                });
+                this.sendCommand(Object).call(this, ch, ci);
+                return cf.get_promise()
+            }, $f: function (e, cf) {
+                var cg = this.$j[e]._impl;
+                if (cg.storyPointId !== cf.storyPointId) {
+                    throw J.createInternalError("We should not be updating a story point where the IDs don't match. Existing storyPointID=" + cg.storyPointId + ', newStoryPointID=' + cf.storyPointId)
+                }
+                cg.caption = cf.caption;
+                cg.isUpdated = cf.isUpdated;
+                if (cf.storyPointId === this.$g.get_storyPointId()) {
+                    this.$g.set_isUpdated(cf.isUpdated)
+                }
+            }, $e: function (e, cf) {
+                var cg = cf.index;
+                if (e.get_index() === cg) {
+                    return
+                }
+                var ch = this.$j[e.get_index()];
+                var ci = this.$j[cg]._impl;
+                var cj = H.createContainedSheet(cf.containedSheetInfo, this.get_workbookImpl(), this.get_messagingOptions(), this.$h);
+                ci.isActive = true;
+                this.$g = new H(ci, cj);
+                e.set_isActive(false);
+                ch._impl.isActive = false;
+                this.$d(ch, this.$g.get_storyPoint())
+            }, $d: function (e, cf) {
+                if (!ss.staticEquals(this.$2$1, null)) {
+                    this.$2$1(e, cf)
+                }
+            }
+        }, E);
+        ss.initClass(H, a, {
+            get_caption: function () {
+                return this.$1
+            }, get_containedSheetImpl: function () {
+                return this.$2
+            }, get_index: function () {
+                return this.$3
+            }, get_isActive: function () {
+                return this.$4
+            }, set_isActive: function (e) {
+                this.$4 = e
+            }, get_isUpdated: function () {
+                return this.$5
+            }, set_isUpdated: function (e) {
+                this.$5 = e
+            }, get_parentStoryImpl: function () {
+                return this.$6
+            }, get_storyPoint: function () {
+                if (ss.isNullOrUndefined(this.$7)) {
+                    this.$7 = new bY(this)
+                }
+                return this.$7
+            }, get_storyPointId: function () {
+                return this.$8
+            }, $0: function () {
+                return I.$ctor(this.$1, this.$3, this.$8, this.$4, this.$5, this.$6)
+            }
+        });
+        ss.initClass(I, a, {}, Object);
+        ss.initClass(J, a, {});
+        ss.initClass(K, a, {});
+        ss.initClass(L, a, {});
+        ss.initClass(M, a, {
+            get_url: function () {
+                return this.$0()
+            }, get_baseUrl: function () {
+                return this.$2
+            }, $0: function () {
+                var e = [];
+                e.push(this.get_baseUrl());
+                e.push('?');
+                if (this.userSuppliedParameters.length > 0) {
+                    e.push(this.userSuppliedParameters);
+                    e.push('&')
+                }
+                var cf = !this.fixedSize && !(this.userSuppliedParameters.indexOf(':size=') !== -1) && this.parentElement.clientWidth * this.parentElement.clientHeight > 0;
+                if (cf) {
+                    e.push(':size=');
+                    e.push(this.parentElement.clientWidth + ',' + this.parentElement.clientHeight);
+                    e.push('&')
+                }
+                e.push(':embed=y');
+                e.push('&:showVizHome=n');
+                if (!this.fixedSize) {
+                    e.push('&:bootstrapWhenNotified=y')
+                }
+                if (!this.tabs) {
+                    e.push('&:tabs=n')
+                }
+                if (this.displayStaticImage) {
+                    e.push('&:display_static_image=y')
+                }
+                if (!this.toolbar) {
+                    e.push('&:toolbar=n')
+                } else if (!ss.isNullOrUndefined(this.toolBarPosition)) {
+                    e.push('&:toolbar=');
+                    e.push(this.toolBarPosition.toString())
+                }
+                if (ss.isValue(this.device)) {
+                    e.push('&:device=');
+                    e.push(this.device.toString())
+                }
+                var cg = this.$1;
+                var ch = new ss.ObjectEnumerator(cg);
+                try {
+                    while (ch.moveNext()) {
+                        var ci = ch.current();
+                        if (ci.key !== 'embed' && ci.key !== 'height' && ci.key !== 'width' && ci.key !== 'device' && ci.key !== 'autoSize' && ci.key !== 'hideTabs' && ci.key !== 'hideToolbar' && ci.key !== 'onFirstInteractive' && ci.key !== 'onFirstVizSizeKnown' && ci.key !== 'toolbarPosition' && ci.key !== 'instanceIdToClone' && ci.key !== 'display_static_image') {
+                            e.push('&');
+                            e.push(encodeURIComponent(ci.key));
+                            e.push('=');
+                            e.push(encodeURIComponent(ci.value.toString()))
+                        }
+                    }
+                } finally {
+                    ch.dispose()
+                }
+                e.push('&:apiID=' + this.hostId);
+                if (ss.isValue(this.$1.instanceIdToClone)) {
+                    e.push('#' + this.$1.instanceIdToClone)
+                }
+                return e.join('')
+            }
+        });
+        ss.initClass(N, a, {
+            get_workbook: function () {
+                if (ss.isNullOrUndefined(this.$E)) {
+                    this.$E = new cd(this)
+                }
+                return this.$E
+            }, get_viz: function () {
+                return this.$D.$15()
+            }, get_publishedSheets: function () {
+                return this.$A
+            }, get_name: function () {
+                return this.$y
+            }, get_activeSheetImpl: function () {
+                return this.$s
+            }, get_activeCustomView: function () {
+                return this.$t
+            }, get_isDownloadAllowed: function () {
+                return this.$v
+            }, $4: function (e) {
+                if (ss.isNullOrUndefined(this.$s)) {
+                    return null
+                }
+                var cf = N.$2(e);
+                if (ss.isNullOrUndefined(cf)) {
+                    return null
+                }
+                if (ss.referenceEquals(cf, this.$s.get_name())) {
+                    return this.$s
+                }
+                if (this.$s.get_isDashboard()) {
+                    var cg = this.$s;
+                    var ch = cg.get_worksheets()._get(cf);
+                    if (ss.isValue(ch)) {
+                        return ch._impl
+                    }
+                }
+                return null
+            }, _setActiveSheetAsync: function (e) {
+                if (K.isNumber(e)) {
+                    var cf = e;
+                    if (cf < this.$A.get__length() && cf >= 0) {
+                        return this.$1(this.$A.get_item(cf).$0)
+                    } else {
+                        throw J.createIndexOutOfRange(cf)
+                    }
+                }
+                var cg = N.$2(e);
+                var ch = this.$A._get(cg);
+                if (ss.isValue(ch)) {
+                    return this.$1(ch.$0)
+                } else if (this.$s.get_isDashboard()) {
+                    var ci = this.$s;
+                    var cj = ci.get_worksheets()._get(cg);
+                    if (ss.isValue(cj)) {
+                        this.$r = null;
+                        var ck = '';
+                        if (cj.getIsHidden()) {
+                            this.$r = cj._impl
+                        } else {
+                            ck = cj._impl.get_url()
+                        }
+                        return this.$0(cj._impl.get_name(), ck)
+                    }
+                }
+                throw J.create('sheetNotInWorkbook', 'Sheet is not found in Workbook')
+            }, _revertAllAsync: function () {
+                var e = new tab._Deferred;
+                var cf = new (ss.makeGenericType(bh, [Object]))('api.RevertAllCommand', 1, function (cg) {
+                    e.resolve()
+                }, function (cg, ch) {
+                    e.reject(J.createServerError(ch))
+                });
+                this.$d(Object).call(this, null, cf);
+                return e.get_promise()
+            }, _update: function (e) {
+                this.$5(e)
+            }, $1: function (e) {
+                return this.$0(e.name, e.url)
+            }, $0: function (e, cf) {
+                var cg = new tab._Deferred;
+                if (ss.isValue(this.$s) && ss.referenceEquals(e, this.$s.get_name())) {
+                    cg.resolve(this.$s.get_sheet());
+                    return cg.get_promise()
+                }
+                var ch = {};
+                ch['api.switchToSheetName'] = e;
+                ch['api.switchToRepositoryUrl'] = cf;
+                ch['api.oldRepositoryUrl'] = this.$s.get_url();
+                var ci = new (ss.makeGenericType(bh, [Object]))('api.SwitchActiveSheetCommand', 0, ss.mkdel(this, function (cj) {
+                    this.$D.$18 = ss.mkdel(this, function () {
+                        this.$D.$18 = null;
+                        cg.resolve(this.$s.get_sheet())
+                    })
+                }), function (cj, ck) {
+                    cg.reject(J.createServerError(ck))
+                });
+                this.$d(Object).call(this, ch, ci);
+                return cg.get_promise()
+            }, _updateActiveSheetAsync: function () {
+                var e = new tab._Deferred;
+                var cf = {};
+                cf['api.switchToSheetName'] = this.$s.get_name();
+                cf['api.switchToRepositoryUrl'] = this.$s.get_url();
+                cf['api.oldRepositoryUrl'] = this.$s.get_url();
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.UpdateActiveSheetCommand', 0, ss.mkdel(this, function (ch) {
+                    e.resolve(this.$s.get_sheet())
+                }), function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.$d(Object).call(this, cf, cg);
+                return e.get_promise()
+            }, $d: function (e) {
+                return function (cf, cg) {
+                    this.$x.sendCommand(e).call(this.$x, cf, cg)
+                }
+            }, $5: function (e) {
+                var cf = new (ss.makeGenericType(bh, [Object]))('api.GetClientInfoCommand', 0, ss.mkdel(this, function (cg) {
+                    this.$a(cg);
+                    if (ss.isValue(e)) {
+                        e()
+                    }
+                }), null);
+                this.$d(Object).call(this, null, cf)
+            }, $a: function (e) {
+                this.$y = e.workbookName;
+                this.$v = e.isDownloadAllowed;
+                this.$D.$N(!e.isAutoUpdate);
+                this.$D.set_instanceId(e.instanceId);
+                this.$3(e);
+                this.$9(e)
+            }, $9: function (e) {
+                var cf = e.currentSheetName;
+                var cg = this.$A._get(cf);
+                if (ss.isNullOrUndefined(cg) && ss.isNullOrUndefined(this.$r)) {
+                    throw J.createInternalError('The active sheet was not specified in baseSheets')
+                }
+                if (ss.isValue(this.$s) && ss.referenceEquals(this.$s.get_name(), cf)) {
+                    return
+                }
+                if (ss.isValue(this.$s)) {
+                    this.$s.set_isActive(false);
+                    var ch = this.$A._get(this.$s.get_name());
+                    if (ss.isValue(ch)) {
+                        ch.$0.isActive = false
+                    }
+                    if (this.$s.get_sheetType() === 'story') {
+                        var ci = this.$s;
+                        ci.remove_activeStoryPointChange(ss.mkdel(this.$D, this.$D.raiseStoryPointSwitch))
+                    }
+                }
+                if (ss.isValue(this.$r)) {
+                    var cj = F.$ctor(this.$r.get_name(), 'worksheet', -1, this.$r.get_size(), this.get_workbook(), '', true, true, 4294967295);
+                    this.$r = null;
+                    this.$s = new O(cj, this, this.$x, null)
+                } else {
+                    var ck = null;
+                    for (var cl = 0, cm = e.publishedSheets.length; cl < cm; cl++) {
+                        if (ss.referenceEquals(e.publishedSheets[cl].name, cf)) {
+                            ck = e.publishedSheets[cl];
+                            break
+                        }
+                    }
+                    if (ss.isNullOrUndefined(ck)) {
+                        throw J.createInternalError('No base sheet was found corresponding to the active sheet.')
+                    }
+                    var cn = ss.mkdel(this, function (cr) {
+                        return this.$A._get(cr)
+                    });
+                    if (ck.sheetType === 'dashboard') {
+                        var co = new w(cg.$0, this, this.$x);
+                        this.$s = co;
+                        var cp = N.$0(e.dashboardZones);
+                        co.$c(cp, cn)
+                    } else if (ck.sheetType === 'story') {
+                        var cq = new G(cg.$0, this, this.$x, e.story, cn);
+                        this.$s = cq;
+                        cq.add_activeStoryPointChange(ss.mkdel(this.$D, this.$D.raiseStoryPointSwitch))
+                    } else {
+                        this.$s = new O(cg.$0, this, this.$x, null)
+                    }
+                    cg.$0.isActive = true
+                }
+                this.$s.set_isActive(true)
+            }, $3: function (e) {
+                var cf = e.publishedSheets;
+                if (ss.isNullOrUndefined(cf)) {
+                    return
+                }
+                for (var cg = 0; cg < cf.length; cg++) {
+                    var ch = cf[cg];
+                    var ci = ch.name;
+                    var cj = this.$A._get(ci);
+                    var ck = N.$1(ch);
+                    if (ss.isNullOrUndefined(cj)) {
+                        var cl = ss.referenceEquals(ci, e.currentSheetName);
+                        var cm = S.convertSheetType(ch.sheetType);
+                        var cn = F.$ctor(ci, cm, cg, ck, this.get_workbook(), ch.repositoryUrl, cl, false, 4294967295);
+                        cj = new bW(cn);
+                        this.$A._add(ci, cj)
+                    } else {
+                        cj.$0.size = ck
+                    }
+                }
+            }, $i: function () {
+                return this.$u
+            }, $j: function (e) {
+                this.$u = e
+            }, $p: function () {
+                return this.$C
+            }, $q: function (e) {
+                this.$C = e
+            }, $n: function () {
+                return this.$B
+            }, $o: function (e) {
+                this.$B = e
+            }, $g: function () {
+                return this.$t
+            }, $h: function (e) {
+                this.$t = e
+            }, $6: function () {
+                return v._getCustomViewsAsync(this, this.$x)
+            }, $f: function (e) {
+                if (ss.isNullOrUndefined(e) || K.isNullOrEmpty(e)) {
+                    return v._showCustomViewAsync(this, this.$x, null)
+                } else {
+                    var cf = this.$u._get(e);
+                    if (ss.isNullOrUndefined(cf)) {
+                        var cg = new tab._Deferred;
+                        cg.reject(J.createInvalidCustomViewName(e));
+                        return cg.get_promise()
+                    }
+                    return cf._impl._showAsync()
+                }
+            }, $c: function (e) {
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createNullOrEmptyParameter('customViewName')
+                }
+                var cf = this.$u._get(e);
+                if (ss.isNullOrUndefined(cf)) {
+                    var cg = new tab._Deferred;
+                    cg.reject(J.createInvalidCustomViewName(e));
+                    return cg.get_promise()
+                }
+                return cf._impl.$1()
+            }, $b: function (e) {
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createInvalidParameter('customViewName')
+                }
+                return v._saveNewAsync(this, this.$x, e)
+            }, $e: function () {
+                return v._makeCurrentCustomViewDefaultAsync(this, this.$x)
+            }, $k: function () {
+                return this.$w
+            }, $l: function (e) {
+                this.$w = e
+            }, $m: function () {
+                return this.$z
+            }, $8: function (e) {
+                var cf = new tab._Deferred;
+                if (ss.isValue(this.$w)) {
+                    cf.resolve(this.$w.$8());
+                    return cf.get_promise()
+                }
+                var cg = {};
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.FetchParametersCommand', 0, ss.mkdel(this, function (ci) {
+                    var cj = N.$3(e, ci);
+                    this.$w = cj;
+                    cf.resolve(cj.$8())
+                }), function (ci, cj) {
+                    cf.reject(J.createServerError(cj))
+                });
+                this.$d(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $7: function () {
+                var e = new tab._Deferred;
+                var cf = {};
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.FetchParametersCommand', 0, ss.mkdel(this, function (ch) {
+                    this.$z = N.$4(ch);
+                    e.resolve(this.$m()._toApiCollection())
+                }), function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.$d(Object).call(this, cf, cg);
+                return e.get_promise()
+            }, $2: function (e, cf) {
+                var cg = new tab._Deferred;
+                var ch = null;
+                if (ss.isValue(this.$z)) {
+                    if (ss.isNullOrUndefined(this.$z._get(e))) {
+                        cg.reject(J.createInvalidParameter(e));
+                        return cg.get_promise()
+                    }
+                    ch = this.$z._get(e)._impl;
+                    if (ss.isNullOrUndefined(ch)) {
+                        cg.reject(J.createInvalidParameter(e));
+                        return cg.get_promise()
+                    }
+                }
+                var ci = {};
+                ci['api.setParameterName'] = (ss.isValue(this.$z) ? ch.$7() : e);
+                if (ss.isValue(cf) && K.isDate(cf)) {
+                    var cj = cf;
+                    var ck = K.serializeDateForServer(cj);
+                    ci['api.setParameterValue'] = ck
+                } else {
+                    ci['api.setParameterValue'] = (ss.isValue(cf) ? cf.toString() : null)
+                }
+                this.$w = null;
+                var cl = new (ss.makeGenericType(bh, [Object]))('api.SetParameterValueCommand', 0, ss.mkdel(this, function (cm) {
+                    if (ss.isNullOrUndefined(cm)) {
+                        cg.reject(J.create('serverError', 'server error'));
+                        return
+                    }
+                    if (!cm.isValidPresModel) {
+                        cg.reject(J.createInvalidParameter(e));
+                        return
+                    }
+                    var cn = new m(cm);
+                    this.$w = cn;
+                    cg.resolve(cn.$8())
+                }), function (cm, cn) {
+                    cg.reject(J.createInvalidParameter(e))
+                });
+                this.$d(Object).call(this, ci, cl);
+                return cg.get_promise()
+            }
+        });
+        ss.initClass(O, a, {
+            get_sheet: function () {
+                return this.get_worksheet()
+            }, get_worksheet: function () {
+                if (ss.isNullOrUndefined(this.$K)) {
+                    this.$K = new ce(this)
+                }
+                return this.$K
+            }, get_parentDashboardImpl: function () {
+                return this.$I
+            }, get_parentDashboard: function () {
+                if (ss.isValue(this.$I)) {
+                    return this.$I.get_dashboard()
+                }
+                return null
+            }, $r: function () {
+                this.$G();
+                var e = new tab._Deferred;
+                var cf = {};
+                cf['api.worksheetName'] = this.get_name();
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.GetDataSourcesCommand', 0, function (ch) {
+                    var ci = x.processDataSourcesForWorksheet(ch);
+                    e.resolve(ci._toApiCollection())
+                }, function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.sendCommand(Object).call(this, cf, cg);
+                return e.get_promise()
+            }, $q: function (e) {
+                this.$G();
+                var cf = new tab._Deferred;
+                var cg = {};
+                cg['api.dataSourceName'] = e;
+                cg['api.worksheetName'] = this.get_name();
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.GetDataSourceCommand', 0, function (ci) {
+                    var cj = x.processDataSource(ci);
+                    if (ss.isValue(cj)) {
+                        cf.resolve(cj.get_dataSource())
+                    } else {
+                        cf.reject(J.createServerError("Data source '" + e + "' not found"))
+                    }
+                }, function (ci, cj) {
+                    cf.reject(J.createServerError(cj))
+                });
+                this.sendCommand(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $G: function () {
+                var e = this.get_isActive();
+                var cf = ss.isValue(this.$I) && this.$I.get_isActive();
+                var cg = ss.isValue(this.get_parentStoryPointImpl()) && this.get_parentStoryPointImpl().get_parentStoryImpl().get_isActive();
+                if (!e && !cf && !cg) {
+                    throw J.createNotActiveSheet()
+                }
+            }, $d: function (e) {
+                if (ss.isValue(this.get_parentStoryPointImpl())) {
+                    var cf = {};
+                    cf.AVP = this.get_name();
+                    cf.XwZ = (ss.isValue(this.get_parentDashboardImpl()) ? this.$I.get_name() : this.get_name());
+                    cf.WIZ = this.get_parentStoryPointImpl().get_containedSheetImpl().get_zoneId();
+                    cf.Hna = this.get_parentStoryPointImpl().get_parentStoryImpl().get_name();
+                    cf.hVl = this.get_parentStoryPointImpl().get_storyPointId();
+                    e['api.visualId'] = cf
+                } else {
+                    e['api.worksheetName'] = this.get_name();
+                    if (ss.isValue(this.get_parentDashboardImpl())) {
+                        e['api.dashboardName'] = this.get_parentDashboardImpl().get_name()
+                    }
+                }
+            }, get__filters: function () {
+                return this.$H
+            }, set__filters: function (e) {
+                this.$H = e
+            }, $s: function (e, cf, cg) {
+                if (!K.isNullOrEmpty(e) && !K.isNullOrEmpty(cf)) {
+                    throw J.createInternalError('Only fieldName OR fieldCaption is allowed, not both.')
+                }
+                cg = cg || new Object;
+                var ch = new tab._Deferred;
+                var ci = {};
+                this.$d(ci);
+                if (!K.isNullOrEmpty(cf) && K.isNullOrEmpty(e)) {
+                    ci['api.fieldCaption'] = cf
+                }
+                if (!K.isNullOrEmpty(e)) {
+                    ci['api.fieldName'] = e
+                }
+                ci['api.filterHierarchicalLevels'] = 0;
+                ci['api.ignoreDomain'] = cg.ignoreDomain || false;
+                var cj = new (ss.makeGenericType(bh, [Object]))('api.GetOneFilterInfoCommand', 0, ss.mkdel(this, function (ck) {
+                    var cl = O.$2(ck);
+                    if (ss.isNullOrUndefined(cl)) {
+                        var cm = ck;
+                        var cn = bO.$0(this, cm);
+                        ch.resolve(cn)
+                    } else {
+                        ch.reject(cl)
+                    }
+                }), function (ck, cl) {
+                    ch.reject(J.createServerError(cl))
+                });
+                this.sendCommand(Object).call(this, ci, cj);
+                return ch.get_promise()
+            }, $t: function (e) {
+                this.$G();
+                e = e || new Object;
+                var cf = new tab._Deferred;
+                var cg = {};
+                this.$d(cg);
+                cg['api.ignoreDomain'] = e.ignoreDomain || false;
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.GetFiltersListCommand', 0, ss.mkdel(this, function (ci) {
+                    this.set__filters(bO.processFiltersList(this, ci));
+                    cf.resolve(this.get__filters()._toApiCollection())
+                }), function (ci, cj) {
+                    cf.reject(J.createServerError(cj))
+                });
+                this.sendCommand(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $e: function (e, cf, cg, ch) {
+                return this.$f(e, cf, cg, ch)
+            }, $m: function (e) {
+                return this.$n(e)
+            }, $i: function (e, cf) {
+                var cg = O.$3(cf);
+                return this.$j(e, cg)
+            }, $k: function (e, cf) {
+                var cg = O.$4(cf);
+                return this.$l(e, cg)
+            }, $g: function (e, cf, cg, ch) {
+                if (ss.isNullOrUndefined(cf) && cg !== 'all') {
+                    throw J.createInvalidParameter('values')
+                }
+                return this.$h(e, cf, cg, ch)
+            }, $n: function (e) {
+                this.$G();
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createNullOrEmptyParameter('fieldName')
+                }
+                var cf = new tab._Deferred;
+                var cg = {};
+                cg['api.fieldCaption'] = e;
+                this.$d(cg);
+                var ch = O.$0('api.ClearFilterCommand', e, cf);
+                this.sendCommand(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $f: function (e, cf, cg, ch) {
+                this.$G();
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createNullOrEmptyParameter('fieldName')
+                }
+                cg = n.$1(X).call(null, cg, 'updateType');
+                var ci = [];
+                if (A.isArray(cf)) {
+                    for (var cj = 0; cj < cf.length; cj++) {
+                        ci.push(cf[cj].toString())
+                    }
+                } else if (ss.isValue(cf)) {
+                    ci.push(cf.toString())
+                }
+                var ck = new tab._Deferred;
+                var cl = {};
+                cl['api.fieldCaption'] = e;
+                cl['api.filterUpdateType'] = cg;
+                cl['api.exclude'] = ((ss.isValue(ch) && ch.isExcludeMode) ? true : false);
+                if (cg !== 'all') {
+                    cl['api.filterCategoricalValues'] = ci
+                }
+                this.$d(cl);
+                var cm = O.$0('api.ApplyCategoricalFilterCommand', e, ck);
+                this.sendCommand(Object).call(this, cl, cm);
+                return ck.get_promise()
+            }, $j: function (e, cf) {
+                this.$G();
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createNullOrEmptyParameter('fieldName')
+                }
+                if (ss.isNullOrUndefined(cf)) {
+                    throw J.createNullOrEmptyParameter('filterOptions')
+                }
+                var cg = {};
+                cg['api.fieldCaption'] = e;
+                if (ss.isValue(cf.min)) {
+                    if (K.isDate(cf.min)) {
+                        var ch = cf.min;
+                        if (K.isDateValid(ch)) {
+                            cg['api.filterRangeMin'] = K.serializeDateForServer(ch)
+                        } else {
+                            throw J.createInvalidDateParameter('filterOptions.min')
+                        }
+                    } else {
+                        cg['api.filterRangeMin'] = cf.min
+                    }
+                }
+                if (ss.isValue(cf.max)) {
+                    if (K.isDate(cf.max)) {
+                        var ci = cf.max;
+                        if (K.isDateValid(ci)) {
+                            cg['api.filterRangeMax'] = K.serializeDateForServer(ci)
+                        } else {
+                            throw J.createInvalidDateParameter('filterOptions.max')
+                        }
+                    } else {
+                        cg['api.filterRangeMax'] = cf.max
+                    }
+                }
+                if (ss.isValue(cf.nullOption)) {
+                    cg['api.filterRangeNullOption'] = cf.nullOption
+                }
+                this.$d(cg);
+                var cj = new tab._Deferred;
+                var ck = O.$0('api.ApplyRangeFilterCommand', e, cj);
+                this.sendCommand(Object).call(this, cg, ck);
+                return cj.get_promise()
+            }, $l: function (e, cf) {
+                this.$G();
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createInvalidParameter('fieldName')
+                } else if (ss.isNullOrUndefined(cf)) {
+                    throw J.createInvalidParameter('filterOptions')
+                }
+                var cg = {};
+                cg['api.fieldCaption'] = e;
+                if (ss.isValue(cf)) {
+                    cg['api.filterPeriodType'] = cf.periodType;
+                    cg['api.filterDateRangeType'] = cf.rangeType;
+                    if (cf.rangeType === 'lastn' || cf.rangeType === 'nextn') {
+                        if (ss.isNullOrUndefined(cf.rangeN)) {
+                            throw J.create('missingRangeNForRelativeDateFilters', 'Missing rangeN field for a relative date filter of LASTN or NEXTN.')
+                        }
+                        cg['api.filterDateRange'] = cf.rangeN
+                    }
+                    if (ss.isValue(cf.anchorDate)) {
+                        cg['api.filterDateArchorValue'] = K.serializeDateForServer(cf.anchorDate)
+                    }
+                }
+                this.$d(cg);
+                var ch = new tab._Deferred;
+                var ci = O.$0('api.ApplyRelativeDateFilterCommand', e, ch);
+                this.sendCommand(Object).call(this, cg, ci);
+                return ch.get_promise()
+            }, $h: function (e, cf, cg, ch) {
+                this.$G();
+                if (K.isNullOrEmpty(e)) {
+                    throw J.createNullOrEmptyParameter('fieldName')
+                }
+                cg = n.$1(X).call(null, cg, 'updateType');
+                var ci = null;
+                var cj = null;
+                if (A.isArray(cf)) {
+                    ci = [];
+                    var ck = cf;
+                    for (var cl = 0; cl < ck.length; cl++) {
+                        ci.push(ck[cl].toString())
+                    }
+                } else if (K.isString(cf)) {
+                    ci = [];
+                    ci.push(cf.toString())
+                } else if (ss.isValue(cf) && ss.isValue(cf['levels'])) {
+                    var cm = cf['levels'];
+                    cj = [];
+                    if (A.isArray(cm)) {
+                        var cn = cm;
+                        for (var co = 0; co < cn.length; co++) {
+                            cj.push(cn[co].toString())
+                        }
+                    } else {
+                        cj.push(cm.toString())
+                    }
+                } else if (ss.isValue(cf)) {
+                    throw J.createInvalidParameter('values')
+                }
+                var cp = {};
+                cp['api.fieldCaption'] = e;
+                cp['api.filterUpdateType'] = cg;
+                cp['api.exclude'] = ((ss.isValue(ch) && ch.isExcludeMode) ? true : false);
+                if (ss.isValue(ci)) {
+                    cp['api.filterHierarchicalValues'] = JSON.stringify(ci)
+                }
+                if (ss.isValue(cj)) {
+                    cp['api.filterHierarchicalLevels'] = JSON.stringify(cj)
+                }
+                this.$d(cp);
+                var cq = new tab._Deferred;
+                var cr = O.$0('api.ApplyHierarchicalFilterCommand', e, cq);
+                this.sendCommand(Object).call(this, cp, cr);
+                return cq.get_promise()
+            }, get_selectedMarks: function () {
+                return this.$J
+            }, set_selectedMarks: function (e) {
+                this.$J = e
+            }, $p: function () {
+                this.$G();
+                var e = new tab._Deferred;
+                var cf = {};
+                this.$d(cf);
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.ClearSelectedMarksCommand', 1, function (ch) {
+                    e.resolve()
+                }, function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.sendCommand(Object).call(this, cf, cg);
+                return e.get_promise()
+            }, $B: function (e, cf, cg) {
+                this.$G();
+                if (ss.isNullOrUndefined(e) && ss.isNullOrUndefined(cf)) {
+                    return this.$p()
+                }
+                if (K.isString(e) && (A.isArray(cf) || K.isString(cf) || !n.$0(bc).call(null, cf))) {
+                    return this.$C(e, cf, cg)
+                } else if (A.isArray(e)) {
+                    return this.$D(e, cf)
+                } else {
+                    return this.$E(e, cf)
+                }
+            }, $v: function () {
+                this.$G();
+                var e = new tab._Deferred;
+                var cf = {};
+                this.$d(cf);
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.FetchSelectedMarksCommand', 0, ss.mkdel(this, function (ch) {
+                    this.$J = l.$0(ch);
+                    e.resolve(this.$J._toApiCollection())
+                }), function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.sendCommand(Object).call(this, cf, cg);
+                return e.get_promise()
+            }, $C: function (e, cf, cg) {
+                var ch = [];
+                var ci = [];
+                var cj = [];
+                var ck = [];
+                var cl = [];
+                var cm = [];
+                this.$A(ch, ci, cj, ck, cl, cm, e, cf);
+                return this.$F(null, ch, ci, cj, ck, cl, cm, cg)
+            }, $E: function (e, cf) {
+                var cg = e;
+                var ch = [];
+                var ci = [];
+                var cj = [];
+                var ck = [];
+                var cl = [];
+                var cm = [];
+                var cn = new ss.ObjectEnumerator(cg);
+                try {
+                    while (cn.moveNext()) {
+                        var co = cn.current();
+                        if (e.hasOwnProperty(co.key)) {
+                            if (!A.isFunction(cg[co.key])) {
+                                this.$A(ch, ci, cj, ck, cl, cm, co.key, co.value)
+                            }
+                        }
+                    }
+                } finally {
+                    cn.dispose()
+                }
+                return this.$F(null, ch, ci, cj, ck, cl, cm, cf)
+            }, $D: function (e, cf) {
+                var cg = [];
+                var ch = [];
+                var ci = [];
+                var cj = [];
+                var ck = [];
+                var cl = [];
+                var cm = [];
+                for (var cn = 0; cn < e.length; cn++) {
+                    var co = e[cn];
+                    if (ss.isValue(co.$0.$3()) && co.$0.$3() > 0) {
+                        cm.push(co.$0.$3())
+                    } else {
+                        var cp = co.$0.$2();
+                        for (var cq = 0; cq < cp.get__length(); cq++) {
+                            var cr = cp.get_item(cq);
+                            if (cr.hasOwnProperty('fieldName') && cr.hasOwnProperty('value') && !A.isFunction(cr.fieldName) && !A.isFunction(cr.value)) {
+                                this.$A(cg, ch, ci, cj, ck, cl, cr.fieldName, cr.value)
+                            }
+                        }
+                    }
+                }
+                return this.$F(cm, cg, ch, ci, cj, ck, cl, cf)
+            }, $A: function (e, cf, cg, ch, ci, cj, ck, cl) {
+                var cm = cl;
+                if (O.$5.test(ck)) {
+                    this.$c(cg, ch, ck, cl)
+                } else if (ss.isValue(cm.min) || ss.isValue(cm.max)) {
+                    var cn = new Object;
+                    if (ss.isValue(cm.min)) {
+                        if (K.isDate(cm.min)) {
+                            var co = cm.min;
+                            if (K.isDateValid(co)) {
+                                cn.min = K.serializeDateForServer(co)
+                            } else {
+                                throw J.createInvalidDateParameter('options.min')
+                            }
+                        } else {
+                            cn.min = cm.min
+                        }
+                    }
+                    if (ss.isValue(cm.max)) {
+                        if (K.isDate(cm.max)) {
+                            var cp = cm.max;
+                            if (K.isDateValid(cp)) {
+                                cn.max = K.serializeDateForServer(cp)
+                            } else {
+                                throw J.createInvalidDateParameter('options.max')
+                            }
+                        } else {
+                            cn.max = cm.max
+                        }
+                    }
+                    if (ss.isValue(cm.nullOption)) {
+                        var cq = n.$1(Y).call(null, cm.nullOption, 'options.nullOption');
+                        cn.nullOption = cq
+                    } else {
+                        cn.nullOption = 'allValues'
+                    }
+                    var cr = JSON.stringify(cn);
+                    this.$c(ci, cj, ck, cr)
+                } else {
+                    this.$c(e, cf, ck, cl)
+                }
+            }, $c: function (e, cf, cg, ch) {
+                var ci = [];
+                if (A.isArray(ch)) {
+                    var cj = ch;
+                    for (var ck = 0; ck < cj.length; ck++) {
+                        ci.push(cj[ck].toString())
+                    }
+                } else {
+                    ci.push(ch.toString())
+                }
+                cf.push(ci);
+                e.push(cg)
+            }, $F: function (e, cf, cg, ch, ci, cj, ck, cl) {
+                var cm = {};
+                this.$d(cm);
+                cl = n.$1(bc).call(null, cl, 'updateType');
+                cm['api.filterUpdateType'] = cl;
+                if (!K.isNullOrEmpty(e)) {
+                    cm['api.tupleIds'] = JSON.stringify(e)
+                }
+                if (!K.isNullOrEmpty(cf) && !K.isNullOrEmpty(cg)) {
+                    cm['api.categoricalFieldCaption'] = JSON.stringify(cf);
+                    var cn = [];
+                    for (var co = 0; co < cg.length; co++) {
+                        var cp = JSON.stringify(cg[co]);
+                        cn.push(cp)
+                    }
+                    cm['api.categoricalMarkValues'] = JSON.stringify(cn)
+                }
+                if (!K.isNullOrEmpty(ch) && !K.isNullOrEmpty(ci)) {
+                    cm['api.hierarchicalFieldCaption'] = JSON.stringify(ch);
+                    var cq = [];
+                    for (var cr = 0; cr < ci.length; cr++) {
+                        var cs = JSON.stringify(ci[cr]);
+                        cq.push(cs)
+                    }
+                    cm['api.hierarchicalMarkValues'] = JSON.stringify(cq)
+                }
+                if (!K.isNullOrEmpty(cj) && !K.isNullOrEmpty(ck)) {
+                    cm['api.rangeFieldCaption'] = JSON.stringify(cj);
+                    var ct = [];
+                    for (var cu = 0; cu < ck.length; cu++) {
+                        var cv = JSON.stringify(ck[cu]);
+                        ct.push(cv)
+                    }
+                    cm['api.rangeMarkValues'] = JSON.stringify(ct)
+                }
+                if (K.isNullOrEmpty(cm['api.tupleIds']) && K.isNullOrEmpty(cm['api.categoricalFieldCaption']) && K.isNullOrEmpty(cm['api.hierarchicalFieldCaption']) && K.isNullOrEmpty(cm['api.rangeFieldCaption'])) {
+                    throw J.createInvalidParameter('fieldNameOrFieldValuesMap')
+                }
+                var cw = new tab._Deferred;
+                var cx = new (ss.makeGenericType(bh, [Object]))('api.SelectMarksCommand', 1, function (cy) {
+                    var cz = O.$1(cy);
+                    if (ss.isNullOrUndefined(cz)) {
+                        cw.resolve()
+                    } else {
+                        cw.reject(cz)
+                    }
+                }, function (cy, cz) {
+                    cw.reject(J.createServerError(cz))
+                });
+                this.sendCommand(Object).call(this, cm, cx);
+                return cw.get_promise()
+            }, $w: function (e) {
+                this.$G();
+                var cf = new tab._Deferred;
+                var cg = {};
+                this.$d(cg);
+                e = e || new Object;
+                cg['api.ignoreAliases'] = ss.coalesce(e.ignoreAliases, false);
+                cg['api.ignoreSelection'] = ss.coalesce(e.ignoreSelection, false);
+                cg['api.maxRows'] = ss.coalesce(e.maxRows, 0);
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.GetSummaryTableCommand', 0, function (ci) {
+                    var cj = ci;
+                    var ck = y.processGetDataPresModel(cj);
+                    cf.resolve(ck)
+                }, function (ci, cj) {
+                    cf.reject(J.createServerError(cj))
+                });
+                this.sendCommand(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $x: function (e) {
+                this.$G();
+                var cf = new tab._Deferred;
+                var cg = {};
+                this.$d(cg);
+                e = e || new Object;
+                cg['api.ignoreAliases'] = ss.coalesce(e.ignoreAliases, false);
+                cg['api.ignoreSelection'] = ss.coalesce(e.ignoreSelection, false);
+                cg['api.includeAllColumns'] = ss.coalesce(e.includeAllColumns, false);
+                cg['api.maxRows'] = ss.coalesce(e.maxRows, 0);
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.GetUnderlyingTableCommand', 0, function (ci) {
+                    var cj = ci;
+                    var ck = y.processGetDataPresModel(cj);
+                    cf.resolve(ck)
+                }, function (ci, cj) {
+                    cf.reject(J.createServerError(cj))
+                });
+                this.sendCommand(Object).call(this, cg, ch);
+                return cf.get_promise()
+            }, $o: function () {
+                this.$G();
+                var e = new tab._Deferred;
+                var cf = {};
+                this.$d(cf);
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.ClearHighlightedMarksCommand', 1, function (ch) {
+                    e.resolve()
+                }, function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.sendCommand(Object).call(this, cf, cg);
+                return e.get_promise()
+            }, $y: function (e, cf) {
+                B.verifyString(e, 'fieldName');
+                this.$G();
+                var cg = new tab._Deferred;
+                var ch = {};
+                ch['api.fieldCaption'] = e;
+                ch['api.ObjectTextIDs'] = cf;
+                this.$d(ch);
+                var ci = new (ss.makeGenericType(bh, [Object]))('api.HighlightMarksCommand', 0, function (cj) {
+                    cg.resolve()
+                }, function (cj, ck) {
+                    cg.reject(J.createServerError(ck))
+                });
+                this.sendCommand(Object).call(this, ch, ci);
+                return cg.get_promise()
+            }, $z: function (e, cf) {
+                B.verifyString(e, 'fieldName');
+                B.verifyString(cf, 'patternMatch');
+                this.$G();
+                var cg = new tab._Deferred;
+                var ch = {};
+                ch['api.filterUpdateType'] = 'replace';
+                ch['api.fieldCaption'] = e;
+                ch['api.Pattern'] = cf;
+                this.$d(ch);
+                var ci = new (ss.makeGenericType(bh, [Object]))('api.HighlightMarksByPatternMatch', 0, function (cj) {
+                    cg.resolve()
+                }, function (cj, ck) {
+                    cg.reject(J.createServerError(ck))
+                });
+                this.sendCommand(Object).call(this, ch, ci);
+                return cg.get_promise()
+            }, $u: function () {
+                this.$G();
+                var e = new tab._Deferred;
+                var cf = {};
+                this.$d(cf);
+                var cg = new (ss.makeGenericType(bh, [Object]))('api.FetchHighlightedMarksCommand', 0, ss.mkdel(this, function (ch) {
+                    this.highlightedMarks = l.$0(ch);
+                    e.resolve(this.highlightedMarks._toApiCollection())
+                }), function (ch, ci) {
+                    e.reject(J.createServerError(ci))
+                });
+                this.sendCommand(Object).call(this, cf, cg);
+                return e.get_promise()
+            }
+        }, E);
+        ss.initEnum(P, a, {
+            blank: 'blank',
+            worksheet: 'worksheet',
+            quickFilter: 'quickFilter',
+            parameterControl: 'parameterControl',
+            pageFilter: 'pageFilter',
+            legend: 'legend',
+            title: 'title',
+            text: 'text',
+            image: 'image',
+            webPage: 'webPage'
+        }, true);
+        ss.initEnum(Q, a, {last: 'last', lastn: 'lastn', next: 'next', nextn: 'nextn', curr: 'curr', todate: 'todate'}, true);
+        ss.initEnum(R, a, {default: 'default', desktop: 'desktop', tablet: 'tablet', phone: 'phone'}, true);
+        ss.initClass(S, a, {});
+        ss.initEnum(T, a, {
+            internalError: 'internalError',
+            serverError: 'serverError',
+            invalidAggregationFieldName: 'invalidAggregationFieldName',
+            invalidParameter: 'invalidParameter',
+            invalidUrl: 'invalidUrl',
+            staleDataReference: 'staleDataReference',
+            vizAlreadyInManager: 'vizAlreadyInManager',
+            noUrlOrParentElementNotFound: 'noUrlOrParentElementNotFound',
+            invalidFilterFieldName: 'invalidFilterFieldName',
+            invalidFilterFieldValue: 'invalidFilterFieldValue',
+            invalidFilterFieldNameOrValue: 'invalidFilterFieldNameOrValue',
+            filterCannotBePerformed: 'filterCannotBePerformed',
+            notActiveSheet: 'notActiveSheet',
+            invalidCustomViewName: 'invalidCustomViewName',
+            missingRangeNForRelativeDateFilters: 'missingRangeNForRelativeDateFilters',
+            missingMaxSize: 'missingMaxSize',
+            missingMinSize: 'missingMinSize',
+            missingMinMaxSize: 'missingMinMaxSize',
+            invalidSize: 'invalidSize',
+            invalidSizeBehaviorOnWorksheet: 'invalidSizeBehaviorOnWorksheet',
+            sheetNotInWorkbook: 'sheetNotInWorkbook',
+            indexOutOfRange: 'indexOutOfRange',
+            downloadWorkbookNotAllowed: 'downloadWorkbookNotAllowed',
+            nullOrEmptyParameter: 'nullOrEmptyParameter',
+            browserNotCapable: 'browserNotCapable',
+            unsupportedEventName: 'unsupportedEventName',
+            invalidDateParameter: 'invalidDateParameter',
+            invalidSelectionFieldName: 'invalidSelectionFieldName',
+            invalidSelectionValue: 'invalidSelectionValue',
+            invalidSelectionDate: 'invalidSelectionDate',
+            noUrlForHiddenWorksheet: 'noUrlForHiddenWorksheet',
+            maxVizResizeAttempts: 'maxVizResizeAttempts'
+        }, true);
+        ss.initEnum(U, a, {
+            SUM: 'SUM',
+            AVG: 'AVG',
+            MIN: 'MIN',
+            MAX: 'MAX',
+            STDEV: 'STDEV',
+            STDEVP: 'STDEVP',
+            VAR: 'VAR',
+            VARP: 'VARP',
+            COUNT: 'COUNT',
+            COUNTD: 'COUNTD',
+            MEDIAN: 'MEDIAN',
+            ATTR: 'ATTR',
+            NONE: 'NONE',
+            PERCENTILE: 'PERCENTILE',
+            YEAR: 'YEAR',
+            QTR: 'QTR',
+            MONTH: 'MONTH',
+            DAY: 'DAY',
+            HOUR: 'HOUR',
+            MINUTE: 'MINUTE',
+            SECOND: 'SECOND',
+            WEEK: 'WEEK',
+            WEEKDAY: 'WEEKDAY',
+            MONTHYEAR: 'MONTHYEAR',
+            MDY: 'MDY',
+            END: 'END',
+            TRUNC_YEAR: 'TRUNC_YEAR',
+            TRUNC_QTR: 'TRUNC_QTR',
+            TRUNC_MONTH: 'TRUNC_MONTH',
+            TRUNC_WEEK: 'TRUNC_WEEK',
+            TRUNC_DAY: 'TRUNC_DAY',
+            TRUNC_HOUR: 'TRUNC_HOUR',
+            TRUNC_MINUTE: 'TRUNC_MINUTE',
+            TRUNC_SECOND: 'TRUNC_SECOND',
+            QUART1: 'QUART1',
+            QUART3: 'QUART3',
+            SKEWNESS: 'SKEWNESS',
+            KURTOSIS: 'KURTOSIS',
+            INOUT: 'INOUT',
+            SUM_XSQR: 'SUM_XSQR',
+            USER: 'USER'
+        }, true);
+        ss.initEnum(V, a, {dimension: 'dimension', measure: 'measure', unknown: 'unknown'}, true);
+        ss.initEnum(W, a, {categorical: 'categorical', quantitative: 'quantitative', hierarchical: 'hierarchical', relativedate: 'relativedate'}, true);
+        ss.initEnum(X, a, {all: 'all', replace: 'replace', add: 'add', remove: 'remove'}, true);
+        ss.initEnum(Y, a, {nullValues: 'nullValues', nonNullValues: 'nonNullValues', allValues: 'allValues'}, true);
+        ss.initEnum(Z, a, {all: 'all', list: 'list', range: 'range'}, true);
+        ss.initEnum(ba, a, {float: 'float', integer: 'integer', string: 'string', boolean: 'boolean', date: 'date', datetime: 'datetime'}, true);
+        ss.initEnum(bb, a, {year: 'year', quarter: 'quarter', month: 'month', week: 'week', day: 'day', hour: 'hour', minute: 'minute', second: 'second'}, true);
+        ss.initEnum(bc, a, {replace: 'replace', add: 'add', remove: 'remove'}, true);
+        ss.initEnum(bd, a, {automatic: 'automatic', exactly: 'exactly', range: 'range', atleast: 'atleast', atmost: 'atmost'}, true);
+        ss.initEnum(be, a, {worksheet: 'worksheet', dashboard: 'dashboard', story: 'story'}, true);
+        ss.initEnum(bf, a, {
+            customviewload: 'customviewload',
+            customviewremove: 'customviewremove',
+            customviewsave: 'customviewsave',
+            customviewsetdefault: 'customviewsetdefault',
+            filterchange: 'filterchange',
+            firstinteractive: 'firstinteractive',
+            firstvizsizeknown: 'firstvizsizeknown',
+            marksselection: 'marksselection',
+            markshighlight: 'markshighlight',
+            parametervaluechange: 'parametervaluechange',
+            storypointswitch: 'storypointswitch',
+            tabswitch: 'tabswitch',
+            vizresize: 'vizresize'
+        }, true);
+        ss.initEnum(bg, a, {top: 'top', bottom: 'bottom'}, true);
+        ss.initClass(bi, a, {
+            get_router: function () {
+                return this.$1
+            }, get_handler: function () {
+                return this.$0
+            }, sendCommand: function (e) {
+                return function (cf, cg) {
+                    this.$1.sendCommand(e).call(this.$1, this.$0, cf, cg)
+                }
+            }
+        });
+        ss.initClass(bA, a, {
+            getViz: function () {
+                return this.$1
+            }, getEventName: function () {
+                return this.$0
+            }
+        });
+        ss.initClass(bj, a, {
+            getCustomViewAsync: function () {
+                var e = new tab._Deferred;
+                var cf = null;
+                if (ss.isValue(this.$2.get__customViewImpl())) {
+                    cf = this.$2.get__customViewImpl().$5()
+                }
+                e.resolve(cf);
+                return e.get_promise()
+            }
+        }, bA);
+        ss.initEnum(bk, a, {float: 'float', integer: 'integer', string: 'string', boolean: 'boolean', date: 'date', datetime: 'datetime'}, true);
+        ss.initClass(bl, a, {}, Object);
+        ss.initClass(bF, a, {
+            getWorksheet: function () {
+                return this.$2.get_worksheet()
+            }
+        }, bA);
+        ss.initClass(bn, a, {
+            getFieldName: function () {
+                return this.$4
+            }, getFilterAsync: function () {
+                return this.$3.get__worksheetImpl().$s(this.$3.get__filterFieldName(), null, null)
+            }
+        }, bF);
+        ss.initClass(bo, a, {
+            getVizSize: function () {
+                return this.$2
+            }
+        }, bA);
+        ss.initClass(bp, a, {
+            getHighlightedMarksAsync: function () {
+                var e = this.$3.get__worksheetImpl();
+                return e.$u()
+            }
+        }, bF);
+        ss.initClass(bs, a, {
+            getMarksAsync: function () {
+                var e = this.$3.get__worksheetImpl();
+                if (ss.isValue(e.get_selectedMarks())) {
+                    var cf = new tab._Deferred;
+                    return cf.resolve(e.get_selectedMarks()._toApiCollection())
+                }
+                return e.$v()
+            }
+        }, bF);
+        ss.initClass(bt, a, {
+            getParameterName: function () {
+                return this.$2.get__parameterName()
+            }, getParameterAsync: function () {
+                return this.$2.get__workbookImpl().$8(this.$2.get__parameterName())
+            }
+        }, bA);
+        ss.initClass(bu, a, {}, Object);
+        ss.initClass(bv, a, {}, Object);
+        ss.initClass(bw, a, {});
+        ss.initClass(bx, a, {}, Object);
+        ss.initClass(by, a, {});
+        ss.initClass(bz, a, {
+            getOldStoryPointInfo: function () {
+                return this.$3
+            }, getNewStoryPoint: function () {
+                return this.$2
+            }
+        }, bA);
+        ss.initClass(bB, a, {
+            getOldSheetName: function () {
+                return this.$3
+            }, getNewSheetName: function () {
+                return this.$2
+            }
+        }, bA);
+        ss.initClass(bC, a, {
+            add_customViewsListLoad: function (e) {
+                this.$1$1 = ss.delegateCombine(this.$1$1, e)
+            }, remove_customViewsListLoad: function (e) {
+                this.$1$1 = ss.delegateRemove(this.$1$1, e)
+            }, add_stateReadyForQuery: function (e) {
+                this.$1$2 = ss.delegateCombine(this.$1$2, e)
+            }, remove_stateReadyForQuery: function (e) {
+                this.$1$2 = ss.delegateRemove(this.$1$2, e)
+            }, $1C: function (e) {
+                this.$1$3 = ss.delegateCombine(this.$1$3, e)
+            }, $1D: function (e) {
+                this.$1$3 = ss.delegateRemove(this.$1$3, e)
+            }, $1A: function (e) {
+                this.$1$4 = ss.delegateCombine(this.$1$4, e)
+            }, $1B: function (e) {
+                this.$1$4 = ss.delegateRemove(this.$1$4, e)
+            }, $1y: function (e) {
+                this.$1$5 = ss.delegateCombine(this.$1$5, e)
+            }, $1z: function (e) {
+                this.$1$5 = ss.delegateRemove(this.$1$5, e)
+            }, $1E: function (e) {
+                this.$1$6 = ss.delegateCombine(this.$1$6, e)
+            }, $1F: function (e) {
+                this.$1$6 = ss.delegateRemove(this.$1$6, e)
+            }, $1q: function (e) {
+                this.$1$7 = ss.delegateCombine(this.$1$7, e)
+            }, $1r: function (e) {
+                this.$1$7 = ss.delegateRemove(this.$1$7, e)
+            }, $1u: function (e) {
+                this.$1$8 = ss.delegateCombine(this.$1$8, e)
+            }, $1v: function (e) {
+                this.$1$8 = ss.delegateRemove(this.$1$8, e)
+            }, $1s: function (e) {
+                this.$1$9 = ss.delegateCombine(this.$1$9, e)
+            }, $1t: function (e) {
+                this.$1$9 = ss.delegateRemove(this.$1$9, e)
+            }, $1w: function (e) {
+                this.$1$10 = ss.delegateCombine(this.$1$10, e)
+            }, $1x: function (e) {
+                this.$1$10 = ss.delegateRemove(this.$1$10, e)
+            }, $1I: function (e) {
+                this.$1$11 = ss.delegateCombine(this.$1$11, e)
+            }, $1J: function (e) {
+                this.$1$11 = ss.delegateRemove(this.$1$11, e)
+            }, $1G: function (e) {
+                this.$1$12 = ss.delegateCombine(this.$1$12, e)
+            }, $1H: function (e) {
+                this.$1$12 = ss.delegateRemove(this.$1$12, e)
+            }, $1K: function (e) {
+                this.$1$13 = ss.delegateCombine(this.$1$13, e)
+            }, $1L: function (e) {
+                this.$1$13 = ss.delegateRemove(this.$1$13, e)
+            }, get_hostId: function () {
+                return this.$1k.hostId
+            }, set_hostId: function (e) {
+                this.$1k.hostId = e
+            }, get_iframe: function () {
+                return this.$1b
+            }, get_instanceId: function () {
+                return this.$1e
+            }, set_instanceId: function (e) {
+                this.$1e = e
+            }, $15: function () {
+                return this.$1m
+            }, $10: function () {
+                return this.$1a
+            }, $12: function () {
+                return this.$1f
+            }, $11: function () {
+                return this.$1b.style.display === 'none'
+            }, $13: function () {
+                return this.$1k.parentElement
+            }, $14: function () {
+                return this.$1k.get_baseUrl()
+            }, $17: function () {
+                return this.$1p.get_workbook()
+            }, get__workbookImpl: function () {
+                return this.$1p
+            }, $Z: function () {
+                return this.$19
+            }, $16: function () {
+                return this.$1n
+            }, getCurrentUrlAsync: function () {
+                var e = new tab._Deferred;
+                var cf = new (ss.makeGenericType(bh, [String]))('api.GetCurrentUrlCommand', 0, function (cg) {
+                    e.resolve(cg)
+                }, function (cg, ch) {
+                    e.reject(J.createInternalError(ch))
+                });
+                this._sendCommand(String).call(this, null, cf);
+                return e.get_promise()
+            }, handleVizListening: function () {
+                this.$8()
+            }, handleVizLoad: function () {
+                if (ss.isNullOrUndefined(this.$1n)) {
+                    this.$O(this.$1c.width + 'px', this.$1c.height + 'px');
+                    this.$Q()
+                }
+                if (ss.isValue(this.$1l)) {
+                    this.$1l.style.display = 'none'
+                }
+                if (ss.isNullOrUndefined(this.$1p)) {
+                    this.$1p = new N(this, this.$1g, ss.mkdel(this, function () {
+                        this.$w(null)
+                    }))
+                } else if (!this.$1d) {
+                    this.$1p._update(ss.mkdel(this, function () {
+                        this.$w(null)
+                    }))
+                }
+            }, $1: function (e) {
+                var cf = this.$1n.chromeHeight;
+                var cg = this.$1n.sheetSize;
+                var ch = 0;
+                var ci = 0;
+                if (cg.behavior === 'exactly') {
+                    ch = cg.maxSize.width;
+                    ci = cg.maxSize.height + cf
+                } else {
+                    var cj;
+                    var ck;
+                    var cl;
+                    var cm;
+                    switch (cg.behavior) {
+                        case'range': {
+                            cj = cg.minSize.width;
+                            ck = cg.maxSize.width;
+                            cl = cg.minSize.height + cf;
+                            cm = cg.maxSize.height + cf;
+                            ch = Math.max(cj, Math.min(ck, e.width));
+                            ci = Math.max(cl, Math.min(cm, e.height));
+                            break
+                        }
+                        case'atleast': {
+                            cj = cg.minSize.width;
+                            cl = cg.minSize.height + cf;
+                            ch = Math.max(cj, e.width);
+                            ci = Math.max(cl, e.height);
+                            break
+                        }
+                        case'atmost': {
+                            ck = cg.maxSize.width;
+                            cm = cg.maxSize.height + cf;
+                            ch = Math.min(ck, e.width);
+                            ci = Math.min(cm, e.height);
+                            break
+                        }
+                        case'automatic': {
+                            ch = e.width;
+                            ci = Math.max(e.height, cf);
+                            break
+                        }
+                        default: {
+                            throw J.createInternalError('Unknown SheetSizeBehavior for viz: ' + cg.behavior.toString())
+                        }
+                    }
+                }
+                return bx.$ctor(ch, ci)
+            }, $b: function () {
+                var e;
+                if (ss.isValue(this.$1c)) {
+                    e = this.$1c;
+                    this.$1c = null
+                } else {
+                    e = K.computeContentSize(this.$13())
+                }
+                this.$G(e);
+                return this.$1(e)
+            }, $I: function () {
+                if (!ss.isValue(this.$1n)) {
+                    return
+                }
+                var e = this.$b();
+                if (e.height === this.$1n.chromeHeight) {
+                    return
+                }
+                this.$O(e.width + 'px', e.height + 'px');
+                var cf = 10;
+                for (var cg = 0; cg < cf; cg++) {
+                    var ch = this.$b();
+                    if (ss.referenceEquals(JSON.stringify(e), JSON.stringify(ch))) {
+                        return
+                    }
+                    e = ch;
+                    this.$O(e.width + 'px', e.height + 'px')
+                }
+                throw J.create('maxVizResizeAttempts', 'Viz resize limit hit. The calculated iframe size did not stabilize after ' + cf + ' resizes.')
+            }, handleEventNotification: function (e, cf) {
+                var cg = r.deserialize(cf);
+                switch (e) {
+                    case'api.FirstVizSizeKnownEvent': {
+                        this.$i(cg);
+                        break
+                    }
+                    case'api.VizInteractiveEvent': {
+                        this.$p(cg);
+                        break
+                    }
+                    case'api.MarksSelectionChangedEvent': {
+                        this.$l(cg);
+                        break
+                    }
+                    case'api.MarksHighlightChangedEvent': {
+                        this.$k(cg);
+                        break
+                    }
+                    case'api.FilterChangedEvent': {
+                        this.$h(cg);
+                        break
+                    }
+                    case'api.ParameterChangedEvent': {
+                        this.$m(cg);
+                        break
+                    }
+                    case'api.CustomViewsListLoadedEvent': {
+                        this.$g(cg);
+                        break
+                    }
+                    case'api.CustomViewUpdatedEvent': {
+                        this.$f(cg);
+                        break
+                    }
+                    case'api.CustomViewRemovedEvent': {
+                        this.$d();
+                        break
+                    }
+                    case'api.CustomViewSetDefaultEvent': {
+                        this.$e(cg);
+                        break
+                    }
+                    case'api.TabSwitchEvent': {
+                        this.$o(cg);
+                        break
+                    }
+                    case'api.StorytellingStateChangedEvent': {
+                        this.$n(cg);
+                        break
+                    }
+                }
+            }, addEventListener: function (e, cf) {
+                var cg = {};
+                if (!n.$2(bf).call(null, e, cg)) {
+                    throw J.createUnsupportedEventName(e.toString())
+                }
+                switch (cg.$) {
+                    case'marksselection': {
+                        this.$1C(cf);
+                        break
+                    }
+                    case'markshighlight': {
+                        this.$1A(cf);
+                        break
+                    }
+                    case'parametervaluechange': {
+                        this.$1E(cf);
+                        break
+                    }
+                    case'filterchange': {
+                        this.$1y(cf);
+                        break
+                    }
+                    case'customviewload': {
+                        this.$1q(cf);
+                        break
+                    }
+                    case'customviewsave': {
+                        this.$1u(cf);
+                        break
+                    }
+                    case'customviewremove': {
+                        this.$1s(cf);
+                        break
+                    }
+                    case'customviewsetdefault': {
+                        this.$1w(cf);
+                        break
+                    }
+                    case'tabswitch': {
+                        this.$1I(cf);
+                        break
+                    }
+                    case'storypointswitch': {
+                        this.$1G(cf);
+                        break
+                    }
+                    case'vizresize': {
+                        this.$1K(cf);
+                        break
+                    }
+                }
+            }, removeEventListener: function (e, cf) {
+                var cg = {};
+                if (!n.$2(bf).call(null, e, cg)) {
+                    throw J.createUnsupportedEventName(e.toString())
+                }
+                switch (cg.$) {
+                    case'marksselection': {
+                        this.$1D(cf);
+                        break
+                    }
+                    case'markshighlight': {
+                        this.$1B(cf);
+                        break
+                    }
+                    case'parametervaluechange': {
+                        this.$1F(cf);
+                        break
+                    }
+                    case'filterchange': {
+                        this.$1z(cf);
+                        break
+                    }
+                    case'customviewload': {
+                        this.$1r(cf);
+                        break
+                    }
+                    case'customviewsave': {
+                        this.$1v(cf);
+                        break
+                    }
+                    case'customviewremove': {
+                        this.$1t(cf);
+                        break
+                    }
+                    case'customviewsetdefault': {
+                        this.$1x(cf);
+                        break
+                    }
+                    case'tabswitch': {
+                        this.$1J(cf);
+                        break
+                    }
+                    case'storypointswitch': {
+                        this.$1H(cf);
+                        break
+                    }
+                    case'vizresize': {
+                        this.$1L(cf);
+                        break
+                    }
+                }
+            }, $7: function () {
+                if (ss.isValue(this.$1b)) {
+                    this.$1b.parentNode.removeChild(this.$1b);
+                    this.$1b = null
+                }
+                L.$2(this.$1m);
+                this.$1g.get_router().unregisterHandler(this);
+                this.$J()
+            }, $Q: function () {
+                this.$1b.style.display = 'block';
+                this.$1b.style.visibility = 'visible'
+            }, $q: function () {
+                this.$1b.style.display = 'none'
+            }, $t: function () {
+                this.$1b.style.visibility = 'hidden'
+            }, $U: function () {
+                this.$s('showExportImageDialog')
+            }, $T: function (e) {
+                var cf = this.$Y(e);
+                this.$s('showExportDataDialog', cf)
+            }, $S: function (e) {
+                var cf = this.$Y(e);
+                this.$s('showExportCrosstabDialog', cf)
+            }, $V: function () {
+                this.$s('showExportPDFDialog')
+            }, $L: function () {
+                var e = new tab._Deferred;
+                var cf = new (ss.makeGenericType(bh, [Object]))('api.RevertAllCommand', 1, function (cg) {
+                    e.resolve()
+                }, function (cg, ch) {
+                    e.reject(J.createServerError(ch))
+                });
+                this._sendCommand(Object).call(this, null, cf);
+                return e.get_promise()
+            }, $H: function () {
+                var e = new tab._Deferred;
+                var cf = new (ss.makeGenericType(bh, [Object]))('api.RefreshDataCommand', 1, function (cg) {
+                    e.resolve()
+                }, function (cg, ch) {
+                    e.reject(J.createServerError(ch))
+                });
+                this._sendCommand(Object).call(this, null, cf);
+                return e.get_promise()
+            }, $W: function () {
+                this.$s('showShareDialog')
+            }, $R: function () {
+                if (this.get__workbookImpl().get_isDownloadAllowed()) {
+                    this.$s('showDownloadWorkbookDialog')
+                } else {
+                    throw J.create('downloadWorkbookNotAllowed', 'Download workbook is not allowed')
+                }
+            }, $x: function () {
+                return this.$r('pauseAutomaticUpdates')
+            }, $K: function () {
+                return this.$r('resumeAutomaticUpdates')
+            }, $X: function () {
+                return this.$r('toggleAutomaticUpdates')
+            }, $P: function (e, cf) {
+                this.$G(bx.$ctor(-1, -1));
+                this.$O(e, cf);
+                this.$1p._updateActiveSheetAsync()
+            }, $N: function (e) {
+                this.$19 = e
+            }, $3: function () {
+                return this.$1k.parentElement
+            }, $4: function () {
+                try {
+                    L.$0(this.$1m)
+                } catch (cf) {
+                    var e = ss.Exception.wrap(cf);
+                    this.$7();
+                    throw e
+                }
+                if (!this.$1k.fixedSize) {
+                    this.$1c = K.computeContentSize(this.$13());
+                    if (this.$1c.width === 0 || this.$1c.height === 0) {
+                        this.$1c = bx.$ctor(800, 600)
+                    }
+                    this.$1b = this.$5();
+                    this.$t();
+                    if (this.$1k.displayStaticImage) {
+                        this.$1l = this.$6(this.$1c);
+                        this.$1l.style.display = 'block'
+                    }
+                } else {
+                    if (this.$1k.displayStaticImage) {
+                        this.$1l = this.$6(bx.$ctor(parseInt(this.$1k.width), parseInt(this.$1k.height)));
+                        this.$1l.style.display = 'block'
+                    }
+                    this.$1b = this.$5();
+                    this.$Q()
+                }
+                if (!K.hasWindowPostMessage()) {
+                    if (K.isIE()) {
+                        this.$1b['onreadystatechange'] = this.$c()
+                    } else {
+                        this.$1b.onload = this.$c()
+                    }
+                }
+                this.$1f = !this.$1k.toolbar;
+                this.$1a = !this.$1k.tabs;
+                this.$1g.get_router().registerHandler(this);
+                this.$1b.src = this.$1k.get_url()
+            }, $M: function () {
+                try {
+                    if (!K.hasWindowPostMessage() || ss.isNullOrUndefined(this.$1b) || !ss.isValue(this.$1b.contentWindow)) {
+                        return
+                    }
+                } catch (ch) {
+                    return
+                }
+                var e = K.visibleContentRectInDocumentCoordinates(this.get_iframe());
+                var cf = K.contentRectInDocumentCoordinates(this.get_iframe());
+                var cg = [];
+                cg.push('layoutInfoResp'.toString());
+                cg.push(e.left - cf.left);
+                cg.push(e.top - cf.top);
+                cg.push(e.width);
+                cg.push(e.height);
+                this.$1b.contentWindow.postMessage(cg.join(','), '*')
+            }, $8: function () {
+                if (!K.hasWindowPostMessage() || ss.isNullOrUndefined(this.$1b) || !ss.isValue(this.$1b.contentWindow)) {
+                    return
+                }
+                this.$1b.contentWindow.postMessage('tableau.enableVisibleRectCommunication'.toString(), '*')
+            }, _sendCommand: function (e) {
+                return function (cf, cg) {
+                    this.$1g.sendCommand(e).call(this.$1g, cf, cg)
+                }
+            }, $D: function (e) {
+                if (!ss.staticEquals(this.$1$6, null)) {
+                    this.$1$6(new bt('parametervaluechange', this.$1m, e))
+                }
+            }, $y: function (e) {
+                this.get__workbookImpl()._update(ss.mkdel(this, function () {
+                    if (!ss.staticEquals(this.$1$7, null)) {
+                        this.$1$7(new bj('customviewload', this.$1m, (ss.isValue(e) ? e._impl : null)))
+                    }
+                }))
+            }, $A: function (e) {
+                this.get__workbookImpl()._update(ss.mkdel(this, function () {
+                    if (!ss.staticEquals(this.$1$8, null)) {
+                        this.$1$8(new bj('customviewsave', this.$1m, e._impl))
+                    }
+                }))
+            }, $z: function (e) {
+                if (!ss.staticEquals(this.$1$9, null)) {
+                    this.$1$9(new bj('customviewremove', this.$1m, e._impl))
+                }
+            }, $B: function (e) {
+                if (!ss.staticEquals(this.$1$10, null)) {
+                    this.$1$10(new bj('customviewsetdefault', this.$1m, e._impl))
+                }
+            }, $F: function (e, cf) {
+                if (!ss.staticEquals(this.$1$11, null)) {
+                    this.$1$11(new bB('tabswitch', this.$1m, e, cf))
+                }
+            }, raiseStoryPointSwitch: function (e, cf) {
+                if (!ss.staticEquals(this.$1$12, null)) {
+                    this.$1$12(new bz('storypointswitch', this.$1m, e, cf))
+                }
+            }, $E: function () {
+                if (!ss.staticEquals(this.$1$2, null)) {
+                    this.$1$2(this)
+                }
+            }, $C: function () {
+                if (!ss.staticEquals(this.$1$1, null)) {
+                    this.$1$1(this)
+                }
+            }, $G: function (e) {
+                if (!ss.staticEquals(this.$1$13, null)) {
+                    this.$1$13(new bD('vizresize', this.$1m, e))
+                }
+            }, $O: function (e, cf) {
+                this.$1k.width = e;
+                this.$1k.height = cf;
+                this.$1b.style.width = this.$1k.width;
+                this.$1b.style.height = this.$1k.height
+            }, $Y: function (e) {
+                if (ss.isNullOrUndefined(e)) {
+                    return null
+                }
+                var cf = this.$1p.$4(e);
+                if (ss.isNullOrUndefined(cf)) {
+                    throw J.createNotActiveSheet()
+                }
+                return cf.get_name()
+            }, $r: function (e) {
+                if (e !== 'pauseAutomaticUpdates' && e !== 'resumeAutomaticUpdates' && e !== 'toggleAutomaticUpdates') {
+                    throw J.createInternalError(null)
+                }
+                var cf = {};
+                cf['api.invokeCommandName'] = e;
+                var cg = new tab._Deferred;
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.InvokeCommandCommand', 0, ss.mkdel(this, function (ci) {
+                    if (ss.isValue(ci) && ss.isValue(ci.isAutoUpdate)) {
+                        this.$19 = !ci.isAutoUpdate
+                    }
+                    cg.resolve(this.$19)
+                }), function (ci, cj) {
+                    cg.reject(J.createServerError(cj))
+                });
+                this._sendCommand(Object).call(this, cf, ch);
+                return cg.get_promise()
+            }, $s: function (e, cf) {
+                if (e !== 'showExportImageDialog' && e !== 'showExportDataDialog' && e !== 'showExportCrosstabDialog' && e !== 'showExportPDFDialog' && e !== 'showShareDialog' && e !== 'showDownloadWorkbookDialog') {
+                    throw J.createInternalError(null)
+                }
+                var cg = {};
+                cg['api.invokeCommandName'] = e;
+                if (ss.isValue(cf)) {
+                    cg['api.invokeCommandParam'] = cf
+                }
+                var ch = new (ss.makeGenericType(bh, [Object]))('api.InvokeCommandCommand', 0, null, null);
+                this._sendCommand(Object).call(this, cg, ch)
+            }, $i: function (e) {
+                var cf = JSON.parse(e.get_data());
+                this.$j(cf)
+            }, $p: function (e) {
+                if (ss.isValue(this.$1p) && ss.referenceEquals(this.$1p.get_name(), e.get_workbookName())) {
+                    this.$w(null)
+                } else {
+                    this.$E()
+                }
+            }, $l: function (e) {
+                if (ss.staticEquals(this.$1$3, null) || !ss.referenceEquals(this.$1p.get_name(), e.get_workbookName())) {
+                    return
+                }
+                var cf = null;
+                var cg = this.$1p.get_activeSheetImpl();
+                if (cg.get_isStory()) {
+                    cg = cg.get_activeStoryPointImpl().get_containedSheetImpl()
+                }
+                if (ss.referenceEquals(cg.get_name(), e.get_worksheetName())) {
+                    cf = cg
+                } else if (cg.get_isDashboard()) {
+                    var ch = cg;
+                    cf = ch.get_worksheets()._get(e.get_worksheetName())._impl
+                }
+                if (ss.isValue(cf)) {
+                    cf.set_selectedMarks(null);
+                    this.$1$3(new bs('marksselection', this.$1m, cf))
+                }
+            }, $k: function (e) {
+                if (ss.staticEquals(this.$1$4, null) || !ss.referenceEquals(this.$1p.get_name(), e.get_workbookName())) {
+                    return
+                }
+                var cf = null;
+                var cg = this.$1p.get_activeSheetImpl();
+                if (cg.get_isStory()) {
+                    cg = cg.get_activeStoryPointImpl().get_containedSheetImpl()
+                }
+                if (ss.referenceEquals(cg.get_name(), e.get_worksheetName())) {
+                    cf = cg
+                } else if (cg.get_isDashboard()) {
+                    var ch = cg;
+                    cf = ch.get_worksheets()._get(e.get_worksheetName())._impl
+                }
+                if (ss.isValue(cf)) {
+                    cf.highlightedMarks = null;
+                    this.$1$4(new bp('markshighlight', this.$1m, cf))
+                }
+            }, $h: function (e) {
+                if (ss.staticEquals(this.$1$5, null) || !ss.referenceEquals(this.$1p.get_name(), e.get_workbookName())) {
+                    return
+                }
+                var cf = null;
+                var cg = this.$1p.get_activeSheetImpl();
+                if (ss.referenceEquals(cg.get_name(), e.get_worksheetName())) {
+                    cf = cg
+                } else if (cg.get_isDashboard()) {
+                    var ch = cg;
+                    cf = ch.get_worksheets()._get(e.get_worksheetName())._impl
+                } else if (cg.get_isStory()) {
+                    var ci = cg;
+                    var cj = ci.get_activeStoryPointImpl();
+                    var ck = cj.get_containedSheetImpl();
+                    if (ck.get_isDashboard()) {
+                        var cl = ck;
+                        cf = cl.get_worksheets()._get(e.get_worksheetName())._impl
+                    } else if (ss.referenceEquals(ck.get_name(), e.get_worksheetName())) {
+                        cf = ck
+                    }
+                }
+                if (ss.isValue(cf)) {
+                    var cm = JSON.parse(e.get_data());
+                    var cn = cm[0];
+                    var co = cm[1];
+                    this.$1$5(new bn('filterchange', this.$1m, cf, cn, co))
+                }
+            }, $m: function (e) {
+                if (!ss.staticEquals(this.$1$6, null)) {
+                    if (ss.referenceEquals(this.$1p.get_name(), e.get_workbookName())) {
+                        this.$1p.$l(null);
+                        var cf = e.get_data();
+                        this.$D(cf)
+                    }
+                }
+            }, $g: function (e) {
+                var cf = JSON.parse(e.get_data());
+                var cg = ss.mkdel(this, function () {
+                    v._processCustomViews(this.$1p, this.$1g, cf)
+                });
+                var ch = ss.mkdel(this, function () {
+                    this.$C();
+                    if (!ss.staticEquals(this.$1$7, null) && !cf.customViewLoaded) {
+                        this.$y(this.$1p.get_activeCustomView())
+                    }
+                });
+                if (ss.isNullOrUndefined(this.$1p)) {
+                    this.$1d = true;
+                    this.$1p = new N(this, this.$1g, ss.mkdel(this, function () {
+                        cg();
+                        this.$w(ch);
+                        this.$1d = false
+                    }))
+                } else {
+                    cg();
+                    this.$9(ch)
+                }
+            }, $f: function (e) {
+                var cf = JSON.parse(e.get_data());
+                if (ss.isNullOrUndefined(this.$1p)) {
+                    this.$1p = new N(this, this.$1g, null)
+                }
+                if (ss.isValue(this.$1p)) {
+                    v._processCustomViewUpdate(this.$1p, this.$1g, cf, true)
+                }
+                if (!ss.staticEquals(this.$1$8, null)) {
+                    var cg = this.$1p.$p()._toApiCollection();
+                    for (var ch = 0, ci = cg.length; ch < ci; ch++) {
+                        this.$A(cg[ch])
+                    }
+                }
+            }, $d: function () {
+                if (!ss.staticEquals(this.$1$9, null)) {
+                    var e = this.$1p.$n()._toApiCollection();
+                    for (var cf = 0, cg = e.length; cf < cg; cf++) {
+                        this.$z(e[cf])
+                    }
+                }
+            }, $e: function (e) {
+                var cf = JSON.parse(e.get_data());
+                if (ss.isValue(this.$1p)) {
+                    v._processCustomViews(this.$1p, this.$1g, cf)
+                }
+                if (!ss.staticEquals(this.$1$10, null) && ss.isValue(cf.defaultCustomViewId)) {
+                    var cg = this.$1p.$i();
+                    for (var ch = 0; ch < cg.get__length(); ch++) {
+                        var ci = cg.get_item(ch);
+                        if (ci.getDefault()) {
+                            this.$B(ci);
+                            break
+                        }
+                    }
+                }
+            }, $o: function (e) {
+                this.$1p._update(ss.mkdel(this, function () {
+                    if (ss.isValue(this.$18)) {
+                        this.$18()
+                    }
+                    if (ss.referenceEquals(this.$1p.get_name(), e.get_workbookName())) {
+                        var cf = e.get_worksheetName();
+                        var cg = e.get_data();
+                        this.$F(cf, cg)
+                    }
+                    this.$w(null)
+                }))
+            }, $n: function (e) {
+                var cf = this.$1p.get_activeSheetImpl();
+                if (cf.get_sheetType() === 'story') {
+                    cf.update(JSON.parse(e.get_data()))
+                }
+            }, $w: function (e) {
+                if (!this.$1h) {
+                    var cf = this.$1i;
+                    window.setTimeout(ss.mkdel(this, function () {
+                        if (!ss.staticEquals(cf, null)) {
+                            cf(new bA('firstinteractive', this.$1m))
+                        }
+                        if (!ss.staticEquals(e, null)) {
+                            e()
+                        }
+                    }), 0);
+                    this.$1h = true
+                }
+                this.$E()
+            }, $9: function (e) {
+                var cf = new Date;
+                var cg = null;
+                cg = ss.mkdel(this, function () {
+                    var ch = new Date;
+                    if (this.$1h) {
+                        e()
+                    } else if (ch - cf > 300000) {
+                        throw J.createInternalError('Timed out while waiting for the viz to become interactive')
+                    } else {
+                        window.setTimeout(cg, 10)
+                    }
+                });
+                cg()
+            }, $2: function () {
+                if (K.isIE()) {
+                    if (this.$1b['readyState'] === 'complete') {
+                        this.handleVizLoad()
+                    }
+                } else {
+                    this.handleVizLoad()
+                }
+            }, $u: function () {
+                window.setTimeout(ss.mkdel(this, this.$2), 3000)
+            }, $6: function (e) {
+                var cf = document.createElement('div');
+                cf.style.background = "transparent url('" + this.$1k.staticImageUrl + "') no-repeat scroll 0 0";
+                cf.style.left = '8px';
+                cf.style.top = (this.$1k.tabs ? '31px' : '9px');
+                cf.style.position = 'absolute';
+                cf.style.width = e.width + 'px';
+                cf.style.height = e.height + 'px';
+                this.$3().appendChild(cf);
+                return cf
+            }, $5: function () {
+                if (ss.isNullOrUndefined(this.$3())) {
+                    return null
+                }
+                var e = document.createElement('IFrame');
+                e.frameBorder = '0';
+                e.setAttribute('allowTransparency', 'true');
+                e.setAttribute('allowFullScreen', 'true');
+                e.setAttribute('title', this.$a());
+                e.marginHeight = '0';
+                e.marginWidth = '0';
+                e.style.display = 'block';
+                if (this.$1k.fixedSize) {
+                    e.style.width = this.$1k.width;
+                    e.style.height = this.$1k.height
+                } else {
+                    e.style.width = '1px';
+                    e.style.height = '1px';
+                    e.setAttribute('scrolling', 'no')
+                }
+                if (K.isSafari()) {
+                    e.addEventListener('mousewheel', ss.mkdel(this, this.$v), false)
+                }
+                this.$3().appendChild(e);
+                return e
+            }, $a: function () {
+                var e = window.navigator.language;
+                if (e === 'zh-CN') {
+                    return '数据可视化'
+                }
+                switch (e.substr(0, 2)) {
+                    case'fr': {
+                        return 'Visualisation de données'
+                    }
+                    case'es': {
+                        return 'Visualización de datos'
+                    }
+                    case'pt': {
+                        return 'Visualização de dados'
+                    }
+                    case'ja': {
+                        return 'データ ビジュアライゼーション'
+                    }
+                    case'de': {
+                        return 'Datenvisualisierung'
+                    }
+                    case'ko': {
+                        return '데이터 비주얼리제이션'
+                    }
+                    case'en':
+                    default: {
+                        return 'data visualization'
+                    }
+                }
+            }, $v: function (e) {
+            }, $c: function () {
+                return ss.mkdel(this, function (e) {
+                    this.$u()
+                })
+            }, $j: function (e) {
+                var cf = bw.fromSizeConstraints(e.sizeConstraints);
+                this.$1n = bE.$ctor(cf, e.chromeHeight);
+                if (ss.isValue(this.$1j)) {
+                    this.$1j(new bo('firstvizsizeknown', this.$1m, this.$1n))
+                }
+                if (this.$1k.fixedSize) {
+                    return
+                }
+                this.$I();
+                this.$0();
+                this.$Q()
+            }, $J: function () {
+                if (ss.isNullOrUndefined(this.$1o)) {
+                    return
+                }
+                if (K.hasWindowAddEventListener()) {
+                    window.removeEventListener('resize', this.$1o, false)
+                } else {
+                    window.self.detachEvent('onresize', this.$1o)
+                }
+                this.$1o = null
+            }, $0: function () {
+                if (ss.isValue(this.$1o)) {
+                    return
+                }
+                this.$1o = ss.mkdel(this, function () {
+                    this.$I()
+                });
+                if (K.hasWindowAddEventListener()) {
+                    window.addEventListener('resize', this.$1o, false)
+                } else {
+                    window.self.attachEvent('onresize', this.$1o)
+                }
+            }
+        }, null, [bq]);
+        ss.initClass(bD, a, {
+            getAvailableSize: function () {
+                return this.$2
+            }
+        }, bA);
+        ss.initClass(bE, a, {}, Object);
+        ss.initClass(bO, a, {
+            getFilterType: function () {
+                return this.$6
+            }, getFieldName: function () {
+                return this.$1
+            }, getWorksheet: function () {
+                return this.$7.get_worksheet()
+            }, getFieldAsync: function () {
+                var e = new tab._Deferred;
+                if (ss.isNullOrUndefined(this.$3)) {
+                    var cf = function (ch) {
+                        e.reject(ch);
+                        return null
+                    };
+                    var cg = ss.mkdel(this, function (ch) {
+                        this.$3 = new bN(ch, this.$1, this.$5, this.$4);
+                        e.resolve(this.$3);
+                        return null
+                    });
+                    this.$7.$q(this.$2).then(cg, cf)
+                } else {
+                    window.setTimeout(ss.mkdel(this, function () {
+                        e.resolve(this.$3)
+                    }), 0)
+                }
+                return e.get_promise()
+            }, _update: function (e) {
+                this.$0(e);
+                this._updateFromJson(e)
+            }, _addFieldParams: function (e) {
+            }, _updateFromJson: null, $0: function (e) {
+                this.$1 = e.caption;
+                this.$6 = S.convertFilterType(e.filterType);
+                this.$3 = null;
+                this.$2 = e.dataSourceName;
+                this.$5 = S.convertFieldRole(ss.coalesce(e.fieldRole, 'unknown'));
+                this.$4 = S.convertFieldAggregation(ss.coalesce(e.fieldAggregation, 'NONE'))
+            }
+        });
+        ss.initClass(bG, a, {
+            getIsExcludeMode: function () {
+                return this.$a
+            }, getAppliedValues: function () {
+                return this.$9
+            }, _updateFromJson: function (e) {
+                this.$8(e)
+            }, $8: function (e) {
+                this.$a = e.isExclude;
+                if (ss.isValue(e.appliedValues)) {
+                    this.$9 = [];
+                    for (var cf = 0; cf < e.appliedValues.length; cf++) {
+                        var cg = e.appliedValues[cf];
+                        this.$9.push(K.getDataValue(cg))
+                    }
+                }
+            }
+        }, bO);
+        ss.initClass(bH, a, {
+            getFieldName: function () {
+                return this.$0.get_fieldName()
+            }, getDataType: function () {
+                return this.$0.get_dataType()
+            }, getIsReferenced: function () {
+                return this.$0.get_isReferenced()
+            }, getIndex: function () {
+                return this.$0.get_index()
+            }
+        });
+        ss.initClass(bI, a, {
+            getWorkbook: function () {
+                return this._impl.$b()
+            }, getUrl: function () {
+                return this._impl.$a()
+            }, getName: function () {
+                return this._impl.$7()
+            }, setName: function (e) {
+                this._impl.$8(e)
+            }, getOwnerName: function () {
+                return this._impl.$9()
+            }, getAdvertised: function () {
+                return this._impl.$3()
+            }, setAdvertised: function (e) {
+                this._impl.$4(e)
+            }, getDefault: function () {
+                return this._impl.$6()
+            }, saveAsync: function () {
+                return this._impl.$2()
+            }
+        });
+        ss.initClass(bV, a, {
+            getName: function () {
+                return this._impl.get_name()
+            }, getIndex: function () {
+                return this._impl.get_index()
+            }, getWorkbook: function () {
+                return this._impl.get_workbookImpl().get_workbook()
+            }, getSize: function () {
+                return this._impl.get_size()
+            }, getIsHidden: function () {
+                return this._impl.get_isHidden()
+            }, getIsActive: function () {
+                return this._impl.get_isActive()
+            }, getSheetType: function () {
+                return this._impl.get_sheetType()
+            }, getUrl: function () {
+                return this._impl.get_url()
+            }, changeSizeAsync: function (e) {
+                return this._impl.changeSizeAsync(e)
+            }
+        });
+        ss.initClass(bJ, a, {
+            getParentStoryPoint: function () {
+                return this._impl.get_parentStoryPoint()
+            }, getObjects: function () {
+                return this._impl.get_objects()._toApiCollection()
+            }, getWorksheets: function () {
+                return this._impl.get_worksheets()._toApiCollection()
+            }
+        }, bV);
+        ss.initClass(bK, a, {
+            getObjectType: function () {
+                return this.$2.objectType
+            }, getDashboard: function () {
+                return this.$0
+            }, getWorksheet: function () {
+                return this.$1
+            }, getPosition: function () {
+                return this.$2.position
+            }, getSize: function () {
+                return this.$2.size
+            }
+        });
+        ss.initClass(bL, a, {
+            getName: function () {
+                return this.$0.get_name()
+            }, getFields: function () {
+                return this.$0.get_fields()._toApiCollection()
+            }, getIsPrimary: function () {
+                return this.$0.get_isPrimary()
+            }
+        });
+        ss.initClass(bM, a, {
+            getName: function () {
+                return this.$0.get_name()
+            }, getData: function () {
+                return this.$0.get_rows()
+            }, getColumns: function () {
+                return this.$0.get_columns()
+            }, getTotalRowCount: function () {
+                return this.$0.get_totalRowCount()
+            }, getIsSummaryData: function () {
+                return this.$0.get_isSummaryData()
+            }
+        });
+        ss.initClass(bN, a, {
+            getDataSource: function () {
+                return this.$0
+            }, getName: function () {
+                return this.$3
+            }, getRole: function () {
+                return this.$2
+            }, getAggregation: function () {
+                return this.$1
+            }
+        });
+        ss.initClass(bP, a, {
+            _addFieldParams: function (e) {
+                e['api.filterHierarchicalLevels'] = this.$9
+            }, _updateFromJson: function (e) {
+                this.$8(e)
+            }, $8: function (e) {
+                this.$9 = e.levels
+            }
+        }, bO);
+        ss.initClass(bQ, a, {
+            getPairs: function () {
+                return this.$0.$1()
+            }
+        });
+        ss.initClass(bR, a, {});
+        ss.initClass(bS, a, {
+            getName: function () {
+                return this._impl.$7()
+            }, getCurrentValue: function () {
+                return this._impl.$2()
+            }, getDataType: function () {
+                return this._impl.$3()
+            }, getAllowableValuesType: function () {
+                return this._impl.$1()
+            }, getAllowableValues: function () {
+                return this._impl.$0()
+            }, getMinValue: function () {
+                return this._impl.$6()
+            }, getMaxValue: function () {
+                return this._impl.$5()
+            }, getStepSize: function () {
+                return this._impl.$9()
+            }, getDateStepPeriod: function () {
+                return this._impl.$4()
+            }
+        });
+        ss.initClass(bT, a, {
+            getMin: function () {
+                return this.$d
+            }, getMax: function () {
+                return this.$c
+            }, getIncludeNullValues: function () {
+                return this.$b
+            }, getDomainMin: function () {
+                return this.$a
+            }, getDomainMax: function () {
+                return this.$9
+            }, _updateFromJson: function (e) {
+                this.$8(e)
+            }, $8: function (e) {
+                this.$a = K.getDataValue(e.domainMinValue);
+                this.$9 = K.getDataValue(e.domainMaxValue);
+                this.$d = K.getDataValue(e.minValue);
+                this.$c = K.getDataValue(e.maxValue);
+                this.$b = e.includeNullValues
+            }
+        }, bO);
+        ss.initClass(bU, a, {
+            getPeriod: function () {
+                return this.$9
+            }, getRange: function () {
+                return this.$b
+            }, getRangeN: function () {
+                return this.$a
+            }, _updateFromJson: function (e) {
+                this.$8(e)
+            }, $8: function (e) {
+                if (ss.isValue(e.periodType)) {
+                    this.$9 = S.convertPeriodType(ss.unbox(e.periodType))
+                }
+                if (ss.isValue(e.rangeType)) {
+                    this.$b = S.convertDateRange(ss.unbox(e.rangeType))
+                }
+                if (ss.isValue(e.rangeN)) {
+                    this.$a = ss.unbox(e.rangeN)
+                }
+            }
+        }, bO);
+        ss.initClass(bW, a, {
+            getName: function () {
+                return this.$0.name
+            }, getSheetType: function () {
+                return this.$0.sheetType
+            }, getSize: function () {
+                return this.$0.size
+            }, getIndex: function () {
+                return this.$0.index
+            }, getUrl: function () {
+                return this.$0.url
+            }, getIsActive: function () {
+                return this.$0.isActive
+            }, getIsHidden: function () {
+                return this.$0.isHidden
+            }, getWorkbook: function () {
+                return this.$0.workbook
+            }
+        });
+        ss.initClass(bX, a, {
+            getActiveStoryPoint: function () {
+                return this._impl.get_activeStoryPointImpl().get_storyPoint()
+            }, getStoryPointsInfo: function () {
+                return this._impl.get_storyPointsInfo()
+            }, activatePreviousStoryPointAsync: function () {
+                return this._impl.activatePreviousStoryPointAsync()
+            }, activateNextStoryPointAsync: function () {
+                return this._impl.activateNextStoryPointAsync()
+            }, activateStoryPointAsync: function (e) {
+                return this._impl.activateStoryPointAsync(e)
+            }, revertStoryPointAsync: function (e) {
+                return this._impl.revertStoryPointAsync(e)
+            }
+        }, bV);
+        ss.initClass(bY, a, {
+            getCaption: function () {
+                return this.$0.get_caption()
+            }, getContainedSheet: function () {
+                return (ss.isValue(this.$0.get_containedSheetImpl()) ? this.$0.get_containedSheetImpl().get_sheet() : null)
+            }, getIndex: function () {
+                return this.$0.get_index()
+            }, getIsActive: function () {
+                return this.$0.get_isActive()
+            }, getIsUpdated: function () {
+                return this.$0.get_isUpdated()
+            }, getParentStory: function () {
+                return this.$0.get_parentStoryImpl().get_story()
+            }
+        });
+        ss.initClass(bZ, a, {
+            getCaption: function () {
+                return this._impl.caption
+            }, getIndex: function () {
+                return this._impl.index
+            }, getIsActive: function () {
+                return this._impl.isActive
+            }, getIsUpdated: function () {
+                return this._impl.isUpdated
+            }, getParentStory: function () {
+                return this._impl.parentStoryImpl.get_story()
+            }
+        });
+        ss.initClass(ca, a, {
+            getMajor: function () {
+                return this.$0
+            }, getMinor: function () {
+                return this.$2
+            }, getPatch: function () {
+                return this.$3
+            }, getMetadata: function () {
+                return this.$1
+            }, toString: function () {
+                var e = this.$0 + '.' + this.$2 + '.' + this.$3;
+                if (ss.isValue(this.$1) && this.$1.length > 0) {
+                    e += '-' + this.$1
+                }
+                return e
+            }
+        });
+        ss.initClass(cb, a, {
+            getAreTabsHidden: function () {
+                return this._impl.$10()
+            }, getIsToolbarHidden: function () {
+                return this._impl.$12()
+            }, getIsHidden: function () {
+                return this._impl.$11()
+            }, getInstanceId: function () {
+                return this._impl.get_instanceId()
+            }, getParentElement: function () {
+                return this._impl.$13()
+            }, getUrl: function () {
+                return this._impl.$14()
+            }, getVizSize: function () {
+                return this._impl.$16()
+            }, getWorkbook: function () {
+                return this._impl.$17()
+            }, getAreAutomaticUpdatesPaused: function () {
+                return this._impl.$Z()
+            }, getCurrentUrlAsync: function () {
+                return this._impl.getCurrentUrlAsync()
+            }, addEventListener: function (e, cf) {
+                this._impl.addEventListener(e, cf)
+            }, removeEventListener: function (e, cf) {
+                this._impl.removeEventListener(e, cf)
+            }, dispose: function () {
+                this._impl.$7()
+            }, show: function () {
+                this._impl.$Q()
+            }, hide: function () {
+                this._impl.$q()
+            }, showExportDataDialog: function (e) {
+                this._impl.$T(e)
+            }, showExportCrossTabDialog: function (e) {
+                this._impl.$S(e)
+            }, showExportImageDialog: function () {
+                this._impl.$U()
+            }, showExportPDFDialog: function () {
+                this._impl.$V()
+            }, revertAllAsync: function () {
+                return this._impl.$L()
+            }, refreshDataAsync: function () {
+                return this._impl.$H()
+            }, showShareDialog: function () {
+                this._impl.$W()
+            }, showDownloadWorkbookDialog: function () {
+                this._impl.$R()
+            }, pauseAutomaticUpdatesAsync: function () {
+                return this._impl.$x()
+            }, resumeAutomaticUpdatesAsync: function () {
+                return this._impl.$K()
+            }, toggleAutomaticUpdatesAsync: function () {
+                return this._impl.$X()
+            }, refreshSize: function () {
+                this._impl.$I()
+            }, setFrameSize: function (e, cf) {
+                var cg = e;
+                var ch = cf;
+                if (K.isNumber(e)) {
+                    cg = e.toString() + 'px'
+                }
+                if (K.isNumber(cf)) {
+                    ch = cf.toString() + 'px'
+                }
+                this._impl.$P(cg, ch)
+            }
+        });
+        ss.initClass(cc, a, {});
+        ss.initClass(cd, a, {
+            getViz: function () {
+                return this.$0.get_viz()
+            }, getPublishedSheetsInfo: function () {
+                return this.$0.get_publishedSheets()._toApiCollection()
+            }, getName: function () {
+                return this.$0.get_name()
+            }, getActiveSheet: function () {
+                return this.$0.get_activeSheetImpl().get_sheet()
+            }, getActiveCustomView: function () {
+                return this.$0.get_activeCustomView()
+            }, activateSheetAsync: function (e) {
+                return this.$0._setActiveSheetAsync(e)
+            }, revertAllAsync: function () {
+                return this.$0._revertAllAsync()
+            }, getCustomViewsAsync: function () {
+                return this.$0.$6()
+            }, showCustomViewAsync: function (e) {
+                return this.$0.$f(e)
+            }, removeCustomViewAsync: function (e) {
+                return this.$0.$c(e)
+            }, rememberCustomViewAsync: function (e) {
+                return this.$0.$b(e)
+            }, setActiveCustomViewAsDefaultAsync: function () {
+                return this.$0.$e()
+            }, getParametersAsync: function () {
+                return this.$0.$7()
+            }, changeParameterValueAsync: function (e, cf) {
+                return this.$0.$2(e, cf)
+            }
+        });
+        ss.initClass(ce, a, {
+            getParentDashboard: function () {
+                return this._impl.get_parentDashboard()
+            }, getParentStoryPoint: function () {
+                return this._impl.get_parentStoryPoint()
+            }, getDataSourcesAsync: function () {
+                return this._impl.$r()
+            }, getFilterAsync: function (e, cf) {
+                return this._impl.$s(null, e, cf)
+            }, getFiltersAsync: function (e) {
+                return this._impl.$t(e)
+            }, applyFilterAsync: function (e, cf, cg, ch) {
+                return this._impl.$e(e, cf, cg, ch)
+            }, clearFilterAsync: function (e) {
+                return this._impl.$m(e)
+            }, applyRangeFilterAsync: function (e, cf) {
+                return this._impl.$i(e, cf)
+            }, applyRelativeDateFilterAsync: function (e, cf) {
+                return this._impl.$k(e, cf)
+            }, applyHierarchicalFilterAsync: function (e, cf, cg, ch) {
+                return this._impl.$g(e, cf, cg, ch)
+            }, clearSelectedMarksAsync: function () {
+                return this._impl.$p()
+            }, selectMarksAsync: function (e, cf, cg) {
+                return this._impl.$B(e, cf, cg)
+            }, getSelectedMarksAsync: function () {
+                return this._impl.$v()
+            }, getSummaryDataAsync: function (e) {
+                return this._impl.$w(e)
+            }, getUnderlyingDataAsync: function (e) {
+                return this._impl.$x(e)
+            }, clearHighlightedMarksAsync: function () {
+                return this._impl.$o()
+            }, highlightMarksAsync: function (e, cf) {
+                return this._impl.$y(e, cf)
+            }, highlightMarksByPatternMatchAsync: function (e, cf) {
+                return this._impl.$z(e, cf)
+            }, getHighlightedMarksAsync: function () {
+                return this._impl.$u()
+            }
+        }, bV);
+        (function () {
+            p.crossDomainEventNotificationId = 'xdomainSourceId';
+            p.$0 = 0
+        })();
+        (function () {
+            L.$5 = []
+        })();
+        (function () {
+            A.$0 = 'array';
+            A.$1 = 'boolean';
+            A.$2 = 'date';
+            A.$3 = 'function';
+            A.$4 = 'number';
+            A.$5 = 'object';
+            A.$6 = 'regexp';
+            A.$7 = 'string';
+            A.$8 = ss.mkdict(['[object Boolean]', 'boolean', '[object Number]', 'number', '[object String]', 'string', '[object Function]', 'function', '[object Array]', 'array', '[object Date]', 'date', '[object RegExp]', 'regexp', '[object Object]', 'object']);
+            A.$e = String.prototype['trim'];
+            A.$d = Object.prototype['toString'];
+            A.$f = new RegExp('^[\\s\\xA0]+');
+            A.$g = new RegExp('[\\s\\xA0]+$');
+            A.$a = new RegExp('^[\\],:{}\\s]*$');
+            A.$b = new RegExp('\\\\(?:["\\\\\\/bfnrt]|u[0-9a-fA-F]{4})', 'g');
+            A.$c = new RegExp('"[^"\\\\\\n\\r]*"|true|false|null|-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?', 'g');
+            A.$9 = new RegExp('(?:^|:|,)(?:\\s*\\[)+', 'g')
+        })();
+        (function () {
+            var e = global.tableauSoftware;
+            e.DeviceType = {DEFAULT: 'default', DESKTOP: 'desktop', TABLET: 'tablet', PHONE: 'phone'};
+            e.DashboardObjectType = {
+                BLANK: 'blank',
+                WORKSHEET: 'worksheet',
+                QUICK_FILTER: 'quickFilter',
+                PARAMETER_CONTROL: 'parameterControl',
+                PAGE_FILTER: 'pageFilter',
+                LEGEND: 'legend',
+                TITLE: 'title',
+                TEXT: 'text',
+                IMAGE: 'image',
+                WEB_PAGE: 'webPage'
+            };
+            e.DataType = {FLOAT: 'float', INTEGER: 'integer', STRING: 'string', BOOLEAN: 'boolean', DATE: 'date', DATETIME: 'datetime'};
+            e.DateRangeType = {LAST: 'last', LASTN: 'lastn', NEXT: 'next', NEXTN: 'nextn', CURR: 'curr', TODATE: 'todate'};
+            e.ErrorCode = {
+                INTERNAL_ERROR: 'internalError',
+                SERVER_ERROR: 'serverError',
+                INVALID_AGGREGATION_FIELD_NAME: 'invalidAggregationFieldName',
+                INVALID_PARAMETER: 'invalidParameter',
+                INVALID_URL: 'invalidUrl',
+                STALE_DATA_REFERENCE: 'staleDataReference',
+                VIZ_ALREADY_IN_MANAGER: 'vizAlreadyInManager',
+                NO_URL_OR_PARENT_ELEMENT_NOT_FOUND: 'noUrlOrParentElementNotFound',
+                INVALID_FILTER_FIELDNAME: 'invalidFilterFieldName',
+                INVALID_FILTER_FIELDVALUE: 'invalidFilterFieldValue',
+                INVALID_FILTER_FIELDNAME_OR_VALUE: 'invalidFilterFieldNameOrValue',
+                FILTER_CANNOT_BE_PERFORMED: 'filterCannotBePerformed',
+                NOT_ACTIVE_SHEET: 'notActiveSheet',
+                INVALID_CUSTOM_VIEW_NAME: 'invalidCustomViewName',
+                MISSING_RANGEN_FOR_RELATIVE_DATE_FILTERS: 'missingRangeNForRelativeDateFilters',
+                MISSING_MAX_SIZE: 'missingMaxSize',
+                MISSING_MIN_SIZE: 'missingMinSize',
+                MISSING_MINMAX_SIZE: 'missingMinMaxSize',
+                INVALID_SIZE: 'invalidSize',
+                INVALID_SIZE_BEHAVIOR_ON_WORKSHEET: 'invalidSizeBehaviorOnWorksheet',
+                SHEET_NOT_IN_WORKBOOK: 'sheetNotInWorkbook',
+                INDEX_OUT_OF_RANGE: 'indexOutOfRange',
+                DOWNLOAD_WORKBOOK_NOT_ALLOWED: 'downloadWorkbookNotAllowed',
+                NULL_OR_EMPTY_PARAMETER: 'nullOrEmptyParameter',
+                BROWSER_NOT_CAPABLE: 'browserNotCapable',
+                UNSUPPORTED_EVENT_NAME: 'unsupportedEventName',
+                INVALID_DATE_PARAMETER: 'invalidDateParameter',
+                INVALID_SELECTION_FIELDNAME: 'invalidSelectionFieldName',
+                INVALID_SELECTION_VALUE: 'invalidSelectionValue',
+                INVALID_SELECTION_DATE: 'invalidSelectionDate',
+                NO_URL_FOR_HIDDEN_WORKSHEET: 'noUrlForHiddenWorksheet',
+                MAX_VIZ_RESIZE_ATTEMPTS: 'maxVizResizeAttempts'
+            };
+            e.FieldAggregationType = {
+                SUM: 'SUM',
+                AVG: 'AVG',
+                MIN: 'MIN',
+                MAX: 'MAX',
+                STDEV: 'STDEV',
+                STDEVP: 'STDEVP',
+                VAR: 'VAR',
+                VARP: 'VARP',
+                COUNT: 'COUNT',
+                COUNTD: 'COUNTD',
+                MEDIAN: 'MEDIAN',
+                ATTR: 'ATTR',
+                NONE: 'NONE',
+                PERCENTILE: 'PERCENTILE',
+                YEAR: 'YEAR',
+                QTR: 'QTR',
+                MONTH: 'MONTH',
+                DAY: 'DAY',
+                HOUR: 'HOUR',
+                MINUTE: 'MINUTE',
+                SECOND: 'SECOND',
+                WEEK: 'WEEK',
+                WEEKDAY: 'WEEKDAY',
+                MONTHYEAR: 'MONTHYEAR',
+                MDY: 'MDY',
+                END: 'END',
+                TRUNC_YEAR: 'TRUNC_YEAR',
+                TRUNC_QTR: 'TRUNC_QTR',
+                TRUNC_MONTH: 'TRUNC_MONTH',
+                TRUNC_WEEK: 'TRUNC_WEEK',
+                TRUNC_DAY: 'TRUNC_DAY',
+                TRUNC_HOUR: 'TRUNC_HOUR',
+                TRUNC_MINUTE: 'TRUNC_MINUTE',
+                TRUNC_SECOND: 'TRUNC_SECOND',
+                QUART1: 'QUART1',
+                QUART3: 'QUART3',
+                SKEWNESS: 'SKEWNESS',
+                KURTOSIS: 'KURTOSIS',
+                INOUT: 'INOUT',
+                SUM_XSQR: 'SUM_XSQR',
+                USER: 'USER'
+            };
+            e.FieldRoleType = {DIMENSION: 'dimension', MEASURE: 'measure', UNKNOWN: 'unknown'};
+            e.FilterUpdateType = {ALL: 'all', REPLACE: 'replace', ADD: 'add', REMOVE: 'remove'};
+            e.FilterType = {CATEGORICAL: 'categorical', QUANTITATIVE: 'quantitative', HIERARCHICAL: 'hierarchical', RELATIVEDATE: 'relativedate'};
+            e.NullOption = {NULL_VALUES: 'nullValues', NON_NULL_VALUES: 'nonNullValues', ALL_VALUES: 'allValues'};
+            e.ParameterAllowableValuesType = {ALL: 'all', LIST: 'list', RANGE: 'range'};
+            e.ParameterDataType = {FLOAT: 'float', INTEGER: 'integer', STRING: 'string', BOOLEAN: 'boolean', DATE: 'date', DATETIME: 'datetime'};
+            e.PeriodType = {YEAR: 'year', QUARTER: 'quarter', MONTH: 'month', WEEK: 'week', DAY: 'day', HOUR: 'hour', MINUTE: 'minute', SECOND: 'second'};
+            e.SelectionUpdateType = {REPLACE: 'replace', ADD: 'add', REMOVE: 'remove'};
+            e.SheetSizeBehavior = {AUTOMATIC: 'automatic', EXACTLY: 'exactly', RANGE: 'range', ATLEAST: 'atleast', ATMOST: 'atmost'};
+            e.SheetType = {WORKSHEET: 'worksheet', DASHBOARD: 'dashboard', STORY: 'story'};
+            e.TableauEventName = {
+                CUSTOM_VIEW_LOAD: 'customviewload',
+                CUSTOM_VIEW_REMOVE: 'customviewremove',
+                CUSTOM_VIEW_SAVE: 'customviewsave',
+                CUSTOM_VIEW_SET_DEFAULT: 'customviewsetdefault',
+                FILTER_CHANGE: 'filterchange',
+                FIRST_INTERACTIVE: 'firstinteractive',
+                FIRST_VIZ_SIZE_KNOWN: 'firstvizsizeknown',
+                MARKS_SELECTION: 'marksselection',
+                MARKS_HIGHLIGHT: 'markshighlight',
+                PARAMETER_VALUE_CHANGE: 'parametervaluechange',
+                STORY_POINT_SWITCH: 'storypointswitch',
+                TAB_SWITCH: 'tabswitch',
+                VIZ_RESIZE: 'vizresize'
+            };
+            e.ToolbarPosition = {TOP: 'top', BOTTOM: 'bottom'}
+        })();
+        (function () {
+            q.$4 = null;
+            q.$5 = null
+        })();
+        (function () {
+            E.noZoneId = 4294967295
+        })();
+        (function () {
+            O.$5 = new RegExp('\\[[^\\]]+\\]\\.', 'g')
+        })();
+        (function () {
+            ca.$0 = new ca(2, 1, 2, 'null')
+        })()
+    })();
+    window.tableau = window.tableauSoftware = global.tableauSoftware;
+    tableauSoftware.Promise = tab._PromiseImpl;
+    tab._Deferred = tab._DeferredImpl;
+    tab._Collection = tab._CollectionImpl;
+    tab._ApiBootstrap.initialize()
 })();

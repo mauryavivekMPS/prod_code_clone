@@ -67,7 +67,6 @@ class LoadSubscriberDataTask(Task):
             while True:
                 yield next(f).replace('\0', '')
                 continue
-            return
 
         overlapping_fields = set(self.FIELD_NAMES).intersection(set(SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES))
 

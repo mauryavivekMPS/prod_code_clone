@@ -15,6 +15,7 @@ $.widget("custom.edittableaualertpage", {
         this.selectedAlertType = null;
         this.hasFilterConfiguration = false;
         this.embeddedReportLoaded = false;
+        this.currentAutoAppliedFilters = {};
         this.viz = null;
 
         this.emailSplitRegex = /[\s,;]+/;
@@ -28,6 +29,10 @@ $.widget("custom.edittableaualertpage", {
 
         $('#id_name, #id_attachment_only_emails, #id_full_emails').on('keyup', function () {
             self._checkForm();
+        });
+
+        $('.alert-form').on('submit', function () {
+            $('.submit-button').addClass('disabled').prop('disabled', false);
         });
 
         if (this.options.editExisting) {
@@ -256,33 +261,67 @@ $.widget("custom.edittableaualertpage", {
                     controls.show();
                     var reportContainer = controls.find('.embedded-report-container')[0];
 
+                    var filterWorksheetName = $('.template-choice-list li.selected').attr('filter_worksheet_name');
+
+                    var allExistingFilters = JSON.parse(self.filtersHiddenInput.val());
+                    $.extend(allExistingFilters, JSON.parse(self.parametersHiddenInput.val()));
+
+                    var viz = null;
+
                     var vizOptions = {
                         width: reportContainer.offsetWidth,
                         height: reportContainer.offsetHeight,
                         hideTabs: false,
-                        hideToolbar: true
+                        hideToolbar: true,
+                        onFirstInteractive: function () {
+                            if (useExistingFilters) {
+                                var workbook = viz.getWorkbook();
+                                var activeSheet = workbook.getActiveSheet();
+
+                                if (activeSheet.getSheetType() != 'worksheet') {
+                                    var allWorksheets = activeSheet.getWorksheets();
+                                    for (var i = 0; i < allWorksheets.length; i++) {
+                                        var worksheet = allWorksheets[i];
+                                        if (worksheet.getName() == filterWorksheetName) {
+                                            activeSheet = worksheet;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // ranges and excluded values get applied after load
+                                $.each(Object.keys(allExistingFilters), function (index, name) {
+                                    var filter = allExistingFilters[name];
+
+                                    if (filter.type == 'categorical' && filter.exclude) {
+                                        self.currentAutoAppliedFilters[name] = true;
+                                        activeSheet.applyFilterAsync(name, filter.values, tableauSoftware.FilterUpdateType.REMOVE);
+                                    }
+                                    else if (filter.type == 'quantitative') {
+                                        self.currentAutoAppliedFilters[name] = true;
+                                        var minDate = new Date(filter.min);
+                                        var maxDate = new Date(filter.max);
+                                        activeSheet.applyRangeFilterAsync(name, {min: minDate, max: maxDate})
+                                            .otherwise(function (err) {
+                                                console.log('Error setting range filter: ' + err);
+                                            });
+                                    }
+                                });
+                            }
+                        }
                     };
 
+                    // regular categorical filters get applied during load
                     if (useExistingFilters) {
-
-                        // apply each of the filters
-                        var existingFilters = JSON.parse(self.filtersHiddenInput.val());
-                        $.each(Object.keys(existingFilters), function (index, name) {
-                            vizOptions[name] = [];
-                            $.each(existingFilters[name], function (index, value) {
-                                vizOptions[name].push(value);
-                                console.log('apply filter: ' + name + ' = ' + value);
-                            });
-                        });
-
-                        // apply each of the params
-                        var existingParams = JSON.parse(self.parametersHiddenInput.val());
-                        $.each(Object.keys(existingParams), function (index, name) {
-                            vizOptions[name] = [];
-                            $.each(existingParams[name], function (index, value) {
-                                vizOptions[name].push(value);
-                                console.log('apply parameter: ' + name + ' = ' + value);
-                            });
+                        $.each(Object.keys(allExistingFilters), function (index, name) {
+                            var filter = allExistingFilters[name];
+                            if (filter.type == 'categorical' && !filter.exclude) {
+                                self.currentAutoAppliedFilters[name] = true;
+                                vizOptions[name] = [];
+                                $.each(filter.values, function (index, value) {
+                                    vizOptions[name].push(value);
+                                });
+                            }
                         });
                     }
                     else {
@@ -293,38 +332,71 @@ $.widget("custom.edittableaualertpage", {
                         self.parametersHiddenInput.val('{}');
                     }
 
-                    var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
+                    viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
 
                     viz.addEventListener(tableau.TableauEventName.FILTER_CHANGE, function (e) {
                         e.getFilterAsync().then(function (filter) {
-                            var filterName = filter._caption;
-                            var selectedValues = filter.getAppliedValues();
-
-                            // figure out if anything has changed, in an effort to ignore repeated event firing
+                            var filterName = filter.getFieldName();
+                            var runConfirmSelectAll = false;
+                            var numberOfSelectedValues = 0;
                             var changed = false;
-                            if (filterName in self.filters && selectedValues.length == self.filters[filterName].length) {
-                                $.each(selectedValues, function (index, value) {
-                                    if (self.filters[filterName].indexOf(value.value) == -1) {
-                                        changed = true;
-                                        return false;
-                                    }
-                                });
+                            var filterType = filter.getFilterType();
+                            if (filterType == 'quantitative') {
+                                // TODO: ranges are ignored for now, will come back to this
+                                // var min = filter.getMin();
+                                // var max = filter.getMax();
+                                // if (!(filterName in self.filters) || self.filters[filterName].min != min || self.filters[filterName].max != max) {
+                                //     changed = true;
+                                //     self.filters[filterName] = {
+                                //         type: 'quantitative',
+                                //         min: new Date(min.value).toISOString(),
+                                //         max: new Date(max.value).toISOString()
+                                //     };
+                                // }
                             }
-                            else {
-                                changed = true;
+                            else if (filterType == 'categorical') {
+                                var selectedValues = filter.getAppliedValues();
+
+                                // figure out if anything has changed, in an effort to ignore repeated event firing
+                                var exclude = filter.getIsExcludeMode();
+                                if (filterName in self.filters && self.filters[filterName].exclude == exclude && selectedValues.length == self.filters[filterName].values.length) {
+                                    $.each(selectedValues, function (index, value) {
+                                        if (self.filters[filterName].values.indexOf(value.value) == -1) {
+                                            changed = true;
+                                            return false;
+                                        }
+                                    });
+                                }
+                                else {
+                                    changed = true;
+                                }
+
+                                if (changed) {
+                                    self.filters[filterName] = {
+                                        type: 'categorical',
+                                        exclude: exclude,
+                                        values: []
+                                    };
+
+                                    $.each(selectedValues, function (index, value) {
+                                        self.filters[filterName].values.push(value.value);
+                                    });
+                                    numberOfSelectedValues = selectedValues.length;
+                                    if (numberOfSelectedValues > 10 && !self.currentAutoAppliedFilters[filterName]) {
+                                        runConfirmSelectAll = true;
+                                    }
+
+                                    self.currentAutoAppliedFilters[name] = false;
+                                }
                             }
 
                             if (changed) {
-                                self.filters[filterName] = [];
-                                $.each(selectedValues, function (index, value) {
-                                    self.filters[filterName].push(value.value);
-                                });
                                 self.filtersHiddenInput.val(JSON.stringify(self.filters));
                                 self._checkForm();
-                                var numberOfSelectedValues = selectedValues.length;
-                                if (numberOfSelectedValues > 10) {
-                                    self._confirmSelectAll(filterName, numberOfSelectedValues)
-                                }
+                            }
+
+                            if (runConfirmSelectAll) {
+                                self._confirmSelectAll(filterName, numberOfSelectedValues);
                             }
                         });
                     });
@@ -513,15 +585,35 @@ $.widget("custom.edittableaualertpage", {
 
             var filterHtml = '';
             for (var filterName in allFilters) {
-                var filterValues = allFilters[filterName];
-                var filterValuesString = '';
-                if ($.isArray(filterValues)) {
-                    filterValuesString = filterValues.join(', ');
+                var filter = allFilters[filterName];
+                if (filter.type == 'categorical') {
+                    var filterValues = filter.values;
+                    var filterValuesString = '';
+                    if ($.isArray(filterValues)) {
+                        filterValuesString = filterValues.join(', ');
+                    }
+                    else {
+                        filterValuesString = filterValues.toString();
+                    }
+
+                    var excludeString = '';
+                    if (filter.exclude) {
+                        excludeString = ' (excluded)';
+                    }
+
+                    filterHtml += '<p>' + filterName + excludeString + ' = ' + filterValuesString + '</p>';
                 }
-                else {
-                    filterValuesString = filterValues.toString();
+                else if (filter.type == 'quantitative') {
+                    var r = /.*\((.*)\)/;
+                    var matches = r.exec(filterName);
+                    if (matches && matches.length == 2) {
+                        filterName = matches[1];
+                    }
+
+                    var minLabel = moment(new Date(filter.min)).utc().format('M/D/YYYY');
+                    var maxLabel = moment(new Date(filter.max)).utc().format('M/D/YYYY');
+                    filterHtml += '<p>' + filterName + ' = ' + minLabel + ' to ' + maxLabel + '</p>';
                 }
-                filterHtml += '<p>' + filterName + ' = ' + filterValuesString + '</p>';
             }
             filterSummary.find('.filter-details').html(filterHtml);
 
