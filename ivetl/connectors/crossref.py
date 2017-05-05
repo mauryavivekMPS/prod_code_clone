@@ -133,7 +133,7 @@ class CrossrefConnector(BaseConnector):
 
     def search_article(self, publish_date, title, authors=None, use_generic_query_param=False):
         date_search_term = publish_date.strftime('%Y-%m')
-        title_search_term = self.solr_encode(title)
+        title_search_term = title
 
         if use_generic_query_param:
             url = '%s?rows=30&filter=from-pub-date:%s&query=%s' % (
@@ -149,7 +149,7 @@ class CrossrefConnector(BaseConnector):
             )
 
             if authors:
-                url += '&query.author=%s' % self.solr_encode(' '.join(authors))
+                url += '&query.author=%s' % ' '.join(authors)
 
         self.log('search url: %s' % url)
 
@@ -266,24 +266,3 @@ class CrossrefConnector(BaseConnector):
     def check_for_auth_error(self, response_text):
         if 'Incorrect password for username' in response_text:
             raise AuthorizationAPIError(response_text)
-
-    def solr_encode(self, url_fragment):
-        return url_fragment.replace(' ', '+')\
-            .replace(':', '\\:')\
-            .replace('-', '\\-')\
-            .replace('!', '\\!')\
-            .replace('(', '\\(')\
-            .replace(')', '\\)')\
-            .replace('^', '\\^')\
-            .replace('[', '\\[')\
-            .replace(']', '\\]')\
-            .replace('\"', '\\\"')\
-            .replace('{', '\\{')\
-            .replace('}', '\\}')\
-            .replace('~', '\\~')\
-            .replace('*', '\\*')\
-            .replace('?', '\\?')\
-            .replace('|', '\\|')\
-            .replace('&', '')\
-            .replace(';', '\\;')\
-            .replace('/', '\\/')
