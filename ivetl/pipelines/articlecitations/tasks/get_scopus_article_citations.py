@@ -25,6 +25,7 @@ class GetScopusArticleCitations(Task):
         if os.path.isfile(target_file_name):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(tsv, delimiter='\t'):
+                    line = line.replace(u'\ufeff', '')
                     if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
                         doi = line[1]
                         already_processed.add(doi)

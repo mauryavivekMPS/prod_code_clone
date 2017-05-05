@@ -1,5 +1,6 @@
 import uuid
 import json
+import re
 import urllib.parse
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
@@ -19,24 +20,41 @@ class TableauAlert(Model):
     enabled = columns.Boolean()
     archived = columns.Boolean(index=True)
 
+    def _clean_quantitative_filter_name(self, name):
+        m = re.search('^.*\((.*)\)$', name)
+        if m and len(m.groups()) == 1:
+            return m.groups()[0]
+        else:
+            return name
+
     def _generate_dict_display_string(self, d):
         display_strings = []
         for n, v in d.items():
-            if type(v) == list:
-                value_string = ', '.join([str(each_v) for each_v in v])
-            else:
-                value_string = str(v)
-            display_strings.append('%s = %s' % (n, value_string))
+            filter_type = v['type']
+            if filter_type == 'categorical':
+                values = v['values']
+                if type(values) == list:
+                    value_string = ', '.join([str(each_v) for each_v in values])
+                else:
+                    value_string = str(values)
+                exclude_string = ' (excluded)' if v['exclude'] else ''
+                display_strings.append('%s%s = %s' % (n, exclude_string, value_string))
+            elif filter_type == 'quantitative':
+                display_strings.append('%s = %s to %s' % (self._clean_quantitative_filter_name(n), v['min'], v['max']))
         return ', '.join(display_strings)
 
     def _generate_dict_query_string(self, d):
         display_strings = []
         for n, v in d.items():
-            if type(v) == list:
-                value_string = ','.join([str(each_v) for each_v in v])
-            else:
-                value_string = str(v)
-            display_strings.append('%s=%s' % (urllib.parse.quote(n), urllib.parse.quote(value_string)))
+            filter_type = v['type']
+            if filter_type == 'categorical':
+                values = v['values']
+                if type(values) == list:
+                    value_string = ','.join([str(each_v) for each_v in values])
+                else:
+                    value_string = str(values)
+                # TODO: add quant code here
+                display_strings.append('%s=%s' % (urllib.parse.quote(n), urllib.parse.quote(value_string)))
         return '&'.join(display_strings)
 
     @property
@@ -58,17 +76,22 @@ class TableauAlert(Model):
 
     @property
     def params_and_filters_names_string(self):
-        params_and_filters = []
-        params_and_filters.extend(json.loads(self.alert_filters).keys())
-        params_and_filters.extend(json.loads(self.alert_params).keys())
-        return ', '.join(params_and_filters)
+        params_and_filters = {}
+        params_and_filters.update(json.loads(self.alert_filters))
+        params_and_filters.update(json.loads(self.alert_params))
+        all_names = []
+        for n, v in params_and_filters.items():
+            if v['type'] == 'quantitative':
+                all_names.append(self._clean_quantitative_filter_name(n))
+            else:
+                all_names.append(n)
+        return ', '.join(all_names)
 
     @property
     def params_and_filters_query_string(self):
         params_and_filters = {}
         params_and_filters.update(json.loads(self.alert_filters))
         params_and_filters.update(json.loads(self.alert_params))
-        # return urllib.parse.urlencode(params_and_filters, quote_via=urllib.parse.quote)
         return self._generate_dict_query_string(params_and_filters)
 
     @property

@@ -90,8 +90,8 @@ class TableauAlertForm(forms.Form):
     publisher_id = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Alert Name'}), required=True)
     template_id = forms.CharField(widget=forms.HiddenInput, required=True)
-    alert_params = forms.CharField(widget=forms.HiddenInput, required=False)
-    alert_filters = forms.CharField(widget=forms.HiddenInput, required=False)
+    alert_params = forms.CharField(widget=forms.HiddenInput, initial='{}', required=False)
+    alert_filters = forms.CharField(widget=forms.HiddenInput, initial='{}', required=False)
     attachment_only_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     full_emails = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comma-separated emails'}), required=False)
     custom_message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Plain text custom message, no HTML'}), required=False)
@@ -238,8 +238,10 @@ def show_external_notification(request, notification_id):
             'notification': notification,
         })
     else:
+        template = ALERT_TEMPLATES[notification.template_id]
         return render(request, 'tableau_alerts/external_notification.html', {
             'notification': notification,
+            'template': template,
         })
 
 
@@ -283,6 +285,7 @@ def get_template_choices_for_publisher(publisher_id, alert_type):
                 'name_template': alert['name_template'],
                 'frequency': alert['frequency'],
                 'has_filter_configuration': '1' if alert['workbooks'].get('configure') else '',
+                'filter_worksheet_name': alert.get('filter_worksheet_name'),
             })
 
     sorted_template_choices = sorted(template_choices, key=lambda a: a['order'])

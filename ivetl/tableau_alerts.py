@@ -23,6 +23,7 @@ ALERT_TEMPLATES = {
             'configure': 'alert_hot_article_tracker_configure.twb',
             'export': 'alert_hot_article_tracker_export.twb',
         },
+        'filter_worksheet_name': 'HAT-Articles',
         'thumbnail': 'thumbnail-hot-article-tracker.png',
         'frequency': 'monthly',
         'type': 'scheduled',
@@ -37,6 +38,7 @@ ALERT_TEMPLATES = {
             'configure': 'alert_rejected_article_tracker_configure.twb',
             'export': 'alert_rejected_article_tracker_export.twb',
         },
+        'filter_worksheet_name': 'Summary Status',
         'thumbnail': 'thumbnail-rejected-article-tracker.png',
         'frequency': 'quarterly',
         'type': 'scheduled',
@@ -51,6 +53,7 @@ ALERT_TEMPLATES = {
             'configure': 'alert_advance_correlator_citation_usage_configure.twb',
             'export': 'alert_advance_correlator_citation_usage_export.twb',
         },
+        'filter_worksheet_name': 'AAC-Articles',
         'thumbnail': 'thumbnail-advanced-correlator.png',
         'frequency': 'monthly',
         'type': 'scheduled',
@@ -171,7 +174,8 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         attachment_workbook_id = template['workbooks'].get('full')
         attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=attachment_workbook_id)
         attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[attachment_workbook_id]['home_view']
-        attachment_view_url = 'views/%s/%s?%s' % (attachment_workbook_url.url, attachment_workbook_home_view, alert.params_and_filters_query_string)
+        # attachment_view_url = 'views/%s/%s?%s' % (attachment_workbook_url.url, attachment_workbook_home_view, alert.params_and_filters_query_string)
+        attachment_view_url = 'views/%s/%s?' % (attachment_workbook_url.url, attachment_workbook_home_view)
 
         attachment_filename = '%s %s.pdf' % (alert.name.replace('/', '-').replace('\\', '-'), now.strftime('%Y-%m-%d'))
         attachment_content_id = 'report'
