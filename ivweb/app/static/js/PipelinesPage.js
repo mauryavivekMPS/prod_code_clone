@@ -445,11 +445,8 @@ var PipelinePage = (function() {
             }, 3000);
         });
 
-        var publisherRegex = /#(.*)/;
-        var publisherMatch = publisherRegex.exec(document.location.href);
-        if (publisherMatch) {
-            var publisherId = publisherMatch[1];
-            console.log('opening publisher... ' + publisherId);
+        var publisherId = window.location.hash.substr(1);
+        if (publisherId) {
             openPublisher(publisherId);
         }
     };
