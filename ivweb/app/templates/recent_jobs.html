@@ -42,7 +42,7 @@
                                     <td class="status-col pipeline-status-col">
                                         <span class="summary-value">{% status_icon run.run %}</span>
                                     </td>
-                                    <td><a href="{% url 'pipelines.list' run.product.id run.pipeline.id %}#job-{{ run.run.job_id }}">{{ run.run.display_name }}</a></td>
+                                    <td><a href="{% url 'pipelines.list' run.product.id run.pipeline.id %}#{{ publisher_runs.publisher.publisher_id }}">{{ run.run.display_name }}</a></td>
                                     <td>{{ publisher_runs.publisher.publisher_id }}</td>
                                     <td>
                                         <span class="product-name">{{ run.product.name }} /</span>
