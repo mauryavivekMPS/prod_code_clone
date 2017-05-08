@@ -169,7 +169,15 @@ class UpdateSubscriberDeltasTask(Task):
                 tlogger.info('No stats found')
 
         if not stopped:
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, run_monthly_job=task_args['run_monthly_job'], show_alerts=task_args['show_alerts'])
+            self.pipeline_ended(
+                publisher_id,
+                product_id,
+                pipeline_id,
+                job_id,
+                tlogger,
+                run_monthly_job=task_args.get('run_monthly_job', False),
+                show_alerts=task_args.get('show_alerts', False),
+            )
 
         task_args['count'] = count
         return task_args
