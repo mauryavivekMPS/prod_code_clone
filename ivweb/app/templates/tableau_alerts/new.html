@@ -88,12 +88,12 @@
                                                 <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
                                                 As soon as the Vizor is updated with new data
                                             </li>
-                                            <li alert_type="threshold" class="{% if template.type == 'threshold' %}selected{% endif %}">
-                                                <i class="lnr lnr-check choice-icon selected-choice-icon"></i>
-                                                <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>
-                                                When configured thresholds are exceeded, e.g. citations greater than <i>n</i>
-                                                <span class="coming-soon">Coming soon!</span>
-                                            </li>
+{#                                            <li alert_type="threshold" class="{% if template.type == 'threshold' %}selected{% endif %}">#}
+{#                                                <i class="lnr lnr-check choice-icon selected-choice-icon"></i>#}
+{#                                                <i class="lnr lnr-circle choice-icon unselected-choice-icon"></i>#}
+{#                                                When configured thresholds are exceeded, e.g. citations greater than <i>n</i>#}
+{#                                                <span class="coming-soon">Coming soon!</span>#}
+{#                                            </li>#}
                                         </ul>
                                     </div>
                                 </div>
@@ -282,9 +282,6 @@
                                 {% else %}
                                     <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled">
                                         Create Alert
-                                    </button>
-                                    <button type="submit" class="btn btn-primary submit-button disabled" disabled="disabled" name="send_notification" value="1">
-                                        Create Alert and Send Email Now
                                     </button>
                                 {% endif %}
                                 <span class="cancel">or <a href="../">Cancel</a></span>
