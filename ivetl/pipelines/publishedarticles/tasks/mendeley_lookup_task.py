@@ -1,3 +1,4 @@
+import os
 import csv
 import codecs
 import json
@@ -18,6 +19,21 @@ class MendeleyLookupTask(Task):
         total_count = task_args['count']
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "mendeleylookup" + "_" + "target.tab"
+
+        already_processed = set()
+
+        # if the file exists, read it in assuming a job restart
+        if os.path.isfile(target_file_name):
+            with codecs.open(target_file_name, encoding='utf-16') as tsv:
+                for line in csv.reader(tsv, delimiter='\t'):
+                    line = line.replace(u'\ufeff', '')
+                    if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
+                        doi = line[1]
+                        already_processed.add(doi)
+
+        if already_processed:
+            tlogger.info('Found %s existing items to reuse' % len(already_processed))
+
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
 
@@ -37,6 +53,9 @@ class MendeleyLookupTask(Task):
                 doi = line[1]
                 issn = line[2]
                 data = json.loads(line[3])
+
+                if doi in already_processed:
+                    continue
 
                 tlogger.info(str(count-1) + ". Retrieving Mendelez saves for: " + doi)
 
