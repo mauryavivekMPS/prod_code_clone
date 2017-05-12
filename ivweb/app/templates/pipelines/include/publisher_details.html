@@ -3,7 +3,7 @@
 <tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ publisher_runs.recent_run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ publisher_runs.recent_task.status }}">
     {% if not all_pipelines %}
         <td class="status-col pipeline-status-col">
-            <a name="job-{{ publisher_runs.recent_run.job_id }}" class="slip-under-header"></a>
+            <a name="{{ publisher_runs.publisher.publisher_id }}" class="slip-under-header"></a>
             {% if publisher_runs.runs %}
                 <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
                     {% status_icon publisher_runs.recent_run %}

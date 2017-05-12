@@ -114,6 +114,52 @@ class TableauConnector(BaseConnector):
         response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
         response.raise_for_status()
 
+    def add_default_workbook_permissions_for_project(self, group_id, project_id):
+        self._check_authentication()
+        url = self.server_url + "/api/2.5/sites/%s/projects/%s/default-permissions/workbooks" % (self.site_id, project_id)
+
+        request_string = """
+            <tsRequest>
+                <permissions>
+                    <project id="%s" />
+                    <granteeCapabilities>
+                        <group id="%s" />
+                        <capabilities>
+                            <capability name="Read" mode="Allow" />
+                            <capability name="Filter" mode="Allow" />
+                            <capability name="ExportImage" mode="Allow" />
+                            <capability name="ExportData" mode="Allow" />
+                        </capabilities>
+                    </granteeCapabilities>
+                </permissions>
+            </tsRequest>
+        """
+
+        response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
+        response.raise_for_status()
+
+    def add_default_datasource_permissions_for_project(self, group_id, project_id):
+        self._check_authentication()
+        url = self.server_url + "/api/2.5/sites/%s/projects/%s/default-permissions/datasources" % (self.site_id, project_id)
+
+        request_string = """
+            <tsRequest>
+                <permissions>
+                    <project id="%s" />
+                    <granteeCapabilities>
+                        <group id="%s" />
+                        <capabilities>
+                            <capability name="Read" mode="Allow" />
+                            <capability name="Connect" mode="Allow" />
+                        </capabilities>
+                    </granteeCapabilities>
+                </permissions>
+            </tsRequest>
+        """
+
+        response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
+        response.raise_for_status()
+
     def create_user(self, username):
         self._check_authentication()
         url = self.server_url + "/api/2.5/sites/%s/users" % self.site_id
@@ -423,6 +469,8 @@ class TableauConnector(BaseConnector):
             user_id = self.create_user(username)
             self.set_user_password(user_id, password)
             self.add_user_to_group(user_id, group_id)
+            self.add_default_workbook_permissions_for_project(group_id, project_id)
+            self.add_default_datasource_permissions_for_project(group_id, project_id)
 
         return project_id, group_id, user_id
 

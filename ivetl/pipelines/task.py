@@ -24,9 +24,11 @@ class Task(BaseTask):
         pipeline_id = new_task_args.pop('pipeline_id')
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-        # special handling of alerts flag to prevent it getting wiped away by individual tasks
+        # special handling of various flags to prevent them getting wiped away by individual tasks
         show_alerts = new_task_args.get('show_alerts', False)
         new_task_args['show_alerts'] = show_alerts
+        run_monthly_job = new_task_args.get('run_monthly_job', False)
+        new_task_args['run_monthly_job'] = run_monthly_job
 
         stop_task = False
         try:

@@ -25,7 +25,8 @@ $.widget("custom.externalnotificationreportpage", {
 
                 var vizOptions = {
                     hideTabs: false,
-                    hideToolbar: true,
+                    hideToolbar: false,
+                    toolbarPosition: tableauSoftware.ToolbarPosition.TOP,
                     onFirstInteractive: function () {
                         var workbook = viz.getWorkbook();
                         var activeSheet = workbook.getActiveSheet();

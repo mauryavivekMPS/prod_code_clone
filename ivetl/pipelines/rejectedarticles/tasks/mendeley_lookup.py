@@ -1,3 +1,4 @@
+import os
 import csv
 import codecs
 import json
@@ -16,6 +17,25 @@ class MendeleyLookupTask(Task):
         total_count = task_args['count']
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "mendeleylookup" + "_" + "target.tab"
+
+        def reader_without_unicode_breaks(f):
+            while True:
+                yield next(f).replace('\ufeff', '')
+                continue
+
+        already_processed = set()
+
+        # if the file exists, read it in assuming a job restart
+        if os.path.isfile(target_file_name):
+            with codecs.open(target_file_name, encoding='utf-16') as tsv:
+                for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
+                    if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
+                        manuscript_id = line[1]
+                        already_processed.add(manuscript_id)
+
+        if already_processed:
+            tlogger.info('Found %s existing items to reuse' % len(already_processed))
+
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
 
@@ -34,6 +54,9 @@ class MendeleyLookupTask(Task):
                 publisher_id = line[0]
                 manuscript_id = line[1]
                 data = json.loads(line[2])
+
+                if manuscript_id in already_processed:
+                    continue
 
                 if data['status'] == "Match found":
 

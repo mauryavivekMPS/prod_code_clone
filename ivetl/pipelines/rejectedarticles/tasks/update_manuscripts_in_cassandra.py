@@ -4,7 +4,6 @@ import json
 from decimal import Decimal
 from datetime import datetime
 import cassandra.util
-from cassandra.cqlengine.query import BatchQuery
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import RejectedArticles
@@ -36,20 +35,14 @@ class UpdateManuscriptsInCassandraTask(Task):
 
                 updated = datetime.today()
 
-                b = BatchQuery()
+                try:
+                    ra = RejectedArticles.objects.get(publisher_id=publisher_id, manuscript_id=manuscript_id)
+                except RejectedArticles.DoesNotExist:
+                    ra = RejectedArticles(publisher_id=publisher_id, manuscript_id=manuscript_id)
+                    ra.rejected_article_id = cassandra.util.uuid_from_time(updated)
+                    ra.created = updated
 
-                existing_record = RejectedArticles.objects.filter(publisher_id=publisher, manuscript_id=manuscript_id).first()
-
-                if existing_record:
-                    existing_record.batch(b).delete()
-
-                ra = RejectedArticles()
-
-                ra['publisher_id'] = publisher
-                ra['rejected_article_id'] = cassandra.util.uuid_from_time(updated)
-                ra['manuscript_id'] = manuscript_id
                 ra['updated'] = updated
-                ra['created'] = updated
 
                 if 'article_type' in data and (data['article_type'] != ''):
                     ra['article_type'] = data['article_type']
@@ -79,10 +72,10 @@ class UpdateManuscriptsInCassandraTask(Task):
                     ra['custom'] = data['custom']
 
                 if 'xref_publishdate' in data and (data['xref_publishdate'] != ''):
-                    ra['date_of_publication'] = toDateTime(data['xref_publishdate'])
+                    ra['date_of_publication'] = to_datetime(data['xref_publishdate'])
 
                 if 'date_of_rejection' in data and (data['date_of_rejection'] != ''):
-                    ra['date_of_rejection'] = toDateTime(data['date_of_rejection'])
+                    ra['date_of_rejection'] = to_datetime(data['date_of_rejection'])
 
                 if 'editor' in data and (data['editor'] != ''):
                     ra['editor'] = data['editor']
@@ -102,7 +95,7 @@ class UpdateManuscriptsInCassandraTask(Task):
                 if 'xref_first_author' in data and (data['xref_first_author'] != ''):
                     ra['published_first_author'] = data['xref_first_author']
 
-                if 'xref_journal' in data and (data['xref_journal'] != ''):
+                if 'xref_journal' in data and (data['xref_jsournal'] != ''):
                     ra['published_journal'] = data['xref_journal']
 
                 if 'xref_journal_issn' in data and (data['xref_journal_issn'] != ''):
@@ -118,7 +111,7 @@ class UpdateManuscriptsInCassandraTask(Task):
 
                     ra['reject_reason'] = data['reject_reason']
 
-                    if publisher == 'aaas':
+                    if publisher_id == 'aaas':
                         if data['reject_reason'] == 'TRUE':
                             ra['reject_reason'] = 'Reviewed'
                         else:
@@ -142,11 +135,9 @@ class UpdateManuscriptsInCassandraTask(Task):
                 if 'submitted_journal' in data and (data['submitted_journal'] != ''):
                     ra['submitted_journal'] = data['submitted_journal']
 
-                ra.batch(b).save()
+                ra.save()
 
-                b.execute()
-
-                tlogger.info("\n" + str(count-1) + ". Inserting record: " + publisher + " / " + manuscript_id)
+                tlogger.info("\n" + str(count-1) + ". Inserting/updating record: " + publisher + " / " + manuscript_id)
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
@@ -154,17 +145,7 @@ class UpdateManuscriptsInCassandraTask(Task):
         return task_args
 
 
-def unix_time(dt):
-    epoch = datetime.datetime.utcfromtimestamp(0)
-    delta = dt - epoch
-    return delta.total_seconds()
-
-
-def unix_time_millis(dt):
-    return (unix_time(dt) * 1000.0)
-
-
-def toDateTime(mdy_str):
+def to_datetime(mdy_str):
     dor_parts = mdy_str.split('/')
     dor_month = int(dor_parts[0])
     dor_day = int(dor_parts[1])

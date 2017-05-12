@@ -105,26 +105,37 @@ var PipelinePage = (function() {
         }
     };
 
+    var openPublisher = function (publisherId) {
+        var openerIcon = $('.' + publisherId + '_opener');
+        var closerIcon = $('.' + publisherId + '_closer');
+        $('.' + publisherId + '_row:not(.tail-row)').fadeIn(200);
+        $('.' + publisherId + '_summary_row .summary-value').fadeOut(100);
+        closerIcon.hide();
+        openerIcon.show();
+    };
+
+    var closePublisher = function (publisherId) {
+        var openerIcon = $('.' + publisherId + '_opener');
+        var closerIcon = $('.' + publisherId + '_closer');
+        $('.' + publisherId + '_row').fadeOut(100);
+        $('.' + publisherId + '_summary_row .summary-value').fadeIn(100);
+        openerIcon.hide();
+        closerIcon.show();
+    };
+
     var wirePublisherLinks = function(selector) {
         $(selector).each(function() {
             var link = $(this);
             link.click(function() {
                 var publisherId = link.attr('publisher_id');
                 var openerIcon = $('.' + publisherId + '_opener');
-                var closerIcon = $('.' + publisherId + '_closer');
 
                 // use the icon to figure out if open or closed
                 if (openerIcon.is(':visible')) {
-                    $('.' + publisherId + '_row').fadeOut(100);
-                    $('.' + publisherId + '_summary_row .summary-value').fadeIn(100);
-                    openerIcon.hide();
-                    closerIcon.show();
+                    closePublisher(publisherId);
                 }
                 else {
-                    $('.' + publisherId + '_row:not(.tail-row)').fadeIn(200);
-                    $('.' + publisherId + '_summary_row .summary-value').fadeOut(100);
-                    closerIcon.hide();
-                    openerIcon.show();
+                    openPublisher(publisherId);
                 }
                 return false;
             });
@@ -353,9 +364,9 @@ var PipelinePage = (function() {
                     singlePublisherPipelineModal.modal();
                 });
 
-                var form = $('#run-single-publisher-pipeline-form');
-                var m = $('#confirm-run-single-publisher-pipeline-modal');
-                m.find('.confirm-run-single-publisher-pipeline-submit-button').click(function() {
+                var singleForm = $('#run-single-publisher-pipeline-form');
+                var singleModal = $('#confirm-run-single-publisher-pipeline-modal');
+                singleModal.find('.confirm-run-single-publisher-pipeline-submit-button').click(function() {
                     singlePublisherPipelineModal.modal('hide');
                     $('.run-single-publisher-pipeline-button, .last-updated-message').hide();
                     var loading = $('.run-single-publisher-pipeline-loading-icon');
@@ -365,14 +376,12 @@ var PipelinePage = (function() {
                     }, 3000);
 
                     if (includeDateRangeControls) {
-                        form.find('input[name="from_date"]').val(m.find('input[name="from_date"]').val());
-                        form.find('input[name="to_date"]').val(m.find('input[name="to_date"]').val());
+                        singleForm.find('input[name="from_date"]').val(singleModal.find('input[name="from_date"]').val());
+                        singleForm.find('input[name="to_date"]').val(singleModal.find('input[name="to_date"]').val());
                     }
 
-                    form.find('input[name="send_alerts"]').val(m.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
-
-                    console.log('1');
-                    form.submit();
+                    singleForm.find('input[name="send_alerts"]').val(singleModal.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
+                    singleForm.submit();
                     return false;
                 });
             }
@@ -395,15 +404,15 @@ var PipelinePage = (function() {
                     });
                 }
 
-                var m = $('#confirm-run-all-modal');
-                var form = $('#run-pipeline-form');
+                var allModal = $('#confirm-run-all-modal');
+                var allForm = $('#run-pipeline-form');
 
                 $('.run-button').click(function() {
-                    m.modal();
+                    allModal.modal();
                 });
 
-                m.find('.confirm-run-all-modal-submit-button').click(function() {
-                    m.modal('hide');
+                allModal.find('.confirm-run-all-modal-submit-button').click(function() {
+                    allModal.modal('hide');
                     $('.run-button').hide();
                     var loading = $('.run-for-all-loading-icon');
                     loading.show();
@@ -412,14 +421,12 @@ var PipelinePage = (function() {
                     }, 3000);
 
                     if (includeDateRangeControls) {
-                        form.find('input[name="from_date"]').val(m.find('input[name="from_date"]').val());
-                        form.find('input[name="to_date"]').val(m.find('input[name="to_date"]').val());
+                        allForm.find('input[name="from_date"]').val(allModal.find('input[name="from_date"]').val());
+                        allForm.find('input[name="to_date"]').val(allModal.find('input[name="to_date"]').val());
                     }
 
-                    form.find('input[name="send_alerts"]').val(m.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
-
-                    console.log('2');
-                    form.submit();
+                    allForm.find('input[name="send_alerts"]').val(allModal.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
+                    allForm.submit();
                     return false;
                 });
             }
@@ -430,13 +437,18 @@ var PipelinePage = (function() {
 
         wireRunForPublisherForms('.run-pipeline-for-publisher-inline-form');
         wireRestartRunButtons('.restart-run-button');
-        wireJobActionsDropdown('.job-actions-dropdown   ');
+        wireJobActionsDropdown('.job-actions-dropdown');
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {
                 updatePublisher(publisherId);
             }, 3000);
         });
+
+        var publisherId = window.location.hash.substr(1);
+        if (publisherId) {
+            openPublisher(publisherId);
+        }
     };
 
     return {
