@@ -164,6 +164,10 @@ $.widget("custom.edittableaualertpage", {
             alertChoiceControls.hide();
         }
         else {
+            // hard coded selection of scheduled alert type
+            $('.alert-type-choice-list [alert_type="scheduled"]').addClass('selected');
+            this.selectedAlertType = 'scheduled';
+
             alertTypeControls.show();
             $('.article-type-instructions-' + this.selectedAlertType).show().siblings().hide();
 
@@ -404,7 +408,12 @@ $.widget("custom.edittableaualertpage", {
                     viz.addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, function (e) {
                         e.getParameterAsync().then(function (parameter) {
                             var parameterName = parameter.getName();
-                            self.parameters[parameterName] = [parameter.getCurrentValue().value];
+                            self.parameters[parameterName] = {
+                                type: 'categorical',
+                                exclude: false,
+                                values: [parameter.getCurrentValue().value]
+                            };
+
                             self.parametersHiddenInput.val(JSON.stringify(self.parameters));
                             self._checkForm();
                         });
