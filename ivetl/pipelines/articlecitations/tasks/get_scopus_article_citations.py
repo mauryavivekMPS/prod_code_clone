@@ -19,13 +19,17 @@ class GetScopusArticleCitations(Task):
 
         target_file_name = os.path.join(work_folder, "%s_articlecitations_target.tab" % publisher_id)
 
+        def reader_without_unicode_breaks(f):
+            while True:
+                yield next(f).replace('\ufeff', '')
+                continue
+
         already_processed = set()
 
         # if the file exists, read it in assuming a job restart
         if os.path.isfile(target_file_name):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
-                for line in csv.reader(tsv, delimiter='\t'):
-                    line = line.replace(u'\ufeff', '')
+                for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
                         doi = line[1]
                         already_processed.add(doi)
