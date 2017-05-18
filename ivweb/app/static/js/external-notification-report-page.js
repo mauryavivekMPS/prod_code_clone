@@ -71,6 +71,16 @@ $.widget("custom.externalnotificationreportpage", {
                 });
 
                 var viz = new tableau.Viz(reportContainer, trustedReportUrl, vizOptions);
+
+                $('.export-image-button').on('click', function (e) {
+                    viz.showExportImageDialog();
+                    e.preventDefault();
+                });
+
+                $('.export-pdf-button').on('click', function (e) {
+                    viz.showExportPDFDialog();
+                    e.preventDefault();
+                });
             })
             .always(function () {
                 IvetlWeb.hideLoading();
