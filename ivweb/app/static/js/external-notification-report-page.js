@@ -81,6 +81,11 @@ $.widget("custom.externalnotificationreportpage", {
                     viz.showExportPDFDialog();
                     e.preventDefault();
                 });
+
+                $('.export-crosstab-button').on('click', function (e) {
+                    viz.showExportCrossTabDialog();
+                    e.preventDefault();
+                });
             })
             .always(function () {
                 IvetlWeb.hideLoading();
