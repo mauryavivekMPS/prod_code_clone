@@ -112,7 +112,7 @@ class UpdateDeltasTask(Task):
                     current_ytd_usage = 0
                     for m in utils.month_range(start_of_current_year, current_month):
                         try:
-                            u = InstitutionUsageStat.objects.get(
+                            u = InstitutionUsageStat.objects.timeout(20).get(
                                 publisher_id=publisher_id,
                                 counter_type=current_usage.counter_type,
                                 journal=current_usage.journal,
@@ -138,7 +138,7 @@ class UpdateDeltasTask(Task):
                         usage_date=current_month,
                         usage_category=current_usage.usage_category,
                         time_slice='ytd',
-                    ).update(
+                    ).timeout(20).update(
                         previous_usage=previous_ytd_usage,
                         current_usage=current_ytd_usage,
                         absolute_delta=absolute_ytd_delta,
