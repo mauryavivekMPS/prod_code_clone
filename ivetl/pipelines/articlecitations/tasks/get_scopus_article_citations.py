@@ -80,7 +80,6 @@ class GetScopusArticleCitations(Task):
                 tlogger.info("Skipping - No Scopus Id")
                 continue
 
-            citations = []
             try:
                 citations, skipped = scopus.get_citations(
                     article.article_scopus_id,
@@ -98,11 +97,12 @@ class GetScopusArticleCitations(Task):
                     target_file.write(row)
 
             except MaxTriesAPIError:
-                tlogger.info("Scopus API failed for %s" % article.article_scopus_id)
+                tlogger.info("Scopus API failed for %s, skipping article" % article.article_scopus_id)
                 error_count += 1
 
             if error_count >= self.MAX_ERROR_COUNT:
-                    raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
+                tlogger.info("Reached max errors for the task, bailing...")
+                raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
 
         target_file.close()
 
