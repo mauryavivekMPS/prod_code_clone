@@ -1,19 +1,25 @@
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import InstitutionUsageStat, SubscriptionPricing, ProductBundle
+from ivetl.common import common
 
 
 @app.task
 class UpdateInstitutionUsageStatsTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        publisher_stats = InstitutionUsageStat.objects.filter(publisher_id=publisher_id, counter_type='jr3').fetch_size(1000).limit(10000000)
+        cluster = Cluster(common.CASSANDRA_IP_LIST)
+        session = cluster.connect()
+
+        publisher_stats_statement = SimpleStatement("select subscriber_id, journal, usage_category, usage_date, journal_print_issn, journal_online_issn from impactvizor.institution_usage_stat where publisher_id = %s and counter_type = %s limit 10000000", fetch_size=1000)
 
         total_count = 100000  # cheap estimate
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
-        for stat in publisher_stats:
+        for stat in session.execute(publisher_stats_statement, (publisher_id, 'jr3')):
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
             # get subscriptions for this pub and year
@@ -41,7 +47,14 @@ class UpdateInstitutionUsageStatsTask(Task):
                     pass
 
             if match:
-                stat.update(
+                InstitutionUsageStat.objects(
+                    publisher_id=publisher_id,
+                    counter_type='jr3',
+                    journal=stat.journal,
+                    subscriber_id=stat.subscriber_id,
+                    usage_date=stat.usage_date,
+                    usage_category=stat.usage_category,
+                ).update(
                     bundle_name=match.bundle_name,
                     trial=match.trial,
                     trial_expiration_date=match.trial_expiration_date,
