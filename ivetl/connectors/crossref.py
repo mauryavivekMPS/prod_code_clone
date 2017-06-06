@@ -15,6 +15,7 @@ class CrossrefConnector(BaseConnector):
 
     connector_name = 'Crossref'
     max_attempts = 7
+    request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
         self.username = username
@@ -24,7 +25,7 @@ class CrossrefConnector(BaseConnector):
     def get_citations(self, doi):
         url = '%s?usr=%s&pwd=%s&doi=%s&format=unixsd' % (self.BASE_CITATION_URL, self.username, self.password, doi)
         response_text = self.get_with_retry_direct(url)
-        soup = BeautifulSoup(response.text, 'xml')
+        soup = BeautifulSoup(response_text, 'xml')
         citations = [e.text for e in soup.find_all('doi', type="journal_article")]
         return citations
 
@@ -65,10 +66,12 @@ class CrossrefConnector(BaseConnector):
     def get_article(self, doi):
         url = '%s/%s' % (self.BASE_ARTICLE_URL, doi)
         article_response_text = self.get_with_retry_direct(url)
+        # self.log('article_request_url: %s' % url)
+        # self.log('article_response_text: %s' % article_response_text)
 
         try:
             article_json = json.loads(article_response_text)
-        except ValueError:
+        except (ValueError, TypeError):
             article_json = None
 
         article = None
@@ -157,7 +160,7 @@ class CrossrefConnector(BaseConnector):
 
         try:
             search_results_json = json.loads(search_response_text)
-        except ValueError:
+        except (ValueError, TypeError):
             search_results_json = None
 
         return search_results_json
@@ -197,14 +200,14 @@ class CrossrefConnector(BaseConnector):
                 else:
                     raise http_error
             except Exception:
-                    self.log("General Exception - CrossRef API failed. Trying again...")
+                    self.log("General Exception - CrossRef API failed. Trying again..." + url)
                     _pause_for_retry()
                     attempt += 1
 
         if not success:
             raise MaxTriesAPIError(self.max_attempts)
 
-        return r
+        return r.text
 
 
     def get_with_retry(self, url):
