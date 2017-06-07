@@ -19,7 +19,7 @@ $.widget("custom.listtableaualertspage", {
                 csrfmiddlewaretoken: self.options.csrfToken
             };
 
-            $.post('/toggletableaualert/', data)
+            $.post('/togglealert/', data)
                 .always(function () {
                     // check error messages?
                 });
@@ -51,7 +51,7 @@ $.widget("custom.listtableaualertspage", {
                     csrfmiddlewaretoken: self.options.csrfToken
                 };
 
-                $.post('/deletetableaualert/', data)
+                $.post('/deletealert/', data)
                     .always(function () {
                         setTimeout(function () {
                             row.fadeOut(300, function () {
@@ -111,7 +111,7 @@ $.widget("custom.listtableaualertspage", {
                     csrfmiddlewaretoken: self.options.csrfToken
                 };
 
-                $.post('/sendtableaualertnow/', data)
+                $.post('/sendalertnow/', data)
                     .always(function () {
                         setTimeout(function () {
                             sendingNowIcon.hide();

@@ -42,7 +42,7 @@ $.widget("custom.edittableaualertpage", {
             self.selectedAlertType = selectedAlertType.attr('alert_type');
             var selectedTemplate = $('.template-choice-list li.selected');
             $('#id_template_id').val(selectedTemplate.attr('template_id'));
-            this.hasFilterConfiguration = selectedTemplate.attr('has_filter_configuration') == '1';
+            this.hasFilterConfiguration = selectedTemplate.attr('has_filter_configuration') === '1';
             self._updateFilterConfiguration();
             this.filters = JSON.parse($('#id_alert_filters').val());
             this.parameters = JSON.parse($('#id_alert_params').val());
@@ -202,7 +202,7 @@ $.widget("custom.edittableaualertpage", {
 
                 $('#id_template_id').val(selectedTemplateId);
 
-                self.hasFilterConfiguration = selectedItem.attr('has_filter_configuration') == '1';
+                self.hasFilterConfiguration = selectedItem.attr('has_filter_configuration') === '1';
                 self._updateFilterConfiguration();
 
                 // clear out any existing embedded report
@@ -268,7 +268,7 @@ $.widget("custom.edittableaualertpage", {
                     var filterWorksheetName = $('.template-choice-list li.selected').attr('filter_worksheet_name');
 
                     var allExistingFilters = JSON.parse(self.filtersHiddenInput.val());
-                    $.extend(allExistingFilters, JSON.parse(self.parametersHiddenInput.val()));
+                    var allExistingParameters = JSON.parse(self.parametersHiddenInput.val());
 
                     var viz = null;
 
@@ -282,26 +282,32 @@ $.widget("custom.edittableaualertpage", {
                                 var workbook = viz.getWorkbook();
                                 var activeSheet = workbook.getActiveSheet();
 
-                                if (activeSheet.getSheetType() != 'worksheet') {
+                                if (activeSheet.getSheetType() !== 'worksheet') {
                                     var allWorksheets = activeSheet.getWorksheets();
                                     for (var i = 0; i < allWorksheets.length; i++) {
                                         var worksheet = allWorksheets[i];
-                                        if (worksheet.getName() == filterWorksheetName) {
+                                        if (worksheet.getName() === filterWorksheetName) {
                                             activeSheet = worksheet;
                                             break;
                                         }
                                     }
                                 }
 
-                                // ranges and excluded values get applied after load
+                                // parameters get applied after load
+                                $.each(Object.keys(allExistingParameters), function (index, name) {
+                                    var parameter = allExistingParameters[name];
+                                    workbook.changeParameterValueAsync(name, parameter.values[0]);
+                                });
+
+                                // ranges and excluded value filters get applied after load
                                 $.each(Object.keys(allExistingFilters), function (index, name) {
                                     var filter = allExistingFilters[name];
 
-                                    if (filter.type == 'categorical' && filter.exclude) {
+                                    if (filter.type === 'categorical' && filter.exclude) {
                                         self.currentAutoAppliedFilters[name] = true;
                                         activeSheet.applyFilterAsync(name, filter.values, tableauSoftware.FilterUpdateType.REMOVE);
                                     }
-                                    else if (filter.type == 'quantitative') {
+                                    else if (filter.type === 'quantitative') {
                                         self.currentAutoAppliedFilters[name] = true;
                                         var minDate = new Date(filter.min);
                                         var maxDate = new Date(filter.max);
@@ -319,7 +325,7 @@ $.widget("custom.edittableaualertpage", {
                     if (useExistingFilters) {
                         $.each(Object.keys(allExistingFilters), function (index, name) {
                             var filter = allExistingFilters[name];
-                            if (filter.type == 'categorical' && !filter.exclude) {
+                            if (filter.type === 'categorical' && !filter.exclude) {
                                 self.currentAutoAppliedFilters[name] = true;
                                 vizOptions[name] = [];
                                 $.each(filter.values, function (index, value) {
@@ -345,7 +351,7 @@ $.widget("custom.edittableaualertpage", {
                             var numberOfSelectedValues = 0;
                             var changed = false;
                             var filterType = filter.getFilterType();
-                            if (filterType == 'quantitative') {
+                            if (filterType === 'quantitative') {
                                 // TODO: ranges are ignored for now, will come back to this
                                 // var min = filter.getMin();
                                 // var max = filter.getMax();
@@ -358,14 +364,14 @@ $.widget("custom.edittableaualertpage", {
                                 //     };
                                 // }
                             }
-                            else if (filterType == 'categorical') {
+                            else if (filterType === 'categorical') {
                                 var selectedValues = filter.getAppliedValues();
 
                                 // figure out if anything has changed, in an effort to ignore repeated event firing
                                 var exclude = filter.getIsExcludeMode();
-                                if (filterName in self.filters && self.filters[filterName].exclude == exclude && selectedValues.length == self.filters[filterName].values.length) {
+                                if (filterName in self.filters && self.filters[filterName].exclude === exclude && selectedValues.length === self.filters[filterName].values.length) {
                                     $.each(selectedValues, function (index, value) {
-                                        if (self.filters[filterName].values.indexOf(value.value) == -1) {
+                                        if (self.filters[filterName].values.indexOf(value.value) === -1) {
                                             changed = true;
                                             return false;
                                         }
@@ -406,12 +412,13 @@ $.widget("custom.edittableaualertpage", {
                     });
 
                     viz.addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, function (e) {
+
                         e.getParameterAsync().then(function (parameter) {
                             var parameterName = parameter.getName();
                             self.parameters[parameterName] = {
                                 type: 'categorical',
                                 exclude: false,
-                                values: [parameter.getCurrentValue().value]
+                                values: [parameter.getCurrentValue().formattedValue]
                             };
 
                             self.parametersHiddenInput.val(JSON.stringify(self.parameters));

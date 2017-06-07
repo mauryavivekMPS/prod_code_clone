@@ -109,12 +109,15 @@ class TableauAlertForm(forms.Form):
         else:
             self.instance = None
 
-        super(TableauAlertForm, self).__init__(initial=initial, *args, **kwargs)
-
         if user.superuser:
             publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
             publisher_choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
+
+        if len(publisher_choices) == 1:
+            initial['publisher_id'] = publisher_choices[0][0]
+
+        super(TableauAlertForm, self).__init__(initial=initial, *args, **kwargs)
 
         self.fields['publisher_id'].choices = sorted(publisher_choices, key=lambda p: p[0])
 
