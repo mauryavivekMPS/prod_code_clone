@@ -64,12 +64,8 @@ class UpdateArticleCitationsWithCrossref(Task):
                         citation_doi=citation_doi
                     )
 
-                    if existing_citation.citation_source_scopus is not True and existing_citation.citation_source_xref is True:
-                        add_citation = True
-
-                    else:
+                    if existing_citation.citation_source_xref is not True:
                         tlogger.info("Found existing Scopus citation %s in crossref" % citation_doi)
-
                         existing_citation.citation_source_xref = True
                         existing_citation.save()
 
