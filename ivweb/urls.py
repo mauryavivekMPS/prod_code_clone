@@ -27,14 +27,14 @@ urlpatterns = [
     url(r'^users/(?P<user_id>[\w\-.]+)/$', users.edit, name='users.edit'),
 
     # alerts
-    url(r'^alerts/$', alerts.list_alerts, name='alerts.list'),
-    url(r'^alerts/new/$', alerts.edit, name='alerts.new'),
-    url(r'^alerts/(?P<alert_id>[\w\-.]+)/$', alerts.edit, name='alerts.edit'),
+    url(r'^oldalerts/$', alerts.list_alerts, name='alerts.list'),
+    url(r'^oldalerts/new/$', alerts.edit, name='alerts.new'),
+    url(r'^oldalerts/(?P<alert_id>[\w\-.]+)/$', alerts.edit, name='alerts.edit'),
 
     # tableau alerts
-    url(r'^tableaualerts/$', tableau_alerts.list_alerts, name='tableau_alerts.list'),
-    url(r'^tableaualerts/new/$', tableau_alerts.edit, name='tableau_alerts.new'),
-    url(r'^tableaualerts/(?P<alert_id>[\w\-.]+)/$', tableau_alerts.edit, name='tableau_alerts.edit'),
+    url(r'^alerts/$', tableau_alerts.list_alerts, name='tableau_alerts.list'),
+    url(r'^alerts/new/$', tableau_alerts.edit, name='tableau_alerts.new'),
+    url(r'^alerts/(?P<alert_id>[\w\-.]+)/$', tableau_alerts.edit, name='tableau_alerts.edit'),
 
     # sendgrid
     url(r'^sendgrid/$', sendgrid.event_hook, name='sendgrid.event_hook'),
@@ -103,9 +103,9 @@ urlpatterns = [
     url(r'^updatereportitem/$', reports.update_item, name='reports.update_item'),
     url(r'^includereportitemstatuses/$', reports.include_item_statuses, name='reports.include_item_statuses'),
     url(r'^deleteuptimeoverride/$', uptime.delete_override, name='uptime.delete_override'),
-    url(r'^deletetableaualert/$', tableau_alerts.delete_alert, name='tableau_alerts.delete_alert'),
-    url(r'^toggletableaualert/$', tableau_alerts.toggle_alert, name='tableau_alerts.toggle_alert'),
-    url(r'^sendtableaualertnow/$', tableau_alerts.send_alert_now, name='tableau_alerts.send_alert_now'),
+    url(r'^deletealert/$', tableau_alerts.delete_alert, name='tableau_alerts.delete_alert'),
+    url(r'^togglealert/$', tableau_alerts.toggle_alert, name='tableau_alerts.toggle_alert'),
+    url(r'^sendalertnow/$', tableau_alerts.send_alert_now, name='tableau_alerts.send_alert_now'),
     url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
 
