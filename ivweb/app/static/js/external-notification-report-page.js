@@ -21,7 +21,7 @@ $.widget("custom.externalnotificationreportpage", {
                 var reportContainer = $('.embedded-report-container')[0];
 
                 var allExistingFilters = self.options.filters;
-                $.extend(allExistingFilters, self.options.params);
+                var allExistingParameters = self.options.params;
 
                 var vizOptions = {
                     hideTabs: false,
@@ -30,25 +30,31 @@ $.widget("custom.externalnotificationreportpage", {
                         var workbook = viz.getWorkbook();
                         var activeSheet = workbook.getActiveSheet();
 
-                        if (activeSheet.getSheetType() != 'worksheet') {
+                        if (activeSheet.getSheetType() !== 'worksheet') {
                             var allWorksheets = activeSheet.getWorksheets();
                             for (var i = 0; i < allWorksheets.length; i++) {
                                 var worksheet = allWorksheets[i];
-                                if (worksheet.getName() == self.options.filterWorksheetName) {
+                                if (worksheet.getName() === self.options.filterWorksheetName) {
                                     activeSheet = worksheet;
                                     break;
                                 }
                             }
                         }
 
+                        // parameters get applied after load
+                        $.each(Object.keys(allExistingParameters), function (index, name) {
+                            var parameter = allExistingParameters[name];
+                            workbook.changeParameterValueAsync(name, parameter.values[0]);
+                        });
+
                         // ranges and excluded values get applied after load
                         $.each(Object.keys(allExistingFilters), function (index, name) {
                             var filter = allExistingFilters[name];
 
-                            if (filter.type == 'categorical' && filter.exclude) {
+                            if (filter.type === 'categorical' && filter.exclude) {
                                 activeSheet.applyFilterAsync(name, filter.values, tableauSoftware.FilterUpdateType.REMOVE);
                             }
-                            else if (filter.type == 'quantitative') {
+                            else if (filter.type === 'quantitative') {
                                 var minDate = new Date(filter.min);
                                 var maxDate = new Date(filter.max);
                                 activeSheet.applyRangeFilterAsync(name, {min: minDate, max: maxDate})
@@ -62,7 +68,7 @@ $.widget("custom.externalnotificationreportpage", {
 
                 $.each(Object.keys(allExistingFilters), function (index, name) {
                     var filter = allExistingFilters[name];
-                    if (filter.type == 'categorical' && !filter.exclude) {
+                    if (filter.type === 'categorical' && !filter.exclude) {
                         vizOptions[name] = [];
                         $.each(filter.values, function (index, value) {
                             vizOptions[name].push(value);
