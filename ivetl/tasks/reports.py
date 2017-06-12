@@ -1,8 +1,12 @@
 import datetime
+import logging
+import traceback
 from ivetl.common import common
 from ivetl.models import PublisherMetadata, AuditLog, SingletonTaskStatus
 from ivetl.connectors import TableauConnector
 from ivetl.celery import app
+
+log = logging.getLogger(__name__)
 
 
 @app.task
@@ -53,6 +57,8 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
 
 @app.task
 def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list=None):
+    log.info('Starting report update for %s (%s)...' % (item_type, item_id))
+
     try:
         status = SingletonTaskStatus.objects.get(
             task_type=item_type + '-update',
@@ -104,7 +110,13 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
         status.status = 'completed'
         status.save()
 
+        log.info('Finished report update')
+
     except:
+        log.info('Error in report update')
+        log.info(traceback.format_exc())
+        print(traceback.format_exc())
+
         status.end_time = datetime.datetime.now()
         status.status = 'error'
         status.save()

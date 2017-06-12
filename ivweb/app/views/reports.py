@@ -1,3 +1,4 @@
+from operator import attrgetter
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
@@ -37,9 +38,11 @@ def _get_items_with_status():
 def update_reports(request):
     report_items = _get_items_with_status()
     sorted_report_items = sorted(report_items, key=lambda x: (x['type'], x['id']))
+    sorted_publishers = sorted(request.user.get_accessible_publishers(), key=attrgetter('name'))
 
     return render(request, 'reports/update_reports.html', {
         'report_items': sorted_report_items,
+        'publishers': sorted_publishers,
     })
 
 

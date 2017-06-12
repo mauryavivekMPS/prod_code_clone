@@ -34,9 +34,16 @@ $.widget("custom.updatereportspage", {
             var itemId = row.attr('item_id');
             var itemType = row.attr('item_type');
 
+            var publisherMenu = row.find('.inline-report-publisher-menu');
+            var publisherId = publisherMenu.find("option:selected").val();
+            var publisherName = publisherMenu.find("option:selected").text();
+            if (!publisherId) {
+                publisherName = 'all publishers';
+            }
+
             var m = $('#confirm-update-report-modal');
             m.find('.modal-title').text('Update ' + itemType[0].toUpperCase() + itemType.slice(1));
-            m.find('.modal-body').html('<p>Are you sure you want to update <b>' + itemId + '</b> for all publishers?');
+            m.find('.modal-body').html('<p>Are you sure you want to update <b>' + itemId + '</b> for <b>' + publisherName + '</b>?');
 
             var submitButton = m.find('.confirm-update-report-button');
             submitButton.on('click', function() {
@@ -52,6 +59,7 @@ $.widget("custom.updatereportspage", {
                 var data = {
                     'item_id': itemId,
                     'item_type': itemType,
+                    'publisher_id': publisherId,
                     'csrfmiddlewaretoken': self.options.csrfToken
                 };
 
