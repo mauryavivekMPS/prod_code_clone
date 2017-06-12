@@ -51,6 +51,10 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
         publisher.save()
 
     except:
+        log.info('Error in report update')
+        log.info(traceback.format_exc())
+        print(traceback.format_exc())
+
         publisher.reports_setup_status = 'error'
         publisher.save()
 
