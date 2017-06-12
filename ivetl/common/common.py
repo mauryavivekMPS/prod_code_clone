@@ -435,6 +435,7 @@ PIPELINES = [
         'has_file_input': False,
         'rebuild_data_source_id': None,
         'supports_restart': True,
+        'include_date_range_controls': True,
         'tasks': [
             'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
         ],

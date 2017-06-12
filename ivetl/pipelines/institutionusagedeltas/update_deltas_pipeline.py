@@ -6,10 +6,13 @@ from ivetl.models import PublisherMetadata
 @app.task
 class UpdateDeltasPipeline(Pipeline):
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, send_alerts=False):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, initiating_user_email=None, from_date=None, to_date=None, send_alerts=False):
         pipeline_id = "update_institution_usage_deltas"
 
         now, today_label, job_id = self.generate_job_id()
+
+        from_date = from_date.strftime('%Y-%m-%d') if from_date else None,
+        to_date = to_date.strftime('%Y-%m-%d') if to_date else None,
 
         if publisher_id_list:
             publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
@@ -33,6 +36,8 @@ class UpdateDeltasPipeline(Pipeline):
                 'work_folder': work_folder,
                 'job_id': job_id,
                 'send_alerts': send_alerts,
+                'from_date': self.to_json_date(from_date),
+                'to_date': self.to_json_date(to_date),
             }
 
             Pipeline.chain_tasks(pipeline_id, task_args)
