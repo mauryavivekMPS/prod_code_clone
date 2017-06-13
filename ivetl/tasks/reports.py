@@ -1,16 +1,16 @@
 import datetime
-import logging
 import traceback
+import requests
 from ivetl.common import common
 from ivetl.models import PublisherMetadata, AuditLog, SingletonTaskStatus
 from ivetl.connectors import TableauConnector
 from ivetl.celery import app
 
-log = logging.getLogger(__name__)
-
 
 @app.task
 def update_reports_for_publisher(publisher_id, initiating_user_id, include_initial_setup=False):
+    print('Starting report update for %s...' % publisher_id)
+
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher.reports_setup_status = 'in-progress'
     publisher.save()
@@ -23,6 +23,7 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
         )
 
         if include_initial_setup:
+            print('Running initial setup')
             if publisher.demo:
                 project_id, group_id, user_id = t.setup_account(publisher)
             else:
@@ -45,14 +46,18 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
                 entity_type='publisher',
                 entity_id=publisher_id,
             )
+        else:
+            print('Skipping initial setup')
 
+        print('Updating datasources and workbooks')
         t.update_datasources_and_workbooks(publisher)
         publisher.reports_setup_status = 'completed'
         publisher.save()
 
+        print('Completed update')
+
     except:
-        log.info('Error in report update')
-        log.info(traceback.format_exc())
+        print('Error in report update:')
         print(traceback.format_exc())
 
         publisher.reports_setup_status = 'error'
@@ -61,7 +66,7 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
 
 @app.task
 def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list=None):
-    log.info('Starting report update for %s (%s)...' % (item_type, item_id))
+    print('Starting report update for %s (%s)...' % (item_type, item_id))
 
     try:
         status = SingletonTaskStatus.objects.get(
@@ -95,12 +100,32 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
         )
 
         for publisher in publishers:
-            if item_type == 'workbook':
-                if item_id in publisher.all_workbooks:
-                    t.add_workbook_to_project(publisher, item_id)
-            elif item_type == 'datasource':
-                if item_id in publisher.all_datasources:
-                    t.add_datasource_to_project(publisher, item_id)
+            print('Looking at publisher: %s' % publisher.publisher_id)
+
+            if publisher.demo or publisher.pilot:
+                print('Not a production publisher, skipping')
+                continue
+
+            try:
+                if item_type == 'workbook':
+                    if item_id in publisher.all_workbooks:
+                        t.add_workbook_to_project(publisher, item_id)
+                        print('Updating workbook')
+                    else:
+                        print('Workbook not supported by pub, skipping')
+                elif item_type == 'datasource':
+                    if item_id in publisher.all_datasources:
+                        t.add_datasource_to_project(publisher, item_id)
+                        print('Updating datasource')
+                    else:
+                        print('Datasource not supported by pub, skipping')
+
+            except requests.HTTPError as e:
+                print('Error running update:')
+                print(traceback.format_exc())
+                print('Response content:')
+                print(e.response.content)
+                continue
 
         AuditLog.objects.create(
             user_id=initiating_user_id,
@@ -114,11 +139,10 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
         status.status = 'completed'
         status.save()
 
-        log.info('Finished report update')
+        print('Finished report update')
 
     except:
-        log.info('Error in report update')
-        log.info(traceback.format_exc())
+        print('Error in report update:')
         print(traceback.format_exc())
 
         status.end_time = datetime.datetime.now()
