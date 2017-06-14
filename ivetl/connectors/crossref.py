@@ -14,7 +14,7 @@ class CrossrefConnector(BaseConnector):
     BASE_JNL_URL = 'http://api.crossref.org/journals/%s'
 
     connector_name = 'Crossref'
-    max_attempts = 7
+    max_attempts = 3
     request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
@@ -24,14 +24,14 @@ class CrossrefConnector(BaseConnector):
 
     def get_citations(self, doi):
         url = '%s?usr=%s&pwd=%s&doi=%s&format=unixsd' % (self.BASE_CITATION_URL, self.username, self.password, doi)
-        response_text = self.get_with_retry_direct(url)
+        response_text = self.get_with_retry(url)
         soup = BeautifulSoup(response_text, 'xml')
         citations = [e.text for e in soup.find_all('doi', type="journal_article")]
         return citations
 
     def get_example_doi_for_journal(self, issn):
         url = self.BASE_WORKS_URL % issn
-        response_text = self.get_with_retry_direct(url)
+        response_text = self.get_with_retry(url)
         first_doi = json.loads(response_text)['message']['items'][0]['DOI']
         return first_doi
 
@@ -40,7 +40,7 @@ class CrossrefConnector(BaseConnector):
 
         try:
             journal_response_url = self.BASE_JNL_URL % issn
-            journal_response_text = self.get_with_retry_direct(journal_response_url)
+            journal_response_text = self.get_with_retry(journal_response_url)
             journal_response_json = json.loads(journal_response_text)
 
             journal_name = journal_response_json['message']['title']
@@ -58,14 +58,14 @@ class CrossrefConnector(BaseConnector):
                 'article_count': article_count
             }
 
-        except (ValueError):
+        except ValueError:
             pass
 
         return journal
 
     def get_article(self, doi):
         url = '%s/%s' % (self.BASE_ARTICLE_URL, doi)
-        article_response_text = self.get_with_retry_direct(url)
+        article_response_text = self.get_with_retry(url)
         # self.log('article_request_url: %s' % url)
         # self.log('article_response_text: %s' % article_response_text)
 
@@ -209,21 +209,14 @@ class CrossrefConnector(BaseConnector):
 
         return r.text
 
-
     def get_with_retry(self, url):
         attempt = 0
         success = False
 
         def _pause_for_retry():
-            if attempt == self.max_attempts - 3:
-                self.log('Pause 30 for retry')
-                time.sleep(30)
-            elif attempt == self.max_attempts - 2:
-                self.log('Pause 150 for retry')
-                time.sleep(150)
-            elif attempt == self.max_attempts - 1:
-                self.log('Pause 300 for retry')
-                time.sleep(300)
+            if attempt == self.max_attempts - 2:
+                self.log('Pause 10 for retry')
+                time.sleep(30)  # a long pause before one final attempt
             else:
                 self.log('Pause 0.2 for retry')
                 time.sleep(0.2)

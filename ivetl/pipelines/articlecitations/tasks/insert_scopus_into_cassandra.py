@@ -100,7 +100,12 @@ class InsertScopusIntoCassandra(Task):
                         tlogger.error(data)
                         raise
 
-                PublishedArticle.objects(publisher_id=publisher_id, article_doi=doi).update(citations_updated_on=updated_date)
+                PublishedArticle.objects(
+                    publisher_id=publisher_id,
+                    article_doi=doi
+                ).update(
+                    citations_updated_on=updated_date
+                )
 
                 tlogger.info(str(count-1) + ". " + publisher_id + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")
 

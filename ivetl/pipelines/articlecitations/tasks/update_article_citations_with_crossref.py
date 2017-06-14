@@ -45,71 +45,75 @@ class UpdateArticleCitationsWithCrossref(Task):
             tlogger.info("---")
             tlogger.info("%s of %s. Looking Up citations for %s / %s" % (count, len(articles), publisher_id, doi))
 
-            citations = []
-
             try:
                 citations = crossref.get_citations(doi)
+
+                num_citations = len(citations)
+                if article.crossref_citation_count == num_citations:
+                    # assume they are all the same and skip everything below
+                    tlogger.info('Number of citations are the same as last time, skipping')
+                    continue
+                else:
+                    article.crossref_citation_count = num_citations
+                    article.save()
+
+                for citation_doi in citations:
+                    add_citation = False
+
+                    try:
+                        existing_citation = ArticleCitations.objects.get(
+                            publisher_id=publisher_id,
+                            article_doi=doi,
+                            citation_doi=citation_doi
+                        )
+
+                        if existing_citation.citation_source_xref is not True:
+                            tlogger.info("Found existing Scopus citation %s in crossref" % citation_doi)
+                            existing_citation.citation_source_xref = True
+                            existing_citation.save()
+
+                    except ArticleCitations.DoesNotExist:
+                        tlogger.info("Found new citation %s in crossref, adding record" % citation_doi)
+                        add_citation = True
+
+                    if add_citation:
+                        data = crossref.get_article(citation_doi)
+
+                        if data:
+
+                            if data['date'] is None:
+                                tlogger.info("No citation date available for citation %s, skipping" % citation_doi)
+                                continue
+
+                            ArticleCitations.create(
+                                publisher_id=publisher_id,
+                                article_doi=doi,
+                                citation_doi=data['doi'],
+                                citation_scopus_id=data.get('scopus_id', None),
+                                citation_date=data['date'],
+                                citation_first_author=data['first_author'],
+                                citation_issue=data['issue'],
+                                citation_journal_issn=data['journal_issn'],
+                                citation_journal_title=data['journal_title'],
+                                citation_pages=data['pages'],
+                                citation_source_xref=True,
+                                citation_title=data['title'],
+                                citation_volume=data['volume'],
+                                citation_count=1,
+                                updated=updated_date,
+                                created=updated_date,
+                            )
+                        else:
+                            tlogger.info("No crossref data found for citation %s, skipping" % citation_doi)
+
             except MaxTriesAPIError:
                 tlogger.info("Crossref API failed for %s" % doi)
                 error_count += 1
-
-            for citation_doi in citations:
-
-                add_citation = False
-
-                try:
-                    existing_citation = ArticleCitations.objects.get(
-                        publisher_id=publisher_id,
-                        article_doi=doi,
-                        citation_doi=citation_doi
-                    )
-
-                    if existing_citation.citation_source_xref is not True:
-                        tlogger.info("Found existing Scopus citation %s in crossref" % citation_doi)
-                        existing_citation.citation_source_xref = True
-                        existing_citation.save()
-
-                except ArticleCitations.DoesNotExist:
-                    tlogger.info("Found new citation %s in crossref, adding record" % citation_doi)
-                    add_citation = True
-
-                if add_citation:
-                    data = crossref.get_article(citation_doi)
-
-                    if data:
-
-                        if data['date'] is None:
-                            tlogger.info("No citation date available for citation %s, skipping" % citation_doi)
-                            continue
-
-                        ArticleCitations.create(
-                            publisher_id=publisher_id,
-                            article_doi=doi,
-                            citation_doi=data['doi'],
-                            citation_scopus_id=data.get('scopus_id', None),
-                            citation_date=data['date'],
-                            citation_first_author=data['first_author'],
-                            citation_issue=data['issue'],
-                            citation_journal_issn=data['journal_issn'],
-                            citation_journal_title=data['journal_title'],
-                            citation_pages=data['pages'],
-                            citation_source_xref=True,
-                            citation_title=data['title'],
-                            citation_volume=data['volume'],
-                            citation_count=1,
-                            updated=updated_date,
-                            created=updated_date,
-                        )
-                    else:
-                        tlogger.info("No crossref data found for citation %s, skipping" % citation_doi)
 
             published_article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)
             old_citation_count = published_article.citation_count
             new_citation_count = ArticleCitations.objects.filter(publisher_id=publisher_id, article_doi=doi).fetch_size(1000).limit(self.ARTICLE_CITATION_QUERY_LIMIT).count()
             issn = published_article.article_journal_issn
-
-            # Just for testing!!
-            # new_citation_count += int(old_citation_count * 1.4)
 
             run_alerts(
                 check_ids=['citations-exceeds-integer', 'citations-percentage-change'],

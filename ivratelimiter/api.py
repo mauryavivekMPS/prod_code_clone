@@ -2,7 +2,6 @@ import time
 import threading
 import requests
 import logging
-import traceback
 from functools import wraps
 from flask import Flask, request, jsonify
 
@@ -28,33 +27,31 @@ def rate_limited(max_per_second):
 
         @wraps(func)
         def rate_limited_function(*args, **kwargs):
-            # log.info('%s acquiring lock' % threading.get_ident())
-            lock.acquire()
-            # log.info('%s got lock' % threading.get_ident())
-            nonlocal last_time_called
-            elapsed = time.perf_counter() - last_time_called
-            left_to_wait = min_interval - elapsed
 
-            if left_to_wait > 0:
-                # log.info('% sleep for %s' % (threading.get_ident(), left_to_wait))
-                time.sleep(left_to_wait)
+            green_light = False
+            while not green_light:
 
-            ret = func(*args, **kwargs)
-            last_time_called = time.perf_counter()
-            # log.info('%s releasing lock' % threading.get_ident())
-            lock.release()
-            # log.info('%s released' % threading.get_ident())
-            return ret
+                with lock:
+                    nonlocal last_time_called
+                    elapsed = time.perf_counter() - last_time_called
+                    left_to_wait = min_interval - elapsed
+                    if left_to_wait <= 0:
+                        last_time_called = time.perf_counter()
+                        green_light = True
+
+                if left_to_wait > 0:
+                    time.sleep(left_to_wait)
+
+            return func(*args, **kwargs)
 
         return rate_limited_function
 
     return decorate
 
 
-@rate_limited(4)
+@rate_limited(20)
 def do_crossref_request(url):
-    # log.info('Requested crossref: %s' % url)
-    # log.info('%s requested crossref: %s' % (threading.get_ident(), url))
+    log.info('Requested crossref: %s' % url)
     return requests.get(url, timeout=30)
 
 
@@ -73,14 +70,14 @@ def limit():
     # }
 
     url = ''
+    service = ''
 
     try:
         request_type = request.json['type']
         service = request.json['service']
         url = request.json['url']
 
-        # log.info('Queued %s: %s' % (service, url))
-        # log.info('%s queued %s: %s' % (threading.get_ident(), service, url))
+        log.info('Queued %s: %s' % (service, url))
 
         if request_type == 'GET':
             service_response = SERVICES[service](url)
@@ -97,7 +94,6 @@ def limit():
 
     except:
         log.info('Unexpected exception on: (%s, %s)' % (service, url))
-        log.info(traceback.format_exc())
         wrapped_response = {
             'limit_status': 'error',
         }

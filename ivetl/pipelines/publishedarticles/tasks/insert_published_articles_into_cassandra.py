@@ -187,30 +187,30 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='editor').update(value_text=editor)
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
 
-                # Record in cohort table
-                pac = PublishedArticleByCohort()
-                pac['publisher_id'] = publisher_id
-                pac['is_cohort'] = pa.is_cohort
-                pac['article_doi'] = pa.article_doi
-                pac['article_scopus_id'] = pa.article_scopus_id
-                pac['updated'] = updated
-                pac.save()
+                # record in cohort table
+                PublishedArticleByCohort.objects.create(
+                    publisher_id=publisher_id,
+                    is_cohort=pa.is_cohort,
+                    article_doi=pa.article_doi,
+                    article_scopus_id=pa.article_scopus_id,
+                    updated=updated,
+                )
 
                 # finally, add placeholder citations
                 for yr in range(pa.date_of_publication.year, today.year + 1):
 
-                    plac = ArticleCitations()
-                    plac['publisher_id'] = publisher_id
-                    plac['article_doi'] = pa.article_doi
-                    plac['citation_doi'] = str(yr) + "-placeholder"
-                    plac['updated'] = updated
-                    plac['created'] = updated
-                    plac['citation_date'] = datetime(yr, 1, 1)
-                    plac['citation_count'] = 0
-                    plac['is_cohort'] = pa.is_cohort
-                    plac['citation_source_xref'] = True
-                    plac['citation_source_scopus'] = True
-                    plac.save()
+                    ArticleCitations.objects.create(
+                        publisher_id=publisher_id,
+                        article_doi=pa.article_doi,
+                        citation_doi=str(yr) + "-placeholder",
+                        updated=updated,
+                        created=updated,
+                        citation_date=datetime(yr, 1, 1),
+                        citation_count=0,
+                        is_cohort=pa.is_cohort,
+                        citation_source_xref=True,
+                        citation_source_scopus=True,
+                    )
 
                 tlogger.info(str(count-1) + ". Inserting record: " + publisher_id + " / " + doi)
 
