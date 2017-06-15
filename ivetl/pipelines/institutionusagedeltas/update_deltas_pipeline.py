@@ -11,9 +11,6 @@ class UpdateDeltasPipeline(Pipeline):
 
         now, today_label, job_id = self.generate_job_id()
 
-        from_date = from_date.strftime('%Y-%m-%d') if from_date else None,
-        to_date = to_date.strftime('%Y-%m-%d') if to_date else None,
-
         if publisher_id_list:
             publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
         else:
