@@ -81,13 +81,17 @@ class GetScopusArticleCitations(Task):
                 continue
 
             try:
-                citations, skipped = scopus.get_citations(
+                citations, num_citations, skipped = scopus.get_citations(
                     article.article_scopus_id,
                     article.is_cohort,
                     tlogger,
                     should_get_citation_details=should_get_citation_details,
                     existing_count=article.scopus_citation_count
                 )
+
+                if article.scopus_citation_count != num_citations:
+                    article.scopus_citation_count = num_citations
+                    article.save()
 
                 if skipped:
                     tlogger.info('No new citations found, skipping article')

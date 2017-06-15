@@ -185,7 +185,8 @@ class ScopusConnector(BaseConnector):
             else:
                 raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
-            if not existing_count or (existing_count and existing_count != len(citations_to_be_processed)):
+            num_citations_to_be_processed = len(citations_to_be_processed)
+            if not existing_count or (existing_count and existing_count != num_citations_to_be_processed):
                 skipped = False
 
                 for scopus_citation in citations_to_be_processed:
@@ -258,7 +259,7 @@ class ScopusConnector(BaseConnector):
             else:
                 skipped = True
 
-        return collected_citations, skipped
+        return collected_citations, num_citations_to_be_processed, skipped
 
     @staticmethod
     def check_for_auth_error(root):
