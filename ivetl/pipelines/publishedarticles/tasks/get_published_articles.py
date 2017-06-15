@@ -1,11 +1,11 @@
 import codecs
 import json
-import requests
 import urllib.parse
-from requests import HTTPError
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
+from ivetl.connectors import CrossrefConnector
 from ivetl.common import common
+from ivetl.models import PublisherMetadata
 
 
 @app.task(rate_limit="6/h")
@@ -15,6 +15,9 @@ class GetPublishedArticlesTask(Task):
 
         issns = task_args['issns']
         from_pub_date_str = self.from_json_date(task_args['start_pub_date']).strftime('%Y-%m-%d')
+
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+        crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "xrefpublishedarticles" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
@@ -30,47 +33,20 @@ class GetPublishedArticlesTask(Task):
 
             while more_results:
 
-                attempt = 0
-                max_attempts = 3
-                r = None
-                success = False
-
                 if 'max_articles_to_process' in task_args and task_args['max_articles_to_process'] and count >= task_args['max_articles_to_process']:
                     break
 
-                while not success and attempt < max_attempts:
-                    try:
-                        encoded_params = urllib.parse.urlencode({
-                            'rows': task_args['articles_per_page'],
-                            'cursor': cursor,
-                            'filter': 'type:journal-article,from-pub-date:%s' % from_pub_date_str,
-                        })
+                encoded_params = urllib.parse.urlencode({
+                    'rows': task_args['articles_per_page'],
+                    'cursor': cursor,
+                    'filter': 'type:journal-article,from-pub-date:%s' % from_pub_date_str,
+                })
 
-                        url = 'http://api.crossref.org/journals/%s/works?%s' % (issn, encoded_params)
+                url = 'http://api.crossref.org/journals/%s/works?%s' % (issn, encoded_params)
 
-                        tlogger.info("Searching CrossRef for: " + url)
-                        r = requests.get(url, timeout=30)
-                        r.raise_for_status()
-
-                        success = True
-
-                    except HTTPError as he:
-                        if he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT:
-                            tlogger.info("HTTP 401/408 - CrossRef API failed. Trying Again")
-                            attempt += 1
-
-                            if attempt >= max_attempts:
-                                raise
-                        else:
-                            raise
-                    except Exception:
-                        tlogger.info("General Exception - CrossRef API failed. Trying Again")
-
-                        attempt += 1
-                        if attempt >= max_attempts:
-                            raise
-
-                xrefdata = r.json()
+                tlogger.info("Searching CrossRef for: " + url)
+                response_text = crossref.get_with_retry(url)
+                xrefdata = json.loads(response_text)
 
                 total_count = len(xrefdata['message']['items'])
 
