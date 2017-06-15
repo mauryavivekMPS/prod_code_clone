@@ -12,7 +12,7 @@ logging.basicConfig(
     format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
     datefmt='%d/%b/%Y %H:%M:%S',
     # format='%(message)s',
-    level=logging.INFO
+    level=logging.WARNING
 )
 
 log = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ def limit():
             }
 
     except:
-        log.info('Unexpected exception on: (%s, %s)' % (service, url))
+        log.warning('Unexpected exception on: (%s, %s)' % (service, url))
         wrapped_response = {
             'limit_status': 'error',
         }

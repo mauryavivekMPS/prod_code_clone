@@ -14,7 +14,7 @@ class CrossrefConnector(BaseConnector):
     BASE_JNL_URL = 'http://api.crossref.org/journals/%s'
 
     connector_name = 'Crossref'
-    max_attempts = 3
+    max_attempts = 7
     request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
@@ -214,11 +214,13 @@ class CrossrefConnector(BaseConnector):
         success = False
 
         def _pause_for_retry():
-            if attempt == self.max_attempts - 2:
-                self.log('Pause 10 for retry')
-                time.sleep(30)  # a long pause before one final attempt
+            if attempt == self.max_attempts - 3:
+                time.sleep(30)
+            elif attempt == self.max_attempts - 2:
+                time.sleep(300)
+            elif attempt == self.max_attempts - 1:
+                time.sleep(600)
             else:
-                self.log('Pause 0.2 for retry')
                 time.sleep(0.2)
 
         response_text = None

@@ -1,18 +1,31 @@
 import datetime
 from dateutil.relativedelta import relativedelta
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import InstitutionUsageStat, InstitutionUsageStatDelta
 from ivetl import utils
+from ivetl.common import common
 
 
 @app.task
 class UpdateDeltasTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        cluster = Cluster(common.CASSANDRA_IP_LIST)
+        session = cluster.connect()
+
         now = datetime.datetime.now()
-        from_date = datetime.date(2013, 1, 1)
-        to_date = datetime.date(now.year, now.month, 1)
+
+        from_date = self.from_json_date(task_args.get('from_date'))
+        to_date = self.from_json_date(task_args.get('to_date'))
+
+        if not from_date:
+            from_date = datetime.date(2013, 1, 1)
+
+        if not to_date:
+            to_date = datetime.date(now.year, now.month, 1)
 
         total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -26,12 +39,17 @@ class UpdateDeltasTask(Task):
             tlogger.info('Processing month %s' % current_month.strftime('%Y-%m'))
 
             # select all usage for the current (iterated) month
-            all_current_month_usage = InstitutionUsageStat.objects.filter(
-                publisher_id=publisher_id,
-                usage_date=current_month,
-            ).fetch_size(1000).limit(10000000)
+            all_current_month_usage_sql = """
+              select subscriber_id, journal, counter_type, usage_category, usage_date, usage
+              from impactvizor.institution_usage_stat
+              where publisher_id = %s
+              and usage_date = %s
+              limit 10000000
+            """
 
-            for current_usage in all_current_month_usage:
+            all_current_month_usage_statement = SimpleStatement(all_current_month_usage_sql, fetch_size=1000)
+
+            for current_usage in session.execute(all_current_month_usage_statement, (publisher_id, current_month)):
 
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 

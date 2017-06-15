@@ -13,7 +13,15 @@ class UpdateInstitutionUsageStatsTask(Task):
         cluster = Cluster(common.CASSANDRA_IP_LIST)
         session = cluster.connect()
 
-        publisher_stats_statement = SimpleStatement("select subscriber_id, journal, usage_category, usage_date, journal_print_issn, journal_online_issn from impactvizor.institution_usage_stat where publisher_id = %s and counter_type = %s limit 10000000", fetch_size=1000)
+        publisher_stats_sql = """
+          select subscriber_id, journal, usage_category, usage_date, journal_print_issn, journal_online_issn
+          from impactvizor.institution_usage_stat
+          where publisher_id = %s
+          and counter_type = %s
+          limit 10000000
+        """
+
+        publisher_stats_statement = SimpleStatement(publisher_stats_sql, fetch_size=1000)
 
         total_count = 100000  # cheap estimate
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
