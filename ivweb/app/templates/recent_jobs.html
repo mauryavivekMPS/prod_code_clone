@@ -13,7 +13,7 @@
                 <li><a href="?filter=completed" {% if filter_param == 'completed' %}class="active"{% endif %}>Completed</a></li>
                 <li><a href="?filter=error" {% if filter_param == 'error' %}class="active"{% endif %}>Errors</a></li>
             </ul>
-            <p class="recent-jobs-description">(includes recent {{ num_recent_days }} days ordered by start time)</p>
+            <p class="recent-jobs-description">(includes all running and recent {{ num_recent_days }} days of completed and errored jobs)</p>
         </div>
     </div>
 
