@@ -24,9 +24,7 @@ def list_publishers(request):
     messages = []
     if 'from' in request.GET:
         from_value = request.GET['from']
-        if from_value == 'no-keys':
-            alt_error_message = 'There are no Scopus API keys available. Please contact your administrator before creating a new publisher.'
-        elif from_value == 'new-error':
+        if from_value == 'new-error':
             alt_error_message = 'There was an error setting up reports for the new publisher in Tableau. Please contact your administrator.'
         elif from_value == 'save-success':
             messages.append("Changes to your publisher account have been saved.")
@@ -180,7 +178,7 @@ class PublisherForm(forms.Form):
     convert_to_publisher = forms.BooleanField(widget=forms.HiddenInput, required=False)
     message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter custom message for notification email (optional)'}), required=False)
 
-    def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, **kwargs):
+    def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, scopus_keys_available=True, **kwargs):
         self.is_demo = is_demo
         self.creating_user = creating_user
         self.issn_values_list = []
@@ -249,7 +247,7 @@ class PublisherForm(forms.Form):
 
         else:
             self.instance = None
-            initial['use_scopus_api_keys_from_pool'] = True
+            initial['use_scopus_api_keys_from_pool'] = scopus_keys_available
             initial['status'] = common.DEMO_STATUS_CREATING
 
         # pre-initialize the demo ID so that we can upload files to a known location
@@ -433,17 +431,14 @@ def edit(request, publisher_id=None):
         is_new = False
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
-    # bail quickly if there are no API keys
-    if is_new:
-        if ScopusApiKey.objects.count() < 5:
-            return HttpResponseRedirect(reverse('publishers.list') + '?from=no-keys')
+    scopus_keys_available = ScopusApiKey.objects.count() >= 5
 
     from_value = ''
     demo_files_custom_article_data = []
     demo_files_rejected_articles = []
 
     if request.method == 'POST':
-        form = PublisherForm(request.user, request.POST, instance=publisher)
+        form = PublisherForm(request.user, request.POST, instance=publisher, scopus_keys_available=scopus_keys_available)
         if form.is_valid():
             publisher = form.save()
 
@@ -488,7 +483,7 @@ def edit(request, publisher_id=None):
             demo_files_rejected_articles = get_pending_files_for_demo(demo.demo_id, 'rejected_manuscripts', 'rejected_articles')
 
         else:
-            form = PublisherForm(request.user, instance=publisher)
+            form = PublisherForm(request.user, instance=publisher, scopus_keys_available=scopus_keys_available)
 
     demo_from_publisher = None
     if publisher and publisher.demo_id:
@@ -506,7 +501,8 @@ def edit(request, publisher_id=None):
         'from_value': from_value,
         'demo_from_publisher': demo_from_publisher,
         'demo_files_custom_article_data': demo_files_custom_article_data,
-        'demo_files_rejected_articles': demo_files_rejected_articles
+        'demo_files_rejected_articles': demo_files_rejected_articles,
+        'scopus_keys_available': scopus_keys_available,
     })
 
 
@@ -517,6 +513,8 @@ def edit_demo(request, demo_id=None):
     if demo_id:
         demo = Demo.objects.get(demo_id=demo_id)
         new = False
+
+    scopus_keys_available = ScopusApiKey.objects.count() >= 5
 
     if request.method == 'POST':
 
@@ -532,7 +530,7 @@ def edit_demo(request, demo_id=None):
                     return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=unarchive-demo&filter=active')
 
         else:
-            form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
+            form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True, scopus_keys_available=scopus_keys_available)
             if form.is_valid():
 
                 previous_status = None
@@ -557,7 +555,7 @@ def edit_demo(request, demo_id=None):
 
                 return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
     else:
-        form = PublisherForm(request.user, instance=demo, is_demo=True)
+        form = PublisherForm(request.user, instance=demo, is_demo=True, scopus_keys_available=scopus_keys_available )
 
     demo_files_custom_article_data = []
     demo_files_rejected_articles = []

@@ -147,7 +147,7 @@
                         </div>
 
                         {% if request.user.superuser %}
-                            {% if not publisher %}
+                            {% if not publisher and scopus_keys_available %}
                                 <div class="form-group row">
                                     <label class="col-sm-2">Scopus</label>
                                     <div class="col-sm-6">
