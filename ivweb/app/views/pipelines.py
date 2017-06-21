@@ -384,7 +384,7 @@ def run(request, product_id, pipeline_id):
 def tail(request, product_id, pipeline_id):
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
-    publisher_id = request.REQUEST['publisher_id']
+    publisher_id = request.GET['publisher_id']
     job_id = request.GET['job_id']
     task_id = request.GET['task_id']
     log_file = os.path.join(common.BASE_WORK_DIR, job_id[:8], publisher_id, pipeline_id, job_id, task_id, '%s.log' % task_id)
