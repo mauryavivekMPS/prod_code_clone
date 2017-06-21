@@ -137,6 +137,14 @@ class SassConnector(BaseConnector):
                         metadata['subject_category'] = subject_category
                         self._log("Subject Category: " + subject_category)
 
+                        volume_element = root.xpath('./nlm:volume', namespaces=common.ns)
+                        if volume_element:
+                            metadata['volume'] = volume_element[0].text
+
+                        issue_element = root.xpath('./nlm:issue', namespaces=common.ns)
+                        if issue_element:
+                            metadata['issue'] = issue_element[0].text
+
                 else:
                     self._log("No SASS HREF found for DOI: " + hw_doi)
 
