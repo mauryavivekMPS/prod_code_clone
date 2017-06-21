@@ -1,9 +1,10 @@
 import csv
+import datetime
 from decimal import Decimal
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import SubscriptionPricing
+from ivetl.models import SubscriptionPricing, SystemGlobal
 
 
 @app.task
@@ -14,6 +15,8 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
         total_count = task_args['count']
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        earliest_year = datetime.datetime.now().year
 
         count = 0
         for file in files:
@@ -55,6 +58,24 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
                         trial_expiration_date=trial_expiration_date,
                         amount=amount,
                     )
+
+                    if year < earliest_year:
+                        earliest_year = year
+
+        earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
+        earliest_date_updated_global_name = publisher_id + '_institution_usage_stat_earliest_date_updated'
+
+        earliest_date = datetime.date(earliest_year, 1, 1)
+
+        try:
+            earliest_date_global = SystemGlobal.objects.get(name=earliest_date_value_global_name)
+        except SystemGlobal.DoesNotExist:
+            earliest_date_global = None
+
+        if not earliest_date_global or earliest_date < earliest_date_global.date_value:
+            SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=earliest_date)
+
+        SystemGlobal.objects(name=earliest_date_updated_global_name).update(int_value=1)
 
         task_args['count'] = count
         return task_args

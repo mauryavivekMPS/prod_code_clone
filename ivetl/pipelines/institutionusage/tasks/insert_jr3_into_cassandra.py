@@ -3,7 +3,7 @@ import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat
+from ivetl.models import InstitutionUsageStat, SystemGlobal
 
 
 @app.task
@@ -14,6 +14,9 @@ class InsertJR3IntoCassandraTask(Task):
         total_count = task_args['count']
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        now = datetime.datetime.now()
+        earliest_date = datetime.date(now.year, now.month, 1)
 
         count = 0
         for file in files:
@@ -64,19 +67,48 @@ class InsertJR3IntoCassandraTask(Task):
                         except ValueError:
                             continue
 
-                        InstitutionUsageStat.objects(
-                            publisher_id=publisher_id,
-                            counter_type='jr3',
-                            journal=journal,
-                            subscriber_id=subscriber_id,
-                            usage_date=date,
-                            usage_category=usage_category,
-                        ).update(
-                            journal_print_issn=journal_print_issn,
-                            journal_online_issn=journal_online_issn,
-                            institution_name=institution_name,
-                            usage=usage,
-                        )
+                        try:
+                            stat = InstitutionUsageStat.objects.get(
+                                publisher_id=publisher_id,
+                                counter_type='jr3',
+                                journal=journal,
+                                subscriber_id=subscriber_id,
+                                usage_date=date,
+                                usage_category=usage_category,
+                            )
+                        except InstitutionUsageStat.DoesNotExist:
+                            stat = InstitutionUsageStat.objects.create(
+                                publisher_id=publisher_id,
+                                counter_type='jr3',
+                                journal=journal,
+                                subscriber_id=subscriber_id,
+                                usage_date=date,
+                                usage_category=usage_category,
+                            )
+
+                        if usage != stat.usage:
+                            stat.update(
+                                journal_print_issn=journal_print_issn,
+                                journal_online_issn=journal_online_issn,
+                                institution_name=institution_name,
+                                usage=usage,
+                            )
+
+                            if date < earliest_date:
+                                earliest_date = datetime.date(date.year, date.month, 1)
+
+        earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
+        earliest_date_updated_global_name = publisher_id + '_institution_usage_stat_earliest_date_updated'
+
+        try:
+            earliest_date_global = SystemGlobal.objects.get(name=earliest_date_value_global_name)
+        except SystemGlobal.DoesNotExist:
+            earliest_date_global = None
+
+        if not earliest_date_global or earliest_date < earliest_date_global.date_value:
+            SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=earliest_date)
+
+        SystemGlobal.objects(name=earliest_date_updated_global_name).update(int_value=1)
 
         task_args['count'] = count
         return task_args

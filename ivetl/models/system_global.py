@@ -1,6 +1,5 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
-from ivetl.models import PublisherUser, PublisherJournal
 
 
 class SystemGlobal(Model):
