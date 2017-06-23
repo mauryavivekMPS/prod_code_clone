@@ -22,7 +22,7 @@ class UpdateDeltasTask(Task):
         to_date = self.from_json_date(task_args.get('to_date'))
 
         earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
-        earliest_date_updated_global_name = publisher_id + '_institution_usage_stat_earliest_date_updated'
+        earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
 
         if not from_date:
             try:
@@ -32,7 +32,7 @@ class UpdateDeltasTask(Task):
 
         earliest_date_global = SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=from_date)
 
-        SystemGlobal.objects(name=earliest_date_updated_global_name).update(int_value=0)
+        SystemGlobal.objects(name=earliest_date_dirty_global_name).update(int_value=0)
 
         if not to_date:
             to_date = datetime.date(now.year, now.month, 1)
@@ -180,7 +180,7 @@ class UpdateDeltasTask(Task):
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
         try:
-            updated_flag = SystemGlobal.objects(name=earliest_date_updated_global_name).int_value
+            updated_flag = SystemGlobal.objects(name=earliest_date_dirty_global_name).int_value
         except SystemGlobal.DoesNotExist:
             updated_flag = 0
 
