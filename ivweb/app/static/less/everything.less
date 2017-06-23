@@ -358,6 +358,7 @@ body {
 .audit #left-menu .audit_menu_item,
 .update_reports #left-menu .update_reports_menu_item,
 .uptime_overrides #left-menu .uptime_overrides_menu_item,
+.value_mappings #left-menu .value_mappings_menu_item,
 .published_articles_pipeline #left-menu .published_articles_menu_item,
 .custom_article_data_pipeline #left-menu .custom_article_data_menu_item,
 .article_citations_pipeline #left-menu .article_citations_menu_item,
@@ -3215,5 +3216,27 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         color: @brand-danger;
         font-size: 12px;
         padding-top: 10px;
+    }
+}
+
+// Value mappings
+// -------------------------
+
+#edit-value-mappings-page {
+    h2 {
+        font-size: 18px;
+
+        .lnr-arrow-right {
+            margin-left: 5px;
+            margin-right: 5px;
+            font-size: 14px;
+            vertical-align: -1px;
+            color: #999;
+        }
+
+        .display-value {
+            background-color: #efefef;
+            padding: 2px 8px 3px;
+        }
     }
 }
