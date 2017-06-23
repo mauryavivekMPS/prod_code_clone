@@ -145,6 +145,24 @@ class SassConnector(BaseConnector):
                         if issue_element:
                             metadata['issue'] = issue_element[0].text
 
+                        fpage_element = root.xpath('./nlm:fpage', namespaces=common.ns)
+                        if fpage_element:
+                            fpage = fpage_element[0].text
+                        else:
+                            fpage = None
+
+                        lpage_element = root.xpath('./nlm:lpage', namespaces=common.ns)
+                        if lpage_element:
+                            lpage = lpage_element[0].text
+                        else:
+                            lpage = None
+
+                        if fpage:
+                            if lpage:
+                                metadata['page'] = fpage + '-' + lpage
+                            else:
+                                metadata['page'] = fpage
+
                 else:
                     self._log("No SASS HREF found for DOI: " + hw_doi)
 
