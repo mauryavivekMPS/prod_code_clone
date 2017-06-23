@@ -19,24 +19,33 @@
             <div class="row">
                 <div class="col-md-6">
                     {% for mapping in mappings %}
-                        <h2>
-                            <span class="canonical-value">{{ mapping.canonical_value }}</span>
-                            <span class="lnr lnr-arrow-right"></span>
-                            {% if mapping.display_value %}
-                                <span class="display-value">{{ mapping.display_value }}</span>
-                            {% else %}
-                                <span class="display-value">{{ mapping.canonical_value }}</span>
-                            {% endif %}
-                        </h2>
-                        <table class="table">
-                            <tbody>
-                                {% for original_value in mapping.original_values %}
-                                    <tr>
-                                        <td>{{ original_value }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <div class="mapping-container" canonical_value="{{ mapping.canonical_value }}">
+                            <div class="mapping-header">
+                                <h2>
+                                    <span class="canonical-value">{{ mapping.canonical_value }}</span>
+                                    <span class="lnr lnr-arrow-right"></span>
+                                    {% if mapping.display_value %}
+                                        <span class="display-value">{{ mapping.display_value }}</span>
+                                    {% else %}
+                                        <span class="display-value">{{ mapping.canonical_value }}</span>
+                                    {% endif %}
+                                    <a class="edit-display-value-link" href="#">Edit display value</a>
+                                </h2>
+
+                            </div>
+                            <table class="table mapping-table">
+                                <tbody>
+                                    {% for original_value in mapping.original_values %}
+                                        <tr>
+                                            <td>
+                                                {{ original_value }}
+                                                <a class="change-mapping-link" href="#">Change mapping</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% endfor %}
                 </div>
             </div>

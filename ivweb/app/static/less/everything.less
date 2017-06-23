@@ -3225,6 +3225,10 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 #edit-value-mappings-page {
     h2 {
         font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-top: 20px;
+        padding-bottom: 10px;
 
         .lnr-arrow-right {
             margin-left: 5px;
@@ -3237,6 +3241,39 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         .display-value {
             background-color: #efefef;
             padding: 2px 8px 3px;
+        }
+    }
+
+    .mapping-header {
+
+        width: 100%;
+
+        .edit-display-value-link {
+            margin-left: 15px;
+            font-size: 12px;
+            display: none;
+        }
+
+        &:hover {
+            .edit-display-value-link {
+                display: inline-block;
+            }
+        }
+    }
+
+    .mapping-table {
+        td {
+            .change-mapping-link {
+                margin-left: 15px;
+                font-size: 12px;
+                display: none;
+            }
+
+            &:hover {
+                .change-mapping-link {
+                    display: inline-block;
+                }
+            }
         }
     }
 }
