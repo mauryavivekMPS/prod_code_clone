@@ -1,7 +1,7 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}Edit Mapping{% endblock %}
+{% block title %}Edit {{ mapping_type_display }} Mappings{% endblock %}
 {% block body_class %}value_mappings{% endblock %}
 
 {% block content %}
@@ -12,7 +12,7 @@
                     <li><a href="{% url 'value_mappings.list_mappings' %}">All Mappings</a></li>
                     <li></li>
                 </ol>
-                <h1>Edit Mappings</h1>
+                <h1>Edit {{ mapping_type_display }} Mappings</h1>
             </div>
         </div>
         <div>

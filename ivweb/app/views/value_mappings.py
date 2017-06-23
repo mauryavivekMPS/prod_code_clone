@@ -1,7 +1,6 @@
 import logging
-from operator import attrgetter
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+import string
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from ivetl.value_mappings import MAPPING_TYPES
 from ivetl.models import ValueMapping, ValueMappingDisplay
@@ -56,6 +55,7 @@ def edit(request, publisher_id, mapping_type):
 
     response = render(request, 'value_mappings/edit.html', {
         'mappings': mappings_by_canonical_value.values(),
+        'mapping_type_display': string.capwords(mapping_type.replace('_', ' ')),
     })
 
     return response
