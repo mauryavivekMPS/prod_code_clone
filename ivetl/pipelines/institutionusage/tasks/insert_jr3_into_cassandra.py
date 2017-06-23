@@ -98,7 +98,7 @@ class InsertJR3IntoCassandraTask(Task):
                                 earliest_date = datetime.date(date.year, date.month, 1)
 
         earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
-        earliest_date_updated_global_name = publisher_id + '_institution_usage_stat_earliest_date_updated'
+        earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
 
         try:
             earliest_date_global = SystemGlobal.objects.get(name=earliest_date_value_global_name)
@@ -108,7 +108,7 @@ class InsertJR3IntoCassandraTask(Task):
         if not earliest_date_global or earliest_date < earliest_date_global.date_value:
             SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=earliest_date)
 
-        SystemGlobal.objects(name=earliest_date_updated_global_name).update(int_value=1)
+        SystemGlobal.objects(name=earliest_date_dirty_global_name).update(int_value=1)
 
         task_args['count'] = count
         return task_args
