@@ -1,6 +1,6 @@
 import logging
 import string
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from ivetl.value_mappings import MAPPING_TYPES
 from ivetl.models import ValueMapping, ValueMappingDisplay
@@ -54,8 +54,28 @@ def edit(request, publisher_id, mapping_type):
             mappings_by_canonical_value[mapping.canonical_value]['original_values'].append(mapping.original_value)
 
     response = render(request, 'value_mappings/edit.html', {
+        'publisher_id': publisher_id,
+        'mapping_type': mapping_type,
         'mappings': mappings_by_canonical_value.values(),
         'mapping_type_display': string.capwords(mapping_type.replace('_', ' ')),
     })
 
     return response
+
+
+@login_required
+def update_value_display(request):
+    publisher_id = request.POST['publisher_id']
+    mapping_type = request.POST['mapping_type']
+    canonical_value = request.POST['canonical_value']
+    display_value = request.POST['display_value']
+
+    ValueMappingDisplay.objects(
+        publisher_id=publisher_id,
+        mapping_type=mapping_type,
+        canonical_value=canonical_value
+    ).update(
+        display_value=display_value
+    )
+
+    return HttpResponse('ok')

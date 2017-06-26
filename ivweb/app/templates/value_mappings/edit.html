@@ -16,39 +16,42 @@
             </div>
         </div>
         <div>
-            <div class="row">
-                <div class="col-md-6">
-                    {% for mapping in mappings %}
-                        <div class="mapping-container" canonical_value="{{ mapping.canonical_value }}">
-                            <div class="mapping-header">
-                                <h2>
-                                    <span class="canonical-value">{{ mapping.canonical_value }}</span>
-                                    <span class="lnr lnr-arrow-right"></span>
-                                    {% if mapping.display_value %}
-                                        <span class="display-value">{{ mapping.display_value }}</span>
-                                    {% else %}
-                                        <span class="display-value">{{ mapping.canonical_value }}</span>
-                                    {% endif %}
-                                    <a class="edit-display-value-link" href="#">Edit display value</a>
-                                </h2>
-
-                            </div>
-                            <table class="table mapping-table">
-                                <tbody>
-                                    {% for original_value in mapping.original_values %}
-                                        <tr>
-                                            <td>
-                                                {{ original_value }}
-                                                <a class="change-mapping-link" href="#">Change mapping</a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+            {% for mapping in mappings %}
+                <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}" display_value="{{ mapping.display_value }}">
+                    <div class="col-md-6">
+                        <div class="mapping-header">
+                            <h2>
+                                <span class="canonical-value">{{ mapping.canonical_value }}</span>
+                                <span class="lnr lnr-arrow-right"></span>
+                                {% if mapping.display_value %}
+                                    <span class="display-value">{{ mapping.display_value }}</span>
+                                {% else %}
+                                    <span class="display-value">{{ mapping.canonical_value }}</span>
+                                {% endif %}
+                                <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
+                                <div class="edit-display-popover" style="display:none">
+                                    <div class="edit-display-form">
+                                        <input class="form-control edit-display-textbox" value="{{ mapping.display_value }}">
+                                        <a class="btn btn-primary edit-display-button" href="#">Save</a>
+                                    </div>
+                                </div>
+                            </h2>
                         </div>
-                    {% endfor %}
+                        <table class="table mapping-table">
+                            <tbody>
+                                {% for original_value in mapping.original_values %}
+                                    <tr>
+                                        <td>
+                                            {{ original_value }}
+                                            <a class="change-mapping-link" href="#">Change mapping</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
@@ -56,7 +59,11 @@
 {% block page_scripts %}
     <script>
         $(function () {
-            $('#edit-value-mappings-page').editvaluemappingspage();
+            $('#edit-value-mappings-page').editvaluemappingspage({
+                publisherId: '{{ publisher_id }}',
+                mappingType: '{{ mapping_type }}',
+                csrfToken: '{{ csrf_token }}'
+            });
         });
     </script>
 {% endblock %}

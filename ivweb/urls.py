@@ -112,8 +112,6 @@ urlpatterns = [
     url(r'^sendalertnow/$', tableau_alerts.send_alert_now, name='tableau_alerts.send_alert_now'),
     url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
-
-    # for testing
-    url(r'^showemail/$', tableau_alerts.show_email),
+    url(r'^updatevaluedisplay/$', value_mappings.update_value_display, name='value_mappings.update_value_display'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
