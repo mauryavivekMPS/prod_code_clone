@@ -4,7 +4,7 @@ from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, InstitutionUsageStatDelta
+from ivetl.models import InstitutionUsageStat, InstitutionUsageStatDelta, SystemGlobal
 from ivetl import utils
 from ivetl.common import common
 
@@ -21,8 +21,18 @@ class UpdateDeltasTask(Task):
         from_date = self.from_json_date(task_args.get('from_date'))
         to_date = self.from_json_date(task_args.get('to_date'))
 
+        earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
+        earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
+
         if not from_date:
-            from_date = datetime.date(2013, 1, 1)
+            try:
+                from_date = SystemGlobal.objects.get(name=earliest_date_value_global_name).date_value.date()
+            except SystemGlobal.DoesNotExist:
+                from_date = datetime.date(2013, 1, 1)
+
+        earliest_date_global = SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=from_date)
+
+        SystemGlobal.objects(name=earliest_date_dirty_global_name).update(int_value=0)
 
         if not to_date:
             to_date = datetime.date(now.year, now.month, 1)
@@ -168,6 +178,14 @@ class UpdateDeltasTask(Task):
 
         if not stopped:
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
+
+        try:
+            updated_flag = SystemGlobal.objects(name=earliest_date_dirty_global_name).int_value
+        except SystemGlobal.DoesNotExist:
+            updated_flag = 0
+
+        if not updated_flag:
+            earliest_date_global.delete()
 
         task_args['count'] = count
         return task_args

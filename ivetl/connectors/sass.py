@@ -137,6 +137,32 @@ class SassConnector(BaseConnector):
                         metadata['subject_category'] = subject_category
                         self._log("Subject Category: " + subject_category)
 
+                        volume_element = root.xpath('./nlm:volume', namespaces=common.ns)
+                        if volume_element:
+                            metadata['volume'] = volume_element[0].text
+
+                        issue_element = root.xpath('./nlm:issue', namespaces=common.ns)
+                        if issue_element:
+                            metadata['issue'] = issue_element[0].text
+
+                        fpage_element = root.xpath('./nlm:fpage', namespaces=common.ns)
+                        if fpage_element:
+                            fpage = fpage_element[0].text
+                        else:
+                            fpage = None
+
+                        lpage_element = root.xpath('./nlm:lpage', namespaces=common.ns)
+                        if lpage_element:
+                            lpage = lpage_element[0].text
+                        else:
+                            lpage = None
+
+                        if fpage:
+                            if lpage:
+                                metadata['page'] = fpage + '-' + lpage
+                            else:
+                                metadata['page'] = fpage
+
                 else:
                     self._log("No SASS HREF found for DOI: " + hw_doi)
 

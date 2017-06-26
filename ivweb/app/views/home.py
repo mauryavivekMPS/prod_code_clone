@@ -125,10 +125,13 @@ def recent_jobs(request):
         runs_by_pub = {p.publisher_id: {'publisher': p, 'runs': []} for p in all_publishers}
 
         num_recent_days = 14
-        earliest_start_time = datetime.datetime.now() - datetime.timedelta(days=num_recent_days)
+        earliest_end_time = datetime.datetime.now() - datetime.timedelta(days=num_recent_days)
 
-        # get anything within the past two weeks
-        recent_runs = [run for run in PipelineStatus.objects().fetch_size(1000).limit(100000) if run.status in viewable_statuses and run.start_time > earliest_start_time]
+        # include all in-progress and any completed or error with end date in the last 14 days
+        recent_runs = []
+        for run in PipelineStatus.objects().fetch_size(1000).limit(100000):
+            if run.status in viewable_statuses and ((run.status == 'in-progress' and not run.end_time) or run.end_time > earliest_end_time):
+                recent_runs.append(run)
 
         # sort the runs by pub
         for run in recent_runs:
