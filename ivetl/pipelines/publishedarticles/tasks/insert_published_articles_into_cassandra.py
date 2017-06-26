@@ -166,6 +166,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 # now add overlapping values to the values table, and leave the rest to the resolver
                 article_type = 'None'
                 if 'article_type' in data and (data['article_type'] != ''):
+                    # TODO: add article_type matching
                     article_type = data['article_type']
 
                 subject_category = 'None'

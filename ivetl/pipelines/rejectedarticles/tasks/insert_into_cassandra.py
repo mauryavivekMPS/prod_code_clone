@@ -46,6 +46,7 @@ class InsertIntoCassandraDBTask(Task):
 
                 article_type = data.get('article_type')
                 if article_type:
+                    # TODO: add article type matching
                     r.article_type = article_type
 
                 citation_lookup_status = data.get('citation_lookup_status')
