@@ -2,6 +2,7 @@ import os
 import json
 import codecs
 import csv
+import threading
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
 from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations
@@ -31,8 +32,7 @@ class GetScopusArticleCitations(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
-                        doi = line[1]
-                        already_processed.add(doi)
+                        already_processed.add(line[1])
 
         if already_processed:
             tlogger.info('Found %s existing items to reuse' % len(already_processed))
@@ -51,62 +51,90 @@ class GetScopusArticleCitations(Task):
             articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.QUERY_LIMIT)
 
         count = 0
-        error_count = 0
+        count_lock = threading.Lock()
 
         total_count = len(articles)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        for article in articles:
+        tlogger.info('Total article count: %s' % total_count)
 
-            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+        def process_articles(articles_for_this_thread):
+            nonlocal count
+            error_count = 0
 
-            doi = article.article_doi
+            for article in articles_for_this_thread:
 
-            if doi in already_processed:
-                continue
+                with count_lock:
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-            def should_get_citation_details(citation_doi):
+                doi = article.article_doi
+
+                if doi in already_processed:
+                    continue
+
+                def should_get_citation_details(citation_doi):
+                    try:
+                        ArticleCitations.objects.get(
+                            publisher_id=publisher_id,
+                            article_doi=doi,
+                            citation_doi=citation_doi
+                        )
+                        return False
+                    except ArticleCitations.DoesNotExist:
+                        return True
+
+                if article.article_scopus_id is None or article.article_scopus_id == '':
+                    tlogger.info("Skipping - No Scopus Id")
+                    continue
+
                 try:
-                    ArticleCitations.objects.get(
-                        publisher_id=publisher_id,
-                        article_doi=doi,
-                        citation_doi=citation_doi
+                    citations, num_citations, skipped = scopus.get_citations(
+                        article.article_scopus_id,
+                        article.is_cohort,
+                        tlogger,
+                        should_get_citation_details=should_get_citation_details,
+                        existing_count=article.scopus_citation_count
                     )
-                    return False
-                except ArticleCitations.DoesNotExist:
-                    return True
 
-            if article.article_scopus_id is None or article.article_scopus_id == '':
-                tlogger.info("Skipping - No Scopus Id")
-                continue
+                    if article.scopus_citation_count != num_citations:
+                        article.scopus_citation_count = num_citations
+                        article.save()
 
-            try:
-                citations, num_citations, skipped = scopus.get_citations(
-                    article.article_scopus_id,
-                    article.is_cohort,
-                    tlogger,
-                    should_get_citation_details=should_get_citation_details,
-                    existing_count=article.scopus_citation_count
-                )
+                    if skipped:
+                        tlogger.info('No new citations found, skipping article')
+                    else:
+                        tlogger.info("%s citations retrieved from Scopus" % len(citations))
+                        row = "%s\t%s\t%s\n" % (publisher_id, doi, json.dumps(citations))
+                        target_file.write(row)
 
-                if article.scopus_citation_count != num_citations:
-                    article.scopus_citation_count = num_citations
-                    article.save()
+                except MaxTriesAPIError:
+                    tlogger.info("Scopus API failed for %s, skipping article" % article.article_scopus_id)
+                    error_count += 1
 
-                if skipped:
-                    tlogger.info('No new citations found, skipping article')
-                else:
-                    tlogger.info("%s citations retrieved from Scopus" % len(citations))
-                    row = "%s\t%s\t%s\n" % (publisher_id, doi, json.dumps(citations))
-                    target_file.write(row)
+                if error_count >= self.MAX_ERROR_COUNT:
+                    tlogger.info("Reached max errors for the task, bailing...")
+                    raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
 
-            except MaxTriesAPIError:
-                tlogger.info("Scopus API failed for %s, skipping article" % article.article_scopus_id)
-                error_count += 1
+        num_threads = 10
+        num_per_thread = round(total_count / num_threads)
+        threads = []
+        for i in range(num_threads):
 
-            if error_count >= self.MAX_ERROR_COUNT:
-                tlogger.info("Reached max errors for the task, bailing...")
-                raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
+            from_index = i * num_per_thread
+            if i == num_threads - 1:
+                to_index = total_count
+            else:
+                to_index = (i + 1) * num_per_thread
+
+            tlogger.info('Starting thread for [%s:%s]' % (from_index, to_index))
+
+            new_thread = threading.Thread(target=process_articles, args=(articles[from_index:to_index],))
+            new_thread.start()
+            threads.append(new_thread)
+
+        for thread in threads:
+            tlogger.info('Waiting on thread: %s' % thread)
+            thread.join()
 
         target_file.close()
 
