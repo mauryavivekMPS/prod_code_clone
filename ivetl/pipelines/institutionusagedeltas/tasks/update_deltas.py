@@ -180,11 +180,11 @@ class UpdateDeltasTask(Task):
             self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
         try:
-            updated_flag = SystemGlobal.objects(name=earliest_date_dirty_global_name).int_value
+            dirty_flag = SystemGlobal.objects.get(name=earliest_date_dirty_global_name).int_value
         except SystemGlobal.DoesNotExist:
-            updated_flag = 0
+            dirty_flag = 0
 
-        if not updated_flag:
+        if not dirty_flag:
             earliest_date_global.delete()
 
         task_args['count'] = count

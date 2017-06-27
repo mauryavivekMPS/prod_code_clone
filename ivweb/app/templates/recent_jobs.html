@@ -28,6 +28,7 @@
                         <th>Pipeline</th>
                         <th>Current Task</th>
                         <th class="time-col">Start Time</th>
+                        <th class="time-col">End Time</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,6 +54,7 @@
                                         <span class="task-count">({{ run.run.current_task_count }} of {{ run.run.total_task_count }})</span>
                                     </td>
                                     <td><span class="summary-value">{{ run.run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
+                                    <td><span class="summary-value">{{ run.run.end_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
                                 </tr>
                             {% endfor %}
                         {% endfor %}
