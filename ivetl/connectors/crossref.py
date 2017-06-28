@@ -197,6 +197,10 @@ class CrossrefConnector(BaseConnector):
                     self.log("Crossref API 500 error. Trying again...")
                     _pause_for_retry()
                     attempt += 1
+                elif http_error.response.status_code == requests.codes.TOO_MANY_REQUESTS:
+                    self.log("Crossref API 427 TOO MANY REQUESTS error. Trying again...")
+                    _pause_for_retry()
+                    attempt += 1
                 else:
                     raise http_error
             except Exception:
