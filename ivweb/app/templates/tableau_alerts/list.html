@@ -49,6 +49,9 @@
                                     {% if alert.has_params or alert.has_filters %}
                                         <div class="alert-details"><b>Filters:</b> {{ alert.params_and_filters_names_string }}</div>
                                     {% endif %}
+                                    {% if alert.user %}
+                                        <div class="alert-details"><b>Created by:</b> {{ alert.user.display_name }}</div>
+                                    {% endif %}
                                 </td>
                                 {% if not single_publisher_user %}
                                     <td>{{ alert.publisher_name }}</td>
