@@ -130,8 +130,9 @@ def recent_jobs(request):
         # include all in-progress and any completed or error with end date in the last 14 days
         recent_runs = []
         for run in PipelineStatus.objects().fetch_size(1000).limit(100000):
-            if run.status in viewable_statuses and ((run.status == 'in-progress' and not run.end_time) or run.end_time > earliest_end_time):
-                recent_runs.append(run)
+            if run.status in viewable_statuses:
+                if run.status == 'in-progress' or (run.end_time and run.end_time > earliest_end_time):
+                    recent_runs.append(run)
 
         # sort the runs by pub
         for run in recent_runs:
