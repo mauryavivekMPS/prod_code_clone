@@ -30,7 +30,8 @@ class UpdateDeltasTask(Task):
             except SystemGlobal.DoesNotExist:
                 from_date = datetime.date(2013, 1, 1)
 
-        earliest_date_global = SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=from_date)
+        earliest_date_global = SystemGlobal.objects(name=earliest_date_value_global_name)
+        earliest_date_global.update(date_value=from_date)
 
         SystemGlobal.objects(name=earliest_date_dirty_global_name).update(int_value=0)
 
