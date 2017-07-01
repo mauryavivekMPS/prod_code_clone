@@ -3224,7 +3224,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
 #edit-value-mappings-page {
     .popover {
-        max-width: 600px;
+        max-width: 500px;
     }
 
     h2 {
@@ -3265,7 +3265,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 
-    .edit-display-form {
+    .edit-display-container {
         .edit-display-textbox {
             width: 200px;
             display: inline-block;
@@ -3277,16 +3277,28 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 
+    .edit-mapping-container {
+        .edit-mapping-textbox {
+            width: 200px;
+            display: inline-block;
+        }
+
+        .edit-mapping-button {
+            display: inline-block;
+            vertical-align: 0;
+        }
+    }
+
     .mapping-table {
         td {
-            .change-mapping-link {
+            .edit-mapping-link {
                 margin-left: 15px;
                 font-size: 12px;
                 display: none;
             }
 
             &:hover {
-                .change-mapping-link {
+                .edit-mapping-link {
                     display: inline-block;
                 }
             }

@@ -17,7 +17,7 @@
         </div>
         <div>
             {% for mapping in mappings %}
-                <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}" display_value="{{ mapping.display_value }}">
+                <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}">
                     <div class="col-md-6">
                         <div class="mapping-header">
                             <h2>
@@ -30,8 +30,8 @@
                                 {% endif %}
                                 <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
                                 <div class="edit-display-popover" style="display:none">
-                                    <div class="edit-display-form">
-                                        <input class="form-control edit-display-textbox" value="{{ mapping.display_value }}">
+                                    <div class="edit-display-container" canonical_value="{{ mapping.canonical_value }}">
+                                        <input class="form-control edit-display-textbox">
                                         <a class="btn btn-primary edit-display-button" href="#">Save</a>
                                     </div>
                                 </div>
@@ -40,10 +40,16 @@
                         <table class="table mapping-table">
                             <tbody>
                                 {% for original_value in mapping.original_values %}
-                                    <tr>
+                                    <tr class="mapping-entry-container">
                                         <td>
                                             {{ original_value }}
-                                            <a class="change-mapping-link" href="#">Change mapping</a>
+                                            <a class="edit-mapping-link" data-toggle="popover" href="#">Change mapping</a>
+                                            <div class="edit-mapping-popover" style="display:none">
+                                                <div class="edit-mapping-container">
+                                                    <input class="form-control edit-mapping-textbox">
+                                                    <a class="btn btn-primary edit-mapping-button" href="#">Move</a>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 {% endfor %}
