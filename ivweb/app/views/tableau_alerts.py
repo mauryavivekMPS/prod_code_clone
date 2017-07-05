@@ -49,9 +49,9 @@ def list_alerts(request):
         setattr(alert, 'alert_type', alert_type['name'])
 
         # add alert user
-        if alert.user_id:
+        if alert.created_by:
             try:
-                user = User.objects.get(user_id=alert.user_id)
+                user = User.objects.get(user_id=alert.created_by)
             except User.DoesNotExist:
                 user = None
         else:
