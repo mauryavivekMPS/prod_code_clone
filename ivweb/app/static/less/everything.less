@@ -3241,17 +3241,14 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             vertical-align: -1px;
             color: #999;
         }
-
-        .display-value {
-            background-color: #efefef;
-            padding: 2px 8px 3px;
-        }
     }
 
     .mapping-header {
         width: 100%;
+        padding: 9px 0 9px 8px;
+        border-top: 1px dotted #ccc;
 
-        .edit-display-value-link {
+        .edit-display-value-link, .show-mappings-link {
             margin-left: 15px;
             font-size: 12px;
             padding-right: 5px;
@@ -3259,9 +3256,15 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
 
         &:hover {
-            .edit-display-value-link {
+            .edit-display-value-link, .show-mappings-link {
                 display: inline-block;
             }
+        }
+    }
+
+    .mapping-container:first-of-type {
+        .mapping-header {
+            border-top: none;
         }
     }
 
@@ -3290,6 +3293,12 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 
     .mapping-table {
+        .mapping-entry-container {
+            td:first-of-type {
+                padding-left: 25px;
+            }
+        }
+
         td {
             .edit-mapping-link {
                 margin-left: 15px;

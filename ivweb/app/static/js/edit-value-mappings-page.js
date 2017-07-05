@@ -31,6 +31,11 @@ $.widget("custom.editvaluemappingspage", {
             }
         });
 
+        $('.show-mappings-link').on('click', function () {
+            var mappingContainer = $(this).closest('.mapping-container');
+            mappingContainer.find('.mapping-table').toggle();
+        });
+
         $('#edit-value-mappings-page').on('click', '.popover .edit-display-button', function (event) {
             var editContainer = $(event.target).closest('.edit-display-container');
             var canonicalValue = editContainer.attr('canonical_value');
