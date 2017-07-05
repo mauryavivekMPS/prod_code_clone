@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl
+from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl, User
 from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE, process_alert
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
@@ -47,6 +47,16 @@ def list_alerts(request):
         # add alert type name
         alert_type = ALERT_TEMPLATES[alert.template_id]
         setattr(alert, 'alert_type', alert_type['name'])
+
+        # add alert user
+        if alert.user_id:
+            try:
+                user = User.objects.get(user_id=alert.user_id)
+            except User.DoesNotExist:
+                user = None
+        else:
+            user = None
+        setattr(alert, 'user', user)
 
     filter_param = request.GET.get('filter', request.COOKIES.get('tableau-alert-list-filter', 'all'))
 
@@ -100,6 +110,7 @@ class TableauAlertForm(forms.Form):
 
     def __init__(self, *args, instance=None, user=None, **kwargs):
         initial = {}
+        self.user = user
 
         if instance:
             self.instance = instance
@@ -109,10 +120,10 @@ class TableauAlertForm(forms.Form):
         else:
             self.instance = None
 
-        if user.superuser:
+        if self.user.superuser:
             publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
-            publisher_choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
+            publisher_choices = [(p.publisher_id, p.name) for p in self.user.get_accessible_publishers()]
 
         if len(publisher_choices) == 1:
             initial['publisher_id'] = publisher_choices[0][0]
@@ -137,6 +148,7 @@ class TableauAlertForm(forms.Form):
             alert = TableauAlert.objects.create(
                 publisher_id=publisher_id,
                 template_id=template_id,
+                user_id=self.user.user_id,
             )
 
         attachment_only_emails_string = self.cleaned_data.get('attachment_only_emails')
