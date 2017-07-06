@@ -30,18 +30,22 @@ def list_mappings(request):
 
 @login_required
 def edit(request, publisher_id, mapping_type):
+    display_values_by_canonical_value = {}
     mappings_by_canonical_value = {}
     for mapping in ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type=mapping_type):
-        if mapping.canonical_value not in mappings_by_canonical_value:
-
-            try:
-                display_value = ValueMappingDisplay.objects.get(
-                    publisher_id=publisher_id,
-                    mapping_type=mapping_type,
-                    canonical_value=mapping.canonical_value
-                ).display_value
-            except ValueMappingDisplay.DoesNotExist:
-                display_value = None
+        canonical_value = mapping.canonical_value
+        if canonical_value not in mappings_by_canonical_value:
+            display_value = display_values_by_canonical_value.get(canonical_value)
+            if not display_value:
+                try:
+                    display_value = ValueMappingDisplay.objects.get(
+                        publisher_id=publisher_id,
+                        mapping_type=mapping_type,
+                        canonical_value=canonical_value
+                    ).display_value
+                except ValueMappingDisplay.DoesNotExist:
+                    display_value = canonical_value.title()
+                display_values_by_canonical_value[canonical_value] = display_value
 
             mappings_by_canonical_value[mapping.canonical_value] = {
                 'canonical_value': mapping.canonical_value,
@@ -51,11 +55,15 @@ def edit(request, publisher_id, mapping_type):
         else:
             mappings_by_canonical_value[mapping.canonical_value]['original_values'].append(mapping.original_value)
 
+    canonical_choices = [{'id': k, 'name': v} for k, v in display_values_by_canonical_value.items()]
+    sorted_canonical_choices = sorted(canonical_choices, key=lambda c: c['name'])
+
     response = render(request, 'value_mappings/edit.html', {
         'publisher_id': publisher_id,
         'mapping_type': mapping_type,
         'mappings': mappings_by_canonical_value.values(),
         'mapping_type_display': string.capwords(mapping_type.replace('_', ' ')),
+        'canonical_choices': sorted_canonical_choices,
     })
 
     return response

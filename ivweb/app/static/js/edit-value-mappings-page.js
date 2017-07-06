@@ -2,11 +2,15 @@ $.widget("custom.editvaluemappingspage", {
     options: {
         publisherId: '',
         mappingType: '',
+        initialCanonicalChoices: [],
         csrfToken: ''
     },
 
     _create: function () {
         var self = this;
+
+        self.allCanonicalChoices = this.options.initialCanonicalChoices;
+        var page = $('#edit-value-mappings-page')
 
         //
         // wire up edit display popover
@@ -33,7 +37,7 @@ $.widget("custom.editvaluemappingspage", {
             $(this).removeClass('stay-visible');
         });
 
-        $('#edit-value-mappings-page').on('click', '.popover .edit-display-button', function (event) {
+        page.on('click', '.popover .edit-display-button', function (event) {
             var editContainer = $(event.target).closest('.edit-display-container');
             var canonicalValue = editContainer.attr('canonical_value');
             var textbox = editContainer.find('.edit-display-textbox');
@@ -63,15 +67,6 @@ $.widget("custom.editvaluemappingspage", {
         // wire up edit mapping popover
         //
 
-        // $('.edit-mapping-link[data-toggle="popover"]').popover({
-        //     html: true,
-        //     title: 'Choose a new mapping',
-        //     container: '#edit-value-mappings-page',
-        //     content: function () {
-        //         return $(this).closest('.mapping-entry-container').find('.edit-mapping-popover').html();
-        //     }
-        // });
-
         $('.edit-mapping-link').popover({
             html: true,
             title: 'Choose a new mapping',
@@ -85,12 +80,47 @@ $.widget("custom.editvaluemappingspage", {
             var mappingEntryContainer = $(this).closest('.mapping-entry-container');
             var originalValue = mappingEntryContainer.attr('original_value');
             var editContainer = $('.popover .edit-mapping-container[original_value="' + originalValue + '"]');
-            // editContainer.find('.edit-display-textbox').val(mappingContainer.find('.display-value').text());
+
+            var editTextbox = editContainer.find('.edit-mapping-textbox');
+            editTextbox.typeahead({
+                source: self.allCanonicalChoices,
+                showHintOnFocus: true,
+                autoSelect: true
+            });
+
             editContainer.find('.cancel-edit-mapping-button').on('click', function () {
                 editLink.popover('hide');
             });
         }).on('hidden.bs.popover', function () {
             $(this).removeClass('stay-visible');
+        });
+
+        page.on('click', '.popover .edit-mapping-button', function (event) {
+            var editContainer = $(event.target).closest('.edit-mapping-container');
+            var originalValue = editContainer.attr('original_value');
+            var textbox = editContainer.find('.edit-mapping-textbox');
+            var newMappingValue = textbox.typeahead('getActive').id;
+
+            IvetlWeb.showLoading();
+
+            var data = {
+                'publisher_id': self.options.publisherId,
+                'mapping_type': self.options.mappingType,
+                'original_value': originalValue,
+                'canonical_value': newMappingValue,
+                'csrfmiddlewaretoken': self.options.csrfToken
+            };
+
+            var mappingEntryContainer = $('.mapping-entry-container[original_value="' + originalValue + '"]');
+
+            $.post('/updatevaluemapping/', data)
+                .done(function () {
+                    mappingEntryContainer.find('.edit-mapping-link').popover('hide');
+                    mappingEntryContainer.detach();
+                    var destinationTable = page.find('.mapping-container[canonical_value="' + newMappingValue + '"] .mapping-table tbody');
+                    destinationTable.append(mappingEntryContainer);
+                    IvetlWeb.hideLoading();
+                });
         });
 
 

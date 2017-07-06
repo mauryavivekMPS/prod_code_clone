@@ -15,7 +15,7 @@
                 <h1>Edit {{ mapping_type_display }} Mappings</h1>
             </div>
         </div>
-        <p>Edit the mapping below using foo and bar.</p>
+        <p class="page-instructions">Edit the mapping below using foo and bar.</p>
         <div>
             {% for mapping in mappings %}
                 <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}">
@@ -39,12 +39,12 @@
                         <table class="table mapping-table" style="display:none">
                             <tbody>
                                 {% for original_value in mapping.original_values %}
-                                    <tr class="mapping-entry-container" original_value="{{ mapping.original_value }}">
+                                    <tr class="mapping-entry-container" original_value="{{ original_value }}">
                                         <td>
                                             {{ original_value }}
                                             <a class="edit-mapping-link" data-toggle="popover" href="#">Change mapping</a>
                                             <div class="edit-mapping-popover" style="display:none">
-                                                <div class="edit-mapping-container" original_value="{{ mapping.original_value }}">
+                                                <div class="edit-mapping-container" original_value="{{ original_value }}">
                                                     <input class="form-control edit-mapping-textbox">
                                                     <a class="btn btn-primary edit-mapping-button" href="#">Move</a>
                                                     <span class="cancel-edit-mapping-button cancel-popup-button lnr lnr-cross"></span>
@@ -68,6 +68,7 @@
             $('#edit-value-mappings-page').editvaluemappingspage({
                 publisherId: '{{ publisher_id }}',
                 mappingType: '{{ mapping_type }}',
+                initialCanonicalChoices: {{ canonical_choices|safe }},
                 csrfToken: '{{ csrf_token }}'
             });
         });
