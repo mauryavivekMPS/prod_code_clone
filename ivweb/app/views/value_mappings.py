@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 @login_required
 def list_mappings(request):
-
     mappings_by_publisher = []
     for publisher in request.user.get_accessible_publishers():
         for mapping_type in MAPPING_TYPES:
@@ -31,7 +30,6 @@ def list_mappings(request):
 
 @login_required
 def edit(request, publisher_id, mapping_type):
-
     mappings_by_canonical_value = {}
     for mapping in ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type=mapping_type):
         if mapping.canonical_value not in mappings_by_canonical_value:
@@ -76,6 +74,24 @@ def update_value_display(request):
         canonical_value=canonical_value
     ).update(
         display_value=display_value
+    )
+
+    return HttpResponse('ok')
+
+
+@login_required
+def update_value_mapping(request):
+    publisher_id = request.POST['publisher_id']
+    mapping_type = request.POST['mapping_type']
+    original_value = request.POST['original_value']
+    canonical_value = request.POST['canonical_value']
+
+    ValueMapping.objects(
+        publisher_id=publisher_id,
+        mapping_type=mapping_type,
+        original_value=original_value
+    ).update(
+        canonical_value=canonical_value
     )
 
     return HttpResponse('ok')

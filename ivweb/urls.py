@@ -113,5 +113,6 @@ urlpatterns = [
     url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
     url(r'^updatevaluedisplay/$', value_mappings.update_value_display, name='value_mappings.update_value_display'),
+    url(r'^updatevaluemapping/$', value_mappings.update_value_mapping, name='value_mappings.update_value_mapping'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
