@@ -5,8 +5,9 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.models import PublishedArticle, PublishedArticleByCohort, PublisherVizorUpdates, PublisherMetadata, ArticleCitations, PublishedArticleValues, IssnJournal
+from ivetl.models import PublishedArticle, PublishedArticleByCohort, PublisherMetadata, ArticleCitations, PublishedArticleValues, IssnJournal, ValueMapping, ValueMappingDisplay
 from ivetl.pipelines.task import Task
+from ivetl.matchers import value as value_matcher
 
 
 @app.task
@@ -29,10 +30,18 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        # Build Issn Journal List
+        # build a list of ISSN journals
         issn_journals = {}
         for ij in IssnJournal.objects.fetch_size(1000).limit(100000):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
+
+        # build some lists and dicts of article type mappings
+        all_article_type_mappings = ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type='article_type')
+        canonical_article_type_by_original_value = {}
+        all_canonical_values = set()
+        for mapping in all_article_type_mappings:
+            canonical_article_type_by_original_value[mapping.original_value] = mapping.canonical_value
+            all_canonical_values.add(mapping.canonical_value)
 
         pm = PublisherMetadata.filter(publisher_id=publisher_id).first()
 
@@ -166,7 +175,49 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 # now add overlapping values to the values table, and leave the rest to the resolver
                 article_type = 'None'
                 if 'article_type' in data and (data['article_type'] != ''):
-                    # TODO: add article_type matching
+
+                    # 1. get clean, simplified version of term
+                    simplified_article_type = value_matcher.simplify_value(data['article_type'])
+
+                    # 2.1. look for exact match
+                    new_canonical_value = canonical_article_type_by_original_value.get(simplified_article_type)
+
+                    # 2.2. compare it to existing terms for close match
+                    best_ratio_so_far = 0
+                    best_match_so_far = None
+                    if not new_canonical_value:
+                        for existing_canonical_value in all_canonical_values:
+                            match, ratio, _ = value_matcher.match_simplified_values(new_canonical_value, existing_canonical_value)
+
+                            if match:
+                                if ratio > best_ratio_so_far:
+                                    best_match_so_far = existing_canonical_value
+
+                    # 3. if match, then add to mapping table
+                    if best_match_so_far:
+                        new_canonical_value = best_match_so_far
+
+                    # 4. if no match, then add display table (with title version) and add to mapping table
+                    if not new_canonical_value:
+                        ValueMapping.objects.create(
+                            publisher_id=publisher_id,
+                            mapping_type='article_type',
+                            original_value=simplified_article_type,
+                            canonical_value=new_canonical_value
+                        )
+
+                        new_display_value = new_canonical_value.title()
+
+                        ValueMappingDisplay.objects.create(
+                            publisher_id=publisher_id,
+                            mapping_type='article_type',
+                            canonical_value=new_canonical_value,
+                            display_value=new_display_value,
+                        )
+
+                        # add to in-memory lookup
+                        canonical_article_type_by_original_value[simplified_article_type] = new_canonical_value
+
                     article_type = data['article_type']
 
                 subject_category = 'None'

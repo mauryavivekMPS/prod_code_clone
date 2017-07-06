@@ -4,8 +4,7 @@ import nltk.tokenize.punkt
 import nltk.stem.snowball
 from nltk.corpus import wordnet
 
-stopwords = nltk.corpus.stopwords.words('english')
-stopwords.extend(string.punctuation)
+stopwords = string.punctuation
 stopwords.append('')
 tokenizer = nltk.tokenize.WordPunctTokenizer()
 lemmatizer = nltk.stem.wordnet.WordNetLemmatizer()
@@ -24,15 +23,16 @@ def _get_wordnet_pos(pos_tag):
         return pos_tag[0], wordnet.NOUN
 
 
-def match_values(a, b, threshold=0.2, tlogger=None):
-    pos_a = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(a)))
-    pos_b = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(b)))
-
+def simplify_value(raw_value):
+    pos_a = map(_get_wordnet_pos, nltk.pos_tag(tokenizer.tokenize(raw_value)))
     lemmae_a = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_a
-                if pos == wordnet.NOUN and token.lower().strip(string.punctuation) not in stopwords]
+                if token.lower().strip(string.punctuation) not in stopwords]
+    return ' '.join(lemmae_a)
 
-    lemmae_b = [lemmatizer.lemmatize(token.lower().strip(string.punctuation), pos) for token, pos in pos_b
-                if pos == wordnet.NOUN and token.lower().strip(string.punctuation) not in stopwords]
+
+def match_simplified_values(a, b, threshold=0.2, tlogger=None):
+    lemmae_a = a.split(' ')
+    lemmae_b = b.split(' ')
 
     unique_a = set(lemmae_a)
 
