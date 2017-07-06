@@ -8,18 +8,25 @@ $.widget("custom.editvaluemappingspage", {
     _create: function () {
         var self = this;
 
-        $('.edit-display-value-link[data-toggle="popover"]').popover({
+        $('.edit-display-value-link').popover({
             html: true,
             title: 'Enter a new display value',
             container: '#edit-value-mappings-page',
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-display-popover').html();
             }
-        }).on('show.bs.popover', function () {
+        }).on('inserted.bs.popover', function () {
+            var editLink = $(this);
+            editLink.addClass('stay-visible');
             var mappingContainer = $(this).closest('.mapping-container');
             var canonicalValue = $(this).closest('.mapping-container').attr('canonical_value');
-            var editContainer = $('.edit-display-container[canonical_value="' + canonicalValue + '"]');
+            var editContainer = $('.popover .edit-display-container[canonical_value="' + canonicalValue + '"]');
             editContainer.find('.edit-display-textbox').val(mappingContainer.find('.display-value').text());
+            editContainer.find('.cancel-edit-display-button').on('click', function () {
+                editLink.popover('hide');
+            });
+        }).on('hidden.bs.popover', function () {
+            $(this).removeClass('stay-visible');
         });
 
         $('.edit-mapping-link[data-toggle="popover"]').popover({
@@ -84,6 +91,11 @@ $.widget("custom.editvaluemappingspage", {
             //         mappingContainer.find('.display-value').text(newDisplayValue);
             //         IvetlWeb.hideLoading();
             //     });
+        });
+
+        // fix for popover bug: https://stackoverflow.com/questions/32581987/need-click-twice-after-hide-a-shown-bootstrap-popover/34320956#34320956
+        $('body').on('hidden.bs.popover', function (e) {
+            $(e.target).data("bs.popover").inState = {click: false, hover: false, focus: false}
         });
     }
 });

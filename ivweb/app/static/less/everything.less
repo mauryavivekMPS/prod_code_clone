@@ -3243,6 +3243,10 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 
+    .stay-visible {
+        display: inline-block !important;
+    }
+
     .mapping-header {
         width: 100%;
         padding: 9px 0 9px 8px;
@@ -3278,6 +3282,19 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             display: inline-block;
             vertical-align: 0;
         }
+
+        .cancel-edit-display-button {
+            font-size: 18px;
+            color: #ccc;
+            font-weight: 600;
+            vertical-align: -4px;
+            margin-left: 10px;
+
+            &:hover {
+                cursor: pointer;
+                color: #666;
+            }
+        }
     }
 
     .edit-mapping-container {
@@ -3294,6 +3311,12 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
     .mapping-table {
         .mapping-entry-container {
+            &:first-of-type {
+                td {
+                    border-top: 1px dotted #ccc;
+                }
+            }
+
             td:first-of-type {
                 padding-left: 25px;
             }
