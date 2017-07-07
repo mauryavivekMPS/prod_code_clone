@@ -148,7 +148,7 @@ class TableauAlertForm(forms.Form):
             alert = TableauAlert.objects.create(
                 publisher_id=publisher_id,
                 template_id=template_id,
-                user_id=self.user.user_id,
+                created_by=self.user.user_id,
             )
 
         attachment_only_emails_string = self.cleaned_data.get('attachment_only_emails')
