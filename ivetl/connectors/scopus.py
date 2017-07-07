@@ -112,6 +112,8 @@ class ScopusConnector(BaseConnector):
         url_api = self.BASE_SCOPUS_URL_JSON + self.apikeys[self.count % len(self.apikeys)] + '&'
         crossref = CrossrefConnector("", "", tlogger)
 
+        num_citations_to_be_processed = 0
+
         while offset != -1:
 
             attempt = 0
@@ -127,7 +129,7 @@ class ScopusConnector(BaseConnector):
                     url += '&count=' + str(self.ITEMS_PER_PAGE)
                     url += '&start=' + str(offset)
 
-                    tlogger.info("Searching Scopus: " + url)
+                    tlogger.info("scopus-connector %s: Searching scopus offset %s" % (article_scopus_id, offset))
                     r = requests.get(url, timeout=30)
                     r.raise_for_status()
 
@@ -135,13 +137,13 @@ class ScopusConnector(BaseConnector):
 
                 except HTTPError as he:
                     if he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT or he.response.status_code == requests.codes.INTERNAL_SERVER_ERROR:
-                        tlogger.info("HTTP 401/408 - Scopus API failed. Trying Again")
+                        tlogger.info("scopus-connector %s: Scopus API failed with HTTP 401/408, trying again" % article_scopus_id)
                         attempt += 1
                     else:
                         raise
 
                 except Exception:
-                    tlogger.info("General Exception - Scopus API failed. Trying Again")
+                    tlogger.info("scopus-connector %s: Scopus API failed with general exception, trying again" % article_scopus_id)
                     attempt += 1
 
             if success:
@@ -169,7 +171,7 @@ class ScopusConnector(BaseConnector):
 
                             # skip for strange or null values (including the weird lists we sometimes get from scopus)
                             if not doi or type(doi) == list:
-                                tlogger.info('Skipping citation without a valid DOI')
+                                tlogger.info('scopus-connector %s: Citation has an invalid DOI, skipping' % article_scopus_id)
                                 continue
 
                             citations_to_be_processed.append(scopus_citation)
@@ -186,6 +188,7 @@ class ScopusConnector(BaseConnector):
                 raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
             num_citations_to_be_processed = len(citations_to_be_processed)
+            tlogger.info('scopus-connector %s: Found %s citations' % (article_scopus_id, num_citations_to_be_processed))
             if not existing_count or (existing_count and existing_count != num_citations_to_be_processed):
                 skipped = False
 
@@ -198,7 +201,7 @@ class ScopusConnector(BaseConnector):
 
                     if should_get_citation_details:
                         if not should_get_citation_details(doi):
-                            tlogger.info('Skipping because we already have details: %s' % doi)
+                            tlogger.info('scopus-connector %s: We already have details for %s, skipping' % (article_scopus_id, doi))
                             continue
 
                     scopus_id = None
