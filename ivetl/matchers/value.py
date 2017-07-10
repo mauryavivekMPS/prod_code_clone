@@ -4,7 +4,7 @@ import nltk.tokenize.punkt
 import nltk.stem.snowball
 from nltk.corpus import wordnet
 
-stopwords = string.punctuation
+stopwords = list(string.punctuation)
 stopwords.append('')
 tokenizer = nltk.tokenize.WordPunctTokenizer()
 lemmatizer = nltk.stem.wordnet.WordNetLemmatizer()
@@ -30,7 +30,7 @@ def simplify_value(raw_value):
     return ' '.join(lemmae_a)
 
 
-def match_simplified_values(a, b, threshold=0.2, tlogger=None):
+def match_simplified_values(a, b, threshold=0.8, tlogger=None):
     lemmae_a = a.split(' ')
     lemmae_b = b.split(' ')
 
@@ -45,10 +45,4 @@ def match_simplified_values(a, b, threshold=0.2, tlogger=None):
     else:
         ratio = 0.0
 
-    new_denominator = len(unique_a)
-    if new_denominator:
-        new_ratio = intersection / new_denominator
-    else:
-        new_ratio = 0.0
-
-    return ratio >= threshold, ratio, new_ratio
+    return ratio >= threshold, ratio
