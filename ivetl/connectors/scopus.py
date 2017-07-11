@@ -14,7 +14,8 @@ class ScopusConnector(BaseConnector):
     ABSTRACT_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/abstract/eid/'
     MAX_ATTEMPTS = 10
     REQUEST_TIMEOUT_SECS = 30
-    ITEMS_PER_PAGE = 25
+    RESULTS_PER_PAGE = 25
+    MAX_TOTAL_RESULTS = 5000
 
     def __init__(self, apikeys):
         self.apikeys = apikeys
@@ -114,7 +115,7 @@ class ScopusConnector(BaseConnector):
 
         num_citations_to_be_processed = 0
 
-        while offset != -1:
+        while offset != -1 and offset < self.MAX_TOTAL_RESULTS:
 
             attempt = 0
             max_attempts = 5
@@ -126,7 +127,7 @@ class ScopusConnector(BaseConnector):
                     query = 'query=refeid(' + article_scopus_id + ')'
 
                     url = url_api + query
-                    url += '&count=' + str(self.ITEMS_PER_PAGE)
+                    url += '&count=' + str(self.RESULTS_PER_PAGE)
                     url += '&start=' + str(offset)
 
                     tlogger.info("scopus-connector %s: Searching scopus offset %s" % (article_scopus_id, offset))
@@ -177,8 +178,8 @@ class ScopusConnector(BaseConnector):
                             citations_to_be_processed.append(scopus_citation)
 
                         total_results = int(scopus_data['search-results']['opensearch:totalResults'])
-                        if self.ITEMS_PER_PAGE + offset < total_results:
-                            offset += self.ITEMS_PER_PAGE
+                        if self.RESULTS_PER_PAGE + offset < total_results:
+                            offset += self.RESULTS_PER_PAGE
                         else:
                             offset = -1
 
