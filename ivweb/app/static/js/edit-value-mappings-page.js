@@ -61,6 +61,8 @@ $.widget("custom.editvaluemappingspage", {
                     mappingContainer.find('.edit-display-value-link').popover('hide');
                     IvetlWeb.hideLoading();
                 });
+
+            event.preventDefault();
         });
 
         //
@@ -88,8 +90,9 @@ $.widget("custom.editvaluemappingspage", {
                 autoSelect: true
             });
 
-            editContainer.find('.cancel-edit-mapping-button').on('click', function () {
+            editContainer.find('.cancel-edit-mapping-button').on('click', function (event) {
                 editLink.popover('hide');
+                event.preventDefault();
             });
         }).on('hidden.bs.popover', function () {
             $(this).removeClass('stay-visible');
@@ -121,6 +124,8 @@ $.widget("custom.editvaluemappingspage", {
                     destinationTable.append(mappingEntryContainer);
                     IvetlWeb.hideLoading();
                 });
+
+            event.preventDefault();
         });
 
 
@@ -128,9 +133,10 @@ $.widget("custom.editvaluemappingspage", {
         // show/hide mappings link
         //
 
-        $('.show-mappings-link').on('click', function () {
+        $('.show-mappings-link').on('click', function (event) {
             var mappingContainer = $(this).closest('.mapping-container');
             mappingContainer.find('.mapping-table').toggle();
+            event.preventDefault();
         });
 
         //

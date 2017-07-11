@@ -31,8 +31,8 @@ def simplify_value(raw_value):
 
 
 def match_simplified_values(a, b, threshold=0.8, tlogger=None):
-    lemmae_a = a.split(' ')
-    lemmae_b = b.split(' ')
+    lemmae_a = a.split()
+    lemmae_b = b.split()
 
     unique_a = set(lemmae_a)
 

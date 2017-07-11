@@ -83,7 +83,7 @@ class ResolvePublishedArticlesData(Task):
                             best_match_so_far = None
                             if not new_canonical_value:
                                 for existing_canonical_value in all_canonical_values:
-                                    match, ratio, _ = value_matcher.match_simplified_values(new_canonical_value, existing_canonical_value)
+                                    match, ratio = value_matcher.match_simplified_values(simplified_article_type, existing_canonical_value)
 
                                     if match:
                                         if ratio > best_ratio_so_far:
@@ -95,10 +95,12 @@ class ResolvePublishedArticlesData(Task):
 
                             # 4. if no match, then add display table (with original version) and add to mapping table
                             if not new_canonical_value:
+                                new_canonical_value = simplified_article_type
+
                                 ValueMapping.objects.create(
                                     publisher_id=publisher_id,
                                     mapping_type='article_type',
-                                    original_value=simplified_article_type,
+                                    original_value=new_value,
                                     canonical_value=new_canonical_value
                                 )
 
@@ -112,7 +114,7 @@ class ResolvePublishedArticlesData(Task):
                                 )
 
                                 # add to in-memory lookup
-                                canonical_article_type_by_original_value[simplified_article_type] = new_canonical_value
+                                canonical_article_type_by_original_value[new_value] = new_canonical_value
 
                             new_value = new_canonical_value
 

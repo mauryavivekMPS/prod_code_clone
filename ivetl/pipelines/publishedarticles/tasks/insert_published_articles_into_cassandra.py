@@ -45,7 +45,6 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     continue
 
                 doi = line[1]
-                lookup_issn = line[2]
                 data = json.loads(line[3])
 
                 # first, add the non-overlapping values straight to the published article table
