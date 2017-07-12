@@ -184,7 +184,7 @@ class CrossrefConnector(BaseConnector):
             try:
                 r = requests.get(url, timeout=self.request_timeout)
                 r.raise_for_status()
-                self.check_for_auth_error(r)
+                self.check_for_auth_error(r.text)
                 success = True
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == requests.codes.NOT_FOUND:
@@ -257,9 +257,9 @@ class CrossrefConnector(BaseConnector):
                     self.log("Crossref API 500 error. Trying again...")
                     _pause_for_retry()
                     attempt += 1
-
-                self.check_for_auth_error(response_text)
-                success = True
+                else:
+                    self.check_for_auth_error(response_text)
+                    success = True
 
             else:
                 self.log('Unexpected response from the rate limiter. Trying again...')
