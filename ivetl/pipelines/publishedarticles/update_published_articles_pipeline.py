@@ -1,8 +1,7 @@
-import json
 import datetime
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import PublisherMetadata, PublisherJournal, PipelineStatus
+from ivetl.models import PublisherMetadata, PublisherJournal
 from ivetl.common import common
 
 
