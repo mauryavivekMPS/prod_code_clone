@@ -20,8 +20,6 @@ class ResolvePublishedArticlesData(Task):
 
         now = datetime.datetime.now()
 
-        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
-
         electronic_issn_lookup = UpdatePublishedArticlesPipeline.generate_electronic_issn_lookup(publisher_id, product_id)
 
         # build some lists and dicts of all the value mappings
@@ -29,7 +27,7 @@ class ResolvePublishedArticlesData(Task):
         canonical_value_by_original_value = {}
         all_canonical_values = {}
         for field in value_mappings.MAPPING_TYPES:
-            all_value_mappings[field] = ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type='article_type')
+            all_value_mappings[field] = ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type=field)
             canonical_value_by_original_value[field] = {}
             all_canonical_values[field] = set()
             for mapping in all_value_mappings[field]:
@@ -56,6 +54,8 @@ class ResolvePublishedArticlesData(Task):
         else:
             all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id)
             total_count = len(all_articles)
+
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
         for article in all_articles:
@@ -116,7 +116,7 @@ class ResolvePublishedArticlesData(Task):
 
                             ValueMapping.objects.create(
                                 publisher_id=publisher_id,
-                                mapping_type='article_type',
+                                mapping_type=field,
                                 original_value=new_value,
                                 canonical_value=new_canonical_value
                             )
@@ -125,7 +125,7 @@ class ResolvePublishedArticlesData(Task):
 
                             ValueMappingDisplay.objects.create(
                                 publisher_id=publisher_id,
-                                mapping_type='article_type',
+                                mapping_type=field,
                                 canonical_value=new_canonical_value,
                                 display_value=new_display_value,
                             )
