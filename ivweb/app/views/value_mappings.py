@@ -8,6 +8,9 @@ from ivetl.models import ValueMapping, ValueMappingDisplay
 log = logging.getLogger(__name__)
 
 
+def _get_mapping_type_display(mapping_type):
+    return string.capwords(mapping_type.replace('_', ' '))
+
 @login_required
 def list_mappings(request):
     mappings_by_publisher = []
@@ -17,6 +20,7 @@ def list_mappings(request):
                 'publisher_id': publisher.publisher_id,
                 'publisher_name': publisher.name,
                 'mapping_type': mapping_type,
+                'mapping_type_display': _get_mapping_type_display(mapping_type),
             })
 
     sorted_mappings_by_publisher = sorted(mappings_by_publisher, key=lambda m: m['publisher_name'])
@@ -55,14 +59,16 @@ def edit(request, publisher_id, mapping_type):
         else:
             mappings_by_canonical_value[mapping.canonical_value]['original_values'].append(mapping.original_value)
 
+    sorted_mappings = sorted(mappings_by_canonical_value.values(), key=lambda m: m['display_value'])
+
     canonical_choices = [{'id': k, 'name': v} for k, v in display_values_by_canonical_value.items()]
     sorted_canonical_choices = sorted(canonical_choices, key=lambda c: c['name'])
 
     response = render(request, 'value_mappings/edit.html', {
         'publisher_id': publisher_id,
         'mapping_type': mapping_type,
-        'mappings': mappings_by_canonical_value.values(),
-        'mapping_type_display': string.capwords(mapping_type.replace('_', ' ')),
+        'mappings': sorted_mappings,
+        'mapping_type_display': _get_mapping_type_display(mapping_type),
         'canonical_choices': sorted_canonical_choices,
     })
 

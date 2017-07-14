@@ -23,6 +23,8 @@ $.widget("custom.editvaluemappingspage", {
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-display-popover').html();
             }
+        }).on('click', function (event) {
+            event.preventDefault();
         }).on('inserted.bs.popover', function () {
             var editLink = $(this);
             editLink.addClass('stay-visible');
@@ -30,8 +32,9 @@ $.widget("custom.editvaluemappingspage", {
             var canonicalValue = $(this).closest('.mapping-container').attr('canonical_value');
             var editContainer = $('.popover .edit-display-container[canonical_value="' + canonicalValue + '"]');
             editContainer.find('.edit-display-textbox').val(mappingContainer.find('.display-value').text());
-            editContainer.find('.cancel-edit-display-button').on('click', function () {
+            editContainer.find('.cancel-edit-display-button').on('click', function (event) {
                 editLink.popover('hide');
+                event.preventDefault();
             });
         }).on('hidden.bs.popover', function () {
             $(this).removeClass('stay-visible');
@@ -76,6 +79,8 @@ $.widget("custom.editvaluemappingspage", {
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-mapping-popover').html();
             }
+        }).on('click', function (event) {
+            event.preventDefault();
         }).on('inserted.bs.popover', function () {
             var editLink = $(this);
             editLink.addClass('stay-visible');
@@ -134,8 +139,16 @@ $.widget("custom.editvaluemappingspage", {
         //
 
         $('.show-mappings-link').on('click', function (event) {
-            var mappingContainer = $(this).closest('.mapping-container');
-            mappingContainer.find('.mapping-table').toggle();
+            var link = $(this);
+            var mappingContainer = link.closest('.mapping-container');
+            var mappingTable = mappingContainer.find('.mapping-table');
+            mappingTable.toggle();
+            if (mappingTable.is(':visible')) {
+                link.text('Hide Mappings')
+            }
+            else {
+                link.text('Show Mappings')
+            }
             event.preventDefault();
         });
 

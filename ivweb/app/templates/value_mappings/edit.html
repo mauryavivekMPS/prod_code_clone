@@ -15,19 +15,15 @@
                 <h1>Edit {{ mapping_type_display }} Mappings</h1>
             </div>
         </div>
-        <p class="page-instructions">Edit the mapping below using foo and bar.</p>
+        <p class="page-instructions">Edit the mappings using the controls below and click the submit button at the bottom of the page to update your reports.</p>
         <div>
             {% for mapping in mappings %}
                 <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}">
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="mapping-header">
-                            {% if mapping.display_value %}
-                                <span class="display-value">{{ mapping.display_value }}</span>
-                            {% else %}
-                                <span class="display-value">{{ mapping.canonical_value }}</span>
-                            {% endif %}
+                            <span class="display-value">{{ mapping.display_value }}</span>
                             <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
-                            <a class="show-mappings-link" href="#">Show mappings</a>
+                            <a class="show-mappings-link" href="#">Show Mappings</a>
                             <div class="edit-display-popover" style="display:none">
                                 <div class="edit-display-container" canonical_value="{{ mapping.canonical_value }}">
                                     <input class="form-control edit-display-textbox">
