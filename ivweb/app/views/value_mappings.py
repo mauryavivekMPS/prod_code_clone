@@ -16,11 +16,15 @@ def list_mappings(request):
     mappings_by_publisher = []
     for publisher in request.user.get_accessible_publishers():
         for mapping_type in MAPPING_TYPES:
+            num_canonicals = ValueMapping.objects.filter(publisher_id=publisher.publisher_id, mapping_type=mapping_type).count()
+            num_displays = ValueMappingDisplay.objects.filter(publisher_id=publisher.publisher_id, mapping_type=mapping_type).count()
             mappings_by_publisher.append({
                 'publisher_id': publisher.publisher_id,
                 'publisher_name': publisher.name,
                 'mapping_type': mapping_type,
                 'mapping_type_display': _get_mapping_type_display(mapping_type),
+                'num_canonicals': num_canonicals,
+                'num_displays': num_displays,
             })
 
     sorted_mappings_by_publisher = sorted(mappings_by_publisher, key=lambda m: m['publisher_name'])
