@@ -17,11 +17,12 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <p class="page-instructions">Edit the mappings and then click the button below to update your reports with the new values.</p>
+                <p class="page-instructions">Edit the mappings in the table below and then click the update button to initiate an update to reports
+                    with the edited values.</p>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-9">
                 <div class="mapping-table-controls">
                     <a href="#" class="left-link show-all-mappings-link">Show All Values</a>
                     <a href="#" class="left-link hide-all-mappings-link">Hide All Values</a>
@@ -31,12 +32,13 @@
         </div>
         {% for mapping in mappings %}
             <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}">
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="mapping-header">
                         <span class="display-value">{{ mapping.display_value }}</span>
                         <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
                         <a class="show-mappings-link show-link" href="#">Show Values</a>
                         <a class="hide-mappings-link hide-link" href="#" style="display: none">Hide Values</a>
+                        <span class="value-count">{{ mapping.original_values|length }}</span>
                         <div class="edit-display-popover" style="display:none">
                             <div class="edit-display-container" canonical_value="{{ mapping.canonical_value }}">
                                 <input class="form-control edit-display-textbox">
@@ -54,8 +56,8 @@
                                         <a class="edit-mapping-link" data-toggle="popover" href="#">Change mapping</a>
                                         <div class="edit-mapping-popover" style="display:none">
                                             <div class="edit-mapping-container" original_value="{{ original_value }}">
-                                                <input class="form-control edit-mapping-textbox">
-                                                <a class="btn btn-primary edit-mapping-button" href="#">Move</a>
+                                                <input class="form-control edit-mapping-textbox" placeholder="Search values...">
+                                                <a class="btn btn-primary edit-mapping-button disabled" disabled href="#">Move</a>
                                                 <span class="cancel-edit-mapping-button cancel-popup-button lnr lnr-cross"></span>
                                             </div>
                                         </div>

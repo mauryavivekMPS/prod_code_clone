@@ -20,7 +20,7 @@ $.widget("custom.editvaluemappingspage", {
             html: true,
             title: 'Enter a new display value',
             container: '#edit-value-mappings-page',
-            placement: 'auto bottom',
+            placement: 'auto right',
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-display-popover').html();
             }
@@ -77,9 +77,9 @@ $.widget("custom.editvaluemappingspage", {
             html: true,
             title: 'Choose a new mapping',
             container: '#edit-value-mappings-page',
-            placement: 'auto bottom',
+            placement: 'auto right',
             content: function () {
-                return $(this).closest('.mapping-container').find('.edit-mapping-popover').html();
+                return $(this).closest('.mapping-entry-container').find('.edit-mapping-popover').html();
             }
         }).on('click', function (event) {
             event.preventDefault();
@@ -133,6 +133,19 @@ $.widget("custom.editvaluemappingspage", {
                 });
 
             event.preventDefault();
+        });
+
+        page.on('keyup', '.popover .edit-mapping-textbox', function (event) {
+            var textbox = $(this);
+            var currentValue = textbox.val();
+            var editContainer = $(event.target).closest('.edit-mapping-container');
+            var button = editContainer.find('.edit-mapping-button');
+            if (currentValue === '') {
+                button.addClass('disabled').attr('disabled', true);
+            }
+            else {
+                button.removeClass('disabled').attr('disabled', false);
+            }
         });
 
 
