@@ -3262,6 +3262,29 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         display: inline-block !important;
     }
 
+    .mapping-table-controls {
+        border-top: 1px dotted #ccc;
+
+        .left-link {
+            margin-top: 17px;
+            float: left;
+            margin-left: 8px;
+            margin-right: 6px;
+
+            &:first-of-type {
+                padding-right: 15px;
+                border-right: 1px solid #ddd;
+            }
+        }
+
+        .update-reports-button {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-right: 8px;
+            float: right;
+        }
+    }
+
     .mapping-header {
         width: 100%;
         padding: 9px 0 9px 8px;
@@ -3278,12 +3301,6 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             .edit-display-value-link, .show-mappings-link {
                 display: inline-block;
             }
-        }
-    }
-
-    .mapping-container:first-of-type {
-        .mapping-header {
-            //border-top: none;
         }
     }
 
@@ -3314,7 +3331,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
     .edit-mapping-container {
         .edit-mapping-textbox {
-            width: 200px;
+            width: 370px;
             display: inline-block;
         }
 
@@ -3325,6 +3342,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 
     .mapping-table {
+
         .mapping-entry-container {
             &:first-of-type {
                 td {
@@ -3351,5 +3369,9 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
                 }
             }
         }
+    }
+
+    .mapping-container:last-of-type {
+        margin-bottom: 35px;
     }
 }
