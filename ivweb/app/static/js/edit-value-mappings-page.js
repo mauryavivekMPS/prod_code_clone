@@ -20,7 +20,7 @@ $.widget("custom.editvaluemappingspage", {
             html: true,
             title: 'Enter a new display value',
             container: '#edit-value-mappings-page',
-            placement: 'auto left',
+            placement: 'auto bottom',
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-display-popover').html();
             }
@@ -77,7 +77,7 @@ $.widget("custom.editvaluemappingspage", {
             html: true,
             title: 'Choose a new mapping',
             container: '#edit-value-mappings-page',
-            placement: 'auto left',
+            placement: 'auto bottom',
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-mapping-popover').html();
             }
@@ -144,13 +144,19 @@ $.widget("custom.editvaluemappingspage", {
             var link = $(this);
             var mappingContainer = link.closest('.mapping-container');
             var mappingTable = mappingContainer.find('.mapping-table');
-            mappingTable.toggle();
-            if (mappingTable.is(':visible')) {
-                link.text('Hide Values')
-            }
-            else {
-                link.text('Show Values')
-            }
+            mappingTable.show();
+            link.hide();
+            mappingContainer.find('.hide-mappings-link').show();
+            event.preventDefault();
+        });
+
+        $('.hide-mappings-link').on('click', function (event) {
+            var link = $(this);
+            var mappingContainer = link.closest('.mapping-container');
+            var mappingTable = mappingContainer.find('.mapping-table');
+            mappingTable.hide();
+            link.hide();
+            mappingContainer.find('.show-mappings-link').show();
             event.preventDefault();
         });
 
@@ -160,11 +166,15 @@ $.widget("custom.editvaluemappingspage", {
 
         $('.show-all-mappings-link').on('click', function (event) {
             $('.mapping-table').show();
+            $('.show-link').hide();
+            $('.hide-link').show();
             event.preventDefault();
         });
 
         $('.hide-all-mappings-link').on('click', function (event) {
             $('.mapping-table').hide();
+            $('.hide-link').hide();
+            $('.show-link').show();
             event.preventDefault();
         });
 

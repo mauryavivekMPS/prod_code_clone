@@ -35,7 +35,8 @@
                     <div class="mapping-header">
                         <span class="display-value">{{ mapping.display_value }}</span>
                         <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
-                        <a class="show-mappings-link" href="#">Show Values</a>
+                        <a class="show-mappings-link show-link" href="#">Show Values</a>
+                        <a class="hide-mappings-link hide-link" href="#" style="display: none">Hide Values</a>
                         <div class="edit-display-popover" style="display:none">
                             <div class="edit-display-container" canonical_value="{{ mapping.canonical_value }}">
                                 <input class="form-control edit-display-textbox">
