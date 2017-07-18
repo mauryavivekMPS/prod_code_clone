@@ -1,0 +1,86 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Edit {{ mapping_type_display }} Mappings{% endblock %}
+{% block body_class %}value_mappings{% endblock %}
+
+{% block content %}
+    <div id="edit-value-mappings-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'value_mappings.list_mappings' %}">All Mappings</a></li>
+                    <li></li>
+                </ol>
+                <h1>Edit {{ mapping_type_display }} Mappings</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="page-instructions">Edit the mappings in the table below and then click the update button to initiate an update to reports
+                    with the edited values.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <div class="mapping-table-controls">
+                    <a href="#" class="left-link show-all-mappings-link">Show All Values</a>
+                    <a href="#" class="left-link hide-all-mappings-link">Hide All Values</a>
+                    <a class="btn btn-primary update-reports-button" href="#">Update Reports With New Mappings</a>
+                </div>
+            </div>
+        </div>
+        {% for mapping in mappings %}
+            <div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}">
+                <div class="col-md-9">
+                    <div class="mapping-header">
+                        <span class="display-value">{{ mapping.display_value }}</span>
+                        <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
+                        <a class="show-mappings-link show-link" href="#">Show Values</a>
+                        <a class="hide-mappings-link hide-link" href="#" style="display: none">Hide Values</a>
+                        <span class="value-count">{{ mapping.original_values|length }}</span>
+                        <div class="edit-display-popover" style="display:none">
+                            <div class="edit-display-container" canonical_value="{{ mapping.canonical_value }}">
+                                <input class="form-control edit-display-textbox">
+                                <a class="btn btn-primary edit-display-button" href="#">Save</a>
+                                <span class="cancel-edit-display-button cancel-popup-button lnr lnr-cross"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table mapping-table" style="display:none">
+                        <tbody>
+                            {% for original_value in mapping.original_values %}
+                                <tr class="mapping-entry-container" original_value="{{ original_value }}">
+                                    <td>
+                                        {{ original_value }}
+                                        <a class="edit-mapping-link" data-toggle="popover" href="#">Change mapping</a>
+                                        <div class="edit-mapping-popover" style="display:none">
+                                            <div class="edit-mapping-container" original_value="{{ original_value }}">
+                                                <input class="form-control edit-mapping-textbox" placeholder="Search values...">
+                                                <a class="btn btn-primary edit-mapping-button disabled" disabled href="#">Move</a>
+                                                <span class="cancel-edit-mapping-button cancel-popup-button lnr lnr-cross"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function () {
+            $('#edit-value-mappings-page').editvaluemappingspage({
+                publisherId: '{{ publisher_id }}',
+                mappingType: '{{ mapping_type }}',
+                initialCanonicalChoices: {{ canonical_choices|safe }},
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

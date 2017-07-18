@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines, sendgrid
+from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines, sendgrid, value_mappings
 
 urlpatterns = [
 
@@ -56,6 +56,10 @@ urlpatterns = [
     url(r'^uptimeoverrides/$', uptime.list_overrides, name='uptime.list_overrides'),
     url(r'^uptimeoverrides/new/$', uptime.new_override, name='uptime.new_override'),
 
+    # value mappings
+    url(r'^valuemappings/$', value_mappings.list_mappings, name='value_mappings.list_mappings'),
+    url(r'^valuemappings/(?P<publisher_id>[\w]+)/(?P<mapping_type>[\w]+)/$', value_mappings.edit, name='value_mappings.edit'),
+
     # demos
     url(r'^demos/$', publishers.list_demos, name='publishers.list_demos'),
     url(r'^demos/new/$', publishers.edit_demo, name='publishers.new_demo'),
@@ -108,8 +112,7 @@ urlpatterns = [
     url(r'^sendalertnow/$', tableau_alerts.send_alert_now, name='tableau_alerts.send_alert_now'),
     url(r'^includetemplatechoices/$', tableau_alerts.include_template_choices, name='tableau_alerts.include_template_choices'),
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
-
-    # for testing
-    url(r'^showemail/$', tableau_alerts.show_email),
+    url(r'^updatevaluedisplay/$', value_mappings.update_value_display, name='value_mappings.update_value_display'),
+    url(r'^updatevaluemapping/$', value_mappings.update_value_mapping, name='value_mappings.update_value_mapping'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

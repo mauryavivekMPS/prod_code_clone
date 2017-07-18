@@ -42,6 +42,21 @@ PIPELINES = [
         ],
     },
     {
+        'name': 'Refresh Mappings',
+        'id': 'refresh_value_mappings',
+        'user_facing_display_name': 'Refresh mappings',
+        'visible_on_user_home': True,
+        'class': 'ivetl.pipelines.publishedarticles.RefreshValueMappingsPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'rebuild_data_source_id': ['article_citations', 'article_usage'],
+        'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
+            'ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCacheTask',
+        ],
+    },
+    {
         'name': 'Custom Article Data',
         'id': 'custom_article_data',
         'user_facing_display_name': 'Additional article metadata',
@@ -536,6 +551,9 @@ PRODUCTS = [
             },
             {
                 'pipeline': PIPELINE_BY_ID['custom_article_data'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['refresh_value_mappings'],
             },
         ],
     },

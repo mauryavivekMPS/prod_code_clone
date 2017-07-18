@@ -141,9 +141,13 @@ class SassConnector(BaseConnector):
                         if volume_element:
                             metadata['volume'] = volume_element[0].text
 
+                        self._log('volume value = %s' % metadata.get('volume'))
+
                         issue_element = root.xpath('./nlm:issue', namespaces=common.ns)
                         if issue_element:
                             metadata['issue'] = issue_element[0].text
+
+                        self._log('issue value = %s' % metadata.get('issue'))
 
                         fpage_element = root.xpath('./nlm:fpage', namespaces=common.ns)
                         if fpage_element:
@@ -162,6 +166,8 @@ class SassConnector(BaseConnector):
                                 metadata['page'] = fpage + '-' + lpage
                             else:
                                 metadata['page'] = fpage
+
+                        self._log('page value = %s' % metadata.get('page'))
 
                 else:
                     self._log("No SASS HREF found for DOI: " + hw_doi)
