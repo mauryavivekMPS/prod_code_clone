@@ -5,7 +5,7 @@ from ivetl.models import AuditLog, User
 
 @login_required
 def show(request):
-    audit_log = sorted(AuditLog.objects.all().limit(1000), key=lambda l: l.event_time, reverse=True)
+    audit_log = sorted(AuditLog.objects.all().limit(100000).fetch_size(1000), key=lambda l: l.event_time, reverse=True)[:500]
     user_id_to_email = {str(u.user_id): u.email for u in User.objects.all()}
     for log in audit_log:
         setattr(log, 'user_email', user_id_to_email[str(log.user_id)])
