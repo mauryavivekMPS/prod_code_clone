@@ -47,6 +47,10 @@ class InsertScopusIntoCassandra(Task):
                         tlogger.info('No date for citation %s, skipping...' % citation_doi)
                         continue
 
+                    if not isinstance(citation_date_str, str):
+                        tlogger.info('citation date is not of type string, skipping...')
+                        continue
+
                     try:
                         citation_date = datetime.datetime.strptime(citation_date_str, '%Y-%m-%d')
                     except ValueError:
