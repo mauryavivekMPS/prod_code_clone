@@ -111,7 +111,20 @@ $.widget("custom.editvaluemappingspage", {
             var editContainer = $(event.target).closest('.edit-mapping-container');
             var originalValue = editContainer.attr('original_value');
             var textbox = editContainer.find('.edit-mapping-textbox');
-            var newMappingValue = textbox.typeahead('getActive').id;
+            var typedValue = textbox.val();
+            var selectedMappingValue = textbox.typeahead('getActive');
+            var mappingEntryContainer = $('.mapping-entry-container[original_value="' + originalValue + '"]');
+
+            var isNewValue = false;
+            var newValue = '';
+            if (selectedMappingValue.name === typedValue) {
+                newValue = selectedMappingValue.id;
+            }
+            else {
+                isNewValue = true;
+                newValue = typedValue;
+            }
+
 
             IvetlWeb.showLoading();
 
@@ -119,21 +132,40 @@ $.widget("custom.editvaluemappingspage", {
                 'publisher_id': self.options.publisherId,
                 'mapping_type': self.options.mappingType,
                 'original_value': originalValue,
-                'canonical_value': newMappingValue,
+                'canonical_value': newValue,
+                'is_new_value': isNewValue,
                 'csrfmiddlewaretoken': self.options.csrfToken
             };
 
-            var mappingEntryContainer = $('.mapping-entry-container[original_value="' + originalValue + '"]');
-
             $.post('/updatevaluemapping/', data)
-                .done(function () {
+                .done(function (response) {
                     mappingEntryContainer.find('.edit-mapping-link').popover('hide');
                     var numRowsBeforeDetach = mappingEntryContainer.closest('.mapping-table').find('.mapping-entry-container').length;
                     var numRowsRemaining = numRowsBeforeDetach - 1;
                     var originalMappingContainer = mappingEntryContainer.closest('.mapping-container');
                     mappingEntryContainer.detach();
-                    var destinationTable = page.find('.mapping-container[canonical_value="' + newMappingValue + '"] .mapping-table tbody');
-                    destinationTable.append(mappingEntryContainer);
+
+                    if (isNewValue) {
+                        var containerBefore = null;
+                        var lowerCaseNewValue = newValue.toLowerCase();
+                        $('.mapping-container').each(function (index, element) {
+                            var c = $(element);
+                            if (c.find('.display-value').text().toLowerCase() < lowerCaseNewValue) {
+                                containerBefore = c;
+                            }
+                        });
+
+                        if (containerBefore) {
+                            containerBefore.after(response.new_mapping_html);
+                        }
+                        else {
+                            $('.all-mapping-containers').append(response.new_mapping_html);
+                        }
+                    }
+                    else {
+                        var destinationTable = page.find('.mapping-container[canonical_value="' + newValue + '"] .mapping-table tbody');
+                        destinationTable.append(mappingEntryContainer);
+                    }
 
                     // if no rows left, remove the whole category
                     if (numRowsRemaining < 1) {
@@ -157,6 +189,14 @@ $.widget("custom.editvaluemappingspage", {
             }
             else {
                 button.removeClass('disabled').attr('disabled', false);
+                var selectedMappingValue = textbox.typeahead('getActive');
+                if (selectedMappingValue.name === textbox.val()) {
+                    button.text('Move')
+                }
+                else {
+                    button.text('Create')
+                }
+
             }
         });
 
