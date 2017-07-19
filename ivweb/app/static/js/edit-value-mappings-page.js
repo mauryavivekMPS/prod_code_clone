@@ -126,9 +126,17 @@ $.widget("custom.editvaluemappingspage", {
             $.post('/updatevaluemapping/', data)
                 .done(function () {
                     mappingEntryContainer.find('.edit-mapping-link').popover('hide');
+                    var numRowsBeforeDetach = mappingEntryContainer.closest('.mapping-table').find('.mapping-entry-container').length;
+                    var numRowsRemaining = numRowsBeforeDetach - 1;
+                    var originalMappingContainer = mappingEntryContainer.closest('.mapping-container');
                     mappingEntryContainer.detach();
                     var destinationTable = page.find('.mapping-container[canonical_value="' + newMappingValue + '"] .mapping-table tbody');
                     destinationTable.append(mappingEntryContainer);
+
+                    // if no rows left, remove the whole category
+                    if (numRowsRemaining < 1) {
+                        originalMappingContainer.remove();
+                    }
                     IvetlWeb.hideLoading();
                 });
 
