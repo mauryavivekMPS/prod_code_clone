@@ -219,11 +219,26 @@ $.widget("custom.editvaluemappingspage", {
         });
 
         //
-        // fix for popover bug: https://stackoverflow.com/questions/32581987
+        // fix for two-click popover bug: https://stackoverflow.com/questions/32581987
         //
 
         $('body').on('hidden.bs.popover', function (e) {
             $(e.target).data("bs.popover").inState = {click: false, hover: false, focus: false}
+        });
+
+        //
+        // fix for dismiss on outside click: https://stackoverflow.com/questions/11703093
+        //
+
+        $(document).on('click', function (e) {
+            $('[data-toggle="popover"],[data-original-title]').each(function () {
+                //the 'is' for buttons that trigger popups
+                //the 'has' for icons within a button that triggers a popup
+                if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                    (($(this).popover('hide').data('bs.popover') || {}).inState || {}).click = false  // fix for BS 3.3.6
+                }
+
+            });
         });
 
         //
