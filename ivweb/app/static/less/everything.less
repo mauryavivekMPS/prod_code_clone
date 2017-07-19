@@ -3302,7 +3302,15 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             cursor: pointer;
         }
 
-        .edit-display-value-link, .show-mappings-link, .hide-mappings-link {
+        .opener-icon, .closer-icon {
+            font-size: 10px;
+            margin-left: 3px;
+            cursor: pointer;
+            opacity: 0.2;
+            vertical-align: -1px;
+        }
+
+        .edit-display-value-link {
             margin-left: 15px;
             font-size: 12px;
             padding-right: 5px;
@@ -3310,7 +3318,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
 
         &:hover {
-            .edit-display-value-link, .show-mappings-link, .hide-mappings-link {
+            .edit-display-value-link, .opener-icon, .closer-icon {
                 opacity: 1;
             }
         }

@@ -12,6 +12,8 @@ $.widget("custom.editvaluemappingspage", {
         self.allCanonicalChoices = this.options.initialCanonicalChoices;
         var page = $('#edit-value-mappings-page');
 
+        self._updateValueCounts();
+
         //
         // wire up edit display popover
         //
@@ -137,6 +139,8 @@ $.widget("custom.editvaluemappingspage", {
                     if (numRowsRemaining < 1) {
                         originalMappingContainer.remove();
                     }
+
+                    self._updateValueCounts();
                     IvetlWeb.hideLoading();
                 });
 
@@ -161,7 +165,7 @@ $.widget("custom.editvaluemappingspage", {
         // show/hide mappings link
         //
 
-        $('.display-value').on('click', function (event) {
+        $('.display-value-opener-link').on('click', function (event) {
             var mappingContainer = $(this).closest('.mapping-container');
             if (mappingContainer.find('.mapping-table').is(':visible')) {
                 self._hideMappings(mappingContainer);
@@ -193,15 +197,15 @@ $.widget("custom.editvaluemappingspage", {
 
         $('.show-all-mappings-link').on('click', function (event) {
             $('.mapping-table').show();
-            $('.show-link').hide();
-            $('.hide-link').show();
+            $('.mapping-header .opener-icon').hide();
+            $('.mapping-header .closer-icon').show();
             event.preventDefault();
         });
 
         $('.hide-all-mappings-link').on('click', function (event) {
             $('.mapping-table').hide();
-            $('.hide-link').hide();
-            $('.show-link').show();
+            $('.mapping-header .closer-icon').hide();
+            $('.mapping-header .opener-icon').show();
             event.preventDefault();
         });
 
@@ -240,14 +244,22 @@ $.widget("custom.editvaluemappingspage", {
     _showMappings: function (mappingContainer) {
         var mappingTable = mappingContainer.find('.mapping-table');
         mappingTable.show();
-        mappingContainer.find('.show-mappings-link').hide();
-        mappingContainer.find('.hide-mappings-link').show();
+        mappingContainer.find('.opener-icon').hide();
+        mappingContainer.find('.closer-icon').show();
     },
 
     _hideMappings: function (mappingContainer) {
         var mappingTable = mappingContainer.find('.mapping-table');
         mappingTable.hide();
-        mappingContainer.find('.hide-mappings-link').hide();
-        mappingContainer.find('.show-mappings-link').show();
+        mappingContainer.find('.closer-icon').hide();
+        mappingContainer.find('.opener-icon').show();
+    },
+
+    _updateValueCounts: function () {
+        $('.mapping-container').each(function (index, element) {
+            var container = $(element);
+            var numValues = container.find('.mapping-entry-container').length;
+            container.find('.value-count').text(numValues);
+        })
     }
 });
