@@ -135,7 +135,7 @@ $.widget("custom.editvaluemappingspage", {
             event.preventDefault();
         });
 
-        page.on('keyup', '.popover .edit-mapping-textbox', function (event) {
+        page.on('keyup change', '.popover .edit-mapping-textbox', function (event) {
             var textbox = $(this);
             var currentValue = textbox.val();
             var editContainer = $(event.target).closest('.edit-mapping-container');
