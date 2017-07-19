@@ -161,23 +161,29 @@ $.widget("custom.editvaluemappingspage", {
         // show/hide mappings link
         //
 
+        $('.display-value').on('click', function (event) {
+            var mappingContainer = $(this).closest('.mapping-container');
+            if (mappingContainer.find('.mapping-table').is(':visible')) {
+                self._hideMappings(mappingContainer);
+            }
+            else {
+                self._showMappings(mappingContainer);
+            }
+
+            event.preventDefault();
+        });
+
         $('.show-mappings-link').on('click', function (event) {
             var link = $(this);
             var mappingContainer = link.closest('.mapping-container');
-            var mappingTable = mappingContainer.find('.mapping-table');
-            mappingTable.show();
-            link.hide();
-            mappingContainer.find('.hide-mappings-link').show();
+            self._showMappings(mappingContainer);
             event.preventDefault();
         });
 
         $('.hide-mappings-link').on('click', function (event) {
             var link = $(this);
             var mappingContainer = link.closest('.mapping-container');
-            var mappingTable = mappingContainer.find('.mapping-table');
-            mappingTable.hide();
-            link.hide();
-            mappingContainer.find('.show-mappings-link').show();
+            self._hideMappings(mappingContainer);
             event.preventDefault();
         });
 
@@ -229,5 +235,19 @@ $.widget("custom.editvaluemappingspage", {
 
             event.preventDefault();
         });
+    },
+
+    _showMappings: function (mappingContainer) {
+        var mappingTable = mappingContainer.find('.mapping-table');
+        mappingTable.show();
+        mappingContainer.find('.show-mappings-link').hide();
+        mappingContainer.find('.hide-mappings-link').show();
+    },
+
+    _hideMappings: function (mappingContainer) {
+        var mappingTable = mappingContainer.find('.mapping-table');
+        mappingTable.hide();
+        mappingContainer.find('.hide-mappings-link').hide();
+        mappingContainer.find('.show-mappings-link').show();
     }
 });
