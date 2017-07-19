@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.models import PublishedArticle, PublishedArticleByCohort, PublisherVizorUpdates, PublisherMetadata, ArticleCitations, PublishedArticleValues, IssnJournal
+from ivetl.models import PublishedArticle, PublishedArticleByCohort, PublisherMetadata, ArticleCitations, PublishedArticleValues, IssnJournal, ValueMapping, ValueMappingDisplay
 from ivetl.pipelines.task import Task
 
 
@@ -17,9 +17,9 @@ class InsertPublishedArticlesIntoCassandra(Task):
         file = task_args['input_file']
         total_count = task_args['count']
 
-        modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)  # is pub_id redundant?
+        modified_articles_file_name = os.path.join(work_folder, '%s_modifiedarticles.tab' % publisher_id)
         modified_articles_file = codecs.open(modified_articles_file_name, 'w', 'utf-8')
-        modified_articles_file.write('PUBLISHER_ID\tDOI\n')  # ..and here? we're already in a pub folder
+        modified_articles_file.write('PUBLISHER_ID\tDOI\n')
 
         count = 0
         today = datetime.today()
@@ -29,7 +29,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        # Build Issn Journal List
+        # build a list of ISSN journals
         issn_journals = {}
         for ij in IssnJournal.objects.fetch_size(1000).limit(100000):
             issn_journals[ij.issn] = (ij.journal, ij.publisher)
@@ -45,7 +45,6 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     continue
 
                 doi = line[1]
-                lookup_issn = line[2]
                 data = json.loads(line[3])
 
                 # first, add the non-overlapping values straight to the published article table

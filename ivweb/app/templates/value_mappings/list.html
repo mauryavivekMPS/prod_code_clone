@@ -1,0 +1,37 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Value Mappings{% endblock %}
+{% block body_class %}value_mappings{% endblock %}
+
+{% block content %}
+    <div id="list-value-mappings-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Value Mappings</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table sortable-table">
+                    <thead>
+                    <tr>
+                        <th class="label-col">Publisher</th>
+                        <th>Mapping Type</th>
+                        <th># of Mappings</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for mapping in mappings_by_publisher %}
+                            <tr>
+                                <td>{{ mapping.publisher_name }}</td>
+                                <td><a href="{% url 'value_mappings.edit' mapping.publisher_id mapping.mapping_type %}">{{ mapping.mapping_type_display }}</a></td>
+                                <td>{{ mapping.num_canonicals }} values <i class="lnr lnr-arrow-right right-arrow"></i> {{ mapping.num_displays }} categories</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
