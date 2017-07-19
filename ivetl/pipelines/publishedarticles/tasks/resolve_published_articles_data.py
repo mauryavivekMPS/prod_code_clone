@@ -52,7 +52,7 @@ class ResolvePublishedArticlesData(Task):
                         tlogger.info("DOI %s does not exist in published_article table, skipping" % doi)
                         continue
         else:
-            all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id)
+            all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(1000000).fetch_size(1000)
             total_count = len(all_articles)
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
