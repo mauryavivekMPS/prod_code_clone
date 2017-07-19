@@ -15,32 +15,12 @@ $.widget("custom.editvaluemappingspage", {
         self._updateValueCounts();
 
         //
-        // wire up edit display popover
+        // wire up edit display popovers
         //
 
-        $('.edit-display-value-link').popover({
-            html: true,
-            title: 'Enter a new display value',
-            container: '#edit-value-mappings-page',
-            placement: 'auto right',
-            content: function () {
-                return $(this).closest('.mapping-container').find('.edit-display-popover').html();
-            }
-        }).on('click', function (event) {
-            event.preventDefault();
-        }).on('inserted.bs.popover', function () {
-            var editLink = $(this);
-            editLink.addClass('stay-visible');
-            var mappingContainer = $(this).closest('.mapping-container');
-            var canonicalValue = $(this).closest('.mapping-container').attr('canonical_value');
-            var editContainer = $('.popover .edit-display-container[canonical_value="' + canonicalValue + '"]');
-            editContainer.find('.edit-display-textbox').val(mappingContainer.find('.display-value').text());
-            editContainer.find('.cancel-edit-display-button').on('click', function (event) {
-                editLink.popover('hide');
-                event.preventDefault();
-            });
-        }).on('hidden.bs.popover', function () {
-            $(this).removeClass('stay-visible');
+        $('.edit-display-value-link').each(function (index, element) {
+            var link = $(element);
+            self._wireEditDisplayValuePopover(link);
         });
 
         page.on('click', '.popover .edit-display-button', function (event) {
@@ -72,39 +52,12 @@ $.widget("custom.editvaluemappingspage", {
         });
 
         //
-        // wire up edit mapping popover
+        // wire up edit mapping popovers
         //
 
-        $('.edit-mapping-link').popover({
-            html: true,
-            title: 'Choose a new mapping',
-            container: '#edit-value-mappings-page',
-            placement: 'auto right',
-            content: function () {
-                return $(this).closest('.mapping-entry-container').find('.edit-mapping-popover').html();
-            }
-        }).on('click', function (event) {
-            event.preventDefault();
-        }).on('inserted.bs.popover', function () {
-            var editLink = $(this);
-            editLink.addClass('stay-visible');
-            var mappingEntryContainer = $(this).closest('.mapping-entry-container');
-            var originalValue = mappingEntryContainer.attr('original_value');
-            var editContainer = $('.popover .edit-mapping-container[original_value="' + originalValue + '"]');
-
-            var editTextbox = editContainer.find('.edit-mapping-textbox');
-            editTextbox.typeahead({
-                source: self.allCanonicalChoices,
-                showHintOnFocus: true,
-                autoSelect: true
-            });
-
-            editContainer.find('.cancel-edit-mapping-button').on('click', function (event) {
-                editLink.popover('hide');
-                event.preventDefault();
-            });
-        }).on('hidden.bs.popover', function () {
-            $(this).removeClass('stay-visible');
+        $('.edit-mapping-link').each(function (index, element) {
+            var link = $(element);
+            self._wireEditMappingPopover(link);
         });
 
         page.on('click', '.popover .edit-mapping-button', function (event) {
@@ -114,6 +67,7 @@ $.widget("custom.editvaluemappingspage", {
             var typedValue = textbox.val();
             var selectedMappingValue = textbox.typeahead('getActive');
             var mappingEntryContainer = $('.mapping-entry-container[original_value="' + originalValue + '"]');
+            var oldCanonicalValue = mappingEntryContainer.closest('.mapping-container').attr('canonical_value');
 
             var isNewValue = false;
             var newValue = '';
@@ -159,7 +113,30 @@ $.widget("custom.editvaluemappingspage", {
                             containerBefore.after(response.new_mapping_html);
                         }
                         else {
-                            $('.all-mapping-containers').append(response.new_mapping_html);
+                            $('.all-mapping-containers').prepend(response.new_mapping_html);
+                        }
+
+                        var newMappingContainer = $('.mapping-container[canonical_value="' + newValue + '"]');
+                        newMappingContainer.find('.edit-display-value-link').each(function (index, element) {
+                            var link = $(element);
+                            self._wireEditDisplayValuePopover(link);
+                        });
+                        newMappingContainer.find('.edit-mapping-link').each(function (index, element) {
+                            var link = $(element);
+                            self._wireEditMappingPopover(link);
+                        });
+
+                        var insertedNewChoice = false;
+                        var newChoice = {id: newValue, name: newValue};
+                        $.each(self.allCanonicalChoices, function (index, choice) {
+                            if (choice.name.toLowerCase() > lowerCaseNewValue) {
+                                self.allCanonicalChoices.splice(index, 0, newChoice);
+                                insertedNewChoice = true;
+                                return false;
+                            }
+                        });
+                        if (!insertedNewChoice) {
+                            self.allCanonicalChoices.push(newChoice);
                         }
                     }
                     else {
@@ -169,6 +146,12 @@ $.widget("custom.editvaluemappingspage", {
 
                     // if no rows left, remove the whole category
                     if (numRowsRemaining < 1) {
+                        $.each(self.allCanonicalChoices, function (index, choice) {
+                            if (choice.id === oldCanonicalValue) {
+                                self.allCanonicalChoices.splice(index, 1);
+                                return false;
+                            }
+                        });
                         originalMappingContainer.remove();
                     }
 
@@ -190,13 +173,12 @@ $.widget("custom.editvaluemappingspage", {
             else {
                 button.removeClass('disabled').attr('disabled', false);
                 var selectedMappingValue = textbox.typeahead('getActive');
-                if (selectedMappingValue.name === textbox.val()) {
+                if (selectedMappingValue && selectedMappingValue.name === textbox.val()) {
                     button.text('Move')
                 }
                 else {
                     button.text('Create')
                 }
-
             }
         });
 
@@ -205,7 +187,8 @@ $.widget("custom.editvaluemappingspage", {
         // show/hide mappings link
         //
 
-        $('.display-value-opener-link').on('click', function (event) {
+        // $('.display-value-opener-link').on('click', function (event) {
+        page.on('click', '.display-value-opener-link', function (event) {
             var mappingContainer = $(this).closest('.mapping-container');
             if (mappingContainer.find('.mapping-table').is(':visible')) {
                 self._hideMappings(mappingContainer);
@@ -214,20 +197,6 @@ $.widget("custom.editvaluemappingspage", {
                 self._showMappings(mappingContainer);
             }
 
-            event.preventDefault();
-        });
-
-        $('.show-mappings-link').on('click', function (event) {
-            var link = $(this);
-            var mappingContainer = link.closest('.mapping-container');
-            self._showMappings(mappingContainer);
-            event.preventDefault();
-        });
-
-        $('.hide-mappings-link').on('click', function (event) {
-            var link = $(this);
-            var mappingContainer = link.closest('.mapping-container');
-            self._hideMappings(mappingContainer);
             event.preventDefault();
         });
 
@@ -278,6 +247,68 @@ $.widget("custom.editvaluemappingspage", {
                 });
 
             event.preventDefault();
+        });
+    },
+
+    _wireEditDisplayValuePopover: function (link) {
+        link.popover({
+            html: true,
+            title: 'Enter a new display value',
+            container: '#edit-value-mappings-page',
+            placement: 'auto right',
+            content: function () {
+                return $(this).closest('.mapping-container').find('.edit-display-popover').html();
+            }
+        }).on('click', function (event) {
+            event.preventDefault();
+        }).on('inserted.bs.popover', function () {
+            var editLink = $(this);
+            editLink.addClass('stay-visible');
+            var mappingContainer = $(this).closest('.mapping-container');
+            var canonicalValue = $(this).closest('.mapping-container').attr('canonical_value');
+            var editContainer = $('.popover .edit-display-container[canonical_value="' + canonicalValue + '"]');
+            editContainer.find('.edit-display-textbox').val(mappingContainer.find('.display-value').text());
+            editContainer.find('.cancel-edit-display-button').on('click', function (event) {
+                editLink.popover('hide');
+                event.preventDefault();
+            });
+        }).on('hidden.bs.popover', function () {
+            $(this).removeClass('stay-visible');
+        });
+    },
+
+    _wireEditMappingPopover: function (link) {
+        var self = this;
+        link.popover({
+            html: true,
+            title: 'Choose a new mapping',
+            container: '#edit-value-mappings-page',
+            placement: 'auto right',
+            content: function () {
+                return $(this).closest('.mapping-entry-container').find('.edit-mapping-popover').html();
+            }
+        }).on('click', function (event) {
+            event.preventDefault();
+        }).on('inserted.bs.popover', function () {
+            var editLink = $(this);
+            editLink.addClass('stay-visible');
+            var mappingEntryContainer = editLink.closest('.mapping-entry-container');
+            var originalValue = mappingEntryContainer.attr('original_value');
+            var editContainer = $('.popover .edit-mapping-container[original_value="' + originalValue + '"]');
+
+            var editTextbox = editContainer.find('.edit-mapping-textbox');
+            editTextbox.typeahead({
+                source: self.allCanonicalChoices,
+                showHintOnFocus: true,
+                autoSelect: true
+            });
+
+            editContainer.find('.cancel-edit-mapping-button').on('click', function (event) {
+                editLink.popover('hide');
+                event.preventDefault();
+            });
+        }).on('hidden.bs.popover', function () {
+            $(this).removeClass('stay-visible');
         });
     },
 
