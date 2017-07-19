@@ -1,9 +1,12 @@
 import logging
 import string
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.template import loader, RequestContext
 from ivetl.value_mappings import MAPPING_TYPES
 from ivetl.models import ValueMapping, ValueMappingDisplay
+from ivetl.pipelines.publishedarticles import RefreshValueMappingsPipeline
 
 log = logging.getLogger(__name__)
 
@@ -94,7 +97,7 @@ def update_value_display(request):
         display_value=display_value
     )
 
-    return HttpResponse('ok')
+    return JsonResponse({'status':'ok'})
 
 
 @login_required
@@ -103,6 +106,7 @@ def update_value_mapping(request):
     mapping_type = request.POST['mapping_type']
     original_value = request.POST['original_value']
     canonical_value = request.POST['canonical_value']
+    is_new_value = request.POST['is_new_value']
 
     ValueMapping.objects(
         publisher_id=publisher_id,
@@ -112,4 +116,42 @@ def update_value_mapping(request):
         canonical_value=canonical_value
     )
 
-    return HttpResponse('ok')
+    new_mapping_html = ''
+    if is_new_value:
+        ValueMappingDisplay.objects(
+            publisher_id=publisher_id,
+            mapping_type=mapping_type,
+            canonical_value=canonical_value
+        ).update(
+            display_value=canonical_value
+        )
+
+        mapping_for_template = {
+            'canonical_value': canonical_value,
+            'display_value': canonical_value,
+            'original_values': [original_value]
+        }
+
+        template = loader.get_template('value_mappings/include/mapping_container.html')
+        context = RequestContext(request, {
+            'mapping': mapping_for_template,
+        })
+        new_mapping_html = template.render(context)
+
+    return JsonResponse({
+        'status': 'ok',
+        'new_mapping_html': new_mapping_html,
+    })
+
+
+@login_required
+def run_refresh_mappings_pipeline(request):
+    publisher_id = request.POST['publisher_id']
+
+    RefreshValueMappingsPipeline.s(
+        publisher_id_list=[publisher_id],
+        product_id='published_articles',
+        initiating_user_email=request.user.email,
+    ).delay()
+
+    return JsonResponse({'status': 'ok'})

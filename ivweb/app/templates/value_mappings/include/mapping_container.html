@@ -1,0 +1,39 @@
+<div class="row mapping-container" canonical_value="{{ mapping.canonical_value }}">
+    <div class="col-md-9">
+        <div class="mapping-header">
+            <span class="display-value-opener-link">
+                <span class="display-value">{{ mapping.display_value }}</span>
+                <span class="lnr lnr-chevron-down opener-icon"></span>
+                <span class="lnr lnr-chevron-up closer-icon" style="display:none"></span>
+            </span>
+            <a class="edit-display-value-link" data-toggle="popover" href="#">Edit</a>
+            <span class="value-count">x</span>
+            <div class="edit-display-popover" style="display:none">
+                <div class="edit-display-container" canonical_value="{{ mapping.canonical_value }}">
+                    <input class="form-control edit-display-textbox">
+                    <a class="btn btn-primary edit-display-button" href="#">Save</a>
+                    <span class="cancel-edit-display-button cancel-popup-button lnr lnr-cross"></span>
+                </div>
+            </div>
+        </div>
+        <table class="table mapping-table" style="display:none">
+            <tbody>
+            {% for original_value in mapping.original_values %}
+                <tr class="mapping-entry-container" original_value="{{ original_value }}">
+                    <td>
+                        {{ original_value }}
+                        <a class="edit-mapping-link" data-toggle="popover" href="#">Change mapping</a>
+                        <div class="edit-mapping-popover" style="display:none">
+                            <div class="edit-mapping-container" original_value="{{ original_value }}">
+                                <input class="form-control edit-mapping-textbox" placeholder="Type to search values or create a new one..." autocomplete="off">
+                                <a class="btn btn-primary edit-mapping-button disabled" disabled href="#">Move</a>
+                                <span class="cancel-edit-mapping-button cancel-popup-button lnr lnr-cross"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

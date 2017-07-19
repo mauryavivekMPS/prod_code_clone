@@ -3239,7 +3239,8 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 
     .popover {
-        max-width: 500px;
+        width: 514px;
+        max-width: 514px;
     }
 
     h2 {
@@ -3283,6 +3284,14 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             margin-right: 8px;
             float: right;
         }
+
+        .running-pipeline-message {
+            float: right;
+            color: #666;
+            font-style: italic;
+            font-size: 12px;
+            padding-right: 5px;
+        }
     }
 
     .mapping-header {
@@ -3290,7 +3299,19 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         padding: 9px 0 9px 8px;
         border-top: 1px dotted #ccc;
 
-        .edit-display-value-link, .show-mappings-link, .hide-mappings-link {
+        .display-value {
+            cursor: pointer;
+        }
+
+        .opener-icon, .closer-icon {
+            font-size: 10px;
+            margin-left: 3px;
+            cursor: pointer;
+            opacity: 0.2;
+            vertical-align: -1px;
+        }
+
+        .edit-display-value-link {
             margin-left: 15px;
             font-size: 12px;
             padding-right: 5px;
@@ -3298,7 +3319,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
 
         &:hover {
-            .edit-display-value-link, .show-mappings-link, .hide-mappings-link {
+            .edit-display-value-link, .opener-icon, .closer-icon {
                 opacity: 1;
             }
         }

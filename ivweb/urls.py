@@ -114,5 +114,6 @@ urlpatterns = [
     url(r'^gettrustedreporturl/$', tableau_alerts.get_trusted_report_url, name='tableau_alerts.get_trusted_report_url'),
     url(r'^updatevaluedisplay/$', value_mappings.update_value_display, name='value_mappings.update_value_display'),
     url(r'^updatevaluemapping/$', value_mappings.update_value_mapping, name='value_mappings.update_value_mapping'),
+    url(r'^runrefreshvaluemappings/$', value_mappings.run_refresh_mappings_pipeline, name='value_mappings.run_refresh_mappings_pipeline'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
