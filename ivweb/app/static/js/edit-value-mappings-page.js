@@ -198,5 +198,28 @@ $.widget("custom.editvaluemappingspage", {
         $('body').on('hidden.bs.popover', function (e) {
             $(e.target).data("bs.popover").inState = {click: false, hover: false, focus: false}
         });
+
+        //
+        // run the pipeline
+        //
+
+        $('.update-reports-button').on('click', function (event) {
+            var button = $(this);
+            button.addClass('disabled').attr('disabled', true);
+            var data = {
+                'publisher_id': self.options.publisherId,
+                'csrfmiddlewaretoken': self.options.csrfToken
+            };
+
+            IvetlWeb.showLoading();
+            $.post('/runrefreshvaluemappings/', data)
+                .done(function () {
+                    button.hide();
+                    $('.running-pipeline-message').show();
+                    IvetlWeb.hideLoading();
+                });
+
+            event.preventDefault();
+        });
     }
 });

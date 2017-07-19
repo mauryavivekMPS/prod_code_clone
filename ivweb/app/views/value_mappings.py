@@ -4,6 +4,7 @@ from django.shortcuts import render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from ivetl.value_mappings import MAPPING_TYPES
 from ivetl.models import ValueMapping, ValueMappingDisplay
+from ivetl.pipelines.publishedarticles import RefreshValueMappingsPipeline
 
 log = logging.getLogger(__name__)
 
@@ -111,5 +112,17 @@ def update_value_mapping(request):
     ).update(
         canonical_value=canonical_value
     )
+
+    return HttpResponse('ok')
+
+@login_required
+def run_refresh_mappings_pipeline(request):
+    publisher_id = request.POST['publisher_id']
+
+    RefreshValueMappingsPipeline.s(
+        publisher_id_list=[publisher_id],
+        product_id='published_articles',
+        initiating_user_email=request.user.email,
+    ).delay()
 
     return HttpResponse('ok')
