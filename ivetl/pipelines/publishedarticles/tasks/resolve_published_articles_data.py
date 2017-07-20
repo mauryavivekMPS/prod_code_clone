@@ -25,6 +25,7 @@ class ResolvePublishedArticlesData(Task):
         # build some lists and dicts of all the value mappings
         all_value_mappings = {}
         canonical_value_by_original_value = {}
+        display_value_by_canonical_value = {}
         all_canonical_values = {}
         for field in value_mappings.MAPPING_TYPES:
             all_value_mappings[field] = ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type=field)
@@ -33,6 +34,9 @@ class ResolvePublishedArticlesData(Task):
             for mapping in all_value_mappings[field]:
                 canonical_value_by_original_value[field][mapping.original_value] = mapping.canonical_value
                 all_canonical_values[field].add(mapping.canonical_value)
+            display_value_by_canonical_value[field] = {}
+            for d in ValueMappingDisplay.objects.filter(publisher_id=publisher_id, mapping_type=field):
+                display_value_by_canonical_value[field][d.canonical_value] = d.display_value
 
         all_articles = []
         if file:
@@ -89,13 +93,13 @@ class ResolvePublishedArticlesData(Task):
                     # special processing for value-mapped fields
                     if field in value_mappings.MAPPING_TYPES:
 
-                        # 1. get clean, simplified version of term
+                        # get clean, simplified version of term
                         simplified_value = value_matcher.simplify_value(new_value)
 
-                        # 2.1. look for exact match
+                        # look for exact match
                         new_canonical_value = canonical_value_by_original_value[field].get(simplified_value)
 
-                        # 2.2. compare it to existing terms for close match
+                        # compare it to existing terms for close match
                         best_ratio_so_far = 0
                         best_match_so_far = None
                         if not new_canonical_value:
@@ -106,12 +110,16 @@ class ResolvePublishedArticlesData(Task):
                                     if ratio > best_ratio_so_far:
                                         best_match_so_far = existing_canonical_value
 
-                        # 3. if match, then add to mapping table
+                        # if match, then add to mapping table
                         if best_match_so_far:
                             new_canonical_value = best_match_so_far
 
-                        # 4. if no match, then add display table (with original version) and add to mapping table
-                        if not new_canonical_value:
+                        # if we have a value already, look up the display value
+                        if new_canonical_value:
+                            new_display_value = display_value_by_canonical_value[field][new_canonical_value]
+
+                        # if no match, then add display table (with original version) and add to mapping table
+                        else:
                             new_canonical_value = simplified_value
 
                             ValueMapping.objects.create(
@@ -130,10 +138,11 @@ class ResolvePublishedArticlesData(Task):
                                 display_value=new_display_value,
                             )
 
-                            # add to in-memory lookup
+                            # add to in-memory lookups
                             canonical_value_by_original_value[field][new_value] = new_canonical_value
+                            display_value_by_canonical_value[field][new_canonical_value] = new_display_value
 
-                        new_value = new_canonical_value
+                        new_value = new_display_value
 
                     setattr(article, field, new_value)
 
