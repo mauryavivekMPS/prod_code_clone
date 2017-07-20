@@ -311,9 +311,18 @@ $.widget("custom.editvaluemappingspage", {
             var originalValue = mappingEntryContainer.attr('original_value');
             var editContainer = $('.popover .edit-mapping-container[original_value="' + originalValue + '"]');
 
+            var canonicalValue = mappingEntryContainer.closest('.mapping-container').attr('canonical_value');
+            console.log('canonicalValue = ' + canonicalValue);
+            var filteredCanonicalChoices = [];
+            $.each(self.allCanonicalChoices, function (index, choice) {
+                if (choice.id !== canonicalValue){
+                    filteredCanonicalChoices.push(choice);
+                }
+            });
+
             var editTextbox = editContainer.find('.edit-mapping-textbox');
             editTextbox.typeahead({
-                source: self.allCanonicalChoices,
+                source: filteredCanonicalChoices,
                 showHintOnFocus: true,
                 autoSelect: true
             });
