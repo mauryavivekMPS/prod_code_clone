@@ -312,7 +312,6 @@ $.widget("custom.editvaluemappingspage", {
             var editContainer = $('.popover .edit-mapping-container[original_value="' + originalValue + '"]');
 
             var canonicalValue = mappingEntryContainer.closest('.mapping-container').attr('canonical_value');
-            console.log('canonicalValue = ' + canonicalValue);
             var filteredCanonicalChoices = [];
             $.each(self.allCanonicalChoices, function (index, choice) {
                 if (choice.id !== canonicalValue){
