@@ -54,7 +54,7 @@ class BaseTask(Task):
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
 
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, notification_count=None, run_monthly_job=False, show_alerts=False):
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, force_notification_email=False, notification_count=None, run_monthly_job=False, show_alerts=False):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
@@ -78,7 +78,7 @@ class BaseTask(Task):
             initiating_user_email = p.user_email
 
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
-            if send_notification_email and pipeline.get('has_file_input'):
+            if send_notification_email and (force_notification_email or pipeline.get('has_file_input')):
                 if initiating_user_email:
                     subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_file_description'])
                     body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_file_description']
