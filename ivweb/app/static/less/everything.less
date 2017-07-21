@@ -3373,7 +3373,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
     .mapping-table {
 
-        .mapping-entry-container {
+        .mapping-entry-container, .ghost-row {
             color: #666;
 
             &:first-of-type {
@@ -3385,6 +3385,10 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             td:first-of-type {
                 padding-left: 25px;
             }
+        }
+
+        .ghost-row {
+            background-color: #eee;
         }
 
         td {
@@ -3403,7 +3407,16 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 
-    .mapping-container:last-of-type {
-        margin-bottom: 35px;
+    .mapping-container {
+        &.move-target, &.finished-move-target {
+            .mapping-header {
+                background-color: #eee;
+            }
+        }
+
+
+        &:last-of-type {
+            margin-bottom: 35px;
+        }
     }
 }
