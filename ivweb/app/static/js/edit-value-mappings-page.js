@@ -205,7 +205,6 @@ $.widget("custom.editvaluemappingspage", {
         // show/hide mappings link
         //
 
-        // $('.display-value-opener-link').on('click', function (event) {
         page.on('click', '.display-value-opener-link', function (event) {
             var mappingContainer = $(this).closest('.mapping-container');
             if (mappingContainer.find('.mapping-table').is(':visible')) {
@@ -344,9 +343,7 @@ $.widget("custom.editvaluemappingspage", {
 
             var editTextbox = editContainer.find('.edit-mapping-textbox');
             editTextbox.typeahead({
-                source: filteredCanonicalChoices,
-                showHintOnFocus: true,
-                autoSelect: true
+                source: filteredCanonicalChoices
             });
 
             editContainer.find('.cancel-edit-mapping-button').on('click', function (event) {
