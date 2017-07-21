@@ -3233,6 +3233,22 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 }
 
+@keyframes arrow-bounce {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(6px);
+    }
+}
+
+@keyframes arrow-in {
+    100% {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+}
+
 #edit-value-mappings-page {
     .page-instructions {
         margin-bottom: 25px;
@@ -3285,12 +3301,21 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             float: right;
         }
 
+        .update-reports-spinner {
+            float: right;
+            margin-top: 20px;
+            margin-right: 6px;
+            margin-bottom: 20px;
+        }
+
         .running-pipeline-message {
             float: right;
             color: #666;
             font-style: italic;
             font-size: 12px;
             padding-right: 5px;
+            margin-top: 19px;
+            margin-bottom: 18px;
         }
     }
 
@@ -3373,7 +3398,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 
     .mapping-table {
 
-        .mapping-entry-container {
+        .mapping-entry-container, .ghost-row {
             color: #666;
 
             &:first-of-type {
@@ -3385,6 +3410,12 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
             td:first-of-type {
                 padding-left: 25px;
             }
+        }
+
+        .ghost-row {
+            background-color: #efefef;
+            color: #666;
+            opacity: 0.4;
         }
 
         td {
@@ -3403,7 +3434,43 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
         }
     }
 
-    .mapping-container:last-of-type {
-        margin-bottom: 35px;
+    .mapping-container {
+        &.move-target, &.finished-move-target {
+            .mapping-header {
+                background-color: #f3ffeb;
+
+                &:after {
+                    font-family: 'hyper-linear';
+                    content: "\e943";
+                    position: absolute;
+                    left: 100%;
+                    font-size: 20px;
+                    color: #666;
+                    top: 6px;
+                }
+            }
+        }
+
+        &.move-target {
+            .mapping-header:after {
+                animation: arrow-bounce 1s infinite;
+            }
+        }
+
+        &.finished-move-target {
+            .mapping-header {
+                .display-value, .value-count {
+                    color: #000;
+                }
+
+                &:after {
+                    animation: arrow-in 0.8s 1 forwards;
+                }
+            }
+        }
+
+        &:last-of-type {
+            margin-bottom: 35px;
+        }
     }
 }

@@ -79,6 +79,10 @@ $.widget("custom.editvaluemappingspage", {
                 newValue = typedValue;
             }
 
+            var destinationMappingContainer = null;
+            if (!isNewValue) {
+                destinationMappingContainer = page.find('.mapping-container[canonical_value="' + newValue + '"]');
+            }
 
             IvetlWeb.showLoading();
 
@@ -97,6 +101,29 @@ $.widget("custom.editvaluemappingspage", {
                     var numRowsBeforeDetach = mappingEntryContainer.closest('.mapping-table').find('.mapping-entry-container').length;
                     var numRowsRemaining = numRowsBeforeDetach - 1;
                     var originalMappingContainer = mappingEntryContainer.closest('.mapping-container');
+
+                    mappingEntryContainer.before('<tr class="ghost-row" original_value="' + originalValue + '"><td>' + originalValue + '</td></tr>');
+                    destinationMappingContainer.addClass('finished-move-target');
+
+                    setTimeout(function () {
+                        var ghostRow = $('.ghost-row[original_value="' + originalValue + '"]');
+                        ghostRow.fadeOut(500, function () {
+                            ghostRow.remove();
+                            destinationMappingContainer.removeClass('finished-move-target');
+
+                            // if no rows left, remove the whole category
+                            if (numRowsRemaining < 1) {
+                                $.each(self.allCanonicalChoices, function (index, choice) {
+                                    if (choice.id === oldCanonicalValue) {
+                                        self.allCanonicalChoices.splice(index, 1);
+                                        return false;
+                                    }
+                                });
+                                originalMappingContainer.remove();
+                            }
+                        });
+                    }, 800);
+
                     mappingEntryContainer.detach();
 
                     if (isNewValue) {
@@ -140,19 +167,8 @@ $.widget("custom.editvaluemappingspage", {
                         }
                     }
                     else {
-                        var destinationTable = page.find('.mapping-container[canonical_value="' + newValue + '"] .mapping-table tbody');
+                        var destinationTable = destinationMappingContainer.find('.mapping-table tbody');
                         destinationTable.append(mappingEntryContainer);
-                    }
-
-                    // if no rows left, remove the whole category
-                    if (numRowsRemaining < 1) {
-                        $.each(self.allCanonicalChoices, function (index, choice) {
-                            if (choice.id === oldCanonicalValue) {
-                                self.allCanonicalChoices.splice(index, 1);
-                                return false;
-                            }
-                        });
-                        originalMappingContainer.remove();
                     }
 
                     self._updateValueCounts();
@@ -163,6 +179,7 @@ $.widget("custom.editvaluemappingspage", {
         });
 
         page.on('keyup change', '.popover .edit-mapping-textbox', function (event) {
+            self._removeAllMoveTargets();
             var textbox = $(this);
             var currentValue = textbox.val();
             var editContainer = $(event.target).closest('.edit-mapping-container');
@@ -174,10 +191,11 @@ $.widget("custom.editvaluemappingspage", {
                 button.removeClass('disabled').attr('disabled', false);
                 var selectedMappingValue = textbox.typeahead('getActive');
                 if (selectedMappingValue && selectedMappingValue.name === textbox.val()) {
-                    button.text('Move')
+                    button.text('Move');
+                    self._setMoveTarget(selectedMappingValue.id);
                 }
                 else {
-                    button.text('Create')
+                    button.text('Create');
                 }
             }
         });
@@ -257,7 +275,12 @@ $.widget("custom.editvaluemappingspage", {
             $.post('/runrefreshvaluemappings/', data)
                 .done(function () {
                     button.hide();
-                    $('.running-pipeline-message').show();
+                    var spinner = $('.update-reports-spinner');
+                    spinner.show();
+                    setTimeout(function () {
+                        spinner.hide();
+                        $('.running-pipeline-message').show();
+                    }, 1000);
                     IvetlWeb.hideLoading();
                 });
 
@@ -332,6 +355,8 @@ $.widget("custom.editvaluemappingspage", {
             });
         }).on('hidden.bs.popover', function () {
             $(this).removeClass('stay-visible');
+            self._removeAllMoveTargets();
+
         });
     },
 
@@ -355,5 +380,13 @@ $.widget("custom.editvaluemappingspage", {
             var numValues = container.find('.mapping-entry-container').length;
             container.find('.value-count').text(numValues);
         })
+    },
+
+    _setMoveTarget: function (canonicalValue) {
+        $('.mapping-container[canonical_value="' + canonicalValue + '"]').addClass('move-target');
+    },
+
+    _removeAllMoveTargets: function () {
+        $('.mapping-container').removeClass('move-target');
     }
 });
