@@ -122,7 +122,7 @@ $.widget("custom.editvaluemappingspage", {
                                 originalMappingContainer.remove();
                             }
                         });
-                    }, 3000);
+                    }, 800);
 
                     mappingEntryContainer.detach();
 
@@ -275,7 +275,12 @@ $.widget("custom.editvaluemappingspage", {
             $.post('/runrefreshvaluemappings/', data)
                 .done(function () {
                     button.hide();
-                    $('.running-pipeline-message').show();
+                    var spinner = $('.update-reports-spinner');
+                    spinner.show();
+                    setTimeout(function () {
+                        spinner.hide();
+                        $('.running-pipeline-message').show();
+                    }, 1000);
                     IvetlWeb.hideLoading();
                 });
 
