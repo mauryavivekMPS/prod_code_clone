@@ -99,7 +99,10 @@ $.widget("custom.editvaluemappingspage", {
                     var numRowsRemaining = numRowsBeforeDetach - 1;
                     var originalMappingContainer = mappingEntryContainer.closest('.mapping-container');
 
-                    mappingEntryContainer.before('<tr class="ghost-row" original_value="' + originalValue + '"><td>' + originalValue + '</td></tr>');
+                    mappingEntryContainer.before(
+                        '<tr class="ghost-row" original_value="' + originalValue + '"><td>' + originalValue + '<span class="lnr lnr-arrow-right moved-to-message-arrow"></span>' +
+                        '<span class="moved-to-message">Moved to ' + selectedMappingValue.name + '</span></td></tr>'
+                    );
                     mappingEntryContainer.detach();
 
                     if (isNewValue) {
@@ -167,7 +170,7 @@ $.widget("custom.editvaluemappingspage", {
                                 originalMappingContainer.remove();
                             }
                         });
-                    }, 800);
+                    }, 1500);
 
                     IvetlWeb.hideLoading();
                 });
