@@ -397,7 +397,7 @@ def tail(request, product_id, pipeline_id):
     while attempt < max_attempts:
         attempt += 1
         if os.path.isfile(log_file):
-            content = subprocess.check_output('tail -n 100 %s' % log_file, shell=True).decode('utf-8')
+            content = subprocess.check_output('tail -n 300 %s' % log_file, shell=True).decode('utf-8')
             if content:
                 break
         time.sleep(wait_time)
