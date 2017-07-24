@@ -1,4 +1,3 @@
-import os
 import datetime
 import sendgrid
 import base64
@@ -7,7 +6,6 @@ from django.template import loader
 from ivetl.connectors import TableauConnector
 from ivetl.models import WorkbookUrl, TableauNotification
 from ivetl.common import common
-import traceback
 
 
 def check_for_citation_amount(publisher_id):

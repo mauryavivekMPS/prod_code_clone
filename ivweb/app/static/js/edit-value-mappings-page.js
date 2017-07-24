@@ -71,12 +71,15 @@ $.widget("custom.editvaluemappingspage", {
 
             var isNewValue = false;
             var newValue = '';
+            var newDisplayValue = '';
             if (selectedMappingValue.name === typedValue) {
                 newValue = selectedMappingValue.id;
+                newDisplayValue = selectedMappingValue.name;
             }
             else {
                 isNewValue = true;
                 newValue = typedValue;
+                newDisplayValue = typedValue;
             }
 
             var destinationMappingContainer = page.find('.mapping-container[canonical_value="' + newValue + '"]');
@@ -100,8 +103,10 @@ $.widget("custom.editvaluemappingspage", {
                     var originalMappingContainer = mappingEntryContainer.closest('.mapping-container');
 
                     mappingEntryContainer.before(
-                        '<tr class="ghost-row" original_value="' + originalValue + '"><td>' + originalValue + '<span class="lnr lnr-arrow-right moved-to-message-arrow"></span>' +
-                        '<span class="moved-to-message">Moved to ' + selectedMappingValue.name + '</span></td></tr>'
+                        '<tr class="ghost-row" original_value="' + originalValue + '">' +
+                            '<td>' + originalValue + '<span class="lnr lnr-arrow-right moved-to-message-arrow"></span>' +
+                            '<span class="moved-to-message">Moved to ' + newDisplayValue + '</span></td>' +
+                        '</tr>'
                     );
                     mappingEntryContainer.detach();
 
@@ -116,9 +121,12 @@ $.widget("custom.editvaluemappingspage", {
                         });
 
                         if (containerBefore) {
+                            console.log('found containerBefore');
+                            console.log(containerBefore);
                             containerBefore.after(response.new_mapping_html);
                         }
                         else {
+                            console.log('no containerBefore, prepending to allMappingContainers');
                             $('.all-mapping-containers').prepend(response.new_mapping_html);
                         }
 
@@ -345,6 +353,7 @@ $.widget("custom.editvaluemappingspage", {
             editTextbox.typeahead({
                 source: filteredCanonicalChoices
             });
+            editTextbox.focus();
 
             editContainer.find('.cancel-edit-mapping-button').on('click', function (event) {
                 editLink.popover('hide');

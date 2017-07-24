@@ -57,8 +57,8 @@ urlpatterns = [
     url(r'^uptimeoverrides/new/$', uptime.new_override, name='uptime.new_override'),
 
     # value mappings
-    url(r'^valuemappings/$', value_mappings.list_mappings, name='value_mappings.list_mappings'),
-    url(r'^valuemappings/(?P<publisher_id>[\w]+)/(?P<mapping_type>[\w]+)/$', value_mappings.edit, name='value_mappings.edit'),
+    url(r'^metadatamappings/$', value_mappings.list_mappings, name='value_mappings.list_mappings'),
+    url(r'^metadatamappings/(?P<publisher_id>[\w]+)/(?P<mapping_type>[\w]+)/$', value_mappings.edit, name='value_mappings.edit'),
 
     # demos
     url(r'^demos/$', publishers.list_demos, name='publishers.list_demos'),
