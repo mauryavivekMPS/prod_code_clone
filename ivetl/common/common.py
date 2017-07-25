@@ -49,6 +49,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'supports_restart': True,
+        'user_facing_pipeline_action': 'updating reports',
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
             'ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCacheTask',

@@ -80,8 +80,12 @@ class BaseTask(Task):
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
             if send_notification_email and (force_notification_email or pipeline.get('has_file_input')):
                 if initiating_user_email:
-                    subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_file_description'])
-                    body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_file_description']
+                    if pipeline.get('has_file_input'):
+                        subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_file_description'])
+                        body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_file_description']
+                    else:
+                        subject = 'Impact Vizor (%s): Completed %s' % (publisher_id, pipeline.get('user_facing_pipeline_action', 'running task'))
+                        body = '<p>Impact Vizor has completed %s.</p>' % pipeline.get('user_facing_pipeline_action', 'running the requested task')
 
                     if notification_count:
                         body += '<p>%s records were processed.<p>' % notification_count
