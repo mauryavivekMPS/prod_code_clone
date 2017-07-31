@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import TableauAlert, TableauNotification, PublisherMetadata, WorkbookUrl, User
+from ivetl.models import TableauAlert, TableauNotification, TableauNotificationByAlert, PublisherMetadata, WorkbookUrl, User
 from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE, process_alert
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
@@ -57,6 +57,13 @@ def list_alerts(request):
         else:
             user = None
         setattr(alert, 'user', user)
+
+        # get most recent notification date
+        notifications_for_this_alert = TableauNotificationByAlert.objects.filter(publisher_id=alert.publisher_id, alert_id=alert.alert_id)
+        if notifications_for_this_alert:
+            sorted_notifications = sorted(notifications_for_this_alert, key=attrgetter('notification_date'), reverse=True)
+            setattr(alert, 'num_notifications', len(sorted_notifications))
+            setattr(alert, 'last_notification_date', sorted_notifications[0].notification_date)
 
     filter_param = request.GET.get('filter', request.COOKIES.get('tableau-alert-list-filter', 'all'))
 

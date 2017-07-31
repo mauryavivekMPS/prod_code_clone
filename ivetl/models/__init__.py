@@ -19,6 +19,7 @@ from ivetl.models.alert import Alert
 from ivetl.models.tableau_alert import TableauAlert
 from ivetl.models.tableau_notification import TableauNotification
 from ivetl.models.tableau_notification_event import TableauNotificationEvent
+from ivetl.models.tableau_notification_by_alert import TableauNotificationByAlert
 from ivetl.models.notification import Notification
 from ivetl.models.notification_summary import NotificationSummary
 from ivetl.models.attribute_values import AttributeValues
