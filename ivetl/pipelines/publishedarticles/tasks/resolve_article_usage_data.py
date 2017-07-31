@@ -188,7 +188,16 @@ class ResolveArticleUsageData(Task):
             tsv.close()
 
         if pipeline_id == 'article_usage':
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, notification_count=count, show_alerts=task_args['show_alerts'])
+            self.pipeline_ended(
+                publisher_id,
+                product_id,
+                pipeline_id,
+                job_id,
+                tlogger,
+                task_args=task_args,
+                send_notification_email=True,
+                show_alerts=task_args['show_alerts']
+            )
 
         task_args['count'] = count
         return task_args

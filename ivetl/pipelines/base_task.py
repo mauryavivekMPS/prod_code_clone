@@ -54,7 +54,7 @@ class BaseTask(Task):
     def get_task_logger(self, task_work_folder):
         return logging.getLogger(task_work_folder)
 
-    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, force_notification_email=False, notification_count=None, run_monthly_job=False, show_alerts=False):
+    def pipeline_ended(self, publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=False, force_notification_email=False, run_monthly_job=False, show_alerts=False, task_args=None):
         end_date = datetime.datetime.today()
 
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
@@ -80,15 +80,32 @@ class BaseTask(Task):
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
             if send_notification_email and (force_notification_email or pipeline.get('has_file_input')):
                 if initiating_user_email:
+
                     if pipeline.get('has_file_input'):
-                        subject = 'Impact Vizor (%s): Completed processing your %s file(s)' % (publisher_id, pipeline['user_facing_file_description'])
-                        body = '<p>Impact Vizor has completed processing your %s file(s).</p>' % pipeline['user_facing_file_description']
+                        if task_args and task_args.get('input_files'):
+                            files = task_args['input_files']
+                            multiple_files = len(files) > 1
+                        else:
+                            files = []
+                            multiple_files = False
+
+                        subject = 'Impact Vizor (%s): Completed processing your %s file%s' % (
+                            publisher_id,
+                            pipeline['user_facing_file_description'],
+                            's' if multiple_files else ''
+                        )
+                        body = '<p>Impact Vizor has completed processing your %s file%s.</p>' % (
+                            pipeline['user_facing_file_description'],
+                            's' if multiple_files else ''
+                        )
+
+                        if files:
+                            for file in files:
+                                body += '<p>    Processed %s</p>' % file
+
                     else:
                         subject = 'Impact Vizor (%s): Completed %s' % (publisher_id, pipeline.get('user_facing_pipeline_action', 'running task'))
                         body = '<p>Impact Vizor has completed %s.</p>' % pipeline.get('user_facing_pipeline_action', 'running the requested task')
-
-                    if notification_count:
-                        body += '<p>%s records were processed.<p>' % notification_count
 
                     body += '<p>Thank you,<br/>Impact Vizor Team</p>'
 
