@@ -1,5 +1,6 @@
 import csv
 import datetime
+import pprint
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
@@ -95,11 +96,12 @@ class ResolvePublishedArticlesData(Task):
                     # special processing for value-mapped fields
                     if field in value_mappings.MAPPING_TYPES:
 
-                        # get clean, simplified version of term
-                        simplified_value = value_matcher.simplify_value(new_value)
-
                         # look for exact match
-                        new_canonical_value = canonical_value_by_original_value[field].get(simplified_value)
+                        new_canonical_value = canonical_value_by_original_value[field].get(new_value)
+
+                        if not new_canonical_value:
+                            # get clean, simplified version of term
+                            simplified_value = value_matcher.simplify_value(new_value)
 
                         # compare it to existing terms for close match
                         best_ratio_so_far = 0
@@ -115,6 +117,17 @@ class ResolvePublishedArticlesData(Task):
                         # if match, then add to mapping table
                         if best_match_so_far:
                             new_canonical_value = best_match_so_far
+
+                            ValueMapping.objects.create(
+                                publisher_id=publisher_id,
+                                mapping_type=field,
+                                original_value=new_value,
+                                canonical_value=new_canonical_value
+                            )
+
+                            canonical_value_by_original_value[field][new_value] = new_canonical_value
+
+                            tlogger.info('Adding a new ValueMapping to existing ValueMappingDisplay: %s -> %s' % (new_value, new_canonical_value))
 
                         # if no match, then add display table (with original version) and add to mapping table
                         if not new_canonical_value:
@@ -136,7 +149,7 @@ class ResolvePublishedArticlesData(Task):
                                 display_value=new_display_value,
                             )
 
-                            tlogger.info('Adding a new mapping: %s -> (%s, %s)' % (new_value, new_canonical_value, new_display_value))
+                            tlogger.info('Adding a new ValueMapping and ValueMappingDisplay: %s -> %s -> %s' % (new_value, new_canonical_value, new_display_value))
 
                             # add to in-memory lookups
                             canonical_value_by_original_value[field][new_value] = new_canonical_value
@@ -157,8 +170,7 @@ class ResolvePublishedArticlesData(Task):
 
                 if field in value_mappings.MAPPING_TYPES:
                     # pull out the values found/mapped in the previous loop
-                    simplified_value = value_matcher.simplify_value(new_value)
-                    new_canonical_value = canonical_value_by_original_value[field].get(simplified_value)
+                    new_canonical_value = canonical_value_by_original_value[field][new_value]
                     new_value = display_value_by_canonical_value[field][new_canonical_value]
 
                 setattr(article, field, new_value)
