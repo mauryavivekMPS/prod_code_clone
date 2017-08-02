@@ -107,7 +107,8 @@ class BaseTask(Task):
 
                             if files:
                                 for file in files:
-                                    body += '<p>    Processed %s</p>' % file
+                                    filename = file[file.rfind('/') + 1:]
+                                    body += '<p style="margin-left:30px">Processed %s</p>' % filename
 
                         else:
                             subject = 'Impact Vizor (%s): Completed %s' % (publisher_id, pipeline.get('user_facing_pipeline_action', 'running task'))
