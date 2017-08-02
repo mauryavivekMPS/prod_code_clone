@@ -85,35 +85,37 @@ class BaseTask(Task):
                     if not re.match(r'[^@]+@[^@]+\.[^@]+', initiating_user_email):
                         tlogger.info('The initiating user email address "%s" is invalid, skipping email' % initiating_user_email)
 
-                    if pipeline.get('has_file_input'):
-                        if task_args and task_args.get('input_files'):
-                            files = task_args['input_files']
-                            multiple_files = len(files) > 1
-                        else:
-                            files = []
-                            multiple_files = False
-
-                        subject = 'Impact Vizor (%s): Completed processing your %s file%s' % (
-                            publisher_id,
-                            pipeline['user_facing_file_description'],
-                            's' if multiple_files else ''
-                        )
-                        body = '<p>Impact Vizor has completed processing your %s file%s.</p>' % (
-                            pipeline['user_facing_file_description'],
-                            's' if multiple_files else ''
-                        )
-
-                        if files:
-                            for file in files:
-                                body += '<p>    Processed %s</p>' % file
-
                     else:
-                        subject = 'Impact Vizor (%s): Completed %s' % (publisher_id, pipeline.get('user_facing_pipeline_action', 'running task'))
-                        body = '<p>Impact Vizor has completed %s.</p>' % pipeline.get('user_facing_pipeline_action', 'running the requested task')
 
-                    body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+                        if pipeline.get('has_file_input'):
+                            if task_args and task_args.get('input_files'):
+                                files = task_args['input_files']
+                                multiple_files = len(files) > 1
+                            else:
+                                files = []
+                                multiple_files = False
 
-                    common.send_email(subject, body, to=initiating_user_email)
+                            subject = 'Impact Vizor (%s): Completed processing your %s file%s' % (
+                                publisher_id,
+                                pipeline['user_facing_file_description'],
+                                's' if multiple_files else ''
+                            )
+                            body = '<p>Impact Vizor has completed processing your %s file%s.</p>' % (
+                                pipeline['user_facing_file_description'],
+                                's' if multiple_files else ''
+                            )
+
+                            if files:
+                                for file in files:
+                                    body += '<p>    Processed %s</p>' % file
+
+                        else:
+                            subject = 'Impact Vizor (%s): Completed %s' % (publisher_id, pipeline.get('user_facing_pipeline_action', 'running task'))
+                            body = '<p>Impact Vizor has completed %s.</p>' % pipeline.get('user_facing_pipeline_action', 'running the requested task')
+
+                        body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+
+                        common.send_email(subject, body, to=initiating_user_email)
 
         except PipelineStatus.DoesNotExist:
             pass
