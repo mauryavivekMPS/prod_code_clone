@@ -25,8 +25,8 @@
                         <th>{% sort_column "Publisher ID" "publisher_id" sort_key sort_descending %}</th>
                         <th>Users</th>
                         <th>Journals</th>
-                        <th class="text-center">Demo</th>
-                        <th class="text-center">Pilot</th>
+                        <th class="text-center">ImpactVizor</th>
+                        <th class="text-center">UsageVizor</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,8 +46,8 @@
                                     {{ publisher.num_journals }} journal{{ publisher.num_journals|pluralize }}
                                 {% endif %}
                             </td>
-                            <td class="text-center">{% checkmark publisher.demo %}</td>
-                            <td class="text-center">{% checkmark publisher.pilot %}</td>
+                            <td class="text-center">{% checkmark publisher.supports_impact_vizor %}</td>
+                            <td class="text-center">{% checkmark publisher.supports_usage_vizor %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
