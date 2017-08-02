@@ -15,7 +15,7 @@ class UpdateAttributeValuesCacheTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         product = common.PRODUCT_BY_ID[product_id]
 
-        all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id)
+        all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(1000000).fetch_size(1000)
 
         value_names = set()
 
