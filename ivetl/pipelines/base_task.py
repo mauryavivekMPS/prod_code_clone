@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import datetime
@@ -80,6 +81,9 @@ class BaseTask(Task):
             # only send email if the flag is set, it's a file input pipeline, and there is a valid pub email address
             if send_notification_email and (force_notification_email or pipeline.get('has_file_input')):
                 if initiating_user_email:
+
+                    if not re.match(r'[^@]+@[^@]+\.[^@]+', initiating_user_email):
+                        tlogger.info('The initiating user email address "%s" is invalid, skipping email' % initiating_user_email)
 
                     if pipeline.get('has_file_input'):
                         if task_args and task_args.get('input_files'):
