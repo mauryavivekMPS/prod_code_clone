@@ -55,12 +55,9 @@
                     </div>
                     {% if not publisher %}
                         <div class="form-group row">
-                            <label class="col-sm-2">Options</label>
-                            <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>{{ form.staff }} Staff</label>
-                                    <label>{{ form.superuser }} Superuser</label>
-                                </div>
+                            <label class="col-sm-2">User Type</label>
+                            <div class="col-sm-3">
+                                {{ form.user_type }}
                             </div>
                         </div>
                         <div class="form-group row">

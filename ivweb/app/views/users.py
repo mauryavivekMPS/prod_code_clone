@@ -38,14 +38,22 @@ def list_users(request, publisher_id=None):
     return response
 
 
+USER_TYPE_CHOICES = [
+    ('publisher-staff', 'Publisher Staff'),
+    ('hw-staff', 'HW Staff'),
+    ('hw-superuser', 'HW Superuser'),
+]
+
+
 class AdminUserForm(forms.Form):
     user_id = forms.CharField(widget=forms.HiddenInput, required=False)
     email = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'user@domain.com'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
-    staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    # staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    # superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    user_type = forms.ChoiceField(choices=USER_TYPE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}), required=False)
 
     def __init__(self, *args, instance=None, for_publisher=None, **kwargs):
@@ -57,8 +65,18 @@ class AdminUserForm(forms.Form):
             initial.pop('password')  # clear out the encoded password
             if not for_publisher:
                 initial['publishers'] = ', '.join([p.publisher_id for p in PublisherUser.objects.filter(user_id=instance.user_id)])
+
+            if instance.staff:
+                if instance.superuser:
+                    initial['user_type'] = 'hw-superuser'
+                else:
+                    initial['user_type'] = 'hw-staff'
+            else:
+                initial['user_type'] = 'publisher-staff'
+
         else:
             self.instance = None
+            initial['user_type'] = 'publisher-staff'
 
         super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -91,12 +109,23 @@ class AdminUserForm(forms.Form):
             PublisherUser.objects.create(user_id=user.user_id, publisher_id=self.for_publisher.publisher_id)
 
         else:
+            user_type = self.cleaned_data['user_type']
+
+            staff = False
+            superuser = False
+            if user_type == 'hw-staff':
+                staff = True
+                superuser = False
+            elif user_type == 'hw-superuser':
+                staff = True
+                superuser = True
+
             user.update(
                 email=self.cleaned_data['email'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                staff=self.cleaned_data['staff'],
-                superuser=self.cleaned_data['superuser'],
+                staff=staff,
+                superuser=superuser,
             )
 
             publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
