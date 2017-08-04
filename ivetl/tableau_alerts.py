@@ -4,7 +4,7 @@ import base64
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Attachment
 from django.template import loader
 from ivetl.connectors import TableauConnector
-from ivetl.models import WorkbookUrl, TableauNotification
+from ivetl.models import WorkbookUrl, TableauNotification, TableauNotificationByAlert
 from ivetl.common import common
 
 
@@ -156,6 +156,14 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
             alert_params=alert.alert_params,
             alert_filters=alert.alert_filters,
             custom_message=alert.custom_message,
+        )
+
+        # and add an entry to the notification lookup table
+        TableauNotificationByAlert.objects.create(
+            publisher_id=notification.publisher_id,
+            alert_id=notification.alert_id,
+            notification_id=notification.notification_id,
+            notification_date=notification.notification_date,
         )
 
         if attachment_only_emails_override or full_emails_override:

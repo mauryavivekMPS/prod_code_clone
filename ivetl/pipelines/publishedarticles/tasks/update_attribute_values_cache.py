@@ -15,7 +15,7 @@ class UpdateAttributeValuesCacheTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         product = common.PRODUCT_BY_ID[product_id]
 
-        all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id)
+        all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(1000000).fetch_size(1000)
 
         value_names = set()
 
@@ -67,7 +67,17 @@ class UpdateAttributeValuesCacheTask(Task):
                 )
 
         if pipeline_id in ('custom_article_data', 'refresh_value_mappings'):
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, send_notification_email=True, force_notification_email=True, notification_count=count, show_alerts=task_args['show_alerts'])
+            self.pipeline_ended(
+                publisher_id,
+                product_id,
+                pipeline_id,
+                job_id,
+                tlogger,
+                task_args=task_args,
+                send_notification_email=True,
+                force_notification_email=True,
+                show_alerts=task_args['show_alerts']
+            )
 
         # leave existing task args in place, input_file and count, in particular
 

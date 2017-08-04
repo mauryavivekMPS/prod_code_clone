@@ -69,3 +69,11 @@ class PublisherMetadata(Model):
 
     def users(self):
         return PublisherUser.objects.allow_filtering().filter(publisher_id=self.publisher_id)
+
+    @property
+    def supports_impact_vizor(self):
+        return 'impact_vizor' in self.supported_product_groups
+
+    @property
+    def supports_usage_vizor(self):
+        return 'usage_vizor' in self.supported_product_groups

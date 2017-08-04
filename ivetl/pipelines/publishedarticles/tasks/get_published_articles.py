@@ -39,10 +39,10 @@ class GetPublishedArticlesTask(Task):
                 encoded_params = urllib.parse.urlencode({
                     'rows': task_args['articles_per_page'],
                     'cursor': cursor,
-                    'filter': 'type:journal-article,from-pub-date:%s' % from_pub_date_str,
+                    'filter': 'issn:%s,type:journal-article,from-pub-date:%s' % (issn, from_pub_date_str),
                 })
 
-                url = 'http://api.crossref.org/journals/%s/works?%s' % (issn, encoded_params)
+                url = 'http://api.crossref.org/works?%s' % encoded_params
 
                 tlogger.info("Searching CrossRef for: " + url)
                 response_text = crossref.get_with_retry(url)

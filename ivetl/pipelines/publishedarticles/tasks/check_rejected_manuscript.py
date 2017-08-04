@@ -50,8 +50,8 @@ class CheckRejectedManuscriptTask(Task):
             pipeline_id,
             job_id,
             tlogger,
+            task_args=task_args,
             send_notification_email=True,
-            notification_count=total_count,
             run_monthly_job=run_monthly_jobs,
             show_alerts=task_args.get('show_alerts', False),
         )

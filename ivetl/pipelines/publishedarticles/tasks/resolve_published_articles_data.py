@@ -1,5 +1,6 @@
 import csv
 import datetime
+import pprint
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
@@ -16,7 +17,6 @@ class ResolvePublishedArticlesData(Task):
         product = common.PRODUCT_BY_ID[product_id]
 
         file = task_args.get('input_file')
-        total_count = task_args.get('count', 0)
 
         now = datetime.datetime.now()
 
@@ -57,17 +57,18 @@ class ResolvePublishedArticlesData(Task):
                         continue
         else:
             all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(1000000).fetch_size(1000)
-            total_count = len(all_articles)
 
+        total_count = len(all_articles) * 2  # twice around the main loop
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
+        all_new_values = {}
+
         count = 0
+
+        # first loop, get all the values and execute the value mapping
+        tlogger.info('First loop, getting values and running value mapping')
         for article in all_articles:
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-
-            # skip header row
-            if count == 1:
-                continue
 
             tlogger.info("Processing #%s : %s" % (count - 1, article.article_doi))
 
@@ -90,14 +91,17 @@ class ResolvePublishedArticlesData(Task):
                 # update the canonical if there is any non Null/None value (note that "None" is a value)
                 if new_value:
 
+                    all_new_values[(article.article_doi, field)] = new_value
+
                     # special processing for value-mapped fields
                     if field in value_mappings.MAPPING_TYPES:
 
-                        # get clean, simplified version of term
-                        simplified_value = value_matcher.simplify_value(new_value)
-
                         # look for exact match
-                        new_canonical_value = canonical_value_by_original_value[field].get(simplified_value)
+                        new_canonical_value = canonical_value_by_original_value[field].get(new_value)
+
+                        if not new_canonical_value:
+                            # get clean, simplified version of term
+                            simplified_value = value_matcher.simplify_value(new_value)
 
                         # compare it to existing terms for close match
                         best_ratio_so_far = 0
@@ -114,12 +118,19 @@ class ResolvePublishedArticlesData(Task):
                         if best_match_so_far:
                             new_canonical_value = best_match_so_far
 
-                        # if we have a value already, look up the display value
-                        if new_canonical_value:
-                            new_display_value = display_value_by_canonical_value[field][new_canonical_value]
+                            ValueMapping.objects.create(
+                                publisher_id=publisher_id,
+                                mapping_type=field,
+                                original_value=new_value,
+                                canonical_value=new_canonical_value
+                            )
+
+                            canonical_value_by_original_value[field][new_value] = new_canonical_value
+
+                            tlogger.info('Adding a new ValueMapping to existing ValueMappingDisplay: %s -> %s' % (new_value, new_canonical_value))
 
                         # if no match, then add display table (with original version) and add to mapping table
-                        else:
+                        if not new_canonical_value:
                             new_canonical_value = simplified_value
 
                             ValueMapping.objects.create(
@@ -138,13 +149,31 @@ class ResolvePublishedArticlesData(Task):
                                 display_value=new_display_value,
                             )
 
+                            tlogger.info('Adding a new ValueMapping and ValueMappingDisplay: %s -> %s -> %s' % (new_value, new_canonical_value, new_display_value))
+
                             # add to in-memory lookups
                             canonical_value_by_original_value[field][new_value] = new_canonical_value
                             display_value_by_canonical_value[field][new_canonical_value] = new_display_value
 
-                        new_value = new_display_value
+        # second loop, save changes to db
+        tlogger.info('Second loop, using updated value mapping and writing to db')
+        for article in all_articles:
+            count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    setattr(article, field, new_value)
+            tlogger.info("Processing #%s : %s" % (count - 1, article.article_doi))
+
+            # resolve policy: if a value from source=custom is present it always wins
+            for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:
+
+                # grab the value from the local cache built in the previous loop
+                new_value = all_new_values.get((article.article_doi, field))
+
+                if field in value_mappings.MAPPING_TYPES:
+                    # pull out the values found/mapped in the previous loop
+                    new_canonical_value = canonical_value_by_original_value[field][new_value]
+                    new_value = display_value_by_canonical_value[field][new_canonical_value]
+
+                setattr(article, field, new_value)
 
             # update citable section flag
             if not product['cohort'] and article.article_type:
