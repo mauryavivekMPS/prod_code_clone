@@ -51,10 +51,9 @@ class AdminUserForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
-    # staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    # superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     user_type = forms.ChoiceField(choices=USER_TYPE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}), required=False)
+    # publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}), required=False)
+    publishers = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, instance=None, for_publisher=None, **kwargs):
         self.for_publisher = for_publisher
@@ -148,16 +147,16 @@ class AdminUserForm(forms.Form):
 @login_required
 def edit(request, publisher_id=None, user_id=None):
     if publisher_id:
-        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+        for_publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     else:
-        publisher = None
+        for_publisher = None
 
     user = None
     if user_id:
         user = User.objects.get(user_id=user_id)
 
     if request.method == 'POST':
-        form = AdminUserForm(request.POST, instance=user, for_publisher=publisher)
+        form = AdminUserForm(request.POST, instance=user, for_publisher=for_publisher)
         if form.is_valid():
             user = form.save()
             AuditLog.objects.create(
@@ -167,15 +166,30 @@ def edit(request, publisher_id=None, user_id=None):
                 entity_type='user',
                 entity_id=str(user.user_id),
             )
-            if publisher:
-                return HttpResponseRedirect(reverse('publishers.users', kwargs={'publisher_id': publisher.publisher_id}))
+            if for_publisher:
+                return HttpResponseRedirect(reverse('publishers.users', kwargs={'publisher_id': for_publisher.publisher_id}))
             else:
                 return HttpResponseRedirect(reverse('users.list'))
     else:
-        form = AdminUserForm(instance=user, for_publisher=publisher)
+        form = AdminUserForm(instance=user, for_publisher=for_publisher)
+
+    if not for_publisher:
+        all_publishers = PublisherMetadata.objects.all()
+        accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+    else:
+        all_publishers = None
+        accessible_publisher_ids = None
+
+    if user:
+        selected_publisher_ids = [p.publisher_id for p in PublisherUser.objects.filter(user_id=user.user_id)]
+    else:
+        selected_publisher_ids = []
 
     return render(request, 'users/new.html', {
         'form': form,
         'user': user,
-        'publisher': publisher,
+        'for_publisher': for_publisher,
+        'all_publishers': all_publishers,
+        'accessible_publisher_ids': accessible_publisher_ids,
+        'selected_publisher_ids': selected_publisher_ids,
     })
