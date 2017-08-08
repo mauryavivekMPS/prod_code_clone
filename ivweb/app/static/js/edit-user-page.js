@@ -22,14 +22,31 @@ $.widget("custom.edituserpage", {
                 button: '<a href="#" class="multiselect dropdown-toggle form-control-static" data-toggle="dropdown">Add/remove publishers...</a>'
             },
             buttonClass: '',
-            onChange: function (option, checked, select) {
+            onChange: function () {
                 $('#id_publishers').val(publisherMultiselect.val().join(','));
                 self._updateSelectedPublisherList();
-
             }
         });
 
+        $('#id_user_type').on('change', function () {
+            self._updatePublisherControls();
+        });
+
         this._updateSelectedPublisherList();
+        this._updatePublisherControls();
+    },
+
+    _updatePublisherControls: function () {
+        if ($('#id_user_type').val() === 'hw-superuser') {
+            $('.staff-selected').hide();
+            $('.superuser-selected').show();
+            console.log('show superuser');
+        }
+        else {
+            $('.superuser-selected').hide();
+            $('.staff-selected').show();
+            console.log('show staff');
+        }
     },
 
     _updateSelectedPublisherList: function () {
