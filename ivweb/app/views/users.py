@@ -210,9 +210,11 @@ def edit(request, publisher_id=None, user_id=None):
     if not for_publisher:
         all_publishers = PublisherMetadata.objects.all()
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+        publisher_name_by_id = {p.publisher_id: p.name for p in request.user.get_accessible_publishers()}
     else:
         all_publishers = None
         accessible_publisher_ids = None
+        publisher_name_by_id = {}
 
     if user:
         selected_publisher_ids = [p.publisher_id for p in PublisherUser.objects.filter(user_id=user.user_id)]
@@ -226,4 +228,5 @@ def edit(request, publisher_id=None, user_id=None):
         'all_publishers': all_publishers,
         'accessible_publisher_ids': accessible_publisher_ids,
         'selected_publisher_ids': selected_publisher_ids,
+        'publisher_name_by_id': publisher_name_by_id,
     })

@@ -70,6 +70,8 @@
                                             <option value="{{ publisher.publisher_id }}" {% if publisher.publisher_id in selected_publisher_ids %}selected="selected"{% endif %}>{{ publisher.name }}</option>
                                         {% endfor %}
                                     </select>
+                                    <ul class="selected-publishers-list"></ul>
+                                    <div class="number-of-publishers-selected"></div>
                                 </div>
                             </div>
 {#                            <div class="form-group row">#}
@@ -99,7 +101,9 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            $('#edit-user-page').edituserpage();
+            $('#edit-user-page').edituserpage({
+                publisherNameById: {{ publisher_name_by_id|safe }}
+            });
         });
     </script>
 {% endblock %}

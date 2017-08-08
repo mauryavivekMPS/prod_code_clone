@@ -1,4 +1,7 @@
 $.widget("custom.edituserpage", {
+    options: {
+        publisherNameById: {}
+    },
 
     _create: function () {
         var self = this;
@@ -13,18 +16,6 @@ $.widget("custom.edituserpage", {
             $('#id_password').show().focus();
         });
 
-        this.f.find('#id_superuser').on('change', function () {
-            if ($(this).is(':checked')) {
-                self.f.find('#id_staff').prop("checked", true);
-            }
-        });
-
-        this.f.find('#id_staff').on('change', function () {
-            if (!$(this).is(':checked')) {
-                self.f.find('#id_superuser').prop("checked", false);
-            }
-        });
-
         var publisherMultiselect = $('#publisher-multiselect');
         publisherMultiselect.multiselect({
             templates: {
@@ -33,8 +24,38 @@ $.widget("custom.edituserpage", {
             buttonClass: '',
             onChange: function (option, checked, select) {
                 $('#id_publishers').val(publisherMultiselect.val().join(','));
+                self._updateSelectedPublisherList();
+
             }
         });
+
+        this._updateSelectedPublisherList();
+    },
+
+    _updateSelectedPublisherList: function () {
+        var self = this;
+        var selectedPublishersListElement = $('.selected-publishers-list');
+        selectedPublishersListElement.empty();
+
+        var numSelectedPublishers = 0;
+        var selectedPublishers = $('#publisher-multiselect').val();
+        if (selectedPublishers) {
+            numSelectedPublishers = selectedPublishers.length;
+            $.each(selectedPublishers, function (index, publisher_id) {
+                selectedPublishersListElement.append('<li>' + self.options.publisherNameById[publisher_id] + '</li>');
+            });
+        }
+        var numberElement = $('.number-of-publishers-selected');
+        if (numSelectedPublishers === 0) {
+            numberElement.text('No publishers selected');
+        }
+        else if (numSelectedPublishers === 1) {
+            numberElement.text('1 publisher selected');
+        }
+        else
+        {
+            numberElement.text(numSelectedPublishers + ' publishers selected');
+        }
     },
 
     _checkForm: function () {
