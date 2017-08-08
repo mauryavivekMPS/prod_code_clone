@@ -16,20 +16,20 @@
                 <thead>
                     <tr>
                         <th>User</th>
+                        <th>Publisher</th>
+                        <th>Description</th>
                         <th>Action</th>
-                        <th>Entity Type</th>
-                        <th>Entity</th>
                         <th>Event Time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for log_entry in audit_log %}
+                    {% for log in audit_logs %}
                         <tr>
-                            <td>{{ log_entry.user_email }}</td>
-                            <td>{{ log_entry.action }}</td>
-                            <td>{{ log_entry.entity_type }}</td>
-                            <td>{{ log_entry.entity_id }}</td>
-                            <td>{{ log_entry.event_time }}</td>
+                            <td>{{ log.user_email }}</td>
+                            <td>{% if log.publisher_id != 'unknown' %}{{ log.publisher_id }}{% endif %}</td>
+                            <td>{{ log.description }}</td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.event_time }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
