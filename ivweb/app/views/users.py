@@ -133,7 +133,7 @@ class AdminUserForm(forms.Form):
             existing_publishers = PublisherUser.objects.filter(user_id=user.user_id)
 
             self.old_publisher_ids = [e.publisher_id for e in existing_publishers]
-            self.new_publisher_ids = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
+            self.new_publisher_ids = [id.strip() for id in self.cleaned_data['publishers'].split(",") if id]
 
             # delete existing
             for publisher_user in existing_publishers:
@@ -170,12 +170,14 @@ def edit(request, publisher_id=None, user_id=None):
                 utils.add_audit_log(
                     user_id=request.user.user_id,
                     action='edit-user',
+                    publisher_id='system',
                     description='Edit user %s' % user.email,
                 )
             else:
                 utils.add_audit_log(
                     user_id=request.user.user_id,
                     action='create-user',
+                    publisher_id='system',
                     description='Create user %s' % user.email,
                 )
 

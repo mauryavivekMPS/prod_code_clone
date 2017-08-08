@@ -1,8 +1,18 @@
 #!/usr/bin/env python
 
 import os
+import sys
 
-os.sys.path.append(os.environ['IVETL_ROOT'])
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'ivweb.settings.local'
+
+if os.environ['IVETL_ROOT'] not in os.sys.path:
+    sys.path.insert(0, os.environ['IVETL_ROOT'])
+
+# new setup for 1.7 and above
+import django
+
+django.setup()
 
 import uuid
 from cassandra.cqlengine import columns
@@ -70,12 +80,12 @@ if __name__ == "__main__":
             user_id=log.user_id,
             event_time=log.event_time,
             action=log.action,
-            publisher_id='',
+            publisher_id='unknown',
             description=description,
         )
 
         AuditLogByPublisher.objects.create(
-            publisher_id='',
+            publisher_id='unknown',
             event_time=log.event_time,
             action=log.action,
             user_id=log.user_id,
@@ -86,7 +96,7 @@ if __name__ == "__main__":
             month=log.event_time.strftime('%Y%m'),
             event_time=log.event_time,
             action=log.action,
-            publisher_id='',
+            publisher_id='unknown',
             user_id=log.user_id,
             description=description,
         )
