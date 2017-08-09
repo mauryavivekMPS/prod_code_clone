@@ -102,7 +102,7 @@ def update_value_mapping(request):
     mapping_type = request.POST['mapping_type']
     original_value = request.POST['original_value']
     canonical_value = request.POST['canonical_value']
-    is_new_value = request.POST['is_new_value']
+    is_new_value = request.POST.get('is_new_value', '0') == '1'
 
     ValueMapping.objects(
         publisher_id=publisher_id,

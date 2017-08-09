@@ -5,7 +5,8 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import User, PublisherUser, AuditLog, PublisherMetadata
+from ivetl.models import User, PublisherUser, PublisherMetadata
+from ivetl import utils
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -38,18 +39,27 @@ def list_users(request, publisher_id=None):
     return response
 
 
+USER_TYPE_CHOICES = [
+    ('publisher-staff', 'Publisher Staff'),
+    ('hw-staff', 'HW Staff'),
+    ('hw-superuser', 'HW Superuser'),
+]
+
+
 class AdminUserForm(forms.Form):
     user_id = forms.CharField(widget=forms.HiddenInput, required=False)
     email = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'user@domain.com'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
-    staff = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    superuser = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}), required=False)
+    user_type = forms.ChoiceField(choices=USER_TYPE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    # publishers = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated list of publisher IDs'}), required=False)
+    publishers = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, instance=None, for_publisher=None, **kwargs):
         self.for_publisher = for_publisher
+        self.old_publisher_ids = []
+        self.new_publisher_ids = []
         initial = {}
         if instance:
             self.instance = instance
@@ -57,8 +67,18 @@ class AdminUserForm(forms.Form):
             initial.pop('password')  # clear out the encoded password
             if not for_publisher:
                 initial['publishers'] = ', '.join([p.publisher_id for p in PublisherUser.objects.filter(user_id=instance.user_id)])
+
+            if instance.staff:
+                if instance.superuser:
+                    initial['user_type'] = 'hw-superuser'
+                else:
+                    initial['user_type'] = 'hw-staff'
+            else:
+                initial['user_type'] = 'publisher-staff'
+
         else:
             self.instance = None
+            initial['user_type'] = 'publisher-staff'
 
         super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -91,22 +111,36 @@ class AdminUserForm(forms.Form):
             PublisherUser.objects.create(user_id=user.user_id, publisher_id=self.for_publisher.publisher_id)
 
         else:
+            user_type = self.cleaned_data['user_type']
+
+            staff = False
+            superuser = False
+            if user_type == 'hw-staff':
+                staff = True
+                superuser = False
+            elif user_type == 'hw-superuser':
+                staff = True
+                superuser = True
+
             user.update(
                 email=self.cleaned_data['email'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                staff=self.cleaned_data['staff'],
-                superuser=self.cleaned_data['superuser'],
+                staff=staff,
+                superuser=superuser,
             )
 
-            publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
+            existing_publishers = PublisherUser.objects.filter(user_id=user.user_id)
+
+            self.old_publisher_ids = [e.publisher_id for e in existing_publishers]
+            self.new_publisher_ids = [id.strip() for id in self.cleaned_data['publishers'].split(",") if id]
 
             # delete existing
-            for publisher_user in PublisherUser.objects.filter(user_id=user.user_id):
+            for publisher_user in existing_publishers:
                 publisher_user.delete()
 
             # and recreate
-            for publisher_id in publisher_id_list:
+            for publisher_id in self.new_publisher_ids:
                 if publisher_id:
                     PublisherUser.objects.create(user_id=user.user_id, publisher_id=publisher_id)
 
@@ -119,34 +153,80 @@ class AdminUserForm(forms.Form):
 @login_required
 def edit(request, publisher_id=None, user_id=None):
     if publisher_id:
-        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+        for_publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     else:
-        publisher = None
+        for_publisher = None
 
     user = None
     if user_id:
         user = User.objects.get(user_id=user_id)
 
     if request.method == 'POST':
-        form = AdminUserForm(request.POST, instance=user, for_publisher=publisher)
+        form = AdminUserForm(request.POST, instance=user, for_publisher=for_publisher)
         if form.is_valid():
             user = form.save()
-            AuditLog.objects.create(
-                user_id=request.user.user_id,
-                event_time=datetime.datetime.now(),
-                action='edit-user' if user_id else 'create-user',
-                entity_type='user',
-                entity_id=str(user.user_id),
-            )
-            if publisher:
-                return HttpResponseRedirect(reverse('publishers.users', kwargs={'publisher_id': publisher.publisher_id}))
+
+            if user_id:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    action='edit-user',
+                    publisher_id='system',
+                    description='Edit user %s' % user.email,
+                )
+            else:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    action='create-user',
+                    publisher_id='system',
+                    description='Create user %s' % user.email,
+                )
+
+            old_publisher_ids = set(form.old_publisher_ids)
+            new_publisher_ids = set(form.new_publisher_ids)
+
+            for deleted_publisher_id in old_publisher_ids - new_publisher_ids:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=deleted_publisher_id,
+                    action='revoked-user-access',
+                    description='Revoked access to %s for %s' % (deleted_publisher_id, user.email),
+                )
+
+            for added_publisher_id in new_publisher_ids - old_publisher_ids:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=added_publisher_id,
+                    action='granted-user-access',
+                    description='Granted access to %s for %s' % (added_publisher_id, user.email),
+                )
+
+            if for_publisher:
+                return HttpResponseRedirect(reverse('publishers.users', kwargs={'publisher_id': for_publisher.publisher_id}))
             else:
                 return HttpResponseRedirect(reverse('users.list'))
     else:
-        form = AdminUserForm(instance=user, for_publisher=publisher)
+        form = AdminUserForm(instance=user, for_publisher=for_publisher)
+
+    if not for_publisher:
+        all_publishers = PublisherMetadata.objects.all()
+        accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+        publisher_name_by_id = {p.publisher_id: p.name for p in request.user.get_accessible_publishers()}
+    else:
+        all_publishers = None
+        accessible_publisher_ids = None
+        publisher_name_by_id = {}
+
+    if user:
+        selected_publisher_ids = [p.publisher_id for p in PublisherUser.objects.filter(user_id=user.user_id)]
+    else:
+        selected_publisher_ids = []
 
     return render(request, 'users/new.html', {
         'form': form,
         'user': user,
-        'publisher': publisher,
+        'for_publisher': for_publisher,
+        'all_publishers': all_publishers,
+        'accessible_publisher_ids': accessible_publisher_ids,
+        'selected_publisher_ids': selected_publisher_ids,
+        'publisher_name_by_id': publisher_name_by_id,
     })

@@ -20,7 +20,7 @@ from ivetl.common import common
 from ivetl import utils
 from ivetl import tableau_alerts
 from ivetl.pipelines.pipeline import Pipeline
-from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, AuditLog, SystemGlobal, PublisherJournal
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, SystemGlobal, PublisherJournal
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -357,12 +357,11 @@ def run(request, product_id, pipeline_id):
                     send_alerts=send_alerts,
                 ).delay()
 
-            AuditLog.objects.create(
+            utils.add_audit_log(
                 user_id=request.user.user_id,
-                event_time=datetime.datetime.now(),
+                publisher_id=publisher_id if publisher_id else '',
                 action='run-pipeline',
-                entity_type='pipeline',
-                entity_id=pipeline_id,
+                description='Run %s pipeline' % pipeline_id,
             )
 
             if request.user.staff:
@@ -622,12 +621,11 @@ def upload_pending_file_inline(request):
                 # make sure it's world readable, just to be safe
                 os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
 
-                AuditLog.objects.create(
+                utils.add_audit_log(
                     user_id=request.user.user_id,
-                    event_time=datetime.datetime.now(),
+                    publisher_id=publisher_id,
                     action='upload-file',
-                    entity_type='pipeline-file',
-                    entity_id='%s, %s' % (pipeline_id, uploaded_file.name),
+                    description='Uploaded %s file: %s' % (pipeline_id, uploaded_file),
                 )
 
             all_processed_files.append({

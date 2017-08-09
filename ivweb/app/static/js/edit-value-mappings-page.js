@@ -73,10 +73,12 @@ $.widget("custom.editvaluemappingspage", {
             var newValue = '';
             var newDisplayValue = '';
             if (selectedMappingValue.name === typedValue) {
+                console.log('isNew is false');
                 newValue = selectedMappingValue.id;
                 newDisplayValue = selectedMappingValue.name;
             }
             else {
+                console.log('isNew is true');
                 isNewValue = true;
                 newValue = typedValue;
                 newDisplayValue = typedValue;
@@ -91,7 +93,7 @@ $.widget("custom.editvaluemappingspage", {
                 'mapping_type': self.options.mappingType,
                 'original_value': originalValue,
                 'canonical_value': newValue,
-                'is_new_value': isNewValue,
+                'is_new_value': isNewValue ? '1' : '0',
                 'csrfmiddlewaretoken': self.options.csrfToken
             };
 

@@ -5,82 +5,93 @@
 {% block body_class %}user{% endblock %}
 
 {% block content %}
-    <div class="row header-row with-breadcrumb">
-        <div class="col-md-8">
-            <ol class="breadcrumb">
-                {% if publisher %}
-                    <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
-                    <li><a href="{% url 'publishers.edit' publisher.publisher_id %}">{{ publisher.name }}</a></li>
-                    <li><a href="{% url 'publishers.users' publisher.publisher_id %}">Users</a></li>
-                {% else %}
-                    <li><a href="{% url 'users.list' %}">Users</a></li>
-                {% endif %}
-                <li></li>
-            </ol>
-            <h1>{% if user %}{{ user.email }}{% else %}New User{% endif %}</h1>
+    <div id="edit-user-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    {% if for_publisher %}
+                        <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
+                        <li><a href="{% url 'publishers.edit' for_publisher.publisher_id %}">{{ for_publisher.name }}</a></li>
+                        <li><a href="{% url 'publishers.users' for_publisher.publisher_id %}">Users</a></li>
+                    {% else %}
+                        <li><a href="{% url 'users.list' %}">Users</a></li>
+                    {% endif %}
+                    <li></li>
+                </ol>
+                <h1>{% if user %}{{ user.email }}{% else %}New User{% endif %}</h1>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <div class="row">
-            <div class="col-md-12">
-                <form id="user-form" class="form-horizontal" method="post">
-                    {% csrf_token %}
-                    {{ form.user_id }}
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="user-form" class="form-horizontal" method="post">
+                        {% csrf_token %}
+                        {{ form.user_id }}
+                        {{ form.publishers }}
 
-                    <div class="form-group row">
-                        <label for="first_name" class="col-sm-2">Name</label>
-                        <div class="col-sm-3">
-                            {{ form.first_name }}
-                        </div>
-                        <div class="col-sm-3">
-                            {{ form.last_name}}
-                        </div>
-                    </div>
-                    <div class="form-group row {% if form.email.errors %}error{% endif %}">
-                        <label for="email" class="col-sm-2">Email</label>
-                        <div class="col-sm-6">
-                            {{ form.email }}
-                            {{ form.email.errors }}
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="password" class="col-sm-2">Password</label>
-                        <div class="col-sm-6">
-                            {% if user %}
-                                <p class="form-control-static set-password-link"><a href="#">Set password...</a></p>
-                            {% endif %}
-                            {{ form.password }}
-                        </div>
-                    </div>
-                    {% if not publisher %}
                         <div class="form-group row">
-                            <label class="col-sm-2">Options</label>
+                            <label for="first_name" class="col-sm-2">Name</label>
+                            <div class="col-sm-3">
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-sm-3">
+                                {{ form.last_name}}
+                            </div>
+                        </div>
+                        <div class="form-group row {% if form.email.errors %}error{% endif %}">
+                            <label for="email" class="col-sm-2">Email</label>
                             <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>{{ form.staff }} Staff</label>
-                                    <label>{{ form.superuser }} Superuser</label>
+                                {{ form.email }}
+                                {{ form.email.errors }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="password" class="col-sm-2">Password</label>
+                            <div class="col-sm-6">
+                                {% if user %}
+                                    <p class="form-control-static set-password-link"><a href="#">Set password...</a></p>
+                                {% endif %}
+                                {{ form.password }}
+                            </div>
+                        </div>
+                        {% if not for_publisher %}
+                            <div class="form-group row">
+                                <label class="col-sm-2">User Type</label>
+                                <div class="col-sm-3">
+                                    {{ form.user_type }}
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="accounts" class="col-sm-2">Publishers</label>
-                            <div class="col-sm-6">
-                                {{ form.publishers }}
+                            <div class="form-group row">
+                                <label class="col-sm-2">Publisher Access</label>
+                                <div class="col-sm-6">
+                                    <div class="superuser-selected" style="display:none">
+                                        <p class="form-control-static superuser-publisher-selection-message">Superusers can access all publishers</p>
+                                    </div>
+                                    <div class="staff-selected" style="display:none">
+                                        <select id="publisher-multiselect" multiple="multiple">
+                                            {% for publisher in all_publishers %}
+                                                <option value="{{ publisher.publisher_id }}" {% if publisher.publisher_id in selected_publisher_ids %}selected="selected"{% endif %}>{{ publisher.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <ul class="selected-publishers-list"></ul>
+                                        <div class="number-of-publishers-selected"></div>
+                                    </div>
+                                </div>
                             </div>
+                        {% endif %}
+                        <div class="form-group submit-row">
+                            <button type="submit" class="btn btn-primary submit-button {% if not user %}disabled{% endif %}" {% if not user %}disabled="disabled"{% endif %}>
+                                {% if user %}
+                                    Save Changes
+                                {% else %}
+                                    Add User
+                                {% endif %}
+                            </button>
+                            <span class="cancel">or <a href="../">Cancel</a></span>
                         </div>
-                    {% endif %}
-                    <div class="form-group submit-row">
-                        <button type="submit" class="btn btn-primary submit-button {% if not user %}disabled{% endif %}" {% if not user %}disabled="disabled"{% endif %}>
-                            {% if user %}
-                                Save Changes
-                            {% else %}
-                                Add User
-                            {% endif %}
-                        </button>
-                        <span class="cancel">or <a href="../">Cancel</a></span>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -89,8 +100,8 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            EditUserPage.init({
-                email: '{{ user.email }}'
+            $('#edit-user-page').edituserpage({
+                publisherNameById: {{ publisher_name_by_id|safe }}
             });
         });
     </script>
