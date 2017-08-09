@@ -4,36 +4,65 @@
 {% block body_class %}audit{% endblock %}
 
 {% block content %}
-    <div class="row header-row">
-        <div class="col-md-8">
-            <h1>Audit Log</h1>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Entity Type</th>
-                        <th>Entity</th>
-                        <th>Event Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log_entry in audit_log %}
-                        <tr>
-                            <td>{{ log_entry.user_email }}</td>
-                            <td>{{ log_entry.action }}</td>
-                            <td>{{ log_entry.entity_type }}</td>
-                            <td>{{ log_entry.entity_id }}</td>
-                            <td>{{ log_entry.event_time }}</td>
-                        </tr>
+    <div id="audit-log-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Audit Log</h1>
+                <span class="lnr lnr-funnel filter-label"></span>
+                <select class="form-control input-sm filter-menu" id="id_time_filter">
+                    {% for choice in time_filter_choices %}
+                        <option value="{{ choice.0 }}" {% if selected_time == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_publisher_filter">
+                    <option value="">All publishers</option>
+                    {% for choice in publisher_filter_choices %}
+                        <option value="{{ choice.0 }}" {% if selected_publisher == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_user_filter">
+                    <option value="">All users</option>
+                    {% for choice in user_filter_choices %}
+                        <option value="{{ choice.0 }}" {% if selected_user == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Publisher</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in audit_logs %}
+                            <tr>
+                                <td>{{ log.event_time|date:"m/d/Y" }}</td>
+                                <td>{{ log.event_time|date:"h:i A" }}</td>
+                                <td>{{ log.user_display_name }}</td>
+                                <td>{{ log.publisher_id }}</td>
+                                <td>{{ log.description }}</td>
+                                <td>{{ log.action }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function () {
+            $('#audit-log-page').auditlogpage();
+        });
+    </script>
 {% endblock %}

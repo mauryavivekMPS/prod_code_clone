@@ -5,7 +5,8 @@ from django import forms
 from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import User, PublisherUser, AuditLog, PublisherMetadata
+from ivetl.models import User, PublisherUser, PublisherMetadata
+from ivetl import utils
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -57,6 +58,8 @@ class AdminUserForm(forms.Form):
 
     def __init__(self, *args, instance=None, for_publisher=None, **kwargs):
         self.for_publisher = for_publisher
+        self.old_publisher_ids = []
+        self.new_publisher_ids = []
         initial = {}
         if instance:
             self.instance = instance
@@ -127,14 +130,17 @@ class AdminUserForm(forms.Form):
                 superuser=superuser,
             )
 
-            publisher_id_list = [id.strip() for id in self.cleaned_data['publishers'].split(",")]
+            existing_publishers = PublisherUser.objects.filter(user_id=user.user_id)
+
+            self.old_publisher_ids = [e.publisher_id for e in existing_publishers]
+            self.new_publisher_ids = [id.strip() for id in self.cleaned_data['publishers'].split(",") if id]
 
             # delete existing
-            for publisher_user in PublisherUser.objects.filter(user_id=user.user_id):
+            for publisher_user in existing_publishers:
                 publisher_user.delete()
 
             # and recreate
-            for publisher_id in publisher_id_list:
+            for publisher_id in self.new_publisher_ids:
                 if publisher_id:
                     PublisherUser.objects.create(user_id=user.user_id, publisher_id=publisher_id)
 
@@ -159,13 +165,41 @@ def edit(request, publisher_id=None, user_id=None):
         form = AdminUserForm(request.POST, instance=user, for_publisher=for_publisher)
         if form.is_valid():
             user = form.save()
-            AuditLog.objects.create(
-                user_id=request.user.user_id,
-                event_time=datetime.datetime.now(),
-                action='edit-user' if user_id else 'create-user',
-                entity_type='user',
-                entity_id=str(user.user_id),
-            )
+
+            if user_id:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    action='edit-user',
+                    publisher_id='system',
+                    description='Edit user %s' % user.email,
+                )
+            else:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    action='create-user',
+                    publisher_id='system',
+                    description='Create user %s' % user.email,
+                )
+
+            old_publisher_ids = set(form.old_publisher_ids)
+            new_publisher_ids = set(form.new_publisher_ids)
+
+            for deleted_publisher_id in old_publisher_ids - new_publisher_ids:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=deleted_publisher_id,
+                    action='revoked-user-access',
+                    description='Revoked access to %s for %s' % (deleted_publisher_id, user.email),
+                )
+
+            for added_publisher_id in new_publisher_ids - old_publisher_ids:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=added_publisher_id,
+                    action='granted-user-access',
+                    description='Granted access to %s for %s' % (added_publisher_id, user.email),
+                )
+
             if for_publisher:
                 return HttpResponseRedirect(reverse('publishers.users', kwargs={'publisher_id': for_publisher.publisher_id}))
             else:
@@ -176,9 +210,11 @@ def edit(request, publisher_id=None, user_id=None):
     if not for_publisher:
         all_publishers = PublisherMetadata.objects.all()
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
+        publisher_name_by_id = {p.publisher_id: p.name for p in request.user.get_accessible_publishers()}
     else:
         all_publishers = None
         accessible_publisher_ids = None
+        publisher_name_by_id = {}
 
     if user:
         selected_publisher_ids = [p.publisher_id for p in PublisherUser.objects.filter(user_id=user.user_id)]
@@ -192,4 +228,5 @@ def edit(request, publisher_id=None, user_id=None):
         'all_publishers': all_publishers,
         'accessible_publisher_ids': accessible_publisher_ids,
         'selected_publisher_ids': selected_publisher_ids,
+        'publisher_name_by_id': publisher_name_by_id,
     })

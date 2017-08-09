@@ -65,19 +65,20 @@
                             <div class="form-group row">
                                 <label class="col-sm-2">Publisher Access</label>
                                 <div class="col-sm-6">
-                                    <select id="publisher-multiselect" multiple="multiple">
-                                        {% for publisher in all_publishers %}
-                                            <option value="{{ publisher.publisher_id }}" {% if publisher.publisher_id in selected_publisher_ids %}selected="selected"{% endif %}>{{ publisher.name }}</option>
-                                        {% endfor %}
-                                    </select>
+                                    <div class="superuser-selected" style="display:none">
+                                        <p class="form-control-static superuser-publisher-selection-message">Superusers can access all publishers</p>
+                                    </div>
+                                    <div class="staff-selected" style="display:none">
+                                        <select id="publisher-multiselect" multiple="multiple">
+                                            {% for publisher in all_publishers %}
+                                                <option value="{{ publisher.publisher_id }}" {% if publisher.publisher_id in selected_publisher_ids %}selected="selected"{% endif %}>{{ publisher.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <ul class="selected-publishers-list"></ul>
+                                        <div class="number-of-publishers-selected"></div>
+                                    </div>
                                 </div>
                             </div>
-{#                            <div class="form-group row">#}
-{#                                <label for="accounts" class="col-sm-2">Publishers</label>#}
-{#                                <div class="col-sm-6">#}
-{#                                    {{ form.publishers }}#}
-{#                                </div>#}
-{#                            </div>#}
                         {% endif %}
                         <div class="form-group submit-row">
                             <button type="submit" class="btn btn-primary submit-button {% if not user %}disabled{% endif %}" {% if not user %}disabled="disabled"{% endif %}>
@@ -99,7 +100,9 @@
 {% block page_scripts %}
     <script>
         $(function() {
-            $('#edit-user-page').edituserpage();
+            $('#edit-user-page').edituserpage({
+                publisherNameById: {{ publisher_name_by_id|safe }}
+            });
         });
     </script>
 {% endblock %}

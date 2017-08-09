@@ -2,9 +2,10 @@ import datetime
 import traceback
 import requests
 from ivetl.common import common
-from ivetl.models import PublisherMetadata, AuditLog, SingletonTaskStatus
+from ivetl.models import PublisherMetadata, SingletonTaskStatus
 from ivetl.connectors import TableauConnector
 from ivetl.celery import app
+from ivetl import utils
 
 
 @app.task
@@ -39,12 +40,11 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
             publisher.reports_user_id = user_id
             publisher.save()
 
-            AuditLog.objects.create(
+            utils.add_audit_log(
                 user_id=initiating_user_id,
-                event_time=datetime.datetime.now(),
+                publisher_id=publisher_id,
                 action='setup-reports',
-                entity_type='publisher',
-                entity_id=publisher_id,
+                description='Setup reports for %s' % publisher_id,
             )
         else:
             print('Skipping initial setup')
@@ -127,13 +127,12 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
                 print(e.response.content)
                 continue
 
-        AuditLog.objects.create(
-            user_id=initiating_user_id,
-            event_time=datetime.datetime.now(),
-            action='update-' + item_type,
-            entity_type=item_type,
-            entity_id=item_id,
-        )
+            utils.add_audit_log(
+                user_id=initiating_user_id,
+                publisher_id=publisher.publisher_id,
+                action='update-' + item_type,
+                description='Update datasource %s' % item_id,
+            )
 
         status.end_time = datetime.datetime.now()
         status.status = 'completed'

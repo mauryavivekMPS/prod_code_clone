@@ -10,10 +10,11 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherMetadata, PublisherUser, AuditLog, PublisherJournal, ScopusApiKey, Demo
+from ivetl.models import PublisherMetadata, PublisherUser, PublisherJournal, ScopusApiKey, Demo
 from ivetl.tasks import update_reports_for_publisher
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
+from ivetl import utils
 from ivweb.app.views import utils as view_utils
 from .pipelines import get_pending_files_for_demo, move_demo_files_to_pending
 
@@ -449,13 +450,20 @@ def edit(request, publisher_id=None):
                         publisher_id=publisher.publisher_id,
                     )
 
-                AuditLog.objects.create(
-                    user_id=request.user.user_id,
-                    event_time=datetime.datetime.now(),
-                    action='create-publisher' if is_new else 'edit-publisher',
-                    entity_type='publisher',
-                    entity_id=publisher.publisher_id,
-                )
+                if is_new:
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        publisher_id=publisher.publisher_id,
+                        action='create-publisher',
+                        description='Created publisher %s' % publisher_id,
+                    )
+                else:
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        publisher_id=publisher.publisher_id,
+                        action='edit-publisher',
+                        description='Edited publisher %s' % publisher_id,
+                    )
 
                 # move any uploaded files across if this was a conversion
                 if publisher.demo:

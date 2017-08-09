@@ -6,7 +6,7 @@ import datetime
 import boto3
 from operator import attrgetter
 from dateutil.rrule import rrule, MONTHLY
-from ivetl.models import SystemGlobal, PipelineStatus, PipelineTaskStatus
+from ivetl.models import SystemGlobal, PipelineStatus, PipelineTaskStatus, AuditLogByUser, AuditLogByPublisher, AuditLogByTime
 from ivetl.common import common
 
 
@@ -167,3 +167,32 @@ def download_files_from_s3_dir(bucket, dir_path):
         local_file = download_file_from_s3(bucket, key)
         local_files.append(local_file)
     return local_files
+
+
+def add_audit_log(user_id='system', publisher_id='system', action='', description=''):
+    event_time = datetime.datetime.now()
+
+    AuditLogByUser.objects.create(
+        user_id=user_id,
+        event_time=event_time,
+        action=action,
+        publisher_id=publisher_id,
+        description=description,
+    )
+
+    AuditLogByPublisher.objects.create(
+        publisher_id=publisher_id,
+        event_time=event_time,
+        action=action,
+        user_id=user_id,
+        description=description,
+    )
+
+    AuditLogByTime.objects.create(
+        month=event_time.strftime('%Y%m'),
+        event_time=event_time,
+        action=action,
+        publisher_id=publisher_id,
+        user_id=user_id,
+        description=description,
+    )

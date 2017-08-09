@@ -4,7 +4,6 @@ import os
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
 import re
-import datetime
 import stat
 from collections import defaultdict
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
@@ -12,7 +11,8 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.common import common
-from ivetl.models import PublisherMetadata, User, AuditLog
+from ivetl.models import PublisherMetadata, User
+from ivetl import utils
 
 
 class IvetlAuthorizer(DummyAuthorizer):
@@ -144,15 +144,12 @@ class IvetlHandler(FTPHandler):
 
                 self.log('Finished starting pipeline: %s' % pipeline['id'])
 
-                AuditLog.objects.create(
+                utils.add_audit_log(
                     user_id=user.user_id,
-                    event_time=datetime.datetime.now(),
+                    publisher_id=publisher_id,
                     action='run-pipeline',
-                    entity_type='pipeline',
-                    entity_id=pipeline['id'],
+                    description='Run pipeline from FTP: %s' % pipeline_id['id'],
                 )
-
-                self.log('Written audit log')
 
 if __name__ == '__main__':
     # initialize the database
