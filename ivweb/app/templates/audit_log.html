@@ -42,16 +42,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for log_entry in audit_logs %}
+                        {% if audit_logs %}
+                            {% for log_entry in audit_logs %}
+                                <tr>
+                                    <td>{{ log_entry.event_time|date:"m/d/Y" }}</td>
+                                    <td>{{ log_entry.event_time|date:"h:i A" }}</td>
+                                    <td>{{ log_entry.user_display_name }}</td>
+                                    <td>{{ log_entry.publisher_id }}</td>
+                                    <td>{{ log_entry.description }}</td>
+                                    <td>{{ log_entry.action }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
                             <tr>
-                                <td>{{ log_entry.event_time|date:"m/d/Y" }}</td>
-                                <td>{{ log_entry.event_time|date:"h:i A" }}</td>
-                                <td>{{ log_entry.user_display_name }}</td>
-                                <td>{{ log_entry.publisher_id }}</td>
-                                <td>{{ log_entry.description }}</td>
-                                <td>{{ log_entry.action }}</td>
+                                <td colspan="6">No matching entries</td>
                             </tr>
-                        {% endfor %}
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
