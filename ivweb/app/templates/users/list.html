@@ -33,6 +33,7 @@
                         <th>{% sort_column "Email" "email" sort_key sort_descending %}</th>
                         <th>{% sort_column "First Name" "first_name" sort_key sort_descending %}</th>
                         <th>{% sort_column "Last Name" "last_name" sort_key sort_descending %}</th>
+                        <th class="text-center">Publisher Staff</th>
                         <th class="text-center">HW Staff</th>
                         <th class="text-center">HW Superuser</th>
                     </tr>
@@ -57,6 +58,7 @@
                             </td>
                             <td>{{ user.first_name }}</td>
                             <td>{{ user.last_name }}</td>
+                            <td class="text-center">{% checkmark user.is_publisher_staff %}</td>
                             <td class="text-center">{% if not user.superuser %}{% checkmark user.staff %}{% endif %}</td>
                             <td class="text-center">{% checkmark user.superuser %}</td>
                         </tr>
