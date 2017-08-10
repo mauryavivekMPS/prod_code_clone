@@ -3498,11 +3498,23 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
 #edit-user-page {
     .multiselect-container.dropdown-menu {
         margin-top: 7px;
-        padding-bottom: 7px;
+        padding-top: 1px;
+        padding-bottom: 2px;
+        min-width: 400px;
+
+        li {
+            padding-top: 1px;
+        }
 
         .active > a, .active > a:hover, .active > a:focus {
-            background-color: #eee;
+            background-color: #efefef;
             color: #333;
+        }
+
+        .form-horizontal .checkbox {
+            min-height: 30px;
+            padding-top: 6px;
+            padding-bottom: 6px;
         }
     }
 
