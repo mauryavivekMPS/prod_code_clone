@@ -33,25 +33,31 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>User</th>
-                            <th>Publisher</th>
-                            <th>Description</th>
-                            <th>Action</th>
+                            <th class="date-col">Date</th>
+                            <th class="time-col">Time</th>
+                            <th class="user-col">User</th>
+                            <th class="publisher-col">Publisher</th>
+                            <th class="description-col">Description</th>
+                            <th class="action-col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for log in audit_logs %}
+                        {% if audit_logs %}
+                            {% for log_entry in audit_logs %}
+                                <tr>
+                                    <td class="date-col">{{ log_entry.event_time|date:"m/d/Y" }}</td>
+                                    <td class="time-col">{{ log_entry.event_time|date:"h:i A" }}</td>
+                                    <td class="user-col">{{ log_entry.user_display_name }}</td>
+                                    <td class="publisher-col">{{ log_entry.publisher_id }}</td>
+                                    <td class="description-col">{{ log_entry.description }}</td>
+                                    <td class="action-col">{{ log_entry.action }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
                             <tr>
-                                <td>{{ log.event_time|date:"m/d/Y" }}</td>
-                                <td>{{ log.event_time|date:"h:i A" }}</td>
-                                <td>{{ log.user_display_name }}</td>
-                                <td>{{ log.publisher_id }}</td>
-                                <td>{{ log.description }}</td>
-                                <td>{{ log.action }}</td>
+                                <td colspan="6">No matching entries</td>
                             </tr>
-                        {% endfor %}
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

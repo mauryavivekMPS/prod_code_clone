@@ -70,3 +70,7 @@ class User(Model):
         else:
             publisher_id_list = [p.publisher_id for p in PublisherUser.objects.filter(user_id=self.user_id)]
             return PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
+
+    @property
+    def is_publisher_staff(self):
+        return not self.staff and not self.superuser
