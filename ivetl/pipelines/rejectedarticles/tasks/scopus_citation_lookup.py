@@ -37,8 +37,10 @@ class ScopusCitationLookupTask(Task):
         if already_processed:
             tlogger.info('Found %s existing items to reuse' % len(already_processed))
 
-        target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
+        target_file = codecs.open(target_file_name, 'a', 'utf-16')
+
+        if not already_processed:
+            target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
 
         count = 0
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
