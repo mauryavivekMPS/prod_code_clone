@@ -44,6 +44,10 @@ def show(request):
             event_time__lte=end_date,
         ).fetch_size(1000).limit(100000))
 
+        # do a manual filter if both user and publisher are selected
+        if selected_user:
+            audit_logs = [a for a in audit_logs if str(a.user_id) == selected_user]
+
     elif selected_user:
         audit_logs = list(AuditLogByUser.objects.filter(
             user_id=selected_user,
