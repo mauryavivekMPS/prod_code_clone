@@ -20,7 +20,7 @@
         "jquery-pjax": "latest",
         "jquery-number": "latest",
         "jquery-cookie": "~1.4.1",
-        "moment": "latest",
+        "moment": "2.18.1",
         "nvd3": "~1.8.1",
         "bootstrap-datepicker": "~1.6.0",
         "bootstrap3-typeahead": "~4.0.1",

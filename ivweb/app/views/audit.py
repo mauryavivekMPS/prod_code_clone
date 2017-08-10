@@ -38,18 +38,22 @@ def show(request):
         start_date = datetime.datetime(2016, 1, 1)  # audit logging epoch
 
     if selected_publisher:
-        audit_logs = AuditLogByPublisher.objects.filter(
+        audit_logs = list(AuditLogByPublisher.objects.filter(
             publisher_id=selected_publisher,
             event_time__gte=start_date,
             event_time__lte=end_date,
-        ).fetch_size(1000).limit(100000)
+        ).fetch_size(1000).limit(100000))
+
+        # do a manual filter if both user and publisher are selected
+        if selected_user:
+            audit_logs = [a for a in audit_logs if str(a.user_id) == selected_user]
 
     elif selected_user:
-        audit_logs = AuditLogByUser.objects.filter(
+        audit_logs = list(AuditLogByUser.objects.filter(
             user_id=selected_user,
             event_time__gte=start_date,
             event_time__lte=end_date,
-        ).fetch_size(1000).limit(100000)
+        ).fetch_size(1000).limit(100000))
 
     else:
         start_of_start_date_month = datetime.datetime(start_date.year, start_date.month, 1)

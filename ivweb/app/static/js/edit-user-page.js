@@ -22,6 +22,7 @@ $.widget("custom.edituserpage", {
                 button: '<a href="#" class="multiselect dropdown-toggle form-control-static" data-toggle="dropdown">Add/remove publishers...</a>'
             },
             buttonClass: '',
+            maxHeight: 338,
             onChange: function () {
                 $('#id_publishers').val(publisherMultiselect.val().join(','));
                 self._updateSelectedPublisherList();
@@ -40,12 +41,10 @@ $.widget("custom.edituserpage", {
         if ($('#id_user_type').val() === 'hw-superuser') {
             $('.staff-selected').hide();
             $('.superuser-selected').show();
-            console.log('show superuser');
         }
         else {
             $('.superuser-selected').hide();
             $('.staff-selected').show();
-            console.log('show staff');
         }
     },
 
