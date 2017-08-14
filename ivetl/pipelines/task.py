@@ -8,6 +8,7 @@ from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.pipelines.pipeline import Pipeline
 from ivetl.models import PipelineStatus, PipelineTaskStatus, PublisherMetadata
+from ivetl import utils
 
 
 class Task(BaseTask):
@@ -382,7 +383,16 @@ class Task(BaseTask):
                 shutil.move(source_file, work_folder)
 
             # compile a list of files for the next task
-            files.append(os.path.join(work_folder, os.path.basename(source_file)))
+            new_file_path = os.path.join(work_folder, os.path.basename(source_file))
+            files.append(new_file_path)
+
+            new_file_url = 'file://' + new_file_path
+
+            utils.add_audit_log(
+                publisher_id=publisher_id,
+                action='process-uploaded-file',
+                description='Process uploaded file: %s' % new_file_url,
+            )
 
         task_args['input_files'] = files
         task_args['count'] = total_count

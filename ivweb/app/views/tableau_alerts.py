@@ -12,6 +12,7 @@ from ivetl.models import TableauAlert, TableauNotification, TableauNotificationB
 from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE, process_alert
 from ivweb.app.views import utils as view_utils
 from ivetl.common import common
+from ivetl import utils
 
 log = logging.getLogger(__name__)
 
@@ -217,8 +218,20 @@ def edit(request, alert_id=None):
                 alert.save()
 
                 if alert.archived:
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        publisher_id=alert.publisher_id,
+                        action='archive-alert',
+                        description='Archive alert: %s (%s)' % (alert.name, alert.alert_id)
+                    )
                     return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=archive-alert&filter=archived')
                 else:
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        publisher_id=alert.publisher_id,
+                        action='unarchive-alert',
+                        description='Unarchive alert: %s (%s)' % (alert.name, alert.alert_id)
+                    )
                     return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=unarchive-alert&filter=active')
 
         form = TableauAlertForm(request.POST, instance=alert, user=request.user)
@@ -229,8 +242,20 @@ def edit(request, alert_id=None):
                 process_alert(saved_alert)
 
             if new:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=alert.publisher_id,
+                    action='create-alert',
+                    description='Create alert: %s (%s)' % (alert.name, alert.alert_id)
+                )
                 return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=new-success')
             else:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=alert.publisher_id,
+                    action='edit-alert',
+                    description='Edit alert: %s (%s)' % (alert.name, alert.alert_id)
+                )
                 return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=save-success')
 
     else:
