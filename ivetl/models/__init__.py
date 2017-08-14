@@ -51,3 +51,4 @@ from ivetl.models.singleton_task_status import SingletonTaskStatus
 from ivetl.models.workbook_url import WorkbookUrl
 from ivetl.models.value_mapping import ValueMapping
 from ivetl.models.value_mapping_display import ValueMappingDisplay
+from ivetl.models.uploaded_file import UploadedFile

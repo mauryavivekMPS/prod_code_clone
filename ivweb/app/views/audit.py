@@ -68,14 +68,10 @@ def show(request):
                 event_time__lte=end_date,
             ).fetch_size(1000).limit(100000)))
 
+    # add user display names to each entry
     user_id_to_display_name = {str(u.user_id): u.display_name for u in User.objects.all()}
     for log_entry in audit_logs:
-
-        # add user name
         setattr(log_entry, 'user_display_name', user_id_to_display_name[str(log_entry.user_id)])
-
-        # expand any file urls
-        setattr(log_entry, 'description_html', utils.urlify_file_url(log_entry.description))
 
     all_publisher_filter_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
     all_publisher_filter_choices.append(('system', '(system) System'))

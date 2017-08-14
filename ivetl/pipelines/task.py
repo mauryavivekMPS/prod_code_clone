@@ -4,10 +4,11 @@ import csv
 import sys
 import shutil
 from time import time
+from django.core.urlresolvers import reverse
 from ivetl.common import common
 from ivetl.pipelines.base_task import BaseTask
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import PipelineStatus, PipelineTaskStatus, PublisherMetadata
+from ivetl.models import PipelineStatus, PipelineTaskStatus, PublisherMetadata, UploadedFile, User
 from ivetl import utils
 
 
@@ -383,15 +384,51 @@ class Task(BaseTask):
                 shutil.move(source_file, work_folder)
 
             # compile a list of files for the next task
-            new_file_path = os.path.join(work_folder, os.path.basename(source_file))
+            new_file_name = os.path.basename(source_file)
+            new_file_path = os.path.join(work_folder, new_file_name)
             files.append(new_file_path)
 
-            new_file_url = 'file://' + new_file_path
+            initiating_user_id = None
+            try:
+                pipeline_status = PipelineStatus.objects.get(
+                    publisher_id=publisher_id,
+                    product_id=product_id,
+                    pipeline_id=pipeline_id,
+                    job_id=job_id,
+                )
+                if pipeline_status.user_email:
+                    initiating_user = User.objects.get(
+                        email=pipeline_status.user_email,
+                    )
+                    initiating_user_id = initiating_user.user_id
+
+            except (PipelineStatus.DoesNotExist, User.DoesNotExist):
+                pass
+
+            uploaded_file_record = UploadedFile.objects.create(
+                publisher_id=publisher_id,
+                processed_time=datetime.datetime.now(),
+                product_id=product_id,
+                pipeline_id=pipeline_id,
+                job_id=job_id,
+                path=new_file_path,
+                user_id=initiating_user_id,
+            )
+
+            file_viewer_url = reverse('uploaded_files.download', kwargs={
+                'publisher_id': publisher_id,
+                'uploaded_file_id': uploaded_file_record.uploaded_file_id,
+            })
+            new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, new_file_name)
+
+            if not initiating_user_id:
+                initiating_user_id = 'system'
 
             utils.add_audit_log(
                 publisher_id=publisher_id,
+                user_id=initiating_user_id,
                 action='process-uploaded-file',
-                description='Process uploaded file: %s' % new_file_url,
+                description='Process uploaded file: %s' % new_file_link,
             )
 
         task_args['input_files'] = files

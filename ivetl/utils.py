@@ -1,6 +1,5 @@
 import codecs
 import os
-import re
 import uuid
 import humanize
 import datetime
@@ -197,8 +196,3 @@ def add_audit_log(user_id='system', publisher_id='system', action='', descriptio
         user_id=user_id,
         description=description,
     )
-
-file_url_re = re.compile("file:\/\/.+")
-
-def urlify_file_url(value):
-    return file_url_re.sub(r'<a href="\1">\1</a>', value)
