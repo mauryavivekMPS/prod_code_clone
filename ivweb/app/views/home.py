@@ -13,9 +13,6 @@ def home(request):
     if request.user.superuser:
         return HttpResponseRedirect(reverse('recent_jobs'))
 
-    elif request.user.staff:
-        return HttpResponseRedirect(reverse('publishers.list_demos'))
-
     else:
         messages = []
         running_publisher = ''
