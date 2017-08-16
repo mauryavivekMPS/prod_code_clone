@@ -68,9 +68,6 @@ class GetScopusArticleCitations(Task):
             thread_id = threading.get_ident()
 
             for article in articles_for_this_thread:
-                tlogger.info('%s thread has article %s %s' % (thread_id, article.article_doi, article.article_scopus_id))
-
-            for article in articles_for_this_thread:
 
                 with count_lock:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
@@ -79,7 +76,7 @@ class GetScopusArticleCitations(Task):
 
                 doi = article.article_doi
 
-                tlogger.info('%s %s %s %s Starting on article' % (thread_id, thread_article_count, doi, article.article_scopus_id))
+                tlogger.info('Starting on article %s (%s)' % (doi, article.article_scopus_id))
 
                 if doi in already_processed:
                     continue
@@ -96,7 +93,7 @@ class GetScopusArticleCitations(Task):
                         return True
 
                 if article.article_scopus_id is None or article.article_scopus_id == '':
-                    tlogger.info('%s %s %s %s No scopus ID, skipping' % (thread_id, thread_article_count, doi, article.article_scopus_id))
+                    tlogger.info('No scopus ID, skipping %s' % doi)
                     continue
 
                 try:
@@ -112,21 +109,21 @@ class GetScopusArticleCitations(Task):
                         article.scopus_citation_count = num_citations
                         article.save()
 
-                    tlogger.info('%s %s %s %s Total citations found: %s' % (thread_id, thread_article_count, doi, article.article_scopus_id, num_citations))
+                    tlogger.info('Total citations found for %s (%s): %s' % (doi, article.article_scopus_id, num_citations))
 
                     if skipped:
-                        tlogger.info('%s %s %s %s No new/unprocessed citations found, skipping' % (thread_id, thread_article_count, doi, article.article_scopus_id))
+                        tlogger.info('No new/unprocessed citations found for %s (%s), skipping' % (doi, article.article_scopus_id))
                     else:
-                        tlogger.info('%s %s %s %s New citations to be processed: %s' % (thread_id, thread_article_count, doi, article.article_scopus_id, len(citations)))
+                        tlogger.info('New citations to be processed for %s (%s): %s' % (doi, article.article_scopus_id, len(citations)))
                         row = "%s\t%s\t%s\n" % (publisher_id, doi, json.dumps(citations))
                         target_file.write(row)
 
                 except MaxTriesAPIError:
-                    tlogger.info('%s %s %s %s Scopus API failed more than MaxTries, skipping' % (thread_id, thread_article_count, doi, article.article_scopus_id))
+                    tlogger.info('Scopus API failed more than MaxTries for %s (%s), skipping' % (doi, article.article_scopus_id))
                     error_count += 1
 
                 if error_count >= self.MAX_ERROR_COUNT:
-                    tlogger.info('%s %s %s %s Scopus API failed more than MaxTries, skipping' % (thread_id, thread_article_count, doi, article.article_scopus_id))
+                    tlogger.info('Scopus API failed more than MaxTries for %s (%s), skipping' % (doi, article.article_scopus_id))
                     raise MaxTriesAPIError(self.MAX_ERROR_COUNT)
 
         num_threads = 10
