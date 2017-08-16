@@ -65,7 +65,6 @@ class GetScopusArticleCitations(Task):
             error_count = 0
 
             thread_article_count = 0
-            thread_id = threading.get_ident()
 
             for article in articles_for_this_thread:
 
