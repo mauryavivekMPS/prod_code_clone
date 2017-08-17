@@ -1,6 +1,6 @@
 from ivetl.pipelines.publishedarticles.tasks.get_published_articles import GetPublishedArticlesTask
 from ivetl.pipelines.publishedarticles.tasks.get_highwire_metadata import GetHighWireMetadataTask
-from ivetl.pipelines.publishedarticles.tasks.mendeley_lookup_task import MendeleyLookupTask
+from ivetl.pipelines.publishedarticles.tasks.mendeley_lookup import MendeleyLookupTask
 from ivetl.pipelines.publishedarticles.tasks.insert_published_articles_into_cassandra import InsertPublishedArticlesIntoCassandra
 from ivetl.pipelines.publishedarticles.tasks.scopus_id_lookup import ScopusIdLookupTask
 from ivetl.pipelines.publishedarticles.tasks.resolve_published_articles_data import ResolvePublishedArticlesData
