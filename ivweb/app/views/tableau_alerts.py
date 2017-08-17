@@ -156,6 +156,7 @@ class TableauAlertForm(forms.Form):
             alert = TableauAlert.objects.create(
                 publisher_id=publisher_id,
                 template_id=template_id,
+                created=datetime.datetime.now(),
                 created_by=self.user.user_id,
             )
 
