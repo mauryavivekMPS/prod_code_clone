@@ -208,33 +208,6 @@ def edit(request, alert_id=None):
             single_publisher_user = True
 
     if request.method == 'POST':
-        if 'archive' in request.POST:
-            if alert:
-                alert.archived = True if request.POST['archive'] == 'on' else False
-
-                # for disabled for archived alerts
-                if alert.archived:
-                    alert.enabled = False
-
-                alert.save()
-
-                if alert.archived:
-                    utils.add_audit_log(
-                        user_id=request.user.user_id,
-                        publisher_id=alert.publisher_id,
-                        action='archive-alert',
-                        description='Archive alert: %s (%s)' % (alert.name, alert.alert_id)
-                    )
-                    return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=archive-alert&filter=archived')
-                else:
-                    utils.add_audit_log(
-                        user_id=request.user.user_id,
-                        publisher_id=alert.publisher_id,
-                        action='unarchive-alert',
-                        description='Unarchive alert: %s (%s)' % (alert.name, alert.alert_id)
-                    )
-                    return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=unarchive-alert&filter=active')
-
         form = TableauAlertForm(request.POST, instance=alert, user=request.user)
         if form.is_valid():
             saved_alert = form.save()
@@ -367,6 +340,13 @@ def delete_alert(request):
         yesterday = datetime.datetime.today() - datetime.timedelta(1)
         for n in TableauNotification.objects.filter(alert_id=alert_id):
             n.update(expiration_date=yesterday)
+
+    utils.add_audit_log(
+        user_id=request.user.user_id,
+        publisher_id=alert.publisher_id,
+        action='archive-alert',
+        description='Archive alert: %s (%s)' % (alert.name, alert.alert_id)
+    )
 
     return HttpResponse('ok')
 

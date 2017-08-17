@@ -29,7 +29,7 @@ def download(request, publisher_id, uploaded_file_id):
         uploaded_file_id=uploaded_file_id,
     )
 
-    with open(uploaded_file_record.path, 'r') as f:
+    with open(uploaded_file_record.path, 'rb') as f:
         response = HttpResponse(f.read())
 
     response['content_type'] = 'text/csv'
