@@ -19,6 +19,7 @@ class TableauAlert(Model):
     send_with_no_data = columns.Boolean()
     enabled = columns.Boolean()
     archived = columns.Boolean(index=True)
+    created = columns.DateTime()
     created_by = columns.UUID(index=True)
 
     def _clean_quantitative_filter_name(self, name):
