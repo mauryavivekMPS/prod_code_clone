@@ -104,7 +104,7 @@ class SassConnector(BaseConnector):
                                 sub_article_type = sub_article_type.replace('\r', ' ')
                                 sub_article_type = sub_article_type.title()
 
-                        if (publisher_id == 'pnas' or publisher_id == 'rup') and article_type and sub_article_type:
+                        if (publisher_id == 'pnas' or publisher_id == 'rup' or publisher_id == 'sfn') and article_type and sub_article_type:
 
                             if publisher_id == 'rup':
                                 article_type = sub_article_type
