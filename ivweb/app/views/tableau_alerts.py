@@ -244,17 +244,17 @@ def edit(request, alert_id=None):
             if new:
                 utils.add_audit_log(
                     user_id=request.user.user_id,
-                    publisher_id=alert.publisher_id,
+                    publisher_id=saved_alert.publisher_id,
                     action='create-alert',
-                    description='Create alert: %s (%s)' % (alert.name, alert.alert_id)
+                    description='Create alert: %s (%s)' % (saved_alert.name, saved_alert.alert_id)
                 )
                 return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=new-success')
             else:
                 utils.add_audit_log(
                     user_id=request.user.user_id,
-                    publisher_id=alert.publisher_id,
+                    publisher_id=saved_alert.publisher_id,
                     action='edit-alert',
-                    description='Edit alert: %s (%s)' % (alert.name, alert.alert_id)
+                    description='Edit alert: %s (%s)' % (saved_alert.name, saved_alert.alert_id)
                 )
                 return HttpResponseRedirect(reverse('tableau_alerts.list') + '?from=save-success')
 
