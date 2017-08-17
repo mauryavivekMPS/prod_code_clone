@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from ivweb.app.views import auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers, pipelines, sendgrid, value_mappings
+from ivweb.app.views import (auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers,
+                             pipelines, sendgrid, value_mappings, uploaded_files)
 
 urlpatterns = [
 
@@ -59,6 +60,10 @@ urlpatterns = [
     # value mappings
     url(r'^metadatamappings/$', value_mappings.list_mappings, name='value_mappings.list_mappings'),
     url(r'^metadatamappings/(?P<publisher_id>[\w]+)/(?P<mapping_type>[\w]+)/$', value_mappings.edit, name='value_mappings.edit'),
+
+    # uploaded files
+    url(r'^uploadedfiles/$', uploaded_files.list_files, name='uploaded_files.list_files'),
+    url(r'^uploadedfiles/(?P<publisher_id>[\w]+)/(?P<uploaded_file_id>[\w\-]+)/$', uploaded_files.download, name='uploaded_files.download'),
 
     # demos
     url(r'^demos/$', publishers.list_demos, name='publishers.list_demos'),

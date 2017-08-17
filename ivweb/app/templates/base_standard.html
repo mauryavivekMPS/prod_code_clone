@@ -71,15 +71,15 @@
                     <li class="publisher_menu_item">
                         <a href="{% url 'publishers.list' %}">Publishers</a>
                     </li>
-                    <li class="demo_menu_item">
-                        <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>
-                    </li>
+{#                    <li class="demo_menu_item">#}
+{#                        <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>#}
+{#                    </li>#}
                     <li class="user_menu_item">
                         <a href="{% url 'users.list' %}">Users</a>
                     </li>
-                    <li class="journals_menu_item">
-                        <a href="{% url 'journals.list' %}">Journals</a>
-                    </li>
+{#                    <li class="journals_menu_item">#}
+{#                        <a href="{% url 'journals.list' %}">Journals</a>#}
+{#                    </li>#}
 {#                    <li class="notification_menu_item">#}
 {#                        <a href="{% url 'notifications.list' %}">Alert Notifications</a>#}
 {#                    </li>#}
@@ -97,6 +97,9 @@
                     </li>
                     <li class="uptime_overrides_menu_item">
                         <a href="{% url 'uptime.list_overrides' %}">Uptime Overrides</a>
+                    </li>
+                    <li class="uploaded_files_menu_item">
+                        <a href="{% url 'uploaded_files.list_files' %}">Uploaded Files</a>
                     </li>
                     <li class="value_mappings_menu_item">
                         <a href="{% url 'value_mappings.list_mappings' %}">Metadata Mappings</a>
@@ -124,15 +127,9 @@
                 {% endfor %}
             {% else %}
                 <ul>
-                    {% if request.user.staff %}
-                        <li class="demo_menu_item">
-                            <a href="{% url 'publishers.list_demos' %}">Demos</a>
-                        </li>
-                    {% else %}
-                        <li class="home_menu_item">
-                            <a href="{% url 'home' %}">Dashboard</a>
-                        </li>
-                    {% endif %}
+                    <li class="home_menu_item">
+                        <a href="{% url 'home' %}">Dashboard</a>
+                    </li>
 {#                    <li class="journals_menu_item">#}
 {#                        <a href="{% url 'journals.list' %}">Citable Sections</a>#}
 {#                    </li>#}

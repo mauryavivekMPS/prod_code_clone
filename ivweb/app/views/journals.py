@@ -4,6 +4,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import PublisherJournal, AttributeValues, CitableSection, PublisherMetadata
+from ivetl import utils
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -99,14 +100,38 @@ def choose_citable_sections(request, publisher_id=None, uid=None):
         from_value = request.POST.get('from')
 
         # delete existing citable records
-        CitableSection.objects.filter(publisher_id=publisher_id, journal_issn=journal.electronic_issn).delete()
+        existing_section_records = CitableSection.objects.filter(publisher_id=publisher_id, journal_issn=journal.electronic_issn)
+        existing_sections = set([e.article_type for e in existing_section_records])
+        for section in existing_section_records:
+            section.delete()
+
+        new_sections = set([p[8:] for p in request.POST if p.startswith('section_')])
 
         # add all new ones
-        for section in [p[8:] for p in request.POST if p.startswith('section_')]:
+        for section in new_sections:
             CitableSection.objects.create(
                 publisher_id=publisher_id,
                 journal_issn=journal.electronic_issn,
                 article_type=section
+            )
+
+        added_sections = list(new_sections - existing_sections)
+        deleted_sections = list(existing_sections - new_sections)
+
+        if added_sections:
+            utils.add_audit_log(
+                user_id=request.user.user_id,
+                publisher_id=publisher_id,
+                action='add-citable_sections',
+                description='Add citable sections: %s' % ", ".join(added_sections)
+            )
+
+        if deleted_sections:
+            utils.add_audit_log(
+                user_id=request.user.user_id,
+                publisher_id=publisher_id,
+                action='delete-citable_sections',
+                description='Delete citable sections: %s' % ", ".join(deleted_sections)
             )
 
         if from_value == 'publisher-journals':

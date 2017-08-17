@@ -13,3 +13,4 @@ class Alert(Model):
     emails = columns.List(columns.Text())
     enabled = columns.Boolean()
     archived = columns.Boolean(index=True)
+    created = columns.DateTime()

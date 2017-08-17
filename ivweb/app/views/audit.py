@@ -68,6 +68,7 @@ def show(request):
                 event_time__lte=end_date,
             ).fetch_size(1000).limit(100000)))
 
+    # add user display names to each entry
     user_id_to_display_name = {str(u.user_id): u.display_name for u in User.objects.all()}
     for log_entry in audit_logs:
         setattr(log_entry, 'user_display_name', user_id_to_display_name[str(log_entry.user_id)])

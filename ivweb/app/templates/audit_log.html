@@ -49,7 +49,7 @@
                                     <td class="time-col">{{ log_entry.event_time|date:"h:i A" }}</td>
                                     <td class="user-col">{{ log_entry.user_display_name }}</td>
                                     <td class="publisher-col">{{ log_entry.publisher_id }}</td>
-                                    <td class="description-col">{{ log_entry.description }}</td>
+                                    <td class="description-col">{{ log_entry.description|safe }}</td>
                                     <td class="action-col">{{ log_entry.action }}</td>
                                 </tr>
                             {% endfor %}

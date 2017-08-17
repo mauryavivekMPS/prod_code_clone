@@ -1,0 +1,48 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Uploaded Files{% endblock %}
+{% block body_class %}uploaded_files{% endblock %}
+
+{% block content %}
+    <div id="audit-log-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Uploaded Files</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Publisher</th>
+                        <th>Pipeline</th>
+                        <th>File</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if files %}
+                        {% for file in files %}
+                            <tr>
+                                <td>{{ file.processed_time|date:"m/d/Y" }}</td>
+                                <td>{{ file.processed_time|date:"h:i A" }}</td>
+                                <td>{{ file.user_display_name }}</td>
+                                <td>{{ file.publisher_id }}</td>
+                                <td>{{ file.product_id }} / {{ file.pipeline_id }}</td>
+                                <td><a href="{% url 'uploaded_files.download' file.publisher_id file.uploaded_file_id %}">{{ file.file_name }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6">No matching entries</td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

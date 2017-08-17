@@ -11,6 +11,7 @@
                 <ol class="breadcrumb">
                     <li><a href="#">Pipelines</a></li>
                     <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
+                    <li>{{ publisher.name }}</li>
                     <li></li>
                 </ol>
             {% endif %}

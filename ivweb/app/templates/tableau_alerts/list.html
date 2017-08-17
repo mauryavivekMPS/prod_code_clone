@@ -50,7 +50,7 @@
                                         <div class="alert-details"><b>Filters:</b> {{ alert.params_and_filters_names_string }}</div>
                                     {% endif %}
                                     {% if alert.user %}
-                                        <div class="alert-details"><b>Created by:</b> {{ alert.user.display_name }}</div>
+                                        <div class="alert-details"><b>Created by:</b> {{ alert.user.display_name }}{% if alert.created %} on {{ alert.created|date:"m/d/Y" }}{% endif %}</div>
                                     {% endif %}
                                     {% if alert.last_notification_date %}
                                         <div class="alert-details"><b>Notifications:</b> {{ alert.num_notifications }} sent, most recent on {{ alert.last_notification_date|date:"m/d/Y" }}</div>

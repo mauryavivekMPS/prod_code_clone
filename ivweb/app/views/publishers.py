@@ -533,8 +533,18 @@ def edit_demo(request, demo_id=None):
                 demo.save()
 
                 if demo.archived:
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        action='archive-demo',
+                        description='Demo archived %s (%s)' % (demo.publisher_name, demo_id),
+                    )
                     return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=archive-demo&filter=archived')
                 else:
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        action='unarchive-demo',
+                        description='Demo unarchived %s (%s)' % (demo.publisher_name, demo_id),
+                    )
                     return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=unarchive-demo&filter=active')
 
         else:
@@ -552,8 +562,18 @@ def edit_demo(request, demo_id=None):
 
                 if new:
                     from_value = 'new-success'
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        action='create-demo',
+                        description='Created demo %s (%s)' % (demo.publisher_name, demo_id),
+                    )
                 else:
                     from_value = 'save-success'
+                    utils.add_audit_log(
+                        user_id=request.user.user_id,
+                        action='edit-demo',
+                        description='Edited demo %s (%s)' % (demo.publisher_name, demo_id),
+                    )
 
                 if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
                     from_value = 'submitted-for-review'
