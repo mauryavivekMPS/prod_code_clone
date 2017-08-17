@@ -140,7 +140,7 @@ class CrossrefConnector(BaseConnector):
                 title_search_term,
             )
         else:
-            url = self.BASE_URL + '/works?rows=30&filter=from-pub-date,type:journal-article:%s&query.title=%s' % (
+            url = self.BASE_URL + '/works?rows=30&filter=from-pub-date:%s,type:journal-article&query.title=%s' % (
                 date_search_term,
                 title_search_term,
             )
