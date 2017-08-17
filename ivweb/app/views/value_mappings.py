@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.template import loader, RequestContext
 from ivetl.value_mappings import MAPPING_TYPES, MAPPING_TYPE_PROPERTIES
-from ivetl.models import ValueMapping, ValueMappingDisplay
+from ivetl.models import ValueMapping, ValueMappingDisplay, PublisherMetadata
 from ivetl.pipelines.publishedarticles import RefreshValueMappingsPipeline
 
 log = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ def list_mappings(request):
 
 @login_required
 def edit(request, publisher_id, mapping_type):
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     display_values_by_canonical_value = {}
     mappings_by_canonical_value = {}
     for mapping in ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type=mapping_type):
@@ -68,6 +69,7 @@ def edit(request, publisher_id, mapping_type):
     sorted_canonical_choices = sorted(canonical_choices, key=lambda c: c['name'])
 
     response = render(request, 'value_mappings/edit.html', {
+        'publisher': publisher,
         'publisher_id': publisher_id,
         'mapping_type': mapping_type,
         'mappings': sorted_mappings,
