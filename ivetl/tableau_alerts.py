@@ -52,6 +52,7 @@ ALERT_TEMPLATES = {
             'export': 'alert_advance_correlator_citation_usage_export.twb',
         },
         'filter_worksheet_name': 'AAC-Articles',
+        'export_value_name': 'Published Articles',
         'thumbnail': 'thumbnail-advanced-correlator.png',
         'frequency': 'monthly',
         'type': 'scheduled',
@@ -136,7 +137,7 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
             export_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
             export_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
             export_view_url = '%s/%s?%s' % (export_workbook_url.url, export_workbook_home_view, alert.params_and_filters_query_string)
-            has_data = t.check_report_for_data(export_view_url)
+            has_data = t.check_report_for_data(export_view_url, template.get('export_value_name', 'Number of Records'))
 
         if has_data:
             run_notification = True
