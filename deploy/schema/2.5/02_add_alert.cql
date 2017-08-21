@@ -1,10 +1,10 @@
 USE impactvizor;
 
 CREATE TABLE alert (
-  alert_id uuid,
   publisher_id text,
-  name text,
   check_id text,
+  alert_id uuid,
+  name text,
   check_params text,
   enabled boolean,
   PRIMARY KEY ((publisher_id), check_id, alert_id)
@@ -27,12 +27,12 @@ CREATE TABLE alert (
 CREATE INDEX alert_alert_id_index ON alert(alert_id);
 
 CREATE TABLE notification (
-  notification_id uuid,
-  alert_id uuid,
   publisher_id text,
+  alert_id uuid,
   product_id text,
   pipeline_id text,
   job_id text,
+  notification_id uuid,
   values_json text,
   PRIMARY KEY ((publisher_id), alert_id, product_id, pipeline_id, job_id, notification_id)
 ) WITH
@@ -52,12 +52,12 @@ CREATE TABLE notification (
   compression={'sstable_compression': 'LZ4Compressor'};
 
 CREATE TABLE notification_summary (
-  notification_summary_id uuid,
-  alert_id uuid,
   publisher_id text,
+  alert_id uuid,
   product_id text,
   pipeline_id text,
   job_id text,
+  notification_summary_id uuid,
   values_list_json text,
   notification_date timestamp,
   dismissed boolean,
