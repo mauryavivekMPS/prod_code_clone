@@ -137,9 +137,9 @@
                             {% if pipeline.include_date_range_controls %}
                                 <p>Run the {{ pipeline.name }} pipeline for the following dates:</p>
                                 <p class="modal-indented-form">
-                                    <input type="text" id="id_run_single_publisher_pipeline_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                    <input type="text" name="from_date" id="id_run_single_publisher_pipeline_modal_from_date" class="form-control date-control" value="{{ from_date }}">
                                     to
-                                    <input type="text" id="id_run_single_publisher_pipeline_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                                    <input type="text" name="to_date" id="id_run_single_publisher_pipeline_modal_to_date" class="form-control date-control" value="{{ to_date }}">
                                 </p>
                                 <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
                             {% else %}
