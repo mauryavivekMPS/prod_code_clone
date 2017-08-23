@@ -474,7 +474,7 @@ class TableauConnector(BaseConnector):
 
         return project_id, group_id, user_id
 
-    def check_report_for_data(self, view_url):
+    def check_report_for_data(self, view_url, export_value_name):
         file_handle, file_path = tempfile.mkstemp()
         subprocess.call([common.TABCMD, 'login'] + self._tabcmd_login_params())
         subprocess.call([common.TABCMD, 'export', view_url[:view_url.index('?')], '--csv', '-f', file_path] + self._tabcmd_login_params())
@@ -484,7 +484,7 @@ class TableauConnector(BaseConnector):
             with open(file_path) as f:
                 reader = csv.DictReader(f)
                 line = next(reader)
-                num_records = int(str(line['Number of Records'].replace(',', '')))
+                num_records = int(str(line[export_value_name].replace(',', '')))
         except:
             # swallow everything, assume the worst
             pass
@@ -498,5 +498,5 @@ class TableauConnector(BaseConnector):
             timestamp = str(int(datetime.datetime.now().timestamp()))
             path = os.path.join(common.TMP_DIR, '%s-%s.pdf' % (view_url[:view_url.index('?')].replace('/', '-'), timestamp))
         subprocess.call([common.TABCMD, 'login'] + self._tabcmd_login_params())
-        subprocess.call([common.TABCMD, 'get', view_url, '-f', path] + self._tabcmd_login_params())
+        subprocess.call([common.TABCMD, 'export', view_url, '--pdf', '-f', path] + self._tabcmd_login_params())
         return path

@@ -37,7 +37,7 @@ class MendeleyLookupTask(Task):
             tlogger.info('Found %s existing items to reuse' % len(already_processed))
 
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
+        target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'ISSN', 'DATA']))
 
         mendeley = MendeleyConnector(common.MENDELEY_CLIENT_ID, common.MENDELEY_CLIENT_SECRET)
 
@@ -96,7 +96,7 @@ class MendeleyLookupTask(Task):
                 if new_saves_value:
                     data['mendeley_saves'] = new_saves_value
 
-                row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
+                row = '\t'.join([publisher_id, doi, issn, json.dumps(data)]) + '\n'
 
                 target_file.write(row)
 

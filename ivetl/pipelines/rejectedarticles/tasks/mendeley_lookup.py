@@ -2,6 +2,7 @@ import os
 import csv
 import codecs
 import json
+import threading
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -14,7 +15,6 @@ class MendeleyLookupTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
         file = task_args['input_file']
-        total_count = task_args['count']
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "mendeleylookup" + "_" + "target.tab"
 
@@ -38,17 +38,19 @@ class MendeleyLookupTask(Task):
 
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
         target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
+        target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']))
 
         mendeley = MendeleyConnector(common.MENDELEY_CLIENT_ID, common.MENDELEY_CLIENT_SECRET)
 
-        count = 0
-        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+        manuscript_rows = []
 
+        # read everything in from the input file first
+        line_count = 0
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-                if count == 1:
+                line_count += 1
+                if line_count == 1:
                     continue
 
                 publisher_id = line[0]
@@ -58,9 +60,36 @@ class MendeleyLookupTask(Task):
                 if manuscript_id in already_processed:
                     continue
 
+                manuscript_rows.append((publisher_id, manuscript_id, data))
+
+        count = 0
+        count_lock = threading.Lock()
+
+        total_count = len(manuscript_rows)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        tlogger.info('Total articles to be processed: %s' % total_count)
+
+        def process_manuscript_rows(manuscript_rows_for_this_thread):
+            nonlocal count
+
+            thread_article_count = 0
+
+            for article_row in manuscript_rows_for_this_thread:
+                with count_lock:
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                thread_article_count += 1
+
+                publisher_id, manuscript_id, data = article_row
+
+                tlogger.info('Starting on manuscript %s' % manuscript_id)
+
+                tlogger.info(str(count - 1) + ". Retrieving Mendelez saves for: " + manuscript_id)
+
                 if data['status'] == "Match found":
 
-                    tlogger.info(str(count-1) + ". Retrieving Mendeley saves for: " + manuscript_id)
+                    tlogger.info(str(count - 1) + ". Retrieving Mendeley saves for: " + manuscript_id)
 
                     doi = data['xref_doi']
 
@@ -69,11 +98,32 @@ class MendeleyLookupTask(Task):
                     except:
                         tlogger.info("No Saves. Moving to next article...")
                 else:
-                    tlogger.info(str(count-1) + ". No match found for manuscript, skipping retrieval of Mendeley saves for: " + manuscript_id)
+                    tlogger.info(str(count - 1) + ". No match found for manuscript, skipping retrieval of Mendeley saves for: " + manuscript_id)
 
-                row = """%s\t%s\t%s\n""" % (publisher_id, manuscript_id, json.dumps(data))
+                row = '\t'.join([publisher_id, manuscript_id, json.dumps(data)]) + '\n'
 
                 target_file.write(row)
+
+        num_threads = 10
+        num_per_thread = round(total_count / num_threads)
+        threads = []
+        for i in range(num_threads):
+
+            from_index = i * num_per_thread
+            if i == num_threads - 1:
+                to_index = total_count
+            else:
+                to_index = (i + 1) * num_per_thread
+
+            tlogger.info('Starting thread for [%s:%s]' % (from_index, to_index))
+
+            new_thread = threading.Thread(target=process_manuscript_rows, args=(manuscript_rows[from_index:to_index],))
+            new_thread.start()
+            threads.append(new_thread)
+
+        for thread in threads:
+            tlogger.info('Waiting on thread: %s' % thread)
+            thread.join()
 
         target_file.close()
 
