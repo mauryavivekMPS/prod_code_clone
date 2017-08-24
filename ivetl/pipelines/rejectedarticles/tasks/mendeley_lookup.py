@@ -37,7 +37,6 @@ class MendeleyLookupTask(Task):
             tlogger.info('Found %s existing items to reuse' % len(already_processed))
 
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
         target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']))
 
         mendeley = MendeleyConnector(common.MENDELEY_CLIENT_ID, common.MENDELEY_CLIENT_SECRET)
@@ -53,7 +52,6 @@ class MendeleyLookupTask(Task):
                 if line_count == 1:
                     continue
 
-                publisher_id = line[0]
                 manuscript_id = line[1]
                 data = json.loads(line[2])
 
@@ -72,33 +70,29 @@ class MendeleyLookupTask(Task):
 
         def process_manuscript_rows(manuscript_rows_for_this_thread):
             nonlocal count
-
             thread_article_count = 0
 
             for article_row in manuscript_rows_for_this_thread:
+
                 with count_lock:
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                 thread_article_count += 1
 
-                publisher_id, manuscript_id, data = article_row
-
-                tlogger.info('Starting on manuscript %s' % manuscript_id)
-
-                tlogger.info(str(count - 1) + ". Retrieving Mendelez saves for: " + manuscript_id)
+                _, manuscript_id, data = article_row
 
                 if data['status'] == "Match found":
-
                     tlogger.info(str(count - 1) + ". Retrieving Mendeley saves for: " + manuscript_id)
-
                     doi = data['xref_doi']
 
                     try:
-                        data['mendeley_saves'] = mendeley.get_saves(doi)
+                        saves = mendeley.get_saves(doi)
+                        tlogger.info('Found %s saves for %s' % (saves, manuscript_id))
+                        data['mendeley_saves'] = saves
                     except:
-                        tlogger.info("No Saves. Moving to next article...")
+                        tlogger.info("No saves, skipping")
                 else:
-                    tlogger.info(str(count - 1) + ". No match found for manuscript, skipping retrieval of Mendeley saves for: " + manuscript_id)
+                    tlogger.info("No match found for %s, skipping" % manuscript_id)
 
                 row = '\t'.join([publisher_id, manuscript_id, json.dumps(data)]) + '\n'
 
