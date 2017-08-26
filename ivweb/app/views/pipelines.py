@@ -80,17 +80,13 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
     }
 
 
-@login_required
-def list_pipelines(request, product_id, pipeline_id):
-    product = common.PRODUCT_BY_ID[product_id]
+def _get_filtered_publishers(filter_param, user, product_id, pipeline_id):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
-
-    filter_param = request.GET.get('filter', request.COOKIES.get('pipeline-list-filter', 'all'))
 
     # get all publishers that support this pipeline
     supported_publishers = []
 
-    for publisher in request.user.get_accessible_publishers():
+    for publisher in user.get_accessible_publishers():
         if product_id in publisher.supported_products:
 
             single_publisher_pipeline = pipeline.get('single_publisher_pipeline')
@@ -115,6 +111,17 @@ def list_pipelines(request, product_id, pipeline_id):
                         supported_publishers.append(publisher)
                 else:
                     supported_publishers.append(publisher)
+
+    return supported_publishers
+
+
+@login_required
+def list_pipelines(request, product_id, pipeline_id):
+    product = common.PRODUCT_BY_ID[product_id]
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
+
+    filter_param = request.GET.get('filter', request.COOKIES.get('pipeline-list-filter', 'all'))
+    supported_publishers = _get_filtered_publishers(filter_param, request.user, product_id, pipeline_id)
 
     recent_runs_by_publisher = []
     for publisher in supported_publishers:
@@ -298,7 +305,7 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 
 
 class RunForm(forms.Form):
-    publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=True)
+    publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     move_pending_files = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, user, *args, **kwargs):
@@ -319,7 +326,9 @@ def run(request, product_id, pipeline_id):
             if publisher_id:
                 publisher_id_list = [publisher_id]
             else:
-                publisher_id_list = []
+                publisher_filter = request.POST.get('publisher_filter', 'all')
+                supported_publishers = _get_filtered_publishers(publisher_filter, request.user, product_id, pipeline_id)
+                publisher_id_list = [p.publisher_id for p in supported_publishers]
 
             # get the pipeline class
             pipeline_class = common.get_pipeline_class(pipeline)
