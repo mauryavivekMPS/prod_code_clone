@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'hyper-linear';
-	src:url('../fonts/hyper-linear.eot?eccd4l');
-	src:url('../fonts/hyper-linear.eot?#iefixeccd4l') format('embedded-opentype'),
-		url('../fonts/hyper-linear.ttf?eccd4l') format('truetype'),
-		url('../fonts/hyper-linear.woff?eccd4l') format('woff'),
-		url('../fonts/hyper-linear.svg?eccd4l#hyper-linear') format('svg');
+	src: url('../fonts/hyper-linear.eot?jk0udn');
+	src: url('../fonts/hyper-linear.eot?jk0udn#iefix') format('embedded-opentype'),
+	url('../fonts/hyper-linear.ttf?jk0udn') format('truetype'),
+	url('../fonts/hyper-linear.woff?jk0udn') format('woff'),
+	url('../fonts/hyper-linear.svg?jk0udn#hyper-linear') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -126,6 +126,18 @@
 
 .lnr-menu-square:before {
 	content: "\e99b";
+}
+
+.lnr-prohibited:before {
+	content: "\e99c";
+}
+
+.lnr-circle:before {
+	content: "\e99d";
+}
+
+.lnr-radio-button:before {
+	content: "\e99e";
 }
 
 .lnr-pencil:before {
@@ -387,4 +399,3 @@
 .lnr-yc-square:before {
 	content: "\f1d4";
 }
-
