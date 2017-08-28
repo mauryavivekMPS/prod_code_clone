@@ -18,6 +18,7 @@
         {% else %}
             <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
                 {% csrf_token %}
+                <input type="hidden" id="id_publisher_filter" name="publisher_filter" value="{{ filter_param }}">
                 {% if pipeline.include_date_range_controls %}
                     <input type="hidden" id="id_from_date" name="from_date">
                     <input type="hidden" id="id_to_date" name="to_date">
@@ -45,7 +46,7 @@
                         <span class="last-updated-message">Last date processed: {{ high_water_mark }}</span>
                     {% endif %}
                 {% else %}
-                    <a class="btn btn-default small run-button" href="#">Run for All Publishers</a>
+                    <a class="btn btn-default small run-button" href="#">Run for {% if filter_param == 'demos' %}Demo Publishers{% elif filter_param == 'publishers' %}Production Publishers{% else %}All Publishers{% endif %}</a>
                     <i class="fa fa-spinner fa-pulse run-for-all-loading-icon" style="display:none"></i>
                 {% endif %}
             {% endif %}
@@ -53,7 +54,7 @@
             {% if not pipeline.hide_demo_filter %}
                 <ul class="list-tabs">
                     <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
-                    <li><a href="?filter=demos" {% if filter_param == 'demos' %}class="active"{% endif %}>Publishers Demos</a></li>
+                    <li><a href="?filter=demos" {% if filter_param == 'demos' %}class="active"{% endif %}>Demo Publishers</a></li>
                     <li><a href="?filter=publishers" {% if filter_param == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
                 </ul>
             {% endif %}
@@ -169,7 +170,7 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                            <h4 class="modal-title">Run Pipeline for All Publishers</h4>
+                            <h4 class="modal-title">Run Pipeline for {% if filter_param == 'demos' %}Demo Publishers{% elif filter_param == 'publishers' %}Production Publishers{% else %}All Publishers{% endif %}</h4>
                         </div>
                         <div class="modal-body">
                             {% if pipeline.include_date_range_controls %}
@@ -183,7 +184,7 @@
                                     <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
                                 {% endif %}
                             {% else %}
-                                <p>Are you sure you want to run the {{ pipeline.name }} pipeline for all publishers?</p>
+                                <p>Are you sure you want to run the {{ pipeline.name }} pipeline for {% if filter_param == 'demos' %}demo publishers{% elif filter_param == 'publishers' %}production publishers{% else %}all publishers{% endif %}?</p>
                             {% endif %}
                             {% if has_alerts %}
                                 <div class="checkbox send-alerts-checkbox">
@@ -195,7 +196,9 @@
                             {% endif %}
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary confirm-run-all-submit-button">Yes, Run for All Publishers</button>
+                            <button type="button" class="btn btn-primary confirm-run-all-submit-button">
+                                Yes, Run for {% if filter_param == 'demos' %}Demo Publishers{% elif filter_param == 'publishers' %}Production Publishers{% else %}All Publishers{% endif %}
+                            </button>
                             <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
                         </div>
                     </div>

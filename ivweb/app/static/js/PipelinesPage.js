@@ -185,7 +185,6 @@ var PipelinePage = (function() {
 
                 form.find('input[name="send_alerts"]').val(m.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
 
-                console.log('3');
                 $.post(runForPublisherUrl, form.serialize());
 
                 // clear out any job IDs, this form is used by multiple buttons (i.e. run and multiple restart)
@@ -411,7 +410,7 @@ var PipelinePage = (function() {
                     allModal.modal();
                 });
 
-                allModal.find('.confirm-run-all-modal-submit-button').click(function() {
+                allModal.find('.confirm-run-all-submit-button').click(function() {
                     allModal.modal('hide');
                     $('.run-button').hide();
                     var loading = $('.run-for-all-loading-icon');

@@ -31,6 +31,11 @@ class RejectedArticlesValidator(BaseValidator):
                                 errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 10 required), skipping other validation" % len(line)))
                                 continue
 
+                            # check for fields with just double quotes, indicating that there is probably tabs inside fields
+                            for field in line:
+                                if field == '"':
+                                    errors.append(self.format_error(file_name, count, "Invalid format, at least one field with only a double quotation mark character"))
+
                             input_data = {}
                             input_data['manuscript_id'] = line[0].strip()
                             input_data['date_of_rejection'] = line[1].strip()

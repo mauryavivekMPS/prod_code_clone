@@ -15,7 +15,7 @@ $.widget("custom.edittableaualertpage", {
         this.selectedAlertType = null;
         this.hasFilterConfiguration = false;
         this.embeddedReportLoaded = false;
-        this.currentAutoAppliedFilters = {};
+        this.currentAutoAppliedAfterLoadFilters = {};
         this.viz = null;
 
         this.emailSplitRegex = /[\s,;]+/;
@@ -304,11 +304,11 @@ $.widget("custom.edittableaualertpage", {
                                     var filter = allExistingFilters[name];
 
                                     if (filter.type === 'categorical' && filter.exclude) {
-                                        self.currentAutoAppliedFilters[name] = true;
+                                        self.currentAutoAppliedAfterLoadFilters[name] = true;
                                         activeSheet.applyFilterAsync(name, filter.values, tableauSoftware.FilterUpdateType.REMOVE);
                                     }
                                     else if (filter.type === 'quantitative') {
-                                        self.currentAutoAppliedFilters[name] = true;
+                                        self.currentAutoAppliedAfterLoadFilters[name] = true;
                                         var minDate = new Date(filter.min);
                                         var maxDate = new Date(filter.max);
                                         activeSheet.applyRangeFilterAsync(name, {min: minDate, max: maxDate})
@@ -326,7 +326,6 @@ $.widget("custom.edittableaualertpage", {
                         $.each(Object.keys(allExistingFilters), function (index, name) {
                             var filter = allExistingFilters[name];
                             if (filter.type === 'categorical' && !filter.exclude) {
-                                self.currentAutoAppliedFilters[name] = true;
                                 vizOptions[name] = [];
                                 $.each(filter.values, function (index, value) {
                                     vizOptions[name].push(value);
@@ -392,11 +391,11 @@ $.widget("custom.edittableaualertpage", {
                                         self.filters[filterName].values.push(value.value);
                                     });
                                     numberOfSelectedValues = selectedValues.length;
-                                    if (numberOfSelectedValues > 10 && !self.currentAutoAppliedFilters[filterName]) {
+                                    if (numberOfSelectedValues > 10 && !self.currentAutoAppliedAfterLoadFilters[filterName]) {
                                         runConfirmSelectAll = true;
                                     }
 
-                                    self.currentAutoAppliedFilters[name] = false;
+                                    self.currentAutoAppliedAfterLoadFilters[name] = false;
                                 }
                             }
 
