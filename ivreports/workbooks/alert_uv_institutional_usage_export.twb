@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
-<!-- build 10200.17.0216.1925                               -->
-<workbook source-build='10.2.0 (10200.17.0216.1925)' source-platform='win' version='10.2' xml:base='http://vizors.stackly.org' xmlns:user='http://www.tableausoftware.com/xml/user'>
+<!-- build 10200.17.0328.0755                               -->
+<workbook source-build='10.2.1 (10200.17.0328.0755)' source-platform='win' version='10.2' xml:base='http://vizors.stackly.org' xmlns:user='http://www.tableausoftware.com/xml/user'>
   <repository-location id='UVInstitutionalUsage' path='/workbooks' revision='2.4' />
   <preferences>
     <preference name='ui.encoding.shelf.height' value='24' />
@@ -32,7 +32,7 @@
       </column>
     </datasource>
     <datasource caption='inst_usage_delta_ds' inline='true' name='sqlproxy.42593.852012592593' version='10.2'>
-      <repository-location id='inst_usage_delta_ds' path='/datasources' revision='1.0' />
+      <repository-location id='inst_usage_delta_ds' path='/datasources' revision='1.1' />
       <connection channel='http' class='sqlproxy' dbname='inst_usage_delta_ds' directory='/dataserver' port='80' server='vizors.stackly.org' server-oauth='' username='' workgroup-auth-mode='prompt'>
         <relation name='sqlproxy' table='[sqlproxy]' type='table' />
         <metadata-records>
@@ -53,92 +53,12 @@
             </attributes>
           </metadata-record>
           <metadata-record class='column'>
-            <remote-name>ac_database</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[ac_database]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>ac_database</remote-alias>
-            <ordinal>1</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>address_2</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[address_2]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>address_2</remote-alias>
-            <ordinal>2</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>affiliation</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[affiliation]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>affiliation</remote-alias>
-            <ordinal>3</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
             <remote-name>consortium</remote-name>
             <remote-type>129</remote-type>
             <local-name>[consortium]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>consortium</remote-alias>
-            <ordinal>4</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>contact</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[contact]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>contact</remote-alias>
-            <ordinal>5</ordinal>
+            <ordinal>1</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -158,7 +78,7 @@
             <local-name>[counter_type]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>counter_type</remote-alias>
-            <ordinal>6</ordinal>
+            <ordinal>2</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>string</local-type>
@@ -172,33 +92,13 @@
               <attribute datatype='integer' name='role'>0</attribute>
             </attributes>
           </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>country</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[country]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>country</remote-alias>
-            <ordinal>7</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
           <metadata-record class='measure'>
             <remote-name>current_usage</remote-name>
             <remote-type>3</remote-type>
             <local-name>[current_usage]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>current_usage</remote-alias>
-            <ordinal>8</ordinal>
+            <ordinal>3</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>integer</local-type>
@@ -214,7 +114,7 @@
             <local-name>[custom1]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>custom1</remote-alias>
-            <ordinal>9</ordinal>
+            <ordinal>4</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -234,7 +134,7 @@
             <local-name>[custom2]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>custom2</remote-alias>
-            <ordinal>10</ordinal>
+            <ordinal>5</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -254,27 +154,7 @@
             <local-name>[custom3]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>custom3</remote-alias>
-            <ordinal>11</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>email_domain_srch</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[email_domain_srch]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>email_domain_srch</remote-alias>
-            <ordinal>12</ordinal>
+            <ordinal>6</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -294,7 +174,7 @@
             <local-name>[expired]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>expired</remote-alias>
-            <ordinal>13</ordinal>
+            <ordinal>7</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>boolean</local-type>
@@ -311,7 +191,7 @@
             <local-name>[final_expiration_date]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>final_expiration_date</remote-alias>
-            <ordinal>14</ordinal>
+            <ordinal>8</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>datetime</local-type>
@@ -323,92 +203,12 @@
             </attributes>
           </metadata-record>
           <metadata-record class='column'>
-            <remote-name>firstname</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[firstname]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>firstname</remote-alias>
-            <ordinal>15</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>inst_key</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[inst_key]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>inst_key</remote-alias>
-            <ordinal>16</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
             <remote-name>inst_name</remote-name>
             <remote-type>129</remote-type>
             <local-name>[inst_name]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>inst_name</remote-alias>
-            <ordinal>17</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>institution_alternate_identifier</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[institution_alternate_identifier]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>institution_alternate_identifier</remote-alias>
-            <ordinal>18</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>institution_alternate_name</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[institution_alternate_name]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>institution_alternate_name</remote-alias>
-            <ordinal>19</ordinal>
+            <ordinal>9</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -428,7 +228,7 @@
             <local-name>[journal]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>journal</remote-alias>
-            <ordinal>20</ordinal>
+            <ordinal>10</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>string</local-type>
@@ -443,32 +243,12 @@
             </attributes>
           </metadata-record>
           <metadata-record class='column'>
-            <remote-name>lastname</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[lastname]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>lastname</remote-alias>
-            <ordinal>21</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
             <remote-name>membership_no</remote-name>
             <remote-type>129</remote-type>
             <local-name>[membership_no]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>membership_no</remote-alias>
-            <ordinal>22</ordinal>
+            <ordinal>11</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -480,62 +260,6 @@
             <attributes>
               <attribute datatype='integer' name='field-type'>2</attribute>
               <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>memo</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[memo]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>memo</remote-alias>
-            <ordinal>23</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>modified_by_dt</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[modified_by_dt]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>modified_by_dt</remote-alias>
-            <ordinal>24</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='measure'>
-            <remote-name>num_subscriptions</remote-name>
-            <remote-type>16</remote-type>
-            <local-name>[num_subscriptions]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>num_subscriptions</remote-alias>
-            <ordinal>25</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>integer</local-type>
-            <aggregation>Sum</aggregation>
-            <contains-null>true</contains-null>
-            <attributes>
-              <attribute datatype='integer' name='field-type'>0</attribute>
             </attributes>
           </metadata-record>
           <metadata-record class='measure'>
@@ -544,7 +268,7 @@
             <local-name>[percentage_delta]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>percentage_delta</remote-alias>
-            <ordinal>26</ordinal>
+            <ordinal>12</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>real</local-type>
@@ -560,7 +284,7 @@
             <local-name>[previous_usage]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>previous_usage</remote-alias>
-            <ordinal>27</ordinal>
+            <ordinal>13</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>integer</local-type>
@@ -576,7 +300,7 @@
             <local-name>[publisher_id (Custom_SQL_Query)]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>publisher_id (Custom_SQL_Query)</remote-alias>
-            <ordinal>28</ordinal>
+            <ordinal>14</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -596,7 +320,7 @@
             <local-name>[publisher_id]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>publisher_id</remote-alias>
-            <ordinal>29</ordinal>
+            <ordinal>15</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>string</local-type>
@@ -611,89 +335,12 @@
             </attributes>
           </metadata-record>
           <metadata-record class='column'>
-            <remote-name>region</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[region]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>region</remote-alias>
-            <ordinal>30</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>ringgold_id</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[ringgold_id]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>ringgold_id</remote-alias>
-            <ordinal>31</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
             <remote-name>sales_agent</remote-name>
             <remote-type>129</remote-type>
             <local-name>[sales_agent]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>sales_agent</remote-alias>
-            <ordinal>32</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>start_date</remote-name>
-            <remote-type>135</remote-type>
-            <local-name>[start_date]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>start_date</remote-alias>
-            <ordinal>33</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>datetime</local-type>
-            <aggregation>Year</aggregation>
-            <contains-null>true</contains-null>
-            <attributes>
-              <attribute datatype='integer' name='field-type'>1</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>subscr_type</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[subscr_type]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>subscr_type</remote-alias>
-            <ordinal>34</ordinal>
+            <ordinal>16</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -713,7 +360,7 @@
             <local-name>[subscr_type_desc]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>subscr_type_desc</remote-alias>
-            <ordinal>35</ordinal>
+            <ordinal>17</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -733,7 +380,7 @@
             <local-name>[subscriber_id]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>subscriber_id</remote-alias>
-            <ordinal>36</ordinal>
+            <ordinal>18</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>string</local-type>
@@ -753,7 +400,7 @@
             <local-name>[tier]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>tier</remote-alias>
-            <ordinal>37</ordinal>
+            <ordinal>19</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -773,7 +420,7 @@
             <local-name>[time_slice]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>time_slice</remote-alias>
-            <ordinal>38</ordinal>
+            <ordinal>20</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>string</local-type>
@@ -788,32 +435,12 @@
             </attributes>
           </metadata-record>
           <metadata-record class='column'>
-            <remote-name>title</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[title]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>title</remote-alias>
-            <ordinal>39</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
             <remote-name>usage_category</remote-name>
             <remote-type>129</remote-type>
             <local-name>[usage_category]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>usage_category</remote-alias>
-            <ordinal>40</ordinal>
+            <ordinal>21</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>string</local-type>
@@ -833,7 +460,7 @@
             <local-name>[usage_date]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>usage_date</remote-alias>
-            <ordinal>41</ordinal>
+            <ordinal>22</ordinal>
             <layered>true</layered>
             <family>inst_usage_delta</family>
             <local-type>datetime</local-type>
@@ -845,112 +472,12 @@
             </attributes>
           </metadata-record>
           <metadata-record class='column'>
-            <remote-name>user_address</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[user_address]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>user_address</remote-alias>
-            <ordinal>42</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>user_email</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[user_email]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>user_email</remote-alias>
-            <ordinal>43</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>user_fax</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[user_fax]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>user_fax</remote-alias>
-            <ordinal>44</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>user_phone</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[user_phone]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>user_phone</remote-alias>
-            <ordinal>45</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
-            <remote-name>user_systemname</remote-name>
-            <remote-type>129</remote-type>
-            <local-name>[user_systemname]</local-name>
-            <parent-name>[sqlproxy]</parent-name>
-            <remote-alias>user_systemname</remote-alias>
-            <ordinal>46</ordinal>
-            <layered>true</layered>
-            <family>subscriber</family>
-            <local-type>string</local-type>
-            <aggregation>Count</aggregation>
-            <scale>1</scale>
-            <width>4000</width>
-            <contains-null>true</contains-null>
-            <collation flag='0' name='binary' />
-            <attributes>
-              <attribute datatype='integer' name='field-type'>2</attribute>
-              <attribute datatype='integer' name='role'>0</attribute>
-            </attributes>
-          </metadata-record>
-          <metadata-record class='column'>
             <remote-name>user_type</remote-name>
             <remote-type>129</remote-type>
             <local-name>[user_type]</local-name>
             <parent-name>[sqlproxy]</parent-name>
             <remote-alias>user_type</remote-alias>
-            <ordinal>47</ordinal>
+            <ordinal>23</ordinal>
             <layered>true</layered>
             <family>subscriber</family>
             <local-type>string</local-type>
@@ -988,10 +515,10 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem2997235322430412088&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;inst_usage_delta_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;inst_usage_delta_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[absolute_delta]&apos; value=&apos;[sqlproxy].[absolute_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[counter_type]&apos; value=&apos;[sqlproxy].[counter_type]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[current_usage]&apos; value=&apos;[sqlproxy].[current_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[journal]&apos; value=&apos;[sqlproxy].[journal]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[percentage_delta]&apos; value=&apos;[sqlproxy].[percentage_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_usage]&apos; value=&apos;[sqlproxy].[previous_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[subscriber_id]&apos; value=&apos;[sqlproxy].[subscriber_id]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[time_slice]&apos; value=&apos;[sqlproxy].[time_slice]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_category]&apos; value=&apos;[sqlproxy].[usage_category]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem4358741070011653943&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;inst_usage_delta_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.1&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;inst_usage_delta_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[absolute_delta]&apos; value=&apos;[sqlproxy].[absolute_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[counter_type]&apos; value=&apos;[sqlproxy].[counter_type]&apos; /&gt;&#10;      &lt;map key=&apos;[current_usage]&apos; value=&apos;[sqlproxy].[current_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[journal]&apos; value=&apos;[sqlproxy].[journal]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[percentage_delta]&apos; value=&apos;[sqlproxy].[percentage_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_usage]&apos; value=&apos;[sqlproxy].[previous_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[subscriber_id]&apos; value=&apos;[sqlproxy].[subscriber_id]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[time_slice]&apos; value=&apos;[sqlproxy].[time_slice]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_category]&apos; value=&apos;[sqlproxy].[usage_category]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.356031&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.643969&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
-              <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:42:25 PM&quot;</attribute>
+              <attribute datatype='string' name='update-time'>&quot;8/28/2017 7:29:31 AM&quot;</attribute>
               <attribute datatype='string' name='version'>&quot;0.0.0&quot;</attribute>
             </attributes>
           </metadata-record>
@@ -1005,16 +532,16 @@
       <column caption='Difference' datatype='integer' default-format='N' name='[% Difference (copy)]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='SUM([current_usage])-sum([previous_usage])' />
       </column>
-      <column caption='Indicator' datatype='string' name='[Calculation_0440811215118969]' role='measure' type='nominal'>
+      <column caption='Indicator' datatype='string' hidden='true' name='[Calculation_0440811215118969]' role='measure' type='nominal'>
         <calculation class='tableau' formula='IF [Calculation_7350811213600905] &lt; 0 THEN&#13;&#10;    &quot;Below&quot;&#13;&#10;ELSEIF [Calculation_7350811213600905] &gt; 0 THEN&#13;&#10;    &quot;Above&quot;&#13;&#10;ELSE&#13;&#10;    &quot;Same&quot;&#13;&#10;END' />
       </column>
-      <column caption='Label' datatype='string' name='[Calculation_1370913111244172]' role='dimension' type='nominal'>
+      <column caption='Label' datatype='string' hidden='true' name='[Calculation_1370913111244172]' role='dimension' type='nominal'>
         <calculation class='tableau' formula='[Parameters].[Parameter 2]' />
       </column>
       <column caption='Expires On' datatype='datetime' default-format='*mmmm d, yyyy' name='[Calculation_1910907190957504]' role='dimension' type='ordinal'>
         <calculation class='tableau' formula='[final_expiration_date]' />
       </column>
-      <column caption='tc-label' datatype='string' name='[Calculation_7230815164002890]' role='dimension' type='nominal'>
+      <column caption='tc-label' datatype='string' hidden='true' name='[Calculation_7230815164002890]' role='dimension' type='nominal'>
         <calculation class='tableau' formula='&quot;% Difference&quot;' />
       </column>
       <column caption='% Difference' datatype='real' default-format='n#,##0.0;-#,##0.0' name='[Calculation_7350811213600905]' role='measure' type='quantitative'>
@@ -1035,64 +562,40 @@
       <column caption='Compare To' datatype='string' name='[Calculation_9770812122919943]' role='dimension' type='nominal'>
         <calculation class='tableau' formula='If [time_slice]==&apos;m&apos; THEN&#13;&#10;&quot;Previous Month&quot;&#13;&#10;ELSEIF [time_slice]==&apos;ytd&apos; THEN&#13;&#10;&quot;Previous YTD&quot;&#13;&#10;END' />
       </column>
-      <column caption='Full Name' datatype='string' name='[Name (copy)]' role='dimension' type='nominal'>
-        <calculation class='tableau' formula='IF ISNULL([inst_name]) OR [inst_name] ==&apos;&apos; THEN&#13;&#10;[firstname] + [lastname] + &quot; (&quot; + [membership_no] + &quot;) (&quot; + [user_email] + &quot;)&quot;&#13;&#10;ELSE&#13;&#10;[inst_name] + &quot; (&quot; + [membership_no] + &quot;) (&quot; + [user_email] + &quot;)&quot;&#13;&#10;END' />
+      <column caption='Full Name' datatype='string' hidden='true' name='[Name (copy)]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF ISNULL([inst_name]) OR [inst_name] ==&apos;&apos; THEN&#13;&#10;[membership_no]&#13;&#10;ELSE&#13;&#10;[inst_name] + &quot; (&quot; + [membership_no] + &quot;)&quot;&#13;&#10;END' />
       </column>
       <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
         <calculation class='tableau' formula='1' />
       </column>
       <column aggregation='Sum' datatype='integer' default-type='quantitative' layered='true' name='[absolute_delta]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[ac_database]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[address_2]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[affiliation]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[consortium]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[contact]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[counter_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[country]' pivot='key' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[consortium]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[counter_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Sum' caption='Current' datatype='integer' default-type='quantitative' layered='true' name='[current_usage]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[custom1]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[custom2]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[custom3]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[email_domain_srch]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='boolean' default-type='nominal' layered='true' name='[expired]' pivot='key' role='dimension' type='nominal' user-datatype='boolean' visual-totals='Default' />
       <column aggregation='Year' datatype='datetime' default-type='ordinal' layered='true' name='[final_expiration_date]' pivot='key' role='dimension' type='ordinal' user-datatype='datetime' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[firstname]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[inst_key]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[inst_name]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[institution_alternate_identifier]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[institution_alternate_name]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[journal]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[lastname]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[membership_no]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[memo]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[modified_by_dt]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Sum' datatype='integer' default-type='quantitative' layered='true' name='[num_subscriptions]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
-      <column aggregation='Sum' datatype='real' default-format='p0%' default-type='quantitative' layered='true' name='[percentage_delta]' pivot='key' role='measure' type='quantitative' user-datatype='real' visual-totals='Default' />
+      <column aggregation='Sum' datatype='real' default-format='p0%' default-type='quantitative' hidden='true' layered='true' name='[percentage_delta]' pivot='key' role='measure' type='quantitative' user-datatype='real' visual-totals='Default' />
       <column aggregation='Sum' caption='Previous' datatype='integer' default-type='quantitative' layered='true' name='[previous_usage]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[publisher_id (Custom_SQL_Query)]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[publisher_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[region]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[ringgold_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[sales_agent]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Year' datatype='datetime' default-type='ordinal' layered='true' name='[start_date]' pivot='key' role='dimension' type='ordinal' user-datatype='datetime' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[subscr_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[publisher_id (Custom_SQL_Query)]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[publisher_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[sales_agent]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[subscr_type_desc]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[subscriber_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[tier]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[time_slice]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[title]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[usage_category]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Year' datatype='datetime' default-type='ordinal' layered='true' name='[usage_date]' pivot='key' role='dimension' type='ordinal' user-datatype='datetime' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_address]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_email]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_fax]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_phone]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_systemname]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[user_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column-instance column='[journal]' derivation='None' name='[none:journal:nk]' pivot='key' type='nominal' />
       <column-instance column='[Calculation_0440811215118969]' derivation='User' name='[usr:Calculation_0440811215118969:nk]' pivot='key' type='nominal' />
       <column-instance column='[usage_date]' derivation='Year' name='[yr:usage_date:ok]' pivot='key' type='ordinal' />
-      <layout dim-ordering='alphabetic' dim-percentage='0.479263' measure-ordering='alphabetic' measure-percentage='0.423963' parameter-percentage='0.0967742' show-structure='true' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.398374' measure-ordering='alphabetic' measure-percentage='0.485095' parameter-percentage='0.116531' show-structure='true' />
       <style>
         <style-rule element='mark'>
           <encoding attr='shape' field='[usr:Calculation_0440811215118969:nk]' type='shape'>
@@ -2160,7 +1663,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem165857635359912373&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;inst_usage_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;inst_usage_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[counter_type]&apos; value=&apos;[sqlproxy].[counter_type]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_name]&apos; value=&apos;[sqlproxy].[institution_name]&apos; /&gt;&#10;      &lt;map key=&apos;[journal]&apos; value=&apos;[sqlproxy].[journal]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_online_issn]&apos; value=&apos;[sqlproxy].[journal_online_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_print_issn]&apos; value=&apos;[sqlproxy].[journal_print_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[subscriber_id]&apos; value=&apos;[sqlproxy].[subscriber_id]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[trial]&apos; value=&apos;[sqlproxy].[trial]&apos; /&gt;&#10;      &lt;map key=&apos;[trial_expiration_date]&apos; value=&apos;[sqlproxy].[trial_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage]&apos; value=&apos;[sqlproxy].[usage]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_category]&apos; value=&apos;[sqlproxy].[usage_category]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem165857635359912373&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;inst_usage_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;inst_usage_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[counter_type]&apos; value=&apos;[sqlproxy].[counter_type]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_name]&apos; value=&apos;[sqlproxy].[institution_name]&apos; /&gt;&#10;      &lt;map key=&apos;[journal]&apos; value=&apos;[sqlproxy].[journal]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_online_issn]&apos; value=&apos;[sqlproxy].[journal_online_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_print_issn]&apos; value=&apos;[sqlproxy].[journal_print_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[subscriber_id]&apos; value=&apos;[sqlproxy].[subscriber_id]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[trial]&apos; value=&apos;[sqlproxy].[trial]&apos; /&gt;&#10;      &lt;map key=&apos;[trial_expiration_date]&apos; value=&apos;[sqlproxy].[trial_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage]&apos; value=&apos;[sqlproxy].[usage]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_category]&apos; value=&apos;[sqlproxy].[usage_category]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[counter_type]&apos; value=&apos;[sqlproxy].[counter_type]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_name]&apos; value=&apos;[sqlproxy].[institution_name]&apos; /&gt;&#10;      &lt;map key=&apos;[journal]&apos; value=&apos;[sqlproxy].[journal]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_online_issn]&apos; value=&apos;[sqlproxy].[journal_online_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_print_issn]&apos; value=&apos;[sqlproxy].[journal_print_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[subscriber_id]&apos; value=&apos;[sqlproxy].[subscriber_id]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[trial]&apos; value=&apos;[sqlproxy].[trial]&apos; /&gt;&#10;      &lt;map key=&apos;[trial_expiration_date]&apos; value=&apos;[sqlproxy].[trial_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage]&apos; value=&apos;[sqlproxy].[usage]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_category]&apos; value=&apos;[sqlproxy].[usage_category]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:39:49 PM&quot;</attribute>
@@ -3123,7 +2626,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem1901109834073046445&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/subscriber_ds?rev=1.0&apos; id=&apos;subscriber_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.1&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;subscriber_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem1901109834073046445&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/subscriber_ds?rev=1.0&apos; id=&apos;subscriber_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.1&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;subscriber_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:39:54 PM&quot;</attribute>
@@ -3483,7 +2986,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem1826925112947238072&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;subscription_pricing_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;subscription_pricing_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[trial]&apos; value=&apos;[sqlproxy].[trial]&apos; /&gt;&#10;      &lt;map key=&apos;[trial_expiration_date]&apos; value=&apos;[sqlproxy].[trial_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[year]&apos; value=&apos;[sqlproxy].[year]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Amount&apos; datatype=&apos;real&apos; default-type=&apos;quantitative&apos; name=&apos;[amount]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;real&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Bundle Name&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[bundle_name]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Membership No&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[membership_no]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Publisher Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Trial&apos; datatype=&apos;boolean&apos; default-type=&apos;nominal&apos; name=&apos;[trial]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;boolean&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Trial Expiration Date&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[trial_expiration_date]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Year&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[year]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem1826925112947238072&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;subscription_pricing_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;subscription_pricing_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[trial]&apos; value=&apos;[sqlproxy].[trial]&apos; /&gt;&#10;      &lt;map key=&apos;[trial_expiration_date]&apos; value=&apos;[sqlproxy].[trial_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[year]&apos; value=&apos;[sqlproxy].[year]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[trial]&apos; value=&apos;[sqlproxy].[trial]&apos; /&gt;&#10;      &lt;map key=&apos;[trial_expiration_date]&apos; value=&apos;[sqlproxy].[trial_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[year]&apos; value=&apos;[sqlproxy].[year]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Amount&apos; datatype=&apos;real&apos; default-type=&apos;quantitative&apos; name=&apos;[amount]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;real&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Bundle Name&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[bundle_name]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Membership No&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[membership_no]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Publisher Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Trial&apos; datatype=&apos;boolean&apos; default-type=&apos;nominal&apos; name=&apos;[trial]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;boolean&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Trial Expiration Date&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[trial_expiration_date]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Year&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[year]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:39:55 PM&quot;</attribute>
@@ -3859,7 +3362,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem2822339278019112679&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;subscriptions_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;subscriptions_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[expiration_dt]&apos; value=&apos;[sqlproxy].[expiration_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_number]&apos; value=&apos;[sqlproxy].[institution_number]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_code]&apos; value=&apos;[sqlproxy].[journal_code]&apos; /&gt;&#10;      &lt;map key=&apos;[last_used_dt]&apos; value=&apos;[sqlproxy].[last_used_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[product_cd]&apos; value=&apos;[sqlproxy].[product_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_status]&apos; value=&apos;[sqlproxy].[subscr_status]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_cd]&apos; value=&apos;[sqlproxy].[subscr_type_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[expiration_dt]&apos; value=&apos;[sqlproxy].[expiration_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_number]&apos; value=&apos;[sqlproxy].[institution_number]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_code]&apos; value=&apos;[sqlproxy].[journal_code]&apos; /&gt;&#10;      &lt;map key=&apos;[last_used_dt]&apos; value=&apos;[sqlproxy].[last_used_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[product_cd]&apos; value=&apos;[sqlproxy].[product_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_status]&apos; value=&apos;[sqlproxy].[subscr_status]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_cd]&apos; value=&apos;[sqlproxy].[subscr_type_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem2822339278019112679&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;subscriptions_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;subscriptions_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[expiration_dt]&apos; value=&apos;[sqlproxy].[expiration_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_number]&apos; value=&apos;[sqlproxy].[institution_number]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_code]&apos; value=&apos;[sqlproxy].[journal_code]&apos; /&gt;&#10;      &lt;map key=&apos;[last_used_dt]&apos; value=&apos;[sqlproxy].[last_used_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[product_cd]&apos; value=&apos;[sqlproxy].[product_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_status]&apos; value=&apos;[sqlproxy].[subscr_status]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_cd]&apos; value=&apos;[sqlproxy].[subscr_type_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[expiration_dt]&apos; value=&apos;[sqlproxy].[expiration_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_number]&apos; value=&apos;[sqlproxy].[institution_number]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_code]&apos; value=&apos;[sqlproxy].[journal_code]&apos; /&gt;&#10;      &lt;map key=&apos;[last_used_dt]&apos; value=&apos;[sqlproxy].[last_used_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[product_cd]&apos; value=&apos;[sqlproxy].[product_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_status]&apos; value=&apos;[sqlproxy].[subscr_status]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_cd]&apos; value=&apos;[sqlproxy].[subscr_type_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[expiration_dt]&apos; value=&apos;[sqlproxy].[expiration_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_number]&apos; value=&apos;[sqlproxy].[institution_number]&apos; /&gt;&#10;      &lt;map key=&apos;[journal_code]&apos; value=&apos;[sqlproxy].[journal_code]&apos; /&gt;&#10;      &lt;map key=&apos;[last_used_dt]&apos; value=&apos;[sqlproxy].[last_used_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[product_cd]&apos; value=&apos;[sqlproxy].[product_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_status]&apos; value=&apos;[sqlproxy].[subscr_status]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_cd]&apos; value=&apos;[sqlproxy].[subscr_type_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:39:59 PM&quot;</attribute>
@@ -4960,7 +4463,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem1536889395325738997&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;cost_delta_subscriber_bundle_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;cost_delta_subscriber_bundle_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[absolute_delta]&apos; value=&apos;[sqlproxy].[absolute_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[current_amount]&apos; value=&apos;[sqlproxy].[current_amount]&apos; /&gt;&#10;      &lt;map key=&apos;[current_cost_per_use]&apos; value=&apos;[sqlproxy].[current_cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[current_total_usage]&apos; value=&apos;[sqlproxy].[current_total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[membership_no (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[percentage_delta]&apos; value=&apos;[sqlproxy].[percentage_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_amount]&apos; value=&apos;[sqlproxy].[previous_amount]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_cost_per_use]&apos; value=&apos;[sqlproxy].[previous_cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_total_usage]&apos; value=&apos;[sqlproxy].[previous_total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[time_slice]&apos; value=&apos;[sqlproxy].[time_slice]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem1536889395325738997&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;cost_delta_subscriber_bundle_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;cost_delta_subscriber_bundle_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[absolute_delta]&apos; value=&apos;[sqlproxy].[absolute_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[current_amount]&apos; value=&apos;[sqlproxy].[current_amount]&apos; /&gt;&#10;      &lt;map key=&apos;[current_cost_per_use]&apos; value=&apos;[sqlproxy].[current_cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[current_total_usage]&apos; value=&apos;[sqlproxy].[current_total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[membership_no (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[percentage_delta]&apos; value=&apos;[sqlproxy].[percentage_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_amount]&apos; value=&apos;[sqlproxy].[previous_amount]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_cost_per_use]&apos; value=&apos;[sqlproxy].[previous_cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_total_usage]&apos; value=&apos;[sqlproxy].[previous_total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[time_slice]&apos; value=&apos;[sqlproxy].[time_slice]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[absolute_delta]&apos; value=&apos;[sqlproxy].[absolute_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[current_amount]&apos; value=&apos;[sqlproxy].[current_amount]&apos; /&gt;&#10;      &lt;map key=&apos;[current_cost_per_use]&apos; value=&apos;[sqlproxy].[current_cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[current_total_usage]&apos; value=&apos;[sqlproxy].[current_total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[membership_no (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[percentage_delta]&apos; value=&apos;[sqlproxy].[percentage_delta]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_amount]&apos; value=&apos;[sqlproxy].[previous_amount]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_cost_per_use]&apos; value=&apos;[sqlproxy].[previous_cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_total_usage]&apos; value=&apos;[sqlproxy].[previous_total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[time_slice]&apos; value=&apos;[sqlproxy].[time_slice]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:36:16 PM&quot;</attribute>
@@ -5972,7 +5475,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem4570704736356058699&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;cost_by_subscriber_bundle_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;cost_by_subscriber_bundle_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[cost_per_use]&apos; value=&apos;[sqlproxy].[cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[membership_no (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[total_usage]&apos; value=&apos;[sqlproxy].[total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;9.0&apos; formatted-name=&apos;repoItem4570704736356058699&apos; inline=&apos;true&apos; version=&apos;9.0&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;cost_by_subscriber_bundle_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;cost_by_subscriber_bundle_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[cost_per_use]&apos; value=&apos;[sqlproxy].[cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[membership_no (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[total_usage]&apos; value=&apos;[sqlproxy].[total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[ac_database]&apos; value=&apos;[sqlproxy].[ac_database]&apos; /&gt;&#10;      &lt;map key=&apos;[address_2]&apos; value=&apos;[sqlproxy].[address_2]&apos; /&gt;&#10;      &lt;map key=&apos;[affiliation]&apos; value=&apos;[sqlproxy].[affiliation]&apos; /&gt;&#10;      &lt;map key=&apos;[amount]&apos; value=&apos;[sqlproxy].[amount]&apos; /&gt;&#10;      &lt;map key=&apos;[bundle_name]&apos; value=&apos;[sqlproxy].[bundle_name]&apos; /&gt;&#10;      &lt;map key=&apos;[consortium]&apos; value=&apos;[sqlproxy].[consortium]&apos; /&gt;&#10;      &lt;map key=&apos;[contact]&apos; value=&apos;[sqlproxy].[contact]&apos; /&gt;&#10;      &lt;map key=&apos;[cost_per_use]&apos; value=&apos;[sqlproxy].[cost_per_use]&apos; /&gt;&#10;      &lt;map key=&apos;[country]&apos; value=&apos;[sqlproxy].[country]&apos; /&gt;&#10;      &lt;map key=&apos;[custom1]&apos; value=&apos;[sqlproxy].[custom1]&apos; /&gt;&#10;      &lt;map key=&apos;[custom2]&apos; value=&apos;[sqlproxy].[custom2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom3]&apos; value=&apos;[sqlproxy].[custom3]&apos; /&gt;&#10;      &lt;map key=&apos;[email_domain_srch]&apos; value=&apos;[sqlproxy].[email_domain_srch]&apos; /&gt;&#10;      &lt;map key=&apos;[expired]&apos; value=&apos;[sqlproxy].[expired]&apos; /&gt;&#10;      &lt;map key=&apos;[final_expiration_date]&apos; value=&apos;[sqlproxy].[final_expiration_date]&apos; /&gt;&#10;      &lt;map key=&apos;[firstname]&apos; value=&apos;[sqlproxy].[firstname]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_key]&apos; value=&apos;[sqlproxy].[inst_key]&apos; /&gt;&#10;      &lt;map key=&apos;[inst_name]&apos; value=&apos;[sqlproxy].[inst_name]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_identifier]&apos; value=&apos;[sqlproxy].[institution_alternate_identifier]&apos; /&gt;&#10;      &lt;map key=&apos;[institution_alternate_name]&apos; value=&apos;[sqlproxy].[institution_alternate_name]&apos; /&gt;&#10;      &lt;map key=&apos;[lastname]&apos; value=&apos;[sqlproxy].[lastname]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[membership_no (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[membership_no]&apos; value=&apos;[sqlproxy].[membership_no]&apos; /&gt;&#10;      &lt;map key=&apos;[memo]&apos; value=&apos;[sqlproxy].[memo]&apos; /&gt;&#10;      &lt;map key=&apos;[modified_by_dt]&apos; value=&apos;[sqlproxy].[modified_by_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[num_subscriptions]&apos; value=&apos;[sqlproxy].[num_subscriptions]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[region]&apos; value=&apos;[sqlproxy].[region]&apos; /&gt;&#10;      &lt;map key=&apos;[ringgold_id]&apos; value=&apos;[sqlproxy].[ringgold_id]&apos; /&gt;&#10;      &lt;map key=&apos;[sales_agent]&apos; value=&apos;[sqlproxy].[sales_agent]&apos; /&gt;&#10;      &lt;map key=&apos;[start_date]&apos; value=&apos;[sqlproxy].[start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type]&apos; value=&apos;[sqlproxy].[subscr_type]&apos; /&gt;&#10;      &lt;map key=&apos;[subscr_type_desc]&apos; value=&apos;[sqlproxy].[subscr_type_desc]&apos; /&gt;&#10;      &lt;map key=&apos;[tier]&apos; value=&apos;[sqlproxy].[tier]&apos; /&gt;&#10;      &lt;map key=&apos;[title]&apos; value=&apos;[sqlproxy].[title]&apos; /&gt;&#10;      &lt;map key=&apos;[total_usage]&apos; value=&apos;[sqlproxy].[total_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_date]&apos; value=&apos;[sqlproxy].[usage_date]&apos; /&gt;&#10;      &lt;map key=&apos;[user_address]&apos; value=&apos;[sqlproxy].[user_address]&apos; /&gt;&#10;      &lt;map key=&apos;[user_email]&apos; value=&apos;[sqlproxy].[user_email]&apos; /&gt;&#10;      &lt;map key=&apos;[user_fax]&apos; value=&apos;[sqlproxy].[user_fax]&apos; /&gt;&#10;      &lt;map key=&apos;[user_phone]&apos; value=&apos;[sqlproxy].[user_phone]&apos; /&gt;&#10;      &lt;map key=&apos;[user_systemname]&apos; value=&apos;[sqlproxy].[user_systemname]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Count&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[country]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; semantic-role=&apos;[Country].[ISO3166_2]&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.5&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.4&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;3/22/2017 9:35:55 PM&quot;</attribute>
@@ -13525,33 +13028,23 @@
             <column-instance column='[custom1]' derivation='Attribute' name='[attr:custom1:nk]' pivot='key' type='nominal' />
             <column-instance column='[custom2]' derivation='Attribute' name='[attr:custom2:nk]' pivot='key' type='nominal' />
             <column-instance column='[custom3]' derivation='Attribute' name='[attr:custom3:nk]' pivot='key' type='nominal' />
-            <column-instance column='[firstname]' derivation='Attribute' name='[attr:firstname:nk]' pivot='key' type='nominal' />
             <column-instance column='[journal]' derivation='Attribute' name='[attr:journal:nk]' pivot='key' type='nominal' />
-            <column-instance column='[lastname]' derivation='Attribute' name='[attr:lastname:nk]' pivot='key' type='nominal' />
-            <column-instance column='[memo]' derivation='Attribute' name='[attr:memo:nk]' pivot='key' type='nominal' />
-            <column-instance column='[ringgold_id]' derivation='Attribute' name='[attr:ringgold_id:nk]' pivot='key' type='nominal' />
             <column-instance column='[subscr_type_desc]' derivation='Attribute' name='[attr:subscr_type_desc:nk]' pivot='key' type='nominal' />
             <column-instance column='[tier]' derivation='Attribute' name='[attr:tier:nk]' pivot='key' type='nominal' />
-            <column-instance column='[user_email]' derivation='Attribute' name='[attr:user_email:nk]' pivot='key' type='nominal' />
-            <column-instance column='[user_phone]' derivation='Attribute' name='[attr:user_phone:nk]' pivot='key' type='nominal' />
             <column aggregation='Sum' caption='Current' datatype='integer' default-type='quantitative' layered='true' name='[current_usage]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[custom1]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[custom2]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[custom3]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='boolean' default-type='nominal' layered='true' name='[expired]' pivot='key' role='dimension' type='nominal' user-datatype='boolean' visual-totals='Default' />
             <column aggregation='Year' datatype='datetime' default-type='ordinal' layered='true' name='[final_expiration_date]' pivot='key' role='dimension' type='ordinal' user-datatype='datetime' visual-totals='Default' />
-            <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[firstname]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[inst_name]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[journal]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-            <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[lastname]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[membership_no]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-            <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[memo]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column-instance column='[usage_date]' derivation='MY' name='[my:usage_date:ok]' pivot='key' type='ordinal' />
             <column-instance column='[Calculation_7700812120901936]' derivation='None' name='[none:Calculation_7700812120901936:nk]' pivot='key' type='nominal' />
             <column-instance column='[Calculation_9770812122919943]' derivation='None' name='[none:Calculation_9770812122919943:nk]' pivot='key' type='nominal' />
             <column-instance column='[usage_category]' derivation='None' name='[none:usage_category:nk]' pivot='key' type='nominal' />
             <column aggregation='Sum' caption='Previous' datatype='integer' default-type='quantitative' layered='true' name='[previous_usage]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
-            <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[ringgold_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[subscr_type_desc]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[subscriber_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
@@ -13562,8 +13055,6 @@
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[time_slice]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[usage_category]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column aggregation='Year' datatype='datetime' default-type='ordinal' layered='true' name='[usage_date]' pivot='key' role='dimension' type='ordinal' user-datatype='datetime' visual-totals='Default' />
-            <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_email]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-            <column aggregation='Count' datatype='string' default-type='nominal' layered='true' name='[user_phone]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
             <column-instance column='[Calculation_7350811213600905]' derivation='User' name='[usr:Calculation_7350811213600905:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Calculation_8810913112225231]' derivation='User' name='[usr:Calculation_8810913112225231:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
@@ -13676,15 +13167,9 @@
               <lod column='[sqlproxy.42593.852012592593].[attr:custom1:nk]' />
               <lod column='[sqlproxy.42593.852012592593].[attr:custom2:nk]' />
               <lod column='[sqlproxy.42593.852012592593].[attr:custom3:nk]' />
-              <lod column='[sqlproxy.42593.852012592593].[attr:firstname:nk]' />
               <lod column='[sqlproxy.42593.852012592593].[attr:journal:nk]' />
-              <lod column='[sqlproxy.42593.852012592593].[attr:lastname:nk]' />
-              <lod column='[sqlproxy.42593.852012592593].[attr:memo:nk]' />
-              <lod column='[sqlproxy.42593.852012592593].[attr:ringgold_id:nk]' />
               <lod column='[sqlproxy.42593.852012592593].[attr:subscr_type_desc:nk]' />
               <lod column='[sqlproxy.42593.852012592593].[attr:tier:nk]' />
-              <lod column='[sqlproxy.42593.852012592593].[attr:user_email:nk]' />
-              <lod column='[sqlproxy.42593.852012592593].[attr:user_phone:nk]' />
               <lod column='[sqlproxy.42593.852012592593].[sum:absolute_delta:qk]' />
               <lod column='[sqlproxy.42593.852012592593].[sum:previous_usage:qk]' />
             </encodings>
@@ -13731,12 +13216,12 @@
       </zones>
     </dashboard>
   </dashboards>
-  <windows source-height='156'>
+  <windows source-height='148'>
     <window class='dashboard' maximized='true' name='Overview'>
       <viewpoints>
         <viewpoint name='declining_usage' />
       </viewpoints>
-      <active id='83' />
+      <active id='67' />
     </window>
     <window class='worksheet' hidden='true' name='declining_usage'>
       <cards>
@@ -13812,20 +13297,20 @@
   <thumbnails>
     <thumbnail height='192' name='Overview' width='192'>
       iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7EAAAOxAGVKw4b
-      AAACsklEQVR4nO3YoW4UUQCG0duyDUldN5sGgUFU9yFAIEkIpoZqXolH4AEwNA0KQzAoLNil
-      60hoA4Nq1aaClN2E7xw1GTH5zZc7MzvTNE0Dona3PQC2aXZ9sVwu//ohi8XiTsbApu2sewW6
-      +rEar9+8Ha9enoyPH96P83dnY3Z4NB4fPxifvv0apy+ebmMr3LnZupt7+wfj0cPD8X21Gl+/
-      fB737s/H7+ly/LzaHc+fPdn0Rvhn1p4A1y4uVmM+P9jkHtiomwB8A1B06wkA/zu/QUkTAGkC
-      IE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDS
-      BECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0A
-      pAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECa
-      AEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmA
-      NAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgT
-      AGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQ
-      JgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkC
-      IE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDS
-      BECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBEDaH5NKOShjnZOH
-      AAAAAElFTkSuQmCC
+      AAACr0lEQVR4nO3YsWoUUQCG0ZtFBJEUGzatYOE+QAI2goWVj2GRzucS7G3FOq3Y5AECIXHN
+      ir0Zq1gtKULcBb9zqqmGv/m4d2ZvmqZpQNRs1wNglx7dPqxWq3u/ZLFYPMgY2La9TVegn5fn
+      48Onz+P9ybvx9cvHcTa9GOffTsez+WzsP3853r4+3sVWeHAbr0C/b27G+urHuFivx3K5HIfz
+      J+Po1Zsxe/x0/Pp+se2N8M9sPAFuXV+vx8HBfJt7YKv+BuAbgKI7TwD43/kNSpoASBMAaQIg
+      TQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIE
+      QJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCk
+      CYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoA
+      SBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0
+      AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMA
+      aQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAm
+      ANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIg
+      TQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIE
+      QJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANL+AAS4ORWqHzwyAAAA
+      AElFTkSuQmCC
     </thumbnail>
   </thumbnails>
 </workbook>
