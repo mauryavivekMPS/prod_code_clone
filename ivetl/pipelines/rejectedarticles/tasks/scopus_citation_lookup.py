@@ -3,6 +3,7 @@ import csv
 import codecs
 import json
 import traceback
+import threading
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors.base import MaxTriesAPIError
@@ -40,13 +41,15 @@ class ScopusCitationLookupTask(Task):
         target_file = codecs.open(target_file_name, 'a', 'utf-16')
 
         if not already_processed:
-            target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
+            target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']))
 
         count = 0
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
-        pm = PublisherMetadata.objects.filter(publisher_id=publisher_id).first()
-        connector = ScopusConnector(pm.scopus_api_keys)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+        connector = ScopusConnector(publisher.scopus_api_keys)
+
+        manuscript_rows = []
 
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
