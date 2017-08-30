@@ -437,7 +437,6 @@ class Task(BaseTask):
 
         return task_args
 
-
     def run_pipeline_threads(self, thread_function, all_rows, num_threads=10, tlogger=None):
         total_count = len(all_rows)
         num_per_thread = round(total_count / num_threads)

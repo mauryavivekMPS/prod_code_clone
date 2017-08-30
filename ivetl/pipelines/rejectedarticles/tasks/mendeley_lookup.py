@@ -99,26 +99,7 @@ class MendeleyLookupTask(Task):
 
                 target_file.write(row)
 
-        num_threads = 10
-        num_per_thread = round(total_count / num_threads)
-        threads = []
-        for i in range(num_threads):
-
-            from_index = i * num_per_thread
-            if i == num_threads - 1:
-                to_index = total_count
-            else:
-                to_index = (i + 1) * num_per_thread
-
-            tlogger.info('Starting thread for [%s:%s]' % (from_index, to_index))
-
-            new_thread = threading.Thread(target=process_manuscript_rows, args=(manuscript_rows[from_index:to_index],))
-            new_thread.start()
-            threads.append(new_thread)
-
-        for thread in threads:
-            tlogger.info('Waiting on thread: %s' % thread)
-            thread.join()
+        self.run_pipeline_threads(process_manuscript_rows, manuscript_rows, tlogger=tlogger)
 
         target_file.close()
 
