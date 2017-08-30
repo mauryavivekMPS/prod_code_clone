@@ -460,3 +460,8 @@ class Task(BaseTask):
             if tlogger:
                 tlogger.info('Waiting on thread: %s' % thread)
             thread.join()
+
+    def reader_without_unicode_breaks(self, f):
+        while True:
+            yield next(f).replace('\ufeff', '')
+            continue
