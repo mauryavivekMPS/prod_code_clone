@@ -200,7 +200,7 @@ def add_audit_log(user_id='system', publisher_id='system', action='', descriptio
 
 def trim_and_strip_doublequotes(s):
     s = s.strip()
-    if s[0] == '"' and s[-1] == '"':
+    if s and s[0] == '"' and s[-1] == '"':
         return s[1:-1].strip()
     else:
         return s
