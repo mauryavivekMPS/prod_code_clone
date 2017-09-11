@@ -74,6 +74,13 @@ def get_from_to_dates_with_high_water(from_date, to_date, pipeline_id):
     return from_date, to_date
 
 
+def get_high_water(pipeline_id):
+    try:
+        return SystemGlobal.objects(name=pipeline_id + '_high_water').date_value
+    except:
+        return None
+
+
 def update_high_water(pipeline_id, new_high_water_date):
     try:
         current_high_water = SystemGlobal.objects(name=pipeline_id + '_high_water').date_value

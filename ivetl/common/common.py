@@ -27,6 +27,8 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'supports_restart': True,
+        'include_date_range_controls': True,
+        'use_high_water_mark': True,
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',

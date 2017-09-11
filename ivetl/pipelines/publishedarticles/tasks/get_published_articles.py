@@ -1,21 +1,24 @@
 import codecs
 import json
 import urllib.parse
-from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors import CrossrefConnector
 from ivetl.common import common
 from ivetl.models import PublisherMetadata
+from ivetl import utils
 
 
-@app.task(rate_limit="6/h")
 class GetPublishedArticlesTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        issns = task_args['issns']
-        from_pub_date_str = self.from_json_date(task_args['start_pub_date']).strftime('%Y-%m-%d')
+        earliest_pub_date = self.from_json_date(task_args['start_pub_date']).strftime('%Y-%m-%d')
 
+        high_water = utils.get_high_water(pipeline_id)
+        if high_water:
+            from_pub_date = high_water
+
+        issns = task_args['issns']
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
         crossref = CrossrefConnector(publisher.crossref_username, publisher.crossref_password, tlogger)
 
@@ -39,7 +42,7 @@ class GetPublishedArticlesTask(Task):
                 encoded_params = urllib.parse.urlencode({
                     'rows': task_args['articles_per_page'],
                     'cursor': cursor,
-                    'filter': 'issn:%s,type:journal-article,from-pub-date:%s' % (issn, from_pub_date_str),
+                    'filter': 'issn:%s,type:journal-article,from-pub-date:%s' % (issn, earliest_pub_date),
                 })
 
                 url = 'http://api.crossref.org/works?%s' % encoded_params
