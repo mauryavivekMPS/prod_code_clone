@@ -27,6 +27,7 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'supports_restart': True,
+        'include_from_date_controls': True,
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
@@ -881,6 +882,11 @@ TABLEAU_WORKBOOKS = [
         'name': 'UV: Article Usage',
         'home_view': 'Overview',
     },
+    {
+        'id': 'meta_advance_correlator_citation_usage.twb.twb',
+        'name': 'Meta Advance Correlator of Citations & Usage',
+        'home_view': 'Section-to-SectionComparator',
+    },
 ]  # type: list[dict]
 
 TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
@@ -942,6 +948,9 @@ TABLEAU_DATASOURCE_UPDATES = {
         'cost_by_subscriber_bundle_ds.tds',
         'cost_delta_subscriber_bundle_ds.tds',
     ],
+    ('meta', 'ingest_meta_predictions'): [
+        'article_citations_ds.tds',
+    ],
 }
 
 FTP_DIRS = [
@@ -984,6 +993,11 @@ FTP_DIRS = [
         'product_id': 'institutions',
         'pipeline_id': 'custom_subscriber_data',
         'ftp_dir_name': 'additional_subscriber_data_files',
+    },
+    {
+        'product_id': 'meta',
+        'pipeline_id': 'ingest_meta_predictiopns',
+        'ftp_dir_name': 'meta_predictions_files',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}
