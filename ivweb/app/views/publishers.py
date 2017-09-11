@@ -4,6 +4,8 @@ import requests
 import json
 import time
 import uuid
+import math
+import logging
 from operator import attrgetter
 from bs4 import BeautifulSoup
 from django import forms
@@ -18,6 +20,8 @@ from ivetl.common import common
 from ivetl import utils
 from ivweb.app.views import utils as view_utils
 from .pipelines import get_pending_files_for_demo, move_demo_files_to_pending
+
+log = logging.getLogger(__name__)
 
 
 @login_required
@@ -844,58 +848,73 @@ def update_demo_status(request):
     return HttpResponse('ok')
 
 
-def register_and_get_scopus_keys(publisher_id):
-    # load a page to get session ID cookies
-    cookie_url = 'https://dev.elsevier.com/user/registration'
-    cookie_response = requests.get(cookie_url)
-    cookies = cookie_response.cookies
-
-    # register a developer account
-    email = 'nmehta-%s@highwire.org' % publisher_id
-    password = 'highwire01'
-    registration_url = 'https://dev.elsevier.com/user/registration'
-    registration_params = {
-        'firstName': publisher_id,
-        'lastName': 'Publisher',
-        'emailAddress': email,
-        'password': password,
-        'confirmPassword': password,
-        'registerUseragreement': 'true',
-    }
-    registration_response = requests.post(registration_url, data=registration_params, cookies=cookies)
-
-    # sign in with the new account
-    sign_in_url = 'https://dev.elsevier.com/apikey/manage'
-    sign_in_params = {
-        'inputEmail': email,
-        'inputPassword': password,
-        'rememberMe': '',
-    }
-    sign_in_response = requests.post(sign_in_url, data=sign_in_params, cookies=cookies)
-
-    # create a set of keys
+def register_and_get_scopus_keys(publisher_id, num_keys=10):
     keys = []
-    for i in range(1, 6):
-        key_name = 'Key %s' % i
-        key_url = 'http://manage.vizors.org'
-        create_key_url = 'https://dev.elsevier.com/apikey/create'
-        create_key_params = {
-            'projectName': key_name,
-            'websiteURL': key_url,
-            'agreed': 'true',
-            'textminingAgreed': 'true',
-            'mode': 'Insert',
-            'apiKey': '',
-            'mappingType': 'website',
+    max_keys_per_account = 10
+    num_accounts = math.ceil(num_keys / max_keys_per_account)  # type: int
+    num_keys_left_to_get = num_keys
+
+    for account_index in range(num_accounts):
+
+        # load a page to get session ID cookies
+        cookie_url = 'https://dev.elsevier.com/user/registration'
+        cookie_response = requests.get(cookie_url)
+        cookies = cookie_response.cookies
+
+        # register a developer account
+        email = 'nmehta-%s-%s@highwire.org' % (publisher_id, account_index)
+        password = 'highwire01'
+        registration_url = 'https://dev.elsevier.com/user/registration'
+        registration_params = {
+            'firstName': 'Neil',
+            'lastName': 'Mehta',
+            'emailAddress': email,
+            'password': password,
+            'confirmPassword': password,
+            'registerUseragreement': 'true',
         }
-        create_key_response = requests.post(create_key_url, data=create_key_params, cookies=cookies)
+        registration_response = requests.post(registration_url, data=registration_params, cookies=cookies)
 
-        m = re.search(
-            r'<a href="javascript:changeMode\(\'Update\',\'(\w+)\',\'%s\',\'%s\'' % (key_url, key_name),
-            create_key_response.text,
-            flags=re.MULTILINE
-        )
+        # sign in with the new account
+        sign_in_url = 'https://dev.elsevier.com/apikey/manage'
+        sign_in_params = {
+            'inputEmail': email,
+            'inputPassword': password,
+            'rememberMe': '',
+        }
+        sign_in_response = requests.post(sign_in_url, data=sign_in_params, cookies=cookies)
 
-        keys.append(m.groups()[0])
+        if num_keys_left_to_get > 10:
+            num_keys_for_this_account = 10
+        else:
+            num_keys_for_this_account = num_keys_left_to_get
+
+        # create a set of keys
+        for i in range(1, num_keys_for_this_account + 1):
+            key_name = '%s %s' % (publisher_id, i)
+            key_url = 'http://%s-%s-%s.vizors.org' % (publisher_id, account_index, i)
+            create_key_url = 'https://dev.elsevier.com/apikey/create'
+            create_key_params = {
+                'projectName': key_name,
+                'websiteURL': key_url,
+                'agreed': 'true',
+                'textminingAgreed': 'true',
+                'mode': 'Insert',
+                'apiKey': '',
+                'mappingType': 'website',
+            }
+            create_key_response = requests.post(create_key_url, data=create_key_params, cookies=cookies)
+
+            m = re.search(
+                r'<a href="javascript:changeMode\(\'Update\',\'(\w+)\',\'%s\',\'%s\'' % (key_url, key_name),
+                create_key_response.text,
+                flags=re.MULTILINE
+            )
+            match_groups = m.groups()
+            if not match_groups:
+                log.error('No matches from the HTML regex to pull out the new API key.')
+                raise Exception('Regular expression to pull out new API key failed.')
+
+            keys.append(m.groups()[0])
 
     return keys
