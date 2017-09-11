@@ -19,6 +19,7 @@ var EditPublisherPage = (function() {
     var cohortCitationsProduct = false;
     var institutionsProduct = false;
     var socialProduct = false;
+    var metaProduct = false;
 
     var enableSubmit = function() {
         $('.submit-button.save-button').removeClass('disabled').prop('disabled', false);
@@ -56,7 +57,8 @@ var EditPublisherPage = (function() {
         var impactVizor = $('#id_impact_vizor_product_group').is(':checked');
         var usageVizor = $('#id_usage_vizor_product_group').is(':checked');
         var socialVizor = $('#id_social_vizor_product_group').is(':checked');
-        var atLeastOneProduct = impactVizor || usageVizor || socialVizor;
+        var metaVizor = $('#id_meta_vizor_product_group').is(':checked');
+        var atLeastOneProduct = impactVizor || usageVizor || socialVizor || metaVizor;
 
         var hasReportsDetails = true;
         if (isNew) {
@@ -267,6 +269,7 @@ var EditPublisherPage = (function() {
         cohortCitationsProduct = false;
         institutionsProduct = false;
         socialProduct = false;
+        metaProduct = false
 
         if ($('#id_impact_vizor_product_group').is(':checked')) {
             publishedArticlesProduct = true;
@@ -705,6 +708,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="impact_vizor_product_group"]').val($('#id_impact_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="usage_vizor_product_group"]').val($('#id_usage_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="social_vizor_product_group"]').val($('#id_social_vizor_product_group').is(':checked') ? 'on' : '');
+        f.find('input[name="meta_vizor_product_group"]').val($('#id_meta_vizor_product_group').is(':checked') ? 'on' : '');
 
         if (options.submitForApproval) {
             f.find('input[name="status"]').val('submitted-for-review');
@@ -771,7 +775,7 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        $('#id_impact_vizor_product_group, #id_usage_vizor_product_group, #id_social_vizor_product_group').on('change', function() {
+        $('#id_impact_vizor_product_group, #id_usage_vizor_product_group, #id_social_vizor_product_group, #id_meta_vizor_product_group').on('change', function() {
             updateProductControls();
             checkForm();
         });

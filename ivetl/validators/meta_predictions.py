@@ -3,7 +3,7 @@ import csv
 from ivetl.validators.base import BaseValidator
 
 
-class BundleDefinitionsValidator(BaseValidator):
+class MetaPredictionsValidator(BaseValidator):
     def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
         errors = []
         total_count = 0
@@ -24,7 +24,7 @@ class BundleDefinitionsValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) < 2:
+                            if len(line) < 17:
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 

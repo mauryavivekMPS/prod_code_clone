@@ -445,6 +445,19 @@ PIPELINES = [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateSubscriberDeltasTask',
         ],
     },
+    {
+        'name': 'Ingest Predictions',
+        'id': 'ingest_meta_predictiopns',
+        'user_facing_display_name': 'Ingest Predictions',
+        'class': 'ivetl.pipelines.meta_predictions.IngestPredictionsPipeline',
+        'has_file_input': True,
+        'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.meta_predictions.tasks.GetPredictionFilesTask',
+            'ivetl.pipelines.meta_predictions.tasks.ValidatePredictionsFilesTask',
+            'ivetl.pipelines.meta_predictions.tasks.InsertPredictionDataTask',
+        ],
+    },
 ]  # type: list[dict]
 PIPELINE_BY_ID = {p['id']: p for p in PIPELINES}
 PIPELINE_CHOICES = [(p['id'], p['name']) for p in PIPELINES]
@@ -687,6 +700,18 @@ PRODUCTS = [
             },
         ],
     },
+    {
+        'name': 'Meta',
+        'id': 'meta',
+        'is_user_facing': True,
+        'order': 14,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['ingest_meta_predictiopns'],
+            },
+        ],
+    },
 ]  # type: list[dict]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
 PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
@@ -752,6 +777,15 @@ PRODUCT_GROUPS = [
         'products': [
             'published_articles',
             'social',
+        ],
+        'tableau_datasources': [],
+        'tableau_workbooks': [],
+    },
+    {
+        'name': 'MetaVizor',
+        'id': 'meta_vizor',
+        'products': [
+            'meta',
         ],
         'tableau_datasources': [],
         'tableau_workbooks': [],

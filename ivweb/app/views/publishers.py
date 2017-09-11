@@ -11,7 +11,7 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherMetadata, PublisherUser, PublisherJournal, ScopusApiKey, Demo
+from ivetl.models import PublisherMetadata, PublisherUser, PublisherJournal, Demo
 from ivetl.tasks import update_reports_for_publisher
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
@@ -170,6 +170,7 @@ class PublisherForm(forms.Form):
     impact_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     usage_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     social_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    meta_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
     # demo-specific fields
     start_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control'}, format='%m/%d/%Y'), required=False)
@@ -206,6 +207,7 @@ class PublisherForm(forms.Form):
             initial['impact_vizor_product_group'] = 'impact_vizor' in initial['supported_product_groups']
             initial['usage_vizor_product_group'] = 'usage_vizor' in initial['supported_product_groups']
             initial['social_vizor_product_group'] = 'social_vizor' in initial['supported_product_groups']
+            initial['meta_vizor_product_group'] = 'meta_vizor' in initial['supported_product_groups']
             initial['use_crossref'] = initial.get('use_crossref') or initial['crossref_username'] or initial['crossref_password']
 
             if self.is_demo or convert_from_demo:
@@ -283,6 +285,8 @@ class PublisherForm(forms.Form):
             supported_product_groups.append('usage_vizor')
         if self.cleaned_data['social_vizor_product_group']:
             supported_product_groups.append('social_vizor')
+        if self.cleaned_data['meta_vizor_product_group']:
+            supported_product_groups.append('meta_vizor')
 
         supported_products_set = set()
         for product_group_id in supported_product_groups:
