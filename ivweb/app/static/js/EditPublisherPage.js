@@ -360,19 +360,6 @@ var EditPublisherPage = (function() {
         }
     };
 
-    var useScopusApiKeysFromPool = function() {
-        return $('#id_use_scopus_api_keys_from_pool').is(':checked');
-    };
-
-    var updateScopusControls = function() {
-        if (useScopusApiKeysFromPool()) {
-            $('.scopus-controls').fadeOut(200);
-        }
-        else {
-            $('.scopus-controls').fadeIn(100);
-        }
-    };
-
     var publisherDemoMode = function() {
         return $('#id_demo').is(':checked');
     };
@@ -699,8 +686,6 @@ var EditPublisherPage = (function() {
         f.find('input[name="publisher_id"]').val($('#id_publisher_id').val());
         f.find('input[name="name"]').val($('#id_name').val());
         f.find('input[name="issn_values"]').val($('#id_issn_values').val());
-        f.find('input[name="use_scopus_api_keys_from_pool"]').val($('#id_use_scopus_api_keys_from_pool').is(':checked') ? 'on' : '');
-        f.find('input[name="scopus_api_keys"]').val($('#id_scopus_api_keys').val());
         f.find('input[name="email"]').val($('#id_email').val());
         f.find('input[name="use_crossref"]').val($('#id_use_crossref').is(':checked') ? 'on' : '');
         f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
@@ -817,14 +802,6 @@ var EditPublisherPage = (function() {
             checkForm();
         });
         updateStatusControls();
-
-        if (isNew) {
-            $('#id_use_scopus_api_keys_from_pool').on('change', function() {
-                updateScopusControls();
-                checkForm();
-            });
-            updateScopusControls();
-        }
 
         $('#id_crossref_username, #id_crossref_password').on('keyup', function() {
             updateValidateCrossrefButton();

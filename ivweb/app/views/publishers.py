@@ -1,3 +1,4 @@
+import re
 import datetime
 import requests
 import json
@@ -151,8 +152,6 @@ class PublisherForm(forms.Form):
     publisher_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a short, unique identifier'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a name for display'}))
     issn_values = forms.CharField(widget=forms.HiddenInput)
-    use_scopus_api_keys_from_pool = forms.BooleanField(widget=forms.CheckboxInput, required=False)
-    scopus_api_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated API keys'}), required=False)
     email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     use_crossref = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     crossref_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
@@ -179,7 +178,7 @@ class PublisherForm(forms.Form):
     convert_to_publisher = forms.BooleanField(widget=forms.HiddenInput, required=False)
     message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter custom message for notification email (optional)'}), required=False)
 
-    def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, scopus_keys_available=True, **kwargs):
+    def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, **kwargs):
         self.is_demo = is_demo
         self.creating_user = creating_user
         self.issn_values_list = []
@@ -204,7 +203,6 @@ class PublisherForm(forms.Form):
                 initial['ac_databases'] = ', '.join(initial.get('ac_databases', []))
 
             initial.pop('reports_password', None)  # clear out the encoded password
-            initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
             initial['impact_vizor_product_group'] = 'impact_vizor' in initial['supported_product_groups']
             initial['usage_vizor_product_group'] = 'usage_vizor' in initial['supported_product_groups']
             initial['social_vizor_product_group'] = 'social_vizor' in initial['supported_product_groups']
@@ -248,7 +246,6 @@ class PublisherForm(forms.Form):
 
         else:
             self.instance = None
-            initial['use_scopus_api_keys_from_pool'] = scopus_keys_available
             initial['status'] = common.DEMO_STATUS_CREATING
 
         # pre-initialize the demo ID so that we can upload files to a known location
@@ -340,17 +337,12 @@ class PublisherForm(forms.Form):
             return demo
 
         else:
-            scopus_api_keys = []
-            if self.cleaned_data['scopus_api_keys']:
-                scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
-
-            if not self.instance and self.cleaned_data['use_scopus_api_keys_from_pool']:
-                # grab 5 API keys from the pool
-                for key in ScopusApiKey.objects.all()[:5]:
-                    scopus_api_keys.append(key.key)
-                    key.delete()
-
             publisher_id = self.cleaned_data['publisher_id']
+
+            scopus_api_keys = []
+            if not self.instance:
+                scopus_api_keys = register_and_get_scopus_keys(publisher_id)
+
             PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
                 email=self.cleaned_data['email'],
@@ -432,14 +424,12 @@ def edit(request, publisher_id=None):
         is_new = False
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
-    scopus_keys_available = ScopusApiKey.objects.count() >= 5
-
     from_value = ''
     demo_files_custom_article_data = []
     demo_files_rejected_articles = []
 
     if request.method == 'POST':
-        form = PublisherForm(request.user, request.POST, instance=publisher, scopus_keys_available=scopus_keys_available)
+        form = PublisherForm(request.user, request.POST, instance=publisher)
         if form.is_valid():
             publisher = form.save()
 
@@ -471,7 +461,7 @@ def edit(request, publisher_id=None):
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
 
             # tableau setup takes a while, run it through celery
-            update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
+            # update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
 
             query_string = '?from=new-success' if is_new else '?from=save-success'
 
@@ -491,7 +481,7 @@ def edit(request, publisher_id=None):
             demo_files_rejected_articles = get_pending_files_for_demo(demo.demo_id, 'rejected_manuscripts', 'rejected_articles')
 
         else:
-            form = PublisherForm(request.user, instance=publisher, scopus_keys_available=scopus_keys_available)
+            form = PublisherForm(request.user, instance=publisher)
 
     demo_from_publisher = None
     if publisher and publisher.demo_id:
@@ -510,7 +500,6 @@ def edit(request, publisher_id=None):
         'demo_from_publisher': demo_from_publisher,
         'demo_files_custom_article_data': demo_files_custom_article_data,
         'demo_files_rejected_articles': demo_files_rejected_articles,
-        'scopus_keys_available': scopus_keys_available,
     })
 
 
@@ -521,8 +510,6 @@ def edit_demo(request, demo_id=None):
     if demo_id:
         demo = Demo.objects.get(demo_id=demo_id)
         new = False
-
-    scopus_keys_available = ScopusApiKey.objects.count() >= 5
 
     if request.method == 'POST':
 
@@ -548,7 +535,7 @@ def edit_demo(request, demo_id=None):
                     return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=unarchive-demo&filter=active')
 
         else:
-            form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True, scopus_keys_available=scopus_keys_available)
+            form = PublisherForm(request.user, request.POST, instance=demo, is_demo=True)
             if form.is_valid():
 
                 previous_status = None
@@ -583,7 +570,7 @@ def edit_demo(request, demo_id=None):
 
                 return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
     else:
-        form = PublisherForm(request.user, instance=demo, is_demo=True, scopus_keys_available=scopus_keys_available )
+        form = PublisherForm(request.user, instance=demo, is_demo=True)
 
     demo_files_custom_article_data = []
     demo_files_rejected_articles = []
@@ -851,3 +838,60 @@ def update_demo_status(request):
         _notify_on_new_status(demo, request, message=message)
 
     return HttpResponse('ok')
+
+
+def register_and_get_scopus_keys(publisher_id):
+    # load a page to get session ID cookies
+    cookie_url = 'https://dev.elsevier.com/user/registration'
+    cookie_response = requests.get(cookie_url)
+    cookies = cookie_response.cookies
+
+    # register a developer account
+    email = 'nmehta-%s@highwire.org' % publisher_id
+    password = 'highwire01'
+    registration_url = 'https://dev.elsevier.com/user/registration'
+    registration_params = {
+        'firstName': publisher_id,
+        'lastName': 'Publisher',
+        'emailAddress': email,
+        'password': password,
+        'confirmPassword': password,
+        'registerUseragreement': 'true',
+    }
+    registration_response = requests.post(registration_url, data=registration_params, cookies=cookies)
+
+    # sign in with the new account
+    sign_in_url = 'https://dev.elsevier.com/apikey/manage'
+    sign_in_params = {
+        'inputEmail': email,
+        'inputPassword': password,
+        'rememberMe': '',
+    }
+    sign_in_response = requests.post(sign_in_url, data=sign_in_params, cookies=cookies)
+
+    # create a set of keys
+    keys = []
+    for i in range(1, 6):
+        key_name = 'Key %s' % i
+        key_url = 'http://manage.vizors.org'
+        create_key_url = 'https://dev.elsevier.com/apikey/create'
+        create_key_params = {
+            'projectName': key_name,
+            'websiteURL': key_url,
+            'agreed': 'true',
+            'textminingAgreed': 'true',
+            'mode': 'Insert',
+            'apiKey': '',
+            'mappingType': 'website',
+        }
+        create_key_response = requests.post(create_key_url, data=create_key_params, cookies=cookies)
+
+        m = re.search(
+            r'<a href="javascript:changeMode\(\'Update\',\'(\w+)\',\'%s\',\'%s\'' % (key_url, key_name),
+            create_key_response.text,
+            flags=re.MULTILINE
+        )
+
+        keys.append(m.groups()[0])
+
+    return keys

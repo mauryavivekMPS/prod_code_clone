@@ -146,30 +146,6 @@
                             </div>
                         </div>
 
-                        {% if request.user.superuser %}
-                            {% if not publisher and scopus_keys_available %}
-                                <div class="form-group row">
-                                    <label class="col-sm-2">Scopus</label>
-                                    <div class="col-sm-6">
-                                        <div class="checkbox">
-                                            <label>{{ form.use_scopus_api_keys_from_pool }} Get Scopus API keys from pool</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                            <div class="scopus-controls" {% if not publisher %}style="display:none"{% endif %}>
-                                <div class="form-group row">
-                                    <label for="scopus_api_keys" class="col-sm-2">Scopus API Keys</label>
-                                    <div class="col-sm-6">
-                                        {{ form.scopus_api_keys }}
-                                    </div>
-                                </div>
-                            </div>
-                        {% else %}
-                            <input type="hidden" name="use_scopus_api_keys_from_pool" value="{{ form.initial.use_scopus_api_keys_from_pool }}">
-                            <input type="hidden" name="scopus_api_keys" value="{{ form.initial.scopus_api_keys }}">
-                        {% endif %}
-
                         <div class="form-group row">
                             <label class="col-sm-2">Demo</label>
                             <div class="col-sm-6">
