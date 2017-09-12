@@ -147,10 +147,11 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-2">Demo</label>
+                            <label class="col-sm-2">Restrictions</label>
                             <div class="col-sm-6">
                                 <div class="checkbox">
-                                    <label>{{ form.demo }} Enable Demo restrictions on this publisher</label>
+                                    <label>{{ form.pilot }} Enable Pilot restrictions</label>
+                                    <label>{{ form.demo }} Enable Demo restrictions</label>
                                 </div>
                                 {% if demo_from_publisher %}
                                     <p class="form-control-static">
@@ -162,11 +163,15 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-2">Pilot</label>
-                            <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>{{ form.pilot }} Enable Pilot restrictions on this publisher</label>
-                                </div>
+                            <label for="email" class="col-sm-2">Scopus Keys</label>
+                            <div class="col-sm-1">
+                                <p class="form-control-static">Generate</p>
+                            </div>
+                            <div class="col-sm-1 num-scopus-keys-control-col">
+                                {{ form.num_scopus_keys }}
+                            </div>
+                            <div class="col-sm-2 num-scopus-keys-suffix-col">
+                                <p class="form-control-static">API keys</p>
                             </div>
                         </div>
 

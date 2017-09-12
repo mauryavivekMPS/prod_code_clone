@@ -169,6 +169,7 @@ class PublisherForm(forms.Form):
     reports_password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'display:none'}), required=False)
     reports_project = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project folder'}), required=False)
     ac_databases = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated database names'}), required=False)
+    num_scopus_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), initial=10, required=False)
 
     # vizor-level checkboxes
     impact_vizor_product_group = forms.BooleanField(widget=forms.CheckboxInput, required=False)

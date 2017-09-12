@@ -42,17 +42,25 @@ var EditPublisherPage = (function() {
     var checkForm = function() {
 
         var name = $("#id_name").val();
-        var hasName = name != '';
+        var hasName = name !== '';
 
         var hasStartDate = false;
         if (isDemo) {
             var startDate = $("#id_start_date").val();
-            hasStartDate = startDate != '';
+            hasStartDate = startDate !== '';
         }
 
         var publisherId = $("#id_publisher_id").val();
         var email = $("#id_email").val();
-        var hasBasics = publisherId != '' && name != '' && email != '';
+        var hasBasics = publisherId !== '' && name !== '' && email !== '';
+
+        var hasValidScopusKeys = true;
+        if (isNew && !isDemo) {
+            var numScopusKeys = parseInt($('#id_num_scopus_keys').val());
+            if (isNaN(numScopusKeys) || numScopusKeys < 0) {
+                hasValidScopusKeys = false;
+            }
+        }
 
         var impactVizor = $('#id_impact_vizor_product_group').is(':checked');
         var usageVizor = $('#id_usage_vizor_product_group').is(':checked');
@@ -67,7 +75,7 @@ var EditPublisherPage = (function() {
             var reportsProject = $('#id_reports_project').val();
 
             if (publisherDemoMode()) {
-                hasReportsDetails = reportsProject != '';
+                hasReportsDetails = reportsProject !== '';
             }
             else {
                 hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
@@ -252,7 +260,7 @@ var EditPublisherPage = (function() {
             }
         }
         else {
-            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort && validACDatabases) {
+            if (hasBasics && hasValidScopusKeys && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort && validACDatabases) {
                 enableSubmit();
             }
             else {
@@ -633,10 +641,10 @@ var EditPublisherPage = (function() {
         setInterval(function() {
             $.getJSON(buildingPollUrl)
                 .done(function(json) {
-                    if (json.status == 'completed') {
+                    if (json.status === 'completed') {
                         window.location = buildingSuccessUrl;
                     }
-                    else if (json.status == 'error') {
+                    else if (json.status === 'error') {
                         window.location = buildingErrorUrl;
                     }
                 });
@@ -709,6 +717,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="usage_vizor_product_group"]').val($('#id_usage_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="social_vizor_product_group"]').val($('#id_social_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="meta_vizor_product_group"]').val($('#id_meta_vizor_product_group').is(':checked') ? 'on' : '');
+        f.find('input[name="num_scopus_keys"]').val($('#id_num_scopus_keys').val());
 
         if (options.submitForApproval) {
             f.find('input[name="status"]').val('submitted-for-review');
