@@ -164,15 +164,21 @@
 
                         <div class="form-group row">
                             <label for="email" class="col-sm-2">Scopus Keys</label>
-                            <div class="col-sm-1">
-                                <p class="form-control-static">Generate</p>
-                            </div>
-                            <div class="col-sm-1 num-scopus-keys-control-col">
-                                {{ form.num_scopus_keys }}
-                            </div>
-                            <div class="col-sm-2 num-scopus-keys-suffix-col">
-                                <p class="form-control-static">API keys</p>
-                            </div>
+                            {% if not publisher %}
+                                <div class="col-sm-1">
+                                    <p class="form-control-static">Generate</p>
+                                </div>
+                                <div class="col-sm-1 num-scopus-keys-control-col">
+                                    {{ form.num_scopus_keys }}
+                                </div>
+                                <div class="col-sm-2 num-scopus-keys-suffix-col">
+                                    <p class="form-control-static">API keys</p>
+                                </div>
+                            {% else %}
+                                <div class="col-sm-4">
+                                    <p class="form-control-static">{{ publisher.scopus_api_keys|length }} key{{ publisher.scopus_api_keys|pluralize }}</p>
+                                </div>
+                            {% endif %}
                         </div>
 
                     {% endif %}

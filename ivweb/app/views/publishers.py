@@ -1,10 +1,8 @@
-import re
 import datetime
 import requests
 import json
 import time
 import uuid
-import math
 import logging
 from operator import attrgetter
 from bs4 import BeautifulSoup
@@ -14,7 +12,7 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from ivetl.models import PublisherMetadata, PublisherUser, PublisherJournal, Demo
-from ivetl.tasks import update_reports_for_publisher
+from ivetl import tasks
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
 from ivetl import utils
@@ -348,15 +346,10 @@ class PublisherForm(forms.Form):
         else:
             publisher_id = self.cleaned_data['publisher_id']
 
-            scopus_api_keys = []
-            if not self.instance:
-                scopus_api_keys = register_and_get_scopus_keys(publisher_id)
-
             PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
                 email=self.cleaned_data['email'],
                 hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
-                scopus_api_keys=scopus_api_keys,
                 crossref_username=self.cleaned_data['crossref_username'],
                 crossref_password=self.cleaned_data['crossref_password'],
                 supported_product_groups=supported_product_groups,
@@ -469,8 +462,18 @@ def edit(request, publisher_id=None):
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'published_articles', 'custom_article_data')
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'rejected_manuscripts', 'rejected_articles')
 
-            # tableau setup takes a while, run it through celery
-            # update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
+                # kick off a celery task to get scopus API keys
+                try:
+                    num_keys = int(form.cleaned_data['num_scopus_keys'])
+                except ValueError:
+                    num_keys = 0
+
+                if num_keys:
+                    # kick off a celery task for API key retrieval
+                    tasks.get_scopus_api_keys.s(publisher.publisher_id, num_keys=num_keys).delay()
+
+            # kick off a celery task for tableau setup
+            tasks.update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
 
             query_string = '?from=new-success' if is_new else '?from=save-success'
 
@@ -847,75 +850,3 @@ def update_demo_status(request):
         _notify_on_new_status(demo, request, message=message)
 
     return HttpResponse('ok')
-
-
-def register_and_get_scopus_keys(publisher_id, num_keys=10):
-    keys = []
-    max_keys_per_account = 10
-    num_accounts = math.ceil(num_keys / max_keys_per_account)  # type: int
-    num_keys_left_to_get = num_keys
-
-    for account_index in range(num_accounts):
-
-        # load a page to get session ID cookies
-        cookie_url = 'https://dev.elsevier.com/user/registration'
-        cookie_response = requests.get(cookie_url)
-        cookies = cookie_response.cookies
-
-        # register a developer account
-        email = 'nmehta-%s-%s@highwire.org' % (publisher_id, account_index)
-        password = 'highwire01'
-        registration_url = 'https://dev.elsevier.com/user/registration'
-        registration_params = {
-            'firstName': 'Neil',
-            'lastName': 'Mehta',
-            'emailAddress': email,
-            'password': password,
-            'confirmPassword': password,
-            'registerUseragreement': 'true',
-        }
-        registration_response = requests.post(registration_url, data=registration_params, cookies=cookies)
-
-        # sign in with the new account
-        sign_in_url = 'https://dev.elsevier.com/apikey/manage'
-        sign_in_params = {
-            'inputEmail': email,
-            'inputPassword': password,
-            'rememberMe': '',
-        }
-        sign_in_response = requests.post(sign_in_url, data=sign_in_params, cookies=cookies)
-
-        if num_keys_left_to_get > 10:
-            num_keys_for_this_account = 10
-        else:
-            num_keys_for_this_account = num_keys_left_to_get
-
-        # create a set of keys
-        for i in range(1, num_keys_for_this_account + 1):
-            key_name = '%s %s' % (publisher_id, i)
-            key_url = 'http://%s-%s-%s.vizors.org' % (publisher_id, account_index, i)
-            create_key_url = 'https://dev.elsevier.com/apikey/create'
-            create_key_params = {
-                'projectName': key_name,
-                'websiteURL': key_url,
-                'agreed': 'true',
-                'textminingAgreed': 'true',
-                'mode': 'Insert',
-                'apiKey': '',
-                'mappingType': 'website',
-            }
-            create_key_response = requests.post(create_key_url, data=create_key_params, cookies=cookies)
-
-            m = re.search(
-                r'<a href="javascript:changeMode\(\'Update\',\'(\w+)\',\'%s\',\'%s\'' % (key_url, key_name),
-                create_key_response.text,
-                flags=re.MULTILINE
-            )
-            match_groups = m.groups()
-            if not match_groups:
-                log.error('No matches from the HTML regex to pull out the new API key.')
-                raise Exception('Regular expression to pull out new API key failed.')
-
-            keys.append(m.groups()[0])
-
-    return keys
