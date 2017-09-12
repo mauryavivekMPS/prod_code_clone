@@ -450,13 +450,13 @@ PIPELINES = [
         'name': 'Ingest Predictions',
         'id': 'ingest_meta_predictiopns',
         'user_facing_display_name': 'Ingest Predictions',
-        'class': 'ivetl.pipelines.meta_predictions.IngestPredictionsPipeline',
+        'class': 'ivetl.pipelines.metapredictions.IngestPredictionsPipeline',
         'has_file_input': True,
         'supports_restart': True,
         'tasks': [
-            'ivetl.pipelines.meta_predictions.tasks.GetPredictionFilesTask',
-            'ivetl.pipelines.meta_predictions.tasks.ValidatePredictionsFilesTask',
-            'ivetl.pipelines.meta_predictions.tasks.InsertPredictionDataTask',
+            'ivetl.pipelines.metapredictions.tasks.GetPredictionsFilesTask',
+            'ivetl.pipelines.metapredictions.tasks.ValidatePredictionsFilesTask',
+            'ivetl.pipelines.metapredictions.tasks.InsertPredictionsTask',
         ],
     },
 ]  # type: list[dict]

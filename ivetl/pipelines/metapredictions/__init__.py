@@ -1,0 +1,1 @@
+from ivetl.pipelines.metapredictions.ingest_predictions_pipeline import IngestPredictionsPipeline

@@ -12,20 +12,15 @@ class MetaPredictionsValidator(BaseValidator):
             try:
                 with open(f, encoding='utf-8') as tsv:
                     count = 0
-                    for line in csv.reader(tsv, delimiter='\t'):
+                    for line in csv.DictReader(tsv, delimiter='\t'):
                         if line:
                             if increment_count_func:
                                 count = increment_count_func(count)
                             else:
                                 count += 1
 
-                            # skip header row
-                            if count == 1:
-                                continue
-
-                            # check for number of fields
-                            if len(line) < 17:
-                                errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
+                            if not line['doi']:
+                                errors.append(self.format_error(file_name, count - 1, "Missing DOI, skipping other validation"))
                                 continue
 
                     total_count += count
