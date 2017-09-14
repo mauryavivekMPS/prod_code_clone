@@ -28,6 +28,8 @@ PIPELINES = [
         'validator_class': None,
         'supports_restart': True,
         'include_from_date_controls': True,
+        'uses_high_water_mark': True,
+        'date_range_type': 'published_articles_high_water',
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
@@ -159,6 +161,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
         'has_file_input': False,
         'include_date_range_controls': True,
+        'date_range_type': 'standard',
         'filter_for_benchpress_support': True,
         'supports_restart': True,
         'tasks': [
@@ -268,7 +271,8 @@ PIPELINES = [
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Site Uptime Stats',
         'include_date_range_controls': True,
-        'use_high_water_mark': True,
+        'date_range_type': 'from_previous_high_water',
+        'uses_high_water_mark': True,
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.siteuptime.tasks.GetUptimeStatsTask',
@@ -286,8 +290,6 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Run Weekly Uptime Alerts',
-        'include_date_range_controls': False,
-        'use_high_water_mark': False,
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.siteuptime.tasks.RunWeeklyAlertsTask',
@@ -340,7 +342,8 @@ PIPELINES = [
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Service Stats',
         'include_date_range_controls': True,
-        'use_high_water_mark': True,
+        'date_range_type': 'from_previous_high_water',
+        'uses_high_water_mark': True,
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.servicestats.tasks.GetStatsFilesTask',
@@ -429,6 +432,7 @@ PIPELINES = [
         'has_file_input': False,
         'supports_restart': True,
         'include_date_range_controls': True,
+        'date_range_type': 'standard',
         'tasks': [
             'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
         ],

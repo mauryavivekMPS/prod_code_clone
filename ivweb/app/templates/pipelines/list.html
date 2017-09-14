@@ -9,8 +9,10 @@
             <form id="run-single-publisher-pipeline-form" class="hidden-form" method="post" action="run/">
                 {% csrf_token %}
                 <input type="hidden" name="publisher" value="{{ pipeline.single_publisher_id }}">
-                {% if pipeline.include_date_range_controls %}
+                {% if pipeline.include_date_range_controls or pipeline.include_from_date_controls %}
                     <input type="hidden" id="id_from_date" name="from_date">
+                {% endif %}
+                {% if pipeline.include_date_range_controls %}
                     <input type="hidden" id="id_to_date" name="to_date">
                 {% endif %}
                 <input type="hidden" name="send_alerts" value="">
@@ -19,8 +21,10 @@
             <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
                 {% csrf_token %}
                 <input type="hidden" id="id_publisher_filter" name="publisher_filter" value="{{ filter_param }}">
-                {% if pipeline.include_date_range_controls %}
+                {% if pipeline.include_date_range_controls or pipeline.include_from_date_controls %}
                     <input type="hidden" id="id_from_date" name="from_date">
+                {% endif %}
+                {% if pipeline.include_date_range_controls %}
                     <input type="hidden" id="id_to_date" name="to_date">
                 {% endif %}
                 <input type="hidden" name="send_alerts" value="">
@@ -42,7 +46,7 @@
                         {{ pipeline.pipeline_run_button_label }}{% if pipeline.include_date_range_controls %}...{% endif %}
                     </a>
                     <i class="fa fa-spinner fa-pulse run-single-publisher-pipeline-loading-icon" style="display:none"></i>
-                    {% if pipeline.use_high_water_mark %}
+                    {% if pipeline.use_process_all_since_high_water_mark %}
                         <span class="last-updated-message">Last date processed: {{ high_water_mark }}</span>
                     {% endif %}
                 {% else %}
@@ -87,7 +91,7 @@
     </div>
 
     {% if not pipeline.single_publisher_pipeline %}
-        <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %}" id="confirm-run-one-modal">
+        <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %} {% if pipeline.include_from_date_controls %}confirm-dialog-with-from-date-controls{% endif %}" id="confirm-run-one-modal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -103,6 +107,10 @@
                                 <input type="text" id="id_run_one_modal_from_date" class="form-control date-control" value="{{ from_date }}">
                                 to
                                 <input type="text" id="id_run_one_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                            </p>
+                        {% elif pipeline.include_from_date_controls %}
+                            <p class="modal-indented-form">
+                                Start from: <input type="text" id="id_run_one_modal_from_date" class="form-control date-control" value="{{ from_date }}">
                             </p>
                         {% endif %}
                         {% if has_alerts %}
@@ -163,7 +171,7 @@
                 </div>
             </div>
         {% else %}
-            <div class="modal fade confirm-dialog" id="confirm-run-all-modal">
+            <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %} {% if pipeline.include_from_date_controls %}confirm-dialog-with-from-date-controls{% endif %}" id="confirm-run-all-modal">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -180,7 +188,7 @@
                                     to
                                     <input type="text" id="id_run_all_modal_to_date" class="form-control date-control" value="{{ to_date }}">
                                 </p>
-                                {% if pipeline.use_high_water_mark %}
+                                {% if pipeline.use_process_all_since_high_water_mark %}
                                     <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
                                 {% endif %}
                             {% else %}
@@ -225,6 +233,7 @@
                 pipelineName: '{{ pipeline.name }}',
                 singlePublisherPipeline: {% if pipeline.single_publisher_pipeline %}true{% else %}false{% endif %},
                 includeDateRangeControls: {% if pipeline.include_date_range_controls %}true{% else %}false{% endif %},
+                includeFromDateControls: {% if pipeline.include_from_date_controls %}true{% else %}false{% endif %},
                 supportsRestart: {% if pipeline.supports_restart %}true{% else %}false{% endif %}
             });
         });

@@ -1,3 +1,4 @@
+import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
@@ -55,6 +56,9 @@ class CheckRejectedManuscriptTask(Task):
             run_monthly_job=run_monthly_jobs,
             show_alerts=task_args.get('show_alerts', False),
         )
+
+        if pipeline_id in ("published_articles", "cohort_articles"):
+            utils.update_high_water(product_id, pipeline_id, publisher_id, datetime.datetime.now())
 
         if pipeline_id in ("published_articles", "cohort_articles") and run_monthly_jobs:
             pipeline_status = PipelineStatus.objects.get(

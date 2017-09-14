@@ -69,6 +69,52 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
             if num_tasks > 0:
                 recent_task = recent_run['tasks'][num_tasks - 1]
 
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
+    product = common.PRODUCT_BY_ID[product_id]
+
+    # get high water stuff
+    uses_high_water_mark = pipeline.get('uses_high_water_mark', False)
+    high_water_mark_date = utils.get_high_water(product_id, pipeline_id, publisher.publisher_id)
+    if high_water_mark_date:
+        high_water_mark_label = high_water_mark_date.strftime('%m/%d/%Y')
+    else:
+        high_water_mark_label = ''
+
+    # process date range stuff
+    next_run_from_date = ''
+    next_run_to_date = ''
+    today = datetime.datetime.now()
+    date_range_type = pipeline.get('date_range_type')
+    if date_range_type:
+        if date_range_type == 'from_previous_high_water':
+            if high_water_mark_date:
+                next_run_from_date = high_water_mark_date + datetime.timedelta(days=1)
+            else:
+                next_run_from_date = today - datetime.timedelta(days=1)
+            next_run_to_date = today
+
+        elif date_range_type == 'published_articles_high_water':
+            if high_water_mark_date:
+                next_run_from_date = datetime.datetime(high_water_mark_date.year - 1, high_water_mark_date.month, high_water_mark_date.day)
+            else:
+                if product.get('cohort', False):
+                    next_run_from_date = datetime.datetime(2013, 1, 1)
+                else:
+                    next_run_from_date = datetime.datetime(2010, 1, 1)
+        else:
+            next_run_from_date = today - datetime.timedelta(days=1)
+            next_run_to_date = today
+
+    if next_run_from_date:
+        next_run_from_date_label = next_run_from_date.strftime('%m/%d/%Y')
+    else:
+        next_run_from_date_label = ''
+
+    if next_run_to_date:
+        next_run_to_date_label = next_run_to_date.strftime('%m/%d/%Y')
+    else:
+        next_run_to_date_label = ''
+
     return {
         'publisher': publisher,
         'runs': tasks_by_run,
@@ -76,7 +122,11 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
         'recent_run': recent_run['run'] if recent_run else None,
         'recent_task': recent_task,
         'pending_files': get_pending_files_for_publisher(publisher.publisher_id, product_id, pipeline_id),
-        'queued_files': get_queued_files_for_publisher(publisher.publisher_id, product_id, pipeline_id)
+        'queued_files': get_queued_files_for_publisher(publisher.publisher_id, product_id, pipeline_id),
+        'uses_high_water_mark': uses_high_water_mark,
+        'high_water_mark': high_water_mark_label,
+        'next_run_from_date': next_run_from_date_label,
+        'next_run_to_date': next_run_to_date_label,
     }
 
 
@@ -164,30 +214,6 @@ def list_pipelines(request, product_id, pipeline_id):
 
     sorted_recent_runs_by_publisher = sorted(recent_runs_by_publisher, key=lambda r: _get_sort_value(r, sort_key), reverse=sort_descending)
 
-    from_date_label = ''
-    to_date_label = ''
-
-    high_water_mark = None
-    high_water_mark_label = ''
-    if pipeline.get('use_high_water_mark'):
-        try:
-            high_water_mark = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value
-            high_water_mark_label = high_water_mark.strftime('%m/%d/%Y')
-        except SystemGlobal.DoesNotExist:
-            high_water_mark_label = 'never'
-
-    if pipeline.get('include_date_range_controls'):
-        yesterday = datetime.datetime.now() - datetime.timedelta(1)
-        if high_water_mark:
-            from_date = high_water_mark + datetime.timedelta(1)
-        else:
-            from_date = yesterday
-
-        to_date = yesterday
-
-        from_date_label = from_date.strftime('%m/%d/%Y')
-        to_date_label = to_date.strftime('%m/%d/%Y')
-
     if tableau_alerts.ALERT_TEMPLATES_BY_SOURCE_PIPELINE.get((product_id, pipeline_id)):
         has_alerts = True
     else:
@@ -200,9 +226,6 @@ def list_pipelines(request, product_id, pipeline_id):
         'publisher_id_list_as_json': json.dumps([p.publisher_id for p in supported_publishers]),
         'opened': False,
         'list_type': filter_param,
-        'high_water_mark': high_water_mark_label,
-        'from_date': from_date_label,
-        'to_date': to_date_label,
         'sort_key': sort_key,
         'sort_descending': sort_descending,
         'filter_param': filter_param,
@@ -235,8 +258,6 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     current_record_count = 0
     percent_complete = 0
 
-    high_water_mark = ''
-
     # get the current run and task
     current_task = None
     if publisher_runs['runs']:
@@ -267,12 +288,6 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         })
         publisher_details_html = template.render(context)
 
-        if current_task and current_task.status == 'completed' and pipeline.get('use_high_water_mark'):
-            try:
-                high_water_mark = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value.strftime('%m/%d/%Y')
-            except SystemGlobal.DoesNotExist:
-                pass
-
     return JsonResponse({
         'has_section_updates': has_section_updates,
         'publisher_details_html': publisher_details_html,
@@ -280,7 +295,10 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         'total_record_count': total_record_count,
         'current_record_count': current_record_count,
         'percent_complete': percent_complete,
-        'high_water_mark': high_water_mark
+        'uses_high_water_mark': publisher_runs['uses_high_water_mark'],
+        'high_water_mark_type': publisher_runs['high_water_mark_type'],
+        'high_water_mark': publisher_runs['high_water_mark'],
+        'cohort': product.get('cohort', False),
     })
 
 
@@ -355,6 +373,15 @@ def run(request, product_id, pipeline_id):
                     initiating_user_email=request.user.email,
                     from_date=from_date,
                     to_date=to_date,
+                    send_alerts=send_alerts,
+                ).delay()
+            elif pipeline.get('include_from_date_controls') and not job_id:
+                from_date = parse(request.POST['from_date'])
+                pipeline_class.s(
+                    publisher_id_list=publisher_id_list,
+                    product_id=product_id,
+                    initiating_user_email=request.user.email,
+                    from_date=from_date,
                     send_alerts=send_alerts,
                 ).delay()
             else:

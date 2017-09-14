@@ -12,12 +12,13 @@ var PipelinePage = (function() {
     var pipelineName;
     var singlePublisherPipeline;
     var includeDateRangeControls;
+    var includeFromDateControls;
     var supportsRestart;
 
     var updateRunButton = function() {
         var somethingIsRunning = false;
         $.each(publisherTaskStatus, function(publisherId) {
-            if (publisherTaskStatus[publisherId] == 'in-progress') {
+            if (publisherTaskStatus[publisherId] === 'in-progress') {
                 somethingIsRunning = true;
                 return false;
             }
@@ -69,9 +70,9 @@ var PipelinePage = (function() {
                 }
 
                 // update the high water mark
-                if (json.high_water_mark != '') {
-                    updateHighWaterMark(json.high_water_mark);
-                }
+                // if (json.high_water_mark_type != '') {
+                //     updateHighWaterMark(json.high_water_mark, json.high_water_mark_type, json.cohort);
+                // }
             });
 
         // start again...
@@ -84,25 +85,6 @@ var PipelinePage = (function() {
         var newSummaryRow = $('.' + publisherId + '_summary_row');
         publisherTaskStatus[publisherId] = newSummaryRow.attr('current_task_status');
         updateRunButton();
-    };
-
-    var updateHighWaterMark = function(highWaterMark) {
-        $('.last-updated-message').html('Last date processed: ' + highWaterMark);
-        if (highWaterMark != '' && highWaterMark != 'never') {
-            var fromDate = new Date(highWaterMark);
-            fromDate.setDate(fromDate.getDate() + 1);
-            $('#id_modal_from_date').datepicker('update', fromDate);
-            var yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            var toDate;
-            if (yesterday > fromDate) {
-                toDate = yesterday;
-            }
-            else {
-                toDate = fromDate;
-            }
-            $('#id_modal_to_date').datepicker('update', toDate);
-        }
     };
 
     var openPublisher = function (publisherId) {
@@ -150,6 +132,13 @@ var PipelinePage = (function() {
             // update the modal and open it
             var m = $('#confirm-run-one-modal');
 
+            if (includeDateRangeControls || includeFromDateControls) {
+                $('#id_run_one_modal_from_date').val(form.find('input[name="from_date"]').val());
+            }
+            if (includeDateRangeControls) {
+                $('#id_run_one_modal_to_date').val(form.find('input[name="to_date"]').val());
+            }
+
             if (supportsRestart && form.find('input[name="restart_job_id"]').val()) {
                 m.find('.modal-title').html('Restart Job for Publisher');
                 m.find('.modal-body .confirm-run-one-modal-content').html('<p>Are you sure you want to restart the ' + pipelineName + ' job for <span style="font-weight:600">' + publisherName + '</span>?</p>');
@@ -158,6 +147,10 @@ var PipelinePage = (function() {
                 if (includeDateRangeControls) {
                     m.find('.modal-title').html('Run Pipeline for Publisher');
                     m.find('.modal-body .confirm-run-one-modal-content').html('<p>Run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span> for the following dates:</p>');
+                }
+                else if (includeFromDateControls) {
+                    m.find('.modal-title').html('Run Pipeline for Publisher');
+                    m.find('.modal-body .confirm-run-one-modal-content').html('<p>Run the ' + pipelineName + ' pipeline for <span style="font-weight:600">' + publisherName + '</span> starting at the following date:</p>');
                 }
                 else {
                     m.find('.modal-title').html('Run Pipeline for Publisher');
@@ -178,8 +171,10 @@ var PipelinePage = (function() {
                 parent.find('.little-files-link').hide();
                 $('.run-button').hide();
 
-                if (includeDateRangeControls) {
+                if (includeDateRangeControls || includeFromDateControls) {
                     form.find('input[name="from_date"]').val($('#id_run_one_modal_from_date').val());
+                }
+                if (includeDateRangeControls) {
                     form.find('input[name="to_date"]').val($('#id_run_one_modal_to_date').val());
                 }
 
@@ -331,6 +326,7 @@ var PipelinePage = (function() {
             pipelineName: '',
             singlePublisherPipeline: false,
             includeDateRangeControls: false,
+            includeFromDateControls: false,
             supportsRestart: false
         }, options);
 
@@ -345,6 +341,7 @@ var PipelinePage = (function() {
         pipelineName = options.pipelineName;
         singlePublisherPipeline = options.singlePublisherPipeline;
         includeDateRangeControls = options.includeDateRangeControls;
+        includeFromDateControls = options.includeFromDateControls;
 
         if (isSuperuser) {
             if (singlePublisherPipeline) {
@@ -360,6 +357,8 @@ var PipelinePage = (function() {
 
                 var singlePublisherPipelineModal = $('#confirm-run-single-publisher-pipeline-modal');
                 $('.run-single-publisher-pipeline-button').click(function() {
+                    $('#id_run_single_publisher_pipeline_modal_from_date').val($('.run-pipeline-for-publisher-inline-form input[name="from_date"]').val());
+                    $('#id_run_single_publisher_pipeline_modal_to_date').val($('.run-pipeline-for-publisher-inline-form input[name="to_date"]').val());
                     singlePublisherPipelineModal.modal();
                 });
 
@@ -374,8 +373,10 @@ var PipelinePage = (function() {
                         loading.hide();
                     }, 3000);
 
-                    if (includeDateRangeControls) {
+                    if (includeDateRangeControls || includeFromDateControls) {
                         singleForm.find('input[name="from_date"]').val(singleModal.find('input[name="from_date"]').val());
+                    }
+                    if (includeDateRangeControls) {
                         singleForm.find('input[name="to_date"]').val(singleModal.find('input[name="to_date"]').val());
                     }
 
@@ -385,11 +386,12 @@ var PipelinePage = (function() {
                 });
             }
             else {
-                if (includeDateRangeControls) {
+                if (includeDateRangeControls || includeFromDateControls) {
                     $('#id_run_one_modal_from_date').datepicker({
                         autoclose: true
                     });
-
+                }
+                if (includeDateRangeControls) {
                     $('#id_run_one_modal_to_date').datepicker({
                         autoclose: true
                     });
@@ -438,11 +440,11 @@ var PipelinePage = (function() {
         wireRestartRunButtons('.restart-run-button');
         wireJobActionsDropdown('.job-actions-dropdown');
 
-        $.each(options.publishers, function(index, publisherId) {
-            setTimeout(function() {
-                updatePublisher(publisherId);
-            }, 3000);
-        });
+        // $.each(options.publishers, function(index, publisherId) {
+        //     setTimeout(function() {
+        //         updatePublisher(publisherId);
+        //     }, 3000);
+        // });
 
         var publisherId = window.location.hash.substr(1);
         if (publisherId) {
@@ -454,8 +456,7 @@ var PipelinePage = (function() {
         init: init,
         startTailForPublisher: startTailForPublisher,
         cancelTailForPublisher: cancelTailForPublisher,
-        onUpdatePublisher: onUpdatePublisher,
-        updateHighWaterMark: updateHighWaterMark
+        onUpdatePublisher: onUpdatePublisher
     };
 
 })();
