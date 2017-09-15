@@ -792,8 +792,12 @@ PRODUCT_GROUPS = [
         'products': [
             'meta',
         ],
-        'tableau_datasources': [],
-        'tableau_workbooks': [],
+        'tableau_datasources': [
+            'article_citations_ds.tds',
+        ],
+        'tableau_workbooks': [
+            'meta_advance_correlator_citation_usage.twb',
+        ],
     },
 ]
 PRODUCT_GROUP_BY_ID = {p['id']: p for p in PRODUCT_GROUPS}
@@ -887,7 +891,7 @@ TABLEAU_WORKBOOKS = [
         'home_view': 'Overview',
     },
     {
-        'id': 'meta_advance_correlator_citation_usage.twb.twb',
+        'id': 'meta_advance_correlator_citation_usage.twb',
         'name': 'Meta Advance Correlator of Citations & Usage',
         'home_view': 'Section-to-SectionComparator',
     },
