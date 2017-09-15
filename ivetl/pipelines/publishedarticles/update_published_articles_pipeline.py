@@ -9,8 +9,7 @@ from ivetl.models import PublisherMetadata, PublisherJournal, PipelineStatus
 class UpdatePublishedArticlesPipeline(Pipeline):
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, from_date=None, start_at_stopped_task=False, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False,
-            send_alerts=False):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, from_date=None, start_at_stopped_task=False, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False, send_alerts=False):
         pipeline_id = "published_articles"
 
         if publisher_id_list:
