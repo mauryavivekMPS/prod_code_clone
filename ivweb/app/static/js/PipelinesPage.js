@@ -68,11 +68,6 @@ var PipelinePage = (function() {
                     progressBarContainer.attr('data-original-title', newTitle).tooltip('show');
                     progressBar.css('width', json.percent_complete + '%');
                 }
-
-                // update the high water mark
-                // if (json.high_water_mark_type != '') {
-                //     updateHighWaterMark(json.high_water_mark, json.high_water_mark_type, json.cohort);
-                // }
             });
 
         // start again...
@@ -440,11 +435,11 @@ var PipelinePage = (function() {
         wireRestartRunButtons('.restart-run-button');
         wireJobActionsDropdown('.job-actions-dropdown');
 
-        // $.each(options.publishers, function(index, publisherId) {
-        //     setTimeout(function() {
-        //         updatePublisher(publisherId);
-        //     }, 3000);
-        // });
+        $.each(options.publishers, function(index, publisherId) {
+            setTimeout(function() {
+                updatePublisher(publisherId);
+            }, 3000);
+        });
 
         var publisherId = window.location.hash.substr(1);
         if (publisherId) {
