@@ -296,9 +296,9 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
         'current_record_count': current_record_count,
         'percent_complete': percent_complete,
         'uses_high_water_mark': publisher_runs['uses_high_water_mark'],
-        'high_water_mark_type': publisher_runs['high_water_mark_type'],
         'high_water_mark': publisher_runs['high_water_mark'],
-        'cohort': product.get('cohort', False),
+        'next_run_from_date': publisher_runs['next_run_from_date'],
+        'next_run_to_date': publisher_runs['next_run_to_date'],
     })
 
 
