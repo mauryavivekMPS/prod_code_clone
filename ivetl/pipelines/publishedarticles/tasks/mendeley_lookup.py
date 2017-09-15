@@ -13,22 +13,15 @@ from ivetl.connectors import MendeleyConnector
 class MendeleyLookupTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-
         file = task_args['input_file']
-
         target_file_name = work_folder + "/" + publisher_id + "_" + "mendeleylookup" + "_" + "target.tab"
-
-        def reader_without_unicode_breaks(f):
-            while True:
-                yield next(f).replace('\ufeff', '')
-                continue
 
         already_processed = set()
 
         # if the file exists, read it in assuming a job restart
         if os.path.isfile(target_file_name):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
-                for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
+                for line in csv.reader(self.reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
                         doi = line[1]
                         already_processed.add(doi)
@@ -84,43 +77,21 @@ class MendeleyLookupTask(Task):
 
                 doi, issn, data = article_row
 
-                tlogger.info('Starting on article %s' % doi)
-
-                tlogger.info(str(count - 1) + ". Retrieving Mendelez saves for: " + doi)
+                tlogger.info("Retrieving Mendeley for: %s" % doi)
 
                 new_saves_value = None
                 try:
                     new_saves_value = mendeley.get_saves(doi)
                 except:
-                    tlogger.info("General Exception - Mendeley API failed for %s. Moving to next article..." % doi)
+                    tlogger.info("General Exception - Mendeley API failed for %s. Skipping" % doi)
 
                 if new_saves_value:
                     data['mendeley_saves'] = new_saves_value
 
                 row = '\t'.join([publisher_id, doi, issn, json.dumps(data)]) + '\n'
-
                 target_file.write(row)
 
-        num_threads = 10
-        num_per_thread = round(total_count / num_threads)
-        threads = []
-        for i in range(num_threads):
-
-            from_index = i * num_per_thread
-            if i == num_threads - 1:
-                to_index = total_count
-            else:
-                to_index = (i + 1) * num_per_thread
-
-            tlogger.info('Starting thread for [%s:%s]' % (from_index, to_index))
-
-            new_thread = threading.Thread(target=process_article_rows, args=(article_rows[from_index:to_index],))
-            new_thread.start()
-            threads.append(new_thread)
-
-        for thread in threads:
-            tlogger.info('Waiting on thread: %s' % thread)
-            thread.join()
+        self.run_pipeline_threads(process_article_rows, article_rows, tlogger=tlogger)
 
         target_file.close()
 

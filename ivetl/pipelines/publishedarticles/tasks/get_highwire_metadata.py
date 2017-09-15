@@ -1,7 +1,9 @@
+import os
 import csv
 import codecs
 import json
 import re
+import threading
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector, SassConnector
@@ -70,9 +72,7 @@ def generate_doi_transform_rule(doi):
 class GetHighWireMetadataTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-
         file = task_args['input_file']
-        total_count = task_args['count']
 
         product = common.PRODUCT_BY_ID[product_id]
 
@@ -81,30 +81,37 @@ class GetHighWireMetadataTask(Task):
             tlogger.info("Cohort product - Skipping Task")
             return task_args
 
+        target_file_name = work_folder + "/" + publisher_id + "_" + "hwmetadatalookup" + "_" + "target.tab"
+
         issn_to_hw_journal_code = {j.electronic_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)}
         issn_to_hw_journal_code.update({j.print_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)})
 
-        target_file_name = work_folder + "/" + publisher_id + "_" + "hwmetadatalookup" + "_" + "target.tab"
-        target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\t'
-                          'DOI\t'
-                          'ISSN\t'
-                          'DATA\n')
+        already_processed = set()
 
-        count = 0
+        # if the file exists, read it in assuming a job restart
+        if os.path.isfile(target_file_name):
+            with codecs.open(target_file_name, encoding='utf-16') as tsv:
+                for line in csv.reader(self.reader_without_unicode_breaks(tsv), delimiter='\t'):
+                    if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
+                        doi = line[1]
+                        already_processed.add(doi)
 
-        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+        if already_processed:
+            tlogger.info('Found %s existing items to reuse' % len(already_processed))
 
-        transform_rules_by_journal_code = {}
+        target_file = codecs.open(target_file_name, 'a', 'utf-16')
+        if not already_processed:
+            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'ISSN', 'DATA']))
 
-        doi_proxy = DoiProxyConnector()
-        sass = SassConnector(tlogger=tlogger)
+        article_rows = []
 
+        # read everything in from the input file first
+        line_count = 0
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
 
-                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-                if count == 1:
+                line_count += 1
+                if line_count == 1:
                     continue
 
                 publisher_id = line[0]
@@ -112,17 +119,47 @@ class GetHighWireMetadataTask(Task):
                 issn = line[2]
                 data = json.loads(line[3])
 
-                tlogger.info(str(count-1) + ". Retrieving HW Metadata for: " + doi)
+                if doi in already_processed:
+                    continue
+
+                article_rows.append((doi, issn, data))
+
+        count = 0
+        count_lock = threading.Lock()
+
+        total_count = len(article_rows)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        tlogger.info('Total articles to be processed: %s' % total_count)
+
+        transform_rules_by_journal_code = {}
+
+        doi_proxy = DoiProxyConnector()
+        sass = SassConnector(tlogger=tlogger)
+
+        def process_article_rows(article_rows_for_this_thread):
+            nonlocal count
+
+            thread_article_count = 0
+
+            for article_row in article_rows_for_this_thread:
+                with count_lock:
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                thread_article_count += 1
+
+                doi, issn, data = article_row
+
+                tlogger.info("Retrieving metadata for: %s" % doi)
 
                 hw_journal_code = None
                 if 'ISSN' in data and (len(data['ISSN']) > 0) and data['ISSN'][0] in issn_to_hw_journal_code:
                     hw_journal_code = issn_to_hw_journal_code[data['ISSN'][0]]
 
                 if not hw_journal_code:
-                    tlogger.info("No HW Journal Code for ISSN ... skipping record.")
+                    tlogger.info("No HW journal code for ISSN for %s, skipping" % doi)
 
                 else:
-
                     # check that we have the rules loaded
                     if hw_journal_code not in transform_rules_by_journal_code:
                         rules = DoiTransformRule.objects.filter(journal_code=hw_journal_code, type='hw-doi')
@@ -155,10 +192,10 @@ class GetHighWireMetadataTask(Task):
                             transform_rules_by_journal_code[hw_journal_code].append(new_rule)
 
                     if not transform_spec:
-                        tlogger.info('Could not find or create a transform spec, skipping record: %s' + doi)
+                        tlogger.info('Could not find or create a transform spec for %s, skipping' % doi)
                     else:
                         if len(transform_spec) != len(doi):
-                            tlogger.info('Found DOI length mismatch with spec, skipping record: %s and %s' % (doi, transform_spec))
+                            tlogger.info('Found DOI length mismatch with spec, skipping: %s and %s' % (doi, transform_spec))
                         else:
                             hw_doi = transform_doi(doi, transform_spec)
 
@@ -175,8 +212,10 @@ class GetHighWireMetadataTask(Task):
 
                             data.update(metadata)
 
-                row = """%s\t%s\t%s\t%s\n""" % (publisher_id, doi, issn, json.dumps(data))
+                row = '\t'.join([publisher_id, doi, issn, json.dumps(data)]) + '\n'
                 target_file.write(row)
+
+        self.run_pipeline_threads(process_article_rows, article_rows, tlogger=tlogger)
 
         target_file.close()
 

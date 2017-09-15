@@ -16,7 +16,7 @@ class GetStatsFilesTask(Task):
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
         from_date = self.from_json_date(task_args.get('from_date'))
         to_date = self.from_json_date(task_args.get('to_date'))
-        from_date, to_date = utils.get_from_to_dates_with_high_water(from_date, to_date, pipeline_id)
+        from_date, to_date = utils.get_from_to_dates_with_high_water(product_id, pipeline_id, publisher_id, from_date, to_date)
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
 
         all_file_names = [d.strftime('%Y-%m-%d' + self.LOG_FILE_EXTENSION) for d in utils.day_range(from_date, to_date)]

@@ -110,7 +110,7 @@ class InsertStatsIntoCassandraTask(Task):
                         }
                     )
 
-        utils.update_high_water(pipeline_id, to_date)
+        utils.update_high_water(product_id, pipeline_id, publisher_id, to_date)
 
         if task_args['run_daily_uptime_alerts']:
             send_alert_notifications(

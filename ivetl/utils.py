@@ -43,7 +43,19 @@ def start_of_previous_quarter(date):
         return datetime.datetime(date.year, 7, 1)
 
 
-def get_from_to_dates_with_high_water(from_date, to_date, pipeline_id):
+def _get_high_water_key_name(product_id, pipeline_id, publisher_id):
+    return '_'.join([product_id, pipeline_id, publisher_id, 'high_water'])
+
+
+def get_high_water(product_id, pipeline_id, publisher_id):
+    try:
+        key = _get_high_water_key_name(product_id, pipeline_id, publisher_id)
+        return SystemGlobal.objects.get(name=key).date_value
+    except SystemGlobal.DoesNotExist:
+        return None
+
+
+def get_from_to_dates_with_high_water(product_id, pipeline_id, publisher_id, from_date, to_date):
     today = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
 
     if from_date:
@@ -53,11 +65,8 @@ def get_from_to_dates_with_high_water(from_date, to_date, pipeline_id):
         to_date = datetime.datetime.combine(to_date, datetime.time.min)
 
     if not from_date:
-        try:
-            # get last processed day
-            last_uptime_day_processed = SystemGlobal.objects.get(name=pipeline_id + '_high_water').date_value
-        except SystemGlobal.DoesNotExist:
-            # default to two days ago
+        last_uptime_day_processed = get_high_water(product_id, pipeline_id, publisher_id)
+        if not last_uptime_day_processed:
             last_uptime_day_processed = today - datetime.timedelta(2)
 
         from_date = last_uptime_day_processed
@@ -74,9 +83,10 @@ def get_from_to_dates_with_high_water(from_date, to_date, pipeline_id):
     return from_date, to_date
 
 
-def update_high_water(pipeline_id, new_high_water_date):
+def update_high_water(product_id, pipeline_id, publisher_id, new_high_water_date):
+    key = _get_high_water_key_name(product_id, pipeline_id, publisher_id)
     try:
-        current_high_water = SystemGlobal.objects(name=pipeline_id + '_high_water').date_value
+        current_high_water = SystemGlobal.objects(name=key).date_value
     except:
         current_high_water = datetime.datetime.min
 
@@ -85,7 +95,7 @@ def update_high_water(pipeline_id, new_high_water_date):
 
     # only update if the new data is more recent
     if new_high_water_date > current_high_water:
-        SystemGlobal.objects(name=pipeline_id + '_high_water').update(date_value=new_high_water_date)
+        SystemGlobal.objects(name=key).update(date_value=new_high_water_date)
 
 
 def file_len(file_path, encoding='utf-8'):
@@ -196,3 +206,11 @@ def add_audit_log(user_id='system', publisher_id='system', action='', descriptio
         user_id=user_id,
         description=description,
     )
+
+
+def trim_and_strip_doublequotes(s):
+    s = s.strip()
+    if s and s[0] == '"' and s[-1] == '"':
+        return s[1:-1].strip()
+    else:
+        return s

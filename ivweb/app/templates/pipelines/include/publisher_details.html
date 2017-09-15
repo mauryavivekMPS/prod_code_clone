@@ -59,9 +59,11 @@
                         <input type="hidden" name="restart_job_id" value="">
                         <input type="hidden" name="restart_from_start" value="">
                     {% endif %}
+                    {% if pipeline.include_date_range_controls or pipeline.include_from_date_controls %}
+                        <input type="hidden" name="from_date" value="{{ publisher_runs.next_run_from_date }}">
+                    {% endif %}
                     {% if pipeline.include_date_range_controls %}
-                        <input type="hidden" name="from_date">
-                        <input type="hidden" name="to_date">
+                        <input type="hidden" name="to_date" value="{{ publisher_runs.next_run_to_date }}">
                     {% endif %}
                     <input type="hidden" name="send_alerts" value="">
                     {% if not pipeline.single_publisher_pipeline %}
@@ -196,9 +198,6 @@
                 PipelinePage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
             {% endif %}
             PipelinePage.onUpdatePublisher('{{ publisher_runs.publisher.publisher_id }}');
-            {% if high_water_mark %}
-                PipelinePage.updateHighWaterMark('{{ high_water_mark }}');
-            {% endif %}
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
             IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_row');
         });

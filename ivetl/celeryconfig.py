@@ -35,6 +35,8 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.institutionusagedeltas.tasks',
     'ivetl.pipelines.subscriptioncostperusedeltas',
     'ivetl.pipelines.subscriptioncostperusedeltas.tasks',
+    'ivetl.pipelines.metapredictions',
+    'ivetl.pipelines.metapredictions.tasks',
     'ivetl.tasks',
 )
 

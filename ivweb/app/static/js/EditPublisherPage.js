@@ -19,6 +19,7 @@ var EditPublisherPage = (function() {
     var cohortCitationsProduct = false;
     var institutionsProduct = false;
     var socialProduct = false;
+    var metaProduct = false;
 
     var enableSubmit = function() {
         $('.submit-button.save-button').removeClass('disabled').prop('disabled', false);
@@ -41,22 +42,31 @@ var EditPublisherPage = (function() {
     var checkForm = function() {
 
         var name = $("#id_name").val();
-        var hasName = name != '';
+        var hasName = name !== '';
 
         var hasStartDate = false;
         if (isDemo) {
             var startDate = $("#id_start_date").val();
-            hasStartDate = startDate != '';
+            hasStartDate = startDate !== '';
         }
 
         var publisherId = $("#id_publisher_id").val();
         var email = $("#id_email").val();
-        var hasBasics = publisherId != '' && name != '' && email != '';
+        var hasBasics = publisherId !== '' && name !== '' && email !== '';
+
+        var hasValidScopusKeys = true;
+        if (isNew && !isDemo) {
+            var numScopusKeys = parseInt($('#id_num_scopus_keys').val());
+            if (isNaN(numScopusKeys) || numScopusKeys < 0) {
+                hasValidScopusKeys = false;
+            }
+        }
 
         var impactVizor = $('#id_impact_vizor_product_group').is(':checked');
         var usageVizor = $('#id_usage_vizor_product_group').is(':checked');
         var socialVizor = $('#id_social_vizor_product_group').is(':checked');
-        var atLeastOneProduct = impactVizor || usageVizor || socialVizor;
+        var metaVizor = $('#id_meta_vizor_product_group').is(':checked');
+        var atLeastOneProduct = impactVizor || usageVizor || socialVizor || metaVizor;
 
         var hasReportsDetails = true;
         if (isNew) {
@@ -65,7 +75,7 @@ var EditPublisherPage = (function() {
             var reportsProject = $('#id_reports_project').val();
 
             if (publisherDemoMode()) {
-                hasReportsDetails = reportsProject != '';
+                hasReportsDetails = reportsProject !== '';
             }
             else {
                 hasReportsDetails = reportsUsername && reportsPassword && reportsProject;
@@ -250,7 +260,7 @@ var EditPublisherPage = (function() {
             }
         }
         else {
-            if (hasBasics && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort && validACDatabases) {
+            if (hasBasics && hasValidScopusKeys && atLeastOneProduct && hasReportsDetails && crossref && validIssns && validCohortIssns && validMonthsFree && validMonthsFreeCohort && validACDatabases) {
                 enableSubmit();
             }
             else {
@@ -267,6 +277,7 @@ var EditPublisherPage = (function() {
         cohortCitationsProduct = false;
         institutionsProduct = false;
         socialProduct = false;
+        metaProduct = false
 
         if ($('#id_impact_vizor_product_group').is(':checked')) {
             publishedArticlesProduct = true;
@@ -357,19 +368,6 @@ var EditPublisherPage = (function() {
             $('.crossref-controls').fadeOut(100);
             $('#id_crossref_username').val('');
             $('#id_crossref_password').val('');
-        }
-    };
-
-    var useScopusApiKeysFromPool = function() {
-        return $('#id_use_scopus_api_keys_from_pool').is(':checked');
-    };
-
-    var updateScopusControls = function() {
-        if (useScopusApiKeysFromPool()) {
-            $('.scopus-controls').fadeOut(200);
-        }
-        else {
-            $('.scopus-controls').fadeIn(100);
         }
     };
 
@@ -643,10 +641,10 @@ var EditPublisherPage = (function() {
         setInterval(function() {
             $.getJSON(buildingPollUrl)
                 .done(function(json) {
-                    if (json.status == 'completed') {
+                    if (json.status === 'completed') {
                         window.location = buildingSuccessUrl;
                     }
-                    else if (json.status == 'error') {
+                    else if (json.status === 'error') {
                         window.location = buildingErrorUrl;
                     }
                 });
@@ -699,8 +697,6 @@ var EditPublisherPage = (function() {
         f.find('input[name="publisher_id"]').val($('#id_publisher_id').val());
         f.find('input[name="name"]').val($('#id_name').val());
         f.find('input[name="issn_values"]').val($('#id_issn_values').val());
-        f.find('input[name="use_scopus_api_keys_from_pool"]').val($('#id_use_scopus_api_keys_from_pool').is(':checked') ? 'on' : '');
-        f.find('input[name="scopus_api_keys"]').val($('#id_scopus_api_keys').val());
         f.find('input[name="email"]').val($('#id_email').val());
         f.find('input[name="use_crossref"]').val($('#id_use_crossref').is(':checked') ? 'on' : '');
         f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
@@ -720,6 +716,8 @@ var EditPublisherPage = (function() {
         f.find('input[name="impact_vizor_product_group"]').val($('#id_impact_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="usage_vizor_product_group"]').val($('#id_usage_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="social_vizor_product_group"]').val($('#id_social_vizor_product_group').is(':checked') ? 'on' : '');
+        f.find('input[name="meta_vizor_product_group"]').val($('#id_meta_vizor_product_group').is(':checked') ? 'on' : '');
+        f.find('input[name="num_scopus_keys"]').val($('#id_num_scopus_keys').val());
 
         if (options.submitForApproval) {
             f.find('input[name="status"]').val('submitted-for-review');
@@ -786,7 +784,7 @@ var EditPublisherPage = (function() {
             return false;
         });
 
-        $('#id_impact_vizor_product_group, #id_usage_vizor_product_group, #id_social_vizor_product_group').on('change', function() {
+        $('#id_impact_vizor_product_group, #id_usage_vizor_product_group, #id_social_vizor_product_group, #id_meta_vizor_product_group').on('change', function() {
             updateProductControls();
             checkForm();
         });
@@ -817,14 +815,6 @@ var EditPublisherPage = (function() {
             checkForm();
         });
         updateStatusControls();
-
-        if (isNew) {
-            $('#id_use_scopus_api_keys_from_pool').on('change', function() {
-                updateScopusControls();
-                checkForm();
-            });
-            updateScopusControls();
-        }
 
         $('#id_crossref_username, #id_crossref_password').on('keyup', function() {
             updateValidateCrossrefButton();

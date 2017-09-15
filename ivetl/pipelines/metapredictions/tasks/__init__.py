@@ -1,0 +1,3 @@
+from ivetl.pipelines.metapredictions.tasks.get_predictions_files import GetPredictionsFilesTask
+from ivetl.pipelines.metapredictions.tasks.validate_predictions_files import ValidatePredictionsFilesTask
+from ivetl.pipelines.metapredictions.tasks.insert_predictions import InsertPredictionsTask

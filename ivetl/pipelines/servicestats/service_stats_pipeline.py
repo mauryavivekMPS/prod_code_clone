@@ -1,5 +1,8 @@
+import json
+from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
+from ivetl.models import PipelineStatus
 from ivetl.common import common
 
 
@@ -13,11 +16,43 @@ class ServiceStatsPipeline(Pipeline):
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
         publisher_id = pipeline.get('single_publisher_id', 'hw')
 
-        now, today_label, job_id = self.generate_job_id()
+        params = {}
+        today_label = ''
+
+        if job_id:
+            try:
+                ps = PipelineStatus.objects.get(
+                    publisher_id=publisher_id,
+                    product_id=product_id,
+                    pipeline_id=pipeline_id,
+                    job_id=job_id,
+                )
+
+                today_label = job_id.split("_")[0]
+
+                if ps.params_json:
+                    params = json.loads(ps.params_json)
+
+                    if params['from_date']:
+                        from_date = parse(params['from_date'])
+
+                    if params['to_date']:
+                        to_date = parse(params['to_date'])
+
+            except PipelineStatus.DoesNotExist:
+                pass
+
+        if not job_id:
+            now, today_label, job_id = self.generate_job_id()
+
+            params = {
+                'from_date': from_date.strftime('%Y-%m-%d') if from_date else None,
+                'to_date': to_date.strftime('%Y-%m-%d') if to_date else None,
+            }
 
         # create work folder, signal the start of the pipeline
         work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email)
+        self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, params=params)
 
         # construct the first task args with all of the standard bits + the list of files
         task_args = {

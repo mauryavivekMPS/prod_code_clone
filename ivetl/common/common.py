@@ -27,6 +27,9 @@ PIPELINES = [
         'has_file_input': False,
         'validator_class': None,
         'supports_restart': True,
+        'include_from_date_controls': True,
+        'uses_high_water_mark': True,
+        'date_range_type': 'published_articles_high_water',
         'tasks': [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
@@ -158,6 +161,7 @@ PIPELINES = [
         'class': 'ivetl.pipelines.rejectedarticles.GetRejectedArticlesFromBenchPressPipeline',
         'has_file_input': False,
         'include_date_range_controls': True,
+        'date_range_type': 'standard',
         'filter_for_benchpress_support': True,
         'supports_restart': True,
         'tasks': [
@@ -267,7 +271,8 @@ PIPELINES = [
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Site Uptime Stats',
         'include_date_range_controls': True,
-        'use_high_water_mark': True,
+        'date_range_type': 'from_previous_high_water',
+        'uses_high_water_mark': True,
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.siteuptime.tasks.GetUptimeStatsTask',
@@ -285,8 +290,6 @@ PIPELINES = [
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Run Weekly Uptime Alerts',
-        'include_date_range_controls': False,
-        'use_high_water_mark': False,
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.siteuptime.tasks.RunWeeklyAlertsTask',
@@ -339,7 +342,8 @@ PIPELINES = [
         'single_publisher_id': 'hw',
         'pipeline_run_button_label': 'Update Service Stats',
         'include_date_range_controls': True,
-        'use_high_water_mark': True,
+        'date_range_type': 'from_previous_high_water',
+        'uses_high_water_mark': True,
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.servicestats.tasks.GetStatsFilesTask',
@@ -428,6 +432,7 @@ PIPELINES = [
         'has_file_input': False,
         'supports_restart': True,
         'include_date_range_controls': True,
+        'date_range_type': 'standard',
         'tasks': [
             'ivetl.pipelines.institutionusagedeltas.tasks.UpdateDeltasTask',
         ],
@@ -443,6 +448,19 @@ PIPELINES = [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateCostPerUseTask',
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateBundleDeltasTask',
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateSubscriberDeltasTask',
+        ],
+    },
+    {
+        'name': 'Ingest Predictions',
+        'id': 'ingest_meta_predictiopns',
+        'user_facing_display_name': 'Ingest Predictions',
+        'class': 'ivetl.pipelines.metapredictions.IngestPredictionsPipeline',
+        'has_file_input': True,
+        'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.metapredictions.tasks.GetPredictionsFilesTask',
+            'ivetl.pipelines.metapredictions.tasks.ValidatePredictionsFilesTask',
+            'ivetl.pipelines.metapredictions.tasks.InsertPredictionsTask',
         ],
     },
 ]  # type: list[dict]
@@ -687,6 +705,18 @@ PRODUCTS = [
             },
         ],
     },
+    {
+        'name': 'Meta',
+        'id': 'meta',
+        'is_user_facing': True,
+        'order': 14,
+        'cohort': False,
+        'pipelines': [
+            {
+                'pipeline': PIPELINE_BY_ID['ingest_meta_predictiopns'],
+            },
+        ],
+    },
 ]  # type: list[dict]
 PRODUCT_BY_ID = {p['id']: p for p in PRODUCTS}
 PRODUCT_CHOICES = [(p['id'], p['name']) for p in PRODUCTS]
@@ -752,6 +782,15 @@ PRODUCT_GROUPS = [
         'products': [
             'published_articles',
             'social',
+        ],
+        'tableau_datasources': [],
+        'tableau_workbooks': [],
+    },
+    {
+        'name': 'MetaVizor',
+        'id': 'meta_vizor',
+        'products': [
+            'meta',
         ],
         'tableau_datasources': [],
         'tableau_workbooks': [],
@@ -847,6 +886,11 @@ TABLEAU_WORKBOOKS = [
         'name': 'UV: Article Usage',
         'home_view': 'Overview',
     },
+    {
+        'id': 'meta_advance_correlator_citation_usage.twb.twb',
+        'name': 'Meta Advance Correlator of Citations & Usage',
+        'home_view': 'Section-to-SectionComparator',
+    },
 ]  # type: list[dict]
 
 TABLEAU_WORKBOOKS_BY_ID = {w['id']: w for w in TABLEAU_WORKBOOKS}
@@ -908,6 +952,9 @@ TABLEAU_DATASOURCE_UPDATES = {
         'cost_by_subscriber_bundle_ds.tds',
         'cost_delta_subscriber_bundle_ds.tds',
     ],
+    ('meta', 'ingest_meta_predictions'): [
+        'article_citations_ds.tds',
+    ],
 }
 
 FTP_DIRS = [
@@ -950,6 +997,11 @@ FTP_DIRS = [
         'product_id': 'institutions',
         'pipeline_id': 'custom_subscriber_data',
         'ftp_dir_name': 'additional_subscriber_data_files',
+    },
+    {
+        'product_id': 'meta',
+        'pipeline_id': 'ingest_meta_predictiopns',
+        'ftp_dir_name': 'meta_predictions_files',
     },
 ]
 PRODUCT_ID_BY_FTP_DIR_NAME = {f['ftp_dir_name']: f['product_id'] for f in FTP_DIRS}

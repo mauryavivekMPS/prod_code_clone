@@ -3,6 +3,7 @@ import datetime
 import csv
 import sys
 import shutil
+import threading
 from time import time
 from django.core.urlresolvers import reverse
 from ivetl.common import common
@@ -435,3 +436,32 @@ class Task(BaseTask):
         task_args['count'] = total_count
 
         return task_args
+
+    def run_pipeline_threads(self, thread_function, all_rows, num_threads=10, tlogger=None):
+        total_count = len(all_rows)
+        num_per_thread = round(total_count / num_threads)
+        threads = []
+        for i in range(num_threads):
+
+            from_index = i * num_per_thread
+            if i == num_threads - 1:
+                to_index = total_count
+            else:
+                to_index = (i + 1) * num_per_thread
+
+            if tlogger:
+                tlogger.info('Starting thread for [%s:%s]' % (from_index, to_index))
+
+            new_thread = threading.Thread(target=thread_function, args=(all_rows[from_index:to_index],))
+            new_thread.start()
+            threads.append(new_thread)
+
+        for thread in threads:
+            if tlogger:
+                tlogger.info('Waiting on thread: %s' % thread)
+            thread.join()
+
+    def reader_without_unicode_breaks(self, f):
+        while True:
+            yield next(f).replace('\ufeff', '')
+            continue

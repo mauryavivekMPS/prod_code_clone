@@ -2,7 +2,7 @@ import os
 import csv
 import codecs
 import json
-import traceback
+import threading
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.connectors.base import MaxTriesAPIError
@@ -40,61 +40,82 @@ class ScopusCitationLookupTask(Task):
         target_file = codecs.open(target_file_name, 'a', 'utf-16')
 
         if not already_processed:
-            target_file.write('PUBLISHER_ID\tMANUSCRIPT_ID\tDATA\n')
+            target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']))
 
-        count = 0
-        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+        connector = ScopusConnector(publisher.scopus_api_keys)
 
-        pm = PublisherMetadata.objects.filter(publisher_id=publisher_id).first()
-        connector = ScopusConnector(pm.scopus_api_keys)
+        manuscript_rows = []
 
+        line_count = 0
         with codecs.open(file, encoding="utf-16") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
-                count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-                if count == 1:
-                    continue  # ignore the header
 
-                publisher = line[0]
+                line_count += 1
+                if line_count == 1:
+                    continue
+
                 manuscript_id = line[1]
                 data = json.loads(line[2])
 
                 if manuscript_id in already_processed:
                     continue
 
-                tlogger.info("\n" + str(count-1) + ". Retrieving Citations for: " + manuscript_id)
+                manuscript_rows.append((manuscript_id, data))
+
+        count = 0
+        count_lock = threading.Lock()
+
+        total_count = len(manuscript_rows)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        tlogger.info('Total manuscripts to be processed: %s' % total_count)
+
+        def process_manuscript_rows(manuscript_rows_for_this_thread):
+            nonlocal count
+
+            thread_article_count = 0
+
+            for article_row in manuscript_rows_for_this_thread:
+                with count_lock:
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                thread_article_count += 1
+
+                manuscript_id, data = article_row
+
+                tlogger.info("Retrieving citations for: %s" % manuscript_id)
 
                 if data['status'] == "Match found":
-
                     doi = data['xref_doi']
-
+                    scopus_id = None
                     try:
                         scopus_id, scopus_cited_by, subtype = connector.get_entry(doi, tlogger)
-
                     except MaxTriesAPIError:
-                        tlogger.info("Scopus API failed. Trying Again")
-                        traceback.print_exc()
+                        tlogger.info("Scopus API failed, trying again")
                         data['citation_lookup_status'] = "Scopus API failed"
                         data['scopus_id'] = ''
                         data['scopus_doi_status'] = "Scopus API failed"
 
                     if scopus_id:
+                        tlogger.info("Scopus cites: %s" % scopus_cited_by)
                         data['citation_lookup_status'] = "ID in Scopus"
                         data['scopus_doi_status'] = "DOI in Scopus"
                         data['scopus_id'] = scopus_id
                         data['citations'] = scopus_cited_by
-
-                        tlogger.info("Scopus Cites = %s" % scopus_cited_by)
                     else:
-                        tlogger.info("No Scopus Id found for DOI: " + data['xref_doi'])
+                        tlogger.info("No scopus ID found for DOI: %s" % data['xref_doi'])
                         data['scopus_doi_status'] = "No DOI in Scopus"
                         data['citation_lookup_status'] = "No ID in Scopus"
                         data['scopus_id'] = ''
 
                     tlogger.info(data['status'])
 
-                row = "%s\t%s\t%s\n" % (publisher, manuscript_id, json.dumps(data))
+                row = '\t'.join([publisher_id, manuscript_id, json.dumps(data)]) + '\n'
 
                 target_file.write(row)
+
+        self.run_pipeline_threads(process_manuscript_rows, manuscript_rows, tlogger=tlogger)
 
         target_file.close()
 

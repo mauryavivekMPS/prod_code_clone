@@ -65,7 +65,7 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
         earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
         earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
 
-        earliest_date = datetime.date(earliest_year, 1, 1)
+        earliest_date = datetime.datetime(earliest_year, 1, 1)
 
         try:
             earliest_date_global = SystemGlobal.objects.get(name=earliest_date_value_global_name)

@@ -1,23 +1,16 @@
-import datetime
+import json
+from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.pipeline import Pipeline
-from ivetl.models import PublisherMetadata, PublisherJournal
-from ivetl.common import common
+from ivetl.models import PublisherMetadata, PublisherJournal, PipelineStatus
 
 
 @app.task
 class UpdatePublishedArticlesPipeline(Pipeline):
-    PUB_START_DATE = datetime.date(2010, 1, 1)
-    COHORT_PUB_START_DATE = datetime.date(2013, 1, 1)
     PUB_OVERLAP_MONTHS = 2
 
-    def run(self, publisher_id_list=[], product_id=None, job_id=None, start_at_stopped_task=False, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False,
-            send_alerts=False):
+    def run(self, publisher_id_list=[], product_id=None, job_id=None, from_date=None, start_at_stopped_task=False, reprocess_all=False, articles_per_page=1000, max_articles_to_process=None, initiating_user_email=None, run_monthly_job=False, send_alerts=False):
         pipeline_id = "published_articles"
-
-        now, today_label, job_id = self.generate_job_id()
-
-        product = common.PRODUCT_BY_ID[product_id]
 
         if publisher_id_list:
             publishers = PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
@@ -34,14 +27,39 @@ class UpdatePublishedArticlesPipeline(Pipeline):
             issns = [j.print_issn for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)]
             issns.extend([j.electronic_issn for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)])
 
-            if product['cohort']:
-                start_publication_date = self.COHORT_PUB_START_DATE
-            else:
-                start_publication_date = self.PUB_START_DATE
+            params = {}
+            today_label = ''
+
+            if job_id:
+                try:
+                    ps = PipelineStatus.objects.get(
+                        publisher_id=publisher_id,
+                        product_id=product_id,
+                        pipeline_id=pipeline_id,
+                        job_id=job_id,
+                    )
+
+                    today_label = job_id.split("_")[0]
+
+                    if ps.params_json:
+                        params = json.loads(ps.params_json)
+
+                        if params['from_date']:
+                            from_date = parse(params['from_date'])
+
+                except PipelineStatus.DoesNotExist:
+                    pass
+
+            if not job_id:
+                now, today_label, job_id = self.generate_job_id()
+
+                params = {
+                    'from_date': from_date.strftime('%Y-%m-%d') if from_date else None,
+                }
 
             # pipelines are per publisher, so now that we have data, we start the pipeline work
             work_folder = self.get_work_folder(today_label, publisher_id, product_id, pipeline_id, job_id)
-            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email)
+            self.on_pipeline_started(publisher_id, product_id, pipeline_id, job_id, work_folder, initiating_user_email=initiating_user_email, params=params)
 
             task_args = {
                 'product_id': product_id,
@@ -49,8 +67,8 @@ class UpdatePublishedArticlesPipeline(Pipeline):
                 'pipeline_id': pipeline_id,
                 'work_folder': work_folder,
                 'job_id': job_id,
+                'from_date': self.to_json_date(from_date),
                 'issns': issns,
-                'start_pub_date': self.to_json_date(start_publication_date),
                 'articles_per_page': articles_per_page,
                 'max_articles_to_process': max_articles_to_process,
                 'run_monthly_job': run_monthly_job,

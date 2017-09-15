@@ -3,6 +3,7 @@ import codecs
 import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
+from ivetl.utils import trim_and_strip_doublequotes
 
 
 @app.task
@@ -16,13 +17,12 @@ class PrepareInputFileTask(Task):
 
         target_file_name = work_folder + "/" + publisher_id + "_" + "preparedinput" + "_" + "target.tab"
         target_file = codecs.open(target_file_name, 'w', 'utf-16')
-        target_file.write('PUBLISHER_ID\t'
-                          'MANUSCRIPT_ID\t'
-                          'DATA\n')
+        target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']) + '\n')
+
+        count = 0
 
         for file in files:
             with codecs.open(file, encoding="utf-8") as tsv:
-                count = 0
                 for line in csv.reader(tsv, delimiter="\t", quoting=csv.QUOTE_NONE):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
@@ -32,43 +32,49 @@ class PrepareInputFileTask(Task):
 
                     tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + line[3])
 
-                    input_data = {}
-                    input_data['manuscript_id'] = line[0].strip()
-                    input_data['date_of_rejection'] = line[1].strip()
-                    input_data['reject_reason'] = line[2].strip()
-                    input_data['title'] = line[3].strip()
-                    input_data['first_author'] = line[4].strip()
-                    input_data['corresponding_author'] = line[5].strip()
-                    input_data['co_authors'] = line[6].strip()
-                    input_data['subject_category'] = line[7].strip()
-                    input_data['editor'] = line[8].strip()
-                    input_data['submitted_journal'] = line[9].strip()
+                    manuscript_id = trim_and_strip_doublequotes(line[0])
+                    input_data = {
+                        'manuscript_id': manuscript_id,
+                        'date_of_rejection': trim_and_strip_doublequotes(line[1]),
+                        'reject_reason': trim_and_strip_doublequotes(line[2]),
+                        'title': trim_and_strip_doublequotes(line[3]),
+                        'first_author': trim_and_strip_doublequotes(line[4]),
+                        'corresponding_author': trim_and_strip_doublequotes(line[5]),
+                        'co_authors': trim_and_strip_doublequotes(line[6]),
+                        'subject_category': trim_and_strip_doublequotes(line[7]),
+                        'editor': trim_and_strip_doublequotes(line[8]),
+                        'submitted_journal': trim_and_strip_doublequotes(line[9]),
+                    }
 
-                    if len(line) >= 11 and line[10].strip() != '':
-                        input_data['article_type'] = line[10].strip()
+                    if len(line) >= 11:
+                        article_type = trim_and_strip_doublequotes(line[10])
+                        if article_type:
+                            input_data['article_type'] = article_type
 
-                    if len(line) >= 12 and line[11].strip() != '':
-                        input_data['keywords'] = line[11].strip()
+                    if len(line) >= 12:
+                        keywords = trim_and_strip_doublequotes(line[11])
+                        if keywords:
+                            input_data['keywords'] = keywords
 
-                    if len(line) >= 13 and line[12].strip() != '':
-                        input_data['custom'] = line[12].strip()
+                    if len(line) >= 13:
+                        custom = trim_and_strip_doublequotes(line[12])
+                        if custom:
+                            input_data['custom'] = custom
 
-                    if len(line) >= 14 and line[13].strip() != '':
-                        input_data['funders'] = line[13].strip()
+                    if len(line) >= 14:
+                        funders = trim_and_strip_doublequotes(line[13])
+                        if funders:
+                            input_data['funders'] = funders
 
-                    if len(line) >= 15 and line[14].strip() != '':
-                        input_data['preprint_doi'] = line[14].strip()
+                    if len(line) >= 15:
+                        preprint_doi = trim_and_strip_doublequotes(line[14])
+                        if preprint_doi:
+                            input_data['preprint_doi'] = preprint_doi
 
                     input_data['source_file_name'] = file
 
-                    row = """%s\t%s\t%s\n""" % (
-                        publisher_id,
-                        input_data['manuscript_id'],
-                        json.dumps(input_data)
-                    )
-
+                    row = '\t'.join([publisher_id, manuscript_id, json.dumps(input_data)]) + '\n'
                     target_file.write(row)
-                    target_file.flush()  # not sure why this is needed?
 
         target_file.close()
 
