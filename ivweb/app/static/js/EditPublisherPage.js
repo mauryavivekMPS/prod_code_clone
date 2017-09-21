@@ -702,6 +702,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
         f.find('input[name="crossref_password"]').val($('#id_crossref_password').val());
         f.find('input[name="hw_addl_metadata_available"]').val($('#id_hw_addl_metadata_available').is(':checked') ? 'on' : '');
+        f.find('input[name="scopus_api_keys"]').val($('#id_scopus_api_keys').val());
         f.find('input[name="demo"]').val($('#id_demo').is(':checked') ? 'on' : '');
         f.find('input[name="pilot"]').val($('#id_pilot').is(':checked') ? 'on' : '');
         f.find('input[name="ac_databases"]').val($('#id_ac_databases').val());

@@ -154,6 +154,7 @@ class PublisherForm(forms.Form):
     publisher_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a short, unique identifier'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a name for display'}))
     issn_values = forms.CharField(widget=forms.HiddenInput)
+    scopus_api_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated API keys'}), required=False)
     email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     use_crossref = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     crossref_username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}), required=False)
@@ -207,6 +208,7 @@ class PublisherForm(forms.Form):
                 initial['ac_databases'] = ', '.join(initial.get('ac_databases', []))
 
             initial.pop('reports_password', None)  # clear out the encoded password
+            initial['scopus_api_keys'] = ', '.join(initial.get('scopus_api_keys', []))
             initial['impact_vizor_product_group'] = 'impact_vizor' in initial['supported_product_groups']
             initial['usage_vizor_product_group'] = 'usage_vizor' in initial['supported_product_groups']
             initial['social_vizor_product_group'] = 'social_vizor' in initial['supported_product_groups']
@@ -346,10 +348,15 @@ class PublisherForm(forms.Form):
         else:
             publisher_id = self.cleaned_data['publisher_id']
 
+            scopus_api_keys = []
+            if self.instance and self.cleaned_data['scopus_api_keys']:
+                scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
+
             PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
                 email=self.cleaned_data['email'],
                 hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
+                scopus_api_keys=scopus_api_keys,
                 crossref_username=self.cleaned_data['crossref_username'],
                 crossref_password=self.cleaned_data['crossref_password'],
                 supported_product_groups=supported_product_groups,
