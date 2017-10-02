@@ -28,10 +28,10 @@ class UpdateAttributeValuesCacheTask(Task):
                 if f['table'] == 'published_article':
                     value_names.add(f['name'])
 
-        value_name_list = ','.join(value_names)
+        value_name_list = ','.join(value_names.union({'article_type', 'article_journal_issn'}))
 
-        all_articles_sql = "select article_type, article_journal_issn, " + value_name_list + """
-          from impactvizor.published_articles
+        all_articles_sql = "select " + value_name_list + """
+          from impactvizor.published_article
           where publisher_id = %s
           limit 1000000
         """

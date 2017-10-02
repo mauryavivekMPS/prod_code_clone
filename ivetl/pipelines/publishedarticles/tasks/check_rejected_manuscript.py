@@ -43,7 +43,7 @@ class CheckRejectedManuscriptTask(Task):
 
         all_articles_sql = """
           select article_doi, from_rejected_manuscript, rejected_manuscript_id, rejected_manuscript_editor, date_of_rejection
-          from impactvizor.published_articles
+          from impactvizor.published_article
           where publisher_id = %s
           limit %s
         """
