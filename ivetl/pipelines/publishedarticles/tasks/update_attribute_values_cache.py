@@ -1,9 +1,11 @@
 import json
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
 from collections import defaultdict
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
-from ivetl.models import PublishedArticle, AttributeValues
+from ivetl.models import AttributeValues
 from ivetl.alerts import CHECKS
 from ivetl.common import common
 from ivetl import utils
@@ -13,9 +15,10 @@ from ivetl import utils
 class UpdateAttributeValuesCacheTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        product = common.PRODUCT_BY_ID[product_id]
+        cluster = Cluster(common.CASSANDRA_IP_LIST)
+        session = cluster.connect()
 
-        all_articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(1000000).fetch_size(1000)
+        product = common.PRODUCT_BY_ID[product_id]
 
         value_names = set()
 
@@ -24,6 +27,20 @@ class UpdateAttributeValuesCacheTask(Task):
             for f in check.get('filters', []):
                 if f['table'] == 'published_article':
                     value_names.add(f['name'])
+
+        value_name_list = ','.join(value_names)
+
+        all_articles_sql = "select article_type, article_journal_issn, " + value_name_list + """
+          from impactvizor.published_articles
+          where publisher_id = %s
+          limit 1000000
+        """
+
+        all_articles_statement = SimpleStatement(all_articles_sql, fetch_size=1000)
+
+        all_articles = []
+        for a in session.execute(all_articles_statement, (publisher_id,)):
+            all_articles.append(a)
 
         total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -34,8 +51,9 @@ class UpdateAttributeValuesCacheTask(Task):
             values = set()
             for article in all_articles:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
-                if article[name]:
-                    values.add(article[name])
+                value = getattr(article, name)
+                if value:
+                    values.add(value)
 
             AttributeValues.objects(
                 publisher_id=publisher_id,
