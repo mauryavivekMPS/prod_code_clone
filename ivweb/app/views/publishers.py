@@ -28,8 +28,12 @@ def list_publishers(request):
     messages = []
     if 'from' in request.GET:
         from_value = request.GET['from']
-        if from_value == 'new-error':
-            alt_error_message = 'There was an error setting up reports for the new publisher in Tableau. Please contact your administrator.'
+        if from_value == 'scopus-key-setup-error':
+            alt_error_message = 'There was an error generating Scopus API keys for the new publisher. Please contact your administrator.'
+        elif from_value == 'reports-setup-error':
+            alt_error_message = 'There was an error setting up Tableau reports for the new publisher. Please contact your administrator.'
+        elif from_value == 'reports-update-error':
+            alt_error_message = 'There was an error updating Tableau reports. Please contact your administrator.'
         elif from_value == 'save-success':
             messages.append("Changes to your publisher account have been saved.")
         elif from_value == 'new-success':
@@ -632,11 +636,12 @@ def edit_demo(request, demo_id=None):
 
 
 @login_required
-def check_reports(request):
+def check_setup_status(request):
     publisher_id = request.GET['publisher']
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     return JsonResponse({
-        'status': publisher.reports_setup_status,
+        'reports_setup_status': publisher.reports_setup_status,
+        'scopus_key_setup_status': publisher.scopus_key_setup_status,
     })
 
 

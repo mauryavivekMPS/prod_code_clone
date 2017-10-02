@@ -14,6 +14,10 @@ def get_scopus_api_keys(publisher_id, num_keys=10):
     log.info('Starting scopus API key retrieval for %s...' % publisher_id)
     keys = []
 
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+    publisher.scopus_key_setup_status = 'in-progress'
+    publisher.save()
+
     try:
         max_keys_per_account = 10
         num_accounts = math.ceil(num_keys / max_keys_per_account)  # type: int
@@ -84,11 +88,17 @@ def get_scopus_api_keys(publisher_id, num_keys=10):
 
                 keys.append(m.groups()[0])
 
+        publisher.reports_setup_status = 'completed'
+        publisher.save()
+
         log.info('Completed key retrieval')
 
     except:
         print('Error in scopus API key retrieval:')
         print(traceback.format_exc())
+
+        publisher.reports_setup_status = 'error'
+        publisher.save()
 
     if keys:
         log.info('Saving %s keys to %s' % (len(keys), publisher_id))

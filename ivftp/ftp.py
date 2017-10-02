@@ -151,6 +151,7 @@ class IvetlHandler(FTPHandler):
                     description='Run pipeline from FTP: %s' % pipeline_id['id'],
                 )
 
+
 if __name__ == '__main__':
     # initialize the database
     open_cassandra_connection()
