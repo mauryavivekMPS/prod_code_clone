@@ -103,7 +103,7 @@ PIPELINES = [
         'validator_class': None,
         'supports_restart': True,
         'tasks': [
-            'ivetl.pipelines.mendeleysaves.tasks.GetMendeleySaves',
+            'ivetl.pipelines.mendeleysaves.tasks.UpdateMendeleySaves',
         ],
     },
     {
@@ -565,7 +565,7 @@ PRODUCTS = [
         ],
     },
     {
-        'name': 'Article Citations',
+        'name': 'Article Cites/Saves',
         'id': 'article_citations',
         'icon': 'lnr-layers',
         'is_user_facing': True,
@@ -594,7 +594,7 @@ PRODUCTS = [
         ],
     },
     {
-        'name': 'Cohort Citations',
+        'name': 'Cohort Cites/Saves',
         'id': 'cohort_citations',
         'icon': 'lnr-icons2',
         'is_user_facing': True,

@@ -87,7 +87,7 @@ class UpdateMendeleySaves(Task):
                         updated=updated_date,
                     )
 
-                row = '\t'.join([publisher_id, doi, new_saves_value]) + '\n'
+                row = '\t'.join([publisher_id, doi, str(new_saves_value)]) + '\n'
                 target_file.write(row)
 
         self.run_pipeline_threads(process_article_rows, all_articles, tlogger=tlogger)
