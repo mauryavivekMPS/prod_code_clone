@@ -1,0 +1,102 @@
+import os
+import csv
+import codecs
+import threading
+import datetime
+from ivetl.common import common
+from ivetl.celery import app
+from ivetl.pipelines.task import Task
+from ivetl.connectors import MendeleyConnector
+from ivetl.models import PublishedArticle
+
+
+@app.task
+class UpdateMendeleySaves(Task):
+
+    def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        product = common.PRODUCT_BY_ID[product_id]
+
+        target_file_name = os.path.join(work_folder, "%s_mendeley_target.tab" % publisher_id)
+
+        def reader_without_unicode_breaks(f):
+            while True:
+                yield next(f).replace('\ufeff', '')
+                continue
+
+        already_processed = set()
+
+        # if the file exists, read it in assuming a job restart
+        if os.path.isfile(target_file_name):
+            with codecs.open(target_file_name, encoding='utf-16') as tsv:
+                for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
+                    if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
+                        doi = line[1]
+                        already_processed.add(doi)
+
+        if already_processed:
+            tlogger.info('Found %s existing items to reuse' % len(already_processed))
+        else:
+            tlogger.info('Found no existing items, processing entire article set')
+
+        target_file = codecs.open(target_file_name, 'a', 'utf-16')
+
+        if not already_processed:
+            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'SAVES']))
+
+        mendeley = MendeleyConnector(common.MENDELEY_CLIENT_ID, common.MENDELEY_CLIENT_SECRET)
+
+        # grab all articles and filter manually for cohort
+        all_articles = []
+        for a in PublishedArticle.objects.filter(publisher_id=publisher_id):
+            if a.is_cohort == product['cohort'] and a.article_doi not in already_processed:
+                all_articles.append(a)
+
+        count = 0
+        count_lock = threading.Lock()
+
+        total_count = len(all_articles)
+        self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        tlogger.info('Total articles to be processed: %s' % total_count)
+
+        updated_date = datetime.datetime.today()
+
+        def process_article_rows(articles_for_this_thread):
+            nonlocal count
+
+            thread_article_count = 0
+
+            for article in articles_for_this_thread:
+                with count_lock:
+                    count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+
+                thread_article_count += 1
+
+                doi = article.article_doi
+                tlogger.info("Retrieving Mendeley for: %s" % doi)
+
+                new_saves_value = None
+                try:
+                    new_saves_value = mendeley.get_saves(doi)
+                except:
+                    tlogger.info("General Exception - Mendeley API failed for %s. Skipping" % doi)
+
+                if new_saves_value and article.mendeley_saves != new_saves_value:
+                    article.update(
+                        mendeley_saves=new_saves_value,
+                        updated=updated_date,
+                    )
+
+                row = '\t'.join([publisher_id, doi, new_saves_value]) + '\n'
+                target_file.write(row)
+
+        self.run_pipeline_threads(process_article_rows, all_articles, tlogger=tlogger)
+
+        target_file.close()
+
+        task_args['input_file'] = target_file_name
+        task_args['count'] = count
+
+        self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
+
+        return task_args
