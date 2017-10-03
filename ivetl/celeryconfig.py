@@ -11,6 +11,8 @@ CELERY_IMPORTS = (
     'ivetl.pipelines.customarticledata.tasks',
     'ivetl.pipelines.articlecitations',
     'ivetl.pipelines.articlecitations.tasks',
+    'ivetl.pipelines.mendeleysaves',
+    'ivetl.pipelines.mendeleysaves.tasks',
     'ivetl.pipelines.rejectedarticles',
     'ivetl.pipelines.rejectedarticles.tasks',
     'ivetl.pipelines.articleusage',

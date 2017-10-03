@@ -22,6 +22,7 @@ class PublisherMetadata(Model):
     reports_group_id = columns.Text()
     reports_project_id = columns.Text()
     reports_setup_status = columns.Text()
+    scopus_key_setup_status = columns.Text()
     supported_product_groups = columns.List(columns.Text())  # type: list
     supported_products = columns.List(columns.Text())  # type: list
     pilot = columns.Boolean()

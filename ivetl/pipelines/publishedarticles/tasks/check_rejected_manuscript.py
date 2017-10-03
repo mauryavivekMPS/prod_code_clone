@@ -1,47 +1,75 @@
 import datetime
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
 from ivetl.pipelines.articlecitations import UpdateArticleCitationsPipeline
 from ivetl import utils
+from ivetl.common import common
 
 
 @app.task
 class CheckRejectedManuscriptTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        cluster = Cluster(common.CASSANDRA_IP_LIST)
+        session = cluster.connect()
 
         total_count = utils.get_record_count_estimate(publisher_id, product_id, pipeline_id, self.short_name)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        rejected_articles_sql = """
+          select crossref_doi, manuscript_id, editor, date_of_rejection, status
+          from impactvizor.rejected_articles
+          where publisher_id = %s
+          limit 1000000
+        """
+
+        rejected_articles_statement = SimpleStatement(rejected_articles_sql, fetch_size=1000)
+
+        rm_map = {}
+        for rejected_article_row in session.execute(rejected_articles_statement, (publisher_id,)):
+            if rejected_article_row.status != 'Not Published':
+                rm_map[rejected_article_row.crossref_doi] = (
+                    rejected_article_row.manuscript_id,
+                    rejected_article_row.editor,
+                    rejected_article_row.date_of_rejection
+                )
 
         article_limit = 1000000
         if 'max_articles_to_process' in task_args and task_args['max_articles_to_process']:
             article_limit = task_args['max_articles_to_process']
 
-        articles = PublishedArticle.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(article_limit)
-        rm_map = {}
+        all_articles_sql = """
+          select article_doi, from_rejected_manuscript, rejected_manuscript_id, rejected_manuscript_editor, date_of_rejection
+          from impactvizor.published_article
+          where publisher_id = %s
+          limit %s
+        """
 
-        rms = RejectedArticles.objects.filter(publisher_id=publisher_id).fetch_size(1000).limit(1000000)
-        for r in rms:
-            if r.status != 'Not Published':
-                rm_map[r.crossref_doi] = (r.manuscript_id, r.editor, r.date_of_rejection)
+        all_articles_statement = SimpleStatement(all_articles_sql, fetch_size=1000)
 
         count = 0
-        for article in articles:
+        for article_row in session.execute(all_articles_statement, (publisher_id, article_limit)):
+
             count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-            tlogger.info("---")
-            tlogger.info("%s of %s. Looking Up rejected manuscript for %s / %s (est)" % (count, total_count, publisher_id, article.article_doi))
+            tlogger.info("%s of %s. Looking up rejected manuscript for %s / %s (est)" % (count, total_count, publisher_id, article_row.article_doi))
 
-            rm = rm_map.get(article.article_doi)
+            rm = rm_map.get(article_row.article_doi)
             if rm:
                 manuscript_id, editor, date_of_rejection = rm
-                article.from_rejected_manuscript = True
-                article.rejected_manuscript_id = manuscript_id
-                article.rejected_manuscript_editor = editor
-                article.date_of_rejection = date_of_rejection
-                article.update()
-                tlogger.info("Article sourced from rejected manuscript.")
+                PublishedArticle.objects(
+                    publisher_id=publisher_id,
+                    article_doi=article_row.article_doi,
+                ).update(
+                    from_rejected_manuscript=True,
+                    rejected_manuscript_id=manuscript_id,
+                    rejected_manuscript_editor=editor,
+                    date_of_rejection=date_of_rejection,
+                )
+                tlogger.info("Article sourced from rejected manuscript")
 
         run_monthly_jobs = task_args.get('run_monthly_job', False)
 

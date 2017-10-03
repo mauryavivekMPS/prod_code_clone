@@ -7,6 +7,7 @@ var EditPublisherPage = (function() {
     var buildingPollUrl;
     var buildingSuccessUrl;
     var buildingErrorUrl;
+
     var csrfToken;
     var isDemo;
     var convertFromDemo;
@@ -632,7 +633,7 @@ var EditPublisherPage = (function() {
         });
     };
 
-    var showBuildingReportsModal = function() {
+    var showSetupStatusModal = function(isNew) {
         $('#creating-publisher-modal').modal({
             backdrop: 'static',
             keyboard: false
@@ -641,11 +642,24 @@ var EditPublisherPage = (function() {
         setInterval(function() {
             $.getJSON(buildingPollUrl)
                 .done(function(json) {
-                    if (json.status === 'completed') {
-                        window.location = buildingSuccessUrl;
+                    if (isNew) {
+                        if (json.reports_setup_status === 'completed' && json.scopus_key_setup_status === 'completed') {
+                            window.location = buildingSuccessUrl;
+                        }
+                        else if (json.reports_setup_status === 'error') {
+                            window.location = buildingErrorUrl + '?from=reports-setup-error';
+                        }
+                        else if (json.scopus_key_setup_status === 'error') {
+                            window.location = buildingErrorUrl + '?from=scopus-key-setup-error';
+                        }
                     }
-                    else if (json.status === 'error') {
-                        window.location = buildingErrorUrl;
+                    else {
+                        if (json.reports_setup_status === 'completed') {
+                            window.location = buildingSuccessUrl;
+                        }
+                        else if (json.reports_setup_status === 'error') {
+                            window.location = buildingErrorUrl + '?from=reports-update-error';
+                        }
                     }
                 });
         }, 1000);
@@ -764,7 +778,7 @@ var EditPublisherPage = (function() {
         convertFromDemo = options.convertFromDemo;
         previousStatus = options.previousStatus;
 
-        isNew = publisherId == '';
+        isNew = publisherId === '';
 
         $('#id_publisher_id, #id_name, #id_email').on('keyup', checkForm);
         $('#id_reports_username, #id_reports_password, #id_reports_project').on('keyup', checkForm);
@@ -909,7 +923,7 @@ var EditPublisherPage = (function() {
         wireUpValidateIssnButton: wireUpValidateIssnButton,
         wireUpDeleteIssnButton: wireUpDeleteIssnButton,
         wireUpIssnControls: wireUpIssnControls,
-        showBuildingReportsModal: showBuildingReportsModal,
+        showBuildingReportsModal: showSetupStatusModal,
         checkForm: checkForm,
         init: init
     };

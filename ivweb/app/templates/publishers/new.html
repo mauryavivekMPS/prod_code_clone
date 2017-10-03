@@ -459,7 +459,13 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="waiting-icon"><i class="fa fa-spinner fa-pulse"></i></div>
-                    <div class="waiting-message">Waiting for the Tableau reports to be {% if from_value == 'save-success' %}updated{% else %}built{% endif %}...</div>
+                    <div class="waiting-message">
+                        {% if from_value == 'save-success' %}
+                            Waiting for the Tableau reports to be updated...
+                        {% else %}
+                            Waiting for the Tableau reports to be built and Scopus API keys to be generated...
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -511,9 +517,9 @@
                 validateIssnUrl: '{% url 'publishers.validate_issn' %}',
                 addIssnValuesUrl: '{% url 'publishers.new_issn' %}',
                 {% if publisher %}
-                    buildingPollUrl: '{% url 'publishers.check_reports' %}?publisher={{ publisher.publisher_id }}',
+                    buildingPollUrl: '{% url 'publishers.check_setup_status' %}?publisher={{ publisher.publisher_id }}',
                     buildingSuccessUrl: '{% url 'publishers.list' %}?from={{ from_value }}',
-                    buildingErrorUrl: '{% url 'publishers.list' %}?from=new-fail',
+                    buildingErrorUrl: '{% url 'publishers.list' %}',
                 {% endif %}
                 csrfToken: '{{ csrf_token }}',
                 isDemo: {% if is_demo %}true{% else %}false{% endif %},
@@ -521,8 +527,12 @@
                 previousStatus: '{{ form.initial.status }}'
             });
 
-            {% if from_value == 'new-success' or from_value == 'save-success' %}
-                EditPublisherPage.showBuildingReportsModal();
+            {% if from_value == 'new-success' %}
+                EditPublisherPage.showBuildingReportsModal(true);
+            {% endif %}
+
+            {% if from_value == 'save-success' %}
+                EditPublisherPage.showBuildingReportsModal(false);
             {% endif %}
 
             {% if is_demo %}

@@ -94,6 +94,19 @@ PIPELINES = [
         ],
     },
     {
+        'name': 'Mendeley Saves',
+        'id': 'mendeley_saves',
+        'user_facing_display_name': 'Mendeley Saves',
+        'visible_on_user_home': True,
+        'class': 'ivetl.pipelines.mendeleysaves.UpdateMendeleySavesPipeline',
+        'has_file_input': False,
+        'validator_class': None,
+        'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.mendeleysaves.tasks.UpdateMendeleySaves',
+        ],
+    },
+    {
         'name': 'Article Usage',
         'id': 'article_usage',
         'user_facing_display_name': 'Article usage',
@@ -552,7 +565,7 @@ PRODUCTS = [
         ],
     },
     {
-        'name': 'Article Citations',
+        'name': 'Article Cites/Saves',
         'id': 'article_citations',
         'icon': 'lnr-layers',
         'is_user_facing': True,
@@ -561,6 +574,9 @@ PRODUCTS = [
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['mendeley_saves'],
             },
         ],
     },
@@ -578,7 +594,7 @@ PRODUCTS = [
         ],
     },
     {
-        'name': 'Cohort Citations',
+        'name': 'Cohort Cites/Saves',
         'id': 'cohort_citations',
         'icon': 'lnr-icons2',
         'is_user_facing': True,
@@ -587,6 +603,9 @@ PRODUCTS = [
         'pipelines': [
             {
                 'pipeline': PIPELINE_BY_ID['article_citations'],
+            },
+            {
+                'pipeline': PIPELINE_BY_ID['mendeley_saves'],
             },
         ],
     },
@@ -923,6 +942,9 @@ TABLEAU_DATASOURCE_UPDATES = {
     ('article_citations', 'article_citations'): [
         'article_citations_ds.tds'
     ],
+    ('article_citations', 'mendeley_saves'): [
+        'article_citations_ds.tds'
+    ],
     ('rejected_manuscripts', 'rejected_articles'): [
         'rejected_articles_ds.tds'
     ],
@@ -933,6 +955,9 @@ TABLEAU_DATASOURCE_UPDATES = {
         'rejected_articles_ds.tds'
     ],
     ('cohort_citations', 'article_citations'): [
+        'article_citations_ds.tds'
+    ],
+    ('cohort_citations', 'mendeley_saves'): [
         'article_citations_ds.tds'
     ],
     ('institutions', 'subscribers_and_subscriptions'): [
@@ -1017,6 +1042,7 @@ def get_ftp_dir_name(product_id, pipeline_id):
         if d['product_id'] == product_id and d['pipeline_id'] == pipeline_id:
             return d['ftp_dir_name']
     return None
+
 
 DEMO_STATUS_CREATING = 'creating'
 DEMO_STATUS_SUBMITTED_FOR_REVIEW = 'submitted-for-review'
