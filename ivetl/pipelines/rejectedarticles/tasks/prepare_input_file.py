@@ -23,11 +23,14 @@ class PrepareInputFileTask(Task):
 
         for file in files:
             with codecs.open(file, encoding="utf-8") as tsv:
+                count_in_file = 0
+
                 for line in csv.reader(tsv, delimiter="\t", quoting=csv.QUOTE_NONE):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
+                    count_in_file += 1
 
                     # skip header row
-                    if count == 1:
+                    if count_in_file == 1:
                         continue
 
                     tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + line[3])
