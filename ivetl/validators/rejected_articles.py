@@ -2,7 +2,25 @@ import os
 import csv
 import codecs
 from ivetl.validators.base import BaseValidator
+from ivetl.utils import trim_and_strip_doublequotes
 
+
+COLUMNS = [
+    'MANUSCRIPT_ID',
+    'DATE_OF_REJECTION',
+    'REJECT_REASON',
+    'TITLE',
+    'FIRST_AUTHOR',
+    'CORRESPONDING_AUTHOR',
+    'CO_AUTHORS',
+    'SUBJECT_CATEGORY',
+    'EDITOR',
+    'SUBMITTED_JOURNAL',
+    'ARTICLE_TYPE',
+    'KEYWORDS',
+    'CUSTOM',
+    'FUNDERS',
+]
 
 class RejectedArticlesValidator(BaseValidator):
 
@@ -22,13 +40,23 @@ class RejectedArticlesValidator(BaseValidator):
                             else:
                                 count += 1
 
-                            # skip header row
+                            # check header field for correct columns names
+                            valid_column_headers = True
                             if count == 1:
-                                continue
+                                for i, col in enumerate(COLUMNS):
+                                    title = trim_and_strip_doublequotes(line[i])
+                                    if title.upper() != COLUMNS[i]:
+                                        errors.append(self.format_error(file_name, count, 'Invalid column header, looking for "%s" but found "%s".'  % (COLUMNS[i], title)))
+
+                            # abandon file if the column headers are wrong
+                                if valid_column_headers:
+                                    continue
+                                else:
+                                    break
 
                             # check for number of fields
-                            if len(line) < 10:
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 10 required), skipping other validation" % len(line)))
+                            if len(line) < len(COLUMNS):
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 14 required), skipping other validation" % len(line)))
                                 continue
 
                             # check for fields with just double quotes, indicating that there is probably tabs inside fields
@@ -36,38 +64,24 @@ class RejectedArticlesValidator(BaseValidator):
                                 if field == '"':
                                     errors.append(self.format_error(file_name, count, "Invalid format, at least one field with only a double quotation mark character"))
 
-                            input_data = {}
-                            input_data['manuscript_id'] = line[0].strip()
-                            input_data['date_of_rejection'] = line[1].strip()
-                            input_data['reject_reason'] = line[2].strip()
-                            input_data['title'] = line[3].strip()
-                            input_data['first_author'] = line[4].strip()
-                            input_data['corresponding_author'] = line[5].strip()
-                            input_data['co_authors'] = line[6].strip()
-                            input_data['subject_category'] = line[7].strip()
-                            input_data['editor'] = line[8].strip()
-                            input_data['submitted_journal'] = line[9].strip()
-                            input_data['article_type'] = ''
-                            input_data['keywords'] = ''
-                            input_data['custom'] = ''
-                            input_data['funders'] = ''
+                            manuscript_id = trim_and_strip_doublequotes(line[0])
+                            input_data = {
+                                'date_of_rejection': trim_and_strip_doublequotes(line[1]),
+                                'reject_reason': trim_and_strip_doublequotes(line[2]),
+                                'title': trim_and_strip_doublequotes(line[3]),
+                                'first_author': trim_and_strip_doublequotes(line[4]),
+                                'corresponding_author': trim_and_strip_doublequotes(line[5]),
+                                'co_authors': trim_and_strip_doublequotes(line[6]),
+                                'subject_category': trim_and_strip_doublequotes(line[7]),
+                                'editor': trim_and_strip_doublequotes(line[8]),
+                                'submitted_journal': trim_and_strip_doublequotes(line[9]),
+                                'article_type': trim_and_strip_doublequotes(line[10]),
+                                'keywords': trim_and_strip_doublequotes(line[11]),
+                                'custom': trim_and_strip_doublequotes(line[12]),
+                                'funders': trim_and_strip_doublequotes(line[13]),
+                            }
 
-                            if len(line) >= 11 and line[10].strip() != '':
-                                input_data['article_type'] = line[10].strip()
-
-                            if len(line) >= 12 and line[11].strip() != '':
-                                input_data['keywords'] = line[11].strip()
-
-                            if len(line) >= 13 and line[12].strip() != '':
-                                input_data['custom'] = line[12].strip()
-
-                            if len(line) >= 14 and line[13].strip() != '':
-                                input_data['funders'] = line[13].strip()
-
-                            if len(line) >= 15 and line[14].strip() != '':
-                                input_data['preprint_doi'] = line[14].strip()
-
-                            if input_data['manuscript_id'] == "":
+                            if not manuscript_id:
                                 errors.append(self.format_error(file_name, count, "No value for MANUSCRIPT_ID"))
 
                             if input_data['date_of_rejection'] == "":
