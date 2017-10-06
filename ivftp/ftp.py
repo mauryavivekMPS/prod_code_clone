@@ -5,13 +5,14 @@ os.sys.path.append(os.environ['IVETL_ROOT'])
 
 import re
 import stat
+import datetime
 from collections import defaultdict
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.common import common
-from ivetl.models import PublisherMetadata, User
+from ivetl.models import PublisherMetadata, User, UploadedFile
 from ivetl import utils
 
 
@@ -59,24 +60,30 @@ class IvetlHandler(FTPHandler):
     def on_file_received(self, file):
         self.uploaded_files.append(file)
 
+    def _parse_file_path(self, file):
+        publisher_id = None
+        pipeline_ftp_dir_name = None
+        m = re.search('.*/(\w+)/(\w+)/.*$', file)
+        if m and len(m.groups()) == 2:
+            publisher_id, pipeline_ftp_dir_name = m.groups()
+        return publisher_id, pipeline_ftp_dir_name
+
     def on_disconnect(self):
         """Called when connection is closed."""
 
         self.log('inside on_disconnect handler')
 
-        files_to_process = defaultdict(dict)  # indexed by pub then by ftp_dir_name
-
         user = User.objects.get(email=self.username)
+
+        files_to_process = defaultdict(dict)  # indexed by pub then by ftp_dir_name
 
         for file in self.uploaded_files:
             file_name = os.path.basename(file)
 
             self.log('Validing file: %s' % file)
 
-            # get the pipeline and publisher from the path
-            m = re.search('.*/(\w+)/(\w+)/.*$', file)
-            if m and len(m.groups()) == 2:
-                publisher_id, pipeline_ftp_dir_name = m.groups()
+            publisher_id, pipeline_ftp_dir_name = self._parse_file_path(file)
+            if publisher_id and pipeline_ftp_dir_name:
                 product_id = common.PRODUCT_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir_name]
                 pipeline_id = common.PIPELINE_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir_name]
                 pipeline = common.PIPELINE_BY_ID[pipeline_id]
@@ -105,6 +112,16 @@ class IvetlHandler(FTPHandler):
 
                 os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
                 self.log('Validated file and successfully chmod: %s' % file)
+
+                UploadedFile.objects.create(
+                    publisher_id=publisher_id,
+                    processed_time=datetime.datetime.now(),
+                    product_id='ftp',
+                    pipeline_id='upload',
+                    job_id='',
+                    path=file,
+                    user_id=user.user_id,
+                )
 
                 files_by_publisher = files_to_process[publisher_id]
                 if pipeline_ftp_dir_name not in files_by_publisher:

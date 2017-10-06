@@ -12,9 +12,11 @@ from ivetl import utils
 def update_reports_for_publisher(publisher_id, initiating_user_id, include_initial_setup=False):
     print('Starting report update for %s...' % publisher_id)
 
-    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
-    publisher.reports_setup_status = 'in-progress'
-    publisher.save()
+    PublisherMetadata.objects(publisher_id=publisher_id).update(
+        reports_setup_status='in-progress',
+    )
+
+    publisher = PublisherMetadata.objects(publisher_id=publisher_id)
 
     try:
         t = TableauConnector(
@@ -35,10 +37,11 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
                     password=publisher.reports_password,
                 )
 
-            publisher.reports_project_id = project_id
-            publisher.reports_group_id = group_id
-            publisher.reports_user_id = user_id
-            publisher.save()
+            PublisherMetadata.objects(publisher_id=publisher_id).update(
+                reports_project_id=project_id,
+                reports_group_id = group_id,
+                reports_user_id = user_id,
+            )
 
             utils.add_audit_log(
                 user_id=initiating_user_id,
@@ -51,8 +54,10 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
 
         print('Updating datasources and workbooks')
         t.update_datasources_and_workbooks(publisher)
-        publisher.reports_setup_status = 'completed'
-        publisher.save()
+
+        PublisherMetadata.objects(publisher_id=publisher_id).update(
+            reports_setup_status='completed',
+        )
 
         print('Completed update')
 
@@ -60,8 +65,9 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
         print('Error in report update:')
         print(traceback.format_exc())
 
-        publisher.reports_setup_status = 'error'
-        publisher.save()
+        PublisherMetadata.objects(publisher_id=publisher_id).update(
+            reports_setup_status='error',
+        )
 
 
 @app.task

@@ -1170,6 +1170,7 @@ def send_email(subject, body, to=EMAIL_TO, bcc=None, email_format="text/html", c
         use_personalization = True
 
     if use_personalization:
+        personalization.add_to(to_email)  # this needs to be (seemingly redundantly) added when using personalization
         mail.add_personalization(personalization)
 
     response = sg.client.mail.send.post(request_body=mail.get())

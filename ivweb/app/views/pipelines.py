@@ -20,7 +20,7 @@ from ivetl.common import common
 from ivetl import utils
 from ivetl import tableau_alerts
 from ivetl.pipelines.pipeline import Pipeline
-from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, SystemGlobal, PublisherJournal
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, PublisherJournal, UploadedFile
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -644,6 +644,7 @@ def upload_pending_file_inline(request):
 
             else:
                 # just count the lines
+                i = 0
                 with codecs.open(pending_file_path, encoding='utf-8') as f:
                     for i, l in enumerate(f):
                         pass
@@ -656,6 +657,16 @@ def upload_pending_file_inline(request):
 
                 # make sure it's world readable, just to be safe
                 os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+
+                UploadedFile.objects.create(
+                    publisher_id=publisher_id,
+                    processed_time=datetime.datetime.now(),
+                    product_id='web',
+                    pipeline_id='upload',
+                    job_id='',
+                    path=pending_file_path,
+                    user_id=request.user.user_id,
+                )
 
                 utils.add_audit_log(
                     user_id=request.user.user_id,

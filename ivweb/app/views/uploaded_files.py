@@ -1,4 +1,5 @@
 import logging
+from operator import attrgetter
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -16,8 +17,10 @@ def list_files(request):
     for file in files:
         setattr(file, 'user_display_name', user_id_to_display_name[str(file.user_id)])
 
+    sorted_files = sorted(files, key=attrgetter('processed_time'), reverse=True)
+
     return render(request, 'uploaded_files/list.html', {
-        'files': files,
+        'files': sorted_files,
     })
 
 
