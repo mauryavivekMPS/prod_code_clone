@@ -47,6 +47,10 @@ class PrepareInputFileTask(Task):
                         'subject_category': trim_and_strip_doublequotes(line[7]),
                         'editor': trim_and_strip_doublequotes(line[8]),
                         'submitted_journal': trim_and_strip_doublequotes(line[9]),
+                        'article_type': trim_and_strip_doublequotes(line[10]),
+                        'keywords': trim_and_strip_doublequotes(line[11]),
+                        'custom': trim_and_strip_doublequotes(line[12]),
+                        'funders': trim_and_strip_doublequotes(line[13]),
                     }
 
                     if len(line) >= 11:

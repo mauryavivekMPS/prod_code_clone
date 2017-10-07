@@ -40,7 +40,7 @@ class ScopusCitationLookupTask(Task):
         target_file = codecs.open(target_file_name, 'a', 'utf-16')
 
         if not already_processed:
-            target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']))
+            target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']) + '\n')
 
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
         connector = ScopusConnector(publisher.scopus_api_keys)

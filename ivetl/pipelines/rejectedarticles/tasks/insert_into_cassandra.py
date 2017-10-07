@@ -45,8 +45,7 @@ class InsertIntoCassandraDBTask(Task):
                     r.created = updated
 
                 article_type = data.get('article_type')
-                if article_type:
-                    # TODO: add article type matching
+                if article_type != r.article_type:
                     r.article_type = article_type
 
                 citation_lookup_status = data.get('citation_lookup_status')
@@ -54,11 +53,11 @@ class InsertIntoCassandraDBTask(Task):
                     r.citation_lookup_status = citation_lookup_status
 
                 co_authors = data.get('co_authors')
-                if co_authors:
+                if co_authors != r.co_authors:
                     r.co_authors = co_authors
 
                 corresponding_author = data.get('corresponding_author')
-                if corresponding_author:
+                if corresponding_author != r.corresponding_author:
                     r.corresponding_author = corresponding_author
 
                 crossref_doi = data.get('xref_doi')
@@ -66,23 +65,23 @@ class InsertIntoCassandraDBTask(Task):
                     r.crossref_doi = crossref_doi
 
                 custom = data.get('custom')
-                if custom:
+                if custom != r.custom:
                     r.custom = custom
 
                 editor = data.get('editor')
-                if editor:
+                if editor != r.editor:
                     r.editor = editor
 
                 first_author = data.get('first_author')
-                if first_author:
+                if first_author != r.first_author:
                     r.first_author = first_author
 
                 keywords = data.get('keywords')
-                if keywords:
+                if keywords != r.keywords:
                     r.keywords = keywords
 
                 manuscript_title = data.get('title')
-                if manuscript_title:
+                if manuscript_title != r.manuscript_title:
                     r.manuscript_title = manuscript_title
 
                 published_co_authors = data.get('xref_co_authors_ln_fn')
@@ -110,7 +109,7 @@ class InsertIntoCassandraDBTask(Task):
                     r.published_title = published_title
 
                 reject_reason = data.get('reject_reason')
-                if reject_reason:
+                if reject_reason != r.reject_reason:
                     r.reject_reason = reject_reason
 
                 scopus_doi_status = data.get('scopus_doi_status')
@@ -130,11 +129,11 @@ class InsertIntoCassandraDBTask(Task):
                     r.status = status
 
                 subject_category = data.get('subject_category')
-                if subject_category:
+                if subject_category != r.subject_category:
                     r.subject_category = subject_category
 
                 submitted_journal = data.get('submitted_journal')
-                if submitted_journal:
+                if submitted_journal != r.submitted_journal:
                     r.submitted_journal = submitted_journal
 
                 preprint_doi = data.get('preprint_doi')
