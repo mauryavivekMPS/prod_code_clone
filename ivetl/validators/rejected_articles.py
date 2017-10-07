@@ -40,6 +40,11 @@ class RejectedArticlesValidator(BaseValidator):
                             else:
                                 count += 1
 
+                            # check for number of fields
+                            if len(line) < len(COLUMNS):
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 14 required), skipping other validation" % len(line)))
+                                break
+
                             # check header field for correct columns names
                             valid_column_headers = True
                             if count == 1:
@@ -48,16 +53,11 @@ class RejectedArticlesValidator(BaseValidator):
                                     if title.upper() != COLUMNS[i]:
                                         errors.append(self.format_error(file_name, count, 'Invalid column header, looking for "%s" but found "%s".'  % (COLUMNS[i], title)))
 
-                            # abandon file if the column headers are wrong
+                                # abandon file if the column headers are wrong
                                 if valid_column_headers:
                                     continue
                                 else:
                                     break
-
-                            # check for number of fields
-                            if len(line) < len(COLUMNS):
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 14 required), skipping other validation" % len(line)))
-                                continue
 
                             # check for fields with just double quotes, indicating that there is probably tabs inside fields
                             for field in line:
