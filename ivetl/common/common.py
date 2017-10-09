@@ -373,6 +373,7 @@ PIPELINES = [
         'has_file_input': True,
         'user_facing_file_description': 'Bundle Definitions',
         'validator_class': 'ivetl.validators.BundleDefinitionsValidator',
+        'format_file': 'BFD-SPF-Format.pdf',
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.productbundles.tasks.GetBundleDefinitionsFilesTask',
@@ -391,6 +392,7 @@ PIPELINES = [
         'has_file_input': True,
         'user_facing_file_description': 'Subsciption Pricing',
         'validator_class': 'ivetl.validators.SubscriptionPricingValidator',
+        'format_file': 'BFD-SPF-Format.pdf',
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.productbundles.tasks.GetSubscriptionPricingFilesTask',
