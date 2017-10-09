@@ -11,6 +11,7 @@ from ivetl.common import common
 def check_for_citation_amount(publisher_id):
     return True
 
+
 ALERT_TEMPLATES = {
     'hot-article-tracker': {
         'choice_description': 'IV: Hot Article Tracker',
@@ -22,6 +23,7 @@ ALERT_TEMPLATES = {
             'export': 'alert_hot_article_tracker_export.twb',
         },
         'filter_worksheet_name': 'HAT-Articles',
+        'export_value_name': 'Published Articles',
         'thumbnail': 'thumbnail-hot-article-tracker.png',
         'frequency': 'monthly',
         'type': 'scheduled',
