@@ -1,5 +1,6 @@
 import re
 import requests
+import datetime
 import urllib.parse
 import urllib.request
 from requests import HTTPError
@@ -57,13 +58,22 @@ class SassConnector(BaseConnector):
 
                         root = etree.fromstring(r.content)
 
-                        # is open access
-                        oa = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
-                        if len(oa) > 0:
-                            oa = 'Yes'
+                        # set open access if the license type lists "open-access" or if the free to read date is in the past
+                        open_access = 'No'
+                        open_access_element = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
+                        if open_access_element:
+                            open_access = 'Yes'
                         else:
-                            oa = 'No'
-                        metadata['is_open_access'] = oa
+                            free_to_read_element = root.xpath('./nlm:permissions/ali:free_to_read[@start_date]', namespaces=common.ns)
+                            if free_to_read_element:
+                                try:
+                                    start_date = datetime.datetime.strptime(free_to_read_element.get('start_date'), '%Y-%m-%d')
+                                    if start_date <= datetime.datetime.now():
+                                        open_access = 'Yes'
+                                except ValueError:
+                                    pass
+
+                        metadata['is_open_access'] = open_access
 
                         # Article Type
                         article_type = None
