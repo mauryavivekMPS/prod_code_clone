@@ -208,11 +208,11 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
                 mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
 
                 attachment = Attachment()
-                attachment.set_content(encoded_pdf_content)
-                attachment.set_type("application/pdf")
-                attachment.set_filename(attachment_filename)
-                attachment.set_disposition("attachment")
-                attachment.set_content_id(attachment_content_id)
+                attachment.content = encoded_pdf_content
+                attachment.type = "application/pdf"
+                attachment.filename = attachment_filename
+                attachment.disposition = "attachment"
+                attachment.content_id = attachment_content_id
                 mail.add_attachment(attachment)
 
                 sg.client.mail.send.post(request_body=mail.get())
@@ -238,11 +238,11 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
                 mail.add_custom_arg(CustomArg('publisher_id', notification.publisher_id))
 
                 attachment = Attachment()
-                attachment.set_content(encoded_pdf_content)
-                attachment.set_type("application/pdf")
-                attachment.set_filename(attachment_filename)
-                attachment.set_disposition("attachment")
-                attachment.set_content_id(attachment_content_id)
+                attachment.content = encoded_pdf_content
+                attachment.type = "application/pdf"
+                attachment.filename = attachment_filename
+                attachment.disposition = "attachment"
+                attachment.content_id = attachment_content_id
                 mail.add_attachment(attachment)
 
                 sg.client.mail.send.post(request_body=mail.get())
