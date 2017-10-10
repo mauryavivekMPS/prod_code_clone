@@ -8,7 +8,7 @@ from ivetl.common import common
 
 
 class CrossrefConnector(BaseConnector):
-    BASE_URL = 'http://api.crossref.org'
+    BASE_URL = 'https://api.crossref.org'
     BASE_CITATION_URL = 'https://doi.crossref.org'
 
     connector_name = 'Crossref'
@@ -28,7 +28,7 @@ class CrossrefConnector(BaseConnector):
         return citations
 
     def get_example_doi_for_journal(self, issn):
-        url = self.BASE_URL + '/works?filter=issn:' % issn
+        url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&filter=issn:' % issn
         response_text = self.get_with_retry(url)
         first_doi = json.loads(response_text)['message']['items'][0]['DOI']
         return first_doi
@@ -37,14 +37,14 @@ class CrossrefConnector(BaseConnector):
         journal = None
 
         try:
-            journal_response_url = self.BASE_URL + '/journals/' + issn
+            journal_response_url = self.BASE_URL + '/journals/' + issn + "?mailto=nmehta@highwire.org"
             journal_response_text = self.get_with_retry(journal_response_url)
             journal_response_json = json.loads(journal_response_text)
 
             journal_name = journal_response_json['message']['title']
             publisher_name = journal_response_json['message']['publisher']
 
-            works_url = self.BASE_URL + "/works?rows=1&filter=issn:%s,from-pub-date:%s-01-01,until-pub-date:%s-12-31" % (issn, year, year)
+            works_url = self.BASE_URL + "/works?mailto=nmehta@highwire.org&rows=1&filter=issn:%s,from-pub-date:%s-01-01,until-pub-date:%s-12-31" % (issn, year, year)
             works_response_text = self.get_with_retry(works_url)
 
             works_response_json = json.loads(works_response_text)
@@ -62,7 +62,7 @@ class CrossrefConnector(BaseConnector):
         return journal
 
     def get_article(self, doi):
-        url = self.BASE_URL + '/works/' + doi
+        url = self.BASE_URL + '/works/' + doi + "?mailto=nmehta@highwire.org"
         article_response_text = self.get_with_retry(url)
 
         try:
@@ -135,12 +135,12 @@ class CrossrefConnector(BaseConnector):
         title_search_term = title
 
         if use_generic_query_param:
-            url = self.BASE_URL + '/works?rows=30&filter=from-pub-date:%s,type:journal-article&query=%s' % (
+            url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&rows=30&filter=from-pub-date:%s,type:journal-article&query=%s' % (
                 date_search_term,
                 title_search_term,
             )
         else:
-            url = self.BASE_URL + '/works?rows=30&filter=from-pub-date:%s,type:journal-article&query.title=%s' % (
+            url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&rows=30&filter=from-pub-date:%s,type:journal-article&query.title=%s' % (
                 date_search_term,
                 title_search_term,
             )
