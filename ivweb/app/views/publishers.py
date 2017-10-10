@@ -356,6 +356,8 @@ class PublisherForm(forms.Form):
             if self.instance and self.cleaned_data['scopus_api_keys']:
                 scopus_api_keys = [s.strip() for s in self.cleaned_data['scopus_api_keys'].split(",")]
 
+            log.info('Saving %s scopus_api_keys for %s: %s' % (len(scopus_api_keys), publisher_id, ','.join(scopus_api_keys)))
+
             PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
                 email=self.cleaned_data['email'],
@@ -453,21 +455,6 @@ def edit(request, publisher_id=None):
                         publisher_id=publisher.publisher_id,
                     )
 
-                if is_new:
-                    utils.add_audit_log(
-                        user_id=request.user.user_id,
-                        publisher_id=publisher.publisher_id,
-                        action='create-publisher',
-                        description='Created publisher %s' % publisher_id,
-                    )
-                else:
-                    utils.add_audit_log(
-                        user_id=request.user.user_id,
-                        publisher_id=publisher.publisher_id,
-                        action='edit-publisher',
-                        description='Edited publisher %s' % publisher_id,
-                    )
-
                 # move any uploaded files across if this was a conversion
                 if publisher.demo:
                     move_demo_files_to_pending(publisher.demo_id, publisher.publisher_id, 'published_articles', 'custom_article_data')
@@ -485,6 +472,21 @@ def edit(request, publisher_id=None):
 
             # kick off a celery task for tableau setup
             tasks.update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
+
+            if is_new:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=publisher.publisher_id,
+                    action='create-publisher',
+                    description='Created publisher %s' % publisher_id,
+                )
+            else:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=publisher.publisher_id,
+                    action='edit-publisher',
+                    description='Edited publisher %s' % publisher_id,
+                )
 
             query_string = '?from=new-success' if is_new else '?from=save-success'
 
