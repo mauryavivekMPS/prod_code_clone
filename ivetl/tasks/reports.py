@@ -16,7 +16,9 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
         reports_setup_status='in-progress',
     )
 
-    publisher = PublisherMetadata.objects(publisher_id=publisher_id)
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+    reports_username = publisher.reports_username
+    reports_password = publisher.reports_password
 
     try:
         t = TableauConnector(
@@ -33,8 +35,8 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
                 project_id, group_id, user_id = t.setup_account(
                     publisher,
                     create_new_login=True,
-                    username=publisher.reports_username,
-                    password=publisher.reports_password,
+                    username=reports_username,
+                    password=reports_password,
                 )
 
             PublisherMetadata.objects(publisher_id=publisher_id).update(
@@ -53,6 +55,7 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
             print('Skipping initial setup')
 
         print('Updating datasources and workbooks')
+        publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
         t.update_datasources_and_workbooks(publisher)
 
         PublisherMetadata.objects(publisher_id=publisher_id).update(
