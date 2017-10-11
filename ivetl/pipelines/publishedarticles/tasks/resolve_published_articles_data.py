@@ -1,6 +1,5 @@
 import csv
 import datetime
-import pprint
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
