@@ -47,7 +47,7 @@ class UpdateMendeleySaves(Task):
 
         # grab all articles and filter manually for cohort
         all_articles = []
-        for a in PublishedArticle.objects.filter(publisher_id=publisher_id):
+        for a in PublishedArticle.objects.filter(publisher_id=publisher_id).limit(5000000).fetch_size(1000):
             if a.is_cohort == product['cohort'] and a.article_doi not in already_processed:
                 all_articles.append(a)
 
