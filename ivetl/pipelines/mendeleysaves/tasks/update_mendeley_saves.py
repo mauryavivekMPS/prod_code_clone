@@ -3,6 +3,8 @@ import csv
 import codecs
 import threading
 import datetime
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
 from ivetl.common import common
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
@@ -14,6 +16,9 @@ from ivetl.models import PublishedArticle
 class UpdateMendeleySaves(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
+        cluster = Cluster(common.CASSANDRA_IP_LIST)
+        session = cluster.connect()
+
         product = common.PRODUCT_BY_ID[product_id]
 
         target_file_name = os.path.join(work_folder, "%s_mendeley_target.tab" % publisher_id)
@@ -45,9 +50,18 @@ class UpdateMendeleySaves(Task):
 
         mendeley = MendeleyConnector(common.MENDELEY_CLIENT_ID, common.MENDELEY_CLIENT_SECRET)
 
+        all_articles_sql = """
+          select article_doi, mendeley_saves, is_cohort
+          from impactvizor.published_article
+          where publisher_id = %s
+          limit 5000000
+        """
+
+        all_articles_statement = SimpleStatement(all_articles_sql, fetch_size=1000)
+
         # grab all articles and filter manually for cohort
         all_articles = []
-        for a in PublishedArticle.objects.filter(publisher_id=publisher_id).limit(5000000).fetch_size(1000):
+        for a in session.execute(all_articles_statement, (publisher_id,)):
             if a.is_cohort == product['cohort'] and a.article_doi not in already_processed:
                 all_articles.append(a)
 
@@ -82,7 +96,10 @@ class UpdateMendeleySaves(Task):
                     tlogger.info("General Exception - Mendeley API failed for %s. Skipping" % doi)
 
                 if new_saves_value and article.mendeley_saves != new_saves_value:
-                    article.update(
+                    PublishedArticle.objects(
+                        publisher_id=publisher_id,
+                        article_doi=doi,
+                    ).update(
                         mendeley_saves=new_saves_value,
                         updated=updated_date,
                     )
