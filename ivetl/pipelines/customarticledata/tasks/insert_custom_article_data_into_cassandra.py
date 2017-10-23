@@ -4,6 +4,7 @@ import codecs
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublishedArticleValues
+from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
 
 
 @app.task
@@ -31,8 +32,8 @@ class InsertCustomArticleDataIntoCassandra(Task):
 
                     d = {
                         'doi': line[0].strip(),
-                        'toc_section': line[1].strip().title(),
-                        'collection': line[2].strip().title(),
+                        'article_type': line[1].strip().title(),
+                        'subject_category': line[2].strip().title(),
                         'editor': line[3].strip(),
                         'custom': line[4].strip(),
                         'custom_2': line[5].strip(),
@@ -42,13 +43,19 @@ class InsertCustomArticleDataIntoCassandra(Task):
                     doi = d['doi'].lower().strip()
                     tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
-                    # data is added only to the values table and we let the resolver figure out the rest
-                    PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='article_type').update(value_text=d['toc_section'])
-                    PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='subject_category').update(value_text=d['collection'])
-                    PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='editor').update(value_text=d['editor'])
-                    PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom').update(value_text=d['custom'])
-                    PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom_2').update(value_text=d['custom_2'])
-                    PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name='custom_3').update(value_text=d['custom_3'])
+                    for field in CustomArticleDataPipeline.FOAM_FIELDS:
+
+                        new_value = d[field]
+
+                        # skip if there is no value, this is a no-op
+                        if not new_value:
+                            continue
+
+                        # if there is any version of a "none" string, then standardize it
+                        if new_value.lower() == 'none':
+                            new_value = 'None'
+
+                        PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='custom', name=field).update(value_text=new_value)
 
                     # add a record of modified files for next task
                     modified_articles_file.write("%s\t%s\n" % (publisher_id, doi))
