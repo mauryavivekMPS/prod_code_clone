@@ -58,20 +58,16 @@ class SassConnector(BaseConnector):
 
                         root = etree.fromstring(r.content)
 
-                        # set open access if the license type lists "open-access" or if the free to read date is in the past
+                        # set open access if license_type lists 'open-access' or for rup check ali tagging.
                         open_access = 'No'
-                        open_access_element = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
-                        if open_access_element:
-                            open_access = 'Yes'
-                        else:
-                            free_to_read_element = root.xpath('./nlm:permissions/ali:free_to_read[@start_date]', namespaces=common.ns)
+                        if publisher_id == 'rup':
+                            free_to_read_element = root.xpath('./nlm:permissions/ali:free_to_read[not(@start_date)]', namespaces=common.ns)
                             if free_to_read_element:
-                                try:
-                                    start_date = datetime.datetime.strptime(free_to_read_element.get('start_date'), '%Y-%m-%d')
-                                    if start_date <= datetime.datetime.now():
-                                        open_access = 'Yes'
-                                except ValueError:
-                                    pass
+                                open_access = 'Yes'
+                        else:
+                            open_access_element = root.xpath('./nlm:permissions/nlm:license[@license-type="open-access"]', namespaces=common.ns)
+                            if open_access_element:
+                                open_access = 'Yes'
 
                         metadata['is_open_access'] = open_access
 
