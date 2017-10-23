@@ -45,7 +45,7 @@ def edit(request, publisher_id, mapping_type):
     except ValueError:
         current_page = 1
 
-    mappings_per_page = 10
+    mappings_per_page = 100
     links_per_page = 5
 
     mappings_by_canonical_value = {}
