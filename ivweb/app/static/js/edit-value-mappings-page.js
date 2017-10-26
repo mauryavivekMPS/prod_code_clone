@@ -73,12 +73,10 @@ $.widget("custom.editvaluemappingspage", {
             var newValue = '';
             var newDisplayValue = '';
             if (selectedMappingValue.name === typedValue) {
-                console.log('isNew is false');
                 newValue = selectedMappingValue.id;
                 newDisplayValue = selectedMappingValue.name;
             }
             else {
-                console.log('isNew is true');
                 isNewValue = true;
                 newValue = typedValue;
                 newDisplayValue = typedValue;
@@ -185,6 +183,7 @@ $.widget("custom.editvaluemappingspage", {
                     IvetlWeb.hideLoading();
                 });
 
+            console.log('preventing 2');
             event.preventDefault();
         });
 
@@ -301,7 +300,6 @@ $.widget("custom.editvaluemappingspage", {
         link.popover({
             html: true,
             title: 'Enter a new display value',
-            container: '#edit-value-mappings-page',
             placement: 'auto right',
             content: function () {
                 return $(this).closest('.mapping-container').find('.edit-display-popover').html();
@@ -329,7 +327,6 @@ $.widget("custom.editvaluemappingspage", {
         link.popover({
             html: true,
             title: 'Choose a new mapping',
-            container: '#edit-value-mappings-page',
             placement: 'auto right',
             content: function () {
                 return $(this).closest('.mapping-entry-container').find('.edit-mapping-popover').html();
