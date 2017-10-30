@@ -218,4 +218,9 @@ def trim_and_strip_doublequotes(s):
 
 
 def guess_encoding(file_path):
-    return chardet.detect(open(file_path, 'rb').read()[:100000])['encoding']
+    # this is not a generalized function, it just guesses between UTF-8 and ISO-8859-2
+    guess = chardet.detect(open(file_path, 'rb').read()[:100000])['encoding']
+    if guess.lower() == 'utf-8':
+        return 'utf-8'
+    else:
+        return 'ISO-8859-2'
