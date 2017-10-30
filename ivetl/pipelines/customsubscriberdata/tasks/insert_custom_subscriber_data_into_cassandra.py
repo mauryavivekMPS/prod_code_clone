@@ -4,6 +4,7 @@ from ivetl.pipelines.task import Task
 from ivetl.models import SubscriberValues, Subscriber
 from ivetl.pipelines.customsubscriberdata import CustomSubscriberDataPipeline
 from ivetl.pipelines.subscriberdata import SubscribersAndSubscriptionsPipeline
+from ivetl import utils
 
 
 @app.task
@@ -16,7 +17,8 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         for f in files:
-            with open(f, encoding='utf-8') as tsv:
+            encoding = utils.guess_encoding(f)
+            with open(f, encoding=encoding) as tsv:
                 count = 0
                 for line in csv.reader(tsv, delimiter='\t'):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
