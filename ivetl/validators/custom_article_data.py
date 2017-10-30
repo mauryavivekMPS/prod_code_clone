@@ -70,6 +70,6 @@ class CustomArticleDataValidator(BaseValidator):
                     total_count += count-1
 
             except UnicodeDecodeError:
-                errors.append(self.format_error(file_name, 0, "This file is not UTF-8, skipping further validation"))
+                errors.append(self.format_error(file_name, 0, "This file is not a recognized encoding, skipping further validation"))
 
         return total_count, errors

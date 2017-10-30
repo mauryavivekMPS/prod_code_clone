@@ -2,8 +2,7 @@ import os
 import csv
 import codecs
 from ivetl.validators.base import BaseValidator
-from ivetl.utils import trim_and_strip_doublequotes
-
+from ivetl import utils
 
 COLUMNS = [
     'MANUSCRIPT_ID',
@@ -32,7 +31,8 @@ class RejectedArticlesValidator(BaseValidator):
         for f in files:
             file_name = os.path.basename(f)
             try:
-                with codecs.open(f, encoding='utf-8') as tsv:
+                encoding = utils.guess_encoding(f)
+                with codecs.open(f, encoding=encoding) as tsv:
                     count = 0
                     for line in csv.reader(tsv, delimiter='\t', quoting=csv.QUOTE_NONE):
                         if line:
@@ -50,7 +50,7 @@ class RejectedArticlesValidator(BaseValidator):
                             valid_column_headers = True
                             if count == 1:
                                 for i, col in enumerate(COLUMNS):
-                                    title = trim_and_strip_doublequotes(line[i])
+                                    title = utils.trim_and_strip_doublequotes(line[i])
                                     if title.upper() != COLUMNS[i]:
                                         errors.append(self.format_error(file_name, count, 'Invalid column header, looking for "%s" but found "%s".'  % (COLUMNS[i], title)))
 
@@ -65,21 +65,21 @@ class RejectedArticlesValidator(BaseValidator):
                                 if field == '"':
                                     errors.append(self.format_error(file_name, count, "Invalid format, at least one field with only a double quotation mark character"))
 
-                            manuscript_id = trim_and_strip_doublequotes(line[0])
+                            manuscript_id = utils.trim_and_strip_doublequotes(line[0])
                             input_data = {
-                                'date_of_rejection': trim_and_strip_doublequotes(line[1]),
-                                'reject_reason': trim_and_strip_doublequotes(line[2]),
-                                'title': trim_and_strip_doublequotes(line[3]),
-                                'first_author': trim_and_strip_doublequotes(line[4]),
-                                'corresponding_author': trim_and_strip_doublequotes(line[5]),
-                                'co_authors': trim_and_strip_doublequotes(line[6]),
-                                'subject_category': trim_and_strip_doublequotes(line[7]),
-                                'editor': trim_and_strip_doublequotes(line[8]),
-                                'submitted_journal': trim_and_strip_doublequotes(line[9]),
-                                'article_type': trim_and_strip_doublequotes(line[10]),
-                                'keywords': trim_and_strip_doublequotes(line[11]),
-                                'custom': trim_and_strip_doublequotes(line[12]),
-                                'funders': trim_and_strip_doublequotes(line[13]),
+                                'date_of_rejection': utils.trim_and_strip_doublequotes(line[1]),
+                                'reject_reason': utils.trim_and_strip_doublequotes(line[2]),
+                                'title': utils.trim_and_strip_doublequotes(line[3]),
+                                'first_author': utils.trim_and_strip_doublequotes(line[4]),
+                                'corresponding_author': utils.trim_and_strip_doublequotes(line[5]),
+                                'co_authors': utils.trim_and_strip_doublequotes(line[6]),
+                                'subject_category': utils.trim_and_strip_doublequotes(line[7]),
+                                'editor': utils.trim_and_strip_doublequotes(line[8]),
+                                'submitted_journal': utils.trim_and_strip_doublequotes(line[9]),
+                                'article_type': utils.trim_and_strip_doublequotes(line[10]),
+                                'keywords': utils.trim_and_strip_doublequotes(line[11]),
+                                'custom': utils.trim_and_strip_doublequotes(line[12]),
+                                'funders': utils.trim_and_strip_doublequotes(line[13]),
                             }
 
                             if not manuscript_id:
@@ -106,7 +106,7 @@ class RejectedArticlesValidator(BaseValidator):
                     total_count += count
 
             except UnicodeDecodeError:
-                errors.append(self.format_error(file_name, 0, "This file is not in UTF-8, skipping further validation"))
+                errors.append(self.format_error(file_name, 0, "This file is not in a recognized encoding, skipping further validation"))
 
         return total_count, errors
 

@@ -2,6 +2,7 @@ import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import ProductBundle
+from ivetl import utils
 
 
 @app.task
@@ -18,7 +19,8 @@ class InsertBundleDefinitionsIntoCassandraTask(Task):
 
             tlogger.info('Processing %s' % file)
 
-            with open(file, 'r', encoding='utf-8') as tsv:
+            encoding = utils.guess_encoding(file)
+            with open(file, 'r', encoding=encoding) as tsv:
                 for line in csv.reader(tsv, delimiter="\t"):
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
