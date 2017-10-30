@@ -3,6 +3,7 @@ import csv
 import codecs
 from ivetl.validators.base import BaseValidator
 from ivetl.connectors import CrossrefConnector
+from ivetl import utils
 
 
 class CustomArticleDataValidator(BaseValidator):
@@ -19,7 +20,8 @@ class CustomArticleDataValidator(BaseValidator):
         for f in files:
             file_name = os.path.basename(f)
             try:
-                with codecs.open(f, encoding='utf-8') as tsv:
+                encoding = utils.guess_encoding(f)
+                with codecs.open(f, encoding=encoding) as tsv:
                     count = 0
                     for line in csv.reader(tsv, delimiter='\t'):
                         if line:

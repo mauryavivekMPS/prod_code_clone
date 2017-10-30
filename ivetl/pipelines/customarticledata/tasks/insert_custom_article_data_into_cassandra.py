@@ -5,7 +5,7 @@ from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublishedArticleValues
 from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
-
+from ivetl import utils
 
 @app.task
 class InsertCustomArticleDataIntoCassandra(Task):
@@ -21,7 +21,8 @@ class InsertCustomArticleDataIntoCassandra(Task):
         modified_articles_file.write('PUBLISHER_ID\tDOI\n')  # ..and here? we're already in a pub folder
 
         for f in files:
-            with open(f, encoding='utf-8') as tsv:
+            encoding = utils.guess_encoding(f)
+            with open(f, encoding=encoding) as tsv:
                 count = 0
                 for line in csv.reader(tsv, delimiter='\t'):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)

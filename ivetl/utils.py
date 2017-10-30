@@ -4,6 +4,7 @@ import uuid
 import humanize
 import datetime
 import boto3
+import chardet
 from operator import attrgetter
 from dateutil.rrule import rrule, MONTHLY
 from ivetl.models import SystemGlobal, PipelineStatus, PipelineTaskStatus, AuditLogByUser, AuditLogByPublisher, AuditLogByTime
@@ -214,3 +215,7 @@ def trim_and_strip_doublequotes(s):
         return s[1:-1].strip()
     else:
         return s
+
+
+def guess_encoding(file_path):
+    return chardet.detect(open(file_path, 'rb').read()[:100000])['encoding']
