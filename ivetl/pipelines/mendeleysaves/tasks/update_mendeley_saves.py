@@ -46,7 +46,7 @@ class UpdateMendeleySaves(Task):
         target_file = codecs.open(target_file_name, 'a', 'utf-16')
 
         if not already_processed:
-            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'SAVES']))
+            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'SAVES']) + '\n')
 
         mendeley = MendeleyConnector(common.MENDELEY_CLIENT_ID, common.MENDELEY_CLIENT_SECRET)
 

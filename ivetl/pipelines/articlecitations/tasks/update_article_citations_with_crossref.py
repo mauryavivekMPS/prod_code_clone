@@ -51,7 +51,7 @@ class UpdateArticleCitationsWithCrossref(Task):
 
         target_file = codecs.open(target_file_name, 'a', 'utf-16')
         if not already_processed:
-            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI']))
+            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI']) + '\n')
 
         count = 0
         count_lock = threading.Lock()
