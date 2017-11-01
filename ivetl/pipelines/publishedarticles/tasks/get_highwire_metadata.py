@@ -101,7 +101,7 @@ class GetHighWireMetadataTask(Task):
 
         target_file = codecs.open(target_file_name, 'a', 'utf-16')
         if not already_processed:
-            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'ISSN', 'DATA']))
+            target_file.write('\t'.join(['PUBLISHER_ID', 'DOI', 'ISSN', 'DATA']) + '\n')
 
         article_rows = []
 
