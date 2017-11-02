@@ -3,6 +3,7 @@ import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.pipelines.publishedarticles import UpdatePublishedArticlesPipeline
+from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
 from ivetl.models import PublishedArticle, PublishedArticleValues, CitableSection, ValueMapping, ValueMappingDisplay
 from ivetl.common import common
 from ivetl.matchers import value as value_matcher
@@ -72,7 +73,7 @@ class ResolvePublishedArticlesData(Task):
             tlogger.info("Processing #%s : %s" % (count - 1, article.article_doi))
 
             # resolve policy: if a value from source=custom is present it always wins
-            for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:
+            for field in CustomArticleDataPipeline.FOAM_FIELDS:
                 new_value = None
                 try:
                     v = PublishedArticleValues.objects.get(article_doi=article.article_doi, publisher_id=publisher_id, source='custom', name=field)
@@ -86,6 +87,10 @@ class ResolvePublishedArticlesData(Task):
                         new_value = v.value_text
                     except PublishedArticleValues.DoesNotExist:
                         pass
+
+                # hard default to "None"
+                if not new_value:
+                    new_value = "None"
 
                 # update the canonical if there is any non Null/None value (note that "None" is a value)
                 if new_value:
@@ -162,7 +167,7 @@ class ResolvePublishedArticlesData(Task):
             tlogger.info("Processing #%s : %s" % (count - 1, article.article_doi))
 
             # resolve policy: if a value from source=custom is present it always wins
-            for field in ['article_type', 'subject_category', 'editor', 'custom', 'custom_2', 'custom_3']:
+            for field in CustomArticleDataPipeline.FOAM_FIELDS:
 
                 # grab the value from the local cache built in the previous loop
                 new_value = all_new_values.get((article.article_doi, field))

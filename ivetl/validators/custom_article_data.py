@@ -3,6 +3,7 @@ import csv
 import codecs
 from ivetl.validators.base import BaseValidator
 from ivetl.connectors import CrossrefConnector
+from ivetl import utils
 
 
 class CustomArticleDataValidator(BaseValidator):
@@ -19,7 +20,8 @@ class CustomArticleDataValidator(BaseValidator):
         for f in files:
             file_name = os.path.basename(f)
             try:
-                with codecs.open(f, encoding='utf-8') as tsv:
+                encoding = utils.guess_encoding(f)
+                with codecs.open(f, encoding=encoding) as tsv:
                     count = 0
                     for line in csv.reader(tsv, delimiter='\t'):
                         if line:
@@ -33,8 +35,8 @@ class CustomArticleDataValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 8:
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 8 required), skipping other validation" % len(line)))
+                            if len(line) != 7:
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 7 required), skipping other validation" % len(line)))
                                 continue
 
                             d = {
@@ -68,6 +70,6 @@ class CustomArticleDataValidator(BaseValidator):
                     total_count += count-1
 
             except UnicodeDecodeError:
-                errors.append(self.format_error(file_name, 0, "This file is not UTF-8, skipping further validation"))
+                errors.append(self.format_error(file_name, 0, "This file is not a recognized encoding, skipping further validation"))
 
         return total_count, errors
