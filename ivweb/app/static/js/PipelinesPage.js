@@ -15,6 +15,10 @@ var PipelinePage = (function() {
     var includeFromDateControls;
     var supportsRestart;
 
+    var initialDelay = 3000;  // 3 seconds minimum
+    var maxDelay = 384000;  // 6 minutes-ish max
+    var delayIncreaseMultiple = 2;  // increase the delay by 2x each time
+
     var updateRunButton = function() {
         var somethingIsRunning = false;
         $.each(publisherTaskStatus, function(publisherId) {
@@ -31,9 +35,10 @@ var PipelinePage = (function() {
         }
     };
 
-    var updatePublisher = function(publisherId) {
+    var updatePublisher = function(publisherId, currentDelay) {
         var summaryRow = $('.' + publisherId + '_summary_row');
         var opened = 0;
+        var newDelay = currentDelay;
         if ($('.' + publisherId + '_opener').is(':visible')) {
             opened = 1;
         }
@@ -68,12 +73,22 @@ var PipelinePage = (function() {
                     progressBarContainer.attr('data-original-title', newTitle).tooltip('show');
                     progressBar.css('width', json.percent_complete + '%');
                 }
+
+                // if nothing has changed, increase the delay before the next check (if it's not maxed out already)
+                if (json.has_section_updates || json.has_progress_bar_updates) {
+                    newDelay = initialDelay;
+                }
+                else {
+                    if (currentDelay < maxDelay) {
+                        newDelay *= delayIncreaseMultiple;
+                    }
+                }
             });
 
         // start again...
         setTimeout(function() {
-            updatePublisher(publisherId);
-        }, 3000);
+            updatePublisher(publisherId, newDelay);
+        }, newDelay);
     };
 
     var onUpdatePublisher = function(publisherId) {
@@ -437,8 +452,8 @@ var PipelinePage = (function() {
 
         $.each(options.publishers, function(index, publisherId) {
             setTimeout(function() {
-                updatePublisher(publisherId);
-            }, 3000);
+                updatePublisher(publisherId, initialDelay);
+            }, initialDelay);
         });
 
         var publisherId = window.location.hash.substr(1);
