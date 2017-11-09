@@ -165,7 +165,7 @@ class IvetlHandler(FTPHandler):
                     user_id=user.user_id,
                     publisher_id=publisher_id,
                     action='run-pipeline',
-                    description='Run pipeline from FTP: %s' % pipeline_id['id'],
+                    description='Run pipeline from FTP: %s' % pipeline['id'],
                 )
 
 
