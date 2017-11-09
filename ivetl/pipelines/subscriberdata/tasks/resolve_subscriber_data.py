@@ -58,15 +58,18 @@ class ResolveSubscriberDataTask(Task):
                         except SubscriberValues.DoesNotExist:
                             pass
 
-                    # update the canonical if there is any non Null/None value (note that "None" is a value)
-                    if new_value:
-                        if attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_DATETIME_FIELD_NAMES:
-                            try:
-                                new_value = parse(new_value)
-                            except ValueError:
-                                continue
+                    # hard default to "None"
+                    if not new_value:
+                        new_value = "None"
 
-                        setattr(subscriber, attr_name, new_value)
+                    # we hard default to "None", so always update
+                    if attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_DATETIME_FIELD_NAMES:
+                        try:
+                            new_value = parse(new_value)
+                        except ValueError:
+                            continue
+
+                    setattr(subscriber, attr_name, new_value)
 
                 subscriber.save()
 

@@ -37,14 +37,22 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
                     tlogger.info("Processing #%s : %s" % (count - 1, membership_no))
 
                     for attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
-                        SubscriberValues.objects(
-                            publisher_id=subscriber.publisher_id,
-                            membership_no=membership_no,
-                            source='custom',
-                            name=attr_name,
-                        ).update(
-                            value_text=line[CustomSubscriberDataPipeline.FIELD_NAMES[attr_name]],
-                        )
+                        new_value = CustomSubscriberDataPipeline.FIELD_NAMES[attr_name].strip()
+
+                        if new_value:
+
+                            # if there is any version of a "none" string, then standardize it
+                            if new_value.lower() == 'none':
+                                new_value = 'None'
+
+                            SubscriberValues.objects(
+                                publisher_id=subscriber.publisher_id,
+                                membership_no=membership_no,
+                                source='custom',
+                                name=attr_name,
+                            ).update(
+                                value_text=line[new_value],
+                            )
 
         task_args['count'] = total_count
 
