@@ -414,6 +414,8 @@ class Task(BaseTask):
                 job_id=job_id,
                 path=new_file_path,
                 user_id=initiating_user_id,
+                original_name=new_file_name,
+                validated=True,
             )
 
             file_viewer_url = reverse('uploaded_files.download', kwargs={
