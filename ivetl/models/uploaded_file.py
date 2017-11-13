@@ -12,7 +12,5 @@ class UploadedFile(Model):
     job_id = columns.Text()
     path = columns.Text()
     user_id = columns.UUID()
-
-    @property
-    def file_name(self):
-        return self.path[self.path.rindex('/') + 1:]
+    original_name = columns.Text()
+    validated = columns.Boolean()

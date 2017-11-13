@@ -50,7 +50,7 @@
                                     <td class="user-col">{{ log_entry.user_display_name }}</td>
                                     <td class="publisher-col">{{ log_entry.publisher_id }}</td>
                                     <td class="description-col">{{ log_entry.description|safe }}</td>
-                                    <td class="action-col">{{ log_entry.action }}</td>
+                                    <td class="action-col {% if 'invalid' in log_entry.action %}invalid{% endif %}">{{ log_entry.action }}</td>
                                 </tr>
                             {% endfor %}
                         {% else %}

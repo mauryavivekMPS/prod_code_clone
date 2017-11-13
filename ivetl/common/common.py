@@ -1107,6 +1107,7 @@ BASE_FTP_DIR = os.path.join(BASE_WORKING_DIR, "ftp")
 BASE_WORK_DIR = os.path.join(BASE_WORKING_DIR, "working")
 BASE_ARCHIVE_DIR = os.path.join(BASE_WORKING_DIR, "archive")
 BASE_DEMO_DIR = os.path.join(BASE_WORKING_DIR, "demos")
+BASE_INVALID_DIR = os.path.join(BASE_WORKING_DIR, "invalid")
 TMP_DIR = os.environ.get('IVETL_TMP_DIR', '/iv/tmp')
 
 HWDW_METADATA_BUCKET = os.environ.get('IVETL_HWDW_METADATA_BUCKET', 'hwdw-metadata')

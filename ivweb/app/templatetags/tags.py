@@ -41,6 +41,14 @@ def checkmark(thing):
 
 
 @register.simple_tag
+def checkmark_or_cross(thing):
+    if thing:
+        return '<span class="lnr lnr-check checkmark"></span>'
+    else:
+        return '<span class="lnr lnr-cross cross"></span>'
+
+
+@register.simple_tag
 def sort_column(column_label, field_name, sort_key, sort_descending, use_status_icon=False):
     if field_name == sort_key:
         if sort_descending:

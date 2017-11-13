@@ -322,6 +322,16 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
     return os.path.join(get_or_create_demo_file_dir(demo_id, product_id, pipeline_id), name)
 
 
+def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
+    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
+    os.makedirs(pub_dir, exist_ok=True)
+    return pub_dir
+
+
+def get_or_create_invalid_file_path(publisher_id, product_id, pipeline_id, date, name):
+    return os.path.join(get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date), name)
+
+
 class RunForm(forms.Form):
     publisher = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     move_pending_files = forms.BooleanField(widget=forms.HiddenInput, required=False)
@@ -585,6 +595,15 @@ def pending_files(request, product_id, pipeline_id):
     })
 
 
+def move_invalid_file_to_cold_storage(pending_file_path, publisher_id, product_id, pipeline_id, today):
+    _, ext = os.path.splitext(pending_file_path)
+    new_file_name = '%s%s' % (uuid.uuid4(), ext)
+    invalid_file_path = get_or_create_invalid_file_path(publisher_id, product_id, pipeline_id, today, new_file_name)
+    shutil.move(pending_file_path, invalid_file_path)
+    os.chmod(invalid_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+    return invalid_file_path
+
+
 @login_required
 def upload_pending_file_inline(request):
 
@@ -601,6 +620,8 @@ def upload_pending_file_inline(request):
 
         publisher_id = None
         demo_id = None
+
+        today = datetime.datetime.now()
 
         for uploaded_file in all_uploaded_files:
 
@@ -651,7 +672,32 @@ def upload_pending_file_inline(request):
                     line_count = i + 1
 
             if validation_errors:
-                os.remove(pending_file_path)  # delete the file
+                invalid_file_path = move_invalid_file_to_cold_storage(pending_file_path, publisher_id, product_id, pipeline_id, today)
+
+                uploaded_file_record = UploadedFile.objects.create(
+                    publisher_id=publisher_id,
+                    processed_time=datetime.datetime.now(),
+                    product_id='web',
+                    pipeline_id='upload',
+                    job_id='',
+                    path=invalid_file_path,
+                    user_id=request.user.user_id,
+                    original_name=uploaded_file.name,
+                    validated=False,
+                )
+
+                file_viewer_url = reverse('uploaded_files.download', kwargs={
+                    'publisher_id': publisher_id,
+                    'uploaded_file_id': uploaded_file_record.uploaded_file_id,
+                })
+                new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
+
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=publisher_id,
+                    action='upload-file-invalid',
+                    description='Invalid web upload %s file: %s' % (pipeline_id, new_file_link),
+                )
 
             else:
 
@@ -666,13 +712,15 @@ def upload_pending_file_inline(request):
                     job_id='',
                     path=pending_file_path,
                     user_id=request.user.user_id,
+                    original_name=uploaded_file.name,
+                    validated=True,
                 )
 
                 utils.add_audit_log(
                     user_id=request.user.user_id,
                     publisher_id=publisher_id,
                     action='upload-file',
-                    description='Uploaded %s file: %s' % (pipeline_id, uploaded_file),
+                    description='Valid web upload %s file: %s' % (pipeline_id, uploaded_file),
                 )
 
             all_processed_files.append({

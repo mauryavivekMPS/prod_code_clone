@@ -36,6 +36,6 @@ def download(request, publisher_id, uploaded_file_id):
         response = HttpResponse(f.read())
 
     response['content_type'] = 'text/csv'
-    response['Content-Disposition'] = 'attachment; filename="%s"' % uploaded_file_record.file_name
+    response['Content-Disposition'] = 'attachment; filename="%s"' % uploaded_file_record.original_name
 
     return response
