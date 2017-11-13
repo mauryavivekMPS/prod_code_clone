@@ -10,10 +10,12 @@ from collections import defaultdict
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
+from django.core.urlresolvers import reverse
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.common import common
 from ivetl.models import PublisherMetadata, User, UploadedFile
 from ivetl import utils
+from ivweb.app.views.pipelines import move_invalid_file_to_cold_storage
 
 
 class IvetlAuthorizer(DummyAuthorizer):
@@ -77,6 +79,8 @@ class IvetlHandler(FTPHandler):
 
         files_to_process = defaultdict(dict)  # indexed by pub then by ftp_dir_name
 
+        today = datetime.datetime.now()
+
         for file in self.uploaded_files:
             file_name = os.path.basename(file)
 
@@ -108,6 +112,33 @@ class IvetlHandler(FTPHandler):
 
                         self.log('Validation failed for %s with %s errors' % (file_name, len(validation_errors)))
 
+                        invalid_file_path = move_invalid_file_to_cold_storage(file, publisher_id, product_id, pipeline_id, today)
+
+                        uploaded_file_record = UploadedFile.objects.create(
+                            publisher_id=publisher_id,
+                            processed_time=datetime.datetime.now(),
+                            product_id='ftp',
+                            pipeline_id='upload',
+                            job_id='',
+                            path=invalid_file_path,
+                            user_id=user.user_id,
+                            original_name=file_name,
+                            validated=False,
+                        )
+
+                        file_viewer_url = reverse('uploaded_files.download', kwargs={
+                            'publisher_id': publisher_id,
+                            'uploaded_file_id': uploaded_file_record.uploaded_file_id,
+                        })
+                        new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, file_name)
+
+                        utils.add_audit_log(
+                            user_id=user.user_id,
+                            publisher_id=publisher_id,
+                            action='ftp-file-invalid',
+                            description='Invalid FTP upload %s file: %s' % (pipeline['id'], new_file_link),
+                        )
+
                         continue
 
                 os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
@@ -121,6 +152,15 @@ class IvetlHandler(FTPHandler):
                     job_id='',
                     path=file,
                     user_id=user.user_id,
+                    original_name=file_name,
+                    validated=True,
+                )
+
+                utils.add_audit_log(
+                    user_id=user.user_id,
+                    publisher_id=publisher_id,
+                    action='ftp-file',
+                    description='Valid FTP upload %s file: %s' % (pipeline['id'], file_name),
                 )
 
                 files_by_publisher = files_to_process[publisher_id]
@@ -165,7 +205,7 @@ class IvetlHandler(FTPHandler):
                     user_id=user.user_id,
                     publisher_id=publisher_id,
                     action='run-pipeline',
-                    description='Run pipeline from FTP: %s' % pipeline_id['id'],
+                    description='Run pipeline from FTP: %s' % pipeline['id'],
                 )
 
 
