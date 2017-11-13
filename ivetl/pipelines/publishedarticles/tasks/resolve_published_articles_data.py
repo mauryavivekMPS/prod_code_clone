@@ -92,72 +92,69 @@ class ResolvePublishedArticlesData(Task):
                 if not new_value:
                     new_value = "None"
 
-                # update the canonical if there is any non Null/None value (note that "None" is a value)
-                if new_value:
+                all_new_values[(article.article_doi, field)] = new_value
 
-                    all_new_values[(article.article_doi, field)] = new_value
+                # special processing for value-mapped fields
+                if field in value_mappings.MAPPING_TYPES:
 
-                    # special processing for value-mapped fields
-                    if field in value_mappings.MAPPING_TYPES:
+                    # look for exact match
+                    new_canonical_value = canonical_value_by_original_value[field].get(new_value)
 
-                        # look for exact match
-                        new_canonical_value = canonical_value_by_original_value[field].get(new_value)
+                    if not new_canonical_value:
+                        # get clean, simplified version of term
+                        simplified_value = value_matcher.simplify_value(new_value)
 
-                        if not new_canonical_value:
-                            # get clean, simplified version of term
-                            simplified_value = value_matcher.simplify_value(new_value)
+                    # compare it to existing terms for close match
+                    best_ratio_so_far = 0
+                    best_match_so_far = None
+                    if not new_canonical_value:
+                        for existing_canonical_value in all_canonical_values[field]:
+                            match, ratio = value_matcher.match_simplified_values(simplified_value, existing_canonical_value)
 
-                        # compare it to existing terms for close match
-                        best_ratio_so_far = 0
-                        best_match_so_far = None
-                        if not new_canonical_value:
-                            for existing_canonical_value in all_canonical_values[field]:
-                                match, ratio = value_matcher.match_simplified_values(simplified_value, existing_canonical_value)
+                            if match:
+                                if ratio > best_ratio_so_far:
+                                    best_match_so_far = existing_canonical_value
 
-                                if match:
-                                    if ratio > best_ratio_so_far:
-                                        best_match_so_far = existing_canonical_value
+                    # if match, then add to mapping table
+                    if best_match_so_far:
+                        new_canonical_value = best_match_so_far
 
-                        # if match, then add to mapping table
-                        if best_match_so_far:
-                            new_canonical_value = best_match_so_far
+                        ValueMapping.objects.create(
+                            publisher_id=publisher_id,
+                            mapping_type=field,
+                            original_value=new_value,
+                            canonical_value=new_canonical_value
+                        )
 
-                            ValueMapping.objects.create(
-                                publisher_id=publisher_id,
-                                mapping_type=field,
-                                original_value=new_value,
-                                canonical_value=new_canonical_value
-                            )
+                        canonical_value_by_original_value[field][new_value] = new_canonical_value
 
-                            canonical_value_by_original_value[field][new_value] = new_canonical_value
+                        tlogger.info('Adding a new ValueMapping to existing ValueMappingDisplay: %s -> %s' % (new_value, new_canonical_value))
 
-                            tlogger.info('Adding a new ValueMapping to existing ValueMappingDisplay: %s -> %s' % (new_value, new_canonical_value))
+                    # if no match, then add display table (with original version) and add to mapping table
+                    if not new_canonical_value:
+                        new_canonical_value = simplified_value
 
-                        # if no match, then add display table (with original version) and add to mapping table
-                        if not new_canonical_value:
-                            new_canonical_value = simplified_value
+                        ValueMapping.objects.create(
+                            publisher_id=publisher_id,
+                            mapping_type=field,
+                            original_value=new_value,
+                            canonical_value=new_canonical_value
+                        )
 
-                            ValueMapping.objects.create(
-                                publisher_id=publisher_id,
-                                mapping_type=field,
-                                original_value=new_value,
-                                canonical_value=new_canonical_value
-                            )
+                        new_display_value = new_value
 
-                            new_display_value = new_value
+                        ValueMappingDisplay.objects.create(
+                            publisher_id=publisher_id,
+                            mapping_type=field,
+                            canonical_value=new_canonical_value,
+                            display_value=new_display_value,
+                        )
 
-                            ValueMappingDisplay.objects.create(
-                                publisher_id=publisher_id,
-                                mapping_type=field,
-                                canonical_value=new_canonical_value,
-                                display_value=new_display_value,
-                            )
+                        tlogger.info('Adding a new ValueMapping and ValueMappingDisplay: %s -> %s -> %s' % (new_value, new_canonical_value, new_display_value))
 
-                            tlogger.info('Adding a new ValueMapping and ValueMappingDisplay: %s -> %s -> %s' % (new_value, new_canonical_value, new_display_value))
-
-                            # add to in-memory lookups
-                            canonical_value_by_original_value[field][new_value] = new_canonical_value
-                            display_value_by_canonical_value[field][new_canonical_value] = new_display_value
+                        # add to in-memory lookups
+                        canonical_value_by_original_value[field][new_value] = new_canonical_value
+                        display_value_by_canonical_value[field][new_canonical_value] = new_display_value
 
         # second loop, save changes to db
         tlogger.info('Second loop, using updated value mapping and writing to db')
