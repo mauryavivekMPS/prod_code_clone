@@ -58,6 +58,10 @@ class GetPublishedArticlesTask(Task):
 
                     for i in xrefdata['message']['items']:
 
+                        # avoid really big (unused) "reference" element
+                        if 'reference' in i:
+                            del i['reference']
+
                         articles[i['DOI']] = (i['DOI'], issn, json.dumps(i))
                         count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
