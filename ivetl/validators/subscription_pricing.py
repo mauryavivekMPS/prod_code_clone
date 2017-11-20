@@ -72,6 +72,9 @@ class SubscriptionPricingValidator(BaseValidator):
                                 except (ValueError, InvalidOperation):
                                     errors.append(self.format_error(file_name, count - 1, "Amount must be a valid decimal"))
 
+                        if len(errors) > self.MAX_ERRORS:
+                            break
+
                     total_count += count
 
             except UnicodeDecodeError:

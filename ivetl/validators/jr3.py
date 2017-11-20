@@ -38,6 +38,9 @@ class JR3Validator(BaseValidator):
                             if found_unexpected_fields:
                                 break
 
+                    if len(errors) > self.MAX_ERRORS:
+                        break
+
                 total_count += count
 
         return total_count, errors

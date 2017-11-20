@@ -9,6 +9,8 @@ class ValidationError(Exception):
 
 class BaseValidator(object):
 
+    MAX_ERRORS = 50
+
     def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
         raise NotImplementedError
 

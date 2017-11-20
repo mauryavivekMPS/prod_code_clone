@@ -31,6 +31,9 @@ class ArticleUsageValidator(BaseValidator):
                                 errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
                                 continue
 
+                        if len(errors) > self.MAX_ERRORS:
+                            break
+
                     total_count += count
 
             except UnicodeDecodeError:

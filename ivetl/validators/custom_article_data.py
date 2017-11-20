@@ -67,7 +67,10 @@ class CustomArticleDataValidator(BaseValidator):
                                 #     errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher : %s : %s" % (article['journal_issn'], issns)))
                                 #     continue
 
-                    total_count += count-1
+                        if len(errors) > self.MAX_ERRORS:
+                            break
+
+                    total_count += count - 1
 
             except UnicodeDecodeError:
                 errors.append(self.format_error(file_name, 0, "This file is not a recognized encoding, skipping further validation"))
