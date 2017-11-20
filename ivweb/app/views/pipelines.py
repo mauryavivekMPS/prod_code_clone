@@ -656,6 +656,8 @@ def upload_pending_file_inline(request):
                     crossref_password = request.POST.get('crossref_password', '')
 
                 try:
+                    t1 = time.time()
+                    log.info('Starting validation...')
                     line_count, raw_errors = validator.validate_files(
                         [pending_file_path],
                         issns=issns,
@@ -664,6 +666,9 @@ def upload_pending_file_inline(request):
                         crossref_password=crossref_password
                     )
                     validation_errors = validator.parse_errors(raw_errors)
+                    t2 = time.time()
+                    log.info('...finished validation.')
+                    log.info('Duration (in seconds) to validate: %s' % (t2 - t1))
                 except:
                     log.error('Unknown exception in validation method:')
                     log.error(traceback.format_exc())
