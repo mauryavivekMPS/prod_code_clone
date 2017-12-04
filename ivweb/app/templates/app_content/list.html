@@ -24,7 +24,7 @@
                         {% for block in blocks %}
                             <tr>
                                 <td><a href="{% url 'app_content.edit_block' block.block_id %}">{{ block.block_id }}</a></td>
-                                <td>{{ block.markdown }}</td>
+                                <td>{{ block.markdown|truncatechars:"70" }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

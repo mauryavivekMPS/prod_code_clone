@@ -22,10 +22,7 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-                <p class="pending-files-message">Upload files for processing according to the
-                    <a class="format-file-link" href="/static/dist/{{ pipeline.format_file }}" target="_blank">{{ pipeline.user_facing_file_description }} File Specification</a>
-                    <span class="lnr lnr-launch format-file-link-icon"></span>.
-                </p>
+                {% content_block pipeline.id %}
                 {% include "pipelines/include/pending_files_form.html" with additional=False %}
             </div>
         </div>
