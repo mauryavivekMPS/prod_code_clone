@@ -63,6 +63,7 @@ urlpatterns = [
 
     # app content
     url(r'^appcontent/$', app_content.list_blocks, name='app_content.list_blocks'),
+    url(r'^appcontent/new/$', app_content.edit_block, name='app_content.new_block'),
     url(r'^appcontent/(?P<block_id>[\w\-]+)/$', app_content.edit_block, name='app_content.edit_block'),
 
     # uploaded files
