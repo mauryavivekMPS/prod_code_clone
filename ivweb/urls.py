@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
 from ivweb.app.views import (auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers,
-                             pipelines, sendgrid, value_mappings, uploaded_files)
+    pipelines, sendgrid, value_mappings, uploaded_files, app_content)
 
 urlpatterns = [
 
@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^jobs/$', home.recent_jobs, name='recent_jobs'),
     url(r'^growth/$', home.growth, name='growth'),
     url(r'^performance/$', home.performance, name='performance'),
+    url(r'^support/$', home.support, name='home.support'),
 
     # users
     url(r'^users/$', users.list_users, name='users.list'),
@@ -60,6 +61,11 @@ urlpatterns = [
     # value mappings
     url(r'^metadatamappings/$', value_mappings.list_mappings, name='value_mappings.list_mappings'),
     url(r'^metadatamappings/(?P<publisher_id>[\w]+)/(?P<mapping_type>[\w]+)/$', value_mappings.edit, name='value_mappings.edit'),
+
+    # app content
+    url(r'^appcontent/$', app_content.list_blocks, name='app_content.list_blocks'),
+    url(r'^appcontent/new/$', app_content.edit_block, name='app_content.new_block'),
+    url(r'^appcontent/(?P<block_id>[\w\-]+)/$', app_content.edit_block, name='app_content.edit_block'),
 
     # uploaded files
     url(r'^uploadedfiles/$', uploaded_files.list_files, name='uploaded_files.list_files'),

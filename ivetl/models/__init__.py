@@ -52,3 +52,4 @@ from ivetl.models.workbook_url import WorkbookUrl
 from ivetl.models.value_mapping import ValueMapping
 from ivetl.models.value_mapping_display import ValueMappingDisplay
 from ivetl.models.uploaded_file import UploadedFile
+from ivetl.models.content_block import ContentBlock

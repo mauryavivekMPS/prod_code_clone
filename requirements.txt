@@ -24,3 +24,4 @@ boto3==1.4.1
 Flask==0.12.1
 gunicorn==19.7.1
 chardet==3.0.4
+markdown==2.6.9

@@ -1,0 +1,52 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}{% if content_block %}Edit{% else %}New{% endif %} Content Block{% endblock %}
+{% block body_class %}app_content{% endblock %}
+
+{% block content %}
+    <div id="edit-content-block-page">
+        <div class="row header-row with-breadcrumb">
+            <div class="col-md-8">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'app_content.list_blocks' %}">Content Blocks</a></li>
+                    <li></li>
+                </ol>
+                <h1>{% if block %}Edit{% else %}New{% endif %} Content Block</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-horizontal edit-content-block-form" method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2">Block ID</label>
+                        <div class="col-sm-6">
+                            {{ form.block_id }}
+                            {{ form.block_id.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2">Markdown</label>
+                        <div class="col-sm-6">
+                            {{ form.markdown }}
+                            {{ form.markdown.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group submit-row">
+                        <button type="submit" class="btn btn-primary submit-button">
+                            {% if content_block %}Save{% else %}Add{% endif %} Content Block
+                        </button>
+                        <span class="cancel">or
+                            <a href="../">Cancel</a>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
