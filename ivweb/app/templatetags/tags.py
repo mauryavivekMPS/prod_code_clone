@@ -1,6 +1,8 @@
 import json
+import markdown
 from django import template
 from django.utils.safestring import SafeText
+from ivetl.models import ContentBlock
 
 register = template.Library()
 
@@ -79,3 +81,12 @@ def get_alert_param_value(alert, param_name):
 def get_alert_filter_value(alert, filter_name):
     filters = json.loads(alert.filter_params)
     return filters.get(filter_name, '')
+
+
+@register.simple_tag
+def content_block(block_id):
+    try:
+        block = ContentBlock.objects.get(block_id=str(block_id))
+        return markdown.markdown(block.markdown)
+    except ContentBlock.DoesNotExist:
+        return ''

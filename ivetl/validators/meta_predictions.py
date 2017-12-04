@@ -23,6 +23,9 @@ class MetaPredictionsValidator(BaseValidator):
                                 errors.append(self.format_error(file_name, count - 1, "Missing DOI, skipping other validation"))
                                 continue
 
+                        if len(errors) > self.MAX_ERRORS:
+                            break
+
                     total_count += count
 
             except UnicodeDecodeError:

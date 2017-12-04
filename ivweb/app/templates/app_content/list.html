@@ -1,0 +1,35 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}App Content{% endblock %}
+{% block body_class %}app_content{% endblock %}
+
+{% block content %}
+    <div id="list-content-blocks-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>App Content</h1>
+                <a class="btn btn-default small add-new-item-button add-content-block-button" href="new/">+ Add Block</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Content ID</th>
+                            <th>Content</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for block in blocks %}
+                            <tr>
+                                <td><a href="{% url 'app_content.edit_block' block.block_id %}">{{ block.block_id }}</a></td>
+                                <td>{{ block.markdown|truncatechars:"70" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

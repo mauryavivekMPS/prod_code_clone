@@ -104,6 +104,9 @@
                     <li class="value_mappings_menu_item">
                         <a href="{% url 'value_mappings.list_mappings' %}">Metadata Mappings</a>
                     </li>
+                    <li class="app_content_menu_item">
+                        <a href="{% url 'app_content.list_blocks' %}">App Content</a>
+                    </li>
                 </ul>
                 {% for product in common.PRODUCTS %}
                     {% if product.is_user_facing %}
@@ -149,7 +152,7 @@
                         <a class="external-link" href="https://reports.vizors.org" target="_blank">Reports <span class="lnr lnr-launch"></span></a>
                     </li>
                     <li class="support_menu_item">
-                        <a class="external-link" href="mailto:impactvizorsupport@highwire.org">Support</a>
+                        <a href="{% url 'home.support' %}">Support</a>
                     </li>
                 </ul>
             {% endif %}

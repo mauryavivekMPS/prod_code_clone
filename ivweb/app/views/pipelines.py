@@ -9,6 +9,7 @@ import subprocess
 import time
 import uuid
 import humanize
+import traceback
 from dateutil.parser import parse
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -654,14 +655,25 @@ def upload_pending_file_inline(request):
                     crossref_username = request.POST.get('crossref_username', '')
                     crossref_password = request.POST.get('crossref_password', '')
 
-                line_count, raw_errors = validator.validate_files(
-                    [pending_file_path],
-                    issns=issns,
-                    publisher_id=publisher_id,
-                    crossref_username=crossref_username,
-                    crossref_password=crossref_password
-                )
-                validation_errors = validator.parse_errors(raw_errors)
+                try:
+                    t1 = time.time()
+                    log.info('Starting validation...')
+                    line_count, raw_errors = validator.validate_files(
+                        [pending_file_path],
+                        issns=issns,
+                        publisher_id=publisher_id,
+                        crossref_username=crossref_username,
+                        crossref_password=crossref_password
+                    )
+                    validation_errors = validator.parse_errors(raw_errors)
+                    t2 = time.time()
+                    log.info('...finished validation.')
+                    log.info('Duration (in seconds) to validate: %s' % (t2 - t1))
+                except:
+                    log.error('Unknown exception in validation method:')
+                    log.error(traceback.format_exc())
+                    validation_errors = [{'line_number': '0', 'message': 'Unknown error during validation'}]
+                    line_count = 0
 
             else:
                 # just count the lines

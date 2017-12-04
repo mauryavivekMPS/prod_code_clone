@@ -103,6 +103,9 @@ class RejectedArticlesValidator(BaseValidator):
                             if input_data['submitted_journal'] == "":
                                 errors.append(self.format_error(file_name, count, "No value for SUBMITTED_JOURNAL"))
 
+                        if len(errors) > self.MAX_ERRORS:
+                            break
+
                     total_count += count
 
             except UnicodeDecodeError:
