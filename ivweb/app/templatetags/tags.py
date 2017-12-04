@@ -86,7 +86,7 @@ def get_alert_filter_value(alert, filter_name):
 @register.simple_tag
 def content_block(block_id):
     try:
-        block = ContentBlock.objects.get(block_id=block_id)
+        block = ContentBlock.objects.get(block_id=str(block_id))
         return markdown.markdown(block.markdown)
     except ContentBlock.DoesNotExist:
         return ''

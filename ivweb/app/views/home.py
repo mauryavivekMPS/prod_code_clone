@@ -175,3 +175,8 @@ def performance(request):
         return HttpResponseRedirect(reverse('home'))
     else:
         return render(request, 'performance.html', {})
+
+
+@login_required
+def support(request):
+    return render(request, 'support.html', {})

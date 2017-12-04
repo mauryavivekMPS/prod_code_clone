@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^jobs/$', home.recent_jobs, name='recent_jobs'),
     url(r'^growth/$', home.growth, name='growth'),
     url(r'^performance/$', home.performance, name='performance'),
+    url(r'^support/$', home.support, name='home.support'),
 
     # users
     url(r'^users/$', users.list_users, name='users.list'),
