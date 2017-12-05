@@ -27,48 +27,50 @@
                         </thead>
                         <tbody>
                             {% for product_stats in publisher_stats.product_stats_list %}
-                                <tr>
-                                    <td>
-                                        <span class="lnr {{ product_stats.product.icon }} product-icon"></span>
-                                        {{ product_stats.product.name }}
-                                    </td>
-                                    <td></td>
-                                    <td class="status-col"></td>
-                                </tr>
-                                {% for pipeline_stats in product_stats.pipeline_stats_list %}
-                                    {% if pipeline_stats.pipeline.visible_on_user_home %}
-                                        {% if pipeline_stats.file_based_pipeline_currently_running or running_publisher == publisher_stats.publisher.publisher_id and running_pipeline == pipeline_stats.pipeline.id %}
-                                            <tr class="pipeline-status-row currently-running-row">
-                                                <td class="home-status-col">
-                                                    {{ pipeline_stats.message }}
-                                                </td>
-                                                <td class="home-time-col">
-                                                </td>
-                                                <td class="status-col">
-                                                    {% status_icon "in-progress" %}
-                                                </td>
-                                            </tr>
-                                        {% else %}
-                                            <tr class="pipeline-status-row">
-                                                <td class="home-status-col">
-                                                    {{ pipeline_stats.message }}
-                                                    {% if pipeline_stats.pipeline.has_file_input and not pipeline_stats.pipeline.hide_upload_from_user_home %}
-                                                        <a class="btn btn-default little-upload-button" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
-                                                        {% if pipeline_stats.pending_files %}
-                                                            <a class="little-files-link" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">{{ pipeline_stats.pending_files|length }} pending file{{ pipeline_stats.pending_files|pluralize }}</a>
+                                {% if product_stats.product.visible_on_publisher_user_home %}
+                                    <tr>
+                                        <td>
+                                            <span class="lnr {{ product_stats.product.icon }} product-icon"></span>
+                                            {{ product_stats.product.name }}
+                                        </td>
+                                        <td></td>
+                                        <td class="status-col"></td>
+                                    </tr>
+                                    {% for pipeline_stats in product_stats.pipeline_stats_list %}
+                                        {% if pipeline_stats.pipeline.visible_on_publisher_user_home %}
+                                            {% if pipeline_stats.file_based_pipeline_currently_running or running_publisher == publisher_stats.publisher.publisher_id and running_pipeline == pipeline_stats.pipeline.id %}
+                                                <tr class="pipeline-status-row currently-running-row">
+                                                    <td class="home-status-col">
+                                                        {{ pipeline_stats.message }}
+                                                    </td>
+                                                    <td class="home-time-col">
+                                                    </td>
+                                                    <td class="status-col">
+                                                        {% status_icon "in-progress" %}
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <tr class="pipeline-status-row">
+                                                    <td class="home-status-col">
+                                                        {{ pipeline_stats.message }}
+                                                        {% if pipeline_stats.pipeline.has_file_input and not pipeline_stats.pipeline.hide_upload_from_user_home %}
+                                                            <a class="btn btn-default little-upload-button" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">+ Upload</a>
+                                                            {% if pipeline_stats.pending_files %}
+                                                                <a class="little-files-link" href="{% url 'pipelines.pending_files' product_stats.product.id pipeline_stats.pipeline.id %}?publisher={{ publisher_stats.publisher.publisher_id }}">{{ pipeline_stats.pending_files|length }} pending file{{ pipeline_stats.pending_files|pluralize }}</a>
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                </td>
-                                                <td class="home-time-col">
-                                                    {{ pipeline_stats.recent_run.end_time }}
-                                                </td>
-                                                <td class="status-col">
-                                                    {% status_icon pipeline_stats.status %}
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                    <td class="home-time-col">
+                                                        {{ pipeline_stats.recent_run.end_time }}
+                                                    </td>
+                                                    <td class="status-col">
+                                                        {% status_icon pipeline_stats.status %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
                                         {% endif %}
-                                    {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>
