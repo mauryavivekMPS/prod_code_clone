@@ -609,6 +609,8 @@ def move_invalid_file_to_cold_storage(pending_file_path, publisher_id, product_i
 def upload_pending_file_inline(request):
 
     if request.method == 'POST':
+        log.info('Inside upload_pending_file_inline post')
+
         product_id = request.POST['product_id']
         pipeline_id = request.POST['pipeline_id']
         product = common.PRODUCT_BY_ID[product_id]
@@ -634,11 +636,18 @@ def upload_pending_file_inline(request):
                 demo_id = request.POST['demo_id']
                 pending_file_path = get_or_create_demo_file_path(demo_id, product_id, pipeline_id, uploaded_file.name)
 
+            t1 = time.time()
+            log.info('Starting to write file')
+
             pending_file = open(pending_file_path, 'wb')
             for chunk in uploaded_file.chunks():
                 pending_file.write(chunk)
             pending_file.close()
             uploaded_file_size = humanize.naturalsize(os.stat(pending_file_path).st_size)
+
+            t2 = time.time()
+            log.info('... finished writing file to tmp location')
+            log.info('Duration (in seconds) to write file: %s' % (t2 - t1))
 
             # get the validator class, if any, and run validation
             if pipeline.get('validator_class'):
