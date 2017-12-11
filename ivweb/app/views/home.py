@@ -13,6 +13,11 @@ def home(request):
     if request.user.is_superuser:
         return HttpResponseRedirect(reverse('recent_jobs'))
 
+    elif request.user.is_publisher_ftp:
+        # log them out immediately and give them the simple error message
+        request.session['user_id'] = None
+        return render(request, 'home_ftp_user.html')
+
     else:
         messages = []
         running_publisher = ''
