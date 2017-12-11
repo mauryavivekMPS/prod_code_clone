@@ -25,6 +25,7 @@ class User(Model):
     password = columns.Text()
     first_name = columns.Text()
     last_name = columns.Text()
+    ftp_only = columns.Boolean()
     staff = columns.Boolean()
     superuser = columns.Boolean()
 
@@ -72,5 +73,17 @@ class User(Model):
             return PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
 
     @property
+    def is_publisher_ftp_only(self):
+        return self.ftp_only
+
+    @property
     def is_publisher_staff(self):
-        return not self.staff and not self.superuser
+        return not self.ftp_only and not self.staff and not self.superuser
+
+    @property
+    def is_highwire_staff(self):
+        return self.staff and not self.superuser
+
+    @property
+    def is_superuser(self):
+        return self.superuser
