@@ -26,16 +26,27 @@ class User(Model):
     password = columns.Text()
     first_name = columns.Text()
     last_name = columns.Text()
-    ftp_only = columns.Boolean()
     staff = columns.Boolean()
     superuser = columns.Boolean()
+    user_type = columns.Integer()
+
+    # 10 publisher ftp only
+    # 20 publisher staff
+    # 30 highwire stff
+    # 40 superuser
 
 
 if __name__ == "__main__":
     open_cassandra_connection()
 
     for user in User.objects.all():
-        user.ftp_only = False
+        if user.superuser:
+            user.user_type = 40
+        elif user.staff:
+            user.user_type = 30
+        else:
+            user.user_type = 20
+
         user.save()
 
     close_cassandra_connection()

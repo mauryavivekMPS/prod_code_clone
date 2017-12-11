@@ -43,8 +43,8 @@
                                     <span class="null-value">&mdash;</span>
                                 {% endif %}
                             </td>
-                            <td class="demo-status-col {% if request.user.superuser %}with-menu{% endif %}">
-                                {% if request.user.superuser %}
+                            <td class="demo-status-col {% if request.user.is_superuser %}with-menu{% endif %}">
+                                {% if request.user.is_superuser %}
                                     <select class="form-control input-sm inline-demo-status-menu" demo_id="{{ demo.demo_id }}" demo_name="{{ demo.name }}" previous_status="{{ demo.status }}">
                                         {% for choice in common.DEMO_STATUS_CHOICES %}
                                             <option value="{{ choice.0 }}" {% if demo.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>

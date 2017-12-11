@@ -21,7 +21,7 @@ def list_notifications(request):
     show_dismissed = filter_param == 'dismissed'
 
     single_publisher_user = False
-    if request.user.superuser:
+    if request.user.is_superuser:
         filtered_notifications = NotificationSummary.objects.filter(dismissed=show_dismissed)
         alerts_by_alert_id = {a.alert_id: a for a in Alert.objects.all()}
     else:

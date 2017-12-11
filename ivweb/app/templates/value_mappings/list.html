@@ -16,7 +16,7 @@
                 <table class="table sortable-table">
                     <thead>
                         <tr>
-                            {% if request.user.staff %}
+                            {% if request.user.is_at_least_highwire_staff %}
                                 <th class="label-col">Publisher</th>
                             {% endif %}
                             <th>Mapping Type</th>
@@ -26,7 +26,7 @@
                     <tbody>
                         {% for mapping in mappings_by_publisher %}
                             <tr>
-                                {% if request.user.staff %}
+                                {% if request.user.is_at_least_highwire_staff %}
                                     <td>{{ mapping.publisher_name }}</td>
                                 {% endif %}
                                 <td><a href="{% url 'value_mappings.edit' mapping.publisher_id mapping.mapping_type %}">{{ mapping.mapping_type_display }}</a></td>
