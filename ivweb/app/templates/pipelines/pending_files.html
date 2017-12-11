@@ -5,9 +5,9 @@
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
-    <div class="row header-row {% if request.user.staff %}with-breadcrumb{% endif %}">
+    <div class="row header-row {% if request.user.is_at_least_highwire_staff %}with-breadcrumb{% endif %}">
         <div class="col-md-8">
-            {% if request.user.staff %}
+            {% if request.user.is_at_least_highwire_staff %}
                 <ol class="breadcrumb">
                     <li><a href="#">Pipelines</a></li>
                     <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>

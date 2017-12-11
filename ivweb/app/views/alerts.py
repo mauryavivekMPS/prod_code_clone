@@ -28,7 +28,7 @@ def list_alerts(request):
             messages.append("Your new alert is created and ready to go.")
 
     single_publisher_user = False
-    if request.user.superuser:
+    if request.user.is_superuser:
         alerts = Alert.objects.all()
     else:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
@@ -96,7 +96,7 @@ class AlertForm(forms.Form):
 
         super(AlertForm, self).__init__(initial=initial, *args, **kwargs)
 
-        if user.superuser:
+        if user.is_superuser:
             self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
             self.fields['publisher_id'].choices = [(p.publisher_id, p.name) for p in user.get_accessible_publishers()]
@@ -173,7 +173,7 @@ def edit(request, alert_id=None):
         new = True
 
     single_publisher_user = False
-    if not request.user.superuser:
+    if not request.user.is_superuser:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True

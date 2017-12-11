@@ -21,7 +21,7 @@ def list_journals(request, publisher_id=None):
 
     single_publisher_user = False
     unsorted_journals = []
-    if request.user.superuser:
+    if request.user.is_superuser:
         if publisher_id:
             unsorted_journals = PublisherJournal.objects.filter(publisher_id=publisher_id)
         else:

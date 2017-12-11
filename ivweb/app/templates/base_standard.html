@@ -57,7 +57,7 @@
 
     <div id="left-menu">
         <nav>
-            {% if request.user.superuser %}
+            {% if request.user.is_superuser %}
                 <div class="list-title">
                     <span class="non-link-title">Administration</span>
                 </div>
@@ -159,7 +159,7 @@
         </nav>
     </div>
 
-    <div id="main-container" class="container-fluid {% if not request.staff %}publisher-user{% endif %}">
+    <div id="main-container" class="container-fluid {% if not request.is_at_least_highwire_staff %}publisher-user{% endif %}">
         {% if form.errors or alt_error_message %}
             <div class="errors-container">
                 <div class="alert alert-danger alert-dismissible" role="alert">

@@ -40,9 +40,10 @@ def list_users(request, publisher_id=None):
 
 
 USER_TYPE_CHOICES = [
-    ('publisher-staff', 'Publisher Staff'),
-    ('hw-staff', 'HW Staff'),
-    ('hw-superuser', 'HW Superuser'),
+    (10, 'Publisher FTP-Only'),
+    (20, 'Publisher Staff'),
+    (30, 'HW Staff'),
+    (40, 'HW Superuser'),
 ]
 
 
@@ -67,18 +68,8 @@ class AdminUserForm(forms.Form):
             initial.pop('password')  # clear out the encoded password
             if not for_publisher:
                 initial['publishers'] = ', '.join([p.publisher_id for p in PublisherUser.objects.filter(user_id=instance.user_id)])
-
-            if instance.staff:
-                if instance.superuser:
-                    initial['user_type'] = 'hw-superuser'
-                else:
-                    initial['user_type'] = 'hw-staff'
-            else:
-                initial['user_type'] = 'publisher-staff'
-
         else:
             self.instance = None
-            initial['user_type'] = 'publisher-staff'
 
         super(AdminUserForm, self).__init__(initial=initial, *args, **kwargs)
 
@@ -104,30 +95,18 @@ class AdminUserForm(forms.Form):
                 email=self.cleaned_data['email'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                # no setting of staff or superuser
+                user_type=20,  # default to publisher staff
             )
 
             # add perms for just the current publisher
             PublisherUser.objects.create(user_id=user.user_id, publisher_id=self.for_publisher.publisher_id)
 
         else:
-            user_type = self.cleaned_data['user_type']
-
-            staff = False
-            superuser = False
-            if user_type == 'hw-staff':
-                staff = True
-                superuser = False
-            elif user_type == 'hw-superuser':
-                staff = True
-                superuser = True
-
             user.update(
                 email=self.cleaned_data['email'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                staff=staff,
-                superuser=superuser,
+                user_type=self.cleaned_data['user_type'],
             )
 
             existing_publishers = PublisherUser.objects.filter(user_id=user.user_id)

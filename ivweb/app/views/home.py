@@ -10,7 +10,7 @@ from ivweb.app.views.pipelines import get_recent_runs_for_publisher, get_pending
 
 @login_required
 def home(request):
-    if request.user.superuser:
+    if request.user.is_superuser:
         return HttpResponseRedirect(reverse('recent_jobs'))
 
     else:
@@ -99,7 +99,7 @@ def home(request):
 
 @login_required
 def recent_jobs(request):
-    if not request.user.superuser:
+    if not request.user.is_superuser:
         return HttpResponseRedirect(reverse('home'))
     else:
 
@@ -163,7 +163,7 @@ def recent_jobs(request):
 
 @login_required
 def growth(request):
-    if not request.user.superuser:
+    if not request.user.is_superuser:
         return HttpResponseRedirect(reverse('home'))
     else:
         return render(request, 'growth.html', {})
@@ -171,7 +171,7 @@ def growth(request):
 
 @login_required
 def performance(request):
-    if not request.user.superuser:
+    if not request.user.is_superuser:
         return HttpResponseRedirect(reverse('home'))
     else:
         return render(request, 'performance.html', {})

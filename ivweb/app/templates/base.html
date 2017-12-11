@@ -31,7 +31,7 @@
         <script src="/static/dist/jquery.cookie.js"></script>
     </head>
 
-    <body class="ivweb  {% block body_class %}{% endblock %} {% if not request.user.staff %}small-left-menu{% endif %}">
+    <body class="ivweb  {% block body_class %}{% endblock %} {% if not request.user.is_at_least_highwire_staff %}small-left-menu{% endif %}">
         {% block body %}<p>Empty.</p>{% endblock %}
 
         <script src="/static/dist/bootstrap.min.js"></script>

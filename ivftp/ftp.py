@@ -27,7 +27,7 @@ class IvetlAuthorizer(DummyAuthorizer):
             raise AuthenticationFailed
 
         if user.check_password(password):
-            if user.superuser:
+            if user.is_superuser:
                 accessible_publishers = PublisherMetadata.objects.all()
             else:
                 accessible_publishers = user.get_accessible_publishers()

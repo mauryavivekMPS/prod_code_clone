@@ -39,7 +39,7 @@ def list_publishers(request):
         elif from_value == 'new-success':
             messages.append("Your new publisher account is created and ready to go.")
 
-    if request.user.superuser:
+    if request.user.is_superuser:
         all_accessible_publishers = PublisherMetadata.objects.all()
     else:
         all_accessible_publishers = request.user.get_accessible_publishers()
@@ -93,7 +93,7 @@ def list_demos(request):
         elif from_value == 'unarchive-demo':
             messages.append("The selected demo has been restored to active.")
 
-    if request.user.superuser:
+    if request.user.is_superuser:
         demos = Demo.objects.all()
     else:
         demos = Demo.objects.allow_filtering().filter(requestor_id=request.user.user_id)
@@ -449,7 +449,7 @@ def edit(request, publisher_id=None):
             publisher = form.save()
 
             if is_new:
-                if not request.user.superuser:
+                if not request.user.is_superuser:
                     PublisherUser.objects.create(
                         user_id=request.user.user_id,
                         publisher_id=publisher.publisher_id,
@@ -587,10 +587,10 @@ def edit_demo(request, demo_id=None):
                         description='Edited demo %s (%s)' % (demo.publisher_name, demo_id),
                     )
 
-                if not request.user.superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
+                if not request.user.is_superuser and demo.status == common.DEMO_STATUS_SUBMITTED_FOR_REVIEW:
                     from_value = 'submitted-for-review'
 
-                if request.user.superuser and form.cleaned_data['convert_to_publisher']:
+                if request.user.is_superuser and form.cleaned_data['convert_to_publisher']:
                     return HttpResponseRedirect(reverse('publishers.new') + '?demo_id=%s' % demo.demo_id)
 
                 return HttpResponseRedirect(reverse('publishers.list_demos') + '?from=' + from_value)
@@ -615,7 +615,7 @@ def edit_demo(request, demo_id=None):
 
     read_only = False
     if not form.initial.get('status', common.DEMO_STATUS_CREATING) in (common.DEMO_STATUS_CREATING, common.DEMO_STATUS_CHANGES_NEEDED):
-        if not request.user.superuser:
+        if not request.user.is_superuser:
             read_only = True
             for f in form.fields:
                 form.fields[f].widget.attrs['readonly'] = True

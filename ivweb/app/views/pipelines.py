@@ -247,7 +247,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     current_job_id_on_client = request.GET.get('current_job_id')
     current_task_id_on_client = request.GET.get('current_task_id')
     current_task_status_on_client = request.GET.get('current_task_status')
-    opened = True if request.GET.get('opened') == '1' and request.user.superuser else False
+    opened = True if request.GET.get('opened') == '1' and request.user.is_superuser else False
 
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
     publisher_runs = get_recent_runs_for_publisher(pipeline_id, product_id, publisher)
@@ -411,7 +411,7 @@ def run(request, product_id, pipeline_id):
                 description='Run %s pipeline' % pipeline_id,
             )
 
-            if request.user.staff:
+            if request.user.is_at_least_highwire_staff:
                 return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
             else:
                 return HttpResponseRedirect('%s?from=run&publisher=%s&pipeline=%s' % (reverse('home'), publisher_id, pipeline_id))
