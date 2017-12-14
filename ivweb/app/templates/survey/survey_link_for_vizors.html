@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Provide feedback</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="/static/dist/hyperlinearicons.css">
+        <style>
+            body {
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 13px;
+            }
+
+            a {
+                color: #2d7a97;
+            }
+
+            .lnr-launch {
+                margin-left: 5px;
+                font-size: 9px;
+                vertical-align: 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <a target="_blank" href="{% url 'survey' survey_id %}{% if source %}?source={{ source }}{% endif %}">Give us your feedback</a>
+        <span class="lnr lnr-launch"></span>
+    </body>
+</html>

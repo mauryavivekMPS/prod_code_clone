@@ -16,8 +16,9 @@ urlpatterns = [
     # audit log
     url(r'^audit/$', audit.show, name='audit'),
 
-    # survey redirector
+    # surveys
     url(r'^survey/(?P<survey_id>[\w\-.]+)/$', survey.redirect, name='survey'),
+    url(r'^vizorsurveylink/(?P<survey_id>[\w\-.]+)/$', survey.vizor_survey_link, name='vizor_survey_link'),
 
     # homepage
     url(r'^$', home.home, name='home'),
