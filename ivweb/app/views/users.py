@@ -40,8 +40,8 @@ def list_users(request, publisher_id=None):
 
 
 USER_TYPE_CHOICES = [
-    (10, 'Publisher FTP-Only'),
-    (20, 'Publisher Staff'),
+    (10, 'Publisher Staff (FTP Only)'),
+    (20, 'Publisher Staff (Manager and FTP)'),
     (30, 'HW Staff'),
     (40, 'HW Superuser'),
 ]
