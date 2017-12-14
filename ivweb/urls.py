@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
 from ivweb.app.views import (auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers,
-    pipelines, sendgrid, value_mappings, uploaded_files, app_content)
+    pipelines, sendgrid, value_mappings, uploaded_files, app_content, survey)
 
 urlpatterns = [
 
@@ -15,6 +15,9 @@ urlpatterns = [
 
     # audit log
     url(r'^audit/$', audit.show, name='audit'),
+
+    # survey redirector
+    url(r'^survey/(?P<survey_id>[\w\-.]+)/$', survey.redirect, name='survey'),
 
     # homepage
     url(r'^$', home.home, name='home'),

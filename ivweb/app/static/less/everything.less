@@ -335,6 +335,12 @@ body {
             }
         }
     }
+
+    .lnr-launch {
+        margin-left: 5px;
+        font-size: 9px;
+        vertical-align: 1px;
+    }
 }
 
 .small-left-menu {
@@ -385,14 +391,6 @@ body {
 .article_citations_cohort_pipeline #left-menu .article_citations_cohort_menu_item {
     a {
         color: @color-secondary-1-1;
-    }
-}
-
-.reports_menu_item {
-    .lnr {
-        margin-left: 5px;
-        font-size: 9px;
-        vertical-align: 1px;
     }
 }
 
@@ -3573,7 +3571,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
 }
 
-    // Audit log page
+// Audit log page
 // -------------------------
 
 #audit-log-page {
@@ -3619,5 +3617,25 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     }
     .action-col {
         width: 150px;
+    }
+}
+
+// Survey box
+// -------------------------
+
+.survey-box {
+    display: block;
+    padding: 10px 0;
+    font-size: 14px;
+    margin-right: 12px;
+    border-top: 1px dotted #ccc;
+    border-bottom: 1px dotted #ccc;
+    margin-top: 41px;
+    color: #333;
+
+    &:hover, &:active, &:focus {
+        text-decoration: none;
+        background: #fafafa;
+        color: black;
     }
 }
