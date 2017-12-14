@@ -29,7 +29,7 @@ def list_alerts(request):
             messages.append("Your new alert is created and ready to go.")
 
     single_publisher_user = False
-    if request.user.superuser:
+    if request.user.is_superuser:
         alerts = TableauAlert.objects.filter(archived=False)
     else:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
@@ -128,7 +128,7 @@ class TableauAlertForm(forms.Form):
         else:
             self.instance = None
 
-        if self.user.superuser:
+        if self.user.is_superuser:
             publisher_choices = [(p.publisher_id, p.name) for p in PublisherMetadata.objects.all()]
         else:
             publisher_choices = [(p.publisher_id, p.name) for p in self.user.get_accessible_publishers()]
@@ -202,7 +202,7 @@ def edit(request, alert_id=None):
         new = True
 
     single_publisher_user = False
-    if not request.user.superuser:
+    if not request.user.is_superuser:
         accessible_publisher_ids = [p.publisher_id for p in request.user.get_accessible_publishers()]
         if len(accessible_publisher_ids) == 1:
             single_publisher_user = True

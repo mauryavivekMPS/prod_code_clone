@@ -100,20 +100,39 @@ class ResolvePublishedArticlesData(Task):
                     # look for exact match
                     new_canonical_value = canonical_value_by_original_value[field].get(new_value)
 
+                    alt_simple_plural_simplified_value = None
+
                     if not new_canonical_value:
                         # get clean, simplified version of term
                         simplified_value = value_matcher.simplify_value(new_value)
+
+                        # Note: this little dance below is intended to handle plurals of non-dictionary words
+
+                        # if it ends with a single 's' look for a match without it, if not, add one and look for that
+                        if simplified_value.endswith('s'):
+                            if not simplified_value.endswith('ss'):
+                                alt_simple_plural_simplified_value = simplified_value[:-1]
+                        else:
+                            alt_simple_plural_simplified_value = simplified_value + 's'
 
                     # compare it to existing terms for close match
                     best_ratio_so_far = 0
                     best_match_so_far = None
                     if not new_canonical_value:
                         for existing_canonical_value in all_canonical_values[field]:
-                            match, ratio = value_matcher.match_simplified_values(simplified_value, existing_canonical_value)
 
+                            # test the regular simplified value
+                            match, ratio = value_matcher.match_simplified_values(simplified_value, existing_canonical_value)
                             if match:
                                 if ratio > best_ratio_so_far:
                                     best_match_so_far = existing_canonical_value
+
+                            # now test the alt value
+                            if alt_simple_plural_simplified_value:
+                                match, ratio = value_matcher.match_simplified_values(alt_simple_plural_simplified_value, existing_canonical_value)
+                                if match:
+                                    if ratio > best_ratio_so_far:
+                                        best_match_so_far = existing_canonical_value
 
                     # if match, then add to mapping table
                     if best_match_so_far:

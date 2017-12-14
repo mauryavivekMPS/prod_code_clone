@@ -34,9 +34,10 @@
                             <th>{% sort_column "Email" "email" sort_key sort_descending %}</th>
                             <th>{% sort_column "First Name" "first_name" sort_key sort_descending %}</th>
                             <th>{% sort_column "Last Name" "last_name" sort_key sort_descending %}</th>
+                            <th class="text-center user-type-col">Pub FTP</th>
                             <th class="text-center user-type-col">Pub Staff</th>
                             <th class="text-center user-type-col">HW Staff</th>
-                            <th class="text-center user-type-col">HW Superuser</th>
+                            <th class="text-center user-type-col">Superuser</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,7 +45,7 @@
                             <tr>
                                 <td>
                                     {% if publisher %}
-                                        {% if user.staff %}
+                                        {% if user.is_at_least_highwire_staff %}
                                             {{ user.email }}
                                         {% else %}
                                             <a href="{% url 'publishers.users.edit' publisher.publisher_id user.user_id %}">
@@ -59,9 +60,10 @@
                                 </td>
                                 <td>{{ user.first_name }}</td>
                                 <td>{{ user.last_name }}</td>
+                                <td class="text-center user-type-col">{% checkmark user.is_publisher_ftp %}</td>
                                 <td class="text-center user-type-col">{% checkmark user.is_publisher_staff %}</td>
-                                <td class="text-center user-type-col">{% if not user.superuser %}{% checkmark user.staff %}{% endif %}</td>
-                                <td class="text-center user-type-col">{% checkmark user.superuser %}</td>
+                                <td class="text-center user-type-col">{% checkmark user.is_highwire_staff %}</td>
+                                <td class="text-center user-type-col">{% checkmark user.is_superuser %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

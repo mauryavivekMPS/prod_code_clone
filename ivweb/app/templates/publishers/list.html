@@ -40,7 +40,7 @@
                             <td>{{ publisher.publisher_id }}</td>
                             <td><a href="{% url 'publishers.users' publisher.publisher_id %}">{{ publisher.users|length }} user{{ publisher.users|pluralize }}</a></td>
                             <td>
-                                {% if request.user.superuser %}
+                                {% if request.user.is_superuser %}
                                     <a href="{% url 'publishers.journals' publisher.publisher_id %}">{{ publisher.num_journals }} journal{{ publisher.num_journals|pluralize }}</a>
                                 {% else %}
                                     {{ publisher.num_journals }} journal{{ publisher.num_journals|pluralize }}

@@ -15,14 +15,14 @@
             {% endif %}
         </td>
     {% endif %}
-    {% if not all_pipelines and request.user.superuser %}
+    {% if not all_pipelines and request.user.is_superuser %}
         <td class="opener-col">
             <span class="lnr lnr-chevron-down opener-icon {{ publisher_runs.publisher.publisher_id }}_closer" {% if opened %}style="display:none"{% endif %}></span>
             <span class="lnr lnr-chevron-up closer-icon {{ publisher_runs.publisher.publisher_id }}_opener" {% if not opened %}style="display:none"{% endif %}></span>
         </td>
     {% endif %}
-    <td {% if not all_pipelines and not request.user.superuser %}colspan="2"{% endif %}>
-        {% if not all_pipelines and request.user.superuser %}
+    <td {% if not all_pipelines and not request.user.is_superuser %}colspan="2"{% endif %}>
+        {% if not all_pipelines and request.user.is_superuser %}
             <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.publisher.publisher_id }}</a>
         {% else %}
             {{ publisher_runs.publisher.publisher_id }}
@@ -86,7 +86,7 @@
     <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
     <td class="text-right"><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.duration_seconds|nullable_duration }}</span></td>
 </tr>
-{% if request.user.superuser %}
+{% if request.user.is_superuser %}
     {% if publisher_runs.runs %}
         {% for run_item in publisher_runs.runs %}
             <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>

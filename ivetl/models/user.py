@@ -25,8 +25,12 @@ class User(Model):
     password = columns.Text()
     first_name = columns.Text()
     last_name = columns.Text()
-    staff = columns.Boolean()
-    superuser = columns.Boolean()
+    user_type = columns.Integer()
+
+    # 10 publisher ftp only
+    # 20 publisher staff
+    # 30 highwire stff
+    # 40 superuser
 
     @property
     def display_name(self):
@@ -65,12 +69,36 @@ class User(Model):
         return True
 
     def get_accessible_publishers(self):
-        if self.superuser:
+        if self.is_superuser:
             return PublisherMetadata.objects.all()
         else:
             publisher_id_list = [p.publisher_id for p in PublisherUser.objects.filter(user_id=self.user_id)]
             return PublisherMetadata.objects.filter(publisher_id__in=publisher_id_list)
 
     @property
+    def is_publisher_ftp(self):
+        return self.user_type == 10
+
+    @property
     def is_publisher_staff(self):
-        return not self.staff and not self.superuser
+        return self.user_type == 20
+
+    @property
+    def is_highwire_staff(self):
+        return self.user_type == 30
+
+    @property
+    def is_superuser(self):
+        return self.user_type == 40
+
+    @property
+    def is_at_least_publisher_ftp_only(self):
+        return self.user_type >= 10
+
+    @property
+    def is_at_least_publisher_staff(self):
+        return self.user_type >= 20
+
+    @property
+    def is_at_least_highwire_staff(self):
+        return self.user_type >= 30
