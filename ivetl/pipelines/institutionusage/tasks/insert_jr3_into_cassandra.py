@@ -16,7 +16,7 @@ class InsertJR3IntoCassandraTask(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         now = datetime.datetime.now()
-        earliest_date = datetime.date(now.year, now.month, 1)
+        earliest_date = datetime.datetime(now.year, now.month, 1)
 
         count = 0
         for file in files:
@@ -39,7 +39,7 @@ class InsertJR3IntoCassandraTask(Task):
                         # collect all of them (we support any number of them)
                         while line[col] != 'YTD Total':
                             month_date = parse(line[col])
-                            full_date = datetime.date(month_date.year, month_date.month, 1)  # hard set to 1st of month
+                            full_date = datetime.datetime(month_date.year, month_date.month, 1)  # hard set to 1st of month
                             date_cols.append((col, full_date))
                             col += 1
 
@@ -95,7 +95,7 @@ class InsertJR3IntoCassandraTask(Task):
                             )
 
                             if date < earliest_date:
-                                earliest_date = datetime.date(date.year, date.month, 1)
+                                earliest_date = datetime.datetime(date.year, date.month, 1)
 
         earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
         earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
