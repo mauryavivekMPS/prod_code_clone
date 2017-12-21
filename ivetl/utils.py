@@ -107,13 +107,14 @@ def file_len(file_path, encoding='utf-8'):
     return i + 1
 
 
-def list_dir(path, with_lines_and_sizes=False, ignore=[], encoding='utf-8'):
+def list_dir(path, with_lines_and_sizes=False, ignore=[]):
     files = [{'file_name': n} for n in os.listdir(path) if not ignore or ignore and n not in ignore]
     if with_lines_and_sizes:
         for file in files:
             file_path = os.path.join(path, file['file_name'])
             i = 0
             line_count = 0
+            encoding = guess_encoding(file_path)
             with codecs.open(file_path, encoding=encoding) as f:
                 for i, l in enumerate(f):
                     pass
