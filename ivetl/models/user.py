@@ -18,6 +18,34 @@ class AnonymousUser(object):
     def is_authenticated(self):
         return False
 
+    @property
+    def is_publisher_ftp(self):
+        return False
+
+    @property
+    def is_publisher_staff(self):
+        return False
+
+    @property
+    def is_highwire_staff(self):
+        return False
+
+    @property
+    def is_superuser(self):
+        return False
+
+    @property
+    def is_at_least_publisher_ftp_only(self):
+        return False
+
+    @property
+    def is_at_least_publisher_staff(self):
+        return False
+
+    @property
+    def is_at_least_highwire_staff(self):
+        return False
+
 
 class User(Model):
     user_id = columns.UUID(primary_key=True, default=uuid.uuid4)
