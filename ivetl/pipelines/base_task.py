@@ -122,8 +122,24 @@ class BaseTask(Task):
             pass
 
         self.process_datasources(publisher_id, product_id, pipeline_id, tlogger)
+
+        # if this is the first time the pipeline has finished, delete and re-add the workbook to update the
+        all_time_number_of_jobs = PipelineStatus.objects.filter(
+            publisher_id=publisher_id,
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+        ).count()
+
+        if all_time_number_of_jobs < 2:
+            self.re_add_workbooks_to_update_thumbnails(publisher_id, product_id, pipeline_id, tlogger)
+
         self.process_chains(publisher_id, product_id, pipeline_id, tlogger, initiating_user_email)
         self.process_alerts(publisher_id, product_id, pipeline_id, tlogger, run_monthly_job, show_alerts)
+
+    def re_add_workbooks_to_update_thumbnails(self, publisher_id, product_id, pipeline_id, tlogger):
+        if common.PUBLISH_TO_TABLEAU:
+            # figure out which workbooks to update
+            pass
 
     def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
         if common.PUBLISH_TO_TABLEAU:
