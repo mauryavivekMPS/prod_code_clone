@@ -138,6 +138,7 @@ class BaseTask(Task):
 
     def re_add_workbooks_to_update_thumbnails(self, publisher_id, product_id, pipeline_id, tlogger):
         if common.PUBLISH_TO_TABLEAU:
+            tlogger.info('First time this pipeline has run, so re-adding workbooks for this product to update thumbnails')
             publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
             # update the data in tableau
