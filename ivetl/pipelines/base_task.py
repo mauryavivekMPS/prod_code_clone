@@ -138,8 +138,36 @@ class BaseTask(Task):
 
     def re_add_workbooks_to_update_thumbnails(self, publisher_id, product_id, pipeline_id, tlogger):
         if common.PUBLISH_TO_TABLEAU:
-            # figure out which workbooks to update
-            pass
+            publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+
+            # update the data in tableau
+            t = TableauConnector(
+                username=common.TABLEAU_USERNAME,
+                password=common.TABLEAU_PASSWORD,
+                server=common.TABLEAU_SERVER
+            )
+
+            product_group_ids_for_this_pipeline = []
+            for group in common.PRODUCT_GROUPS:
+                if product_id in group['products']:
+                    product_group_ids_for_this_pipeline.append(group['id'])
+
+            # update all non-alert workbooks in the product groups of this pipeline - a little inefficient but oh well
+            workbook_ids_to_update = set()
+            for product_group_id in product_group_ids_for_this_pipeline:
+                for workbook_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_workbooks']:
+                    if not workbook_id.startswith('alert_'):
+                        workbook_ids_to_update.add(workbook_id)
+
+            existing_workbooks = t.list_workbooks(project_id=publisher.reports_project_id)
+            existing_workbook_ids = set([common.TABLEAU_WORKBOOK_ID_BY_NAME[w['name']] for w in existing_workbooks if w['name'] in common.TABLEAU_WORKBOOK_ID_BY_NAME])
+            workbook_tableau_id_lookup = {common.TABLEAU_WORKBOOK_ID_BY_NAME[d['name']]: d['id'] for d in existing_workbooks if d['name'] in common.TABLEAU_WORKBOOK_ID_BY_NAME}
+
+            for workbook_id in existing_workbook_ids.intersection(workbook_ids_to_update):
+                t.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
+
+            for workbook_id in workbook_ids_to_update:
+                t.add_workbook_to_project(publisher, workbook_id)
 
     def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
         if common.PUBLISH_TO_TABLEAU:
