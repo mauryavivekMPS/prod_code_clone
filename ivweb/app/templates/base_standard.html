@@ -152,11 +152,11 @@
                         <a class="external-link" href="https://reports.vizors.org" target="_blank">View Reports <span class="lnr lnr-launch"></span></a>
                     </li>
                     <li class="support_menu_item">
-                        <a href="{% url 'home.support' %}">Support</a>
+                        <a class="external-link" href="{% url 'home.support' %}">Support</a>
                     </li>
                 </ul>
 
-                <a class="survey-box" href="{% url 'survey' 'manager-nps-survey' %}?source=manager-nav" target="_blank">
+                <a class="survey-box external-link" href="{% url 'survey' 'manager-nps-survey' %}?source=manager-nav" target="_blank">
                     Give us your feedback <span class="lnr lnr-launch"></span>
                 </a>
             {% endif %}
