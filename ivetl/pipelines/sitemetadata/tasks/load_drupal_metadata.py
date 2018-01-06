@@ -75,7 +75,7 @@ class LoadDrupalMetadataTask(Task):
                                 umbrella_code=site.get('corpus'),
                                 product=site.get('product'),
                                 type=site.get('type'),
-                                created=site.get('created'),
+                                created=str(site.get('created')),
                                 launch_date=launch_date,
                             )
 
