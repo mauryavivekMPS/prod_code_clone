@@ -68,6 +68,14 @@ class InsertIntoCassandraDBTask(Task):
                 if custom != r.custom:
                     r.custom = custom
 
+                custom_2 = data.get('custom_2')
+                if custom_2 != r.custom_2:
+                    r.custom_2 = custom_2
+
+                custom_3 = data.get('custom_3')
+                if custom_3 != r.custom_3:
+                    r.custom_3 = custom_3
+
                 editor = data.get('editor')
                 if editor != r.editor:
                     r.editor = editor
