@@ -7,6 +7,7 @@ from ivetl.models import PublishedArticleValues
 from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
 from ivetl import utils
 
+
 @app.task
 class InsertCustomArticleDataIntoCassandra(Task):
 
@@ -38,7 +39,8 @@ class InsertCustomArticleDataIntoCassandra(Task):
                         'editor': line[3].strip(),
                         'custom': line[4].strip(),
                         'custom_2': line[5].strip(),
-                        'custom_3': line[6].strip()
+                        'custom_3': line[6].strip(),
+                        'is_open_access': line[8].strip(),
                     }
 
                     doi = d['doi'].lower().strip()
