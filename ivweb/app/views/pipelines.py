@@ -326,6 +326,7 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
     pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
     os.makedirs(pub_dir, exist_ok=True)
+    os.chmod(pub_dir, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)  # need this because it's called from FTP server
     return pub_dir
 
 
