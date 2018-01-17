@@ -714,7 +714,7 @@ def upload_pending_file_inline(request):
                     'publisher_id': publisher_id,
                     'uploaded_file_id': uploaded_file_record.uploaded_file_id,
                 })
-                new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
+                new_file_link = '<a class="external-link" href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
 
                 utils.add_audit_log(
                     user_id=request.user.user_id,

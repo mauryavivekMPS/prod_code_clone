@@ -130,7 +130,7 @@ class IvetlHandler(FTPHandler):
                             'publisher_id': publisher_id,
                             'uploaded_file_id': uploaded_file_record.uploaded_file_id,
                         })
-                        new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, file_name)
+                        new_file_link = '<a class="external-link" href="%s">%s</a>' % (file_viewer_url, file_name)
 
                         utils.add_audit_log(
                             user_id=user.user_id,
