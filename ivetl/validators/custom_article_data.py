@@ -56,7 +56,7 @@ class CustomArticleDataValidator(BaseValidator):
                                 continue
 
                             # check for a boolean in is_open_access
-                            if d['is_open_access'] and d['is_open_access'] not in ('Yes', 'No'):
+                            if d['is_open_access'] and d['is_open_access'].lower() not in ('yes', 'no'):
                                 errors.append(self.format_error(file_name, count, 'The is_open_access column should be "Yes", "No", or blank.'))
                                 continue
 

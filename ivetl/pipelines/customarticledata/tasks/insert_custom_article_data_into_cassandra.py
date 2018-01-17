@@ -46,6 +46,13 @@ class InsertCustomArticleDataIntoCassandra(Task):
                     doi = d['doi'].lower().strip()
                     tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
+                    if d['is_open_access']:
+                        lower_open_access = d['is_open_access'].lower()
+                        if lower_open_access == 'yes':
+                            d['is_open_access'] = 'Yes'
+                        elif lower_open_access == 'no':
+                            d['is_open_access'] = 'No'
+
                     for field in CustomArticleDataPipeline.FOAM_FIELDS:
 
                         new_value = d[field]
