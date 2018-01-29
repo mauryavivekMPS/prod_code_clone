@@ -35,7 +35,7 @@
                     <tbody>
                         {% for alert in alerts %}
                             <tr alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}"
-                                attachment_only_emails="{{ alert.attachment_only_emails|join:", " }}" full_emails="{{ alert.full_emails|join:", " }}">
+                                attachment_only_emails="{{ alert.attachment_only_emails|join:", " }}" full_emails="{{ alert.full_emails|join:", " }}" custom_message="{{ alert.custom_message }}">
                                 <td>
                                     <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
                                         {{ alert.name }}
@@ -127,6 +127,8 @@
                         <textarea class="form-control" name="attachment_only_emails" placeholder="Comma-separated emails"></textarea>
                         <p class="second-textarea-instruction">And also send an email with the PDF <b>and a link to the active report</b> to:</p>
                         <textarea class="form-control" name="full_emails" placeholder="Comma-separated emails"></textarea>
+                        <p class="second-textarea-instruction">With the following custom message:</p>
+                        <textarea class="form-control" name="custom_message" placeholder="Custom message"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary confirm-send-alert-now-button">Send Now</button>
