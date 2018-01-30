@@ -422,7 +422,7 @@ class Task(BaseTask):
                 'publisher_id': publisher_id,
                 'uploaded_file_id': uploaded_file_record.uploaded_file_id,
             })
-            new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, new_file_name)
+            new_file_link = '<a class="external-link" href="%s">%s</a>' % (file_viewer_url, new_file_name)
 
             if not initiating_user_id:
                 initiating_user_id = 'system'

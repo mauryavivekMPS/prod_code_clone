@@ -326,6 +326,7 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
     pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
     os.makedirs(pub_dir, exist_ok=True)
+    os.chmod(pub_dir, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)  # need this because it's called from FTP server
     return pub_dir
 
 
@@ -374,8 +375,8 @@ def run(request, product_id, pipeline_id):
             else:
                 send_alerts = False
 
-            # kick the pipeline off (special case for date range pipelines unless restart)
-            if pipeline.get('include_date_range_controls') and not job_id:
+            # kick the pipeline off (special case for date range pipelines with a single publisher unless restart)
+            if len(publisher_id_list) == 1 and pipeline.get('include_date_range_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(
@@ -386,7 +387,7 @@ def run(request, product_id, pipeline_id):
                     to_date=to_date,
                     send_alerts=send_alerts,
                 ).delay()
-            elif pipeline.get('include_from_date_controls') and not job_id:
+            elif len(publisher_id_list) == 1 and pipeline.get('include_from_date_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
                 pipeline_class.s(
                     publisher_id_list=publisher_id_list,
@@ -404,18 +405,21 @@ def run(request, product_id, pipeline_id):
                     send_alerts=send_alerts,
                 ).delay()
 
-            utils.add_audit_log(
-                user_id=request.user.user_id,
-                publisher_id=publisher_id if publisher_id else '',
-                action='run-pipeline',
-                description='Run %s pipeline' % pipeline_id,
-            )
+            for publisher_id in publisher_id_list:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=publisher_id if publisher_id else '',
+                    action='run-pipeline',
+                    description='Run %s pipeline' % pipeline_id,
+                )
 
             if request.user.is_at_least_highwire_staff:
                 return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
             else:
-                return HttpResponseRedirect('%s?from=run&publisher=%s&pipeline=%s' % (reverse('home'), publisher_id, pipeline_id))
-
+                if publisher_id:
+                    return HttpResponseRedirect('%s?from=run&publisher=%s&pipeline=%s' % (reverse('home'), publisher_id, pipeline_id))
+                else:
+                    return HttpResponseRedirect('%s?from=run&pipeline=%s' % (reverse('home'), pipeline_id))
     else:
         form = RunForm(request.user)
 
@@ -711,7 +715,7 @@ def upload_pending_file_inline(request):
                     'publisher_id': publisher_id,
                     'uploaded_file_id': uploaded_file_record.uploaded_file_id,
                 })
-                new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
+                new_file_link = '<a class="external-link" href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
 
                 utils.add_audit_log(
                     user_id=request.user.user_id,

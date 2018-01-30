@@ -83,14 +83,17 @@ $.widget("custom.listtableaualertspage", {
             var publisherId = row.attr('publisher_id');
             var fullEmails = row.attr('full_emails');
             var attachmentOnlyEmails = row.attr('attachment_only_emails');
+            var customMessage = row.attr('custom_message');
 
             var m = $('#confirm-send-alert-now-modal');
 
             var fullEmailsTextarea = m.find('textarea[name="full_emails"]');
             var attachmentOnlyEmailsTextarea = m.find('textarea[name="attachment_only_emails"]');
+            var customMessageTextarea = m.find('textarea[name="custom_message"]');
 
             fullEmailsTextarea.val(fullEmails);
             attachmentOnlyEmailsTextarea.val(attachmentOnlyEmails);
+            customMessageTextarea.val(customMessage);
 
             var submitButton = m.find('.confirm-send-alert-now-button');
             submitButton.on('click', function () {
@@ -108,6 +111,7 @@ $.widget("custom.listtableaualertspage", {
                     publisher_id: publisherId,
                     full_emails: fullEmailsTextarea.val(),
                     attachment_only_emails: attachmentOnlyEmailsTextarea.val(),
+                    custom_message: customMessageTextarea.val(),
                     csrfmiddlewaretoken: self.options.csrfToken
                 };
 
