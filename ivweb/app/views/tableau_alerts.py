@@ -374,7 +374,8 @@ def send_alert_now(request):
     attachment_only_emails = _parse_email_list(attachment_only_emails_string)
     full_emails_string = request.POST['full_emails']
     full_emails = _parse_email_list(full_emails_string)
-    process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails)
+    custom_message = request.POST['custom_message']
+    process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails, custom_message_override=custom_message)
     return HttpResponse('ok')
 
 
