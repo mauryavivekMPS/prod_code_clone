@@ -305,7 +305,7 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
     pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
-    os.makedirs(pub_dir, exist_ok=True)
+    os.makedirs(pub_dir, 0o775, exist_ok=True)
     return pub_dir
 
 
@@ -315,7 +315,7 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
     demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
-    os.makedirs(demo_dir, exist_ok=True)
+    os.makedirs(demo_dir, 0o775, exist_ok=True)
     return demo_dir
 
 
@@ -325,8 +325,7 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
     pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
-    os.makedirs(pub_dir, exist_ok=True)
-    os.chmod(pub_dir, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)  # need this because it's called from FTP server
+    os.makedirs(pub_dir, 0o775, exist_ok=True)
     return pub_dir
 
 
