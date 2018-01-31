@@ -11,6 +11,10 @@ CREATE TABLE institution_usage_stat_composite (
   usage_date timestamp,
   usage_category text,
   usage int,
+  bundle_name text,
+  amount decimal,
+  trial boolean,
+  trial_expiration_date timestamp,
   PRIMARY KEY ((publisher_id, counter_type, journal), subscriber_id, usage_date, usage_category)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
