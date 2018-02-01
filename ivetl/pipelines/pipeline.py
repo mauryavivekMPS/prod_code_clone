@@ -16,7 +16,7 @@ class Pipeline(BaseTask):
     def get_or_create_incoming_dir_for_publisher(base_incoming_dir, publisher_id, pipeline_id):
         pipeline_incoming_dir = os.path.join(base_incoming_dir, publisher_id, pipeline_id)
         os.makedirs(pipeline_incoming_dir, exist_ok=True)
-        os.chmod(pipeline_incoming_dir, stat.S_IXOTH | stat.S_IROTH | stat.S_IXGRP| stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+        os.chmod(pipeline_incoming_dir, 0o775)
         return pipeline_incoming_dir
 
     @staticmethod

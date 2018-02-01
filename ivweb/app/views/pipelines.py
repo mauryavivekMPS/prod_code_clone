@@ -561,7 +561,7 @@ def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
         source_file_path = os.path.join(demo_dir, file['file_name'])
         destination_file_path = os.path.join(pending_dir, file['file_name'])
         shutil.move(source_file_path, destination_file_path)
-        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+        os.chmod(destination_file_path, 0o775)
 
 
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
@@ -572,7 +572,7 @@ def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
         source_file_path = os.path.join(pending_dir, file['file_name'])
         destination_file_path = os.path.join(incoming_dir, file['file_name'])
         shutil.move(source_file_path, destination_file_path)
-        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+        os.chmod(destination_file_path, 0o775)
 
 
 def delete_pending_publisher_file(publisher_id, product_id, pipeline_id, name):
@@ -726,7 +726,7 @@ def upload_pending_file_inline(request):
             else:
 
                 # make sure it's world readable, just to be safe
-                os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(pending_file_path, 0o775)
 
                 UploadedFile.objects.create(
                     publisher_id=publisher_id,
