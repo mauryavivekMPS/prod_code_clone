@@ -305,7 +305,11 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
     pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
-    os.makedirs(pub_dir, 0o775, exist_ok=True)
+    if not os.path.exists(pub_dir):
+        os.makedirs(pub_dir, exist_ok=True)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id), 0o775)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id), 0o775)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id), 0o775)
     return pub_dir
 
 
@@ -315,7 +319,11 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
     demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
-    os.makedirs(demo_dir, 0o775, exist_ok=True)
+    if not os.path.exists(demo_dir):
+        os.makedirs(demo_dir, exist_ok=True)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id)), 0o775)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id), 0o775)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id), 0o775)
     return demo_dir
 
 
@@ -324,8 +332,14 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 
 
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
-    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
-    os.makedirs(pub_dir, 0o775, exist_ok=True)
+    date_string = date.strftime('%Y%m%d')
+    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string)
+    if not os.path.exists(pub_dir):
+        os.makedirs(pub_dir, exist_ok=True)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string), 0o775)
     return pub_dir
 
 

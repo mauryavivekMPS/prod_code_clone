@@ -4,7 +4,6 @@ import os
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
 import re
-import stat
 import datetime
 from collections import defaultdict
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
