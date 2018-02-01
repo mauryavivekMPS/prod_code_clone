@@ -604,7 +604,7 @@ def move_invalid_file_to_cold_storage(pending_file_path, publisher_id, product_i
     new_file_name = '%s%s' % (uuid.uuid4(), ext)
     invalid_file_path = get_or_create_invalid_file_path(publisher_id, product_id, pipeline_id, today, new_file_name)
     shutil.move(pending_file_path, invalid_file_path)
-    os.chmod(invalid_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+    os.chmod(invalid_file_path, 0o775)
     return invalid_file_path
 
 
