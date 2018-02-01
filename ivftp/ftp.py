@@ -141,7 +141,7 @@ class IvetlHandler(FTPHandler):
 
                         continue
 
-                os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(file, 0o775)
                 self.log('Validated file and successfully chmod: %s' % file)
 
                 UploadedFile.objects.create(
