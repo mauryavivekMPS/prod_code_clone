@@ -24,7 +24,7 @@ class InstitutionUsageStatComposite(Model):
     counter_type = columns.Text(primary_key=True)
     journal = columns.Text(primary_key=True)
     subscriber_id = columns.Text(primary_key=True)
-    usage_date = columns.DateTime(primary_key=True)
+    usage_date = columns.DateTime(primary_key=True, index=True)
     usage_category = columns.Text(primary_key=True)
     journal_print_issn = columns.Text()
     journal_online_issn = columns.Text()

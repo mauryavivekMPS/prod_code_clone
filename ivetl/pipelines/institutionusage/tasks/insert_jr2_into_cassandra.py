@@ -3,7 +3,7 @@ import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat
+from ivetl.models import InstitutionUsageStat, InstitutionUsageStatComposite
 
 
 @app.task
@@ -64,32 +64,33 @@ class InsertJR2IntoCassandraTask(Task):
                         except ValueError:
                             continue
 
-                        try:
-                            stat = InstitutionUsageStat.objects.get(
-                                publisher_id=publisher_id,
-                                counter_type='jr2',
-                                journal=journal,
-                                subscriber_id=subscriber_id,
-                                usage_date=date,
-                                usage_category=usage_category,
-                            )
-                        except InstitutionUsageStat.DoesNotExist:
-                            stat = InstitutionUsageStat.objects.create(
-                                publisher_id=publisher_id,
-                                counter_type='jr2',
-                                journal=journal,
-                                subscriber_id=subscriber_id,
-                                usage_date=date,
-                                usage_category=usage_category,
-                            )
+                        InstitutionUsageStat.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr2',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category=usage_category,
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
-                        if usage != stat.usage:
-                            stat.update(
-                                journal_print_issn=journal_print_issn,
-                                journal_online_issn=journal_online_issn,
-                                institution_name=institution_name,
-                                usage=usage,
-                            )
+                        InstitutionUsageStatComposite.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr2',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category=usage_category,
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
