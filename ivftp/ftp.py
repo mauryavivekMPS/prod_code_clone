@@ -4,7 +4,6 @@ import os
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
 import re
-import stat
 import datetime
 from collections import defaultdict
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
@@ -84,7 +83,7 @@ class IvetlHandler(FTPHandler):
         for file in self.uploaded_files:
             file_name = os.path.basename(file)
 
-            self.log('Validing file: %s' % file)
+            self.log('Validating file: %s' % file)
 
             publisher_id, pipeline_ftp_dir_name = self._parse_file_path(file)
             if publisher_id and pipeline_ftp_dir_name:
@@ -141,7 +140,7 @@ class IvetlHandler(FTPHandler):
 
                         continue
 
-                os.chmod(file, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(file, 0o775)
                 self.log('Validated file and successfully chmod: %s' % file)
 
                 UploadedFile.objects.create(

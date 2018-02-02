@@ -305,7 +305,11 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
     pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
-    os.makedirs(pub_dir, 0o775, exist_ok=True)
+    if not os.path.exists(pub_dir):
+        os.makedirs(pub_dir, exist_ok=True)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id), 0o775)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id), 0o775)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id), 0o775)
     return pub_dir
 
 
@@ -315,7 +319,11 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
     demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
-    os.makedirs(demo_dir, 0o775, exist_ok=True)
+    if not os.path.exists(demo_dir):
+        os.makedirs(demo_dir, exist_ok=True)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id)), 0o775)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id), 0o775)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id), 0o775)
     return demo_dir
 
 
@@ -324,8 +332,14 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 
 
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
-    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
-    os.makedirs(pub_dir, 0o775, exist_ok=True)
+    date_string = date.strftime('%Y%m%d')
+    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string)
+    if not os.path.exists(pub_dir):
+        os.makedirs(pub_dir, exist_ok=True)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string), 0o775)
     return pub_dir
 
 
@@ -561,7 +575,7 @@ def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
         source_file_path = os.path.join(demo_dir, file['file_name'])
         destination_file_path = os.path.join(pending_dir, file['file_name'])
         shutil.move(source_file_path, destination_file_path)
-        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+        os.chmod(destination_file_path, 0o775)
 
 
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
@@ -572,7 +586,7 @@ def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
         source_file_path = os.path.join(pending_dir, file['file_name'])
         destination_file_path = os.path.join(incoming_dir, file['file_name'])
         shutil.move(source_file_path, destination_file_path)
-        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+        os.chmod(destination_file_path, 0o775)
 
 
 def delete_pending_publisher_file(publisher_id, product_id, pipeline_id, name):
@@ -604,7 +618,7 @@ def move_invalid_file_to_cold_storage(pending_file_path, publisher_id, product_i
     new_file_name = '%s%s' % (uuid.uuid4(), ext)
     invalid_file_path = get_or_create_invalid_file_path(publisher_id, product_id, pipeline_id, today, new_file_name)
     shutil.move(pending_file_path, invalid_file_path)
-    os.chmod(invalid_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+    os.chmod(invalid_file_path, 0o775)
     return invalid_file_path
 
 
@@ -726,7 +740,7 @@ def upload_pending_file_inline(request):
             else:
 
                 # make sure it's world readable, just to be safe
-                os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(pending_file_path, 0o775)
 
                 UploadedFile.objects.create(
                     publisher_id=publisher_id,
