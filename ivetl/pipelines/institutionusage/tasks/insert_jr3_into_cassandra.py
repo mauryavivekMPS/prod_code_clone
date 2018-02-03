@@ -3,7 +3,7 @@ import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, InstitutionUsageStatComposite, SystemGlobal
+from ivetl.models import InstitutionUsageStat, InstitutionUsageStatComposite, InstitutionUsageJournal, SystemGlobal
 
 
 @app.task
@@ -17,6 +17,8 @@ class InsertJR3IntoCassandraTask(Task):
 
         now = datetime.datetime.now()
         earliest_date = datetime.datetime(now.year, now.month, 1)
+
+        seen_journals = {j.journal for j in InstitutionUsageJournal.objects.filter(publisher_id=publisher_id, counter_type='jr3')}
 
         count = 0
         for file in files:
@@ -59,6 +61,14 @@ class InsertJR3IntoCassandraTask(Task):
                     journal_print_issn = line[3]
                     journal_online_issn = line[4]
                     usage_category = line[5]
+
+                    if journal not in seen_journals:
+                        InstitutionUsageJournal.objects.create(
+                            publisher_id=publisher_id,
+                            counter_type='jr3',
+                            journal=journal,
+                        )
+                        seen_journals.add(journal)
 
                     for col, date in date_cols:
 

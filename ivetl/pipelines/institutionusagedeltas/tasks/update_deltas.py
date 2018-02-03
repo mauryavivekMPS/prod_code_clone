@@ -4,7 +4,7 @@ from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, InstitutionUsageStatComposite, InstitutionUsageStatDelta, InstitutionUsageJournal, SystemGlobal
+from ivetl.models import InstitutionUsageStatComposite, InstitutionUsageStatDelta, InstitutionUsageJournal, SystemGlobal
 from ivetl import utils
 from ivetl.common import common
 
@@ -57,14 +57,15 @@ class UpdateDeltasTask(Task):
                   select subscriber_id, journal, counter_type, usage_category, usage_date, usage
                   from impactvizor.institution_usage_stat_composite
                   where publisher_id = %s
-                  and counter_type = 
+                  and counter_type = %s
+                  and journal = %s
                   and usage_date = %s
                   limit 10000000
                 """
 
                 all_current_month_usage_statement = SimpleStatement(all_current_month_usage_sql, fetch_size=1000)
 
-                for current_usage in session.execute(all_current_month_usage_statement, (publisher_id, current_month)):
+                for current_usage in session.execute(all_current_month_usage_statement, (publisher_id, journal.counter_type, journal.journal, current_month)):
 
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
@@ -82,7 +83,7 @@ class UpdateDeltasTask(Task):
                     previous_month = current_month - relativedelta(months=1)
 
                     try:
-                        previous_usage = InstitutionUsageStat.objects.get(
+                        previous_usage = InstitutionUsageStatComposite.objects.get(
                             publisher_id=publisher_id,
                             counter_type=current_usage.counter_type,
                             journal=current_usage.journal,
@@ -112,7 +113,7 @@ class UpdateDeltasTask(Task):
                             percentage_delta=percentage_delta,
                         )
 
-                    except InstitutionUsageStat.DoesNotExist:
+                    except InstitutionUsageStatComposite.DoesNotExist:
                         pass
 
                     #
@@ -125,7 +126,7 @@ class UpdateDeltasTask(Task):
                     found_first_ytd_usage = True
                     for m in utils.month_range(start_of_previous_year, current_month_previous_year):
                         try:
-                            u = InstitutionUsageStat.objects.get(
+                            u = InstitutionUsageStatComposite.objects.get(
                                 publisher_id=publisher_id,
                                 counter_type=current_usage.counter_type,
                                 journal=current_usage.journal,
@@ -136,7 +137,7 @@ class UpdateDeltasTask(Task):
                             previous_ytd_usage += u.usage
                             if m == start_of_previous_year:
                                 found_first_ytd_usage = True
-                        except InstitutionUsageStat.DoesNotExist:
+                        except InstitutionUsageStatComposite.DoesNotExist:
                             if not found_first_ytd_usage:
                                 break
 
@@ -145,7 +146,7 @@ class UpdateDeltasTask(Task):
                         current_ytd_usage = 0
                         for m in utils.month_range(start_of_current_year, current_month):
                             try:
-                                u = InstitutionUsageStat.objects.timeout(20).get(
+                                u = InstitutionUsageStatComposite.objects.get(
                                     publisher_id=publisher_id,
                                     counter_type=current_usage.counter_type,
                                     journal=current_usage.journal,
@@ -154,7 +155,7 @@ class UpdateDeltasTask(Task):
                                     usage_category=current_usage.usage_category,
                                 )
                                 current_ytd_usage += u.usage
-                            except InstitutionUsageStat.DoesNotExist:
+                            except InstitutionUsageStatComposite.DoesNotExist:
                                 pass
 
                         absolute_ytd_delta = current_ytd_usage - previous_ytd_usage
@@ -171,7 +172,7 @@ class UpdateDeltasTask(Task):
                             usage_date=current_month,
                             usage_category=current_usage.usage_category,
                             time_slice='ytd',
-                        ).timeout(20).update(
+                        ).update(
                             previous_usage=previous_ytd_usage,
                             current_usage=current_ytd_usage,
                             absolute_delta=absolute_ytd_delta,
