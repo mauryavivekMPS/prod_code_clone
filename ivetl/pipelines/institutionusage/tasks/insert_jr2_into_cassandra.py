@@ -3,7 +3,7 @@ import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat
+from ivetl.models import InstitutionUsageStat, InstitutionUsageStatComposite, InstitutionUsageJournal
 
 
 @app.task
@@ -14,6 +14,8 @@ class InsertJR2IntoCassandraTask(Task):
         total_count = task_args['count']
 
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
+
+        seen_journals = {j.journal for j in InstitutionUsageJournal.objects.filter(publisher_id=publisher_id, counter_type='jr2')}
 
         count = 0
         for file in files:
@@ -57,6 +59,14 @@ class InsertJR2IntoCassandraTask(Task):
                     journal_online_issn = line[4]
                     usage_category = line[5]
 
+                    if journal not in seen_journals:
+                        InstitutionUsageJournal.objects.create(
+                            publisher_id=publisher_id,
+                            counter_type='jr2',
+                            journal=journal,
+                        )
+                        seen_journals.add(journal)
+
                     for col, date in date_cols:
 
                         try:
@@ -64,32 +74,33 @@ class InsertJR2IntoCassandraTask(Task):
                         except ValueError:
                             continue
 
-                        try:
-                            stat = InstitutionUsageStat.objects.get(
-                                publisher_id=publisher_id,
-                                counter_type='jr2',
-                                journal=journal,
-                                subscriber_id=subscriber_id,
-                                usage_date=date,
-                                usage_category=usage_category,
-                            )
-                        except InstitutionUsageStat.DoesNotExist:
-                            stat = InstitutionUsageStat.objects.create(
-                                publisher_id=publisher_id,
-                                counter_type='jr2',
-                                journal=journal,
-                                subscriber_id=subscriber_id,
-                                usage_date=date,
-                                usage_category=usage_category,
-                            )
+                        InstitutionUsageStat.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr2',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category=usage_category,
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
-                        if usage != stat.usage:
-                            stat.update(
-                                journal_print_issn=journal_print_issn,
-                                journal_online_issn=journal_online_issn,
-                                institution_name=institution_name,
-                                usage=usage,
-                            )
+                        InstitutionUsageStatComposite.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr2',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category=usage_category,
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
         self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
 
