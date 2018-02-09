@@ -66,6 +66,15 @@ def list_alerts(request):
             setattr(alert, 'num_notifications', len(sorted_notifications))
             setattr(alert, 'last_notification_date', sorted_notifications[0].notification_date)
 
+    all_publishers = set()
+    all_alert_types = set()
+    for alert in alerts:
+        all_publishers.add((alert.publisher_id, alert.publisher_name))
+        all_alert_types.add((alert.template_id, alert.alert_type))
+
+    publisher_choices = sorted([{'publisher_id': c[0], 'name': c[1]} for c in all_publishers], key=lambda p: p['name'])
+    alert_type_choices = sorted([{'template_id': c[0], 'name': c[1]} for c in all_alert_types], key=lambda p: p['name'])
+
     filter_param = request.GET.get('filter', request.COOKIES.get('tableau-alert-list-filter', 'all'))
 
     filtered_alerts = []
@@ -91,6 +100,8 @@ def list_alerts(request):
         'filter_param': filter_param,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
+        'publisher_choices': publisher_choices,
+        'alert_type_choices': alert_type_choices,
     })
 
     response.set_cookie('tableau-alert-list-sort', value=sort_param, max_age=30*24*60*60)
