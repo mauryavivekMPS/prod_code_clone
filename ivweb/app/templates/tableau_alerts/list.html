@@ -15,22 +15,22 @@
 {#                    <li><a href="?filter=disabled" {% if filter_param == 'disabled' %}class="active"{% endif %}>Disabled</a></li>#}
 {#                </ul>#}
                 <span class="lnr lnr-funnel filter-label"></span>
-                <select class="form-control input-sm filter-menu" id="id_time_filter">
-                    {% for choice in time_filter_choices %}
-                        <option value="{{ choice.0 }}" {% if selected_time == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
-                    {% endfor %}
-                </select>
                 <select class="form-control input-sm filter-menu" id="id_publisher_filter">
                     <option value="">All publishers</option>
-                    {% for choice in publisher_filter_choices %}
-                        <option value="{{ choice.0 }}" {% if selected_publisher == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                    {% for choice in publisher_choices %}
+                        <option value="{{ choice.publisher_id }}" {% if selected_publisher == choice.publisher_id %}selected="selected"{% endif %}>{{ choice.name }}</option>
                     {% endfor %}
                 </select>
-                <select class="form-control input-sm filter-menu" id="id_user_filter">
-                    <option value="">All users</option>
-                    {% for choice in user_filter_choices %}
-                        <option value="{{ choice.0 }}" {% if selected_user == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                <select class="form-control input-sm filter-menu" id="id_alert_type_filter">
+                    <option value="">All types</option>
+                    {% for choice in alert_type_choices %}
+                        <option value="{{ choice.template_id }}" {% if selected_alert_type == choice.template_id %}selected="selected"{% endif %}>{{ choice.name }}</option>
                     {% endfor %}
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_status_filter">
+                    <option value="">All status</option>
+                    <option value="enabled">Enabled</option>
+                    <option value="disabled">Disabled</option>
                 </select>
             </div>
         </div>
@@ -52,7 +52,7 @@
                     </thead>
                     <tbody>
                         {% for alert in alerts %}
-                            <tr alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}"
+                            <tr alert_id="{{ alert.alert_id }}" template_id="{{ alert.template_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}"
                                 attachment_only_emails="{{ alert.attachment_only_emails|join:", " }}" full_emails="{{ alert.full_emails|join:", " }}" custom_message="{{ alert.custom_message }}">
                                 <td>
                                     <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">

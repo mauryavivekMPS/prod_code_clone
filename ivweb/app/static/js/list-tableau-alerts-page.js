@@ -6,6 +6,10 @@ $.widget("custom.listtableaualertspage", {
     _create: function () {
         var self = this;
 
+        $('#id_publisher_filter, #id_alert_type_filter, #id_status_filter').on('change', function() {
+            self._updateTableWithCurrentFilter();
+        });
+
         $('.alert-enabled-switch input[type="checkbox"]').on('click', function () {
             var enabledSwitch = $(this);
             var row = enabledSwitch.closest('tr');
@@ -137,6 +141,39 @@ $.widget("custom.listtableaualertspage", {
             });
 
             event.preventDefault();
+        });
+    },
+
+    _updateTableWithCurrentFilter: function () {
+        var publisherFilter = $('#id_publisher_filter').val();
+        var alertTypeFilter = $('#id_alert_type_filter').val();
+        var statusFilter = $('#id_status_filter').val();
+
+        $('.alerts-table tbody tr').each(function() {
+            var row = $(this);
+
+            var publisherValid = false;
+            if (!publisherFilter || (publisherFilter && row.attr('publisher_id') === publisherFilter)) {
+                publisherValid = true;
+            }
+
+            var alertTypeValid = false;
+            if (!alertTypeFilter || (alertTypeFilter && row.attr('template_id') === alertTypeFilter)) {
+                alertTypeValid = true;
+            }
+
+            var statusValid = false;
+            var statusValue = row.find('.alert-enabled-switch input [type="checkbox"]').is(':checked') ? 'disabled' : 'enabled';
+            if (!statusFilter || (statusFilter && statusValue === statusFilter)) {
+                statusValid = true;
+            }
+
+            if (publisherValid && alertTypeValid && statusValid) {
+                row.show();
+            }
+            else {
+                row.hide();
+            }
         });
     }
 });
