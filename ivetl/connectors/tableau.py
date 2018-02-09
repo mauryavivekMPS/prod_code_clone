@@ -7,11 +7,21 @@ import subprocess
 import time
 import tempfile
 import datetime
+import logging
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
 from ivetl.models import WorkbookUrl
+
+
+# temporary logging for seeing what's happening to workbook and data source deployment
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    filename='/var/log/ivweb/tableau-connector.log',
+    filemode='a',
+)
 
 
 class TableauConnector(BaseConnector):
@@ -422,19 +432,26 @@ class TableauConnector(BaseConnector):
             requests.delete(url, headers={'X-Tableau-Auth': self.token})
 
     def update_datasources_and_workbooks(self, publisher):
+        logging.info('update_datasources_and_workbooks for: %s' % publisher.publisher_id)
+        logging.info('publisher.supported_product_groups = %s' % publisher.supported_product_groups)
+
         required_datasource_ids = set()
         for product_group_id in publisher.supported_product_groups:
             for datasource_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_datasources']:
                 required_datasource_ids.add(datasource_id)
+
+        logging.info('required_datasource_ids = %s' % required_datasource_ids)
 
         existing_datasources = self.list_datasources(project_id=publisher.reports_project_id)
         existing_datasource_ids = set([self._base_datasource_name_from_publisher_name(publisher, d['name']) for d in existing_datasources])
         datasource_tableau_id_lookup = {self._base_datasource_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_datasources}
 
         for datasource_id in existing_datasource_ids - required_datasource_ids:
+            logging.info('deleting datasource: %s' % datasource_id)
             self.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
 
         for datasource_id in required_datasource_ids - existing_datasource_ids:
+            logging.info('adding datasource: %s' % datasource_id)
             self.add_datasource_to_project(publisher, datasource_id)
             self.refresh_data_source(publisher, datasource_id)
 
@@ -445,14 +462,18 @@ class TableauConnector(BaseConnector):
             for workbook_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_workbooks']:
                 required_workbook_ids.add(workbook_id)
 
+        logging.info('required_workbook_ids = %s' % required_workbook_ids)
+
         existing_workbooks = self.list_workbooks(project_id=publisher.reports_project_id)
         existing_workbook_ids = set([common.TABLEAU_WORKBOOK_ID_BY_NAME[w['name']] for w in existing_workbooks if w['name'] in common.TABLEAU_WORKBOOK_ID_BY_NAME])
         workbook_tableau_id_lookup = {common.TABLEAU_WORKBOOK_ID_BY_NAME[d['name']]: d['id'] for d in existing_workbooks if d['name'] in common.TABLEAU_WORKBOOK_ID_BY_NAME}
 
         for workbook_id in existing_workbook_ids - required_workbook_ids:
+            logging.info('deleting workbook: %s' % workbook_id)
             self.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
 
         for workbook_id in required_workbook_ids - existing_workbook_ids:
+            logging.info('adding workbook: %s' % workbook_id)
             self.add_workbook_to_project(publisher, workbook_id)
 
     def setup_account(self, publisher, create_new_login=False, username=None, password=None):
