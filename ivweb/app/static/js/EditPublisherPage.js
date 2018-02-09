@@ -671,8 +671,6 @@ var EditPublisherPage = (function() {
             convertToPublisher: false
         }, options);
 
-        console.log('here 2');
-
         var issnValues = [];
         $('.issn-values-row').each(function() {
             var row = $(this);
@@ -884,7 +882,6 @@ var EditPublisherPage = (function() {
         });
 
         $('.submit-button.save-button').on('click', function(event) {
-            console.log('here 1')
             submit();
             event.preventDefault();
             return false;
