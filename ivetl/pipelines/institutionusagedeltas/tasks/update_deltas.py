@@ -183,7 +183,14 @@ class UpdateDeltasTask(Task):
                         break
 
         if not stopped:
-            self.pipeline_ended(publisher_id, product_id, pipeline_id, job_id, tlogger, show_alerts=task_args['show_alerts'])
+            self.pipeline_ended(
+                publisher_id,
+                product_id,
+                pipeline_id,
+                job_id,
+                tlogger,
+                show_alerts=task_args['show_alerts']
+            )
 
         try:
             dirty_flag = SystemGlobal.objects.get(name=earliest_date_dirty_global_name).int_value
