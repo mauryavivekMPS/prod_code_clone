@@ -459,6 +459,8 @@ PIPELINES = [
         'class': 'ivetl.pipelines.subscriptioncostperusedeltas.UpdateDeltasPipeline',
         'has_file_input': False,
         'supports_restart': True,
+        'include_date_range_controls': True,
+        'date_range_type': 'standard',
         'tasks': [
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateCostPerUseTask',
             'ivetl.pipelines.subscriptioncostperusedeltas.tasks.UpdateBundleDeltasTask',
