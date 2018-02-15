@@ -65,9 +65,9 @@
         </div>
     </div>
 
-    {% if request.user.is_superuser %}
+    {% if request.user.is_superuser and has_alerts %}
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <div class="monthly-message-container">
                     <div class="monthly-message-summary">
                         <p>
