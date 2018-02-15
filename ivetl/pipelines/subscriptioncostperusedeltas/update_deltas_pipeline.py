@@ -29,8 +29,8 @@ class UpdateDeltasPipeline(Pipeline):
 
             now = datetime.datetime.now()
 
-            earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
-            earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
+            earliest_date_value_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_value'
+            earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_dirty'
 
             if not from_date:
                 try:
