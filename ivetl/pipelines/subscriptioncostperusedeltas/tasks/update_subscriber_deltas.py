@@ -10,9 +10,8 @@ from ivetl import utils
 class UpdateSubscriberDeltasTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        now = datetime.datetime.now()
-        from_date = datetime.date(2013, 1, 1)
-        to_date = datetime.date(now.year, now.month, 1)
+        from_date = self.from_json_date(task_args.get('from_date'))
+        to_date = self.from_json_date(task_args.get('to_date'))
 
         total_count = None
         count = 0
