@@ -37,7 +37,7 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
                     tlogger.info("Processing #%s : %s" % (count - 1, membership_no))
 
                     for attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
-                        new_value = CustomSubscriberDataPipeline.FIELD_NAMES[attr_name].strip()
+                        new_value = line[CustomSubscriberDataPipeline.FIELD_NAMES[attr_name]].strip()
 
                         if new_value:
 
@@ -51,7 +51,7 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
                                 source='custom',
                                 name=attr_name,
                             ).update(
-                                value_text=line[new_value],
+                                value_text=new_value,
                             )
 
         task_args['count'] = total_count

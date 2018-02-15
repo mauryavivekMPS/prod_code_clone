@@ -9,11 +9,24 @@
             <div class="col-md-12">
                 <h1>Alerts</h1>
                 <a class="btn btn-default small add-alert-button show-loading" href="new/">+ Add Alert</a>
-                <ul class="list-tabs">
-                    <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
-                    <li><a href="?filter=enabled" {% if filter_param == 'enabled' %}class="active"{% endif %}>Enabled</a></li>
-                    <li><a href="?filter=disabled" {% if filter_param == 'disabled' %}class="active"{% endif %}>Disabled</a></li>
-                </ul>
+                <span class="lnr lnr-funnel filter-label"></span>
+                <select class="form-control input-sm filter-menu" id="id_publisher_filter">
+                    <option value="">All publishers</option>
+                    {% for choice in publisher_choices %}
+                        <option value="{{ choice.publisher_id }}" {% if selected_publisher == choice.publisher_id %}selected="selected"{% endif %}>{{ choice.name }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_alert_type_filter">
+                    <option value="">All types</option>
+                    {% for choice in alert_type_choices %}
+                        <option value="{{ choice.template_id }}" {% if selected_alert_type == choice.template_id %}selected="selected"{% endif %}>{{ choice.name }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_status_filter">
+                    <option value="">All status</option>
+                    <option value="enabled">Enabled</option>
+                    <option value="disabled">Disabled</option>
+                </select>
             </div>
         </div>
 
@@ -34,8 +47,8 @@
                     </thead>
                     <tbody>
                         {% for alert in alerts %}
-                            <tr alert_id="{{ alert.alert_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}"
-                                attachment_only_emails="{{ alert.attachment_only_emails|join:", " }}" full_emails="{{ alert.full_emails|join:", " }}">
+                            <tr alert_id="{{ alert.alert_id }}" template_id="{{ alert.template_id }}" publisher_id="{{ alert.publisher_id }}" alert_name="{{ alert.name }}"
+                                attachment_only_emails="{{ alert.attachment_only_emails|join:", " }}" full_emails="{{ alert.full_emails|join:", " }}" custom_message="{{ alert.custom_message }}">
                                 <td>
                                     <a href="{% url 'tableau_alerts.edit' alert.alert_id %}" class="alert-name">
                                         {{ alert.name }}
@@ -127,6 +140,8 @@
                         <textarea class="form-control" name="attachment_only_emails" placeholder="Comma-separated emails"></textarea>
                         <p class="second-textarea-instruction">And also send an email with the PDF <b>and a link to the active report</b> to:</p>
                         <textarea class="form-control" name="full_emails" placeholder="Comma-separated emails"></textarea>
+                        <p class="second-textarea-instruction">With the following custom message:</p>
+                        <textarea class="form-control" name="custom_message" placeholder="Custom message"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary confirm-send-alert-now-button">Send Now</button>

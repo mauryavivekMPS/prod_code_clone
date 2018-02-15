@@ -119,7 +119,7 @@ def get_report_params_display_string(alert):
     return alert.report_id.title()
 
 
-def process_alert(alert, attachment_only_emails_override=None, full_emails_override=None):
+def process_alert(alert, monthly_message=None, attachment_only_emails_override=None, full_emails_override=None, custom_message_override=None):
     template = ALERT_TEMPLATES[alert.template_id]
 
     t = TableauConnector(
@@ -146,6 +146,11 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
 
     if run_notification:
 
+        if custom_message_override:
+            custom_message = custom_message_override
+        else:
+            custom_message = alert.custom_message
+
         # create notification record
         now = datetime.datetime.now()
         expiration_date = now + datetime.timedelta(days=365)
@@ -158,7 +163,7 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
             name=alert.name,
             alert_params=alert.alert_params,
             alert_filters=alert.alert_filters,
-            custom_message=alert.custom_message,
+            custom_message=custom_message,
         )
 
         # and add an entry to the notification lookup table
@@ -197,6 +202,7 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         if attachment_only_emails:
             html = email_template.render({
                 'notification': notification,
+                'monthly_message': monthly_message,
                 'include_live_report_link': False,
             })
             content = Content('text/html', html)

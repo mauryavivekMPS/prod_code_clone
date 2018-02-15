@@ -33,7 +33,7 @@
                                 <td>{{ file.user_display_name }}</td>
                                 <td>{{ file.publisher_id }}</td>
                                 <td>{{ file.product_id }} / {{ file.pipeline_id }}</td>
-                                <td><a href="{% url 'uploaded_files.download' file.publisher_id file.uploaded_file_id %}">{{ file.original_name }}</a></td>
+                                <td><a class="external-link" href="{% url 'uploaded_files.download' file.publisher_id file.uploaded_file_id %}">{{ file.original_name }}</a></td>
                                 <td class="text-center">{% checkmark_or_cross file.validated %}</td>
                             </tr>
                         {% endfor %}

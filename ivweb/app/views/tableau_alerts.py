@@ -66,35 +66,30 @@ def list_alerts(request):
             setattr(alert, 'num_notifications', len(sorted_notifications))
             setattr(alert, 'last_notification_date', sorted_notifications[0].notification_date)
 
-    filter_param = request.GET.get('filter', request.COOKIES.get('tableau-alert-list-filter', 'all'))
+    all_publishers = set()
+    all_alert_types = set()
+    for alert in alerts:
+        all_publishers.add((alert.publisher_id, alert.publisher_name))
+        all_alert_types.add((alert.template_id, alert.alert_type))
 
-    filtered_alerts = []
-    if filter_param == 'all':
-        filtered_alerts = alerts
-    elif filter_param == 'enabled':
-        for alert in alerts:
-            if alert.enabled:
-                filtered_alerts.append(alert)
-    elif filter_param == 'disabled':
-        for alert in alerts:
-            if not alert.enabled:
-                filtered_alerts.append(alert)
+    publisher_choices = sorted([{'publisher_id': c[0], 'name': c[1]} for c in all_publishers], key=lambda p: p['name'])
+    alert_type_choices = sorted([{'template_id': c[0], 'name': c[1]} for c in all_alert_types], key=lambda p: p['name'])
 
     sort_param, sort_key, sort_descending = view_utils.get_sort_params(request, default=request.COOKIES.get('tableau-alert-list-sort', 'publisher_id'))
-    sorted_alerts = sorted(filtered_alerts, key=attrgetter(sort_key), reverse=sort_descending)
+    sorted_alerts = sorted(alerts, key=attrgetter(sort_key), reverse=sort_descending)
 
     response = render(request, 'tableau_alerts/list.html', {
         'alerts': sorted_alerts,
         'messages': messages,
         'reset_url': reverse('tableau_alerts.list') + '?sort=' + sort_param,
         'sort_key': sort_key,
-        'filter_param': filter_param,
         'sort_descending': sort_descending,
         'single_publisher_user': single_publisher_user,
+        'publisher_choices': publisher_choices,
+        'alert_type_choices': alert_type_choices,
     })
 
     response.set_cookie('tableau-alert-list-sort', value=sort_param, max_age=30*24*60*60)
-    response.set_cookie('tableau-alert-list-filter', value=filter_param, max_age=30*24*60*60)
 
     return response
 
@@ -374,7 +369,8 @@ def send_alert_now(request):
     attachment_only_emails = _parse_email_list(attachment_only_emails_string)
     full_emails_string = request.POST['full_emails']
     full_emails = _parse_email_list(full_emails_string)
-    process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails)
+    custom_message = request.POST['custom_message']
+    process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails, custom_message_override=custom_message)
     return HttpResponse('ok')
 
 

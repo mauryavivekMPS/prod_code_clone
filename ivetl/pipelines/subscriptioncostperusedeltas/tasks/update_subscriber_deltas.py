@@ -2,7 +2,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import SubscriptionCostPerUseBySubscriberStat, SubscriptionCostPerUseBySubscriberStatDelta
+from ivetl.models import SubscriptionCostPerUseBySubscriberStat, SubscriptionCostPerUseBySubscriberStatDelta, SystemGlobal
 from ivetl import utils
 
 
@@ -10,9 +10,8 @@ from ivetl import utils
 class UpdateSubscriberDeltasTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        now = datetime.datetime.now()
-        from_date = datetime.date(2013, 1, 1)
-        to_date = datetime.date(now.year, now.month, 1)
+        from_date = self.from_json_date(task_args.get('from_date'))
+        to_date = self.from_json_date(task_args.get('to_date'))
 
         total_count = None
         count = 0
@@ -178,6 +177,17 @@ class UpdateSubscriberDeltasTask(Task):
                 run_monthly_job=task_args.get('run_monthly_job', False),
                 show_alerts=task_args.get('show_alerts', False),
             )
+
+        earliest_date_value_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_value'
+        earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_dirty'
+
+        try:
+            dirty_flag = SystemGlobal.objects.get(name=earliest_date_dirty_global_name).int_value
+        except SystemGlobal.DoesNotExist:
+            dirty_flag = 0
+
+        if not dirty_flag:
+            SystemGlobal.objects(name=earliest_date_value_global_name).delete()
 
         task_args['count'] = count
         return task_args

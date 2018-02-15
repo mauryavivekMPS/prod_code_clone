@@ -25,7 +25,7 @@ from ivetl.models.notification_summary import NotificationSummary
 from ivetl.models.attribute_values import AttributeValues
 from ivetl.models.InstitutionMetadata import Institution_Metadata
 from ivetl.models.published_article import PublishedArticle
-from ivetl.models.institution_usage import InstitutionUsageStat
+from ivetl.models.institution_usage import InstitutionUsageStat, InstitutionUsageStatComposite, InstitutionUsageJournal
 from ivetl.models.institution_usage_delta import InstitutionUsageStatDelta
 from ivetl.models.uptime_check_metadata import UptimeCheckMetadata
 from ivetl.models.uptime_check_stat import UptimeCheckStat
@@ -53,3 +53,4 @@ from ivetl.models.value_mapping import ValueMapping
 from ivetl.models.value_mapping_display import ValueMappingDisplay
 from ivetl.models.uploaded_file import UploadedFile
 from ivetl.models.content_block import ContentBlock
+from ivetl.models.monthly_message import MonthlyMessage

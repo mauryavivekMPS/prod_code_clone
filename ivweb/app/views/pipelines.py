@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import shutil
-import stat
 import subprocess
 import time
 import uuid
@@ -21,7 +20,7 @@ from ivetl.common import common
 from ivetl import utils
 from ivetl import tableau_alerts
 from ivetl.pipelines.pipeline import Pipeline
-from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, PublisherJournal, UploadedFile
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, PublisherJournal, UploadedFile, MonthlyMessage
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -220,6 +219,14 @@ def list_pipelines(request, product_id, pipeline_id):
     else:
         has_alerts = False
 
+    try:
+        monthly_message = MonthlyMessage.objects.get(
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+        ).message
+    except:
+        monthly_message = ''
+
     response = render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
@@ -231,6 +238,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'sort_descending': sort_descending,
         'filter_param': filter_param,
         'has_alerts': has_alerts,
+        'monthly_message': monthly_message,
     })
 
     response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
@@ -305,7 +313,11 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
 
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
     pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
-    os.makedirs(pub_dir, exist_ok=True)
+    if not os.path.exists(pub_dir):
+        os.makedirs(pub_dir, exist_ok=True)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id), 0o775)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id), 0o775)
+        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id), 0o775)
     return pub_dir
 
 
@@ -315,7 +327,11 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
     demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
-    os.makedirs(demo_dir, exist_ok=True)
+    if not os.path.exists(demo_dir):
+        os.makedirs(demo_dir, exist_ok=True)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id)), 0o775)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id), 0o775)
+        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id), 0o775)
     return demo_dir
 
 
@@ -324,8 +340,14 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 
 
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
-    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date.strftime('%Y%m%d'))
-    os.makedirs(pub_dir, exist_ok=True)
+    date_string = date.strftime('%Y%m%d')
+    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string)
+    if not os.path.exists(pub_dir):
+        os.makedirs(pub_dir, exist_ok=True)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id), 0o775)
+        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string), 0o775)
     return pub_dir
 
 
@@ -374,8 +396,8 @@ def run(request, product_id, pipeline_id):
             else:
                 send_alerts = False
 
-            # kick the pipeline off (special case for date range pipelines unless restart)
-            if pipeline.get('include_date_range_controls') and not job_id:
+            # kick the pipeline off (special case for date range pipelines with a single publisher unless restart)
+            if len(publisher_id_list) == 1 and pipeline.get('include_date_range_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
                 to_date = parse(request.POST['to_date'])
                 pipeline_class.s(
@@ -386,7 +408,7 @@ def run(request, product_id, pipeline_id):
                     to_date=to_date,
                     send_alerts=send_alerts,
                 ).delay()
-            elif pipeline.get('include_from_date_controls') and not job_id:
+            elif len(publisher_id_list) == 1 and pipeline.get('include_from_date_controls') and not job_id:
                 from_date = parse(request.POST['from_date'])
                 pipeline_class.s(
                     publisher_id_list=publisher_id_list,
@@ -404,18 +426,21 @@ def run(request, product_id, pipeline_id):
                     send_alerts=send_alerts,
                 ).delay()
 
-            utils.add_audit_log(
-                user_id=request.user.user_id,
-                publisher_id=publisher_id if publisher_id else '',
-                action='run-pipeline',
-                description='Run %s pipeline' % pipeline_id,
-            )
+            for publisher_id in publisher_id_list:
+                utils.add_audit_log(
+                    user_id=request.user.user_id,
+                    publisher_id=publisher_id if publisher_id else '',
+                    action='run-pipeline',
+                    description='Run %s pipeline' % pipeline_id,
+                )
 
             if request.user.is_at_least_highwire_staff:
                 return HttpResponseRedirect(reverse('pipelines.list', kwargs={'pipeline_id': pipeline_id, 'product_id': product_id}))
             else:
-                return HttpResponseRedirect('%s?from=run&publisher=%s&pipeline=%s' % (reverse('home'), publisher_id, pipeline_id))
-
+                if publisher_id:
+                    return HttpResponseRedirect('%s?from=run&publisher=%s&pipeline=%s' % (reverse('home'), publisher_id, pipeline_id))
+                else:
+                    return HttpResponseRedirect('%s?from=run&pipeline=%s' % (reverse('home'), pipeline_id))
     else:
         form = RunForm(request.user)
 
@@ -558,7 +583,7 @@ def move_demo_files_to_pending(demo_id, publisher_id, product_id, pipeline_id):
         source_file_path = os.path.join(demo_dir, file['file_name'])
         destination_file_path = os.path.join(pending_dir, file['file_name'])
         shutil.move(source_file_path, destination_file_path)
-        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+        os.chmod(destination_file_path, 0o775)
 
 
 def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
@@ -569,7 +594,7 @@ def move_pending_files(publisher_id, product_id, pipeline_id, pipeline_class):
         source_file_path = os.path.join(pending_dir, file['file_name'])
         destination_file_path = os.path.join(incoming_dir, file['file_name'])
         shutil.move(source_file_path, destination_file_path)
-        os.chmod(destination_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+        os.chmod(destination_file_path, 0o775)
 
 
 def delete_pending_publisher_file(publisher_id, product_id, pipeline_id, name):
@@ -601,7 +626,7 @@ def move_invalid_file_to_cold_storage(pending_file_path, publisher_id, product_i
     new_file_name = '%s%s' % (uuid.uuid4(), ext)
     invalid_file_path = get_or_create_invalid_file_path(publisher_id, product_id, pipeline_id, today, new_file_name)
     shutil.move(pending_file_path, invalid_file_path)
-    os.chmod(invalid_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+    os.chmod(invalid_file_path, 0o775)
     return invalid_file_path
 
 
@@ -711,7 +736,7 @@ def upload_pending_file_inline(request):
                     'publisher_id': publisher_id,
                     'uploaded_file_id': uploaded_file_record.uploaded_file_id,
                 })
-                new_file_link = '<a href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
+                new_file_link = '<a class="external-link" href="%s">%s</a>' % (file_viewer_url, uploaded_file.name)
 
                 utils.add_audit_log(
                     user_id=request.user.user_id,
@@ -723,7 +748,7 @@ def upload_pending_file_inline(request):
             else:
 
                 # make sure it's world readable, just to be safe
-                os.chmod(pending_file_path, stat.S_IROTH | stat.S_IRGRP | stat.S_IWGRP | stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(pending_file_path, 0o775)
 
                 UploadedFile.objects.create(
                     publisher_id=publisher_id,
@@ -785,5 +810,23 @@ def delete_pending_file_inline(request):
             elif file_type == 'demo':
                 demo_id = request.POST['demo_id']
                 delete_pending_demo_file(demo_id, product_id, pipeline_id, file_to_delete)
+
+    return HttpResponse('ok')
+
+
+@login_required
+def save_monthly_message(request):
+
+    if request.method == 'POST':
+        product_id = request.POST['product_id']
+        pipeline_id = request.POST['pipeline_id']
+        message = request.POST['message']
+
+        MonthlyMessage.objects(
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+        ).update(
+            message=message,
+        )
 
     return HttpResponse('ok')

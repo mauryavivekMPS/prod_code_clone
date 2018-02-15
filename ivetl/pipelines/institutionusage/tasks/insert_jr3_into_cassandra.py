@@ -3,7 +3,7 @@ import datetime
 from dateutil.parser import parse
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
-from ivetl.models import InstitutionUsageStat, SystemGlobal
+from ivetl.models import InstitutionUsageStat, InstitutionUsageStatComposite, InstitutionUsageJournal, SystemGlobal
 
 
 @app.task
@@ -17,6 +17,8 @@ class InsertJR3IntoCassandraTask(Task):
 
         now = datetime.datetime.now()
         earliest_date = datetime.datetime(now.year, now.month, 1)
+
+        seen_journals = {j.journal for j in InstitutionUsageJournal.objects.filter(publisher_id=publisher_id, counter_type='jr3')}
 
         count = 0
         for file in files:
@@ -60,6 +62,14 @@ class InsertJR3IntoCassandraTask(Task):
                     journal_online_issn = line[4]
                     usage_category = line[5]
 
+                    if journal not in seen_journals:
+                        InstitutionUsageJournal.objects.create(
+                            publisher_id=publisher_id,
+                            counter_type='jr3',
+                            journal=journal,
+                        )
+                        seen_journals.add(journal)
+
                     for col, date in date_cols:
 
                         try:
@@ -67,48 +77,64 @@ class InsertJR3IntoCassandraTask(Task):
                         except ValueError:
                             continue
 
-                        try:
-                            stat = InstitutionUsageStat.objects.get(
-                                publisher_id=publisher_id,
-                                counter_type='jr3',
-                                journal=journal,
-                                subscriber_id=subscriber_id,
-                                usage_date=date,
-                                usage_category=usage_category,
-                            )
-                        except InstitutionUsageStat.DoesNotExist:
-                            stat = InstitutionUsageStat.objects.create(
-                                publisher_id=publisher_id,
-                                counter_type='jr3',
-                                journal=journal,
-                                subscriber_id=subscriber_id,
-                                usage_date=date,
-                                usage_category=usage_category,
-                            )
+                        InstitutionUsageStat.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr3',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category=usage_category,
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
-                        if usage != stat.usage:
-                            stat.update(
-                                journal_print_issn=journal_print_issn,
-                                journal_online_issn=journal_online_issn,
-                                institution_name=institution_name,
-                                usage=usage,
-                            )
+                        InstitutionUsageStatComposite.objects(
+                            publisher_id=publisher_id,
+                            counter_type='jr3',
+                            journal=journal,
+                            subscriber_id=subscriber_id,
+                            usage_date=date,
+                            usage_category=usage_category,
+                        ).update(
+                            journal_print_issn=journal_print_issn,
+                            journal_online_issn=journal_online_issn,
+                            institution_name=institution_name,
+                            usage=usage,
+                        )
 
-                            if date < earliest_date:
-                                earliest_date = datetime.datetime(date.year, date.month, 1)
+                        if date < earliest_date:
+                            earliest_date = datetime.datetime(date.year, date.month, 1)
 
-        earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
-        earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
+        # Note: we dirty two flags here: one for inst deltas and one for cost deltas
+
+        earliest_date_for_inst_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
+        earliest_date_for_inst_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
 
         try:
-            earliest_date_global = SystemGlobal.objects.get(name=earliest_date_value_global_name)
+            earliest_date_for_inst_global = SystemGlobal.objects.get(name=earliest_date_for_inst_value_global_name)
         except SystemGlobal.DoesNotExist:
-            earliest_date_global = None
+            earliest_date_for_inst_global = None
 
-        if not earliest_date_global or earliest_date < earliest_date_global.date_value:
-            SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=earliest_date)
+        if not earliest_date_for_inst_global or earliest_date < earliest_date_for_inst_global.date_value:
+            SystemGlobal.objects(name=earliest_date_for_inst_value_global_name).update(date_value=earliest_date)
 
-        SystemGlobal.objects(name=earliest_date_dirty_global_name).update(int_value=1)
+        SystemGlobal.objects(name=earliest_date_for_inst_dirty_global_name).update(int_value=1)
+
+        earliest_date_for_cost_value_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_value'
+        earliest_date_for_cost_dirty_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_dirty'
+
+        try:
+            earliest_date_for_cost_global = SystemGlobal.objects.get(name=earliest_date_for_cost_value_global_name)
+        except SystemGlobal.DoesNotExist:
+            earliest_date_for_cost_global = None
+
+        if not earliest_date_for_cost_global or earliest_date < earliest_date_for_cost_global.date_value:
+            SystemGlobal.objects(name=earliest_date_for_cost_value_global_name).update(date_value=earliest_date)
+
+        SystemGlobal.objects(name=earliest_date_for_cost_dirty_global_name).update(int_value=1)
 
         task_args['count'] = count
         return task_args

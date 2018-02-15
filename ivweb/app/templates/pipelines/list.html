@@ -65,6 +65,36 @@
         </div>
     </div>
 
+    {% if request.user.is_superuser and has_alerts %}
+        <div class="row">
+            <div class="col-md-8">
+                <div class="monthly-message-container">
+                    <div class="monthly-message-summary">
+                        <p>
+                            <span class="monthly-message-label" {% if not monthly_message %}style="display:none"{% endif %}>Monthly message: </span>
+                            <span class="monthly-message-truncated-display">
+                                {% if monthly_message %}
+                                    {{ monthly_message|truncatechars:50 }}
+                                {% else %}
+                                    No monthly message
+                                {% endif %}
+                            </span>
+                            <a class="monthly-message-link monthly-message-link-add" href="#" {% if monthly_message %}style="display:none"{% endif %}>Add one</a>
+                            <a class="monthly-message-link monthly-message-link-edit" href="#" {% if not monthly_message %}style="display:none"{% endif %}>Edit</a>
+                        </p>
+                    </div>
+                    <div class="monthly-message-form" style="display:none">
+                        <textarea class="form-control monthly-message-textarea" placeholder="Enter monthly message here">{{ monthly_message }}</textarea>
+                        <p class="monthly-message-submit-row">
+                            <button type="button" class="btn btn-primary small save-monthly-message">Save Message</button>
+                            <span class="cancel">or <a href="#" class="cancel-monthly-message">Cancel</a></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-md-12">
             <table class="table">
@@ -221,7 +251,8 @@
     <script>
         $(function() {
             PipelinePage.init({
-                piplineId: '{{ pipeline.id }}',
+                productId: '{{ product.id }}',
+                pipelineId: '{{ pipeline.id }}',
                 publishers: {{ publisher_id_list_as_json|safe }},
                 tailUrl: '{% url 'pipelines.tail' product.id pipeline.id %}',
                 jobActionUrl: '{% url 'pipelines.job_action' product.id pipeline.id %}',

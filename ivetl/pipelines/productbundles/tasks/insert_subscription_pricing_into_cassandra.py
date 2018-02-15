@@ -64,20 +64,35 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
                     if year < earliest_year:
                         earliest_year = year
 
-        earliest_date_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
-        earliest_date_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
+        # Note: we dirty two flags here: one for inst deltas and one for cost deltas
 
         earliest_date = datetime.datetime(earliest_year, 1, 1)
 
+        earliest_date_for_inst_value_global_name = publisher_id + '_institution_usage_stat_earliest_date_value'
+        earliest_date_for_inst_dirty_global_name = publisher_id + '_institution_usage_stat_earliest_date_dirty'
+
         try:
-            earliest_date_global = SystemGlobal.objects.get(name=earliest_date_value_global_name)
+            earliest_date_for_inst_global = SystemGlobal.objects.get(name=earliest_date_for_inst_value_global_name)
         except SystemGlobal.DoesNotExist:
-            earliest_date_global = None
+            earliest_date_for_inst_global = None
 
-        if not earliest_date_global or earliest_date < earliest_date_global.date_value:
-            SystemGlobal.objects(name=earliest_date_value_global_name).update(date_value=earliest_date)
+        if not earliest_date_for_inst_global or earliest_date < earliest_date_for_inst_global.date_value:
+            SystemGlobal.objects(name=earliest_date_for_inst_value_global_name).update(date_value=earliest_date)
 
-        SystemGlobal.objects(name=earliest_date_dirty_global_name).update(int_value=1)
+        SystemGlobal.objects(name=earliest_date_for_inst_dirty_global_name).update(int_value=1)
+
+        earliest_date_for_cost_value_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_value'
+        earliest_date_for_cost_dirty_global_name = publisher_id + '_institution_usage_stat_for_cost_earliest_date_dirty'
+
+        try:
+            earliest_date_for_cost_global = SystemGlobal.objects.get(name=earliest_date_for_cost_value_global_name)
+        except SystemGlobal.DoesNotExist:
+            earliest_date_for_cost_global = None
+
+        if not earliest_date_for_cost_global or earliest_date < earliest_date_for_cost_global.date_value:
+            SystemGlobal.objects(name=earliest_date_for_cost_value_global_name).update(date_value=earliest_date)
+
+        SystemGlobal.objects(name=earliest_date_for_cost_dirty_global_name).update(int_value=1)
 
         task_args['count'] = count
         return task_args
