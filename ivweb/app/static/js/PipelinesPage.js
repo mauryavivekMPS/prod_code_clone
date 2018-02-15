@@ -1,4 +1,5 @@
 var PipelinePage = (function() {
+    var productId;
     var pipelineId;
     var csrfToken;
     var updatePublisherUrl;
@@ -324,6 +325,7 @@ var PipelinePage = (function() {
 
     var init = function(options) {
         options = $.extend({
+            productId: '',
             pipelineId: '',
             publishers: [],
             tailUrl: '',
@@ -340,6 +342,7 @@ var PipelinePage = (function() {
             supportsRestart: false
         }, options);
 
+        productId = options.productId;
         pipelineId = options.pipelineId;
         csrfToken = options.csrfToken;
         updatePublisherUrl = options.updatePublisherUrl;
@@ -439,6 +442,63 @@ var PipelinePage = (function() {
                     allForm.find('input[name="send_alerts"]').val(allModal.find('input[name="send_alerts"]').is(':checked') ? '1' : '');
                     allForm.submit();
                     return false;
+                });
+
+                $('.monthly-message-link').on('click', function () {
+                    $('.monthly-message-summary').hide();
+                    $('.monthly-message-form').show();
+                });
+
+                $('.cancel-monthly-message').on('click', function () {
+                    $('.monthly-message-form').hide();
+                    $('.monthly-message-summary').show();
+                });
+
+                $('.save-monthly-message').on('click', function () {
+                    console.log('here!');
+
+                    $('.monthly-message-form').hide();
+                    $('.monthly-message-summary').show();
+
+                    var message = $('.monthly-message-textarea').val();
+                    console.log('the message is: ');
+                    console.log(message);
+
+                    var data = [
+                        {name: 'csrfmiddlewaretoken', value: csrfToken},
+                        {name: 'product_id', value: productId},
+                        {name: 'pipeline_id', value: pipelineId},
+                        {name: 'message', value: message}
+                    ];
+
+                    $.post('/savemonthlymessage/', data)
+                        .done(function () {
+                            console.log('in done');
+
+                            if (message) {
+                                truncatedMessage = message.slice(0, 50);
+                                if (message.length > 50) {
+                                    truncatedMessage += '...';
+                                }
+                                $('.monthly-message-label').show();
+                                $('.monthly-message-truncated-display').text(truncatedMessage);
+                                $('.monthly-message-link-add').hide();
+                                $('.monthly-message-link-edit').show();
+                            }
+                            else {
+                                $('.monthly-message-label').hide();
+                                $('.monthly-message-truncated-display').text('No monthly message');
+                                $('.monthly-message-link-add').show();
+                                $('.monthly-message-link-edit').hide();
+                            }
+
+                            $('.monthly-message-form').hide();
+                            $('.monthly-message-summary').show();
+                        })
+                        .always(function () {
+                            // nothing
+                        });
+
                 });
             }
 
