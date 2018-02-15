@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import shutil
-import stat
 import subprocess
 import time
 import uuid
@@ -21,7 +20,7 @@ from ivetl.common import common
 from ivetl import utils
 from ivetl import tableau_alerts
 from ivetl.pipelines.pipeline import Pipeline
-from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, PublisherJournal, UploadedFile
+from ivweb.app.models import PublisherMetadata, PipelineStatus, PipelineTaskStatus, PublisherJournal, UploadedFile, MonthlyMessage
 from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
@@ -220,6 +219,14 @@ def list_pipelines(request, product_id, pipeline_id):
     else:
         has_alerts = False
 
+    try:
+        monthly_message = MonthlyMessage.objects.get(
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+        ).message
+    except:
+        monthly_message = ''
+
     response = render(request, 'pipelines/list.html', {
         'product': product,
         'pipeline': pipeline,
@@ -231,6 +238,7 @@ def list_pipelines(request, product_id, pipeline_id):
         'sort_descending': sort_descending,
         'filter_param': filter_param,
         'has_alerts': has_alerts,
+        'monthly_message': monthly_message,
     })
 
     response.set_cookie('pipeline-list-sort', value=sort_param, max_age=30*24*60*60)
@@ -802,5 +810,23 @@ def delete_pending_file_inline(request):
             elif file_type == 'demo':
                 demo_id = request.POST['demo_id']
                 delete_pending_demo_file(demo_id, product_id, pipeline_id, file_to_delete)
+
+    return HttpResponse('ok')
+
+
+@login_required
+def save_monthly_message(request):
+
+    if request.method == 'POST':
+        product_id = request.POST['product_id']
+        pipeline_id = request.POST['pipeline_id']
+        message = request.POST['message']
+
+        MonthlyMessage.objects(
+            product_id=product_id,
+            pipeline_id=pipeline_id,
+        ).update(
+            message=message,
+        )
 
     return HttpResponse('ok')

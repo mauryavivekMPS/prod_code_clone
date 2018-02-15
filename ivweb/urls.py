@@ -114,6 +114,7 @@ urlpatterns = [
     url(r'^updatedemostatus/$', publishers.update_demo_status, name='publishers.update_demo_status'),
     url(r'^uploadfile/$', pipelines.upload_pending_file_inline, name='pipelines.upload_pending_file_inline'),
     url(r'^deletefile/$', pipelines.delete_pending_file_inline, name='pipelines.delete_pending_file_inline'),
+    url(r'^savemonthlymessage/$', pipelines.save_monthly_message, name='pipelines.save_monthly_message'),
     url(r'^includealertparams/$', alerts.include_alert_params, name='alerts.include_alert_params'),
     url(r'^includealertfilters/$', alerts.include_alert_filters, name='alerts.include_alert_filters'),
     url(r'^includecheckchoices/$', alerts.include_check_choices, name='alerts.include_check_choices'),
