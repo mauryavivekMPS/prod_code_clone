@@ -119,7 +119,7 @@ def get_report_params_display_string(alert):
     return alert.report_id.title()
 
 
-def process_alert(alert, attachment_only_emails_override=None, full_emails_override=None, custom_message_override=None):
+def process_alert(alert, monthly_message=None, attachment_only_emails_override=None, full_emails_override=None, custom_message_override=None):
     template = ALERT_TEMPLATES[alert.template_id]
 
     t = TableauConnector(
@@ -202,6 +202,7 @@ def process_alert(alert, attachment_only_emails_override=None, full_emails_overr
         if attachment_only_emails:
             html = email_template.render({
                 'notification': notification,
+                'monthly_message': monthly_message,
                 'include_live_report_link': False,
             })
             content = Content('text/html', html)

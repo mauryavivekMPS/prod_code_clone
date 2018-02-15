@@ -7,7 +7,7 @@ from dateutil.parser import parse
 from celery import Task
 from ivetl.common import common
 from ivetl.connectors import TableauConnector
-from ivetl.models import PublisherMetadata, PipelineStatus, TableauAlert
+from ivetl.models import PublisherMetadata, PipelineStatus, TableauAlert, MonthlyMessage
 from ivetl import tableau_alerts
 from ivetl import utils
 
@@ -248,7 +248,16 @@ class BaseTask(Task):
 
                         if run_alert:
                             tlogger.info('Running alert instance: %s' % alert_instance)
-                            tableau_alerts.process_alert(alert_instance)
+
+                            try:
+                                monthly_message = MonthlyMessage.objects.get(
+                                    product_id=product_id,
+                                    pipeline_id=pipeline_id,
+                                ).message
+                            except MonthlyMessage.DoesNotExist:
+                                monthly_message = None
+
+                            tableau_alerts.process_alert(alert_instance, monthly_message=monthly_message)
                         else:
                             tlogger.info('Skipping alert')
 
