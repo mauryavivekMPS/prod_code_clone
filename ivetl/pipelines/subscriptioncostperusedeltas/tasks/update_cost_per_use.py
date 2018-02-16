@@ -38,7 +38,7 @@ class UpdateCostPerUseTask(Task):
                 current_month_usage = InstitutionUsageStatComposite.objects.filter(
                     publisher_id=publisher_id,
                     counter_type='jr3',
-                    journal=journal,
+                    journal=journal.journal,
                     usage_date=current_month,
                 ).fetch_size(1000).limit(10000000)
 
