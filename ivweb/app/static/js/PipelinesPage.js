@@ -476,8 +476,8 @@ var PipelinePage = (function() {
                             console.log('in done');
 
                             if (message) {
-                                truncatedMessage = message.slice(0, 50);
-                                if (message.length > 50) {
+                                truncatedMessage = message.slice(0, 100);
+                                if (message.length > 100) {
                                     truncatedMessage += '...';
                                 }
                                 $('.monthly-message-label').show();
