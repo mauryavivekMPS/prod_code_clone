@@ -71,10 +71,11 @@
                 <div class="monthly-message-container">
                     <div class="monthly-message-summary">
                         <p>
-                            <span class="monthly-message-label" {% if not monthly_message %}style="display:none"{% endif %}>Monthly message: </span>
+                            <i class="lnr lnr-chevron-right monthly-message-chevron"></i>
+                            <span class="monthly-message-label" {% if not monthly_message %}style="display:none"{% endif %}><span>Monthly message</span>: </span>
                             <span class="monthly-message-truncated-display">
                                 {% if monthly_message %}
-                                    {{ monthly_message|truncatechars:50 }}
+                                    {{ monthly_message|truncatechars:100 }}
                                 {% else %}
                                     No monthly message
                                 {% endif %}

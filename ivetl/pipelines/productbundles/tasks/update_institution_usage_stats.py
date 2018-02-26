@@ -20,7 +20,7 @@ class UpdateInstitutionUsageStatsTask(Task):
           from impactvizor.institution_usage_stat
           where publisher_id = %s
           and counter_type = %s
-          limit 10000000
+          limit 100000000
         """
 
         publisher_stats_statement = SimpleStatement(publisher_stats_sql, fetch_size=1000)
