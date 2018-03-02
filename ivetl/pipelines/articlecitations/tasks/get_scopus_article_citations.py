@@ -3,6 +3,7 @@ import json
 import codecs
 import csv
 import threading
+import traceback
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
 from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations
@@ -119,6 +120,11 @@ class GetScopusArticleCitations(Task):
 
                 except MaxTriesAPIError:
                     tlogger.info('Scopus API failed more than MaxTries for %s (%s), skipping' % (doi, article.article_scopus_id))
+                    error_count += 1
+
+                except:
+                    tlogger.error('Unknown exception in article citation thread:')
+                    tlogger.error(traceback.format_exc())
                     error_count += 1
 
                 if error_count >= self.MAX_ERROR_COUNT:

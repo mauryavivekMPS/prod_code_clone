@@ -131,7 +131,7 @@ class SassConnector(BaseConnector):
                         if len(sc) != 0:
                             subject_category = sc[0].text
                             subject_category = re.sub("<.*?>", "", subject_category)
-                            subject_category = subject_category.strip(' \t\r\n')
+                            subject_category = subject_category.strip()
                             subject_category = subject_category.replace('\n', ' ')
                             subject_category = subject_category.replace('\t', ' ')
                             subject_category = subject_category.replace('\r', ' ')
