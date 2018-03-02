@@ -24,12 +24,14 @@ def run_clean_up():
     for a in PublishedArticle.objects.filter(publisher_id=publisher_id):
         stripped_subject_category = a.subject_category.strip()
         if stripped_subject_category != a.subject_category:
+            print('published_article |%s| -> |%s|' % (a.subject_category, stripped_subject_category))
             a.subject_category = stripped_subject_category
             a.save()
 
     for a in RejectedArticles.objects.filter(publisher_id=publisher_id):
         stripped_subject_category = a.subject_category.strip()
         if stripped_subject_category != a.subject_category:
+            print('rejected_articles: |%s| -> |%s|' % (a.subject_category, stripped_subject_category))
             a.subject_category = stripped_subject_category
             a.save()
 
@@ -37,6 +39,7 @@ def run_clean_up():
     for v in ValueMapping.objects.filter(publisher_id=publisher_id, mapping_type='subject_category'):
         stripped_original_value = v.original_value.strip()
         if stripped_original_value != v.original_value:
+            print('value_mapping: |%s| -> |%s|' % (v.original_value, stripped_original_value))
             ValueMapping.objects.create(
                 publisher_id=v.publisher_id,
                 mapping_type=v.mapping_type,
@@ -49,6 +52,7 @@ def run_clean_up():
     for d in ValueMappingDisplay.objects.filter(publisher_id=publisher_id, mapping_type='subject_category'):
         stripped_display_value = d.display_value.strip()
         if stripped_display_value != d.display_value:
+            print('value_mapping_display: |%s| -> |%s|' % (d.display_value, stripped_display_value))
             d.display_value = stripped_display_value
             d.save()
 
