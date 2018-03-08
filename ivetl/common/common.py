@@ -1170,6 +1170,12 @@ PINGDOM_ACCOUNTS = [
         'password': ENV_PROPERTIES['pingdom']['secondary']['password'],
         'api_key': '9jl17p9dka6agqmwb6ru6e7mqt9ei8a1',
     },
+    {
+        'name': 'tertiary',
+        'email': 'pingdom-b@highwire.org',
+        'password': ENV_PROPERTIES['pingdom']['tertiary']['password'],
+        'api_key': '88lq4olluwgkcdbxoemtwhfwyv8ka6nx',
+    },
 ]
 
 
