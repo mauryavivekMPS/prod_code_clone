@@ -117,6 +117,8 @@ class ClassifyChecksTask(Task):
                         check_type = 'search'
                     elif check['account'] == 'primary' and 'content' not in url and 'search' not in url and not re.search('\d', url):
                         check_type = 'home'
+                    elif check['account'] == 'tertiary':
+                        check_type = 'home'
                     else:
                         check_type = 'other'
 
