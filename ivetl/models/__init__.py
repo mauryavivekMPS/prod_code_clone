@@ -54,3 +54,4 @@ from ivetl.models.value_mapping_display import ValueMappingDisplay
 from ivetl.models.uploaded_file import UploadedFile
 from ivetl.models.content_block import ContentBlock
 from ivetl.models.monthly_message import MonthlyMessage
+from ivetl.models.article_skip_rule import ArticleSkipRule

@@ -2,7 +2,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 
 
-class IssnJournal(Model):
+class ArticleSkipRule(Model):
+    publisher_id = columns.Text(partition_key=True)
     issn = columns.Text(primary_key=True)
-    journal = columns.Text()
-    publisher = columns.Text()
+    rule = columns.Text()
