@@ -21,14 +21,14 @@ publisher_id = 'ecs'
 
 def run_clean_up():
 
-    for a in PublishedArticle.objects.filter(publisher_id=publisher_id):
+    for a in PublishedArticle.objects.filter(publisher_id=publisher_id).limit(10000000).fetch_size(1000):
         stripped_subject_category = a.subject_category.strip()
         if stripped_subject_category != a.subject_category:
             print('published_article |%s| -> |%s|' % (a.subject_category, stripped_subject_category))
             a.subject_category = stripped_subject_category
             a.save()
 
-    for a in RejectedArticles.objects.filter(publisher_id=publisher_id):
+    for a in RejectedArticles.objects.filter(publisher_id=publisher_id).limit(10000000).fetch_size(1000):
         stripped_subject_category = a.subject_category.strip()
         if stripped_subject_category != a.subject_category:
             print('rejected_articles: |%s| -> |%s|' % (a.subject_category, stripped_subject_category))
