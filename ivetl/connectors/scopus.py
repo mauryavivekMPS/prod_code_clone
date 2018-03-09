@@ -9,9 +9,9 @@ from ivetl.connectors.crossref import CrossrefConnector
 
 
 class ScopusConnector(BaseConnector):
-    BASE_SCOPUS_URL_XML = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey='
-    BASE_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey='
-    ABSTRACT_SCOPUS_URL_JSON = 'http://api.elsevier.com/content/abstract/eid/'
+    BASE_SCOPUS_URL_XML = 'https://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey='
+    BASE_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey='
+    ABSTRACT_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/abstract/eid/'
     MAX_ATTEMPTS = 10
     REQUEST_TIMEOUT_SECS = 30
     RESULTS_PER_PAGE = 25
