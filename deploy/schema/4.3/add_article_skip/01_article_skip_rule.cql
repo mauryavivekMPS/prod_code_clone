@@ -2,9 +2,10 @@ USE impactvizor;
 
 CREATE TABLE article_skip_rule (
   publisher_id text,
+  is_cohort boolean,
   issn text,
   rule text,
-  PRIMARY KEY ((publisher_id), issn)
+  PRIMARY KEY ((publisher_id), is_cohort, issn)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND
