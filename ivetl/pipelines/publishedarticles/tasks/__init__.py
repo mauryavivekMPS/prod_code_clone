@@ -9,3 +9,4 @@ from ivetl.pipelines.publishedarticles.tasks.check_rejected_manuscript import Ch
 from ivetl.pipelines.publishedarticles.tasks.insert_placeholder_citations_into_cassandra import InsertPlaceholderCitationsIntoCassandraTask
 from ivetl.pipelines.publishedarticles.tasks.update_attribute_values_cache import UpdateAttributeValuesCacheTask
 from ivetl.pipelines.publishedarticles.tasks.get_social_metrics import GetSocialMetricsTask
+from ivetl.pipelines.publishedarticles.tasks.filter_articles import FilterArticlesTask

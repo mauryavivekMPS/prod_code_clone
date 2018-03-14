@@ -34,6 +34,7 @@ PIPELINES = [
             'ivetl.pipelines.publishedarticles.tasks.GetPublishedArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.ScopusIdLookupTask',
             'ivetl.pipelines.publishedarticles.tasks.GetHighWireMetadataTask',
+            'ivetl.pipelines.publishedarticles.tasks.FilterArticlesTask',
             'ivetl.pipelines.publishedarticles.tasks.GetSocialMetricsTask',
             'ivetl.pipelines.publishedarticles.tasks.InsertPublishedArticlesIntoCassandra',
             'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',

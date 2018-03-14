@@ -556,7 +556,7 @@ var EditPublisherPage = (function() {
             };
 
             // quick local checks for blank entries
-            if (electronicIssn == '' || printIssn == '' || (usingJournal && journalCode == '')) {
+            if (electronicIssn === '' || printIssn === '' || (usingJournal && journalCode === '')) {
                 loading.hide();
                 setIssnError('All ISSN fields need a value.');
                 return false;
@@ -581,17 +581,17 @@ var EditPublisherPage = (function() {
             $.getJSON(validateIssnUrl, data)
                 .done(function(json) {
                     loading.hide();
-                    if (json.status == 'ok') {
+                    if (json.status === 'ok') {
                         mainRow.removeClass('error');
                         button.hide();
                         message.hide();
                         button.hide();
                         checkmark.show();
                     }
-                    else if (json.status == 'error') {
+                    else if (json.status === 'error') {
                         setIssnError(json.error_message);
                     }
-                    else if (json.status == 'warning') {
+                    else if (json.status === 'warning') {
                         mainRow.removeClass('error');
                         setIssnWarning(json.warning_message);
                     }
@@ -683,6 +683,7 @@ var EditPublisherPage = (function() {
                     use_months_until_free: $('.issn-values-months-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
                     use_benchpress: $('.issn-values-benchpress-row #id_use_benchpress_' + index).is(':checked') ? 'on' : '',
+                    skip_rule: $('.issn-values-skip-rule-row #id_skip_rule_' + index).val(),
                     index: index
                 });
             }
@@ -699,6 +700,7 @@ var EditPublisherPage = (function() {
                     print_issn: row.find('#id_print_issn_' + index).val(),
                     use_months_until_free: $('.issn-values-months-cohort-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-cohort-row #id_months_until_free_' + index).val(),
+                    skip_rule: $('.issn-values-skip-rule-cohort-row #id_skip_rule_cohort_' + index).val(),
                     index: index
                 });
             }

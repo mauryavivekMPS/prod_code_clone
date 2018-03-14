@@ -11,12 +11,13 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import PublisherMetadata, PublisherUser, PublisherJournal, Demo
+from ivetl.models import PublisherMetadata, PublisherUser, PublisherJournal, Demo, ArticleSkipRule
 from ivetl import tasks
 from ivetl.connectors import TableauConnector
 from ivetl.common import common
 from ivetl import utils
 from ivweb.app.views import utils as view_utils
+from ivetl.article_skipper import ARTICLE_SKIPPER_TYPE_CHOICES
 from .pipelines import get_pending_files_for_demo, move_demo_files_to_pending
 
 log = logging.getLogger(__name__)
@@ -223,8 +224,13 @@ class PublisherForm(forms.Form):
                 self.issn_values_list = initial['issn_values_list']
                 initial['issn_values'] = json.dumps(self.issn_values_list)
             else:
+                skip_rules_by_issn = {}
+                for r in ArticleSkipRule.objects.filter(publisher_id=instance.publisher_id, is_cohort=False):
+                    skip_rules_by_issn[r.issn] = r.rule  # assumes a single rule
+
                 index = 0
                 for code in PublisherJournal.objects.filter(publisher_id=instance.publisher_id, product_id='published_articles'):
+                    skip_rule = skip_rules_by_issn.get(code.electronic_issn, '')
                     self.issn_values_list.append({
                         'product_id': 'published_articles',
                         'electronic_issn': code.electronic_issn,
@@ -234,6 +240,7 @@ class PublisherForm(forms.Form):
                         'months_until_free': code.months_until_free,
                         'use_benchpress': 'on' if code.use_benchpress else '',
                         'index': 'pa-%s' % index,  # just needs to be unique on the page
+                        'skip_rule': skip_rule,
                     })
                     index += 1
                 initial['issn_values'] = json.dumps(self.issn_values_list)
@@ -242,8 +249,13 @@ class PublisherForm(forms.Form):
                 self.issn_values_cohort_list = initial['issn_values_cohort_list']
                 initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
             else:
+                skip_rules_by_issn = {}
+                for r in ArticleSkipRule.objects.filter(publisher_id=instance.publisher_id, is_cohort=True):
+                    skip_rules_by_issn[r.issn] = r.rule
+
                 index = 0
                 for code in PublisherJournal.objects.filter(publisher_id=instance.publisher_id, product_id='cohort_articles'):
+                    skip_rule = skip_rules_by_issn.get(code.electronic_issn, '')  # assumes just one rule
                     self.issn_values_cohort_list.append({
                         'product_id': 'cohort_articles',
                         'electronic_issn': code.electronic_issn,
@@ -251,6 +263,7 @@ class PublisherForm(forms.Form):
                         'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
                         'index': 'ca-%s' % index,  # ditto, needs to be unique on the page
+                        'skip_rule': skip_rule,
                     })
                     index += 1
                 initial['issn_values_cohort'] = json.dumps(self.issn_values_cohort_list)
@@ -416,6 +429,21 @@ class PublisherForm(forms.Form):
                         use_benchpress=issn_value['use_benchpress'] == 'on',
                     )
 
+                    if issn_value['skip_rule']:
+                        ArticleSkipRule.objects(
+                            publisher_id=publisher_id,
+                            is_cohort=False,
+                            issn=issn_value['electronic_issn'],
+                        ).update(
+                            rule=issn_value['skip_rule'],
+                        )
+                    else:
+                        ArticleSkipRule.objects(
+                            publisher_id=publisher_id,
+                            is_cohort=False,
+                            issn=issn_value['electronic_issn'],
+                        ).delete()
+
             if self.cleaned_data['issn_values_cohort']:
                 for issn_value in json.loads(self.cleaned_data['issn_values_cohort']):
                     PublisherJournal.objects.create(
@@ -426,6 +454,21 @@ class PublisherForm(forms.Form):
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=int_or_none(issn_value['months_until_free']),
                     )
+
+                    if issn_value['skip_rule']:
+                        ArticleSkipRule.objects(
+                            publisher_id=publisher_id,
+                            is_cohort=True,
+                            issn=issn_value['electronic_issn'],
+                        ).update(
+                            rule=issn_value['skip_rule'],
+                        )
+                    else:
+                        ArticleSkipRule.objects(
+                            publisher_id=publisher_id,
+                            is_cohort=True,
+                            issn=issn_value['electronic_issn'],
+                        ).delete()
 
             return publisher
 
@@ -525,6 +568,7 @@ def edit(request, publisher_id=None):
         'demo_from_publisher': demo_from_publisher,
         'demo_files_custom_article_data': demo_files_custom_article_data,
         'demo_files_rejected_articles': demo_files_rejected_articles,
+        'skipper_type_choices': ARTICLE_SKIPPER_TYPE_CHOICES,
     })
 
 
