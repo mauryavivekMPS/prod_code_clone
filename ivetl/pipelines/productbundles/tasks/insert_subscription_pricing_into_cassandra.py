@@ -95,4 +95,5 @@ class InsertSubscriptionPricingIntoCassandraTask(Task):
         SystemGlobal.objects(name=earliest_date_for_cost_dirty_global_name).update(int_value=1)
 
         task_args['count'] = count
+        task_args['from_date'] = self.to_json_date(earliest_date)
         return task_args

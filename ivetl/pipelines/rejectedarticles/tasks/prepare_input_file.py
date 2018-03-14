@@ -51,6 +51,8 @@ class PrepareInputFileTask(Task):
                         'keywords': utils.trim_and_strip_doublequotes(line[11]),
                         'custom': utils.trim_and_strip_doublequotes(line[12]),
                         'funders': utils.trim_and_strip_doublequotes(line[13]),
+                        'custom_2': utils.trim_and_strip_doublequotes(line[14]),
+                        'custom_3': utils.trim_and_strip_doublequotes(line[15]),
                     }
 
                     if len(line) >= 11:

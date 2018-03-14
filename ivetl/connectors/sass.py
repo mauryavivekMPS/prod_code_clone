@@ -1,6 +1,5 @@
 import re
 import requests
-import datetime
 import urllib.parse
 import urllib.request
 from requests import HTTPError

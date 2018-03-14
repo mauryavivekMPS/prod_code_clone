@@ -15,6 +15,8 @@ class RejectedArticles(IvetlModel):
     crossref_doi = columns.Text(required=False)
     crossref_match_score = columns.Decimal(required=False)
     custom = columns.Text(required=False)
+    custom_2 = columns.Text(required=False)
+    custom_3 = columns.Text(required=False)
     date_of_publication = columns.DateTime(required=False)
     date_of_rejection = columns.DateTime()
     editor = columns.Text()
@@ -46,6 +48,8 @@ class RejectedArticles(IvetlModel):
         'article_type',
         'editor',
         'custom',
+        'custom_2',
+        'custom_3',
         'published_publisher',
         'published_journal',
     ]

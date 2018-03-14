@@ -1770,7 +1770,13 @@ body.login {
 
     .publisher-form {
 
-        .issn-values-row, .issn-values-cohort-row, .issn-values-months-row, .issn-values-months-cohort-row, .issn-values-benchpress-row, .issn-add-row {
+        .issn-values-row,
+        .issn-values-cohort-row,
+        .issn-values-months-row,
+        .issn-values-months-cohort-row,
+        .issn-values-benchpress-row,
+        .issn-values-skip-rule-row,
+        .issn-add-row {
             border-top: none;
             padding-top: 0;
 
@@ -1823,7 +1829,13 @@ body.login {
 
         .issn-values-row, .issn-values-cohort-row {
             &:not(:first-of-type) {
-                padding-top: 30px;
+                padding-top: 24px;
+
+                .issn-border {
+                    border-top: 1px dotted #ccc;
+                    margin-left: 16.66666667%;
+                    margin-bottom: 24px;
+                }
             }
         }
 
@@ -1831,7 +1843,10 @@ body.login {
             padding-top: 20px;
         }
 
-        .issn-values-months-row, .issn-values-months-cohort-row, .issn-values-benchpress-row {
+        .issn-values-months-row,
+        .issn-values-months-cohort-row,
+        .issn-values-benchpress-row,
+        .issn-values-skip-rule-row {
             font-size: 12px;
             margin-top: 10px;
             margin-bottom: 0;
@@ -1841,6 +1856,16 @@ body.login {
                 display: inline-block;
                 margin-left: 5px;
                 margin-right: 5px;
+            }
+        }
+
+        .issn-values-skip-rule-row {
+            margin-top: 18px;
+
+            .skip-rule {
+                display: inline-block;
+                width: 270px;
+                margin-left: 5px;
             }
         }
 

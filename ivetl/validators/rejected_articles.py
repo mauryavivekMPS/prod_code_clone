@@ -19,6 +19,8 @@ COLUMNS = [
     'KEYWORDS',
     'CUSTOM',
     'FUNDERS',
+    'CUSTOM_2',
+    'CUSTOM_3',
 ]
 
 
@@ -43,7 +45,7 @@ class RejectedArticlesValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) < len(COLUMNS):
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 14 required), skipping other validation" % len(line)))
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 16 required), skipping other validation" % len(line)))
                                 break
 
                             # check header field for correct columns names
@@ -80,6 +82,8 @@ class RejectedArticlesValidator(BaseValidator):
                                 'keywords': utils.trim_and_strip_doublequotes(line[11]),
                                 'custom': utils.trim_and_strip_doublequotes(line[12]),
                                 'funders': utils.trim_and_strip_doublequotes(line[13]),
+                                'custom_2': utils.trim_and_strip_doublequotes(line[14]),
+                                'custom_3': utils.trim_and_strip_doublequotes(line[15]),
                             }
 
                             if not manuscript_id:

@@ -1,4 +1,5 @@
 <div class="form-group row issn-values{% if cohort %}-cohort{% endif %}-row issn-values{% if cohort %}-cohort{% endif %}-row-{{ index }}" index="{{ index }}">
+    <div class="issn-border"></div>
     <label class="col-sm-2">
         <span class="issn-row-label">{% if cohort %}Cohort {% endif %}ISSNs</span>
     </label>
@@ -29,7 +30,7 @@
 </div>
 <div class="form-group row issn-values-months{% if cohort %}-cohort{% endif %}-row issn-values-months{% if cohort %}-cohort{% endif %}-row-{{ index }}">
     <div class="col-sm-6 col-sm-offset-2">
-        <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>
+{#        <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
         <input id="id_use_months_until_free_{{ index }}" class="use-months-until-free" type="checkbox" index="{{ index }}" {% if issn_value.use_months_until_free == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
         <span class="months-free-text">Articles are freely available after</span>
         <input type="text" class="form-control months-until-free input-sm" id="id_months_until_free_{{ index }}" placeholder="" value="{% if issn_value.months_until_free %}{{ issn_value.months_until_free }}{% endif %}" {% if read_only %}readonly disabled{% endif %}>
@@ -39,12 +40,24 @@
 {% if not cohort %}
     <div class="form-group row issn-values-benchpress-row issn-values-row-{{ index }} rejected-manuscripts-controls" style="display:none">
         <div class="col-sm-6 col-sm-offset-2">
-            <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>
+{#            <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
             <input id="id_use_benchpress_{{ index }}" class="use-benchpress" type="checkbox" index="{{ index }}" {% if issn_value.use_benchpress == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
             <span class="use-benchpress-text">Use Bench Press for Rejected Articles</span>
         </div>
     </div>
 {% endif %}
+<div class="form-group row issn-values-skip-rule{% if cohort %}-cohort{% endif %}-row iss-values-skip-rule{% if cohort %}-cohort{% endif %}-row-{{ index }}">
+    <div class="col-sm-6 col-sm-offset-2">
+{#        <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
+        <span>Article skip rule: </span>
+        <select class="form-control skip-rule input-sm" id="id_skip_rule{% if cohort %}_cohort{% endif %}_{{ index }}">
+            <option value="">No skips</option>
+            {% for choice in skipper_type_choices %}
+                <option value="{{ choice.0 }}" {% if issn_value.skip_rule == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
 <script>
     $(function() {
         var mainRowSelector = '.issn-values{% if cohort %}-cohort{% endif %}-row-{{ index }}';
