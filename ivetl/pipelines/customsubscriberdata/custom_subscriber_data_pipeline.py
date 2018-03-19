@@ -8,32 +8,32 @@ from ivetl.models import PublisherMetadata
 @app.task
 class CustomSubscriberDataPipeline(Pipeline):
 
-    FIELD_NAMES = {
-        'membership_no': 0,
-        'firstname': 1,
-        'lastname': 2,
-        'inst_name': 3,
-        'user_phone': 4,
-        'user_fax': 5,
-        'user_email': 6,
-        'user_address': 7,
-        'address_2': 8,
-        'title': 9,
-        'affiliation': 10,
-        'ringgold_id': 11,
-        'sales_agent': 12,
-        'tier': 13,
-        'consortium': 14,
-        'start_date': 15,
-        'country': 16,
-        'region': 17,
-        'contact': 18,
-        'institution_alternate_name': 19,
-        'institution_alternate_identifier': 20,
-        'memo': 21,
-        'custom1': 22,
-        'custom2': 23,
-        'custom3': 24,
+    CUSTOM_FIELD_NAME_TO_SCHEMA_NAME = {
+        'membership_no': 'MEMBERSHIP_NUMBER',
+        'firstname': 'FIRST_NAME',
+        'lastname': 'LAST_NAME',
+        'inst_name': 'INSTITUTION_NAME',
+        'user_phone': 'PHONE',
+        'user_fax': 'FAX',
+        'user_email': 'EMAIL',
+        'user_address': 'ADDRESS',
+        'address_2': 'ADDRESS_2',
+        'title': 'TITLE',
+        'affiliation': 'AFFILIATION',
+        'ringgold_id': 'RINGOLD_ID',
+        'sales_agent': 'SALES_AGENT',
+        'tier': 'TIER',
+        'consortium': 'CONSORTIUM',
+        'start_date': 'START_DATE',
+        'country': 'COUNTRY',
+        'region': 'REGION',
+        'contact': 'CONTACT',
+        'institution_alternate_name': 'INSTITUTION_ALTERNATE_NAME',
+        'institution_alternate_identifier': 'INSTITUTION_ALTERNATE_IDENTIFIER',
+        'memo': 'MEMO',
+        'custom1': 'CUSTOM_1',
+        'custom2': 'CUSTOM_2',
+        'custom3': 'CUSTOM_3',
     }
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None, send_alerts=False):
@@ -85,4 +85,4 @@ class CustomSubscriberDataPipeline(Pipeline):
                 Pipeline.chain_tasks(pipeline_id, task_args)
 
             else:
-                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id, show_alerts=task_args['show_alerts'])
+                self.pipeline_ended(publisher.publisher_id, product_id, pipeline_id, job_id, show_alerts=send_alerts)
