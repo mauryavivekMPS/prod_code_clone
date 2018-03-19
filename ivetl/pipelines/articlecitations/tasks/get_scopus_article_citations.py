@@ -141,6 +141,9 @@ class GetScopusArticleCitations(Task):
 
         target_file.close()
 
+        if stop:
+            raise Exception('Stopping job, unexpected error thrown in thread. See logs.')
+
         task_args['count'] = total_count
         task_args['input_file'] = target_file_name
 
