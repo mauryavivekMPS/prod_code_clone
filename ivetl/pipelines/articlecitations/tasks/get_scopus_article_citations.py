@@ -54,7 +54,8 @@ class GetScopusArticleCitations(Task):
             articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=False).fetch_size(1000).limit(self.QUERY_LIMIT)
 
         count = 0
-        count_lock = threading.Lock()
+        stop = False
+        count_and_stop_lock = threading.Lock()
 
         total_count = len(articles)
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
@@ -63,13 +64,16 @@ class GetScopusArticleCitations(Task):
 
         def process_articles(articles_for_this_thread):
             nonlocal count
+            nonlocal stop
             error_count = 0
 
             thread_article_count = 0
 
             for article in articles_for_this_thread:
 
-                with count_lock:
+                with count_and_stop_lock:
+                    if stop:
+                        break
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                 thread_article_count += 1
@@ -125,7 +129,9 @@ class GetScopusArticleCitations(Task):
                 except:
                     tlogger.error('Unknown exception in article citation thread:')
                     tlogger.error(traceback.format_exc())
-                    error_count += 1
+                    with count_and_stop_lock:
+                        stop = True
+                        break
 
                 if error_count >= self.MAX_ERROR_COUNT:
                     tlogger.info('Scopus API failed more than MaxTries for %s (%s), skipping' % (doi, article.article_scopus_id))
@@ -134,6 +140,9 @@ class GetScopusArticleCitations(Task):
         self.run_pipeline_threads(process_articles, articles, tlogger=tlogger)
 
         target_file.close()
+
+        if stop:
+            raise Exception('Stopping job, unexpected error thrown in thread. See logs.')
 
         task_args['count'] = total_count
         task_args['input_file'] = target_file_name
