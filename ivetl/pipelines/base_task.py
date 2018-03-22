@@ -153,9 +153,11 @@ class BaseTask(Task):
                 if product_id in group['products']:
                     product_group_ids_for_this_pipeline.append(group['id'])
 
+            product_groups_to_update = set(product_group_ids_for_this_pipeline).intersection(publisher.supported_product_groups)
+
             # update all non-alert workbooks in the product groups of this pipeline - a little inefficient but oh well
             workbook_ids_to_update = set()
-            for product_group_id in product_group_ids_for_this_pipeline:
+            for product_group_id in product_groups_to_update:
                 for workbook_id in common.PRODUCT_GROUP_BY_ID[product_group_id]['tableau_workbooks']:
                     if not workbook_id.startswith('alert_'):
                         workbook_ids_to_update.add(workbook_id)
@@ -165,9 +167,11 @@ class BaseTask(Task):
             workbook_tableau_id_lookup = {common.TABLEAU_WORKBOOK_ID_BY_NAME[d['name']]: d['id'] for d in existing_workbooks if d['name'] in common.TABLEAU_WORKBOOK_ID_BY_NAME}
 
             for workbook_id in existing_workbook_ids.intersection(workbook_ids_to_update):
+                tlogger.info('Deleting %s' % workbook_id)
                 t.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
 
             for workbook_id in workbook_ids_to_update:
+                print('Adding %s' % workbook_id)
                 t.add_workbook_to_project(publisher, workbook_id)
 
     def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
