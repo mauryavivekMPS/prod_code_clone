@@ -311,14 +311,18 @@ def include_updated_publisher_runs(request, product_id, pipeline_id):
     })
 
 
+def _make_subdirs(base_dir, sub_dirs, mode=0o775):
+    new_dir = base_dir
+    for d in sub_dirs:
+        new_dir = os.path.join(new_dir, d)
+        if not os.path.exists(new_dir):
+            os.makedirs(new_dir)
+            os.chmod(new_dir, mode)
+    return new_dir
+
+
 def get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id):
-    pub_dir = os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id)
-    if not os.path.exists(pub_dir):
-        os.makedirs(pub_dir, exist_ok=True)
-        os.chmod(os.path.join(common.TMP_DIR, publisher_id), 0o775)
-        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id), 0o775)
-        os.chmod(os.path.join(common.TMP_DIR, publisher_id, product_id, pipeline_id), 0o775)
-    return pub_dir
+    return _make_subdirs(common.TMP_DIR, [publisher_id, product_id, pipeline_id])
 
 
 def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name):
@@ -326,13 +330,7 @@ def get_or_create_uploaded_file_path(publisher_id, product_id, pipeline_id, name
 
 
 def get_or_create_demo_file_dir(demo_id, product_id, pipeline_id):
-    demo_dir = os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id)
-    if not os.path.exists(demo_dir):
-        os.makedirs(demo_dir, exist_ok=True)
-        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id)), 0o775)
-        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id), 0o775)
-        os.chmod(os.path.join(common.BASE_DEMO_DIR, str(demo_id), product_id, pipeline_id), 0o775)
-    return demo_dir
+    return _make_subdirs(common.BASE_DEMO_DIR, [str(demo_id), product_id, pipeline_id])
 
 
 def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
@@ -341,14 +339,7 @@ def get_or_create_demo_file_path(demo_id, product_id, pipeline_id, name):
 
 def get_or_create_invalid_file_dir(publisher_id, product_id, pipeline_id, date):
     date_string = date.strftime('%Y%m%d')
-    pub_dir = os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string)
-    if not os.path.exists(pub_dir):
-        os.makedirs(pub_dir, exist_ok=True)
-        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id), 0o775)
-        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id), 0o775)
-        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id), 0o775)
-        os.chmod(os.path.join(common.BASE_INVALID_DIR, publisher_id, product_id, pipeline_id, date_string), 0o775)
-    return pub_dir
+    return _make_subdirs(common.BASE_INVALID_DIR, [publisher_id, product_id, pipeline_id, date_string])
 
 
 def get_or_create_invalid_file_path(publisher_id, product_id, pipeline_id, date, name):
