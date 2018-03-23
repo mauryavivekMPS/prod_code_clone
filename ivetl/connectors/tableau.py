@@ -331,7 +331,7 @@ class TableauConnector(BaseConnector):
         publisher_datasource_name = self._publisher_datasource_name(publisher, datasource_id)
 
         # this first sub uses a negative lookback, i.e. replace base_datasource_name only when it's _not_ preceded by the dummy dir name
-        prepared_datasource = re.sub(r'(?<!%s\\)%s' % (common.TABLEAU_DUMMY_EXTRACTS_DIR_NAME, base_datasource_name), publisher_datasource_name, template)
+        prepared_datasource = re.sub(r'(?<!%s(\\|/))%s' % (common.TABLEAU_DUMMY_EXTRACTS_DIR_NAME, base_datasource_name), publisher_datasource_name, template)
         prepared_datasource = prepared_datasource.replace('&apos;%s&apos;' % common.TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher.publisher_id)
 
         with open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "w", encoding="utf-8") as fh:

@@ -36,7 +36,7 @@ class CustomArticleDataValidator(BaseValidator):
 
                             # check for number of fields
                             if len(line) != 8:
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 8 required), skipping other validation" % len(line)))
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 9 required), skipping other validation" % len(line)))
                                 continue
 
                             d = {
@@ -46,12 +46,18 @@ class CustomArticleDataValidator(BaseValidator):
                                 'editor': line[3].strip(),
                                 'custom': line[4].strip(),
                                 'custom_2': line[5].strip(),
-                                'custom_3': line[6].strip()
+                                'custom_3': line[6].strip(),
+                                'is_open_access': line[8].strip(),
                             }
 
                             # we need a DOI
                             if not d['doi']:
                                 errors.append(self.format_error(file_name, count, "No DOI found, skipping other validation"))
+                                continue
+
+                            # check for a boolean in is_open_access
+                            if d['is_open_access'] and d['is_open_access'].lower() not in ('yes', 'no'):
+                                errors.append(self.format_error(file_name, count, 'The is_open_access column should be "Yes", "No", or blank.'))
                                 continue
 
                             # check that the articles are for the right publisher

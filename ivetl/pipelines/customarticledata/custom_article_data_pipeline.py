@@ -15,7 +15,8 @@ class CustomArticleDataPipeline(Pipeline):
         'editor',
         'custom',
         'custom_2',
-        'custom_3'
+        'custom_3',
+        'is_open_access',
     ]
 
     def run(self, publisher_id_list=[], product_id=None, job_id=None, preserve_incoming_files=False, alt_incoming_dir=None, files=[], initiating_user_email=None, send_alerts=False):
