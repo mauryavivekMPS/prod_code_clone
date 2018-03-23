@@ -2,10 +2,11 @@
 
 <!-- build 10200.17.0328.0755                               -->
 <datasource formatted-name='cost_delta_subscriber_bundle_ds' inline='true' source-platform='win' version='10.2' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location id='cost_delta_subscriber_bundle_ds' path='datasources' revision='1.1' />
   <connection class='federated'>
     <named-connections>
       <named-connection name='cost_delta_subscriber_bundle_dsleaf'>
-        <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='' server='' username=''>
+        <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='' server='' server-oauth='' server-userid='5' username='' workgroup-auth-mode='prompt'>
           <connection-customization class='genericodbc' enabled='false' version='10.2'>
             <vendor name='TEXT' />
             <driver name='DataStax Cassandra ODBC Driver' />
@@ -140,12 +141,13 @@
         </expression>
       </clause>
       <relation connection='cost_delta_subscriber_bundle_dsleaf' name='cost_delta_subscriber_bundle' type='text'>SELECT * from impactvizor.subscription_cpu_by_bundle_stat_delta WHERE publisher_id=&apos;blood&apos;;</relation>
-      <relation connection='cost_delta_subscriber_bundle_dsleaf' name='subscriber' type='text'>SELECT publisher_id, membership_no, consortium, custom1, custom2, custom3, expired, final_expiration_date, inst_name, sales_agent, subscr_type_desc, tier, user_type from impactvizor.subscriber WHERE publisher_id=&apos;blood&apos;;</relation>
+      <relation connection='cost_delta_subscriber_bundle_dsleaf' name='subscriber' type='text'>SELECT publisher_id, membership_no, consortium, custom1, custom2, custom3, expired, final_expiration_date, inst_name, sales_agent, subscr_type_desc, tier, user_type, user_email, country from impactvizor.subscriber WHERE publisher_id=&apos;blood&apos;;</relation>
     </relation>
     <cols>
       <map key='[absolute_delta]' value='[cost_delta_subscriber_bundle].[absolute_delta]' />
       <map key='[bundle_name]' value='[cost_delta_subscriber_bundle].[bundle_name]' />
       <map key='[consortium]' value='[subscriber].[consortium]' />
+      <map key='[country]' value='[subscriber].[country]' />
       <map key='[current_amount]' value='[cost_delta_subscriber_bundle].[current_amount]' />
       <map key='[current_cost_per_use]' value='[cost_delta_subscriber_bundle].[current_cost_per_use]' />
       <map key='[current_total_usage]' value='[cost_delta_subscriber_bundle].[current_total_usage]' />
@@ -168,8 +170,10 @@
       <map key='[tier]' value='[subscriber].[tier]' />
       <map key='[time_slice]' value='[cost_delta_subscriber_bundle].[time_slice]' />
       <map key='[usage_date]' value='[cost_delta_subscriber_bundle].[usage_date]' />
+      <map key='[user_email]' value='[subscriber].[user_email]' />
       <map key='[user_type]' value='[subscriber].[user_type]' />
     </cols>
+    <refresh increment-key='' incremental-updates='false' />
     <metadata-records>
       <metadata-record class='column'>
         <remote-name>publisher_id</remote-name>
@@ -619,15 +623,53 @@
           <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
         </attributes>
       </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>user_email</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[user_email]</local-name>
+        <parent-name>[subscriber]</parent-name>
+        <remote-alias>user_email</remote-alias>
+        <ordinal>28</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>country</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[country]</local-name>
+        <parent-name>[subscriber]</parent-name>
+        <remote-alias>country</remote-alias>
+        <ordinal>29</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
     </metadata-records>
   </connection>
+  <column datatype='string' name='[country]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' />
   <extract count='-1' enabled='true' units='records'>
-    <connection class='dataengine' dbname='D:\dummy_extracts\cost_delta_subscriber_bundle_ds.tde' schema='Extract' tablename='Extract' update-time='08/28/2017 07:35:37 AM'>
+    <connection class='dataengine' dbname='D:/dummy_extracts/cost_delta_subscriber_bundle_ds.tde' schema='Extract' tablename='Extract' update-time='03/22/2018 11:28:47 PM'>
       <relation name='Extract' table='[Extract].[Extract]' type='table' />
       <cols>
         <map key='[absolute_delta]' value='[Extract].[absolute_delta]' />
         <map key='[bundle_name]' value='[Extract].[bundle_name]' />
         <map key='[consortium]' value='[Extract].[consortium]' />
+        <map key='[country]' value='[Extract].[country]' />
         <map key='[current_amount]' value='[Extract].[current_amount]' />
         <map key='[current_cost_per_use]' value='[Extract].[current_cost_per_use]' />
         <map key='[current_total_usage]' value='[Extract].[current_total_usage]' />
@@ -650,10 +692,11 @@
         <map key='[tier]' value='[Extract].[tier]' />
         <map key='[time_slice]' value='[Extract].[time_slice]' />
         <map key='[usage_date]' value='[Extract].[usage_date]' />
+        <map key='[user_email]' value='[Extract].[user_email]' />
         <map key='[user_type]' value='[Extract].[user_type]' />
       </cols>
-      <refresh>
-        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='115566' timestamp-start='2017-08-28 07:35:37.891' />
+      <refresh increment-key='' incremental-updates='false'>
+        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='115566' timestamp-start='2018-03-22 23:28:47.646' />
       </refresh>
       <metadata-records>
         <metadata-record class='column'>
@@ -750,12 +793,44 @@
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
+          <remote-name>country</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[country]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>country</remote-alias>
+          <ordinal>3</ordinal>
+          <family>subscriber</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>1</approx-count>
+          <scale>1</scale>
+          <width>4000</width>
+          <contains-null>false</contains-null>
+          <collation flag='0' name='binary' />
+          <statistics>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>115566</statistic>
+            <statistic aggregation='Median' datatype='string'>&quot;None&quot;</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
           <remote-name>current_amount</remote-name>
           <remote-type>5</remote-type>
           <local-name>[current_amount]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>current_amount</remote-alias>
-          <ordinal>3</ordinal>
+          <ordinal>4</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
@@ -781,7 +856,7 @@
           <local-name>[current_cost_per_use]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>current_cost_per_use</remote-alias>
-          <ordinal>4</ordinal>
+          <ordinal>5</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
@@ -814,7 +889,7 @@
           <local-name>[current_total_usage]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>current_total_usage</remote-alias>
-          <ordinal>5</ordinal>
+          <ordinal>6</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
@@ -847,7 +922,7 @@
           <local-name>[custom1]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>custom1</remote-alias>
-          <ordinal>6</ordinal>
+          <ordinal>7</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -879,17 +954,20 @@
           <local-name>[custom2]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>custom2</remote-alias>
-          <ordinal>7</ordinal>
+          <ordinal>8</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
           <approx-count>1</approx-count>
           <scale>1</scale>
           <width>4000</width>
-          <contains-null>true</contains-null>
+          <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Count' datatype='integer'>0</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>115566</statistic>
+            <statistic aggregation='Median' datatype='string'>&quot;None&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -908,17 +986,20 @@
           <local-name>[custom3]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>custom3</remote-alias>
-          <ordinal>8</ordinal>
+          <ordinal>9</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
           <approx-count>1</approx-count>
           <scale>1</scale>
           <width>4000</width>
-          <contains-null>true</contains-null>
+          <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Count' datatype='integer'>0</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>115566</statistic>
+            <statistic aggregation='Median' datatype='string'>&quot;None&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -937,7 +1018,7 @@
           <local-name>[expired]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>expired</remote-alias>
-          <ordinal>9</ordinal>
+          <ordinal>10</ordinal>
           <family>subscriber</family>
           <local-type>boolean</local-type>
           <aggregation>Count</aggregation>
@@ -961,7 +1042,7 @@
           <local-name>[final_expiration_date]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>final_expiration_date</remote-alias>
-          <ordinal>10</ordinal>
+          <ordinal>11</ordinal>
           <family>subscriber</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
@@ -989,7 +1070,7 @@
           <local-name>[inst_name]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>inst_name</remote-alias>
-          <ordinal>11</ordinal>
+          <ordinal>12</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1009,7 +1090,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>7</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>8</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1021,7 +1102,7 @@
           <local-name>[membership_no (Custom_SQL_Query)]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>membership_no</remote-alias>
-          <ordinal>12</ordinal>
+          <ordinal>13</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1042,8 +1123,6 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>8</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1054,7 +1133,7 @@
           <local-name>[membership_no]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>membership_no1</remote-alias>
-          <ordinal>13</ordinal>
+          <ordinal>14</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1075,8 +1154,6 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>9</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1087,7 +1164,7 @@
           <local-name>[percentage_delta]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>percentage_delta</remote-alias>
-          <ordinal>14</ordinal>
+          <ordinal>15</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
@@ -1120,7 +1197,7 @@
           <local-name>[previous_amount]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>previous_amount</remote-alias>
-          <ordinal>15</ordinal>
+          <ordinal>16</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
@@ -1146,7 +1223,7 @@
           <local-name>[previous_cost_per_use]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>previous_cost_per_use</remote-alias>
-          <ordinal>16</ordinal>
+          <ordinal>17</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>real</local-type>
           <aggregation>Sum</aggregation>
@@ -1179,7 +1256,7 @@
           <local-name>[previous_total_usage]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>previous_total_usage</remote-alias>
-          <ordinal>17</ordinal>
+          <ordinal>18</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
@@ -1205,7 +1282,7 @@
           <local-name>[publisher_id (Custom_SQL_Query)]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>publisher_id</remote-alias>
-          <ordinal>18</ordinal>
+          <ordinal>19</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1237,7 +1314,7 @@
           <local-name>[publisher_id]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>publisher_id1</remote-alias>
-          <ordinal>19</ordinal>
+          <ordinal>20</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1269,17 +1346,20 @@
           <local-name>[sales_agent]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>sales_agent</remote-alias>
-          <ordinal>20</ordinal>
+          <ordinal>21</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
           <approx-count>1</approx-count>
           <scale>1</scale>
           <width>4000</width>
-          <contains-null>true</contains-null>
+          <contains-null>false</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Count' datatype='integer'>0</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>115566</statistic>
+            <statistic aggregation='Median' datatype='string'>&quot;None&quot;</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1298,7 +1378,7 @@
           <local-name>[subscr_type_desc]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>subscr_type_desc</remote-alias>
-          <ordinal>21</ordinal>
+          <ordinal>22</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1330,7 +1410,7 @@
           <local-name>[tier]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>tier</remote-alias>
-          <ordinal>22</ordinal>
+          <ordinal>23</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1362,7 +1442,7 @@
           <local-name>[time_slice]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>time_slice</remote-alias>
-          <ordinal>23</ordinal>
+          <ordinal>24</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1394,7 +1474,7 @@
           <local-name>[usage_date]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>usage_date</remote-alias>
-          <ordinal>24</ordinal>
+          <ordinal>25</ordinal>
           <family>cost_delta_subscriber_bundle</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
@@ -1419,12 +1499,44 @@
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
+          <remote-name>user_email</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[user_email]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>user_email</remote-alias>
+          <ordinal>26</ordinal>
+          <family>subscriber</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>1803</approx-count>
+          <scale>1</scale>
+          <width>4000</width>
+          <contains-null>false</contains-null>
+          <collation flag='0' name='binary' />
+          <statistics>
+            <statistic aggregation='Min' datatype='string'>&quot;385972809@qq.com&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;zyt12345@zju.edu.cn&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>115566</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>7</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
           <remote-name>user_type</remote-name>
           <remote-type>129</remote-type>
           <local-name>[user_type]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>user_type</remote-alias>
-          <ordinal>25</ordinal>
+          <ordinal>27</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1453,7 +1565,7 @@
       </metadata-records>
     </connection>
   </extract>
-  <layout dim-ordering='alphabetic' dim-percentage='0.193634' measure-ordering='alphabetic' measure-percentage='0.806366' show-structure='true' />
+  <layout dim-ordering='alphabetic' dim-percentage='0.478261' measure-ordering='alphabetic' measure-percentage='0.521739' show-structure='true' />
   <semantic-values>
     <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
   </semantic-values>

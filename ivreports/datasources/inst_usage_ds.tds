@@ -2,10 +2,11 @@
 
 <!-- build 10200.17.0328.0755                               -->
 <datasource formatted-name='inst_usage_ds' inline='true' source-platform='win' version='10.2' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location id='inst_usage_ds' path='datasources' revision='1.1' />
   <connection class='federated'>
     <named-connections>
       <named-connection name='genericodbc.42583.823874143520leaf'>
-        <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='' server='' username=''>
+        <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='' server='' server-oauth='' server-userid='5' username='' workgroup-auth-mode='prompt'>
           <connection-customization class='genericodbc' enabled='false' version='10.2'>
             <vendor name='TEXT' />
             <driver name='DataStax Cassandra ODBC Driver' />
@@ -140,13 +141,14 @@
         </expression>
       </clause>
       <relation connection='genericodbc.42583.823874143520leaf' name='inst_usage' type='text'>select * from impactvizor.institution_usage_stat where publisher_id=&apos;blood&apos;;</relation>
-      <relation connection='genericodbc.42583.823874143520leaf' name='subscriber' type='text'>SELECT publisher_id, membership_no, consortium, custom1, custom2, custom3, expired, final_expiration_date, inst_name, sales_agent, subscr_type_desc, tier, user_type FROM impactvizor.subscriber WHERE publisher_id=&apos;blood&apos;;</relation>
+      <relation connection='genericodbc.42583.823874143520leaf' name='subscriber' type='text'>SELECT publisher_id, membership_no, consortium, custom1, custom2, custom3, expired, final_expiration_date, inst_name, sales_agent, subscr_type_desc, tier, user_type, user_email, country FROM impactvizor.subscriber WHERE publisher_id=&apos;blood&apos;;</relation>
     </relation>
     <cols>
       <map key='[amount]' value='[inst_usage].[amount]' />
       <map key='[bundle_name]' value='[inst_usage].[bundle_name]' />
       <map key='[consortium]' value='[subscriber].[consortium]' />
       <map key='[counter_type]' value='[inst_usage].[counter_type]' />
+      <map key='[country]' value='[subscriber].[country]' />
       <map key='[custom1]' value='[subscriber].[custom1]' />
       <map key='[custom2]' value='[subscriber].[custom2]' />
       <map key='[custom3]' value='[subscriber].[custom3]' />
@@ -169,6 +171,7 @@
       <map key='[usage]' value='[inst_usage].[usage]' />
       <map key='[usage_category]' value='[inst_usage].[usage_category]' />
       <map key='[usage_date]' value='[inst_usage].[usage_date]' />
+      <map key='[user_email]' value='[subscriber].[user_email]' />
       <map key='[user_type]' value='[subscriber].[user_type]' />
     </cols>
     <metadata-records>
@@ -640,16 +643,54 @@
           <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
         </attributes>
       </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>user_email</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[user_email]</local-name>
+        <parent-name>[subscriber]</parent-name>
+        <remote-alias>user_email</remote-alias>
+        <ordinal>29</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>country</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[country]</local-name>
+        <parent-name>[subscriber]</parent-name>
+        <remote-alias>country</remote-alias>
+        <ordinal>30</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
     </metadata-records>
   </connection>
+  <column datatype='string' name='[country]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' />
   <extract count='-1' enabled='true' units='records'>
-    <connection class='dataengine' dbname='D:/dummy_extracts/inst_usage_dds.tde' schema='Extract' tablename='Extract' update-time='08/28/2017 06:56:27 AM'>
+    <connection class='dataengine' dbname='D:/dummy_extracts/inst_usage_dds.tde' schema='Extract' tablename='Extract' update-time='03/22/2018 10:07:09 PM'>
       <relation name='Extract' table='[Extract].[Extract]' type='table' />
       <cols>
         <map key='[amount]' value='[Extract].[amount]' />
         <map key='[bundle_name]' value='[Extract].[bundle_name]' />
         <map key='[consortium]' value='[Extract].[consortium]' />
         <map key='[counter_type]' value='[Extract].[counter_type]' />
+        <map key='[country]' value='[Extract].[country]' />
         <map key='[custom1]' value='[Extract].[custom1]' />
         <map key='[custom2]' value='[Extract].[custom2]' />
         <map key='[custom3]' value='[Extract].[custom3]' />
@@ -672,10 +713,11 @@
         <map key='[usage]' value='[Extract].[usage]' />
         <map key='[usage_category]' value='[Extract].[usage_category]' />
         <map key='[usage_date]' value='[Extract].[usage_date]' />
+        <map key='[user_email]' value='[Extract].[user_email]' />
         <map key='[user_type]' value='[Extract].[user_type]' />
       </cols>
       <refresh>
-        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='1183302' timestamp-start='2017-08-28 06:56:27.820' />
+        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='1424832' timestamp-start='2018-03-22 22:07:09.531' />
       </refresh>
       <metadata-records>
         <metadata-record class='column'>
@@ -700,6 +742,8 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>24</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;double&quot;</attribute>
           </attributes>
@@ -746,7 +790,7 @@
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>3</approx-count>
+          <approx-count>4</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
@@ -754,7 +798,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;No&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Yes&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>817804</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -762,7 +806,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>6</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>14</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -786,7 +830,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;jr2&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;jr3&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
             <statistic aggregation='Median' datatype='string'>&quot;jr3&quot;</statistic>
           </statistics>
           <attributes>
@@ -802,24 +846,24 @@
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
-          <remote-name>custom1</remote-name>
+          <remote-name>country</remote-name>
           <remote-type>129</remote-type>
-          <local-name>[custom1]</local-name>
+          <local-name>[country]</local-name>
           <parent-name>[Extract]</parent-name>
-          <remote-alias>custom1</remote-alias>
+          <remote-alias>country</remote-alias>
           <ordinal>4</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>13</approx-count>
+          <approx-count>2</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Min' datatype='string'>&quot;Academic&quot;</statistic>
-            <statistic aggregation='Max' datatype='string'>&quot;UNIV-HOSP&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>817804</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -827,7 +871,39 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>13</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>4</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>custom1</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[custom1]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>custom1</remote-alias>
+          <ordinal>5</ordinal>
+          <family>subscriber</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>14</approx-count>
+          <scale>1</scale>
+          <width>4000</width>
+          <contains-null>true</contains-null>
+          <collation flag='0' name='binary' />
+          <statistics>
+            <statistic aggregation='Min' datatype='string'>&quot;Academic&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;UNIV-HOSP&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>17</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -839,25 +915,28 @@
           <local-name>[custom2]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>custom2</remote-alias>
-          <ordinal>5</ordinal>
+          <ordinal>6</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>1</approx-count>
+          <approx-count>2</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Count' datatype='integer'>0</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>5</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -868,25 +947,28 @@
           <local-name>[custom3]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>custom3</remote-alias>
-          <ordinal>6</ordinal>
+          <ordinal>7</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>1</approx-count>
+          <approx-count>2</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Count' datatype='integer'>0</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>6</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -897,7 +979,7 @@
           <local-name>[expired]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>expired</remote-alias>
-          <ordinal>7</ordinal>
+          <ordinal>8</ordinal>
           <family>subscriber</family>
           <local-type>boolean</local-type>
           <aggregation>Count</aggregation>
@@ -906,11 +988,11 @@
           <statistics>
             <statistic aggregation='Min' datatype='boolean'>false</statistic>
             <statistic aggregation='Max' datatype='boolean'>true</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>7</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>10</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;bool&quot;</attribute>
           </attributes>
@@ -921,16 +1003,16 @@
           <local-name>[final_expiration_date]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>final_expiration_date</remote-alias>
-          <ordinal>8</ordinal>
+          <ordinal>9</ordinal>
           <family>subscriber</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>105</approx-count>
+          <approx-count>106</approx-count>
           <contains-null>true</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='datetime'>#2001-05-01 00:00:00#</statistic>
             <statistic aggregation='Max' datatype='datetime'>#9999-12-31 00:00:00#</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
@@ -949,11 +1031,11 @@
           <local-name>[inst_name]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>inst_name</remote-alias>
-          <ordinal>9</ordinal>
+          <ordinal>10</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>2835</approx-count>
+          <approx-count>2841</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
@@ -961,7 +1043,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;(A) SANGYO MED U LIB&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;testu&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -969,7 +1051,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>15</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>20</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -981,11 +1063,11 @@
           <local-name>[institution_name]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>institution_name</remote-alias>
-          <ordinal>10</ordinal>
+          <ordinal>11</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>2869</approx-count>
+          <approx-count>2919</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
@@ -993,7 +1075,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;(A) SANGYO MED U LIB&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;yokohama minami kyosai hospital&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1001,7 +1083,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>16</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>21</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1013,7 +1095,7 @@
           <local-name>[journal]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>journal</remote-alias>
-          <ordinal>11</ordinal>
+          <ordinal>12</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1025,7 +1107,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;Blood&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Hematology ASH Education Program&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1033,7 +1115,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>8</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>11</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1045,7 +1127,7 @@
           <local-name>[journal_online_issn]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>journal_online_issn</remote-alias>
-          <ordinal>12</ordinal>
+          <ordinal>13</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1057,7 +1139,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;1520-4383&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;2473-9537&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1065,7 +1147,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>9</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>12</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1077,7 +1159,7 @@
           <local-name>[journal_print_issn]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>journal_print_issn</remote-alias>
-          <ordinal>13</ordinal>
+          <ordinal>14</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1089,7 +1171,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;0006-4971&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;2473-9529&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1097,7 +1179,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>10</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>13</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1109,11 +1191,11 @@
           <local-name>[membership_no]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>membership_no</remote-alias>
-          <ordinal>14</ordinal>
+          <ordinal>15</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>2923</approx-count>
+          <approx-count>2929</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
@@ -1121,7 +1203,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;000001032036&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;T3006C&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1129,7 +1211,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>17</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>22</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1141,7 +1223,7 @@
           <local-name>[publisher_id (Custom_SQL_Query)]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>publisher_id</remote-alias>
-          <ordinal>15</ordinal>
+          <ordinal>16</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1153,7 +1235,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;blood&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;blood&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1161,7 +1243,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>4</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>7</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1173,7 +1255,7 @@
           <local-name>[publisher_id]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>publisher_id1</remote-alias>
-          <ordinal>16</ordinal>
+          <ordinal>17</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1185,7 +1267,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;blood&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;blood&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
             <statistic aggregation='Median' datatype='string'>&quot;blood&quot;</statistic>
           </statistics>
           <attributes>
@@ -1205,25 +1287,28 @@
           <local-name>[sales_agent]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>sales_agent</remote-alias>
-          <ordinal>17</ordinal>
+          <ordinal>18</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>1</approx-count>
+          <approx-count>2</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
           <collation flag='0' name='binary' />
           <statistics>
-            <statistic aggregation='Count' datatype='integer'>0</statistic>
+            <statistic aggregation='Min' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;None&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
-            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>8</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
           </attributes>
@@ -1234,7 +1319,7 @@
           <local-name>[subscr_type_desc]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>subscr_type_desc</remote-alias>
-          <ordinal>18</ordinal>
+          <ordinal>19</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1246,7 +1331,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;Institutional&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Referral-Based Access&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1254,7 +1339,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>11</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>15</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1266,11 +1351,11 @@
           <local-name>[subscriber_id]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>subscriber_id</remote-alias>
-          <ordinal>19</ordinal>
+          <ordinal>20</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>2940</approx-count>
+          <approx-count>2980</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>false</contains-null>
@@ -1278,7 +1363,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;000001032036&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;TATHENS2&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1286,7 +1371,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>18</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>23</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1298,11 +1383,11 @@
           <local-name>[tier]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>tier</remote-alias>
-          <ordinal>20</ordinal>
+          <ordinal>21</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
-          <approx-count>24</approx-count>
+          <approx-count>25</approx-count>
           <scale>1</scale>
           <width>4000</width>
           <contains-null>true</contains-null>
@@ -1310,7 +1395,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;CONSORTIA&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;TIER5PO&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>817804</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1318,7 +1403,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>14</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>18</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1330,7 +1415,7 @@
           <local-name>[trial]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>trial</remote-alias>
-          <ordinal>21</ordinal>
+          <ordinal>22</ordinal>
           <family>inst_usage</family>
           <local-type>boolean</local-type>
           <aggregation>Count</aggregation>
@@ -1351,7 +1436,7 @@
           <local-name>[trial_expiration_date]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>trial_expiration_date</remote-alias>
-          <ordinal>22</ordinal>
+          <ordinal>23</ordinal>
           <family>inst_usage</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
@@ -1376,16 +1461,16 @@
           <local-name>[usage]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>usage</remote-alias>
-          <ordinal>23</ordinal>
+          <ordinal>24</ordinal>
           <family>inst_usage</family>
           <local-type>integer</local-type>
           <aggregation>Sum</aggregation>
-          <approx-count>4335</approx-count>
+          <approx-count>4438</approx-count>
           <contains-null>false</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='integer'>0</statistic>
             <statistic aggregation='Max' datatype='integer'>625212</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
@@ -1402,7 +1487,7 @@
           <local-name>[usage_category]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>usage_category</remote-alias>
-          <ordinal>24</ordinal>
+          <ordinal>25</ordinal>
           <family>inst_usage</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1414,7 +1499,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;Abstracts&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;Table of Contents&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1422,7 +1507,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>12</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>16</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1434,17 +1519,17 @@
           <local-name>[usage_date]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>usage_date</remote-alias>
-          <ordinal>25</ordinal>
+          <ordinal>26</ordinal>
           <family>inst_usage</family>
           <local-type>datetime</local-type>
           <aggregation>Year</aggregation>
-          <approx-count>55</approx-count>
+          <approx-count>62</approx-count>
           <contains-null>false</contains-null>
           <statistics>
             <statistic aggregation='Min' datatype='datetime'>#2013-01-01 00:00:00#</statistic>
-            <statistic aggregation='Max' datatype='datetime'>#2017-07-01 00:00:00#</statistic>
-            <statistic aggregation='Count' datatype='integer'>1183302</statistic>
-            <statistic aggregation='Median' datatype='datetime'>#2015-12-01 00:00:00#</statistic>
+            <statistic aggregation='Max' datatype='datetime'>#2018-02-01 00:00:00#</statistic>
+            <statistic aggregation='Count' datatype='integer'>1424832</statistic>
+            <statistic aggregation='Median' datatype='datetime'>#2016-04-01 00:00:00#</statistic>
           </statistics>
           <attributes>
             <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
@@ -1459,12 +1544,44 @@
           </attributes>
         </metadata-record>
         <metadata-record class='column'>
+          <remote-name>user_email</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[user_email]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>user_email</remote-alias>
+          <ordinal>27</ordinal>
+          <family>subscriber</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>2748</approx-count>
+          <scale>1</scale>
+          <width>4000</width>
+          <contains-null>true</contains-null>
+          <collation flag='0' name='binary' />
+          <statistics>
+            <statistic aggregation='Min' datatype='string'>&quot;030568@mail.fju.edu.tw&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;zyxyj@163.com&quot;</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>19</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>4</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
           <remote-name>user_type</remote-name>
           <remote-type>129</remote-type>
           <local-name>[user_type]</local-name>
           <parent-name>[Extract]</parent-name>
           <remote-alias>user_type</remote-alias>
-          <ordinal>26</ordinal>
+          <ordinal>28</ordinal>
           <family>subscriber</family>
           <local-type>string</local-type>
           <aggregation>Count</aggregation>
@@ -1476,7 +1593,7 @@
           <statistics>
             <statistic aggregation='Min' datatype='string'>&quot;INST&quot;</statistic>
             <statistic aggregation='Max' datatype='string'>&quot;INST&quot;</statistic>
-            <statistic aggregation='Count' datatype='integer'>1181915</statistic>
+            <statistic aggregation='Count' datatype='integer'>1419350</statistic>
           </statistics>
           <attributes>
             <attribute datatype='string' name='DebugRemoteCollation'>&quot;binary&quot;</attribute>
@@ -1484,7 +1601,7 @@
             <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
             <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (size)'>16000</attribute>
-            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>5</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>9</attribute>
             <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
             <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
             <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
@@ -1493,7 +1610,7 @@
       </metadata-records>
     </connection>
   </extract>
-  <layout dim-ordering='alphabetic' dim-percentage='0.396887' measure-ordering='alphabetic' measure-percentage='0.603113' show-structure='true' />
+  <layout dim-ordering='alphabetic' dim-percentage='0.395257' measure-ordering='alphabetic' measure-percentage='0.604743' show-structure='true' />
   <semantic-values>
     <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
   </semantic-values>
