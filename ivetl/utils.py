@@ -5,6 +5,7 @@ import humanize
 import datetime
 import boto3
 import chardet
+import itertools
 from operator import attrgetter
 from dateutil.rrule import rrule, MONTHLY
 from ivetl.models import SystemGlobal, PipelineStatus, PipelineTaskStatus, AuditLogByUser, AuditLogByPublisher, AuditLogByTime
@@ -227,3 +228,7 @@ def guess_encoding(file_path):
         return 'ISO-8859-2'
     else:
         raise UnicodeDecodeError(guess, b'', 0, 1, 'Unsupported encoding, must be UTF-8 or ISO-8859-2.')
+
+
+def lower_first_line(iterator):
+    return itertools.chain([next(iterator).lower()], iterator)

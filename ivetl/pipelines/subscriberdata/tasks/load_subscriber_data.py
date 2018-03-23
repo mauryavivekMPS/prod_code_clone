@@ -1,4 +1,3 @@
-import os
 import csv
 from ivetl.celery import app
 from ivetl.pipelines.task import Task

@@ -20,14 +20,15 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
             encoding = utils.guess_encoding(f)
             with open(f, encoding=encoding) as tsv:
                 count = 0
-                for line in csv.reader(tsv, delimiter='\t'):
+                # for line in csv.reader(tsv, delimiter='\t'):
+                for line in csv.DictReader(tsv, delimiter='\t'):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     # skip header row
                     if count == 1:
                         continue
 
-                    membership_no = line[CustomSubscriberDataPipeline.FIELD_NAMES['membership_no']]
+                    membership_no = line[CustomSubscriberDataPipeline.CUSTOM_FIELD_NAME_TO_SCHEMA_NAME['membership_no']]
                     try:
                         subscriber = Subscriber.objects.get(publisher_id=publisher_id, membership_no=membership_no)
                     except Subscriber.DoesNotExist:
@@ -37,7 +38,7 @@ class InsertCustomSubscriberDataIntoCassandraTask(Task):
                     tlogger.info("Processing #%s : %s" % (count - 1, membership_no))
 
                     for attr_name in SubscribersAndSubscriptionsPipeline.CUSTOMIZABLE_FIELD_NAMES:
-                        new_value = line[CustomSubscriberDataPipeline.FIELD_NAMES[attr_name]].strip()
+                        new_value = line[CustomSubscriberDataPipeline.CUSTOM_FIELD_NAME_TO_SCHEMA_NAME[attr_name]].strip()
 
                         if new_value:
 
