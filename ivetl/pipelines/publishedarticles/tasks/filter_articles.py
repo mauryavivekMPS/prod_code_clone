@@ -5,7 +5,7 @@ import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.article_skipper import ArticleSkipper
-from ivetl.models import PublishedArticle, ArticleCitations
+from ivetl.models import PublishedArticle, ArticleCitations, PublishedArticleByCohort, ArticleUsage, PublishedArticleValues
 from ivetl.common import common
 
 
@@ -45,12 +45,15 @@ class FilterArticlesTask(Task):
 
                     try:
                         PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi).delete()
-                    except PublishedArticle.DoesNotExist:
-                        pass
 
-                    try:
-                        ArticleCitations.objects.get(publisher_id=publisher_id, article_doi=doi).delete()
-                    except ArticleCitations.DoesNotExist:
+                        # if we have found a matching article then we should make sure it's cleaned out from other tables
+                        ArticleCitations.objects.filter(publisher_id=publisher_id, article_doi=doi).delete()
+                        PublishedArticleByCohort.filter(publisher_id=publisher_id, is_cohort=True, article_doi=doi).delete()
+                        PublishedArticleByCohort.filter(publisher_id=publisher_id, is_cohort=False, article_doi=doi).delete()
+                        ArticleUsage.filter(publisher_id=publisher_id, article_doi=doi).delete()
+                        PublishedArticleValues.filter(publisher_id=publisher_id, article_doi=doi).delete()
+
+                    except PublishedArticle.DoesNotExist:
                         pass
 
                 else:
