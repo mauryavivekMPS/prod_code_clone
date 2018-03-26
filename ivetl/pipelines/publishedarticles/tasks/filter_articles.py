@@ -5,6 +5,7 @@ import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.article_skipper import ArticleSkipper
+from ivetl.models import PublishedArticle, ArticleCitations
 from ivetl.common import common
 
 
@@ -41,6 +42,17 @@ class FilterArticlesTask(Task):
 
                 if skipper.should_skip_article_for_journal(doi, issn, data):
                     tlogger.info('Filtering %s' % doi)
+
+                    try:
+                        PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi).delete()
+                    except PublishedArticle.DoesNotExist:
+                        pass
+
+                    try:
+                        ArticleCitations.objects.get(publisher_id=publisher_id, article_doi=doi).delete()
+                    except ArticleCitations.DoesNotExist:
+                        pass
+
                 else:
                     target_file.write('\t'.join([publisher_id, doi, issn, json.dumps(data)]) + '\n')
 
