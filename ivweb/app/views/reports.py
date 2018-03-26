@@ -55,10 +55,18 @@ def update_item(request):
 
         if publisher_id:
             publisher_id_list = [publisher_id]
+            skip_demo_publishers = False
         else:
             publisher_id_list = []
+            skip_demo_publishers = True
 
-        update_report_item.s(item_type, item_id, request.user.user_id, publisher_id_list=publisher_id_list).delay()
+        update_report_item.s(
+            item_type,
+            item_id,
+            request.user.user_id,
+            publisher_id_list=publisher_id_list,
+            skip_demo_publishers=skip_demo_publishers
+        ).delay()
 
     return HttpResponse('ok')
 
