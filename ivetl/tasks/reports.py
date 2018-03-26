@@ -74,7 +74,7 @@ def update_reports_for_publisher(publisher_id, initiating_user_id, include_initi
 
 
 @app.task
-def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list=None):
+def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list=None, skip_demo_publishers=True):
     print('Starting report update for %s (%s)...' % (item_type, item_id))
 
     try:
@@ -111,7 +111,7 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
         for publisher in publishers:
             print('Looking at publisher: %s' % publisher.publisher_id)
 
-            if publisher.demo or publisher.pilot:
+            if skip_demo_publishers and (publisher.demo or publisher.pilot):
                 print('Not a production publisher, skipping')
                 continue
 

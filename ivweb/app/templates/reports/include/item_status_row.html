@@ -3,7 +3,7 @@
     <td>{{ item.type }}</td>
     <td class="publisher-menu-col">
         <select class="form-control input-sm inline-report-publisher-menu">
-            <option value="">All publishers</option>
+            <option value="">All production publishers</option>
             {% for publisher in publishers %}
                 <option value="{{ publisher.publisher_id }}">{{ publisher.name }}</option>
             {% endfor %}
