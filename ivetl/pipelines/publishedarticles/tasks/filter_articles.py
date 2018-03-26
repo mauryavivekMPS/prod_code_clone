@@ -46,6 +46,8 @@ class FilterArticlesTask(Task):
                     try:
                         PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi).delete()
 
+                        tlogger.info('Deleting previously fetched article that we are now skipping %s' % doi)
+
                         # if we have found a matching article then we should make sure it's cleaned out from other tables
                         ArticleCitations.objects.filter(publisher_id=publisher_id, article_doi=doi).delete()
                         PublishedArticleByCohort.filter(publisher_id=publisher_id, is_cohort=True, article_doi=doi).delete()
