@@ -12,7 +12,7 @@ from ivetl import utils
 class UpdateInstitutionUsageStatsTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
-        from_date = self.from_json_date(task_args['from_date'])
+        from_date = self.from_json_date(task_args.get('from_date'))
 
         if not from_date:
             from_date = datetime.datetime(2013, 1, 1)
