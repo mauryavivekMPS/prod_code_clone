@@ -11,9 +11,10 @@ def login(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
+        normalized_email = email.lower()
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email=normalized_email)
             if user.check_password(password):
                 request.session['user_id'] = str(user.user_id)
                 return HttpResponseRedirect(reverse('home'))
