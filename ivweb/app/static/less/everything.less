@@ -68,19 +68,7 @@
 @brand-inactive: @gray-lighter;
 @input-border-focus: @color-secondary-1-1;
 
-@font-family-sans-serif: "proxima-nova", sans-serif;
-
-
-// Typekit classes
-// -------------------------
-
-.wf-loading {
-    visibility: hidden;
-}
-
-.wf-active {
-    visibility: visible;
-}
+@font-family-sans-serif: Helvetica Neue, Helvetica, Arial, sans-serif;
 
 
 // Top navbar
@@ -125,16 +113,14 @@ body {
 .navbar-default {
     .navbar-brand {
         padding: 20px 10px 20px 0;
-        font-weight: 200;
+        font-weight: 500;
         color: #ccc;
-        text-transform: uppercase;
         height: @navbar-height;
-        letter-spacing: 5px;
 
         img {
             height: 28px;
             margin-top: -4px;
-            margin-right: 5px;
+            margin-right: 10px;
             display: inline-block;
         }
 
@@ -281,8 +267,8 @@ body {
 // Left menu
 // -------------------------
 
-@left-menu-width: 190px;
-@small-left-menu-width: 160px;
+@left-menu-width: 210px;
+@small-left-menu-width: 180px;
 
 #left-menu {
     padding-left: 30px;
@@ -1523,12 +1509,10 @@ body.login {
         }
 
         h1 {
-            font-weight: 200;
+            font-weight: 600;
             color: #333;
-            text-transform: uppercase;
-            letter-spacing: 7px;
-            font-size: 20px;
-            margin-top: 20px;
+            font-size: 26px;
+            margin-top: 30px;
             margin-bottom: 40px;
         }
     }
@@ -1735,12 +1719,12 @@ body.login {
     }
 
     .nvd3 text {
-        font-family: proxima-nova;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
         font-size: 11px;
     }
 
     .nvtooltip {
-        font-family: proxima-nova;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
         font-size: 11px;
         border: 1px solid rgba(185, 185, 185, 0.5);
         border-radius: 2px;
@@ -2749,7 +2733,7 @@ input[type="checkbox"].use-months-until-free, input[type="checkbox"].use-benchpr
     pre {
         font-size: 12px;
         font-weight: 200;
-        font-family: proxima-nova;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
         line-height: 1.8;
         background-color: #fbfbfb;
         border: none;
