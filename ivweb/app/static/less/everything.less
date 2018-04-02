@@ -111,18 +111,19 @@ body {
 }
 
 .navbar-default {
-    .navbar-brand {
-        padding: 20px 10px 20px 0;
-        font-weight: 500;
-        color: #ccc;
-        height: @navbar-height;
+    .brand-logo {
+        float: left;
+        height: 40px;
+        margin-top: 10px;
+        margin-right: 8px;
+    }
 
-        img {
-            height: 28px;
-            margin-top: -4px;
-            margin-right: 10px;
-            display: inline-block;
-        }
+    .navbar-brand {
+        padding: 18px 10px 20px 0;
+        font-weight: 500;
+        color: white;
+        height: @navbar-height;
+        font-size: 20px;
 
         &:hover, &:focus {
             color: #ccc;
@@ -207,9 +208,9 @@ body {
             min-width: 170px;
         }
 
-        > a {
+        > a, > a:focus {
             margin-right: 12px;
-            color: #ccc;
+            color: white;
         }
 
         .dropdown-menu a {
@@ -1504,16 +1505,16 @@ body.login {
 
     .login-branding {
         img {
-            width: 36px;
-            margin-top: 26px;
+            width: 100px;
+            margin-top: 12px;
         }
 
         h1 {
             font-weight: 600;
             color: #333;
             font-size: 26px;
-            margin-top: 30px;
-            margin-bottom: 40px;
+            margin-top: 17px;
+            margin-bottom: 23px;
         }
     }
 
