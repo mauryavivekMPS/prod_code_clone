@@ -18,7 +18,7 @@ module.exports = function(grunt) {
           compress: true
         },
         files: {
-          "./ivweb/app/static/dist/everything.css": "./ivweb/app/static/less/everything.less"
+          "./ivweb/app/static/dist/everything-2018-04-04.css": "./ivweb/app/static/less/everything.less"
         }
       }
     },
