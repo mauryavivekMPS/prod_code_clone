@@ -65,12 +65,12 @@ class CustomArticleDataValidator(BaseValidator):
                                 article = crossref.get_article(d['doi'])
 
                                 if not article:
-                                    errors.append(self.format_error(file_name, count - 1, "DOI not found in crossref"))
+                                    errors.append(self.format_error(file_name, count, "DOI not found in crossref"))
                                     continue
 
                                 # Commenting out due to an Cell having changed ISSNs
                                 # if not article['journal_issn'] in issns:
-                                #     errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher : %s : %s" % (article['journal_issn'], issns)))
+                                #     errors.append(self.format_error(file_name, count, "ISSN for DOI does not match publisher : %s : %s" % (article['journal_issn'], issns)))
                                 #     continue
 
                         if len(errors) > self.MAX_ERRORS:
