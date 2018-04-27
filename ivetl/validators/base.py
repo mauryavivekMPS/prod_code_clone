@@ -11,7 +11,7 @@ class BaseValidator(object):
 
     MAX_ERRORS = 50
 
-    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, second_level_validation=False):
         raise NotImplementedError
 
     def format_error(self, file_name, line_number, message):

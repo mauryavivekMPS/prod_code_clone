@@ -68,6 +68,8 @@ PIPELINES = [
         'has_file_input': True,
         'user_facing_file_description': 'Article Metadata',
         'validator_class': 'ivetl.validators.CustomArticleDataValidator',
+        'has_second_level_validation': True,
+        'second_level_validation_label': 'Validate all DOIs',
         'format_file': 'AdditionalMetadata-Format.pdf',
         'supports_restart': True,
         'tasks': [

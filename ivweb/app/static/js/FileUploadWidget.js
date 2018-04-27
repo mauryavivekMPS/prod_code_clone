@@ -80,7 +80,7 @@ var FileUploadWidget = (function() {
                 }
 
                 var uiType = picker.attr('ui_type');
-                if (uiType == 'replacement') {
+                if (uiType === 'replacement') {
                     var fileId = picker.closest('tr.error-list-row').attr('file_id');
                     $('.file-row.file-row-' + fileId).remove();
                     $('.error-list-row.file-row-' + fileId).remove();
@@ -95,7 +95,7 @@ var FileUploadWidget = (function() {
 
                 $.ajax(uploadUrl, {type: 'POST', data: data, contentType: false, processData: false})
                     .done(function(html) {
-                        if (uiType == 'replacement') {
+                        if (uiType === 'replacement') {
                             $('.loading-row.file-row-' + fileId).replaceWith(html);
                         }
                         else {

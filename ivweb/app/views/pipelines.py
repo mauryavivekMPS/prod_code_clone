@@ -632,6 +632,7 @@ def upload_pending_file_inline(request):
         product = common.PRODUCT_BY_ID[product_id]
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
         file_type = request.POST['file_type']
+        second_level_validation = request.POST.get('second_level_validation', '0') == '1'
 
         validation_errors = []
         all_uploaded_files = request.FILES.getlist('files')
@@ -688,7 +689,8 @@ def upload_pending_file_inline(request):
                         issns=issns,
                         publisher_id=publisher_id,
                         crossref_username=crossref_username,
-                        crossref_password=crossref_password
+                        crossref_password=crossref_password,
+                        second_level_validation=second_level_validation
                     )
                     validation_errors = validator.parse_errors(raw_errors)
                     t2 = time.time()

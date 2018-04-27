@@ -46,7 +46,7 @@
                     <tr>
                         <td><span class="lnr lnr-arrow-right replacement-file-arrow"></span></td>
                         <td class="upload-replacement-col">
-                            This file was rejected, please fix and upload a replacement:
+                            This file was rejected, please fix and try again:
                             <form class="inline-upload-form" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="hidden" name="product_id" value="{{ product.id }}">
@@ -59,7 +59,17 @@
                                     <input type="hidden" name="publisher_id" value="{{ publisher_id }}">
                                 {% endif %}
                                 <input type="hidden" name="ui_type" value="replacement">
-                                <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file" ui_type="replacement">
+                                <div class="inline-upload-form-controls">
+                                    <input class="replacement-file-picker" id="id_file_{{ file_index }}" name="files" type="file" ui_type="replacement">
+                                    {% if pipeline.has_second_level_validation %}
+                                        <input type="checkbox" class="second-level-validation" id="id_second_level_validation_{{ file_index }}" name="second_level_validation" value="1">
+                                        {% if pipeline.second_level_validation_label %}
+                                            {{ pipeline.second_level_validation_label }}
+                                        {% else %}
+                                            Validate all rows
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
                             </form>
                         </td>
                     </tr>

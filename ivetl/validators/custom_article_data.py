@@ -8,7 +8,7 @@ from ivetl import utils
 
 class CustomArticleDataValidator(BaseValidator):
     
-    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, check_crossref_for_all=True):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, second_level_validation=False):
 
         # create a crossref connector
         crossref = CrossrefConnector(crossref_username, crossref_password)
@@ -61,7 +61,7 @@ class CustomArticleDataValidator(BaseValidator):
                                 continue
 
                             # check that the articles are for the right publisher
-                            if count <= check_first_n_records or check_crossref_for_all:
+                            if count <= check_first_n_records or second_level_validation:
                                 article = crossref.get_article(d['doi'])
 
                                 if not article:
