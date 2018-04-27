@@ -8,7 +8,7 @@ from ivetl import utils
 
 class CustomArticleDataValidator(BaseValidator):
     
-    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, second_level_validation=False):
 
         # create a crossref connector
         crossref = CrossrefConnector(crossref_username, crossref_password)
@@ -61,16 +61,16 @@ class CustomArticleDataValidator(BaseValidator):
                                 continue
 
                             # check that the articles are for the right publisher
-                            if count <= check_first_n_records:
+                            if count <= check_first_n_records or second_level_validation:
                                 article = crossref.get_article(d['doi'])
 
                                 if not article:
-                                    errors.append(self.format_error(file_name, count - 1, "DOI not found in crossref"))
+                                    errors.append(self.format_error(file_name, count, "DOI not found in crossref"))
                                     continue
 
                                 # Commenting out due to an Cell having changed ISSNs
                                 # if not article['journal_issn'] in issns:
-                                #     errors.append(self.format_error(file_name, count - 1, "ISSN for DOI does not match publisher : %s : %s" % (article['journal_issn'], issns)))
+                                #     errors.append(self.format_error(file_name, count, "ISSN for DOI does not match publisher : %s : %s" % (article['journal_issn'], issns)))
                                 #     continue
 
                         if len(errors) > self.MAX_ERRORS:

@@ -4,7 +4,7 @@ from ivetl.validators.base import BaseValidator
 
 
 class MetaPredictionsValidator(BaseValidator):
-    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, second_level_validation=False):
         errors = []
         total_count = 0
         for f in files:

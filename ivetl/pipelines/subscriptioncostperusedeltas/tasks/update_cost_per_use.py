@@ -69,7 +69,7 @@ class UpdateCostPerUseTask(Task):
                                 amount=usage.amount / 12,
                             )
 
-                        s.category_usage[categories[usage.usage_category]] = usage.usage
+                        s.category_usage[categories[usage.usage_category]] += usage.usage
 
                         total_usage = 0
                         for category_usage in s.category_usage.values():
@@ -82,57 +82,57 @@ class UpdateCostPerUseTask(Task):
 
                         s.save()
 
-                # second, iterate over the just-created bundle stats
-                current_month_bundle_stats = SubscriptionCostPerUseByBundleStat.objects.filter(
-                    publisher_id=publisher_id,
-                    usage_date=current_month,
-                )
+            # second, iterate over the just-created bundle stats
+            current_month_bundle_stats = SubscriptionCostPerUseByBundleStat.objects.filter(
+                publisher_id=publisher_id,
+                usage_date=current_month,
+            )
 
-                if stopped:
-                    break
+            if stopped:
+                break
 
-                for bundle_stat in current_month_bundle_stats:
+            for bundle_stat in current_month_bundle_stats:
 
-                    # early stop support
-                    if count % 1000:
-                        if self.is_stopped(publisher_id, product_id, pipeline_id, job_id):
-                            self.mark_as_stopped(publisher_id, product_id, pipeline_id, job_id)
-                            stopped = True
-                            break
+                # early stop support
+                if count % 1000:
+                    if self.is_stopped(publisher_id, product_id, pipeline_id, job_id):
+                        self.mark_as_stopped(publisher_id, product_id, pipeline_id, job_id)
+                        stopped = True
+                        break
 
-                    try:
-                        s = SubscriptionCostPerUseBySubscriberStat.objects.get(
-                            publisher_id=publisher_id,
-                            membership_no=bundle_stat.membership_no,
-                            usage_date=current_month,
-                        )
-                    except SubscriptionCostPerUseBySubscriberStat.DoesNotExist:
-                        s = SubscriptionCostPerUseBySubscriberStat.objects.create(
-                            publisher_id=publisher_id,
-                            membership_no=bundle_stat.membership_no,
-                            usage_date=current_month,
-                        )
+                try:
+                    s = SubscriptionCostPerUseBySubscriberStat.objects.get(
+                        publisher_id=publisher_id,
+                        membership_no=bundle_stat.membership_no,
+                        usage_date=current_month,
+                    )
+                except SubscriptionCostPerUseBySubscriberStat.DoesNotExist:
+                    s = SubscriptionCostPerUseBySubscriberStat.objects.create(
+                        publisher_id=publisher_id,
+                        membership_no=bundle_stat.membership_no,
+                        usage_date=current_month,
+                    )
 
-                    s.bundle_amount[bundle_stat.bundle_name] = bundle_stat.amount
-                    s.bundle_usage[bundle_stat.bundle_name] = bundle_stat.total_usage
+                s.bundle_amount[bundle_stat.bundle_name] = bundle_stat.amount
+                s.bundle_usage[bundle_stat.bundle_name] = bundle_stat.total_usage
 
-                    total_amount = decimal.Decimal(0.0)
-                    for bundle_amount in s.bundle_amount.values():
-                        if bundle_amount:
-                            total_amount += bundle_amount
+                total_amount = decimal.Decimal(0.0)
+                for bundle_amount in s.bundle_amount.values():
+                    if bundle_amount:
+                        total_amount += bundle_amount
 
-                    total_usage = 0
-                    for bundle_usage in s.bundle_usage.values():
-                        if bundle_usage:
-                            total_usage += bundle_usage
+                total_usage = 0
+                for bundle_usage in s.bundle_usage.values():
+                    if bundle_usage:
+                        total_usage += bundle_usage
 
-                    s.total_amount = total_amount
-                    s.total_usage = total_usage
+                s.total_amount = total_amount
+                s.total_usage = total_usage
 
-                    if total_amount is not None and total_usage:
-                        s.cost_per_use = total_amount / total_usage
+                if total_amount is not None and total_usage:
+                    s.cost_per_use = total_amount / total_usage
 
-                    s.save()
+                s.save()
 
                 if stopped:
                     break

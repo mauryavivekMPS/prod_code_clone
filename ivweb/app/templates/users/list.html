@@ -7,7 +7,7 @@
     <div id="list-users-page">
         {% if publisher %}
             <div class="row header-row with-breadcrumb">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <ol class="breadcrumb">
                         <li><a href="{% url 'publishers.list' %}">Publishers</a></li>
                         <li><a href="{% url 'publishers.edit' publisher.publisher_id %}">{{ publisher.name }}</a></li>

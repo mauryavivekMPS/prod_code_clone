@@ -20,7 +20,7 @@
             {% if not read_only %}
                 <tr class="upload-another-row">
                     <td class="upload-another-col" colspan="7">
-                        <form class="inline-upload-form" method="post" enctype="multipart/form-data">
+                        <form class="inline-upload-form" method="post" enctype="multipart/form-data">{#                            <div style="float:left">#}
                             <span class="upload-first-message">Select one or more files to upload:</span>
                             <span class="upload-another-message">Upload more files:</span>
                             {% csrf_token %}
@@ -33,7 +33,17 @@
                                 <input type="hidden" name="file_type" value="publisher">
                                 <input type="hidden" name="publisher_id" value="{{ publisher_id }}">
                             {% endif %}
-                            <input class="replacement-file-picker" name="files" type="file" ui_type="more" multiple>
+                            <div class="inline-upload-form-controls">
+                                <input class="replacement-file-picker" name="files" type="file" ui_type="more" multiple>
+                                {% if pipeline.has_second_level_validation %}
+                                    <input type="checkbox" class="second-level-validation" name="second_level_validation" value="1">
+                                    {% if pipeline.second_level_validation_label %}
+                                        {{ pipeline.second_level_validation_label }}
+                                    {% else %}
+                                        Validate all rows
+                                    {% endif %}
+                                {% endif %}
+                            </div>
                         </form>
                         <div class="inline-upload-form-loading" style="display:none">
                             <i class="fa fa-spinner fa-pulse loading-spinner"></i>
