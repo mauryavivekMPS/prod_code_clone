@@ -30,6 +30,9 @@ class UpdateCostPerUseTask(Task):
 
             tlogger.info('Processing month %s' % current_month.strftime('%Y-%m'))
 
+            # keep track of the subscriber+bundle elements that we've already seen this month
+            seen_subscriber_bundles = set()
+
             for journal in all_journals:
 
                 tlogger.info('Processing journal %s' % journal)
@@ -69,7 +72,12 @@ class UpdateCostPerUseTask(Task):
                                 amount=usage.amount / 12,
                             )
 
-                        s.category_usage[categories[usage.usage_category]] += usage.usage
+                        # clear out the usage value if this is the first stat for this month/journal for this sub, add if not
+                        if (usage.subscriber_id, usage.bundle_name) in seen_subscriber_bundles:
+                            s.category_usage[categories[usage.usage_category]] += usage.usage
+                        else:
+                            s.category_usage[categories[usage.usage_category]] = usage.usage
+                            seen_subscriber_bundles.add((usage.subscriber_id, usage.bundle_name))
 
                         total_usage = 0
                         for category_usage in s.category_usage.values():
