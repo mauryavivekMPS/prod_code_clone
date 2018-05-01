@@ -415,6 +415,7 @@ PIPELINES = [
         'hide_demo_filter': True,
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
+        'update_publisher_datasource_if_attr_is_true': 'ac_databases',  # if this attr resolves to True for a pub then publish that pub's datasource
         'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
         'supports_restart': True,
         'tasks': [

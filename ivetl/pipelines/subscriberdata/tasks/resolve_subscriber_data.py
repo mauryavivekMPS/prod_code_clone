@@ -12,8 +12,11 @@ class ResolveSubscriberDataTask(Task):
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
-        if publisher_id == common.PIPELINE_BY_ID['subscribers_and_subscriptions']['single_publisher_id']:
-            publisher_id_list = [p.publisher_id for p in PublisherMetadata.objects.all() if p.ac_databases]
+        pipeline = common.PIPELINE_BY_ID['subscribers_and_subscriptions']
+
+        if publisher_id == pipeline['single_publisher_id']:
+            # publisher_id_list = [p.publisher_id for p in PublisherMetadata.objects.all() if p.ac_databases]
+            publisher_id_list = [p.publisher_id for p in PublisherMetadata.objects.all() if getattr(p, pipeline['update_publisher_datasource_if_attr_is_true'])]
         else:
             publisher_id_list = [publisher_id]
 
