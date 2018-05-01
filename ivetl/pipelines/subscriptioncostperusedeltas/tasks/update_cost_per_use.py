@@ -73,11 +73,11 @@ class UpdateCostPerUseTask(Task):
                             )
 
                         # clear out the usage value if this is the first stat for this month/journal for this sub, add if not
-                        if (usage.subscriber_id, usage.bundle_name) in seen_subscriber_bundles:
+                        if (usage.subscriber_id, usage.bundle_name, usage.usage_category) in seen_subscriber_bundles:
                             s.category_usage[categories[usage.usage_category]] += usage.usage
                         else:
                             s.category_usage[categories[usage.usage_category]] = usage.usage
-                            seen_subscriber_bundles.add((usage.subscriber_id, usage.bundle_name))
+                            seen_subscriber_bundles.add((usage.subscriber_id, usage.bundle_name, usage.usage_category))
 
                         total_usage = 0
                         for category_usage in s.category_usage.values():
