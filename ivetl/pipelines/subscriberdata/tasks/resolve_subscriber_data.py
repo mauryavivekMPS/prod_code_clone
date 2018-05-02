@@ -15,7 +15,6 @@ class ResolveSubscriberDataTask(Task):
         pipeline = common.PIPELINE_BY_ID['subscribers_and_subscriptions']
 
         if publisher_id == pipeline['single_publisher_id']:
-            # publisher_id_list = [p.publisher_id for p in PublisherMetadata.objects.all() if p.ac_databases]
             publisher_id_list = [p.publisher_id for p in PublisherMetadata.objects.all() if getattr(p, pipeline['update_publisher_datasource_if_attr_is_true'])]
         else:
             publisher_id_list = [publisher_id]

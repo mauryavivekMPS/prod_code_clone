@@ -984,7 +984,7 @@ TABLEAU_DATASOURCE_UPDATES = {
         'article_citations_ds.tds'
     ],
     ('institutions', 'subscribers_and_subscriptions'): [
-        'subscriptions_ds.tds'
+        'subscriptions_ds.tds',
         'subscriber_ds.tds'
     ],
     ('institutions', 'custom_subscriber_data'): [

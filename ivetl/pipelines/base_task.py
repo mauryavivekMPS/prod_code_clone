@@ -177,10 +177,11 @@ class BaseTask(Task):
     def process_datasources(self, publisher_id, product_id, pipeline_id, tlogger):
         if common.PUBLISH_TO_TABLEAU:
 
-            pipeline = common.PIPELINE_BY_ID['pipeline_id']
+            pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
             if pipeline['single_publisher_pipeline'] and publisher_id == pipeline['single_publisher_id']:
                 publishers = [p for p in PublisherMetadata.objects.all() if getattr(p, pipeline['update_publisher_datasource_if_attr_is_true'])]
+                tlogger.info('Single publisher pipeline refreshing datasources for %s publishers' % len(publishers))
             else:
                 publishers = [PublisherMetadata.objects.get(publisher_id=publisher_id)]
 
@@ -196,13 +197,13 @@ class BaseTask(Task):
                 all_modified_datasources = set(common.TABLEAU_DATASOURCE_UPDATES.get((product_id, pipeline_id), []))
 
                 # when it's a single publisher pipeline we just have to update everything applicable
-                if publisher_id != common.HW_PUBLISHER_ID:
+                if not (pipeline['single_publisher_pipeline'] and publisher_id == pipeline['single_publisher_id']):
                     all_datasources_to_update = all_modified_datasources.intersection(publisher.all_datasources)
                 else:
                     all_datasources_to_update = all_modified_datasources
 
                 for datasource_id in all_datasources_to_update:
-                    tlogger.info('Refreshing datasource: %s' % datasource_id)
+                    tlogger.info('Refreshing datasource: %s -> %s' % (publisher.publisher_id, datasource_id))
                     t.refresh_data_source(publisher, datasource_id)
 
     def process_chains(self, publisher_id, product_id, pipeline_id, tlogger, initiating_user_email):
