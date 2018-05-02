@@ -415,6 +415,7 @@ PIPELINES = [
         'hide_demo_filter': True,
         'single_publisher_pipeline': True,
         'single_publisher_id': 'hw',
+        'update_publisher_datasource_if_attr_is_true': 'ac_databases',  # if this attr resolves to True for a pub then publish that pub's datasource
         'pipeline_run_button_label': 'Load Subscriber and Subscription Data',
         'supports_restart': True,
         'tasks': [
@@ -983,7 +984,7 @@ TABLEAU_DATASOURCE_UPDATES = {
         'article_citations_ds.tds'
     ],
     ('institutions', 'subscribers_and_subscriptions'): [
-        'subscriptions_ds.tds'
+        'subscriptions_ds.tds',
         'subscriber_ds.tds'
     ],
     ('institutions', 'custom_subscriber_data'): [
