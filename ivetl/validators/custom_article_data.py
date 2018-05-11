@@ -42,10 +42,6 @@ class CustomArticleDataValidator(BaseValidator):
                             else:
                                 count += 1
 
-                            # skip header row
-                            if count == 1:
-                                continue
-
                             # check for number of fields
                             if len(line) < len(COLUMNS):
                                 errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, %s required), skipping other validation" % (len(line), len(COLUMNS))))
