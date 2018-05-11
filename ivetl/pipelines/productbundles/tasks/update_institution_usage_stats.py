@@ -83,6 +83,8 @@ class UpdateInstitutionUsageStatsTask(Task):
                         amount=match.amount,
                     )
 
+                    # Note: we may in the future need to insert duplicate rows here if we end up supporting multiple matching bundles
+
                     InstitutionUsageStatComposite.objects(
                         publisher_id=publisher_id,
                         counter_type='jr3',

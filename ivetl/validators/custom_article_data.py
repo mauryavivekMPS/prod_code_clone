@@ -5,6 +5,18 @@ from ivetl.validators.base import BaseValidator
 from ivetl.connectors import CrossrefConnector
 from ivetl import utils
 
+COLUMNS = [
+    'DOI',
+    'TOC_SECTION',
+    'COLLECTION',
+    'EDITOR',
+    'CUSTOM',
+    'CUSTOM_2',
+    'CUSTOM_3',
+    'CITEABLE_ARTICLE',
+    'IS_OPEN_ACCESS',
+]
+
 
 class CustomArticleDataValidator(BaseValidator):
     
@@ -35,9 +47,23 @@ class CustomArticleDataValidator(BaseValidator):
                                 continue
 
                             # check for number of fields
-                            if len(line) != 9:
-                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, 9 required), skipping other validation" % len(line)))
-                                continue
+                            if len(line) < len(COLUMNS):
+                                errors.append(self.format_error(file_name, count, "Incorrect number of fields (%s present, %s required), skipping other validation" % (len(line), len(COLUMNS))))
+                                break
+
+                            # check header field for correct columns names
+                            valid_column_headers = True
+                            if count == 1:
+                                for i, col in enumerate(COLUMNS):
+                                    title = utils.trim_and_strip_doublequotes(line[i])
+                                    if title.upper() != COLUMNS[i]:
+                                        errors.append(self.format_error(file_name, count, 'Invalid column header, looking for "%s" but found "%s".' % (COLUMNS[i], title)))
+
+                                # abandon file if the column headers are wrong
+                                if valid_column_headers:
+                                    continue
+                                else:
+                                    break
 
                             d = {
                                 'doi': line[0].strip(),
