@@ -6,7 +6,7 @@ from ivetl.models import PublisherJournal
 
 
 class BundleDefinitionsValidator(BaseValidator):
-    def validate_files(self, files, all_publisher_issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, second_level_validation=False):
+    def validate_files(self, files, issns=[], publisher_id=None, crossref_username=None, crossref_password=None, increment_count_func=None, second_level_validation=False):
         errors = []
 
         all_publisher_issns = set()
