@@ -61,9 +61,6 @@ class CustomArticleDataValidator(BaseValidator):
                                 else:
                                     break
 
-                            if count == 1:
-                                continue
-
                             d = {
                                 'doi': line[0].strip(),
                                 'toc_section': line[1].strip().title(),

@@ -10,7 +10,7 @@ class BundleDefinitionsValidator(BaseValidator):
         errors = []
 
         all_publisher_issns = set()
-        for journal in PublisherJournal.objects.filter(publisher_id=publisher_id):
+        for journal in PublisherJournal.objects.filter(publisher_id='blood'):
             all_publisher_issns.add(journal.electronic_issn)
             all_publisher_issns.add(journal.print_issn)
 
