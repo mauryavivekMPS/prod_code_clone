@@ -38,7 +38,6 @@ class BundleDefinitionsValidator(BaseValidator):
                                 continue
 
                             # check for valid ISSNs
-                            all_publisher_issns = []
                             for issn in line[1:]:
                                 if issn and issn not in all_publisher_issns:
                                     errors.append(self.format_error(file_name, count - 1, "Unknown ISSN: %s" % issn))
