@@ -180,7 +180,7 @@ class BaseTask(Task):
             pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
             if pipeline.get('single_publisher_pipeline') and publisher_id == pipeline.get('single_publisher_id', 'hw'):
-                publishers = [p for p in PublisherMetadata.objects.all() if getattr(p, pipeline['update_publisher_datasource_if_attr_is_true'])]
+                publishers = [p for p in PublisherMetadata.objects.all() if getattr(p, pipeline.get('update_publisher_datasource_if_attr_is_true', 'None'), False)]
                 tlogger.info('Single publisher pipeline refreshing datasources for %s publishers' % len(publishers))
             else:
                 publishers = [PublisherMetadata.objects.get(publisher_id=publisher_id)]
