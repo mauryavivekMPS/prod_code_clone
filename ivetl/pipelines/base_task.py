@@ -179,7 +179,7 @@ class BaseTask(Task):
 
             pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
-            if pipeline['single_publisher_pipeline'] and publisher_id == pipeline['single_publisher_id']:
+            if pipeline.get('single_publisher_pipeline') and publisher_id == pipeline.get('single_publisher_id', 'hw'):
                 publishers = [p for p in PublisherMetadata.objects.all() if getattr(p, pipeline['update_publisher_datasource_if_attr_is_true'])]
                 tlogger.info('Single publisher pipeline refreshing datasources for %s publishers' % len(publishers))
             else:
@@ -197,7 +197,7 @@ class BaseTask(Task):
                 all_modified_datasources = set(common.TABLEAU_DATASOURCE_UPDATES.get((product_id, pipeline_id), []))
 
                 # when it's a single publisher pipeline we just have to update everything applicable
-                if not (pipeline['single_publisher_pipeline'] and publisher_id == pipeline['single_publisher_id']):
+                if not (pipeline.get('single_publisher_pipeline') and publisher_id == pipeline.get('single_publisher_id', 'hw')):
                     all_datasources_to_update = all_modified_datasources.intersection(publisher.all_datasources)
                 else:
                     all_datasources_to_update = all_modified_datasources
