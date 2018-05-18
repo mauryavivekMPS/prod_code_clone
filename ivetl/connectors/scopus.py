@@ -18,7 +18,10 @@ class ScopusConnector(BaseConnector):
     MAX_TOTAL_RESULTS = 5000
 
     def __init__(self, apikeys):
-        self.apikeys = apikeys
+        # self.apikeys = apikeys
+        # May 18, 2018
+        # hardcoding to single key setup by scopus to temporarily grant access while business contract is being finalized
+        self.apikeys = ['8145c7f21e2bd5532da29ff92aefadf6']
         self.count = 0
 
     def get_entry(self, doi, tlogger, issns=None, volume=None, issue=None, page=None):
