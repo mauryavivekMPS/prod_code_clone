@@ -9,8 +9,8 @@ from ivetl.connectors.crossref import CrossrefConnector
 
 
 class ScopusConnector(BaseConnector):
-    BASE_SCOPUS_URL_XML = 'https://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fxml&apiKey='
-    BASE_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/search/index:SCOPUS?httpAccept=application%2Fjson&apiKey='
+    BASE_SCOPUS_URL_XML = 'https://api.elsevier.com/content/search/scopus?httpAccept=application%2Fxml&apiKey='
+    BASE_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/search/scopus?httpAccept=application%2Fjson&apiKey='
     ABSTRACT_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/abstract/eid/'
     MAX_ATTEMPTS = 10
     REQUEST_TIMEOUT_SECS = 30
@@ -91,7 +91,7 @@ class ScopusConnector(BaseConnector):
                 raise
 
             except HTTPError as he:
-                if he.response.status_code in (requests.codes.NOT_FOUND, requests.codes.UNAUTHORIZED, requests.codes.REQUEST_TIMEOUT, requests.codes.INTERNAL_SERVER_ERROR):
+                if he.response.status_code in (requests.codes.TOO_MANY_REQUESTS, requests.codes.NOT_FOUND, requests.codes.UNAUTHORIZED, requests.codes.REQUEST_TIMEOUT, requests.codes.INTERNAL_SERVER_ERROR):
                     tlogger.info("Scopus API failed. Trying again...")
                     attempt += 1
                 else:
@@ -140,7 +140,7 @@ class ScopusConnector(BaseConnector):
                     success = True
 
                 except HTTPError as he:
-                    if he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT or he.response.status_code == requests.codes.INTERNAL_SERVER_ERROR:
+                    if he.response.status_code == requests.codes.TOO_MANY_REQUESTS or he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT or he.response.status_code == requests.codes.INTERNAL_SERVER_ERROR:
                         tlogger.info("scopus-connector %s: Scopus API failed with HTTP 401/408, trying again" % article_scopus_id)
                         attempt += 1
                     else:
