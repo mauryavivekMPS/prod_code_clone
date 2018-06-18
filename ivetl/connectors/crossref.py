@@ -89,7 +89,13 @@ class CrossrefConnector(BaseConnector):
                 author = None
 
             # issue
-            issue = article_json.get('issue', None)
+            if 'issue' in article_json and article_json['issue']:
+                if type(article_json['issue']) is list:
+                    issue = article_json['issue'][0]
+                else:
+                    issue = article_json.get('issue', None)
+            else:
+                issue = None
 
             # journal ISSN
             if 'ISSN' in article_json:
