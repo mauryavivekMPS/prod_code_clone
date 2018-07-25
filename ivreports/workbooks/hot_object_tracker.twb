@@ -98,7 +98,7 @@
       </column>
     </datasource>
     <datasource caption='article_citations_ds' inline='true' name='sqlproxy.42215.594235729164' version='10.2'>
-      <repository-location id='article_citations_ds' path='/datasources' revision='1.1' />
+      <repository-location derived-from='/datasources/article_citations_ds?rev=2.5' id='article_citations_ds' path='/datasources' revision='1.0' />
       <connection channel='http' class='sqlproxy' dbname='article_citations_ds' directory='/dataserver' port='80' server='vizors.stackly.org' server-oauth='' username='' workgroup-auth-mode='prompt'>
         <relation name='sqlproxy' table='[sqlproxy]' type='table' />
         <metadata-records>
@@ -2145,10 +2145,10 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem7673607999290389857&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;article_citations_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.1&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_citations_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[altmetrics_blogs]&apos; value=&apos;[sqlproxy].[altmetrics_blogs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_facebook]&apos; value=&apos;[sqlproxy].[altmetrics_facebook]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_gplus]&apos; value=&apos;[sqlproxy].[altmetrics_gplus]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_news_outlets]&apos; value=&apos;[sqlproxy].[altmetrics_news_outlets]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_policy_docs]&apos; value=&apos;[sqlproxy].[altmetrics_policy_docs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_reddit]&apos; value=&apos;[sqlproxy].[altmetrics_reddit]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_twitter]&apos; value=&apos;[sqlproxy].[altmetrics_twitter]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_video]&apos; value=&apos;[sqlproxy].[altmetrics_video]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_wikipedia]&apos; value=&apos;[sqlproxy].[altmetrics_wikipedia]&apos; /&gt;&#10;      &lt;map key=&apos;[article_date_of_publication]&apos; value=&apos;[sqlproxy].[article_date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[article_doi (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[article_issue]&apos; value=&apos;[sqlproxy].[article_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal]&apos; value=&apos;[sqlproxy].[article_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal_issn]&apos; value=&apos;[sqlproxy].[article_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[article_pages]&apos; value=&apos;[sqlproxy].[article_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[article_publisher]&apos; value=&apos;[sqlproxy].[article_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[article_scopus_id]&apos; value=&apos;[sqlproxy].[article_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[article_title]&apos; value=&apos;[sqlproxy].[article_title]&apos; /&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[article_volume]&apos; value=&apos;[sqlproxy].[article_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count (article_metadata)]&apos; value=&apos;[sqlproxy].[citation_count (article_metadata)]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count]&apos; value=&apos;[sqlproxy].[citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_date]&apos; value=&apos;[sqlproxy].[citation_date]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_doi]&apos; value=&apos;[sqlproxy].[citation_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_first_author]&apos; value=&apos;[sqlproxy].[citation_first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_issue]&apos; value=&apos;[sqlproxy].[citation_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_journal_issn]&apos; value=&apos;[sqlproxy].[citation_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_journal_title]&apos; value=&apos;[sqlproxy].[citation_journal_title]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_pages]&apos; value=&apos;[sqlproxy].[citation_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_scopus_id]&apos; value=&apos;[sqlproxy].[citation_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_source]&apos; value=&apos;[sqlproxy].[citation_source]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_source_scopus]&apos; value=&apos;[sqlproxy].[citation_source_scopus]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_source_xref]&apos; value=&apos;[sqlproxy].[citation_source_xref]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_title]&apos; value=&apos;[sqlproxy].[citation_title]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_volume]&apos; value=&apos;[sqlproxy].[citation_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_lookup_error]&apos; value=&apos;[sqlproxy].[citations_lookup_error]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_updated_on]&apos; value=&apos;[sqlproxy].[citations_updated_on]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[created (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[created (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_2]&apos; value=&apos;[sqlproxy].[custom_2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_3]&apos; value=&apos;[sqlproxy].[custom_3]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_average_score]&apos; value=&apos;[sqlproxy].[f1000_average_score]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_num_recommendations]&apos; value=&apos;[sqlproxy].[f1000_num_recommendations]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_total_score]&apos; value=&apos;[sqlproxy].[f1000_total_score]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[from_rejected_manuscript]&apos; value=&apos;[sqlproxy].[from_rejected_manuscript]&apos; /&gt;&#10;      &lt;map key=&apos;[has_abstract]&apos; value=&apos;[sqlproxy].[has_abstract]&apos; /&gt;&#10;      &lt;map key=&apos;[hw_metadata_retrieved]&apos; value=&apos;[sqlproxy].[hw_metadata_retrieved]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort (article_citations)]&apos; value=&apos;[sqlproxy].[is_cohort (article_citations)]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort]&apos; value=&apos;[sqlproxy].[is_cohort]&apos; /&gt;&#10;      &lt;map key=&apos;[is_open_access]&apos; value=&apos;[sqlproxy].[is_open_access]&apos; /&gt;&#10;      &lt;map key=&apos;[is_tr_citable]&apos; value=&apos;[sqlproxy].[is_tr_citable]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_citation_count]&apos; value=&apos;[sqlproxy].[meta_actual_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_ef]&apos; value=&apos;[sqlproxy].[meta_actual_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_tiers]&apos; value=&apos;[sqlproxy].[meta_actual_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_pmid]&apos; value=&apos;[sqlproxy].[meta_pmid]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_citation_count]&apos; value=&apos;[sqlproxy].[meta_predicted_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_ef]&apos; value=&apos;[sqlproxy].[meta_predicted_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_tiers]&apos; value=&apos;[sqlproxy].[meta_predicted_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_10]&apos; value=&apos;[sqlproxy].[meta_top_10]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_1]&apos; value=&apos;[sqlproxy].[meta_top_1]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_25]&apos; value=&apos;[sqlproxy].[meta_top_25]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_50]&apos; value=&apos;[sqlproxy].[meta_top_50]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_5]&apos; value=&apos;[sqlproxy].[meta_top_5]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_03]&apos; value=&apos;[sqlproxy].[month_usage_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_06]&apos; value=&apos;[sqlproxy].[month_usage_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_09]&apos; value=&apos;[sqlproxy].[month_usage_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_12]&apos; value=&apos;[sqlproxy].[month_usage_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_24]&apos; value=&apos;[sqlproxy].[month_usage_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_36]&apos; value=&apos;[sqlproxy].[month_usage_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_48]&apos; value=&apos;[sqlproxy].[month_usage_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_60]&apos; value=&apos;[sqlproxy].[month_usage_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_03]&apos; value=&apos;[sqlproxy].[month_usage_abstract_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_06]&apos; value=&apos;[sqlproxy].[month_usage_abstract_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_09]&apos; value=&apos;[sqlproxy].[month_usage_abstract_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_12]&apos; value=&apos;[sqlproxy].[month_usage_abstract_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_24]&apos; value=&apos;[sqlproxy].[month_usage_abstract_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_36]&apos; value=&apos;[sqlproxy].[month_usage_abstract_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_48]&apos; value=&apos;[sqlproxy].[month_usage_abstract_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_60]&apos; value=&apos;[sqlproxy].[month_usage_abstract_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_03]&apos; value=&apos;[sqlproxy].[month_usage_full_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_06]&apos; value=&apos;[sqlproxy].[month_usage_full_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_09]&apos; value=&apos;[sqlproxy].[month_usage_full_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_12]&apos; value=&apos;[sqlproxy].[month_usage_full_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_24]&apos; value=&apos;[sqlproxy].[month_usage_full_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_36]&apos; value=&apos;[sqlproxy].[month_usage_full_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_48]&apos; value=&apos;[sqlproxy].[month_usage_full_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_60]&apos; value=&apos;[sqlproxy].[month_usage_full_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_03]&apos; value=&apos;[sqlproxy].[month_usage_pdf_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_06]&apos; value=&apos;[sqlproxy].[month_usage_pdf_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_09]&apos; value=&apos;[sqlproxy].[month_usage_pdf_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_12]&apos; value=&apos;[sqlproxy].[month_usage_pdf_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_24]&apos; value=&apos;[sqlproxy].[month_usage_pdf_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_36]&apos; value=&apos;[sqlproxy].[month_usage_pdf_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_48]&apos; value=&apos;[sqlproxy].[month_usage_pdf_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_60]&apos; value=&apos;[sqlproxy].[month_usage_pdf_60]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_citation_count]&apos; value=&apos;[sqlproxy].[previous_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_editor]&apos; value=&apos;[sqlproxy].[rejected_manuscript_editor]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_id]&apos; value=&apos;[sqlproxy].[rejected_manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_citation_count]&apos; value=&apos;[sqlproxy].[scopus_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_subtype]&apos; value=&apos;[sqlproxy].[scopus_subtype]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[updated (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[updated (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[article_date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Type&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Cites&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[citation_count]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Citation Date&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[citation_date]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Journal Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Journal Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_journal_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Source&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_source]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;created (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Created&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;publisher_id (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Scopus Citation Count&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[scopus_citation_count]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Subject Category&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;updated (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[updated (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Updated&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[updated]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.0793451&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.920655&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem8780721440870925800&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/article_citations_ds?rev=2.5&apos; id=&apos;article_citations_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_citations_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[altmetrics_blogs]&apos; value=&apos;[sqlproxy].[altmetrics_blogs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_facebook]&apos; value=&apos;[sqlproxy].[altmetrics_facebook]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_gplus]&apos; value=&apos;[sqlproxy].[altmetrics_gplus]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_news_outlets]&apos; value=&apos;[sqlproxy].[altmetrics_news_outlets]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_policy_docs]&apos; value=&apos;[sqlproxy].[altmetrics_policy_docs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_reddit]&apos; value=&apos;[sqlproxy].[altmetrics_reddit]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_twitter]&apos; value=&apos;[sqlproxy].[altmetrics_twitter]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_video]&apos; value=&apos;[sqlproxy].[altmetrics_video]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_wikipedia]&apos; value=&apos;[sqlproxy].[altmetrics_wikipedia]&apos; /&gt;&#10;      &lt;map key=&apos;[article_date_of_publication]&apos; value=&apos;[sqlproxy].[article_date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[article_doi (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[article_issue]&apos; value=&apos;[sqlproxy].[article_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal]&apos; value=&apos;[sqlproxy].[article_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal_issn]&apos; value=&apos;[sqlproxy].[article_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[article_pages]&apos; value=&apos;[sqlproxy].[article_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[article_publisher]&apos; value=&apos;[sqlproxy].[article_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[article_scopus_id]&apos; value=&apos;[sqlproxy].[article_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[article_title]&apos; value=&apos;[sqlproxy].[article_title]&apos; /&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[article_volume]&apos; value=&apos;[sqlproxy].[article_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count (article_metadata)]&apos; value=&apos;[sqlproxy].[citation_count (article_metadata)]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count]&apos; value=&apos;[sqlproxy].[citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_date]&apos; value=&apos;[sqlproxy].[citation_date]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_doi]&apos; value=&apos;[sqlproxy].[citation_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_first_author]&apos; value=&apos;[sqlproxy].[citation_first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_issue]&apos; value=&apos;[sqlproxy].[citation_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_journal_issn]&apos; value=&apos;[sqlproxy].[citation_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_journal_title]&apos; value=&apos;[sqlproxy].[citation_journal_title]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_pages]&apos; value=&apos;[sqlproxy].[citation_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_scopus_id]&apos; value=&apos;[sqlproxy].[citation_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_source]&apos; value=&apos;[sqlproxy].[citation_source]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_source_scopus]&apos; value=&apos;[sqlproxy].[citation_source_scopus]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_source_xref]&apos; value=&apos;[sqlproxy].[citation_source_xref]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_title]&apos; value=&apos;[sqlproxy].[citation_title]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_volume]&apos; value=&apos;[sqlproxy].[citation_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_lookup_error]&apos; value=&apos;[sqlproxy].[citations_lookup_error]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_updated_on]&apos; value=&apos;[sqlproxy].[citations_updated_on]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[created (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[created (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_2]&apos; value=&apos;[sqlproxy].[custom_2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_3]&apos; value=&apos;[sqlproxy].[custom_3]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_average_score]&apos; value=&apos;[sqlproxy].[f1000_average_score]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_num_recommendations]&apos; value=&apos;[sqlproxy].[f1000_num_recommendations]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_total_score]&apos; value=&apos;[sqlproxy].[f1000_total_score]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[from_rejected_manuscript]&apos; value=&apos;[sqlproxy].[from_rejected_manuscript]&apos; /&gt;&#10;      &lt;map key=&apos;[has_abstract]&apos; value=&apos;[sqlproxy].[has_abstract]&apos; /&gt;&#10;      &lt;map key=&apos;[hw_metadata_retrieved]&apos; value=&apos;[sqlproxy].[hw_metadata_retrieved]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort (article_citations)]&apos; value=&apos;[sqlproxy].[is_cohort (article_citations)]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort]&apos; value=&apos;[sqlproxy].[is_cohort]&apos; /&gt;&#10;      &lt;map key=&apos;[is_open_access]&apos; value=&apos;[sqlproxy].[is_open_access]&apos; /&gt;&#10;      &lt;map key=&apos;[is_tr_citable]&apos; value=&apos;[sqlproxy].[is_tr_citable]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_citation_count]&apos; value=&apos;[sqlproxy].[meta_actual_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_ef]&apos; value=&apos;[sqlproxy].[meta_actual_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_tiers]&apos; value=&apos;[sqlproxy].[meta_actual_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_pmid]&apos; value=&apos;[sqlproxy].[meta_pmid]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_citation_count]&apos; value=&apos;[sqlproxy].[meta_predicted_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_ef]&apos; value=&apos;[sqlproxy].[meta_predicted_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_tiers]&apos; value=&apos;[sqlproxy].[meta_predicted_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_10]&apos; value=&apos;[sqlproxy].[meta_top_10]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_1]&apos; value=&apos;[sqlproxy].[meta_top_1]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_25]&apos; value=&apos;[sqlproxy].[meta_top_25]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_50]&apos; value=&apos;[sqlproxy].[meta_top_50]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_5]&apos; value=&apos;[sqlproxy].[meta_top_5]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_03]&apos; value=&apos;[sqlproxy].[month_usage_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_06]&apos; value=&apos;[sqlproxy].[month_usage_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_09]&apos; value=&apos;[sqlproxy].[month_usage_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_12]&apos; value=&apos;[sqlproxy].[month_usage_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_24]&apos; value=&apos;[sqlproxy].[month_usage_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_36]&apos; value=&apos;[sqlproxy].[month_usage_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_48]&apos; value=&apos;[sqlproxy].[month_usage_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_60]&apos; value=&apos;[sqlproxy].[month_usage_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_03]&apos; value=&apos;[sqlproxy].[month_usage_abstract_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_06]&apos; value=&apos;[sqlproxy].[month_usage_abstract_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_09]&apos; value=&apos;[sqlproxy].[month_usage_abstract_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_12]&apos; value=&apos;[sqlproxy].[month_usage_abstract_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_24]&apos; value=&apos;[sqlproxy].[month_usage_abstract_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_36]&apos; value=&apos;[sqlproxy].[month_usage_abstract_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_48]&apos; value=&apos;[sqlproxy].[month_usage_abstract_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_60]&apos; value=&apos;[sqlproxy].[month_usage_abstract_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_03]&apos; value=&apos;[sqlproxy].[month_usage_full_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_06]&apos; value=&apos;[sqlproxy].[month_usage_full_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_09]&apos; value=&apos;[sqlproxy].[month_usage_full_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_12]&apos; value=&apos;[sqlproxy].[month_usage_full_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_24]&apos; value=&apos;[sqlproxy].[month_usage_full_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_36]&apos; value=&apos;[sqlproxy].[month_usage_full_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_48]&apos; value=&apos;[sqlproxy].[month_usage_full_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_60]&apos; value=&apos;[sqlproxy].[month_usage_full_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_03]&apos; value=&apos;[sqlproxy].[month_usage_pdf_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_06]&apos; value=&apos;[sqlproxy].[month_usage_pdf_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_09]&apos; value=&apos;[sqlproxy].[month_usage_pdf_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_12]&apos; value=&apos;[sqlproxy].[month_usage_pdf_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_24]&apos; value=&apos;[sqlproxy].[month_usage_pdf_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_36]&apos; value=&apos;[sqlproxy].[month_usage_pdf_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_48]&apos; value=&apos;[sqlproxy].[month_usage_pdf_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_60]&apos; value=&apos;[sqlproxy].[month_usage_pdf_60]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_citation_count]&apos; value=&apos;[sqlproxy].[previous_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_editor]&apos; value=&apos;[sqlproxy].[rejected_manuscript_editor]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_id]&apos; value=&apos;[sqlproxy].[rejected_manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_citation_count]&apos; value=&apos;[sqlproxy].[scopus_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_subtype]&apos; value=&apos;[sqlproxy].[scopus_subtype]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[updated (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[updated (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[article_date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Type&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Cites&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[citation_count]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Citation Date&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[citation_date]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Journal Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Journal Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_journal_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Source&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_source]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Citation Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[citation_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;created (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Created&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;publisher_id (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Scopus Citation Count&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[scopus_citation_count]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Subject Category&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;updated (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[updated (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Updated&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[updated]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.500921&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.499079&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
-              <attribute datatype='string' name='update-time'>&quot;12/13/2017 7:46:32 PM&quot;</attribute>
+              <attribute datatype='string' name='update-time'>&quot;7/1/2018 6:08:19 AM&quot;</attribute>
               <attribute datatype='string' name='version'>&quot;0.0.0&quot;</attribute>
             </attributes>
           </metadata-record>
@@ -2187,7 +2187,7 @@
         <calculation class='tableau' formula='IF (YEAR(TODAY())-[Calculation_4330730230030417]) &lt;= [Parameters].[Parameter 1 2] THEN&#13;&#10;&quot;Y&quot;&#13;&#10;ELSE&#13;&#10;&quot;N&quot;&#13;&#10;END' />
       </column>
       <column caption='Group Articles' datatype='integer' name='[Calculation_1670817185200333]' role='measure' type='quantitative'>
-        <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM({INCLUDE [Group By (copy)]:COUNTD([article_doi])})}' />
+        <calculation class='tableau' formula='SUM({INCLUDE [Group By (copy)]:COUNTD([article_doi])})' />
       </column>
       <column caption='Mendeley Saves Label' datatype='string' name='[Calculation_2391213123353379]' role='dimension' type='nominal'>
         <calculation class='tableau' formula='&quot;Mendeley Saves&quot;' />
@@ -2211,7 +2211,7 @@
         <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM([Calculation_8660817144408297])}' />
       </column>
       <column caption='Group Cites / Published Months' datatype='real' default-format='n#,##0.00;-#,##0.00' name='[Calculation_5220817221342756]' role='measure' type='quantitative'>
-        <calculation class='tableau' formula='[Calculation_8670817194112403]/[Calculation_4370817193012096]' />
+        <calculation class='tableau' formula='SUM([citation_count])/SUM([Calculation_8660817144408297])' />
       </column>
       <column caption='Published Articles in YOP' datatype='integer' hidden='true' name='[Calculation_5710730231845908 1]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='COUNTD([Calculation_8890730232141438 1 1])' />
@@ -2232,7 +2232,7 @@
         <calculation class='tableau' formula='IF [citation_count] = 0 AND [Calculation_4330730230030417] = [Calculation_6410730161158733 1] THEN&#13;&#10;    ABS(DATEDIFF(&apos;month&apos;,[date_of_publication],TODAY()))&#13;&#10;ELSE&#13;&#10;    0&#13;&#10;END' />
       </column>
       <column caption='Group Cites' datatype='integer' name='[Calculation_8670817194112403]' role='measure' type='quantitative'>
-        <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM([citation_count])}' />
+        <calculation class='tableau' formula='[citation_count]' />
       </column>
       <column caption='Article Cites / Month' datatype='real' default-format='n#,##0.0;-#,##0.0' name='[Calculation_8750809113519757]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='[citation_count] / [Calculation_0130809113409375]' />
@@ -2244,7 +2244,7 @@
         <calculation class='tableau' formula='IF [citation_count] &gt; 0 AND YEAR([citation_date]) = YEAR([article_date_of_publication]) THEN &#13;&#10;&quot;Yes&quot;&#13;&#10;ELSE&#13;&#10;&quot;NO&quot;&#13;&#10;END' />
       </column>
       <column caption='Group Cites / Article' datatype='real' default-format='n#,##0.0;-#,##0.0' name='[Calculation_9290817220948389]' role='measure' type='quantitative'>
-        <calculation class='tableau' formula='[Calculation_8670817194112403] / [Calculation_1670817185200333]' />
+        <calculation class='tableau' formula='SUM([Calculation_8670817194112403]) / [Calculation_1670817185200333]' />
       </column>
       <column caption='Cites Summary' datatype='string' hidden='true' name='[Calculation_9530813112844855]' role='dimension' type='nominal'>
         <calculation class='tableau' formula='STR([Calculation_8750809113519757]) + &quot;cites / month&quot; + &quot;&#13;&#10;&quot; + STR([citation_count]) + &quot; total cites&quot;' />
@@ -2470,7 +2470,7 @@
           <groupfilter function='level-members' level='[tmn:citation_date:ok]' />
         </groupfilter>
       </group>
-      <layout dim-ordering='alphabetic' dim-percentage='0.393855' measure-ordering='alphabetic' measure-percentage='0.416201' parameter-percentage='0.189944' show-structure='true' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.428571' measure-ordering='alphabetic' measure-percentage='0.416789' parameter-percentage='0.154639' show-structure='true' />
       <style>
         <style-rule element='mark'>
           <encoding attr='color' field='[yr:article_date_of_publication:ok]' palette='tableau-10' type='palette'>
@@ -33945,7 +33945,7 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem1529425547422627155&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/article_usage_ds?rev=1.0&apos; id=&apos;article_usage_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_usage_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[month_number]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.612732&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.387268&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem1529425547422627155&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/article_usage_ds?rev=1.0&apos; id=&apos;article_usage_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_usage_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[month_number]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.612732&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.387268&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
               <attribute datatype='string' name='update-time'>&quot;12/13/2017 9:07:12 PM&quot;</attribute>
@@ -34958,7 +34958,7 @@
               <calculation class='tableau' formula='IF (YEAR(TODAY())-[Calculation_4330730230030417]) &lt;= [Parameters].[Parameter 1 2] THEN&#13;&#10;&quot;Y&quot;&#13;&#10;ELSE&#13;&#10;&quot;N&quot;&#13;&#10;END' />
             </column>
             <column caption='Group Articles' datatype='integer' name='[Calculation_1670817185200333]' role='measure' type='quantitative'>
-              <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM({INCLUDE [Group By (copy)]:COUNTD([article_doi])})}' />
+              <calculation class='tableau' formula='SUM({INCLUDE [Group By (copy)]:COUNTD([article_doi])})' />
             </column>
             <column aggregation='Sum' caption='Year of Publication' datatype='integer' name='[Calculation_4330730230030417]' role='dimension' type='ordinal'>
               <calculation class='tableau' formula='Year([date_of_publication])' />
@@ -35059,9 +35059,9 @@
             </dictionary>
           </sort>
           <filter class='categorical' column='[sqlproxy.42215.594235729164].[Action (Group Articles,Group By)]'>
-            <groupfilter function='crossjoin' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
-              <groupfilter function='empty-level' member='[none:Calculation_1670817185200333:ok]' />
-              <groupfilter function='empty-level' member='[Calculation_9890802164725350]' />
+            <groupfilter function='crossjoin' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[none:Calculation_1670817185200333:ok]' />
+              <groupfilter function='level-members' level='[Calculation_9890802164725350]' />
             </groupfilter>
           </filter>
           <filter class='categorical' column='[sqlproxy.42215.594235729164].[Action (Group Articles,Group By,Color By)]'>
@@ -35287,7 +35287,7 @@
               <calculation class='tableau' formula='IF (YEAR(TODAY())-[Calculation_4330730230030417]) &lt;= [Parameters].[Parameter 1 2] THEN&#13;&#10;&quot;Y&quot;&#13;&#10;ELSE&#13;&#10;&quot;N&quot;&#13;&#10;END' />
             </column>
             <column caption='Group Articles' datatype='integer' name='[Calculation_1670817185200333]' role='measure' type='quantitative'>
-              <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM({INCLUDE [Group By (copy)]:COUNTD([article_doi])})}' />
+              <calculation class='tableau' formula='SUM({INCLUDE [Group By (copy)]:COUNTD([article_doi])})' />
             </column>
             <column aggregation='Sum' caption='Year of Publication' datatype='integer' name='[Calculation_4330730230030417]' role='dimension' type='ordinal'>
               <calculation class='tableau' formula='Year([date_of_publication])' />
@@ -35296,7 +35296,7 @@
               <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM([Calculation_8660817144408297])}' />
             </column>
             <column caption='Group Cites / Published Months' datatype='real' default-format='n#,##0.00;-#,##0.00' name='[Calculation_5220817221342756]' role='measure' type='quantitative'>
-              <calculation class='tableau' formula='[Calculation_8670817194112403]/[Calculation_4370817193012096]' />
+              <calculation class='tableau' formula='SUM([citation_count])/SUM([Calculation_8660817144408297])' />
             </column>
             <column caption='Published Articles' datatype='integer' name='[Calculation_5710730231845908]' role='measure' type='ordinal'>
               <calculation class='tableau' formula='COUNTD([article_doi (Custom_SQL_Query)])' />
@@ -35308,10 +35308,10 @@
               <calculation class='tableau' formula='IF [citation_count] = 0 AND [Calculation_4330730230030417] = [Calculation_6410730161158733 1] THEN&#13;&#10;    ABS(DATEDIFF(&apos;month&apos;,[date_of_publication],TODAY()))&#13;&#10;ELSE&#13;&#10;    0&#13;&#10;END' />
             </column>
             <column caption='Group Cites' datatype='integer' name='[Calculation_8670817194112403]' role='measure' type='quantitative'>
-              <calculation class='tableau' formula='{FIXED [Calculation_9890802164725350]:SUM([citation_count])}' />
+              <calculation class='tableau' formula='[citation_count]' />
             </column>
             <column caption='Group Cites / Article' datatype='real' default-format='n#,##0.0;-#,##0.0' name='[Calculation_9290817220948389]' role='measure' type='quantitative'>
-              <calculation class='tableau' formula='[Calculation_8670817194112403] / [Calculation_1670817185200333]' />
+              <calculation class='tableau' formula='SUM([Calculation_8670817194112403]) / [Calculation_1670817185200333]' />
             </column>
             <column caption='Group By' datatype='string' name='[Calculation_9890802164725350]' role='dimension' type='nominal'>
               <calculation class='tableau' formula='CASE [Parameters].[Parameter 1]&#13;&#10;WHEN &quot;Journal&quot; THEN [article_journal]&#13;&#10;WHEN &quot;Volume (Issue)&quot; THEN [Calculation_0610802164547447]&#13;&#10;WHEN &quot;TOC Section&quot; THEN [article_type]&#13;&#10;WHEN &quot;Collection&quot; THEN [subject_category]&#13;&#10;WHEN &quot;Editor&quot; THEN [editor]&#13;&#10;WHEN &quot;Custom&quot; THEN [custom]&#13;&#10;WHEN &quot;Custom #2&quot; THEN [custom_2]&#13;&#10;WHEN &quot;Custom #3&quot; THEN [custom_3]&#13;&#10;END' />
@@ -35396,7 +35396,6 @@
             <column aggregation='Sum' datatype='integer' default-type='ordinal' layered='true' name='[month_usage_24]' pivot='key' role='dimension' type='ordinal' user-datatype='integer' visual-totals='Default' />
             <column aggregation='Sum' datatype='integer' default-type='ordinal' layered='true' name='[month_usage_36]' pivot='key' role='dimension' type='ordinal' user-datatype='integer' visual-totals='Default' />
             <column-instance column='[Calculation_115686272588214272]' derivation='None' name='[none:Calculation_115686272588214272:nk]' pivot='key' type='nominal' />
-            <column-instance column='[Calculation_1670817185200333]' derivation='None' name='[none:Calculation_1670817185200333:ok]' pivot='key' type='ordinal' />
             <column-instance column='[Calculation_9890802164725350]' derivation='None' name='[none:Calculation_9890802164725350:nk]' pivot='key' type='nominal' />
             <column-instance column='[article_issue]' derivation='None' name='[none:article_issue:nk]' pivot='key' type='nominal' />
             <column-instance column='[article_journal]' derivation='None' name='[none:article_journal:nk]' pivot='key' type='nominal' />
@@ -35412,15 +35411,15 @@
             <column-instance column='[is_open_access]' derivation='None' name='[none:is_open_access:nk]' pivot='key' type='nominal' />
             <column-instance column='[subject_category]' derivation='None' name='[none:subject_category:nk]' pivot='key' type='nominal' />
             <column aggregation='Count' caption='Collection' datatype='string' default-type='nominal' layered='true' name='[subject_category]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-            <column-instance column='[Calculation_1670817185200333]' derivation='Sum' name='[sum:Calculation_1670817185200333:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Calculation_4370817193012096]' derivation='Sum' name='[sum:Calculation_4370817193012096:ok]' pivot='key' type='ordinal' />
-            <column-instance column='[Calculation_5220817221342756]' derivation='Sum' name='[sum:Calculation_5220817221342756:ok]' pivot='key' type='ordinal' />
             <column-instance column='[Calculation_8670817194112403]' derivation='Sum' name='[sum:Calculation_8670817194112403:ok]' pivot='key' type='ordinal' />
-            <column-instance column='[Calculation_9290817220948389]' derivation='Sum' name='[sum:Calculation_9290817220948389:ok]' pivot='key' type='ordinal' />
             <column-instance column='[Mendeley Saves (copy 3)]' derivation='Sum' name='[sum:Mendeley Saves (copy 3):ok]' pivot='key' type='ordinal' />
             <column-instance column='[Usage (36 mos) (copy)]' derivation='Sum' name='[sum:Usage (36 mos) (copy):ok]' pivot='key' type='ordinal' />
             <column-instance column='[citation_count]' derivation='Sum' name='[sum:citation_count:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1670817185200333]' derivation='User' name='[usr:Calculation_1670817185200333:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Calculation_5220817221342756]' derivation='User' name='[usr:Calculation_5220817221342756:ok]' pivot='key' type='ordinal' />
             <column-instance column='[Calculation_5710730231845908]' derivation='User' name='[usr:Calculation_5710730231845908:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Calculation_9290817220948389]' derivation='User' name='[usr:Calculation_9290817220948389:ok]' pivot='key' type='ordinal' />
             <column-instance column='[Color By (copy)]' derivation='User' name='[usr:Color By (copy):qk]' pivot='key' type='quantitative' />
             <column-instance column='[Group Cites / Article (copy)]' derivation='User' name='[usr:Group Cites / Article (copy):qk]' pivot='key' type='quantitative' />
             <column-instance column='[Group Cites / Published Months (copy)]' derivation='User' name='[usr:Group Cites / Published Months (copy):qk]' pivot='key' type='quantitative' />
@@ -35487,26 +35486,21 @@
           <style-rule element='cell'>
             <format attr='height' field='[sqlproxy.42215.594235729164].[none:article_type:nk]' value='51' />
             <format attr='height' field='[sqlproxy.42215.594235729164].[sum:Calculation_8670817194112403:ok]' value='56' />
-            <format attr='height' field='[sqlproxy.42215.594235729164].[sum:Calculation_5220817221342756:ok]' value='51' />
             <format attr='height' field='[sqlproxy.42215.594235729164].[sum:Mendeley Saves (copy 3):ok]' value='45' />
           </style-rule>
           <style-rule element='header'>
             <format attr='height-header' value='60' />
             <format attr='width' field='[sqlproxy.42215.594235729164].[none:Calculation_9890802164725350:nk]' value='204' />
             <format attr='width' field='[sqlproxy.42215.594235729164].[sum:Calculation_8670817194112403:ok]' value='56' />
-            <format attr='width' field='[sqlproxy.42215.594235729164].[none:Calculation_1670817185200333:ok]' value='52' />
             <format attr='width' field='[sqlproxy.42215.594235729164].[sum:Calculation_4370817193012096:ok]' value='72' />
-            <format attr='width' field='[sqlproxy.42215.594235729164].[sum:Calculation_9290817220948389:ok]' value='68' />
-            <format attr='width' field='[sqlproxy.42215.594235729164].[sum:Calculation_5220817221342756:ok]' value='60' />
             <format attr='height' field='[Parameters].[Color By Parameter (copy)]' value='64' />
+            <format attr='width' field='[sqlproxy.42215.594235729164].[usr:Calculation_1670817185200333:ok]' value='64' />
+            <format attr='width' field='[sqlproxy.42215.594235729164].[sum:Usage (36 mos) (copy):ok]' value='68' />
           </style-rule>
           <style-rule element='label'>
             <format attr='color' scope='rows' value='#297a98' />
             <format attr='display' field='[sqlproxy.42215.594235729164].[sum:Calculation_4370817193012096:ok]' value='false' />
-            <format attr='display' field='[sqlproxy.42215.594235729164].[none:Calculation_1670817185200333:ok]' value='true' />
             <format attr='display' field='[sqlproxy.42215.594235729164].[sum:Calculation_8670817194112403:ok]' value='true' />
-            <format attr='display' field='[sqlproxy.42215.594235729164].[sum:Calculation_9290817220948389:ok]' value='true' />
-            <format attr='display' field='[sqlproxy.42215.594235729164].[sum:Calculation_5220817221342756:ok]' value='true' />
           </style-rule>
           <style-rule element='table'>
             <format attr='row-levels' value='15' />
@@ -35526,7 +35520,7 @@
           </style-rule>
         </style>
         <panes>
-          <pane id='3'>
+          <pane id='9'>
             <view>
               <breakdown value='auto' />
             </view>
@@ -35546,7 +35540,7 @@
               <tooltip column='[sqlproxy.42215.594235729164].[attr:article_scopus_id:nk]' />
               <tooltip column='[sqlproxy.42215.594235729164].[attr:date_of_publication:ok]' />
               <tooltip column='[sqlproxy.42215.594235729164].[attr:co_authors:nk]' />
-              <tooltip column='[sqlproxy.42215.594235729164].[sum:Calculation_1670817185200333:qk]' />
+              <tooltip column='[sqlproxy.42215.594235729164].[usr:Calculation_1670817185200333:ok]' />
               <tooltip column='[sqlproxy.42215.594235729164].[attr:Group By (copy):nk]' />
               <tooltip column='[sqlproxy.42215.594235729164].[usr:Calculation_5710730231845908:ok]' />
               <tooltip column='[sqlproxy.42215.594235729164].[sum:citation_count:qk]' />
@@ -35585,11 +35579,26 @@
                 <format attr='minheight' value='-1' />
                 <format attr='maxheight' value='-1' />
                 <format attr='aspect' value='1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+                <format attr='aspect' value='1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+                <format attr='aspect' value='1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+                <format attr='aspect' value='1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+                <format attr='aspect' value='1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+                <format attr='aspect' value='1' />
               </style-rule>
             </style>
           </pane>
         </panes>
-        <rows>([sqlproxy.42215.594235729164].[none:Calculation_9890802164725350:nk] / ([sqlproxy.42215.594235729164].[sum:Calculation_8670817194112403:ok] / ([sqlproxy.42215.594235729164].[none:Calculation_1670817185200333:ok] / ([sqlproxy.42215.594235729164].[sum:Calculation_4370817193012096:ok] / ([sqlproxy.42215.594235729164].[sum:Calculation_9290817220948389:ok] / ([sqlproxy.42215.594235729164].[sum:Calculation_5220817221342756:ok] / ([sqlproxy.42215.594235729164].[sum:Usage (36 mos) (copy):ok] / [sqlproxy.42215.594235729164].[sum:Mendeley Saves (copy 3):ok])))))))</rows>
+        <rows>([sqlproxy.42215.594235729164].[none:Calculation_9890802164725350:nk] / ([sqlproxy.42215.594235729164].[sum:Calculation_8670817194112403:ok] / ([sqlproxy.42215.594235729164].[usr:Calculation_1670817185200333:ok] / ([sqlproxy.42215.594235729164].[usr:Calculation_9290817220948389:ok] / ([sqlproxy.42215.594235729164].[usr:Calculation_5220817221342756:ok] / ([sqlproxy.42215.594235729164].[sum:Calculation_4370817193012096:ok] / ([sqlproxy.42215.594235729164].[sum:Usage (36 mos) (copy):ok] / [sqlproxy.42215.594235729164].[sum:Mendeley Saves (copy 3):ok])))))))</rows>
         <cols>([Parameters].[Color By Parameter (copy)] * [sqlproxy.42215.594235729164].[usr:Color By (copy):qk])</cols>
         <tooltip-style tooltip-mode='sticky' />
       </table>
@@ -35767,9 +35776,9 @@
         <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
           <zone h='100000' id='113' param='vert' type='layout-flow' w='100000' x='0' y='0'>
             <zone h='1700' id='112' type='title' w='100000' x='0' y='0' />
-            <zone h='53850' id='85' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-              <zone h='53850' id='81' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                <zone h='53850' id='53' param='vert' type='layout-flow' w='100000' x='0' y='1700'>
+            <zone h='98300' id='85' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+              <zone h='98300' id='81' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                <zone h='98300' id='53' param='vert' type='layout-flow' w='100000' x='0' y='1700'>
                   <zone h='10250' id='42' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
                     <zone h='10250' id='40' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
                       <zone h='10250' id='36' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
@@ -35828,8 +35837,8 @@
                       </zone>
                     </zone>
                   </zone>
-                  <zone h='43200' id='82' param='horz' type='layout-flow' w='100000' x='0' y='11950'>
-                    <zone fixed-size='804' h='43200' id='106' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='11950'>
+                  <zone h='88050' id='82' param='horz' type='layout-flow' w='100000' x='0' y='11950'>
+                    <zone fixed-size='804' h='88050' id='106' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='11950'>
                       <zone fixed-size='794' h='40100' id='83' is-fixed='true' name='HOT-Objects' w='100000' x='0' y='11950'>
                         <layout-cache type-h='fixed' type-w='fixed' />
                       </zone>
@@ -35838,8 +35847,8 @@
                           <run fontalignment='2' fontcolor='#898989'>Click on an object bar above to view the list of related articles below.</run>
                         </formatted-text>
                       </zone>
-                      <zone h='1650' id='107' name='HOT-Articles' w='100000' x='0' y='53100'>
-                        <layout-cache fixed-size-h='25' type-h='fixed' type-w='fixed' />
+                      <zone h='46900' id='107' name='HOT-Articles' w='100000' x='0' y='53100'>
+                        <layout-cache fixed-size-h='32692' type-h='fixed' type-w='fixed' />
                       </zone>
                     </zone>
                   </zone>
@@ -35851,7 +35860,7 @@
       </zones>
     </dashboard>
   </dashboards>
-  <windows show-side-pane='false' source-height='49'>
+  <windows source-height='48'>
     <window class='dashboard' maximized='true' name='Hot Object Tracker'>
       <viewpoints>
         <viewpoint name='HOT-Articles'>
@@ -36330,6 +36339,21 @@
         </edge>
       </cards>
       <viewpoint>
+        <selection-collection>
+          <node-selection select-tuples='false'>
+            <oriented-node-reference orientation='horizontal'>
+              <node-reference>
+                <fields>
+                  <field>[Parameters].[Color By Parameter (copy)]</field>
+                </fields>
+                <multibucket>
+                  <bucket>&quot;Cites&quot;</bucket>
+                </multibucket>
+              </node-reference>
+              <page-reference />
+            </oriented-node-reference>
+          </node-selection>
+        </selection-collection>
         <highlight>
           <color-one-way>
             <field>[Parameters].[Color By Parameter (copy)]</field>
@@ -36342,6 +36366,9 @@
             <field>[sqlproxy.42215.594235729164].[none:Calculation_1480730224250794:ok]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_1670730154757173:qk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_1670817185200333:ok]</field>
+            <field>[sqlproxy.42215.594235729164].[none:Calculation_180988433048342529:qk]</field>
+            <field>[sqlproxy.42215.594235729164].[none:Calculation_180988433048399874:qk]</field>
+            <field>[sqlproxy.42215.594235729164].[none:Calculation_180988433048670211:qk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_3190730152950614:qk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_3620730141558353 1:ok]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_3620730141558353:ok]</field>
@@ -36357,6 +36384,7 @@
             <field>[sqlproxy.42215.594235729164].[none:Calculation_7550730152928691:qk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_8450730194732690:qk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_8850817185018924:qk]</field>
+            <field>[sqlproxy.42215.594235729164].[none:Calculation_9290817220948389:qk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Calculation_9890802164725350:nk]</field>
             <field>[sqlproxy.42215.594235729164].[none:Group By (copy):nk]</field>
             <field>[sqlproxy.42215.594235729164].[none:article_doi (Custom_SQL_Query):nk]</field>
@@ -36376,7 +36404,10 @@
             <field>[sqlproxy.42215.594235729164].[none:first_author:nk]</field>
             <field>[sqlproxy.42215.594235729164].[none:is_cohort:nk]</field>
             <field>[sqlproxy.42215.594235729164].[none:subject_category:nk]</field>
+            <field>[sqlproxy.42215.594235729164].[usr:Calculation_1670817185200333:ok]</field>
+            <field>[sqlproxy.42215.594235729164].[usr:Calculation_5220817221342756:ok]</field>
             <field>[sqlproxy.42215.594235729164].[usr:Calculation_7430731085151034:nk]</field>
+            <field>[sqlproxy.42215.594235729164].[usr:Calculation_9290817220948389:ok]</field>
             <field>[sqlproxy.42215.594235729164].[yr:article_date_of_publication:ok]</field>
             <field>[sqlproxy.42215.594235729164].[yr:citation_date:ok]</field>
             <field>[sqlproxy.42215.594235729164].[yr:date_of_publication:ok]</field>
@@ -36720,204 +36751,203 @@
     </thumbnail>
     <thumbnail height='192' name='Hot Object Tracker' width='192'>
       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
-      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
-      gg==
+      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
     </thumbnail>
   </thumbnails>
 </workbook>
