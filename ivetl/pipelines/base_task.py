@@ -114,6 +114,8 @@ class BaseTask(Task):
                             subject = 'Impact Vizor (%s): Completed %s' % (publisher_id, pipeline.get('user_facing_pipeline_action', 'running task'))
                             body = '<p>Impact Vizor has completed %s.</p>' % pipeline.get('user_facing_pipeline_action', 'running the requested task')
 
+                        body += '<p>Please note that it could take up to 30 minutes for the reports to display the processed changes.</p>'
+
                         body += '<p>Thank you,<br/>Impact Vizor Team</p>'
 
                         common.send_email(subject, body, to=initiating_user_email)
