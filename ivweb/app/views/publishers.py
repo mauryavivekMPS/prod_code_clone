@@ -158,6 +158,7 @@ def list_demos(request):
 class PublisherForm(forms.Form):
     publisher_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a short, unique identifier'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter a name for display'}))
+    note = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter a note'}), required=False)
     issn_values = forms.CharField(widget=forms.HiddenInput)
     scopus_api_keys = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated API keys'}), required=False)
     email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
@@ -373,6 +374,7 @@ class PublisherForm(forms.Form):
 
             PublisherMetadata.objects(publisher_id=publisher_id).update(
                 name=self.cleaned_data['name'],
+                note=self.cleaned_data['note'],
                 email=self.cleaned_data['email'],
                 hw_addl_metadata_available=self.cleaned_data['hw_addl_metadata_available'],
                 scopus_api_keys=scopus_api_keys,

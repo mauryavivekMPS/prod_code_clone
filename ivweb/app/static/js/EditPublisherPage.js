@@ -712,6 +712,7 @@ var EditPublisherPage = (function() {
         f.find('input[name="name"]').val($('#id_name').val());
         f.find('input[name="issn_values"]').val($('#id_issn_values').val());
         f.find('input[name="email"]').val($('#id_email').val());
+        f.find('input[name="note"]').val($('#id_note').val());
         f.find('input[name="use_crossref"]').val($('#id_use_crossref').is(':checked') ? 'on' : '');
         f.find('input[name="crossref_username"]').val($('#id_crossref_username').val());
         f.find('input[name="crossref_password"]').val($('#id_crossref_password').val());
