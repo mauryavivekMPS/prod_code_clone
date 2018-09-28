@@ -181,7 +181,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     ed_first_name = data['editor'][0].get('given', '')
                     editor = '%s, %s' % (ed_last_name, ed_first_name)
 
-                is_open_access = None
+                is_open_access = 'No'
                 if 'is_open_access' in data and (data['is_open_access'] != ''):
                    is_open_access = data['is_open_access']
                     
