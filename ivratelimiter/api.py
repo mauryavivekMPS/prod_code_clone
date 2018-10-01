@@ -1,3 +1,4 @@
+import os
 import time
 import threading
 import requests
@@ -8,7 +9,7 @@ from flask import Flask, request, jsonify
 app = Flask("rate_limiter")
 
 logging.basicConfig(
-    filename='/var/log/ivratelimiter/api.log',
+    filename=os.path.join( os.environ.get('IVETL_WORKING_DIR', '/var/log/ivratelimiter/'), 'api.log'),
     format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
     datefmt='%d/%b/%Y %H:%M:%S',
     # format='%(message)s',
