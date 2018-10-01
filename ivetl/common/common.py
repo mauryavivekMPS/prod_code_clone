@@ -4,7 +4,7 @@ import importlib
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Personalization
 
-with open('/iv/properties.json', 'r') as properties_file:
+with open('iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
 
 # the IVETL_ROOT env var is mandatory
