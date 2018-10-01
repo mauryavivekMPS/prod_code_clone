@@ -19,7 +19,7 @@ from ivetl.models import WorkbookUrl
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s',
-    filename='/var/log/ivweb/tableau-connector.log',
+    filename=os.path.join( os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb/'), 'tableau-connector.log'),    
     filemode='a',
 )
 
