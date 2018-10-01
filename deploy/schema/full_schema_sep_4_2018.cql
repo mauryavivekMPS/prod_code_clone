@@ -13,7 +13,7 @@ CREATE TABLE impactvizor.tableau_notification (
     publisher_id text,
     template_id text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -34,7 +34,7 @@ CREATE TABLE impactvizor.f1000_social_data (
     num_recommendations int,
     total_score int
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -59,7 +59,7 @@ CREATE TABLE impactvizor.published_article_additional_metadata (
     PRIMARY KEY (publisher_id, doi)
 ) WITH CLUSTERING ORDER BY (doi ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -84,7 +84,7 @@ CREATE TABLE impactvizor.subscription_cpu_by_bundle_stat (
     PRIMARY KEY (publisher_id, membership_no, bundle_name, usage_date)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, bundle_name ASC, usage_date ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -104,7 +104,7 @@ CREATE TABLE impactvizor.monthly_message (
     message text,
     PRIMARY KEY ((product_id, pipeline_id))
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -126,7 +126,7 @@ CREATE TABLE impactvizor.demo (
     start_date timestamp,
     status text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -152,7 +152,7 @@ CREATE TABLE impactvizor.published_article_by_cohort (
     PRIMARY KEY (publisher_id, is_cohort, article_doi)
 ) WITH CLUSTERING ORDER BY (is_cohort ASC, article_doi ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -178,7 +178,7 @@ CREATE TABLE impactvizor.altmetrics_social_data (
     video int,
     wikipedia int
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -221,7 +221,7 @@ CREATE TABLE impactvizor.publisher_metadata (
     supported_product_groups list<text>,
     supported_products list<text>
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -245,7 +245,7 @@ CREATE TABLE impactvizor.tableau_notification_by_alert (
     PRIMARY KEY (publisher_id, alert_id, notification_id)
 ) WITH CLUSTERING ORDER BY (alert_id ASC, notification_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -277,7 +277,7 @@ CREATE TABLE impactvizor.pipeline_task_status (
     PRIMARY KEY (publisher_id, product_id, pipeline_id, job_id, task_id)
 ) WITH CLUSTERING ORDER BY (product_id ASC, pipeline_id ASC, job_id ASC, task_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -308,7 +308,7 @@ CREATE TABLE impactvizor.tableau_alert (
     PRIMARY KEY (publisher_id, template_id, alert_id)
 ) WITH CLUSTERING ORDER BY (template_id ASC, alert_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -333,7 +333,7 @@ CREATE TABLE impactvizor.subscriber_values (
     PRIMARY KEY (publisher_id, membership_no, source, name)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, source ASC, name ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -378,7 +378,7 @@ CREATE TABLE impactvizor.highwire_metadata (
     umbrella_url text,
     usage_rpts_feature text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -406,7 +406,7 @@ CREATE TABLE impactvizor.institution_usage_stat_delta (
     PRIMARY KEY (publisher_id, counter_type, journal, subscriber_id, usage_date, usage_category, time_slice)
 ) WITH CLUSTERING ORDER BY (counter_type ASC, journal ASC, subscriber_id ASC, usage_date ASC, usage_category ASC, time_slice ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -426,7 +426,7 @@ CREATE TABLE impactvizor.workbook_url (
     PRIMARY KEY (publisher_id, workbook_id)
 ) WITH CLUSTERING ORDER BY (workbook_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -447,7 +447,7 @@ CREATE TABLE impactvizor.user (
     password text,
     user_type int
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -469,7 +469,7 @@ CREATE TABLE impactvizor.doi_transform_rule (
     PRIMARY KEY (journal_code, type, match_expression)
 ) WITH CLUSTERING ORDER BY (type ASC, match_expression ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -491,7 +491,7 @@ CREATE TABLE impactvizor.audit_log_by_user (
     PRIMARY KEY (user_id, event_time, action)
 ) WITH CLUSTERING ORDER BY (event_time DESC, action ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -524,7 +524,7 @@ CREATE TABLE impactvizor.service_response_time (
     PRIMARY KEY (publisher_id, name, from_date, until_date)
 ) WITH CLUSTERING ORDER BY (name ASC, from_date ASC, until_date ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -548,7 +548,7 @@ CREATE TABLE impactvizor.tableau_notification_event (
     PRIMARY KEY (notification_id, event_type, event_id)
 ) WITH CLUSTERING ORDER BY (event_type ASC, event_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -659,7 +659,7 @@ CREATE TABLE impactvizor.published_article (
     PRIMARY KEY (publisher_id, article_doi)
 ) WITH CLUSTERING ORDER BY (article_doi ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -683,7 +683,7 @@ CREATE TABLE impactvizor.article_usage (
     PRIMARY KEY (publisher_id, article_doi, usage_type, month_number)
 ) WITH CLUSTERING ORDER BY (article_doi ASC, usage_type ASC, month_number ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -704,7 +704,7 @@ CREATE TABLE impactvizor.monthly_citations_test2 (
     PRIMARY KEY (publisher_id, article_doi, citation_month)
 ) WITH CLUSTERING ORDER BY (article_doi ASC, citation_month ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -725,7 +725,7 @@ CREATE TABLE impactvizor.article_skip_rule (
     PRIMARY KEY (publisher_id, is_cohort, issn)
 ) WITH CLUSTERING ORDER BY (is_cohort ASC, issn ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -755,7 +755,7 @@ CREATE TABLE impactvizor.subscription_cpu_by_bundle_stat_delta (
     PRIMARY KEY (publisher_id, membership_no, bundle_name, usage_date, time_slice)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, bundle_name ASC, usage_date ASC, time_slice ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -781,7 +781,7 @@ CREATE TABLE impactvizor.notification_summary (
     PRIMARY KEY (publisher_id, alert_id, product_id, pipeline_id, job_id, notification_summary_id)
 ) WITH CLUSTERING ORDER BY (alert_id ASC, product_id ASC, pipeline_id ASC, job_id ASC, notification_summary_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -837,7 +837,7 @@ CREATE TABLE impactvizor.subscriber (
     PRIMARY KEY (publisher_id, membership_no)
 ) WITH CLUSTERING ORDER BY (membership_no ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -859,7 +859,7 @@ CREATE TABLE impactvizor.publisher_user (
     PRIMARY KEY (user_id, publisher_id, uid)
 ) WITH CLUSTERING ORDER BY (publisher_id ASC, uid ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -877,7 +877,7 @@ CREATE TABLE impactvizor.content_block (
     block_id text PRIMARY KEY,
     markdown text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -895,7 +895,7 @@ CREATE TABLE impactvizor.issn_journal (
     journal text,
     publisher text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -920,7 +920,7 @@ CREATE TABLE impactvizor.subscription_cpu_by_subscriber_stat (
     PRIMARY KEY (publisher_id, membership_no, usage_date)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, usage_date ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -948,7 +948,7 @@ CREATE TABLE impactvizor.uploaded_file (
     PRIMARY KEY (publisher_id, uploaded_file_id, processed_time)
 ) WITH CLUSTERING ORDER BY (uploaded_file_id ASC, processed_time DESC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -979,7 +979,7 @@ CREATE TABLE impactvizor.institution_usage_stat_composite (
     PRIMARY KEY ((publisher_id, counter_type, journal), subscriber_id, usage_date, usage_category)
 ) WITH CLUSTERING ORDER BY (subscriber_id ASC, usage_date ASC, usage_category ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1008,7 +1008,7 @@ CREATE TABLE impactvizor.institution_usage_stat_delta_composite (
     PRIMARY KEY ((publisher_id, counter_type, journal), subscriber_id, usage_date, usage_category, time_slice)
 ) WITH CLUSTERING ORDER BY (subscriber_id ASC, usage_date ASC, usage_category ASC, time_slice ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1062,7 +1062,7 @@ CREATE TABLE impactvizor.rejected_articles (
     PRIMARY KEY (publisher_id, rejected_article_id)
 ) WITH CLUSTERING ORDER BY (rejected_article_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1094,7 +1094,7 @@ CREATE TABLE impactvizor.uptime_check_metadata (
     PRIMARY KEY (publisher_id, check_id)
 ) WITH CLUSTERING ORDER BY (check_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1114,7 +1114,7 @@ CREATE TABLE impactvizor.publisher_vizor_updates (
     PRIMARY KEY (publisher_id, vizor_id)
 ) WITH CLUSTERING ORDER BY (vizor_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1130,7 +1130,7 @@ CREATE TABLE impactvizor.publisher_vizor_updates (
 CREATE TABLE impactvizor.scopus_api_key (
     key text PRIMARY KEY
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1161,7 +1161,7 @@ CREATE TABLE impactvizor.institution_usage_stat (
     PRIMARY KEY (publisher_id, counter_type, journal, subscriber_id, usage_date, usage_category)
 ) WITH CLUSTERING ORDER BY (counter_type ASC, journal ASC, subscriber_id ASC, usage_date ASC, usage_category ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1186,7 +1186,7 @@ CREATE TABLE impactvizor.service_response_code (
     PRIMARY KEY (publisher_id, name, from_date, until_date, status_code)
 ) WITH CLUSTERING ORDER BY (name ASC, from_date ASC, until_date ASC, status_code ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1212,7 +1212,7 @@ CREATE TABLE impactvizor.alert (
     PRIMARY KEY (publisher_id, check_id, alert_id)
 ) WITH CLUSTERING ORDER BY (check_id ASC, alert_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1252,7 +1252,7 @@ CREATE TABLE impactvizor.article_citations (
     PRIMARY KEY (publisher_id, article_doi, citation_doi)
 ) WITH CLUSTERING ORDER BY (article_doi ASC, citation_doi ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1282,7 +1282,7 @@ CREATE TABLE impactvizor.subscription_cpu_by_subscriber_stat_delta (
     PRIMARY KEY (publisher_id, membership_no, usage_date, time_slice)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, usage_date ASC, time_slice ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1301,7 +1301,7 @@ CREATE TABLE impactvizor.tableau_users (
     tableau_project text,
     vizors set<text>
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1321,7 +1321,7 @@ CREATE TABLE impactvizor.institution_usage_journal (
     PRIMARY KEY (publisher_id, counter_type, journal)
 ) WITH CLUSTERING ORDER BY (counter_type ASC, journal ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1345,7 +1345,7 @@ CREATE TABLE impactvizor.subscription_pricing (
     PRIMARY KEY (publisher_id, membership_no, year, bundle_name)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, year ASC, bundle_name ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1370,7 +1370,7 @@ CREATE TABLE impactvizor.drupal_metadata (
     type text,
     umbrella_code text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1389,7 +1389,7 @@ CREATE TABLE impactvizor.system_global (
     int_value int,
     text_value text
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1409,7 +1409,7 @@ CREATE TABLE impactvizor.citable_section (
     PRIMARY KEY (publisher_id, journal_issn, article_type)
 ) WITH CLUSTERING ORDER BY (journal_issn ASC, article_type ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1435,7 +1435,7 @@ CREATE TABLE impactvizor.publisher_journal (
     PRIMARY KEY (publisher_id, product_id, uid)
 ) WITH CLUSTERING ORDER BY (product_id ASC, uid ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1466,7 +1466,7 @@ CREATE TABLE impactvizor.subscription (
     PRIMARY KEY (publisher_id, membership_no, journal_code, subscr_type_cd)
 ) WITH CLUSTERING ORDER BY (membership_no ASC, journal_code ASC, subscr_type_cd ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1486,7 +1486,7 @@ CREATE TABLE impactvizor.attribute_values (
     PRIMARY KEY (publisher_id, name)
 ) WITH CLUSTERING ORDER BY (name ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1509,7 +1509,7 @@ CREATE TABLE impactvizor.audit_log_by_time (
     PRIMARY KEY (month, event_time, action)
 ) WITH CLUSTERING ORDER BY (event_time DESC, action ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1531,7 +1531,7 @@ CREATE TABLE impactvizor.audit_log_by_publisher (
     PRIMARY KEY (publisher_id, event_time, action)
 ) WITH CLUSTERING ORDER BY (event_time DESC, action ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1552,7 +1552,7 @@ CREATE TABLE impactvizor.value_mapping (
     PRIMARY KEY (publisher_id, mapping_type, original_value)
 ) WITH CLUSTERING ORDER BY (mapping_type ASC, original_value ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1575,7 +1575,7 @@ CREATE TABLE impactvizor.published_article_values (
     PRIMARY KEY (publisher_id, article_doi, source, name)
 ) WITH CLUSTERING ORDER BY (article_doi ASC, source ASC, name ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1598,7 +1598,7 @@ CREATE TABLE impactvizor.uptime_override (
     override_type text,
     start_date timestamp
 ) WITH bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1621,7 +1621,7 @@ CREATE TABLE impactvizor.singleton_task_status (
     PRIMARY KEY (task_type, task_id)
 ) WITH CLUSTERING ORDER BY (task_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1641,7 +1641,7 @@ CREATE TABLE impactvizor.product_bundle (
     PRIMARY KEY (publisher_id, bundle_name)
 ) WITH CLUSTERING ORDER BY (bundle_name ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1666,7 +1666,7 @@ CREATE TABLE impactvizor.notification (
     PRIMARY KEY (publisher_id, alert_id, product_id, pipeline_id, job_id, notification_id)
 ) WITH CLUSTERING ORDER BY (alert_id ASC, product_id ASC, pipeline_id ASC, job_id ASC, notification_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1701,7 +1701,7 @@ CREATE TABLE impactvizor.pipeline_status (
     PRIMARY KEY (publisher_id, product_id, pipeline_id, job_id)
 ) WITH CLUSTERING ORDER BY (product_id ASC, pipeline_id ASC, job_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1724,7 +1724,7 @@ CREATE TABLE impactvizor.monthly_citations_test (
     PRIMARY KEY (publisher_id, article_doi, citation_doi)
 ) WITH CLUSTERING ORDER BY (article_doi ASC, citation_doi ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1753,7 +1753,7 @@ CREATE TABLE impactvizor.uptime_check_stat (
     PRIMARY KEY (publisher_id, check_id, check_date)
 ) WITH CLUSTERING ORDER BY (check_id ASC, check_date ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1774,7 +1774,7 @@ CREATE TABLE impactvizor.value_mapping_display (
     PRIMARY KEY (publisher_id, mapping_type, canonical_value)
 ) WITH CLUSTERING ORDER BY (mapping_type ASC, canonical_value ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -1796,7 +1796,7 @@ CREATE TABLE impactvizor.audit_log (
     PRIMARY KEY (user_id, event_time, action, entity_id)
 ) WITH CLUSTERING ORDER BY (event_time ASC, action ASC, entity_id ASC)
     AND bloom_filter_fp_chance = 0.01
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
