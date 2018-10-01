@@ -65,6 +65,9 @@ impactvisor-pipeline-env
 # PyCharm
 .idea
 
+# Emacs backup files
+\#*
+
 # bower and node
 bower_components
 node_modules
