@@ -10,7 +10,7 @@ from ivetl import utils
 @app.task
 class GetStatsFilesTask(Task):
     HOSTNAME = 'dw-work-02.highwire.org'
-    LOG_FILE_DIR = '/var/log/logstat'
+    LOG_FILE_DIR = os.environ.get('IVETL_WORKING_DIR', '/var/log/logstat')
     LOG_FILE_EXTENSION = '.log'
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
