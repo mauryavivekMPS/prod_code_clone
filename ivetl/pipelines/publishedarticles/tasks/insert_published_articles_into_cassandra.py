@@ -181,10 +181,15 @@ class InsertPublishedArticlesIntoCassandra(Task):
                     ed_first_name = data['editor'][0].get('given', '')
                     editor = '%s, %s' % (ed_last_name, ed_first_name)
 
+                is_open_access = 'No'
+                if 'is_open_access' in data and (data['is_open_access'] != ''):
+                   is_open_access = data['is_open_access']
+
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='article_type').update(value_text=article_type)
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='subject_category').update(value_text=subject_category)
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='editor').update(value_text=editor)
                 PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='custom').update(value_text=custom)
+                PublishedArticleValues.objects(article_doi=doi, publisher_id=publisher_id, source='pa', name='is_open_access').update(value_text=is_open_access)
 
                 # record in cohort table
                 PublishedArticleByCohort.objects.create(
