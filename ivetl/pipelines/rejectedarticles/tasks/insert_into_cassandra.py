@@ -176,6 +176,20 @@ class InsertIntoCassandraDBTask(Task):
                 else:
                     r.citations = int(citations)
 
+                # if the status changed to not published make sure to clear out 'published' fields
+                if r.status == 'Not Published' and r.published_journal is not None:
+                    r.crossref_doi = None
+                    r.crossref_match_score = None
+                    r.date_of_publication = None
+                    r.published_co_authors = None
+                    r.published_first_author = None
+                    r.published_journal = None
+                    r.published_journal_issn = None
+                    r.published_publisher = None
+                    r.published_title = None
+                    r.scopus_doi_status = None
+                    r.scopus_id = None
+
                 r.updated = updated
 
                 r.save()
