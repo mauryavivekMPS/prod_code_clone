@@ -11,12 +11,11 @@ if __name__ == "__main__":
 
     open_cassandra_connection()
 
-    publisher_id = 'wkh'
+    publisher_id = 'cshl'
 
     JOURNALS_TO_DELETE = [
-        'JONA',
-        'AJN',
-        'The Nurse Practitioner'
+        'Biorxiv',
+        'bioRxiv'
     ]
 
     ctr = 0
