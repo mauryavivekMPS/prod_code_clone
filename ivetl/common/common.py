@@ -4,7 +4,7 @@ import importlib
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Personalization
 
-with open('iv/properties.json', 'r') as properties_file:
+with open('/iv/properties.json', 'r') as properties_file:
     ENV_PROPERTIES = json.loads(properties_file.read())
 
 # the IVETL_ROOT env var is mandatory
@@ -1153,9 +1153,7 @@ RATE_LIMITER_SERVER = os.environ.get('IVETL_RATE_LIMITER_SERVER', '127.0.0.1:808
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "aghoth@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
-#SG_PWD = "Hello123!"
 SG_PWD = "Vizors123!"
-#SG_API_KEY = "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"
 SG_API_KEY = "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"
 FTP_ADMIN_BCC = 'vizor-support@highwire.org'
 
