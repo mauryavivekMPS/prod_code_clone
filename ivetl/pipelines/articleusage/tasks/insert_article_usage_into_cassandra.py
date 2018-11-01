@@ -1,10 +1,11 @@
 import os
 import csv
 import codecs
-from dateutil import parser
+from datetime import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import ArticleUsage
+from ivetl.models import PublishedArticle
 
 
 @app.task
@@ -24,6 +25,9 @@ class InsertArticleUsageIntoCassandra(Task):
 
         count = 0
 
+        # Warning: this CQL query has a LIMIT 10000
+        publisher_dois = PublishedArticle.objects(publisher_id=publisher_id)
+
         for f in files:
             with open(f, encoding='utf-8') as tsv:
                 for line in csv.DictReader(tsv, delimiter='\t'):
@@ -31,9 +35,14 @@ class InsertArticleUsageIntoCassandra(Task):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     doi = line['Article DOI'].lower()
-                    usage_start_date = parser.parse(line['Pub Date'])
+
+                    try:
+                        article = publisher_dois.get(article_doi=doi)
+                    except PublishedArticle.DoesNotExist:
+                        break
+                    
+                    usage_start_date = article.date_of_publication
                     usage_type = line['Type']
-                    month_number = int(line['Month Number'])
 
                     usage_string = line['Usage Count']
                     if usage_string:
@@ -41,9 +50,15 @@ class InsertArticleUsageIntoCassandra(Task):
                     else:
                         usage = 0
 
+                    usage_month = datetime.strptime(line['Usage Month'], '%Y%m')
+                    
+                    month_number = ( 12 * (usage_month.year - usage_start_date.year)
+                                    + usage.month - usage_start_date.month
+                                    + 1 )
+                                   
                     ArticleUsage.objects(
+                        publisher_id=publisher_id,                        
                         article_doi=doi,
-                        publisher_id=publisher_id,
                         usage_type=usage_type,
                         month_number=month_number,
                     ).update(
