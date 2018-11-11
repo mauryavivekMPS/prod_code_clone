@@ -12,8 +12,8 @@ class CrossrefConnector(BaseConnector):
     BASE_CITATION_URL = 'https://doi.crossref.org'
 
     connector_name = 'Crossref'
-    max_attempts = 7
-    request_timeout = 30
+    max_attempts = 3
+    request_timeout = 15
 
     def __init__(self, username=None, password=None, tlogger=None):
         self.username = username
