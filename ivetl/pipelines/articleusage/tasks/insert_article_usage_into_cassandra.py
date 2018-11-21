@@ -30,7 +30,7 @@ class InsertArticleUsageIntoCassandra(Task):
         for f in files:
             with open(f, encoding='utf-8') as tsv_file:
                 # Using re.split() instead of csv.DictReader() for flexibility with field delimiters
-                header = tsv_file.readline().strip()
+                header = tsv_file.readline(keepends=False)
                 fieldnames = [fn.lower().replace(' ','') for fn in re.split(field_separators, header)]
 
                 pub_dates = {}
