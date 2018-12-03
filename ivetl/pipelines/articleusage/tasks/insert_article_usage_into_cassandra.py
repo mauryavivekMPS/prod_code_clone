@@ -1,10 +1,11 @@
 import os
-import csv
+import re
 import codecs
-from dateutil import parser
+from datetime import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import ArticleUsage
+from ivetl.models import PublishedArticle
 
 
 @app.task
@@ -24,30 +25,52 @@ class InsertArticleUsageIntoCassandra(Task):
 
         count = 0
 
+        field_separators = '\s*\t\s*|\s*,\s*'
+        
         for f in files:
-            with open(f, encoding='utf-8') as tsv:
-                for line in csv.DictReader(tsv, delimiter='\t'):
+            with open(f, encoding='utf-8') as tsv_file:
+                # Using re.split() instead of csv.DictReader() for flexibility with field delimiters
+                header = tsv_file.readline(keepends=False)
+                fieldnames = [fn.lower().replace(' ','') for fn in re.split(field_separators, header)]
 
+                pub_dates = {}
+
+                for row in tsv_file:
+                    columns = re.split(field_separators, row.strip())
+                    line = dict(zip(fieldnames, columns))
+                    
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    doi = line['Article DOI'].lower()
-                    usage_start_date = parser.parse(line['Pub Date'])
-                    usage_type = line['Type']
-                    month_number = int(line['Month Number'])
+                    doi = line['articledoi'].lower()
 
-                    usage_string = line['Usage Count']
-                    if usage_string:
-                        usage = int(usage_string)
-                    else:
-                        usage = 0
+                    if pub_dates.get(doi) is None:
+                        try:
+                            pub_dates[doi] = PublishedArticle.objects.get(publisher_id=publisher_id,
+                                                                          article_doi=doi
+                                                                         ).date_of_publication
+                        except PublishedArticle.DoesNotExist:
+                            continue
 
+                    usage_start_date = pub_dates[doi]
+                    usage_type = line['type']
+                    usage_month = datetime.strptime(str(line['usagemonth'])[:6], '%Y%m')
+                    usage_count = int(line['usagecount']) if line['usagecount'] else 0
+
+                    month_number = ( 12 * (usage_month.year - usage_start_date.year)
+                                    + usage_month.month - usage_start_date.month
+                                    + 1 )
+
+                    # validate the month_number is between date_of_publication and now().month
+                    if usage_month > datetime.now() or month_number < 0:
+                        continue
+                
                     ArticleUsage.objects(
+                        publisher_id=publisher_id,                        
                         article_doi=doi,
-                        publisher_id=publisher_id,
                         usage_type=usage_type,
                         month_number=month_number,
                     ).update(
-                        month_usage=usage,
+                        month_usage=usage_count,
                         usage_start_date=usage_start_date,
                     )
 

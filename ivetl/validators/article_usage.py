@@ -1,5 +1,5 @@
 import os
-import csv
+import re
 import codecs
 from ivetl.validators.base import BaseValidator
 
@@ -10,26 +10,43 @@ class ArticleUsageValidator(BaseValidator):
 
         errors = []
         total_count = 0
+        field_separators = '\s*\t\s*|\s*,\s*'
+        headers = frozenset(['articledoi', 'usagemonth', 'type', 'usagecount'])
+        
         for f in files:
             file_name = os.path.basename(f)
             try:
                 with codecs.open(f, encoding='utf-8') as tsv:
                     count = 0
-                    for line in csv.reader(tsv, delimiter='\t'):
-                        if line:
-                            if increment_count_func:
-                                count = increment_count_func(count)
-                            else:
-                                count += 1
+                    for line in tsv:
+                        if not line: continue
 
-                            # skip header row
-                            if count == 1:
-                                continue
+                        if increment_count_func:
+                            count = increment_count_func(count)
+                        else:
+                            count += 1
 
-                            # check for number of fields
-                            if len(line) != 6:
-                                errors.append(self.format_error(file_name, count - 1, "Incorrect number of fields, skipping other validation"))
-                                continue
+                        # Validate the header row field names
+                        if count == 1:
+                            fieldnames = frozenset([fn.lower().replace(' ','') for fn in re.split(field_separators, line.strip())])
+
+                            if not headers <= fieldnames:
+                                errors.append(self.format_error(file_name,
+                                                                count - 1,
+                                                                f"The file must have the following header fields: ArticleDOI, Type, UsageMonth, UsageCount")
+                                              )
+                            continue
+
+                        fields = re.split(field_separators, line.strip())
+                        field_count = len(fields)
+                            
+                        # check for number of fields
+                        if field_count < 4:
+                            errors.append(self.format_error(file_name,
+                                                            count - 1,
+                                                            f"Line has {field_count} fields, when 4 are required.")
+                                         )
+                            continue
 
                         if len(errors) > self.MAX_ERRORS:
                             break
