@@ -33,7 +33,7 @@ class ArticleUsageValidator(BaseValidator):
                             if not headers <= fieldnames:
                                 errors.append(self.format_error(file_name,
                                                                 count - 1,
-                                                                f"The file must have the following header fields: ArticleDOI, Type, UsageMonth, UsageCount")
+                                                                "The file must have the following header fields: ArticleDOI, Type, UsageMonth, UsageCount")
                                               )
                             continue
 
@@ -44,7 +44,7 @@ class ArticleUsageValidator(BaseValidator):
                         if field_count < 4:
                             errors.append(self.format_error(file_name,
                                                             count - 1,
-                                                            f"Line has {field_count} fields, when 4 are required.")
+                                                            "Line has {} fields, when 4 are required.".format(field_count))
                                          )
                             continue
 
