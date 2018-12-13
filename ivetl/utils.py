@@ -4,7 +4,7 @@ import uuid
 import humanize
 import datetime
 import boto3
-import chardet
+from chardet.universaldetector import UniversalDetector
 import itertools
 from operator import attrgetter
 from dateutil.rrule import rrule, MONTHLY
@@ -220,8 +220,20 @@ def trim_and_strip_doublequotes(s):
 
 
 def guess_encoding(file_path):
-    # this is not a generalized function, it just guesses between UTF-8 and ISO-8859-2
-    guess = chardet.detect(open(file_path, 'rb').read()[:100000])['encoding'].lower()
+    #log = logging.getLogger(__name__)
+    
+    detector = UniversalDetector()
+    
+    with open(file_path, 'rb') as file:
+        for line in file:
+            detector.feed(line)
+            if detector.done: break
+
+    detector.close()
+    
+    #print("In {} detected {encoding} (conf {confidence})".format(file_path,**detector.result))
+
+    guess = detector.result['encoding'].lower()
     if guess in ('utf-8', 'ascii'):
         return 'utf-8'
     elif guess in ('iso-8859-1', 'iso-8859-2'):
