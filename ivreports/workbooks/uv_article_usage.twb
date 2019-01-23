@@ -2,7 +2,7 @@
 
 <!-- build 10200.17.0328.0755                               -->
 <workbook source-build='10.2.1 (10200.17.0328.0755)' source-platform='win' version='10.2' xml:base='http://vizors.stackly.org' xmlns:user='http://www.tableausoftware.com/xml/user'>
-  <repository-location id='UVArticleUsage' path='/workbooks' revision='2.3' />
+  <repository-location id='UVArticleUsage_11' path='/workbooks' revision='1.2' />
   <preferences>
     <preference name='ui.encoding.shelf.height' value='24' />
     <preference name='ui.shelf.height' value='26' />
@@ -1903,10 +1903,10 @@
               <attribute datatype='integer' name='charset'>0</attribute>
               <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
               <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
-              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem6660331452195457285&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/article_usage_with_article_metadata_ds?rev=1.1&apos; id=&apos;article_usage_with_article_metadata_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_usage_with_article_metadata_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[altmetrics_blogs]&apos; value=&apos;[sqlproxy].[altmetrics_blogs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_facebook]&apos; value=&apos;[sqlproxy].[altmetrics_facebook]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_gplus]&apos; value=&apos;[sqlproxy].[altmetrics_gplus]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_news_outlets]&apos; value=&apos;[sqlproxy].[altmetrics_news_outlets]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_policy_docs]&apos; value=&apos;[sqlproxy].[altmetrics_policy_docs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_reddit]&apos; value=&apos;[sqlproxy].[altmetrics_reddit]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_twitter]&apos; value=&apos;[sqlproxy].[altmetrics_twitter]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_video]&apos; value=&apos;[sqlproxy].[altmetrics_video]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_wikipedia]&apos; value=&apos;[sqlproxy].[altmetrics_wikipedia]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[article_doi (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[article_issue]&apos; value=&apos;[sqlproxy].[article_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal]&apos; value=&apos;[sqlproxy].[article_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal_issn]&apos; value=&apos;[sqlproxy].[article_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[article_pages]&apos; value=&apos;[sqlproxy].[article_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[article_publisher]&apos; value=&apos;[sqlproxy].[article_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[article_scopus_id]&apos; value=&apos;[sqlproxy].[article_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[article_title]&apos; value=&apos;[sqlproxy].[article_title]&apos; /&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[article_volume]&apos; value=&apos;[sqlproxy].[article_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count]&apos; value=&apos;[sqlproxy].[citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_lookup_error]&apos; value=&apos;[sqlproxy].[citations_lookup_error]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_updated_on]&apos; value=&apos;[sqlproxy].[citations_updated_on]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_2]&apos; value=&apos;[sqlproxy].[custom_2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_3]&apos; value=&apos;[sqlproxy].[custom_3]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_average_score]&apos; value=&apos;[sqlproxy].[f1000_average_score]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_num_recommendations]&apos; value=&apos;[sqlproxy].[f1000_num_recommendations]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_total_score]&apos; value=&apos;[sqlproxy].[f1000_total_score]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[from_rejected_manuscript]&apos; value=&apos;[sqlproxy].[from_rejected_manuscript]&apos; /&gt;&#10;      &lt;map key=&apos;[has_abstract]&apos; value=&apos;[sqlproxy].[has_abstract]&apos; /&gt;&#10;      &lt;map key=&apos;[hw_metadata_retrieved]&apos; value=&apos;[sqlproxy].[hw_metadata_retrieved]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort]&apos; value=&apos;[sqlproxy].[is_cohort]&apos; /&gt;&#10;      &lt;map key=&apos;[is_open_access]&apos; value=&apos;[sqlproxy].[is_open_access]&apos; /&gt;&#10;      &lt;map key=&apos;[is_tr_citable]&apos; value=&apos;[sqlproxy].[is_tr_citable]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_citation_count]&apos; value=&apos;[sqlproxy].[meta_actual_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_ef]&apos; value=&apos;[sqlproxy].[meta_actual_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_tiers]&apos; value=&apos;[sqlproxy].[meta_actual_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_pmid]&apos; value=&apos;[sqlproxy].[meta_pmid]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_citation_count]&apos; value=&apos;[sqlproxy].[meta_predicted_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_ef]&apos; value=&apos;[sqlproxy].[meta_predicted_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_tiers]&apos; value=&apos;[sqlproxy].[meta_predicted_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_10]&apos; value=&apos;[sqlproxy].[meta_top_10]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_1]&apos; value=&apos;[sqlproxy].[meta_top_1]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_25]&apos; value=&apos;[sqlproxy].[meta_top_25]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_50]&apos; value=&apos;[sqlproxy].[meta_top_50]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_5]&apos; value=&apos;[sqlproxy].[meta_top_5]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_03]&apos; value=&apos;[sqlproxy].[month_usage_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_06]&apos; value=&apos;[sqlproxy].[month_usage_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_09]&apos; value=&apos;[sqlproxy].[month_usage_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_12]&apos; value=&apos;[sqlproxy].[month_usage_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_24]&apos; value=&apos;[sqlproxy].[month_usage_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_36]&apos; value=&apos;[sqlproxy].[month_usage_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_48]&apos; value=&apos;[sqlproxy].[month_usage_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_60]&apos; value=&apos;[sqlproxy].[month_usage_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_03]&apos; value=&apos;[sqlproxy].[month_usage_abstract_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_06]&apos; value=&apos;[sqlproxy].[month_usage_abstract_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_09]&apos; value=&apos;[sqlproxy].[month_usage_abstract_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_12]&apos; value=&apos;[sqlproxy].[month_usage_abstract_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_24]&apos; value=&apos;[sqlproxy].[month_usage_abstract_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_36]&apos; value=&apos;[sqlproxy].[month_usage_abstract_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_48]&apos; value=&apos;[sqlproxy].[month_usage_abstract_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_60]&apos; value=&apos;[sqlproxy].[month_usage_abstract_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_03]&apos; value=&apos;[sqlproxy].[month_usage_full_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_06]&apos; value=&apos;[sqlproxy].[month_usage_full_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_09]&apos; value=&apos;[sqlproxy].[month_usage_full_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_12]&apos; value=&apos;[sqlproxy].[month_usage_full_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_24]&apos; value=&apos;[sqlproxy].[month_usage_full_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_36]&apos; value=&apos;[sqlproxy].[month_usage_full_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_48]&apos; value=&apos;[sqlproxy].[month_usage_full_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_60]&apos; value=&apos;[sqlproxy].[month_usage_full_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_03]&apos; value=&apos;[sqlproxy].[month_usage_pdf_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_06]&apos; value=&apos;[sqlproxy].[month_usage_pdf_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_09]&apos; value=&apos;[sqlproxy].[month_usage_pdf_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_12]&apos; value=&apos;[sqlproxy].[month_usage_pdf_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_24]&apos; value=&apos;[sqlproxy].[month_usage_pdf_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_36]&apos; value=&apos;[sqlproxy].[month_usage_pdf_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_48]&apos; value=&apos;[sqlproxy].[month_usage_pdf_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_60]&apos; value=&apos;[sqlproxy].[month_usage_pdf_60]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_citation_count]&apos; value=&apos;[sqlproxy].[previous_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_editor]&apos; value=&apos;[sqlproxy].[rejected_manuscript_editor]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_id]&apos; value=&apos;[sqlproxy].[rejected_manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_citation_count]&apos; value=&apos;[sqlproxy].[scopus_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_subtype]&apos; value=&apos;[sqlproxy].[scopus_subtype]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[usage_start_date (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;TOC Section&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;created (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#2&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_2]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#3&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_3]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[month_number]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;publisher_id (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Collection&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;usage_start_date (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[usage_start_date (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.125749&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.874251&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem5982722473242813391&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location derived-from=&apos;/datasources/article_usage_with_article_metadata_ds?rev=1.1&apos; id=&apos;article_usage_with_article_metadata_ds&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;article_usage_with_article_metadata_ds&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[altmetrics_blogs]&apos; value=&apos;[sqlproxy].[altmetrics_blogs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_facebook]&apos; value=&apos;[sqlproxy].[altmetrics_facebook]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_gplus]&apos; value=&apos;[sqlproxy].[altmetrics_gplus]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_news_outlets]&apos; value=&apos;[sqlproxy].[altmetrics_news_outlets]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_policy_docs]&apos; value=&apos;[sqlproxy].[altmetrics_policy_docs]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_reddit]&apos; value=&apos;[sqlproxy].[altmetrics_reddit]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_twitter]&apos; value=&apos;[sqlproxy].[altmetrics_twitter]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_video]&apos; value=&apos;[sqlproxy].[altmetrics_video]&apos; /&gt;&#10;      &lt;map key=&apos;[altmetrics_wikipedia]&apos; value=&apos;[sqlproxy].[altmetrics_wikipedia]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[article_doi (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[article_doi]&apos; value=&apos;[sqlproxy].[article_doi]&apos; /&gt;&#10;      &lt;map key=&apos;[article_issue]&apos; value=&apos;[sqlproxy].[article_issue]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal]&apos; value=&apos;[sqlproxy].[article_journal]&apos; /&gt;&#10;      &lt;map key=&apos;[article_journal_issn]&apos; value=&apos;[sqlproxy].[article_journal_issn]&apos; /&gt;&#10;      &lt;map key=&apos;[article_pages]&apos; value=&apos;[sqlproxy].[article_pages]&apos; /&gt;&#10;      &lt;map key=&apos;[article_publisher]&apos; value=&apos;[sqlproxy].[article_publisher]&apos; /&gt;&#10;      &lt;map key=&apos;[article_scopus_id]&apos; value=&apos;[sqlproxy].[article_scopus_id]&apos; /&gt;&#10;      &lt;map key=&apos;[article_title]&apos; value=&apos;[sqlproxy].[article_title]&apos; /&gt;&#10;      &lt;map key=&apos;[article_type]&apos; value=&apos;[sqlproxy].[article_type]&apos; /&gt;&#10;      &lt;map key=&apos;[article_volume]&apos; value=&apos;[sqlproxy].[article_volume]&apos; /&gt;&#10;      &lt;map key=&apos;[citation_count]&apos; value=&apos;[sqlproxy].[citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_lookup_error]&apos; value=&apos;[sqlproxy].[citations_lookup_error]&apos; /&gt;&#10;      &lt;map key=&apos;[citations_updated_on]&apos; value=&apos;[sqlproxy].[citations_updated_on]&apos; /&gt;&#10;      &lt;map key=&apos;[co_authors]&apos; value=&apos;[sqlproxy].[co_authors]&apos; /&gt;&#10;      &lt;map key=&apos;[created]&apos; value=&apos;[sqlproxy].[created]&apos; /&gt;&#10;      &lt;map key=&apos;[custom]&apos; value=&apos;[sqlproxy].[custom]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_2]&apos; value=&apos;[sqlproxy].[custom_2]&apos; /&gt;&#10;      &lt;map key=&apos;[custom_3]&apos; value=&apos;[sqlproxy].[custom_3]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_publication]&apos; value=&apos;[sqlproxy].[date_of_publication]&apos; /&gt;&#10;      &lt;map key=&apos;[date_of_rejection]&apos; value=&apos;[sqlproxy].[date_of_rejection]&apos; /&gt;&#10;      &lt;map key=&apos;[editor]&apos; value=&apos;[sqlproxy].[editor]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_average_score]&apos; value=&apos;[sqlproxy].[f1000_average_score]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_num_recommendations]&apos; value=&apos;[sqlproxy].[f1000_num_recommendations]&apos; /&gt;&#10;      &lt;map key=&apos;[f1000_total_score]&apos; value=&apos;[sqlproxy].[f1000_total_score]&apos; /&gt;&#10;      &lt;map key=&apos;[first_author]&apos; value=&apos;[sqlproxy].[first_author]&apos; /&gt;&#10;      &lt;map key=&apos;[from_rejected_manuscript]&apos; value=&apos;[sqlproxy].[from_rejected_manuscript]&apos; /&gt;&#10;      &lt;map key=&apos;[has_abstract]&apos; value=&apos;[sqlproxy].[has_abstract]&apos; /&gt;&#10;      &lt;map key=&apos;[hw_metadata_retrieved]&apos; value=&apos;[sqlproxy].[hw_metadata_retrieved]&apos; /&gt;&#10;      &lt;map key=&apos;[is_cohort]&apos; value=&apos;[sqlproxy].[is_cohort]&apos; /&gt;&#10;      &lt;map key=&apos;[is_open_access]&apos; value=&apos;[sqlproxy].[is_open_access]&apos; /&gt;&#10;      &lt;map key=&apos;[is_tr_citable]&apos; value=&apos;[sqlproxy].[is_tr_citable]&apos; /&gt;&#10;      &lt;map key=&apos;[mendeley_saves]&apos; value=&apos;[sqlproxy].[mendeley_saves]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_citation_count]&apos; value=&apos;[sqlproxy].[meta_actual_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_ef]&apos; value=&apos;[sqlproxy].[meta_actual_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_actual_tiers]&apos; value=&apos;[sqlproxy].[meta_actual_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_pmid]&apos; value=&apos;[sqlproxy].[meta_pmid]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_citation_count]&apos; value=&apos;[sqlproxy].[meta_predicted_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_ef]&apos; value=&apos;[sqlproxy].[meta_predicted_ef]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_predicted_tiers]&apos; value=&apos;[sqlproxy].[meta_predicted_tiers]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_10]&apos; value=&apos;[sqlproxy].[meta_top_10]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_1]&apos; value=&apos;[sqlproxy].[meta_top_1]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_25]&apos; value=&apos;[sqlproxy].[meta_top_25]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_50]&apos; value=&apos;[sqlproxy].[meta_top_50]&apos; /&gt;&#10;      &lt;map key=&apos;[meta_top_5]&apos; value=&apos;[sqlproxy].[meta_top_5]&apos; /&gt;&#10;      &lt;map key=&apos;[month_number]&apos; value=&apos;[sqlproxy].[month_number]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage]&apos; value=&apos;[sqlproxy].[month_usage]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_03]&apos; value=&apos;[sqlproxy].[month_usage_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_06]&apos; value=&apos;[sqlproxy].[month_usage_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_09]&apos; value=&apos;[sqlproxy].[month_usage_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_12]&apos; value=&apos;[sqlproxy].[month_usage_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_24]&apos; value=&apos;[sqlproxy].[month_usage_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_36]&apos; value=&apos;[sqlproxy].[month_usage_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_48]&apos; value=&apos;[sqlproxy].[month_usage_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_60]&apos; value=&apos;[sqlproxy].[month_usage_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_03]&apos; value=&apos;[sqlproxy].[month_usage_abstract_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_06]&apos; value=&apos;[sqlproxy].[month_usage_abstract_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_09]&apos; value=&apos;[sqlproxy].[month_usage_abstract_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_12]&apos; value=&apos;[sqlproxy].[month_usage_abstract_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_24]&apos; value=&apos;[sqlproxy].[month_usage_abstract_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_36]&apos; value=&apos;[sqlproxy].[month_usage_abstract_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_48]&apos; value=&apos;[sqlproxy].[month_usage_abstract_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_abstract_60]&apos; value=&apos;[sqlproxy].[month_usage_abstract_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_03]&apos; value=&apos;[sqlproxy].[month_usage_full_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_06]&apos; value=&apos;[sqlproxy].[month_usage_full_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_09]&apos; value=&apos;[sqlproxy].[month_usage_full_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_12]&apos; value=&apos;[sqlproxy].[month_usage_full_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_24]&apos; value=&apos;[sqlproxy].[month_usage_full_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_36]&apos; value=&apos;[sqlproxy].[month_usage_full_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_48]&apos; value=&apos;[sqlproxy].[month_usage_full_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_full_60]&apos; value=&apos;[sqlproxy].[month_usage_full_60]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_03]&apos; value=&apos;[sqlproxy].[month_usage_pdf_03]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_06]&apos; value=&apos;[sqlproxy].[month_usage_pdf_06]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_09]&apos; value=&apos;[sqlproxy].[month_usage_pdf_09]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_12]&apos; value=&apos;[sqlproxy].[month_usage_pdf_12]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_24]&apos; value=&apos;[sqlproxy].[month_usage_pdf_24]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_36]&apos; value=&apos;[sqlproxy].[month_usage_pdf_36]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_48]&apos; value=&apos;[sqlproxy].[month_usage_pdf_48]&apos; /&gt;&#10;      &lt;map key=&apos;[month_usage_pdf_60]&apos; value=&apos;[sqlproxy].[month_usage_pdf_60]&apos; /&gt;&#10;      &lt;map key=&apos;[previous_citation_count]&apos; value=&apos;[sqlproxy].[previous_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[publisher_id (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[publisher_id]&apos; value=&apos;[sqlproxy].[publisher_id]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_editor]&apos; value=&apos;[sqlproxy].[rejected_manuscript_editor]&apos; /&gt;&#10;      &lt;map key=&apos;[rejected_manuscript_id]&apos; value=&apos;[sqlproxy].[rejected_manuscript_id]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_citation_count]&apos; value=&apos;[sqlproxy].[scopus_citation_count]&apos; /&gt;&#10;      &lt;map key=&apos;[scopus_subtype]&apos; value=&apos;[sqlproxy].[scopus_subtype]&apos; /&gt;&#10;      &lt;map key=&apos;[subject_category]&apos; value=&apos;[sqlproxy].[subject_category]&apos; /&gt;&#10;      &lt;map key=&apos;[updated]&apos; value=&apos;[sqlproxy].[updated]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date (Custom_SQL_Query)]&apos; value=&apos;[sqlproxy].[usage_start_date (Custom_SQL_Query)]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_start_date]&apos; value=&apos;[sqlproxy].[usage_start_date]&apos; /&gt;&#10;      &lt;map key=&apos;[usage_type]&apos; value=&apos;[sqlproxy].[usage_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article DOI&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_doi]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Issue&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_issue]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Journal&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Journal ISSN&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_journal_issn]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Pages&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_pages]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Scopus Id&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_scopus_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Title&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_title]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;TOC Section&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Volume&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[article_volume]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article Co-Authors&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[co_authors]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;created (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[created]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#2&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_2]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Custom \#3&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[custom_3]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Article Date of Publication (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[date_of_publication]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Editor&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[editor]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Article First Author&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[first_author]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[month_number]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;publisher_id (article_metadata)&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher_id]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Collection&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[subject_category]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;usage_start_date (article_metadata)&apos; datatype=&apos;datetime&apos; default-type=&apos;ordinal&apos; name=&apos;[usage_start_date (Custom_SQL_Query)]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;datetime&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.125749&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.874251&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
               <attribute datatype='boolean' name='extract-active'>true</attribute>
               <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
-              <attribute datatype='string' name='update-time'>&quot;7/1/2018 6:16:21 AM&quot;</attribute>
+              <attribute datatype='string' name='update-time'>&quot;12/1/2018 7:13:15 AM&quot;</attribute>
               <attribute datatype='string' name='version'>&quot;0.0.0&quot;</attribute>
             </attributes>
           </metadata-record>
@@ -2347,9 +2347,814 @@
           <groupfilter function='level-members' level='[article_doi]' />
         </groupfilter>
       </group>
-      <layout dim-ordering='alphabetic' dim-percentage='0.293578' group-percentage='0.282875' measure-ordering='alphabetic' measure-percentage='0.296636' parameter-percentage='0.126911' show-hidden-fields='true' show-structure='true' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.297345' group-percentage='0.281416' measure-ordering='alphabetic' measure-percentage='0.295575' parameter-percentage='0.125664' show-hidden-fields='true' show-structure='true' />
       <style>
         <style-rule element='mark'>
+          <encoding attr='color' field='[none:Calculation_2501027101059850:nk]' palette='tableau-20' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;50,000+&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;2,501-5,000&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;51-100&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;501-1,000&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;2,001-2,500&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;25,001-50,000&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;1-50&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;101-500&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;1,501-2,000&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;10,001-25,000&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;1,001-1,500&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;5,001-10,000&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:article_type:nk]' type='palette'>
+            <map to='#17becf'>
+              <bucket>&quot;Blood Advances Talks&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Chronic Myeloid Leukemia: Refining/Redefining The State Of The Art&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Current And Future Therapies For Aplastic Anemia And Myelodysplastic Syndromes&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Erratum&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Immunological Ctrl-Alt-Del: Stem Cell Transplantation For Hematological Malignancies&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Management Of Challenging Bleeding Complications&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Myeloproliferative Neoplasms: A Clinical Update&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Pediatric Malignancies: Clinical Implications Of Advances In Leukemia Biology&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Plenary Paper&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Stimulus Report&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Transfusion Medicine-Transfusible Assets (Aabb Joint Session)&quot;</bucket>
+            </map>
+            <map to='#17becf'>
+              <bucket>&quot;Update On Hodgkin Lymphoma&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>%null%</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Clinical Dilemmas In Acute Myeloid Leukemia&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Current Management Issues In Acute Lymphocytic Leukemia&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Expression Of Concern&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Graft Engineering And Adoptive Immunotherapy: Tackling Resistance&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Management Of Thromboembolic Disease&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;New Approaches In Chronic Lymphocytic Leukemia And Prolymphocytic Leukemia&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Regular Article&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Reproductive Reasoning: Hematology And Reproduction&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;Understanding And Management Of Inherited Bone Marrow Failure Syndromes&quot;</bucket>
+            </map>
+            <map to='#1f77b4'>
+              <bucket>&quot;“Double Hit” Diffuse Large B-Cell Lymphoma&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Acute Myeloid Leukemia In The Age Of Genomics&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Blood Forum&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Complement Disorders And Hematologic Consequences&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Disorders Of Platelet Destruction&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Ham-Wasserman Lecture&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Immunobiology&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Infectious Disease Complications Encountered By The Practicing Hematologist&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Non-Hodgkin Lymphomas Ii: Breakthroughs In Treatment Of High-Grade Lymphomas&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Response&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Review Series&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Sickle Cell Disease: Treating Patients With Broken Red Cells&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Aplastic Anemia: Bone Marrow Failure&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Chronic Lymphocytic Leukemia: A New Treatment Era Is Born&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Consultative Hematology: The Pregnant Patient&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;E-&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Hodgkin Lymphoma&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Minimal Residual Disease: Chronic Myeloid Leukemia And Acute Lymphocytic Leukemia&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Myeloma: Controversies In Therapy&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Pediatric Hematologic Malignancies&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Perspective&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Therapeutic Progress In Von Willebrand Disease&quot;</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>&quot;Viruses And Lymphoma&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Anemia In The Young And Old&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Challenging Scenarios In Thrombosis&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Clinical Trials And Observations&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Commentary&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Evolving Issues In Anticoagulation&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Hemoglobinopathies: Fresh Ideas For Management&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Issues In Thrombosis Management And Anticoagulation&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Lymphoid Neoplasia&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Myelodysplastic Syndromes: Evolving Diagnosis And Therapy&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Recent Advances In Histiocytic Neoplasms&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Sickle Cell Disease And Thalassemia&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Supportive Care In Plasma Cell Dyscrasias&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>&quot;Updates In Aggressive Thrombotic Disease&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Aml According To Who: Newer Approaches To Therapy&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Brief Report&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Challenges In Acute Myeloid Leukemia&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Genetics Of Chronic Lymphocytic Leukemia And Lymphoplasmacytic Lymphoma&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Hematologic Disease At Older Age&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Hematopoietic Stem Cell Transplantation I: Transplantation In Benign Hematology&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Insights From Pediatric Hematologic Malignancies: Focus On Acute Lymphocytic Leukemia&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Letter To Blood&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Multiple Myeloma&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Practical Management Of T-Cell And Natural Killer Cell Lymphomas&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Transplantation&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Trauma-Induced Coagulopathy: A Clinical And Scientific Perspective&quot;</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>&quot;Update On Aggressive Lymphomas: New Agents And Current Management&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Acute Myeloid Leukemia In The Elderly Patient&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Blood Reflections&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Congenital Bleeding Disorders&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Disorders Of Platelet Number And Function In Systemic Diseases&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Global Poster&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Ham-Wasserman Manuscript&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Informed Decisions In Acute Myeloid Leukemia: Beyond Morphology And Cytogenetics&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Inside&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Optimizing Treatments For High-Risk Acute Lymphoblastic Leukemia: What It Takes To Move The Needle&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Reversing Old And New Anticoagulants&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Spin Doctors: Apheresis For Hematologists&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;T-Cell Malignancies&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Bone Marrow Failures&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Clinical Advances In Hodgkin Lymphoma&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Current Issues In Myeloproliferative Neoplasms&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Evidence-Based Focused Review&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Imaging And Treating The Clot: What&apos;S New\#&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Management Of Sickle Cell Disease&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Myeloproliferative Neoplasms: Ten Years After Jak2-V617F&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Recent High-Impact Clinical Trials In Sickle Cell Disease: Where Do They Leave The Field\#&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Red Cells; Iron; And Erythropoiesis&quot;</bucket>
+            </map>
+            <map to='#9edae5'>
+              <bucket>&quot;Transfusion Medicine: Transfusion Support In Trauma―Military And Civilian Approaches&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;A Fresh Look At Drug Approval: Moving Away From Tradition&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Anniversary Editorial&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Clinical Impact Of Targeted Therapies In Myeloproliferative Neoplasms&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Cytosis: Too Much Of A Good Thing&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Gene Therapy&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Grant Writing For Junior Faculty&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Managing Severe Thrombosis And Sequelae&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;New Insights In Hemolytic Anemia&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Platelet Disorders&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Response To Letter&quot;</bucket>
+            </map>
+            <map to='#aec7e8'>
+              <bucket>&quot;Transplantation: Adoptive T-Cell Strategies&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Bad Bugs: Infections Causing Lymphoma&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Chronic Myeloid Leukemia&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Editorial&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Finding Treatment For The Untreatable: The Power Of Chemical Biology&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Hodgkin Lymphoma: New And Old&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Lymphoma: Challenges And New Directions&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Myeloproliferative Diseases: It&apos;S Not Only About Jak&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Pediatric Hematology: Insights Applicable To All!&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Phagocytes; Granulocytes; And Myelopoiesis&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Strategies To Improve Graft-Versus-Leukemia Effects&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;Treatment Of Congenital Bleeding Disorders&quot;</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>&quot;When Antibody Response Goes Awry&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Anemia: When Something&apos;S Wrong With Iron&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Changing Paradigms In Acute Lymphocytic Leukemia: From The Genome To The Patient&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Cme Article&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Consultative Hematology I: Common Questions In Thrombosis Consults&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Hemophagocytic Lymphohistiocytosis In Adults&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Issues Of Toxicity In Allogeneic Bone Marrow Transplantation&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Myelodysplastic Syndromes: What Makes Therapy Effective\#&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Myeloid Neoplasia&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Palliative Care In Hematological Malignancies&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Point-Counterpoint&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Survivorship In Hematologic Malignancies&quot;</bucket>
+            </map>
+            <map to='#c49c94'>
+              <bucket>&quot;Updates On Disorders Of Iron Utilization And Distribution&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;An Update On White Blood Cell Disorders&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Challenges In Hemophilia Care&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Chronic Graft-Versus-Host Disease&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Genomics In Hematology 101 For The Practicing Clinician&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Hematopoietic Stem Cell Transplantation Ii: Controversies And Challenges In Hsct&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Iron Homeostasis &amp; Chronic Disease: Disorders Of Iron Overload&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Letters To&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Myelodysplastic Syndromes&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Practice Issues In Hemophilia&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Strategies For Optimal Management In Thalassemia—Now And In The Future&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Update On Diagnosis And Management Of Thrombotic Thrombocytopenic Purpura&quot;</bucket>
+            </map>
+            <map to='#c5b0d5'>
+              <bucket>&quot;Vascular Biology&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Ash Choosing Wisely®&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Chronic Lymphocytic Leukemia: From Biology To Targeted Therapy&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Contemporary Therapy Of Lymphoma&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;E-Blood&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Exceptional Case Report&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Hodgkin Lymphoma Prognosis And Therapy&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Multiple Advances In Myeloma&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Myeloma: Immunotherapy&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Pediatric Hematological Malignancies: Beyond Acute Lymphocytic Leukemia&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Perspectives&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Treatment Of Acute Myeloid Leukemia: Moving Beyond 3 + 7&quot;</bucket>
+            </map>
+            <map to='#c7c7c7'>
+              <bucket>&quot;Von Willebrand Disease: Rediscovering An Old Disease&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Adolescent And Young Adult Malignant Hematology&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Advances In Clotting Factors: From Bench To Bedside&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Blood Spotlight&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Bone Marrow Transplant: Understanding And Improving The Risk-Benefit Ratio&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Drug Advances&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Follicular Lymphomas&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Health Services And Outcomes&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Inside Blood Commentary&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Mantle Cell Lymphoma&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Nontraditional Laboratory Assays Of Hemostasis: What The Consulting Hematologist Should Know&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Secret Lives Of Blood Cells In Disease&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Sports Medicine In Hematology&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Thrombosis And Hemostasis&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Understanding And Managing Ultra High-Risk Hematological Malignancies&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Biological Insights Into Lymphoid Tumors&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Biologically Based Acute Leukemia Therapy: 2014 And Beyond&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Chronic Myeloid Leukemia: Managing A Chronic Disease&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Controversies And Updates In Multiple Myeloma&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Errata&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Global Advances&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Hodgkin Lymphoma: Treatment Today And The Challenge For Tomorrow&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Lymphoma: Translating Basic Science Into Therapy&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Optimizing Transfusion Therapy (Aabb Session)&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Pediatric Malignancies&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Platelets And Thrombopoiesis&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Therapeutic Antibodies&quot;</bucket>
+            </map>
+            <map to='#dbdb8d'>
+              <bucket>&quot;Transfusion Medicine I: Adverse Complications Of Stored Blood&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Antiplatelet Therapy&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Choosing Wisely&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Cme Questions&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Consultative Hematology Ii: Difficult Pediatric Consultations&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Emerging Immunotherapies For Hematologic Diseases&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Hemophilia&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Laboratory Medicine: Genetics Of Lymphoid Neoplasms In Clinical Practice&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Myeloproliferative Neoplasms&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Optimizing Therapy In Sickle Cell Disease&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Parenteral Iron Therapy—Taking The Rust Off&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Targeted Oral Anticoagulants: Skating On Thin Ice With Blood Thinners&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>&quot;Updates On Treatment Strategies In Myelodysplastic Syndromes&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Aplastic Anemia&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Chronic Lymphocytic Leukemia&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Consultative Hematology: Hemostasis And Thrombosis&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Continuing Medical Education (Cme) Questions&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Hiv In Hematology: What&apos;S New\#&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Mechanisms Of Transfusion Alloimmunization&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Myeloma&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;None&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Nontraditional Roles For The Hemostatic System In The Vessel Wall&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Patient-Reported Outcomes In Hematology&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Thalassemia&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Acquired Hematopoietic Disorders: Complement-Mediated Blood Disorders&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Blood Consult&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Clinical Production And Applications Of Natural Killer Cell Immunotherapy&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Diagnosis And Management Of Myeloproliferative Neoplasm Variants&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Great Expectations: Hematology In Pregnancy&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Hematopoiesis And Stem Cells&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Managing Typical And Atypical Chronic Myeloid Leukemia&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;New Paradigms In Anticoagulation And Thrombolysis&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Platelet Disorders: Managing Too Many; Too Few&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Retraction&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;Sickle Cell&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Allogeneic Transplantation For High-Risk Myelodysplastic Syndromes And Aml&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Blood Work&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Comeback Kid: The Contact Pathway And Factor Xi&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Genetic Susceptibility To Leukemias&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Immunobiology And Immunotherapy&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Letter To&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Marrow Responses To Aging And Inflammation&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Novel Approaches To Acute Lymphoblastic Leukemia&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Possible Game-Changers In Hemophilia&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Special Report&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Stemware: Stem Cell Therapy For Congenital Blood Disorders&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Transfusion Medicine&quot;</bucket>
+            </map>
+            <map to='#ff9896'>
+              <bucket>&quot;Update In Large Cell Lymphoma&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Acute Lymphoid Leukemia&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Blood Flashback&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Common Consults In Thrombosis&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Disorders Of Hemostasis And Thrombosis In Women&apos;S Health&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Global Capacity-Building Showcase&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Guiding Hematologic Care With Genetic Testing&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;How I Treat&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Indolent Lymphoma: Microenvironment&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Non-Hodgkin Lymphomas I: Optimizing Therapy&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Platelet Drugs And Disorders&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Review Article&quot;</bucket>
+            </map>
+            <map to='#ffbb78'>
+              <bucket>&quot;Sickle Cell Disease: Clinical Management&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:usage_type (copy):nk]' palette='tableau-10' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;abstract&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;pdf&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;full&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:usage_type:nk]' palette='tableau-10' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;abstract&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;pdf&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;full&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:Year of Publication (copy):ok]' palette='tableau-10' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>2017</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>2015</bucket>
+            </map>
+            <map to='#7f7f7f'>
+              <bucket>2010</bucket>
+            </map>
+            <map to='#8c564b'>
+              <bucket>2012</bucket>
+            </map>
+            <map to='#9467bd'>
+              <bucket>2013</bucket>
+            </map>
+            <map to='#bcbd22'>
+              <bucket>2018</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>2014</bucket>
+            </map>
+            <map to='#e377c2'>
+              <bucket>2011</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>2016</bucket>
+            </map>
+          </encoding>
           <encoding attr='color' field='[none:Group By (copy):nk]' type='palette'>
             <map to='#17becf'>
               <bucket>&quot;Blood Advances Talks&quot;</bucket>
@@ -2553,6 +3358,9 @@
               <bucket>&quot;Recent Advances In Histiocytic Neoplasms&quot;</bucket>
             </map>
             <map to='#8c564b'>
+              <bucket>&quot;Sickle Cell Disease And Thalassemia&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
               <bucket>&quot;Stewart; A Keith&quot;</bucket>
             </map>
             <map to='#8c564b'>
@@ -2617,6 +3425,9 @@
             </map>
             <map to='#98df8a'>
               <bucket>&quot;Disorders Of Platelet Number And Function In Systemic Diseases&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Global Poster&quot;</bucket>
             </map>
             <map to='#98df8a'>
               <bucket>&quot;Ham-Wasserman Manuscript&quot;</bucket>
@@ -2898,6 +3709,9 @@
               <bucket>&quot;Weyrich; Andrew&quot;</bucket>
             </map>
             <map to='#d62728'>
+              <bucket>&quot;Adolescent And Young Adult Malignant Hematology&quot;</bucket>
+            </map>
+            <map to='#d62728'>
               <bucket>&quot;Advances In Clotting Factors: From Bench To Bedside&quot;</bucket>
             </map>
             <map to='#d62728'>
@@ -2994,6 +3808,9 @@
               <bucket>&quot;E-&quot;</bucket>
             </map>
             <map to='#e377c2'>
+              <bucket>&quot;Emerging Immunotherapies For Hematologic Diseases&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
               <bucket>&quot;Expression Of Concern&quot;</bucket>
             </map>
             <map to='#e377c2'>
@@ -3049,6 +3866,9 @@
             </map>
             <map to='#f7b6d2'>
               <bucket>&quot;Negrin; Robert S.&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Nontraditional Roles For The Hemostatic System In The Vessel Wall&quot;</bucket>
             </map>
             <map to='#f7b6d2'>
               <bucket>&quot;Patient-Reported Outcomes In Hematology&quot;</bucket>
@@ -3199,796 +4019,6 @@
             </map>
             <map to='#ffbb78'>
               <bucket>&quot;Treatment Of Acute Myeloid Leukemia: Moving Beyond 3 + 7&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Calculation_2501027101059850:nk]' palette='tableau-20' type='palette'>
-            <map to='#1f77b4'>
-              <bucket>&quot;50,000+&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;2,501-5,000&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;51-100&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;501-1,000&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;2,001-2,500&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;25,001-50,000&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;1-50&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;101-500&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;1,501-2,000&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;10,001-25,000&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;1,001-1,500&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;5,001-10,000&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:article_type:nk]' type='palette'>
-            <map to='#17becf'>
-              <bucket>&quot;Blood Advances Talks&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Chronic Myeloid Leukemia: Refining/Redefining The State Of The Art&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Current And Future Therapies For Aplastic Anemia And Myelodysplastic Syndromes&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Erratum&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Immunological Ctrl-Alt-Del: Stem Cell Transplantation For Hematological Malignancies&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Management Of Challenging Bleeding Complications&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Myeloproliferative Neoplasms: A Clinical Update&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Pediatric Malignancies: Clinical Implications Of Advances In Leukemia Biology&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Plenary Paper&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Stimulus Report&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Transfusion Medicine-Transfusible Assets (Aabb Joint Session)&quot;</bucket>
-            </map>
-            <map to='#17becf'>
-              <bucket>&quot;Update On Hodgkin Lymphoma&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>%null%</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Clinical Dilemmas In Acute Myeloid Leukemia&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Current Management Issues In Acute Lymphocytic Leukemia&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Expression Of Concern&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Graft Engineering And Adoptive Immunotherapy: Tackling Resistance&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Management Of Thromboembolic Disease&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;New Approaches In Chronic Lymphocytic Leukemia And Prolymphocytic Leukemia&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Regular Article&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Reproductive Reasoning: Hematology And Reproduction&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;Understanding And Management Of Inherited Bone Marrow Failure Syndromes&quot;</bucket>
-            </map>
-            <map to='#1f77b4'>
-              <bucket>&quot;“Double Hit” Diffuse Large B-Cell Lymphoma&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Acute Myeloid Leukemia In The Age Of Genomics&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Blood Forum&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Complement Disorders And Hematologic Consequences&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Disorders Of Platelet Destruction&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Ham-Wasserman Lecture&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Immunobiology&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Infectious Disease Complications Encountered By The Practicing Hematologist&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Non-Hodgkin Lymphomas Ii: Breakthroughs In Treatment Of High-Grade Lymphomas&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Response&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Review Series&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;Sickle Cell Disease: Treating Patients With Broken Red Cells&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Aplastic Anemia: Bone Marrow Failure&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Chronic Lymphocytic Leukemia: A New Treatment Era Is Born&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Consultative Hematology: The Pregnant Patient&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;E-&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Hodgkin Lymphoma&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Minimal Residual Disease: Chronic Myeloid Leukemia And Acute Lymphocytic Leukemia&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Myeloma: Controversies In Therapy&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Pediatric Hematologic Malignancies&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Perspective&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Therapeutic Progress In Von Willebrand Disease&quot;</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>&quot;Viruses And Lymphoma&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Anemia In The Young And Old&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Challenging Scenarios In Thrombosis&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Clinical Trials And Observations&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Commentary&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Evolving Issues In Anticoagulation&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Hemoglobinopathies: Fresh Ideas For Management&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Issues In Thrombosis Management And Anticoagulation&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Lymphoid Neoplasia&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Myelodysplastic Syndromes: Evolving Diagnosis And Therapy&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Recent Advances In Histiocytic Neoplasms&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Supportive Care In Plasma Cell Dyscrasias&quot;</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>&quot;Updates In Aggressive Thrombotic Disease&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Aml According To Who: Newer Approaches To Therapy&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Brief Report&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Challenges In Acute Myeloid Leukemia&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Genetics Of Chronic Lymphocytic Leukemia And Lymphoplasmacytic Lymphoma&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Hematologic Disease At Older Age&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Hematopoietic Stem Cell Transplantation I: Transplantation In Benign Hematology&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Insights From Pediatric Hematologic Malignancies: Focus On Acute Lymphocytic Leukemia&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Letter To Blood&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Multiple Myeloma&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Practical Management Of T-Cell And Natural Killer Cell Lymphomas&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Transplantation&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Trauma-Induced Coagulopathy: A Clinical And Scientific Perspective&quot;</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>&quot;Update On Aggressive Lymphomas: New Agents And Current Management&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Acute Myeloid Leukemia In The Elderly Patient&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Blood Reflections&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Congenital Bleeding Disorders&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Disorders Of Platelet Number And Function In Systemic Diseases&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Ham-Wasserman Manuscript&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Informed Decisions In Acute Myeloid Leukemia: Beyond Morphology And Cytogenetics&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Inside&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Optimizing Treatments For High-Risk Acute Lymphoblastic Leukemia: What It Takes To Move The Needle&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Reversing Old And New Anticoagulants&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;Spin Doctors: Apheresis For Hematologists&quot;</bucket>
-            </map>
-            <map to='#98df8a'>
-              <bucket>&quot;T-Cell Malignancies&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Bone Marrow Failures&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Clinical Advances In Hodgkin Lymphoma&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Current Issues In Myeloproliferative Neoplasms&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Evidence-Based Focused Review&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Imaging And Treating The Clot: What&apos;S New\#&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Management Of Sickle Cell Disease&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Myeloproliferative Neoplasms: Ten Years After Jak2-V617F&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Recent High-Impact Clinical Trials In Sickle Cell Disease: Where Do They Leave The Field\#&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Red Cells; Iron; And Erythropoiesis&quot;</bucket>
-            </map>
-            <map to='#9edae5'>
-              <bucket>&quot;Transfusion Medicine: Transfusion Support In Trauma―Military And Civilian Approaches&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;A Fresh Look At Drug Approval: Moving Away From Tradition&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Anniversary Editorial&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Clinical Impact Of Targeted Therapies In Myeloproliferative Neoplasms&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Cytosis: Too Much Of A Good Thing&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Gene Therapy&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Grant Writing For Junior Faculty&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Managing Severe Thrombosis And Sequelae&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;New Insights In Hemolytic Anemia&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Platelet Disorders&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Response To Letter&quot;</bucket>
-            </map>
-            <map to='#aec7e8'>
-              <bucket>&quot;Transplantation: Adoptive T-Cell Strategies&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Bad Bugs: Infections Causing Lymphoma&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Chronic Myeloid Leukemia&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Editorial&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Finding Treatment For The Untreatable: The Power Of Chemical Biology&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Hodgkin Lymphoma: New And Old&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Lymphoma: Challenges And New Directions&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Myeloproliferative Diseases: It&apos;S Not Only About Jak&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Pediatric Hematology: Insights Applicable To All!&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Phagocytes; Granulocytes; And Myelopoiesis&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Strategies To Improve Graft-Versus-Leukemia Effects&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;Treatment Of Congenital Bleeding Disorders&quot;</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>&quot;When Antibody Response Goes Awry&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Anemia: When Something&apos;S Wrong With Iron&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Changing Paradigms In Acute Lymphocytic Leukemia: From The Genome To The Patient&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Cme Article&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Consultative Hematology I: Common Questions In Thrombosis Consults&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Hemophagocytic Lymphohistiocytosis In Adults&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Issues Of Toxicity In Allogeneic Bone Marrow Transplantation&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Myelodysplastic Syndromes: What Makes Therapy Effective\#&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Myeloid Neoplasia&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Palliative Care In Hematological Malignancies&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Point-Counterpoint&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Survivorship In Hematologic Malignancies&quot;</bucket>
-            </map>
-            <map to='#c49c94'>
-              <bucket>&quot;Updates On Disorders Of Iron Utilization And Distribution&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;An Update On White Blood Cell Disorders&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Challenges In Hemophilia Care&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Chronic Graft-Versus-Host Disease&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Genomics In Hematology 101 For The Practicing Clinician&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Hematopoietic Stem Cell Transplantation Ii: Controversies And Challenges In Hsct&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Iron Homeostasis &amp; Chronic Disease: Disorders Of Iron Overload&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Letters To&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Myelodysplastic Syndromes&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Practice Issues In Hemophilia&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Strategies For Optimal Management In Thalassemia—Now And In The Future&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Update On Diagnosis And Management Of Thrombotic Thrombocytopenic Purpura&quot;</bucket>
-            </map>
-            <map to='#c5b0d5'>
-              <bucket>&quot;Vascular Biology&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Ash Choosing Wisely®&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Chronic Lymphocytic Leukemia: From Biology To Targeted Therapy&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Contemporary Therapy Of Lymphoma&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;E-Blood&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Exceptional Case Report&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Hodgkin Lymphoma Prognosis And Therapy&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Multiple Advances In Myeloma&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Myeloma: Immunotherapy&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Pediatric Hematological Malignancies: Beyond Acute Lymphocytic Leukemia&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Perspectives&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Treatment Of Acute Myeloid Leukemia: Moving Beyond 3 + 7&quot;</bucket>
-            </map>
-            <map to='#c7c7c7'>
-              <bucket>&quot;Von Willebrand Disease: Rediscovering An Old Disease&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Advances In Clotting Factors: From Bench To Bedside&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Blood Spotlight&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Bone Marrow Transplant: Understanding And Improving The Risk-Benefit Ratio&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Drug Advances&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Follicular Lymphomas&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Health Services And Outcomes&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Inside Blood Commentary&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Mantle Cell Lymphoma&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Nontraditional Laboratory Assays Of Hemostasis: What The Consulting Hematologist Should Know&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Secret Lives Of Blood Cells In Disease&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Sports Medicine In Hematology&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Thrombosis And Hemostasis&quot;</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>&quot;Understanding And Managing Ultra High-Risk Hematological Malignancies&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Biological Insights Into Lymphoid Tumors&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Biologically Based Acute Leukemia Therapy: 2014 And Beyond&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Chronic Myeloid Leukemia: Managing A Chronic Disease&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Controversies And Updates In Multiple Myeloma&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Errata&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Global Advances&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Hodgkin Lymphoma: Treatment Today And The Challenge For Tomorrow&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Lymphoma: Translating Basic Science Into Therapy&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Optimizing Transfusion Therapy (Aabb Session)&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Pediatric Malignancies&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Platelets And Thrombopoiesis&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Therapeutic Antibodies&quot;</bucket>
-            </map>
-            <map to='#dbdb8d'>
-              <bucket>&quot;Transfusion Medicine I: Adverse Complications Of Stored Blood&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Antiplatelet Therapy&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Choosing Wisely&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Cme Questions&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Consultative Hematology Ii: Difficult Pediatric Consultations&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Hemophilia&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Laboratory Medicine: Genetics Of Lymphoid Neoplasms In Clinical Practice&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Myeloproliferative Neoplasms&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Optimizing Therapy In Sickle Cell Disease&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Parenteral Iron Therapy—Taking The Rust Off&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Targeted Oral Anticoagulants: Skating On Thin Ice With Blood Thinners&quot;</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>&quot;Updates On Treatment Strategies In Myelodysplastic Syndromes&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Aplastic Anemia&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Chronic Lymphocytic Leukemia&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Consultative Hematology: Hemostasis And Thrombosis&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Continuing Medical Education (Cme) Questions&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Hiv In Hematology: What&apos;S New\#&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Mechanisms Of Transfusion Alloimmunization&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Myeloma&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;None&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Patient-Reported Outcomes In Hematology&quot;</bucket>
-            </map>
-            <map to='#f7b6d2'>
-              <bucket>&quot;Thalassemia&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Acquired Hematopoietic Disorders: Complement-Mediated Blood Disorders&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Blood Consult&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Clinical Production And Applications Of Natural Killer Cell Immunotherapy&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Diagnosis And Management Of Myeloproliferative Neoplasm Variants&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Great Expectations: Hematology In Pregnancy&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Hematopoiesis And Stem Cells&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Managing Typical And Atypical Chronic Myeloid Leukemia&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;New Paradigms In Anticoagulation And Thrombolysis&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Platelet Disorders: Managing Too Many; Too Few&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Retraction&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;Sickle Cell&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Allogeneic Transplantation For High-Risk Myelodysplastic Syndromes And Aml&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Blood Work&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Comeback Kid: The Contact Pathway And Factor Xi&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Genetic Susceptibility To Leukemias&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Immunobiology And Immunotherapy&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Letter To&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Marrow Responses To Aging And Inflammation&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Novel Approaches To Acute Lymphoblastic Leukemia&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Possible Game-Changers In Hemophilia&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Special Report&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Stemware: Stem Cell Therapy For Congenital Blood Disorders&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Transfusion Medicine&quot;</bucket>
-            </map>
-            <map to='#ff9896'>
-              <bucket>&quot;Update In Large Cell Lymphoma&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Acute Lymphoid Leukemia&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Blood Flashback&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Common Consults In Thrombosis&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Disorders Of Hemostasis And Thrombosis In Women&apos;S Health&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Global Capacity-Building Showcase&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Guiding Hematologic Care With Genetic Testing&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;How I Treat&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Indolent Lymphoma: Microenvironment&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Non-Hodgkin Lymphomas I: Optimizing Therapy&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Platelet Drugs And Disorders&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Review Article&quot;</bucket>
-            </map>
-            <map to='#ffbb78'>
-              <bucket>&quot;Sickle Cell Disease: Clinical Management&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:usage_type (copy):nk]' palette='tableau-10' type='palette'>
-            <map to='#1f77b4'>
-              <bucket>&quot;abstract&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;pdf&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;full&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:usage_type:nk]' palette='tableau-10' type='palette'>
-            <map to='#1f77b4'>
-              <bucket>&quot;abstract&quot;</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>&quot;pdf&quot;</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>&quot;full&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Year of Publication (copy):ok]' palette='tableau-10' type='palette'>
-            <map to='#1f77b4'>
-              <bucket>2017</bucket>
-            </map>
-            <map to='#2ca02c'>
-              <bucket>2015</bucket>
-            </map>
-            <map to='#7f7f7f'>
-              <bucket>2010</bucket>
-            </map>
-            <map to='#8c564b'>
-              <bucket>2012</bucket>
-            </map>
-            <map to='#9467bd'>
-              <bucket>2013</bucket>
-            </map>
-            <map to='#bcbd22'>
-              <bucket>2018</bucket>
-            </map>
-            <map to='#d62728'>
-              <bucket>2014</bucket>
-            </map>
-            <map to='#e377c2'>
-              <bucket>2011</bucket>
-            </map>
-            <map to='#ff7f0e'>
-              <bucket>2016</bucket>
             </map>
           </encoding>
           <encoding attr='color' field='[none:Color By (copy 2):nk]' type='palette'>
@@ -4164,6 +4194,9 @@
               <bucket>&quot;Recent Advances In Histiocytic Neoplasms&quot;</bucket>
             </map>
             <map to='#8c564b'>
+              <bucket>&quot;Sickle Cell Disease And Thalassemia&quot;</bucket>
+            </map>
+            <map to='#8c564b'>
               <bucket>&quot;Special Report&quot;</bucket>
             </map>
             <map to='#8c564b'>
@@ -4219,6 +4252,9 @@
             </map>
             <map to='#98df8a'>
               <bucket>&quot;Disorders Of Platelet Number And Function In Systemic Diseases&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Global Poster&quot;</bucket>
             </map>
             <map to='#98df8a'>
               <bucket>&quot;Ham-Wasserman Manuscript&quot;</bucket>
@@ -4452,6 +4488,9 @@
               <bucket>&quot;Von Willebrand Disease: Rediscovering An Old Disease&quot;</bucket>
             </map>
             <map to='#d62728'>
+              <bucket>&quot;Adolescent And Young Adult Malignant Hematology&quot;</bucket>
+            </map>
+            <map to='#d62728'>
               <bucket>&quot;Advances In Clotting Factors: From Bench To Bedside&quot;</bucket>
             </map>
             <map to='#d62728'>
@@ -4539,6 +4578,9 @@
               <bucket>&quot;E-&quot;</bucket>
             </map>
             <map to='#e377c2'>
+              <bucket>&quot;Emerging Immunotherapies For Hematologic Diseases&quot;</bucket>
+            </map>
+            <map to='#e377c2'>
               <bucket>&quot;Hemophilia&quot;</bucket>
             </map>
             <map to='#e377c2'>
@@ -4579,6 +4621,9 @@
             </map>
             <map to='#f7b6d2'>
               <bucket>&quot;Myeloma&quot;</bucket>
+            </map>
+            <map to='#f7b6d2'>
+              <bucket>&quot;Nontraditional Roles For The Hemostatic System In The Vessel Wall&quot;</bucket>
             </map>
             <map to='#f7b6d2'>
               <bucket>&quot;Patient-Reported Outcomes In Hematology&quot;</bucket>
@@ -12867,12 +12912,12 @@
                   </zone>
                 </zone>
                 <zone fixed-size='348' h='12429' id='78' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='3107'>
-                  <zone h='12423' id='79' param='horz' type='layout-flow' w='100000' x='0' y='3107'>
-                    <zone fixed-size='628' h='12423' id='80' is-fixed='true' name='AI - Article Summary' w='58183' x='0' y='3107'>
-                      <layout-cache cell-count-h='1' non-cell-size-h='26' type-h='cell' type-w='cell' />
+                  <zone h='12429' id='79' param='horz' type='layout-flow' w='100000' x='0' y='3107'>
+                    <zone fixed-size='628' h='12429' id='80' is-fixed='true' name='AI - Article Summary' w='58183' x='0' y='3107'>
+                      <layout-cache type-h='cell' type-w='cell' />
                     </zone>
-                    <zone h='12423' id='106' name='AD - Usage Summary' w='41452' x='58183' y='3107'>
-                      <layout-cache cell-count-h='9' cell-count-w='4' non-cell-size-h='46' non-cell-size-w='81' type-h='cell' type-w='cell' />
+                    <zone h='12429' id='106' name='AD - Usage Summary' w='41452' x='58183' y='3107'>
+                      <layout-cache cell-count-w='4' non-cell-size-w='81' type-h='cell' type-w='cell' />
                     </zone>
                   </zone>
                 </zone>
@@ -12884,7 +12929,7 @@
                   </zone>
                 </zone>
                 <zone h='70893' id='105' name='AD-Usage Table' show-title='false' w='100000' x='0' y='29107'>
-                  <layout-cache cell-count-w='4' non-cell-size-w='272' type-h='fixed' type-w='cell' />
+                  <layout-cache cell-count-w='4' fixed-size-h='3051' non-cell-size-w='272' type-h='fixed' type-w='cell' />
                 </zone>
               </zone>
             </zone>
@@ -13026,7 +13071,7 @@
                   </zone>
                   <zone h='88300' id='82' param='horz' type='layout-flow' w='100000' x='0' y='11700'>
                     <zone h='88300' id='83' name='HAT-Articles' w='99636' x='0' y='11700'>
-                      <layout-cache fixed-size-h='1034859' minwidth='704' type-h='fixed' type-w='scalable' />
+                      <layout-cache fixed-size-h='1126167' minwidth='724' type-h='fixed' type-w='scalable' />
                     </zone>
                   </zone>
                 </zone>
@@ -13190,7 +13235,7 @@
                         </formatted-text>
                       </zone>
                       <zone h='46450' id='107' name='HOT-Articles' w='100000' x='0' y='53550'>
-                        <layout-cache fixed-size-h='1094195' type-h='fixed' type-w='fixed' />
+                        <layout-cache fixed-size-h='1135590' type-h='fixed' type-w='fixed' />
                       </zone>
                     </zone>
                   </zone>
@@ -13275,18 +13320,18 @@
             <zone fixed-size='2422' h='96880' id='85' is-fixed='true' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
               <zone h='96880' id='81' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
                 <zone h='96880' id='53' param='vert' type='layout-flow' w='100000' x='0' y='1360'>
-                  <zone h='8480' id='40' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                    <zone h='8480' id='36' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                      <zone h='8480' id='32' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                        <zone h='8480' id='28' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                          <zone h='8480' id='23' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                            <zone h='8480' id='13' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                              <zone h='8480' id='8' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
-                                <zone h='8480' id='3' param='vert' type='layout-flow' w='100000' x='0' y='1360'>
+                  <zone h='7720' id='40' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                    <zone h='7720' id='36' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                      <zone h='7720' id='32' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                        <zone h='7720' id='28' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                          <zone h='7720' id='23' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                            <zone h='7720' id='13' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                              <zone h='7720' id='8' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
+                                <zone h='7720' id='3' param='vert' type='layout-flow' w='100000' x='0' y='1360'>
                                   <zone fixed-size='28' h='1120' id='75' is-fixed='true' param='horz' type='layout-flow' w='100000' x='0' y='1360'>
                                     <zone fixed-size='818' h='1120' id='77' is-fixed='true' type='empty' w='100000' x='0' y='1360' />
                                   </zone>
-                                  <zone h='6080' id='108' param='vert' type='layout-flow' w='100000' x='0' y='2480'>
+                                  <zone h='5320' id='108' param='vert' type='layout-flow' w='100000' x='0' y='2480'>
                                     <zone fixed-size='49' h='1960' id='109' is-fixed='true' param='horz' type='layout-flow' w='98908' x='546' y='2560'>
                                       <zone custom-title='true' h='1800' id='118' mode='compact' param='[Parameters].[Parameter 1 4]' type='paramctrl' w='17453' x='728' y='2640'>
                                         <formatted-text>
@@ -13303,22 +13348,22 @@
                                       <zone h='1800' id='91' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:article_volume:nk]' show-apply='true' type='filter' w='15273' x='68726' y='2640' />
                                       <zone h='1800' id='92' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:article_issue:nk]' show-apply='true' type='filter' w='15273' x='83999' y='2640' />
                                     </zone>
-                                    <zone h='1920' id='110' param='horz' type='layout-flow' w='98908' x='546' y='4520'>
-                                      <zone h='1760' id='86' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:article_type:nk]' show-apply='true' type='filter' w='14077' x='728' y='4600' />
-                                      <zone h='1760' id='87' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:subject_category:nk]' show-apply='true' type='filter' w='14077' x='14805' y='4600' />
-                                      <zone h='1760' id='90' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:editor:nk]' show-apply='true' type='filter' w='14077' x='28882' y='4600' />
-                                      <zone h='1760' id='89' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:custom:nk]' show-apply='true' type='filter' w='14077' x='42959' y='4600' />
-                                      <zone h='1760' id='115' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:custom_2:nk]' show-apply='true' type='filter' w='14077' x='57036' y='4600' />
-                                      <zone h='1760' id='116' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:custom_3:nk]' show-apply='true' type='filter' w='14077' x='71113' y='4600' />
-                                      <zone h='1760' id='104' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:is_open_access:nk]' show-apply='true' type='filter' w='14082' x='85190' y='4600' />
+                                    <zone h='1520' id='110' param='horz' type='layout-flow' w='98908' x='546' y='4520'>
+                                      <zone h='1360' id='86' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:article_type:nk]' show-apply='true' type='filter' w='14077' x='728' y='4600' />
+                                      <zone h='1360' id='87' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:subject_category:nk]' show-apply='true' type='filter' w='14077' x='14805' y='4600' />
+                                      <zone h='1360' id='90' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:editor:nk]' show-apply='true' type='filter' w='14077' x='28882' y='4600' />
+                                      <zone h='1360' id='89' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:custom:nk]' show-apply='true' type='filter' w='14077' x='42959' y='4600' />
+                                      <zone h='1360' id='115' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:custom_2:nk]' show-apply='true' type='filter' w='14077' x='57036' y='4600' />
+                                      <zone h='1360' id='116' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:custom_3:nk]' show-apply='true' type='filter' w='14077' x='71113' y='4600' />
+                                      <zone h='1360' id='104' mode='checkdropdown' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:is_open_access:nk]' show-apply='true' type='filter' w='14082' x='85190' y='4600' />
                                     </zone>
-                                    <zone h='1880' id='114' param='horz' type='layout-flow' w='98908' x='546' y='6440'>
-                                      <zone h='1880' id='97' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:date_of_publication:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49454' x='546' y='6440' />
-                                      <zone h='1880' id='129' name='Object Treemap' param='[sqlproxy.42816.389685277776].[tmn:Calculation_0961213202244106:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49454' x='50000' y='6440' />
+                                    <zone h='1520' id='114' param='horz' type='layout-flow' w='98908' x='546' y='6040'>
+                                      <zone h='1520' id='97' name='Object Mapper - Articles' param='[sqlproxy.42816.389685277776].[none:date_of_publication:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49454' x='546' y='6040' />
+                                      <zone h='1520' id='129' name='Object Treemap' param='[sqlproxy.42816.389685277776].[tmn:Calculation_0961213202244106:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49454' x='50000' y='6040' />
                                     </zone>
                                   </zone>
-                                  <zone fixed-size='24' h='960' id='48' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='8560'>
-                                    <zone h='840' id='49' type='text' w='100000' x='0' y='8560'>
+                                  <zone fixed-size='24' h='960' id='48' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='7800'>
+                                    <zone h='840' id='49' type='text' w='100000' x='0' y='7800'>
                                       <formatted-text>
                                         <run fontalignment='2' fontcolor='#898989'>Set one or more of the filters.  This will update the charts shown below.</run>
                                       </formatted-text>
@@ -13332,20 +13377,20 @@
                       </zone>
                     </zone>
                   </zone>
-                  <zone fixed-size='2169' h='86760' id='106' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='9840'>
-                    <zone fixed-size='445' h='17800' id='122' is-fixed='true' param='horz' type='layout-flow' w='100000' x='0' y='9840'>
-                      <zone fixed-size='538' h='17800' id='127' is-fixed='true' param='vert' type='layout-flow' w='48909' x='0' y='9840'>
-                        <zone fixed-size='488' h='16200' id='123' is-fixed='true' name='Object Treemap' w='48909' x='0' y='9840'>
+                  <zone fixed-size='2169' h='86760' id='106' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='9080'>
+                    <zone fixed-size='445' h='17800' id='122' is-fixed='true' param='horz' type='layout-flow' w='100000' x='0' y='9080'>
+                      <zone fixed-size='538' h='17800' id='127' is-fixed='true' param='vert' type='layout-flow' w='48909' x='0' y='9080'>
+                        <zone fixed-size='488' h='16200' id='123' is-fixed='true' name='Object Treemap' w='48909' x='0' y='9080'>
                           <layout-cache cell-count-w='1' non-cell-size-w='1' type-h='cell' type-w='cell' />
                         </zone>
-                        <zone h='1600' id='124' name='Object Treemap' pane-specification-id='0' param='[sqlproxy.42816.389685277776].[usr:Measure By (copy):qk]' show-title='false' type='color' w='48909' x='0' y='26040' />
+                        <zone h='1600' id='124' name='Object Treemap' pane-specification-id='0' param='[sqlproxy.42816.389685277776].[usr:Measure By (copy):qk]' show-title='false' type='color' w='48909' x='0' y='25280' />
                       </zone>
-                      <zone h='17800' id='125' name='Object Plot' w='50727' x='48909' y='9840'>
+                      <zone h='17800' id='125' name='Object Plot' w='50727' x='48909' y='9080'>
                         <layout-cache minheight='166' minwidth='193' type-h='scalable' type-w='scalable' />
                       </zone>
                     </zone>
-                    <zone fixed-size='5' h='520' id='131' is-fixed='true' type='empty' w='100000' x='0' y='27640' />
-                    <zone h='920' id='130' type='text' w='100000' x='0' y='28160'>
+                    <zone fixed-size='5' h='520' id='131' is-fixed='true' type='empty' w='100000' x='0' y='26880' />
+                    <zone h='920' id='130' type='text' w='100000' x='0' y='27400'>
                       <formatted-text>
                         <run fontalignment='0' fontcolor='#555555' fontsize='10'>Click on a </run>
                         <run fontalignment='0' fontcolor='#555555' fontsize='10'>&lt;</run>
@@ -13354,7 +13399,7 @@
                         <run fontalignment='0' fontcolor='#555555' fontsize='10'> above to view the list of underlying articles</run>
                       </formatted-text>
                     </zone>
-                    <zone h='1400' id='128' name='Object Mapper - Articles' w='100000' x='0' y='29080'>
+                    <zone h='1400' id='128' name='Object Mapper - Articles' w='100000' x='0' y='28320'>
                       <layout-cache fixed-size-h='27' non-cell-size-w='1084' type-h='fixed' type-w='cell' />
                     </zone>
                   </zone>
@@ -13611,7 +13656,7 @@
                 </formatted-text>
               </zone>
               <zone h='875' id='107' name='SS-Articles' w='100000' x='0' y='86350'>
-                <layout-cache non-cell-size-w='1084' type-h='fixed' type-w='cell' />
+                <layout-cache fixed-size-h='27' non-cell-size-w='1084' type-h='fixed' type-w='cell' />
               </zone>
             </zone>
           </zone>
@@ -13690,22 +13735,22 @@
         <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
           <zone h='100000' id='113' param='vert' type='layout-flow' w='100000' x='0' y='0'>
             <zone h='1700' id='112' type='title' w='100000' x='0' y='0' />
-            <zone h='46400' id='85' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-              <zone h='46400' id='81' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                <zone h='46400' id='53' param='vert' type='layout-flow' w='100000' x='0' y='1700'>
-                  <zone h='10750' id='42' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                    <zone h='10750' id='40' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                      <zone h='10750' id='36' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                        <zone h='10750' id='32' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                          <zone h='10750' id='28' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                            <zone h='10750' id='23' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                              <zone h='10750' id='13' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                                <zone h='10750' id='8' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
-                                  <zone h='10750' id='3' param='vert' type='layout-flow' w='100000' x='0' y='1700'>
+            <zone h='45450' id='85' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+              <zone h='45450' id='81' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                <zone h='45450' id='53' param='vert' type='layout-flow' w='100000' x='0' y='1700'>
+                  <zone h='9800' id='42' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                    <zone h='9800' id='40' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                      <zone h='9800' id='36' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                        <zone h='9800' id='32' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                          <zone h='9800' id='28' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                            <zone h='9800' id='23' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                              <zone h='9800' id='13' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                                <zone h='9800' id='8' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
+                                  <zone h='9800' id='3' param='vert' type='layout-flow' w='100000' x='0' y='1700'>
                                     <zone fixed-size='28' h='1400' id='75' is-fixed='true' param='horz' type='layout-flow' w='100000' x='0' y='1700'>
                                       <zone fixed-size='818' h='1400' id='77' is-fixed='true' type='empty' w='100000' x='0' y='1700' />
                                     </zone>
-                                    <zone h='7750' id='108' param='vert' type='layout-flow' w='100000' x='0' y='3100'>
+                                    <zone h='6800' id='108' param='vert' type='layout-flow' w='100000' x='0' y='3100'>
                                       <zone fixed-size='52' h='2600' id='109' is-fixed='true' param='horz' type='layout-flow' w='98908' x='546' y='3200'>
                                         <zone h='2400' id='117' mode='compact' param='[Parameters].[Parameter 1]' type='paramctrl' w='17575' x='728' y='3300' />
                                         <zone custom-title='true' h='2400' id='122' mode='compact' param='[Parameters].[Measure By Param HOT (copy 2)]' type='paramctrl' w='17575' x='18303' y='3300'>
@@ -13722,22 +13767,22 @@
                                         <zone h='2400' id='91' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:article_volume:nk]' show-apply='true' type='filter' w='15273' x='68726' y='3300' />
                                         <zone h='2400' id='92' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:article_issue:nk]' show-apply='true' type='filter' w='15273' x='83999' y='3300' />
                                       </zone>
-                                      <zone h='2400' id='110' param='horz' type='layout-flow' w='98908' x='546' y='5800'>
-                                        <zone h='2200' id='86' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:article_type:nk]' show-apply='true' type='filter' w='14077' x='728' y='5900' />
-                                        <zone h='2200' id='87' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:subject_category:nk]' show-apply='true' type='filter' w='14077' x='14805' y='5900' />
-                                        <zone h='2200' id='90' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:editor:nk]' show-apply='true' type='filter' w='14077' x='28882' y='5900' />
-                                        <zone h='2200' id='89' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:custom:nk]' show-apply='true' type='filter' w='14077' x='42959' y='5900' />
-                                        <zone h='2200' id='115' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:custom_2:nk]' show-apply='true' type='filter' w='14077' x='57036' y='5900' />
-                                        <zone h='2200' id='116' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:custom_3:nk]' show-apply='true' type='filter' w='14077' x='71113' y='5900' />
-                                        <zone h='2200' id='104' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:is_open_access:nk]' show-apply='true' type='filter' w='14082' x='85190' y='5900' />
+                                      <zone h='1900' id='110' param='horz' type='layout-flow' w='98908' x='546' y='5800'>
+                                        <zone h='1700' id='86' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:article_type:nk]' show-apply='true' type='filter' w='14077' x='728' y='5900' />
+                                        <zone h='1700' id='87' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:subject_category:nk]' show-apply='true' type='filter' w='14077' x='14805' y='5900' />
+                                        <zone h='1700' id='90' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:editor:nk]' show-apply='true' type='filter' w='14077' x='28882' y='5900' />
+                                        <zone h='1700' id='89' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:custom:nk]' show-apply='true' type='filter' w='14077' x='42959' y='5900' />
+                                        <zone h='1700' id='115' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:custom_2:nk]' show-apply='true' type='filter' w='14077' x='57036' y='5900' />
+                                        <zone h='1700' id='116' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:custom_3:nk]' show-apply='true' type='filter' w='14077' x='71113' y='5900' />
+                                        <zone h='1700' id='104' mode='checkdropdown' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:is_open_access:nk]' show-apply='true' type='filter' w='14082' x='85190' y='5900' />
                                       </zone>
-                                      <zone h='2350' id='114' param='horz' type='layout-flow' w='98908' x='546' y='8200'>
-                                        <zone h='2150' id='97' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:date_of_publication:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49272' x='728' y='8300' />
-                                        <zone h='2150' id='120' name='uaa-objects' param='[sqlproxy.42816.389685277776].[tmn:Calculation_0961213202244106:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49272' x='50000' y='8300' />
+                                      <zone h='1900' id='114' param='horz' type='layout-flow' w='98908' x='546' y='7700'>
+                                        <zone h='1700' id='97' name='uaa-objects' param='[sqlproxy.42816.389685277776].[none:date_of_publication:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49272' x='728' y='7800' />
+                                        <zone h='1700' id='120' name='uaa-objects' param='[sqlproxy.42816.389685277776].[tmn:Calculation_0961213202244106:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='49272' x='50000' y='7800' />
                                       </zone>
                                     </zone>
-                                    <zone fixed-size='24' h='1200' id='48' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='10850'>
-                                      <zone forceUpdate='true' h='1050' id='49' type='text' w='100000' x='0' y='10850'>
+                                    <zone fixed-size='24' h='1200' id='48' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='9900'>
+                                      <zone forceUpdate='true' h='1050' id='49' type='text' w='100000' x='0' y='9900'>
                                         <formatted-text>
                                           <run fontalignment='2' fontcolor='#898989'>Set one or more of the filters.  This will update the chart shown below.</run>
                                         </formatted-text>
@@ -13752,19 +13797,19 @@
                       </zone>
                     </zone>
                   </zone>
-                  <zone h='35250' id='82' param='horz' type='layout-flow' w='100000' x='0' y='12450'>
-                    <zone fixed-size='804' h='35250' id='106' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='12450'>
-                      <zone fixed-size='600' h='30400' id='83' is-fixed='true' name='uaa-objects' w='100000' x='0' y='12450'>
+                  <zone h='35250' id='82' param='horz' type='layout-flow' w='100000' x='0' y='11500'>
+                    <zone fixed-size='804' h='35250' id='106' is-fixed='true' param='vert' type='layout-flow' w='100000' x='0' y='11500'>
+                      <zone fixed-size='600' h='30400' id='83' is-fixed='true' name='uaa-objects' w='100000' x='0' y='11500'>
                         <layout-cache minheight='147' type-h='scalable' type-w='fixed' />
                       </zone>
-                      <zone fixed-size='46' h='2700' id='121' is-fixed='true' type='text' w='100000' x='0' y='42850'>
+                      <zone fixed-size='46' h='2700' id='121' is-fixed='true' type='text' w='100000' x='0' y='41900'>
                         <formatted-text>
                           <run fontcolor='#1b1b1b'>Month from Publication</run>
                           <run fontcolor='#555555'>Æ&#10;</run>
                           <run fontalignment='0' fontcolor='#555555' fontsize='10'>&#10;Click on a &lt;[Parameters].[Parameter 1 4]&gt; above to view the list of underlying articles</run>
                         </formatted-text>
                       </zone>
-                      <zone h='1750' id='107' name='uaa-articles' w='100000' x='0' y='45550'>
+                      <zone h='1750' id='107' name='uaa-articles' w='100000' x='0' y='44600'>
                         <layout-cache fixed-size-h='27' type-h='fixed' type-w='fixed' />
                       </zone>
                     </zone>
@@ -13927,9 +13972,24 @@
         </zone>
       </zones>
     </dashboard>
+    <dashboard name='Vizor Support'>
+      <style />
+      <size maxheight='800' maxwidth='1000' minheight='800' minwidth='1000' />
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone forceUpdate='true' h='13125' id='1' type='text' w='100000' x='0' y='0'>
+            <formatted-text>
+              <run fontsize='16'>Contact Vizor Support</run>
+              <run>&#10;Please include a detailed description of the problem.&#10;After submitting the form, you will receive an email confirmation with your new case details.</run>
+            </formatted-text>
+          </zone>
+          <zone forceUpdate='' h='86875' id='3' param='https://reports.highwire.org/support/vizors/article-usage-vizor/index.html' type='web' w='100000' x='0' y='13125' />
+        </zone>
+      </zones>
+    </dashboard>
   </dashboards>
   <windows source-height='30'>
-    <window class='dashboard' maximized='true' name='Overview'>
+    <window class='dashboard' name='Overview'>
       <viewpoints>
         <viewpoint name='ov_abstract'>
           <zoom type='entire-view' />
@@ -14001,7 +14061,7 @@
           </selection-collection>
         </viewpoint>
       </viewpoints>
-      <active id='83' />
+      <active id='-1' />
     </window>
     <window class='dashboard' name='Object Mapper'>
       <viewpoints>
@@ -14111,6 +14171,10 @@
         </viewpoint>
       </viewpoints>
       <active id='-1' />
+    </window>
+    <window class='dashboard' maximized='true' name='Vizor Support'>
+      <viewpoints />
+      <active id='1' />
     </window>
     <window class='worksheet' hidden='true' name='AD - Usage Summary'>
       <cards>
@@ -17097,264 +17161,251 @@
     </thumbnail>
     <thumbnail height='192' name='Overview' width='192'>
       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
-      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
-      AAAASUVORK5CYII=
+      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
+      /w8q16bCxvo9iQAAAABJRU5ErkJggg==
     </thumbnail>
     <thumbnail height='192' name='Section-to-Section Comparator' width='192'>
       iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7EAAAOxAGVKw4b
@@ -18209,6 +18260,61 @@
       Oke2dJD27mfHHgPUIZduD+MKN/L1jRs0xhu4MbZIb2cjHx3r4crwKFXTwBDcNMsaeZeTiaUy
       AzE3yZUcbkXg20WdV5rdNIW8/L9fj9DZGqfDLzKbqbBcNokEXPzRK7vaQOjA+P8B6kswm0Ru
       6IYAAAAASUVORK5CYII=
+    </thumbnail>
+    <thumbnail height='192' name='Vizor Support' width='192'>
+      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
     </thumbnail>
   </thumbnails>
 </workbook>
