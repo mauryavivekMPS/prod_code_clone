@@ -12,8 +12,8 @@ class CrossrefConnector(BaseConnector):
     BASE_CITATION_URL = 'https://doi.crossref.org'
 
     connector_name = 'Crossref'
-    max_attempts = 3
-    request_timeout = 15
+    max_attempts = 7
+    request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
         self.username = username
@@ -201,10 +201,13 @@ class CrossrefConnector(BaseConnector):
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == requests.codes.NOT_FOUND:
                     return r
-                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT or http_error.response.status_code == requests.codes.UNAUTHORIZED:
+                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT:
                     self.log("Crossref API timed out. Trying again...")
                     _pause_for_retry()
                     attempt += 1
+                elif http_error.response.status_code == requests.codes.UNAUTHORIZED:
+                    self.log("Crossref API unauthorized error. Skipping this DOI lookup...")
+                    continue
                 elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
                     self.log("Crossref API 500 error. Trying again...")
                     _pause_for_retry()
@@ -261,10 +264,13 @@ class CrossrefConnector(BaseConnector):
                 pass
 
             if completed_response:
-                if response_status_code in (requests.codes.REQUEST_TIMEOUT, requests.codes.UNAUTHORIZED):
+                if response_status_code == requests.codes.REQUEST_TIMEOUT:
                     self.log("Crossref API timed out. Trying again...")
                     _pause_for_retry()
                     attempt += 1
+                elif response_status_code == requests.codes.UNAUTHORIZED:
+                    self.log("Crossref API unauthorized error. Skipping this DOI lookup...")
+                    continue
                 elif response_status_code in (requests.codes.INTERNAL_SERVER_ERROR, requests.codes.BAD_GATEWAY):
                     self.log("Crossref API 500 error. Trying again...")
                     _pause_for_retry()
