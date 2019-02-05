@@ -4,6 +4,8 @@ import json
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl import utils
+from ivetl.models import RejectedArticles
+
 
 @app.task
 class PrepareInputFileTask(Task):
@@ -36,6 +38,7 @@ class PrepareInputFileTask(Task):
                     tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + line[3])
 
                     manuscript_id = utils.trim_and_strip_doublequotes(line[0])
+
                     input_data = {
                         'manuscript_id': manuscript_id,
                         'date_of_rejection': utils.trim_and_strip_doublequotes(line[1]),
@@ -81,6 +84,18 @@ class PrepareInputFileTask(Task):
                             input_data['preprint_doi'] = preprint_doi
 
                     input_data['source_file_name'] = file
+
+                    # Perform an update if the manuscript_id is already in the DB.
+                    # Blank input_data fields retain the value already in the DB.
+                    try:
+                        r = RejectedArticles.objects.get(publisher_id=publisher_id, manuscript_id=manuscript_id)
+
+                        for field, val in input_data.items():
+                            if val == "": input_data[field] = r[field]
+
+                    except RejectedArticles.DoesNotExist:
+                        # manuscript is not in db, so nothing to do
+                        pass
 
                     row = '\t'.join([publisher_id, manuscript_id, json.dumps(input_data)]) + '\n'
                     target_file.write(row)
