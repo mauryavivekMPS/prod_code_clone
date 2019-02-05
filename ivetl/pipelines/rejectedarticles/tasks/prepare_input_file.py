@@ -38,6 +38,7 @@ class PrepareInputFileTask(Task):
                     tlogger.info("\n" + str(count-1) + ". Reading In Rejected Article: " + line[3])
 
                     manuscript_id = utils.trim_and_strip_doublequotes(line[0])
+
                     input_data = {
                         'manuscript_id': manuscript_id,
                         'date_of_rejection': utils.trim_and_strip_doublequotes(line[1]),
@@ -84,51 +85,13 @@ class PrepareInputFileTask(Task):
 
                     input_data['source_file_name'] = file
 
-                    # Check if manuscript db and if any values are '-' use value in db:
+                    # Perform an update if the manuscript_id is already in the DB.
+                    # Blank input_data fields retain the value already in the DB.
                     try:
                         r = RejectedArticles.objects.get(publisher_id=publisher_id, manuscript_id=manuscript_id)
 
-                        if input_data['date_of_rejection'] == '-':
-                            input_data['date_of_rejection'] = r.date_of_rejection
-
-                        if input_data['reject_reason'] == '-':
-                            input_data['reject_reason'] = r.reject_reason
-
-                        if input_data['title'] == '-':
-                            input_data['title'] = r.manuscript_title
-
-                        if input_data['first_author'] == '-':
-                            input_data['first_author'] = r.first_author
-
-                        if input_data['corresponding_author'] == '-':
-                            input_data['corresponding_author'] = r.corresponding_author
-
-                        if input_data['co_authors'] == '-':
-                            input_data['co_authors'] = r.co_authors
-
-                        if input_data['subject_category'] == '-':
-                            input_data['subject_category'] = r.subject_category
-
-                        if input_data['editor'] == '-':
-                            input_data['editor'] = r.editor
-
-                        if input_data['submitted_journal'] == '-':
-                            input_data['submitted_journal'] = r.submitted_journal
-
-                        if input_data['article_type'] == '-':
-                            input_data['article_type'] = r.article_type
-
-                        if input_data['keywords'] == '-':
-                            input_data['keywords'] = r.keywords
-
-                        if input_data['custom'] == '-':
-                            input_data['custom'] = r.custom
-
-                        if input_data['custom_2'] == '-':
-                            input_data['custom_2'] = r.custom_2
-
-                        if input_data['custom_3'] == '-':
-                            input_data['custom_3'] = r.custom_3
+                        for field, val in input_data.items():
+                            if val == "": input_data[field] = r[field]
 
                     except RejectedArticles.DoesNotExist:
                         # manuscript is not in db, so nothing to do

@@ -89,23 +89,8 @@ class RejectedArticlesValidator(BaseValidator):
                             if not manuscript_id:
                                 errors.append(self.format_error(file_name, count, "No value for MANUSCRIPT_ID"))
 
-                            if input_data['date_of_rejection'] == "":
-                                errors.append(self.format_error(file_name, count, "No value for DATE_OF_REJECTION"))
-
-                            elif not self.valid_date(input_data['date_of_rejection']):
+                            if input_data['date_of_rejection'] != "" and  not self.valid_date(input_data['date_of_rejection']):
                                 errors.append(self.format_error(file_name, count, "Invalid format for DATE_OF_REJECTION %s (Valid format is MM/DD/YY)" % input_data['date_of_rejection']))
-
-                            if input_data['reject_reason'] == "":
-                                errors.append(self.format_error(file_name, count, "No value for REJECT_REASON"))
-
-                            if input_data['title'] == "":
-                                errors.append(self.format_error(file_name, count, "No have value for TITLE"))
-
-                            if input_data['first_author'] == "" and input_data['corresponding_author'] == "" and input_data['co_authors'] == "":
-                                errors.append(self.format_error(file_name, count, "No value for any of the author fields (first, corresponding, co)"))
-
-                            if input_data['submitted_journal'] == "":
-                                errors.append(self.format_error(file_name, count, "No value for SUBMITTED_JOURNAL"))
 
                         if len(errors) > self.MAX_ERRORS:
                             break
