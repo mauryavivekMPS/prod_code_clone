@@ -7,6 +7,7 @@ from ivetl.common import common
 class PublisherMetadata(Model):
     publisher_id = columns.Text(primary_key=True)
     name = columns.Text()
+    note = columns.Text()
     email = columns.Text()
     hw_addl_metadata_available = columns.Boolean()
     issn_to_hw_journal_code = columns.Map(columns.Text(), columns.Text())

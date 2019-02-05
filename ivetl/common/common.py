@@ -115,7 +115,7 @@ PIPELINES = [
         'visible_on_publisher_user_home': True,
         'class': 'ivetl.pipelines.articleusage.ArticleUsagePipeline',
         'has_file_input': True,
-        'hide_upload_from_user_home': True,
+        'hide_upload_from_user_home': False,
         'user_facing_file_description': 'Article Usage',
         'validator_class': 'ivetl.validators.ArticleUsageValidator',
         'supports_restart': True,
@@ -1142,7 +1142,7 @@ TABLEAU_HTTPS = os.environ.get('IVETL_TABLEAU_HTTPS', '0') == '1'
 TABLEAU_USERNAME = os.environ.get('IVETL_TABLEAU_USERNAME', 'admin')
 TABLEAU_PASSWORD = os.environ.get('IVETL_TABLEAU_PASSWORD', 'admin')
 
-MENDELEY_CLIENT_ID = '2474'
+MENDELEY_CLIENT_ID = '6159'
 MENDELEY_CLIENT_SECRET = '3a9Zm5QXutiCHdqR'
 
 FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
@@ -1150,12 +1150,11 @@ RABBITMQ_BROKER_URL = os.environ.get('IVETL_RABBITMQ_BROKER_URL', 'amqp://guest:
 
 RATE_LIMITER_SERVER = os.environ.get('IVETL_RATE_LIMITER_SERVER', '127.0.0.1:8082')
 
-EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")
+EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "aghoth@highwire.org")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
 SG_USERNAME = "estacks"
-SG_PWD = "Hello123!"
-SG_API_KEY = "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"
-
+SG_PWD = "Vizors123!"
+SG_API_KEY = "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"
 FTP_ADMIN_BCC = 'vizor-support@highwire.org'
 
 NETSITE_USERNAME = ENV_PROPERTIES['netsite']['username']

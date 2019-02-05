@@ -1,7 +1,8 @@
 {% extends "base_standard.html" %}
 {% load filters %}
 {% load tags %}
-{% block title %}{% if publisher or demo %}{% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}{% else %}New {% if is_demo %}Demo Request{% else %}Publisher{% endif %}{% endif %}{% endblock %}
+{% block title %}{% if publisher or demo %}{% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}
+{% else %}New {% if is_demo %}Demo Request{% else %}Publisher{% endif %}{% endif %}{% endblock %}
 {% block body_class %}publisher new-publisher {% if is_demo %}demo{% endif %}{% endblock %}
 
 {% block content %}
@@ -37,13 +38,21 @@
             <ul>
                 <li class="name-requirement">A name for the demo <span class="lnr lnr-check checkmark"></span></li>
                 <li class="date-requirement">A start date <span class="lnr lnr-check checkmark"></span></li>
-                <li class="product-requirement">One or more selected products <span class="lnr lnr-check checkmark"></span></li>
-                <li class="issns-requirement published-articles-controls" style="display:none">At least one valid publisher ISSN <span class="lnr lnr-check checkmark"></span></li>
-                <li class="months-free-requirement months-free-controls" style="display:none">Specify free period for ISSNs <span class="lnr lnr-check checkmark"></span></li>
-                <li class="crossref-requirement crossref-controls" style="display:none">A valid login for Crossref <span class="lnr lnr-check checkmark"></span></li>
-                <li class="months-free-cohort-requirement months-free-cohort-controls" style="display:none">Specify free period for cohort ISSNs <span class="lnr lnr-check checkmark"></span></li>
-                <li class="rejected-articles-upload-requirement rejected-manuscripts-controls" style="display:none">A rejected articles file <span class="lnr lnr-check checkmark"></span></li>
-                <li class="requirements-notes">All of the items listed above are required before you can submit for approval.</li>
+                <li class="product-requirement">One or more selected products <span
+                        class="lnr lnr-check checkmark"></span></li>
+                <li class="issns-requirement published-articles-controls" style="display:none">At least one valid
+                    publisher ISSN <span class="lnr lnr-check checkmark"></span></li>
+                <li class="months-free-requirement months-free-controls" style="display:none">Specify free period for
+                    ISSNs <span class="lnr lnr-check checkmark"></span></li>
+                <li class="crossref-requirement crossref-controls" style="display:none">A valid login for Crossref <span
+                        class="lnr lnr-check checkmark"></span></li>
+                <li class="months-free-cohort-requirement months-free-cohort-controls" style="display:none">Specify free
+                    period for cohort ISSNs <span class="lnr lnr-check checkmark"></span></li>
+                <li class="rejected-articles-upload-requirement rejected-manuscripts-controls" style="display:none">A
+                    rejected articles file <span class="lnr lnr-check checkmark"></span></li>
+                <li class="requirements-notes">All of the items listed above are required before you can submit for
+                    approval.
+                </li>
             </ul>
         </div>
     {% endif %}
@@ -62,7 +71,8 @@
                                 {% if publisher %}
                                     <p class="form-control-static">
                                         {{ form.initial.publisher_id }}
-                                        <input type="hidden" name="publisher_id" id="id_publisher_id" value="{{ form.initial.publisher_id }}">
+                                        <input type="hidden" name="publisher_id" id="id_publisher_id"
+                                               value="{{ form.initial.publisher_id }}">
                                     </p>
                                 {% else %}
                                     {{ form.publisher_id }}
@@ -75,8 +85,8 @@
                     <div class="form-group row {% if form.name.errors %}error{% endif %}">
                         <label for="name" class="col-sm-2">{% if is_demo %}Publisher {% endif %}Name</label>
                         <div class="col-sm-6">
-                                {{ form.name }}
-                                {{ form.name.errors }}
+                            {{ form.name }}
+                            {{ form.name.errors }}
                         </div>
                     </div>
 
@@ -84,8 +94,8 @@
                         <div class="form-group row {% if form.start_date.errors %}error{% endif %}">
                             <label for="start_date" class="col-sm-2">Start Date</label>
                             <div class="col-sm-3">
-                                    {{ form.start_date }}
-                                    {{ form.start_date.errors }}
+                                {{ form.start_date }}
+                                {{ form.start_date.errors }}
                             </div>
                         </div>
 
@@ -108,7 +118,8 @@
                                             {% if demo.archived %}
                                                 <a href="#" class="archive-link archive-alert">Unarchive</a>
                                             {% else %}
-                                                <a href="#" class="archive-link archive-alert"><span class="lnr lnr-trash2"></span> Archive</a>
+                                                <a href="#" class="archive-link archive-alert"><span
+                                                        class="lnr lnr-trash2"></span> Archive</a>
                                             {% endif %}
                                         </p>
                                     </div>
@@ -143,6 +154,14 @@
                             <div class="col-sm-6">
                                 {{ form.email }}
                                 {{ form.email.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="note" class="col-sm-2">Note</label>
+                            <div class="col-sm-6">
+                                {{ form.note }}
+                                {{ form.note.errors }}
                             </div>
                         </div>
 
@@ -195,7 +214,8 @@
                                         {% else %}
                                             {{ form.initial.reports_username }}
                                         {% endif %}
-                                        <input type="hidden" name="reports_username" value="{{ form.initial.reports_username }}">
+                                        <input type="hidden" name="reports_username"
+                                               value="{{ form.initial.reports_username }}">
                                     </p>
                                 {% else %}
                                     {{ form.reports_username }}
@@ -203,7 +223,8 @@
                             </div>
                             <div class="col-sm-3">
                                 {% if publisher and form.initial.reports_username %}
-                                    <p class="form-control-static set-reports-password-link"><a href="#">Set password...</a></p>
+                                    <p class="form-control-static set-reports-password-link"><a href="#">Set
+                                        password...</a></p>
                                 {% endif %}
                                 {{ form.reports_password }}
                             </div>
@@ -214,7 +235,8 @@
                                 {% if publisher %}
                                     <p class="form-control-static">
                                         {{ form.initial.reports_project }}
-                                        <input type="hidden" name="reports_project" value="{{ form.initial.reports_project }}">
+                                        <input type="hidden" name="reports_project"
+                                               value="{{ form.initial.reports_project }}">
                                     </p>
                                 {% else %}
                                     {{ form.reports_project }}
@@ -278,16 +300,22 @@
                                 <label for="crossref_username" class="col-sm-2">Crossref Login</label>
                                 <div class="col-sm-3">
                                     {{ form.crossref_username }}
-                                    <ul class="crossref-error-message errorlist" style="display:none"><li>Validation failed, try again.</li></ul>
+                                    <ul class="crossref-error-message errorlist" style="display:none">
+                                        <li>Validation failed, try again.</li>
+                                    </ul>
                                 </div>
                                 <div class="col-sm-3">
                                     {{ form.crossref_password }}
                                 </div>
                                 <div class="col-sm-2">
                                     <p class="form-control-static">
-                                        <a href="#" class="validate-crossref-button" {% if not is_demo and form.crossref_username.value %}style="display:none"{% endif %}>Validate Login</a>
-                                        <i class="fa fa-spinner fa-pulse validate-crossref-loading" style="display:none"></i>
-                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark" {% if is_demo or not form.crossref_username.value %}style="display:none"{% endif %}></span>
+                                        <a href="#" class="validate-crossref-button"
+                                           {% if not is_demo and form.crossref_username.value %}style="display:none"{% endif %}>Validate
+                                            Login</a>
+                                        <i class="fa fa-spinner fa-pulse validate-crossref-loading"
+                                           style="display:none"></i>
+                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark"
+                                              {% if is_demo or not form.crossref_username.value %}style="display:none"{% endif %}></span>
                                     </p>
                                 </div>
                             </div>
@@ -362,7 +390,8 @@
                                 <div class="col-sm-10">
                                     <p class="form-control-static no-files-uploaded-message">
                                         {% if demo_files_custom_article_data %}
-                                            {{ demo_files_custom_article_data|length }} file{{ demo_files_custom_article_data|pluralize }} uploaded for demo
+                                            {{ demo_files_custom_article_data|length }} file
+                                            {{ demo_files_custom_article_data|pluralize }} uploaded for demo
                                         {% else %}
                                             No files uploaded for demo
                                         {% endif %}
@@ -398,7 +427,8 @@
                                 <div class="col-sm-10">
                                     <p class="form-control-static no-files-uploaded-message">
                                         {% if demo_files_rejected_articles %}
-                                            {{ demo_files_rejected_articles|length }} file{{ demo_files_rejected_articles|pluralize }} uploaded for demo
+                                            {{ demo_files_rejected_articles|length }} file
+                                            {{ demo_files_rejected_articles|pluralize }} uploaded for demo
                                         {% else %}
                                             No files uploaded for demo
                                         {% endif %}
@@ -439,8 +469,10 @@
                                     </button>
                                 {% else %}
                                     {% if form.initial.status == 'creating' or not form.initial.status %}
-                                        <button class="submit-for-approval-button btn btn-primary submit-button disabled" disabled="disabled">
-                                            {% if publisher or demo %}Save{% else %}Add{% endif %} and Submit for Approval
+                                        <button class="submit-for-approval-button btn btn-primary submit-button disabled"
+                                                disabled="disabled">
+                                            {% if publisher or demo %}Save{% else %}Add{% endif %} and Submit for
+                                            Approval
                                         </button>
                                     {% endif %}
                                 {% endif %}
@@ -493,13 +525,16 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title">{% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request</h4>
+                    <h4 class="modal-title">{% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo
+                        Request</h4>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to {% if demo.archived %}un{% endif %}archive <b>{{ demo.name }}</b>?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary confirm-archive-demo-button">Yes, {% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request</button>
+                    <button type="button" class="btn btn-primary confirm-archive-demo-button">Yes,
+                        {% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request
+                    </button>
                     <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
                 </div>
             </div>
@@ -510,7 +545,7 @@
 
 {% block page_scripts %}
     <script>
-        $(function() {
+        $(function () {
             EditPublisherPage.init({
                 publisherId: '{{ publisher.publisher_id }}',
                 validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}',

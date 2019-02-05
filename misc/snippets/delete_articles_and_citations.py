@@ -11,25 +11,20 @@ if __name__ == "__main__":
 
     open_cassandra_connection()
 
-    publisher_id = 'wkh'
-
-    JOURNALS_TO_DELETE = [
-        'JONA The Journal of Nursing Administration',
-        'AJN American Journal of Nursing',
-        'The Nurse Practitioner',
-        'Nurse Leader',
-        'Nursing Management (Springhouse)',
-        'Nursing',
-        'The Journal for Nurse Practitioners',
-        'Journal of the American Association of Nurse Practitioners']
+    publisher_id = 'acs'
 
     ctr = 0
 
     for article in PublishedArticle.objects.filter(publisher_id=publisher_id).limit(10000000):
 
-        if article.article_journal in JOURNALS_TO_DELETE:
+        if (article.date_of_publication.year <= 2012 and not article.is_cohort) or \
+           (article.date_of_publication.year <= 2014 and article.is_cohort):
 
             ctr += 1
+
+            # if article.is_cohort:
+            #     print(article.date_of_publication.strftime("%Y-%m-%d"))
+
             doi = article.article_doi
             is_cohort = article.is_cohort
 
@@ -41,8 +36,6 @@ if __name__ == "__main__":
                 pac.delete()
 
             article.delete()
-
-            # Not deleting published article values as wkh did not upload a foam file for these journals
 
     print("Deleted %s articles" % (ctr,))
     close_cassandra_connection()

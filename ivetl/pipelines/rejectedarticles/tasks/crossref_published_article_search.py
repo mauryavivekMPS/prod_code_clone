@@ -96,15 +96,27 @@ class CrossrefArticle:
         else:
             self.bptitle = ""
 
-        year = j['issued']['date-parts'][0][0]
+        if 'published-online' in j:
 
-        month = 1
-        if len(j['issued']['date-parts'][0]) >= 2:
-            month = j['issued']['date-parts'][0][1]
+            year = j['published-online']['date-parts'][0][0]
 
-        day = 1
-        if len(j['issued']['date-parts'][0]) >= 3:
-            day = j['issued']['date-parts'][0][2]
+            month = 1
+            if len(j['published-online']['date-parts'][0]) >= 2:
+                month = j['published-online']['date-parts'][0][1]
+
+            day = 1
+            if len(j['published-online']['date-parts'][0]) >= 3:
+                day = j['published-online']['date-parts'][0][2]
+        else:
+            year = j['issued']['date-parts'][0][0]
+
+            month = 1
+            if len(j['issued']['date-parts'][0]) >= 2:
+                month = j['issued']['date-parts'][0][1]
+
+            day = 1
+            if len(j['issued']['date-parts'][0]) >= 3:
+                day = j['issued']['date-parts'][0][2]
 
         self.publishdate = str(month) + '/' + str(day) + '/' + str(year)
 

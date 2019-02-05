@@ -105,7 +105,7 @@ class GetScopusArticleCitations(Task):
                         article.article_scopus_id,
                         article.is_cohort,
                         tlogger,
-                        should_get_citation_details=should_get_citation_details,
+                        should_get_citation_details=None,
                         existing_count=article.scopus_citation_count
                     )
 
