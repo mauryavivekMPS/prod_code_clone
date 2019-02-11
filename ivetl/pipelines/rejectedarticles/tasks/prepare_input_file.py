@@ -91,7 +91,7 @@ class PrepareInputFileTask(Task):
                         r = RejectedArticles.objects.get(publisher_id=publisher_id, manuscript_id=manuscript_id)
 
                         for field, val in input_data.items():
-                            if val == "": input_data[field] = r[field]
+                            if val == "": input_data[field] = r.get(field, "")
 
                     except RejectedArticles.DoesNotExist:
                         # manuscript is not in db, so nothing to do
