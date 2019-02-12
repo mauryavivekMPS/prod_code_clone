@@ -1,5 +1,6 @@
 import os
 import csv
+from datetime import datetime
 import codecs
 from ivetl.validators.base import BaseValidator
 from ivetl import utils
@@ -103,23 +104,13 @@ class RejectedArticlesValidator(BaseValidator):
         return total_count, errors
 
     def valid_date(self, date):
-
-        is_valid = True
-
-        if '-' in date:
-            date_parts = date.split('-')
-        else:
-            date_parts = date.split('/')
-
-        if len(date_parts) != 3:
-            is_valid = False
-        else:
+        try:
+            datetime.strptime(date, '%m/%d/%y')
+            return True
+        except ValueError:
             try:
-                int(date_parts[0])
-                int(date_parts[1])
-                int(date_parts[2])
-
+                datetime.strptime(date, '%m-%d-%y')
+                return True
             except ValueError:
-                is_valid = False
+                return False
 
-        return is_valid

@@ -91,12 +91,12 @@ class PrepareInputFileTask(Task):
                         r = RejectedArticles.objects.get(publisher_id=publisher_id, manuscript_id=manuscript_id)
 
                         for field, val in input_data.items():
-                            try:
+                            if val == "":
                                 # r.get(field) doesn't work, can throw an exception
-                                if val == "": input_data[field] = r[field]
-                            except KeyError:
-                                # field is not a database column
-                                pass
+                                try:
+                                    input_data[field] = r[field]
+                                except KeyError:
+                                    tlogger.info("\Field " + field + " is not a database column")
 
                     except RejectedArticles.DoesNotExist:
                         # manuscript is not in db, so nothing to do

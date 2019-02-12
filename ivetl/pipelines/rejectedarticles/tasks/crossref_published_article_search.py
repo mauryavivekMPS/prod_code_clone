@@ -237,6 +237,7 @@ class XREFPublishedArticleSearchTask(Task):
                     tlogger.info('No authors, skipping record')
                     continue
 
+                # Date must be MM/DD/YYYY USA format.
                 if '-' in date_of_rejection:
                     dor_parts = date_of_rejection.split('-')
                 else:
