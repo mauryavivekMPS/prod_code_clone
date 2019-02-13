@@ -90,27 +90,28 @@ class RejectedArticlesValidator(BaseValidator):
                             if not manuscript_id:
                                 errors.append(self.format_error(file_name, count, "No value for MANUSCRIPT_ID"))
 
-                            if input_data['date_of_rejection'] != "" and  not self.valid_date(input_data['date_of_rejection']):
-                                errors.append(self.format_error(file_name, count, "Invalid format for DATE_OF_REJECTION %s (Valid format is MM/DD/YY)" % input_data['date_of_rejection']))
+                            if input_data['date_of_rejection'] != "" and not self.valid_date(input_data['date_of_rejection']):
+                                errors.append(self.format_error(file_name, count, "DATE_OF_REJECTION %s is not in the required MM/DD/YY format." % input_data['date_of_rejection']))
 
                         if len(errors) > self.MAX_ERRORS:
                             break
 
                     total_count += count
 
-            except UnicodeDecodeError:
-                errors.append(self.format_error(file_name, 0, "This file is not in a recognized encoding, skipping further validation"))
+            except UnicodeDecodeError as e:
+                errors.append(self.format_error(file_name, 0,
+                                                'File encoding "%s" is not supported. Skipping further validation.' % e.args[0])
+                                  )
 
         return total_count, errors
 
     def valid_date(self, date):
-        try:
-            datetime.strptime(date, '%m/%d/%y')
-            return True
-        except ValueError:
+        for fmt in ('%m/%d/%y', '%m/%d/%Y', '%m-%d-%y', '%m-%d-%Y'):
             try:
-                datetime.strptime(date, '%m-%d-%y')
-                return True
+               datetime.strptime(date, fmt)
+               return True
             except ValueError:
-                return False
+                continue
+
+            return False
 

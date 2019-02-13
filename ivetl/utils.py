@@ -220,8 +220,6 @@ def trim_and_strip_doublequotes(s):
 
 
 def guess_encoding(file_path):
-    #log = logging.getLogger(__name__)
-    
     detector = UniversalDetector()
     
     with open(file_path, 'rb') as file:
@@ -231,7 +229,7 @@ def guess_encoding(file_path):
 
     detector.close()
     
-    #print("In {} detected {encoding} (conf {confidence})".format(file_path,**detector.result))
+    # print("Detected {encoding} (confidence {confidence} level) in '{}'".format(file_path, **detector.result))
 
     guess = detector.result['encoding'].lower()
     if guess in ('utf-8', 'ascii'):
