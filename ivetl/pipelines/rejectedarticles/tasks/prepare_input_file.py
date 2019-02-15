@@ -1,6 +1,7 @@
 import csv
 import codecs
 import json
+from datatime import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl import utils
@@ -96,7 +97,12 @@ class PrepareInputFileTask(Task):
                                 try:
                                     input_data[field] = r[field]
                                 except KeyError:
-                                    tlogger.info("\Field " + field + " is not a database column")
+                                    tlogger.info('Field "' + field + '" is not a database column')
+
+                                # Cassandra returns dates as datetime objects.
+                                if isinstance(input_data[field], datetime):
+                                    # subclas json.JSONEncoder, or def a json.dumps default serializer.
+                                    input_data[field] = input_data[field].strftime('%m/%d/%Y')
 
                     except RejectedArticles.DoesNotExist:
                         # manuscript is not in db, so nothing to do
