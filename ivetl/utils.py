@@ -229,10 +229,11 @@ def guess_encoding(file_path):
 
     detector.close()
     
-    # print("Detected {encoding} (confidence {confidence} level) in '{}'".format(file_path, **detector.result))
+    #print("Detected {encoding} (confidence {confidence} level) in '{}'".format(file_path, **detector.result))
 
+    # Windows-1252 encoding safe to pass as UTF-8 equivalent
     guess = detector.result['encoding'].lower()
-    if guess in ('utf-8', 'ascii'):
+    if guess in ('utf-8', 'ascii', 'windows-1252'):
         return 'utf-8'
     elif guess in ('iso-8859-1', 'iso-8859-2'):
         return guess
