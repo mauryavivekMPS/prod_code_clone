@@ -199,20 +199,21 @@ class CrossrefConnector(BaseConnector):
                 self.check_for_auth_error(r.text)
                 success = True
             except requests.HTTPError as http_error:
-                if http_error.response.status_code == requests.codes.NOT_FOUND:
+                status = http_error.response.status_code
+                if status == requests.codes.NOT_FOUND:
                     return r
-                if http_error.response.status_code == requests.codes.REQUEST_TIMEOUT:
+                if status == requests.codes.REQUEST_TIMEOUT:
                     self.log("Crossref API timed out. Trying again...")
                     _pause_for_retry()
                     attempt += 1
-                elif http_error.response.status_code == requests.codes.UNAUTHORIZED:
-                    self.log("Crossref API unauthorized error. Skipping this DOI lookup...")
-                    continue
-                elif http_error.response.status_code == requests.codes.INTERNAL_SERVER_ERROR or http_error.response.status_code == requests.codes.BAD_GATEWAY:
+                elif status == requests.codes.UNAUTHORIZED:
+                    self.log("Crossref API 401 UNAUTHORIZED error. Skipping DOI lookup...")
+                    return r
+                elif status == requests.codes.INTERNAL_SERVER_ERROR or status == requests.codes.BAD_GATEWAY:
                     self.log("Crossref API 500 error. Trying again...")
                     _pause_for_retry()
                     attempt += 1
-                elif http_error.response.status_code == requests.codes.TOO_MANY_REQUESTS:
+                elif status == requests.codes.TOO_MANY_REQUESTS:
                     self.log("Crossref API 427 TOO MANY REQUESTS error. Trying again...")
                     _pause_for_retry()
                     attempt += 1
@@ -331,3 +332,7 @@ class CrossrefConnector(BaseConnector):
     def check_for_auth_error(self, response_text):
         if 'Incorrect password for username' in response_text:
             raise AuthorizationAPIError(response_text)
+
+        if 'not authorized to view references' in response_text:
+            raise AuthorizationAPIError(response_text)
+

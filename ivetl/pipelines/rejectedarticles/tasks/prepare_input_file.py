@@ -1,7 +1,7 @@
 import csv
 import codecs
 import json
-from datatime import datetime
+from datetime import datetime
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl import utils
