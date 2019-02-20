@@ -334,8 +334,10 @@ class CrossrefConnector(BaseConnector):
 
     def check_for_auth_error(self, response_text):
         if 'Incorrect password for username' in response_text:
+            self.log("Crossref API incorrect password.")
             raise AuthorizationAPIError(response_text)
 
         if 'not authorized to view references' in response_text:
+            self.log("Crossref API 401 UNAUTHORIZED error.")
             raise AuthorizationAPIError(response_text)
 
