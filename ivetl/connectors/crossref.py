@@ -253,7 +253,9 @@ class CrossrefConnector(BaseConnector):
 
             completed_response = False
 
-            r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=300)  # long timeout to account for queuing
+            # 5 minute long timeout to account for queuing
+            r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=300)
+
             try:
                 limit_response = r.json()
                 if limit_response.get('limit_status', 'error') == 'ok':
@@ -270,7 +272,8 @@ class CrossrefConnector(BaseConnector):
                     _pause_for_retry()
                     attempt += 1
                 elif response_status_code == requests.codes.UNAUTHORIZED:
-                    self.log("Crossref API unauthorized error. Skipping this DOI lookup...")
+                    self.log("Crossref API 401 UNAUTHORIZED error. Skipping lookup...")
+                    self.check_for_auth_error(response_text)
                     continue
                 elif response_status_code in (requests.codes.INTERNAL_SERVER_ERROR, requests.codes.BAD_GATEWAY):
                     self.log("Crossref API 500 error. Trying again...")
