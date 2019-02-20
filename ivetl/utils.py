@@ -231,11 +231,10 @@ def guess_encoding(file_path):
     
     #print("Detected {encoding} (confidence {confidence} level) in '{}'".format(file_path, **detector.result))
 
-    # Windows-1252 encoding safe to pass as UTF-8 equivalent
     guess = detector.result['encoding'].lower()
-    if guess in ('utf-8', 'ascii', 'windows-1252'):
+    if guess in ('utf-8', 'ascii'):
         return 'utf-8'
-    elif guess in ('iso-8859-1', 'iso-8859-2'):
+    elif guess in ('iso-8859-1', 'iso-8859-2', 'windows-1252'):
         return guess
     else:
         raise UnicodeDecodeError(guess, b'', 0, 1, 'Unsupported encoding, must be UTF-8 or ISO-8859-2.')
