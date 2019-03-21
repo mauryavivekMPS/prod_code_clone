@@ -84,10 +84,9 @@ class ScopusCitationLookupTask(Task):
 
                 manuscript_id, data = article_row
 
-                tlogger.info("Retrieving citations for: %s" % manuscript_id)
-
                 if data['status'] == "Match found":
                     doi = data['xref_doi']
+                    tlogger.info("Retrieving citations count for manuscript %s, DOI %s" % manuscript_id, doi)
                     scopus_id = None
                     try:
                         scopus_id, scopus_cited_by, subtype = connector.get_entry(doi, tlogger)
@@ -109,7 +108,7 @@ class ScopusCitationLookupTask(Task):
                         data['citation_lookup_status'] = "No ID in Scopus"
                         data['scopus_id'] = ''
 
-                    tlogger.info(data['status'])
+                tlogger.info("Manuscript %s status: %s" % manuscript_id, data['status'])
 
                 row = '\t'.join([publisher_id, manuscript_id, json.dumps(data)]) + '\n'
 
