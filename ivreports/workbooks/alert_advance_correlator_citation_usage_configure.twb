@@ -2849,7 +2849,7 @@
       <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[publisher_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[rejected_manuscript_editor]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[rejected_manuscript_id]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
-      <column aggregation='Sum' caption='Scopus Citation Count' datatype='integer' default-type='quantitative' hidden='true' layered='true' name='[scopus_citation_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+      <column aggregation='Sum' caption='MAG Citation Count' datatype='integer' default-type='quantitative' hidden='true' layered='true' name='[scopus_citation_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
       <column aggregation='Count' datatype='string' default-type='nominal' hidden='true' layered='true' name='[scopus_subtype]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Count' caption='Subject Category' datatype='string' default-type='nominal' layered='true' name='[subject_category]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
       <column aggregation='Year' caption='updated (article_metadata)' datatype='datetime' default-type='ordinal' hidden='true' layered='true' name='[updated (Custom_SQL_Query)]' pivot='key' role='dimension' type='ordinal' user-datatype='datetime' visual-totals='Default' />
@@ -63325,11 +63325,11 @@
       <source datasource='sqlproxy.42215.594235729164' type='datasource'>
         <exclude-sheet name='HAT-Articles' />
       </source>
-      <link caption='Go To Citing Article' expression='http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;eid=&lt;[citation_scopus_id]&gt;' url-escape='true' />
+      <link caption='Go To Citing Article' expression='https://academic.microsoft.com/paper/[citation_scopus_id]' url-escape='true' />
     </action>
-    <action caption='Go To Scopus' name='[Action1]'>
+    <action caption='Go To MAG' name='[Action1]'>
       <source datasource='sqlproxy.42215.594235729164' type='datasource' />
-      <link caption='Go To Scopus' expression='http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;eid=&lt;[article_scopus_id]&gt;' url-escape='true' />
+      <link caption='Go To MAG' expression='https://academic.microsoft.com/paper/[article_scopus_id]' url-escape='true' />
     </action>
     <action caption='Go to Published Article' name='[Action2]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
@@ -63343,9 +63343,9 @@
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
       <link caption='Search Title at Google Scholar' expression='https://scholar.google.com/scholar?hl=en&amp;q=&lt;[manuscript_title]&gt;' url-escape='true' />
     </action>
-    <action caption='View Citations (Scopus)' name='[Action7]'>
+    <action caption='View Citations (MAG)' name='[Action7]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
-      <link caption='View Citations (Scopus)' expression='http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;eid=&lt;[scopus_id]&gt;' url-escape='true' />
+      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/[scopus_id]' url-escape='true' />
     </action>
     <datasources>
       <datasource caption='article_citations_ds' name='sqlproxy.42215.594235729164' />

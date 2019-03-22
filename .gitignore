@@ -65,10 +65,21 @@ impactvisor-pipeline-env
 # PyCharm
 .idea
 
-# Emacs backup files
+# Emacs and other backup files
 \#*
+\.\#*
+*~
 
 # bower and node
 bower_components
 node_modules
 ivweb/app/static/dist
+
+# Misc files, profiler, ctags
+*\.stats
+GTAGS
+GRTAGS
+GPATH
+
+# ignore the .gitignore file? using the magit "I" command
+#.gitignore

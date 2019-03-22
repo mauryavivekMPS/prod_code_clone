@@ -1172,7 +1172,7 @@
         <param name='target' value='Editor Overview' />
       </command>
     </action>
-    <action caption='View Citations (Scopus)' name='[Action7]'>
+    <action caption='View Citations (MAG)' name='[Action7]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource'>
         <exclude-sheet name='Avg Cites / Published Article By Reject Reason' />
         <exclude-sheet name='By Journal' />
@@ -1183,7 +1183,7 @@
         <exclude-sheet name='Status By Editor - Trend' />
         <exclude-sheet name='Summary Status' />
       </source>
-      <link caption='View Citations (Scopus)' expression='http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;eid=&lt;[scopus_id]&gt;' url-escape='true' />
+      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/[scopus_id]' url-escape='true' />
     </action>
     <datasources>
       <datasource caption='rejected_articles_ds' name='sqlproxy.42158.501228101850' />
