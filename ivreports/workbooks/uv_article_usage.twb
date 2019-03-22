@@ -4982,9 +4982,9 @@
         <param name='target' value='Article Details' />
       </command>
     </action>
-    <action caption='View Citations (Scopus)' name='[Action7]'>
+    <action caption='View Citations (MAG)' name='[Action7]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
-      <link caption='View Citations (Scopus)' expression='http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;eid=&lt;[scopus_id]&gt;' url-escape='true' />
+      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/[scopus_id]' url-escape='true' />
     </action>
     <action caption='Highlight 1 (generated)' name='[Action8]'>
       <activation auto-clear='true' type='on-select' />
