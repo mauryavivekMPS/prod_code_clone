@@ -63932,7 +63932,7 @@
         <exclude-sheet name='AI - Total Cites' />
         <exclude-sheet name='HAT-Articles' />
       </source>
-      <link caption='Go To Citing Article' expression='https://academic.microsoft.com/paper/[citation_scopus_id]' url-escape='true' />
+      <link caption='Go To Citing Article' expression='https://academic.microsoft.com/paper/&lt;[citation_scopus_id]&gt;' url-escape='true' />
     </action>
     <action caption='View Article' name='[Action14]'>
       <source dashboard='Article Inspector' type='sheet' worksheet='AI-Articles' />
@@ -63975,15 +63975,15 @@
         <exclude-sheet name='AI - Total Cites' />
         <exclude-sheet name='HAT-Articles' />
       </source>
-      <link caption='Go To Citing Article' expression='https://academic.microsoft.com/paper/[citation_scopus_id]' url-escape='true' />
+      <link caption='Go To Citing Article' expression='https://academic.microsoft.com/paper/&lt;[citation_scopus_id]&gt;' url-escape='true' />
     </action>
     <action caption='Go To MAG' name='[Action1]'>
       <source datasource='sqlproxy.42215.594235729164' type='datasource' />
-      <link caption='Go To MAG' expression='https://academic.microsoft.com/paper/[article_scopus_id]' url-escape='true' />
+      <link caption='Go To MAG' expression='https://academic.microsoft.com/paper/&lt;[article_scopus_id]&gt;' url-escape='true' />
     </action>
     <action caption='Go To MAG' name='[Action20]'>
       <source datasource='sqlproxy.42215.594235729164 (copy)' type='datasource' />
-      <link caption='Go To MAG' expression='https://academic.microsoft.com/paper/[article_scopus_id]' url-escape='true' />
+      <link caption='Go To MAG' expression='https://academic.microsoft.com/paper/&lt;[article_scopus_id]&gt;' url-escape='true' />
     </action>
     <action caption='Go to Published Article' name='[Action2]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
@@ -64013,7 +64013,7 @@
     </action>
     <action caption='View Citations (MAG)' name='[Action7]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
-      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/[scopus_id]' url-escape='true' />
+      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/&lt;[scopus_id]&gt;' url-escape='true' />
     </action>
     <action caption='Highlight1' name='[Action8]'>
       <activation auto-clear='true' type='on-select' />

@@ -4984,7 +4984,7 @@
     </action>
     <action caption='View Citations (MAG)' name='[Action7]'>
       <source datasource='sqlproxy.42158.501228101850' type='datasource' />
-      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/[scopus_id]' url-escape='true' />
+      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/&lt;[scopus_id]&gt;' url-escape='true' />
     </action>
     <action caption='Highlight 1 (generated)' name='[Action8]'>
       <activation auto-clear='true' type='on-select' />

@@ -1063,7 +1063,7 @@
         <exclude-sheet name='By Journal' />
         <exclude-sheet name='By Status' />
       </source>
-      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/[scopus_id]' url-escape='true' />
+      <link caption='View Citations (MAG)' expression='https://academic.microsoft.com/paper/&lt;[scopus_id]&gt;' url-escape='true' />
     </action>
     <datasources>
       <datasource caption='rejected_articles_ds' name='sqlproxy.42158.501228101850' />
