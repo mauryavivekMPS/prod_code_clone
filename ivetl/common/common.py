@@ -152,7 +152,7 @@ PIPELINES = [
         'visible_on_publisher_user_home': True,
         'class': 'ivetl.pipelines.rejectedarticles.UpdateRejectedArticlesPipeline',
         'has_file_input': True,
-        'hide_upload_from_user_home':True,
+        'hide_upload_from_user_home': False,
         'user_facing_file_description': 'Rejected Manuscripts',
         'validator_class': 'ivetl.validators.RejectedArticlesValidator',
         'format_file': 'RejectedArticles-Format.pdf',
