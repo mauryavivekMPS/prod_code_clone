@@ -1,5 +1,5 @@
 import codecs
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
 import os
@@ -88,9 +88,9 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
     if date_range_type:
         if date_range_type == 'from_previous_high_water':
             if high_water_mark_date:
-                next_run_from_date = high_water_mark_date + datetime.timedelta(days=1)
+                next_run_from_date = high_water_mark_date + timedelta(days=1)
             else:
-                next_run_from_date = today - datetime.timedelta(days=1)
+                next_run_from_date = today - timedelta(days=1)
             next_run_to_date = today
 
         elif date_range_type == 'published_articles_high_water':
@@ -102,7 +102,7 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
                 else:
                     next_run_from_date = datetime(2010, 1, 1)
         else:
-            next_run_from_date = today - datetime.timedelta(days=1)
+            next_run_from_date = today - timedelta(days=1)
             next_run_to_date = today
 
     if next_run_from_date:
