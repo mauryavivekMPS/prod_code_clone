@@ -182,12 +182,16 @@ def list_pipelines(request, product_id, pipeline_id):
     def _get_sort_value(item, sort_key):
         if sort_key == 'start_time':
             r = item.get('recent_run')
-            if r:
-                return r.start_time if r.start_time else datetime.min
+            if r and isinstance(r.get('start_time'), datetime):
+                return r.start_time
+            else:
+                return datetime.min
         elif sort_key == 'end_time':
             r = item.get('recent_run')
-            if r:
-                return r.end_time if r.end_time else datetime.max
+            if r and isinstance(r.get('end_time'), datetime):
+                return r.end_time
+            else:
+                return datetime.max
         elif sort_key == 'publisher':
             return item['publisher'].display_name.lower()
         elif sort_key == 'status':
