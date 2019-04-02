@@ -1,5 +1,5 @@
 import codecs
-import datetime
+from datetime import datetime
 import json
 import logging
 import os
@@ -35,13 +35,13 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
         all_runs = [run for run in all_runs if run.status == 'completed']
 
     # sort the runs by date, most recent at top, take only the top 4
-    recent_runs = sorted(all_runs, key=lambda r: r.start_time or datetime.datetime.min, reverse=True)[:4]
+    recent_runs = sorted(all_runs, key=lambda r: r.start_time or datetime.min, reverse=True)[:4]
 
     # now get all the tasks for each run
     tasks_by_run = []
     for run in recent_runs:
         tasks = PipelineTaskStatus.objects(publisher_id=publisher.publisher_id, product_id=product_id, pipeline_id=pipeline_id, job_id=run.job_id)
-        sorted_tasks = sorted(tasks, key=lambda t: t.start_time or datetime.datetime.min)
+        sorted_tasks = sorted(tasks, key=lambda t: t.start_time or datetime.min)
 
         tasks_by_run.append({
             'run': run,
@@ -83,7 +83,7 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
     # process date range stuff
     next_run_from_date = ''
     next_run_to_date = ''
-    today = datetime.datetime.now()
+    today = datetime.now()
     date_range_type = pipeline.get('date_range_type')
     if date_range_type:
         if date_range_type == 'from_previous_high_water':
@@ -95,12 +95,12 @@ def get_recent_runs_for_publisher(pipeline_id, product_id, publisher, only_compl
 
         elif date_range_type == 'published_articles_high_water':
             if high_water_mark_date:
-                next_run_from_date = datetime.datetime(high_water_mark_date.year - 1, high_water_mark_date.month, high_water_mark_date.day)
+                next_run_from_date = datetime(high_water_mark_date.year - 1, high_water_mark_date.month, high_water_mark_date.day)
             else:
                 if product.get('cohort', False):
-                    next_run_from_date = datetime.datetime(2013, 1, 1)
+                    next_run_from_date = datetime(2013, 1, 1)
                 else:
-                    next_run_from_date = datetime.datetime(2010, 1, 1)
+                    next_run_from_date = datetime(2010, 1, 1)
         else:
             next_run_from_date = today - datetime.timedelta(days=1)
             next_run_to_date = today
@@ -182,16 +182,16 @@ def list_pipelines(request, product_id, pipeline_id):
     def _get_sort_value(item, sort_key):
         if sort_key == 'start_time':
             r = item.get('recent_run')
-            if r and r is not None:
+            if isinstance(r, datetime)
                 return r.start_time
             else:
-                return datetime.datetime.min
+                return datetime.min
         elif sort_key == 'end_time':
             r = item.get('recent_run')
-            if r and r is not None:
+            if isinstance(r, datetime)
                 return r.end_time
             else:
-                return datetime.datetime.max
+                return datetime.max
         elif sort_key == 'publisher':
             return item['publisher'].display_name.lower()
         elif sort_key == 'status':
@@ -490,7 +490,7 @@ def job_action(request, product_id, pipeline_id):
 
     if action == 'mark-job-as-stopped':
         try:
-            now = datetime.datetime.now()
+            now = datetime.now()
 
             # kill the overall status
             p = PipelineStatus.objects.get(
@@ -641,7 +641,7 @@ def upload_pending_file_inline(request):
         publisher_id = None
         demo_id = None
 
-        today = datetime.datetime.now()
+        today = datetime.now()
 
         for uploaded_file in all_uploaded_files:
 
@@ -715,7 +715,7 @@ def upload_pending_file_inline(request):
 
                 uploaded_file_record = UploadedFile.objects.create(
                     publisher_id=publisher_id,
-                    processed_time=datetime.datetime.now(),
+                    processed_time=datetime.now(),
                     product_id='web',
                     pipeline_id='upload',
                     job_id='',
@@ -745,7 +745,7 @@ def upload_pending_file_inline(request):
 
                 UploadedFile.objects.create(
                     publisher_id=publisher_id,
-                    processed_time=datetime.datetime.now(),
+                    processed_time=datetime.now(),
                     product_id='web',
                     pipeline_id='upload',
                     job_id='',
