@@ -221,23 +221,26 @@ def trim_and_strip_doublequotes(s):
 
 def guess_encoding(file_path):
     detector = UniversalDetector()
-    
+
     with open(file_path, 'rb') as file:
         for line in file:
             detector.feed(line)
             if detector.done: break
 
     detector.close()
-    
-    #print("Detected {encoding} (confidence {confidence} level) in '{}'".format(file_path, **detector.result))
 
-    guess = detector.result['encoding'].lower()
-    if guess in ('utf-8', 'ascii'):
-        return 'utf-8'
-    elif guess in ('iso-8859-1', 'iso-8859-2', 'windows-1252'):
-        return guess
+    if detector.result['encoding']:
+        guess = detector.result['encoding'].lower()
+
+        if guess in ('utf-8', 'ascii'):
+            return 'utf-8'
+        elif guess in ('iso-8859-1', 'iso-8859-2', 'windows-1252'):
+            return guess
+        else:
+            raise UnicodeDecodeError(guess, b'', 0, 1,
+                                     'Unsupported encoding, must be UTF-8 or ISO-8859-2.')
     else:
-        raise UnicodeDecodeError(guess, b'', 0, 1, 'Unsupported encoding, must be UTF-8 or ISO-8859-2.')
+        return "undefined"
 
 
 def lower_first_line(iterator):
