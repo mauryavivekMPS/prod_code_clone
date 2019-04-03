@@ -38,7 +38,8 @@ class ScopusIdLookupTask(Task):
             target_file.write('PUBLISHER_ID\tDOI\tISSN\tDATA\n')
 
         pm = PublisherMetadata.objects.filter(publisher_id=publisher_id).first()
-        scopus = ScopusConnector(pm.scopus_api_keys)
+        # The Scopus connector now talks to the MAG-resolver
+        mag = ScopusConnector(pm.scopus_api_keys)
 
         count = 0
         error_count = 0
@@ -62,7 +63,11 @@ class ScopusIdLookupTask(Task):
                 tlogger.info(str(count-1) + ". Retrieving Scopus Id for: " + doi)
 
                 # If its already in the database, we don't have to check with scopus
-                existing_record = PublishedArticle.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
+                #existing_record = PublishedArticle.objects.filter(publisher_id=publisher_id, article_doi=doi).first()
+
+                # Replacing scopus_id with MAG paper_id; must perform an initial mag.get_entry(doi) lookup,
+                # existing_record check can be re-enabled after all scopus_ids have been replaced.
+                existing_record = False
 
                 if existing_record and existing_record.article_scopus_id and existing_record.scopus_subtype:
                     data['scopus_id_status'] = "DOI in Scopus"
@@ -73,7 +78,7 @@ class ScopusIdLookupTask(Task):
 
                 else:
                     try:
-                        scopus_id, scopus_cited_by, scopus_subtype = scopus.get_entry(
+                        scopus_id, scopus_cited_by, scopus_subtype = mag.get_entry(
                             doi,
                             tlogger,
                             data.get('ISSN'),
