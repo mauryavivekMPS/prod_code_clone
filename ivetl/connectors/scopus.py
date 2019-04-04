@@ -101,8 +101,9 @@ class ScopusConnector(BaseConnector):
                 tlogger.info("MAG API connection error. Retrying.")
                 attempt += 1
 
-            except:
-                tlogger.info("General MAG API exception. Trying {} Again.".format(doi))
+            except Exception as e:
+                tlogger.error("MAG API exception: {0}".format(e))
+                tlogger.info("General exception, retrying DOI: {0}".format(doi))
                 attempt += 1
 
         if not success:
