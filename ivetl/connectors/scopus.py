@@ -9,11 +9,8 @@ from ivetl.connectors.crossref import CrossrefConnector
 
 
 class ScopusConnector(BaseConnector):
-#    BASE_SCOPUS_URL_XML = 'https://api.elsevier.com/content/search/scopus?httpAccept=application%2Fxml&apiKey='
     BASE_SCOPUS_URL_XML = 'http://10.0.1.47/content/search/scopus?httpAccept=application%2Fxml&apiKey='
-#    BASE_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/search/scopus?httpAccept=application%2Fjson&apiKey='
     BASE_SCOPUS_URL_JSON = 'http://10.0.1.47/content/search/scopus?httpAccept=application%2Fjson&apiKey='
-    ABSTRACT_SCOPUS_URL_JSON = 'https://api.elsevier.com/content/abstract/eid/'
     MAX_ATTEMPTS = 10
     REQUEST_TIMEOUT_SECS = 30
     RESULTS_PER_PAGE = 25
@@ -41,8 +38,7 @@ class ScopusConnector(BaseConnector):
             try:
                 url = url_api + urllib.parse.urlencode({'query': 'doi(' + doi + ')'})
 
-                tlogger.info("Lookup up using doi")
-                tlogger.info(url)
+                tlogger.info("DOI: {0}, query: {1}".format(doi, url))
 
                 r = requests.get(url, timeout=30)
                 r.raise_for_status()
@@ -65,8 +61,7 @@ class ScopusConnector(BaseConnector):
 
                     url = url_api + urllib.parse.urlencode({'query': 'doi(' + doi + ')'})
 
-                    tlogger.info("Looking up using volume/issue/page")
-                    tlogger.info(url)
+                    tlogger.info("Searching by volume/issue/page: {}".format(url))
 
                     r = requests.get(url, timeout=30)
                     r.raise_for_status()
@@ -93,14 +88,21 @@ class ScopusConnector(BaseConnector):
                 raise
 
             except HTTPError as he:
-                if he.response.status_code in (requests.codes.TOO_MANY_REQUESTS, requests.codes.NOT_FOUND, requests.codes.UNAUTHORIZED, requests.codes.REQUEST_TIMEOUT, requests.codes.INTERNAL_SERVER_ERROR):
-                    tlogger.info("Scopus API failed. Trying again...")
+                tlogger.info("MAG server error {0.status_code}...".format(he.response))
+                if he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
+                                               requests.codes.REQUEST_TIMEOUT,
+                                               requests.codes.INTERNAL_SERVER_ERROR):
+                    tlogger.info("Retrying DOI: {}".format(doi))
                     attempt += 1
                 else:
                     raise
 
+            except ConnectionError:
+                tlogger.info("MAG API connection error. Retrying.")
+                attempt += 1
+
             except:
-                tlogger.info("Scopus API failed. Trying Again")
+                tlogger.info("General MAG API exception. Trying {} Again.".format(doi))
                 attempt += 1
 
         if not success:
@@ -142,8 +144,12 @@ class ScopusConnector(BaseConnector):
                     success = True
 
                 except HTTPError as he:
-                    if he.response.status_code == requests.codes.TOO_MANY_REQUESTS or he.response.status_code == requests.codes.NOT_FOUND or he.response.status_code == requests.codes.UNAUTHORIZED or he.response.status_code == requests.codes.REQUEST_TIMEOUT or he.response.status_code == requests.codes.INTERNAL_SERVER_ERROR:
-                        tlogger.info("scopus-connector %s: Scopus API failed with HTTP 401/408, trying again" % article_scopus_id)
+                    tlogger.info("scopus-connector {0}: MAG HTTP {1.status_code} error.".format(article_scopus_id, he.response))
+                    if he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
+                                                   requests.codes.REQUEST_TIMEOUT,
+                                                   requests.codes.INTERNAL_SERVER_ERROR
+                                                  ):
+                        tlogger.info("scopus-connector %s: trying again." % article_scopus_id)
                         attempt += 1
                     else:
                         raise

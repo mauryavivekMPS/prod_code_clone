@@ -98,7 +98,7 @@ class ScopusIdLookupTask(Task):
                             data['scopus_id'] = ''
 
                     except MaxTriesAPIError:
-                        tlogger.info("Scopus API failed.")
+                        tlogger.info("Scopus API failed with MaxTriesAPIError.")
                         data['scopus_id'] = ''
                         data['scopus_id_status'] = "Scopus API failed"
                         error_count += 1
