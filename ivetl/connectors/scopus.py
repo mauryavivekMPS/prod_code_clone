@@ -84,17 +84,17 @@ class ScopusConnector(BaseConnector):
 
                 success = True
 
-            except AuthorizationAPIError:
-                raise
-
             except HTTPError as he:
-                tlogger.info("MAG server error {0.status_code}...".format(he.response))
-                if he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
+                if  he.response.status_code == requests.codes.NOT_FOUND:
+                    tlogger.info("DOI {0} not found in the MAG.".format(doi))
+                    continue
+                elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
                                                requests.codes.REQUEST_TIMEOUT,
                                                requests.codes.INTERNAL_SERVER_ERROR):
-                    tlogger.info("Retrying DOI: {}".format(doi))
+                    tlogger.info("DOI {0} MAG {1.status_code} error, retrying...".format(doi, he.response))
                     attempt += 1
                 else:
+                    tlogger.info("DOI {0} MAG {1.status_code} error...".format(doi, he.response))
                     raise
 
             except ConnectionError:
