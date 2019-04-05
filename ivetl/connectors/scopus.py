@@ -87,7 +87,7 @@ class ScopusConnector(BaseConnector):
             except HTTPError as he:
                 if  he.response.status_code == requests.codes.NOT_FOUND:
                     tlogger.info("DOI {0} not found in the MAG.".format(doi))
-                    continue
+                    break
                 elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
                                                requests.codes.REQUEST_TIMEOUT,
                                                requests.codes.INTERNAL_SERVER_ERROR):
@@ -106,7 +106,7 @@ class ScopusConnector(BaseConnector):
                 tlogger.info("General exception, retrying DOI: {0}".format(doi))
                 attempt += 1
 
-        if not success:
+        if not success and attempt >= self.MAX_ATTEMPTS:
             raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
         return scopus_id, scopus_cited_by_count, scopus_subtype
