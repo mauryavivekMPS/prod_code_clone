@@ -85,7 +85,7 @@ class ScopusConnector(BaseConnector):
                 success = True
 
             except HTTPError as he:
-                if  he.response.status_code == requests.codes.NOT_FOUND:
+                if he.response.status_code == requests.codes.NOT_FOUND:
                     tlogger.info("DOI {0} not found in the MAG.".format(doi))
                     break
                 elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
@@ -145,18 +145,21 @@ class ScopusConnector(BaseConnector):
                     success = True
 
                 except HTTPError as he:
-                    tlogger.info("scopus-connector {0}: MAG HTTP {1.status_code} error.".format(article_scopus_id, he.response))
-                    if he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
-                                                   requests.codes.REQUEST_TIMEOUT,
-                                                   requests.codes.INTERNAL_SERVER_ERROR
-                                                  ):
-                        tlogger.info("scopus-connector %s: trying again." % article_scopus_id)
+                    if he.response.status_code == requests.codes.NOT_FOUND:
+                        tlogger.info("DOI {0} not found in the MAG.".format(doi))
+                        break
+                    elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
+                                                    requests.codes.REQUEST_TIMEOUT,
+                                                    requests.codes.INTERNAL_SERVER_ERROR):
+                        tlogger.info("DOI {0} MAG {1.status_code} error, retrying...".format(doi, he.response))
                         attempt += 1
                     else:
+                        tlogger.info("DOI {0} MAG {1.status_code} error...".format(doi, he.response))
                         raise
 
-                except Exception:
-                    tlogger.info("scopus-connector %s: Scopus API failed with general exception, trying again" % article_scopus_id)
+                except Exception as e:
+                    tlogger.error("MAG API exception: {0}".format(e))
+                    tlogger.info("General exception, retrying DOI: {0}".format(doi))
                     attempt += 1
 
             if success:
