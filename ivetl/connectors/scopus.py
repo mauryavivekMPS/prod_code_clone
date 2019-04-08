@@ -147,7 +147,9 @@ class ScopusConnector(BaseConnector):
                 except HTTPError as he:
                     if he.response.status_code == requests.codes.NOT_FOUND:
                         tlogger.info("MAG PaperId {0} not found.".format(article_scopus_id))
-                        break
+                        # break
+                        skipped = True
+                        return collected_citations, num_citations_to_be_processed, skipped
                     elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
                                                     requests.codes.REQUEST_TIMEOUT,
                                                     requests.codes.INTERNAL_SERVER_ERROR):
