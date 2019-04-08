@@ -146,20 +146,21 @@ class ScopusConnector(BaseConnector):
 
                 except HTTPError as he:
                     if he.response.status_code == requests.codes.NOT_FOUND:
-                        tlogger.info("DOI {0} not found in the MAG.".format(doi))
+                        tlogger.info("MAG PaperId {0} not found.".format(article_scopus_id))
                         break
                     elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
                                                     requests.codes.REQUEST_TIMEOUT,
                                                     requests.codes.INTERNAL_SERVER_ERROR):
-                        tlogger.info("DOI {0} MAG {1.status_code} error, retrying...".format(doi, he.response))
+                        tlogger.info("MAG PaperId error {1.status_code}, retrying...".format(article_scopus_id,
+                                                                                             he.response))
                         attempt += 1
                     else:
-                        tlogger.info("DOI {0} MAG {1.status_code} error...".format(doi, he.response))
+                        tlogger.info("MAG PaperId error {1.status_code}...".format(article_scopus_id, he.response))
                         raise
 
                 except Exception as e:
                     tlogger.error("MAG API exception: {0}".format(e))
-                    tlogger.info("General exception, retrying DOI: {0}".format(doi))
+                    tlogger.info("General exception, retrying PaperId: {0}".format(article_scopus_id))
                     attempt += 1
 
             if success:
