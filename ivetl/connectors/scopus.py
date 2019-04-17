@@ -1,26 +1,22 @@
 import requests
-import urllib.parse
-import urllib.request
+from urllib.parse import quote_plus
 from requests import HTTPError
 from lxml import etree
+#from datetime import datetime
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTriesAPIError
-from ivetl.connectors.crossref import CrossrefConnector
 
 
 class ScopusConnector(BaseConnector):
-    BASE_SCOPUS_URL_XML = 'http://10.0.1.47/content/search/scopus?httpAccept=application%2Fxml&apiKey='
-    BASE_SCOPUS_URL_JSON = 'http://10.0.1.47/content/search/scopus?httpAccept=application%2Fjson&apiKey='
-    MAX_ATTEMPTS = 10
+    MAGRESOLVER_URL_XML = 'http://10.0.1.47/search?doi={0}'
+    MAGRESOLVER_URL_JSON = 'http://10.0.1.47/search?paperid={0}&count={1}&start={2}'
+    MAX_ATTEMPTS = 3
     REQUEST_TIMEOUT_SECS = 30
     RESULTS_PER_PAGE = 25
     MAX_TOTAL_RESULTS = 5000
 
     def __init__(self, apikeys):
-        # self.apikeys = apikeys
-        # May 18, 2018
-        # hardcoding to single key setup by scopus to temporarily grant access while business contract is being finalized
-        self.apikeys = ['8145c7f21e2bd5532da29ff92aefadf6']
+        self.apikeys = apikeys
         self.count = 0
 
     def get_entry(self, doi, tlogger, issns=None, volume=None, issue=None, page=None):
@@ -28,51 +24,28 @@ class ScopusConnector(BaseConnector):
         scopus_cited_by_count = None
         scopus_subtype = None
 
+        if issns or volume or issue or page:
+            tlogger.warn("Search by ISSNs/volume/issue/page not implemented.")
+        
         attempt = 0
-        success = False
-
         self.count += 1
-        url_api = self.BASE_SCOPUS_URL_XML + self.apikeys[self.count % len(self.apikeys)] + '&'
 
-        while not success and attempt < self.MAX_ATTEMPTS:
+        while attempt < self.MAX_ATTEMPTS:
             try:
-                url = url_api + urllib.parse.urlencode({'query': 'doi(' + doi + ')'})
+                url = self.MAGRESOLVER_URL_XML.format(quote_plus(doi))
 
                 tlogger.info("DOI: {0}, query: {1}".format(doi, url))
 
-                r = requests.get(url, timeout=30)
+                r = requests.get(url, timeout = self.REQUEST_TIMEOUT_SECS)
                 r.raise_for_status()
 
                 root = etree.fromstring(r.content, etree.HTMLParser())
                 self.check_for_auth_error(root)
 
-                n = root.xpath('//entry/eid', namespaces=common.ns)
-                if len(n) == 0 and issns and volume and issue and page:
+                node = root.xpath('//entry/eid', namespaces=common.ns)
 
-                    query = ''
-                    for i in range(len(issns)):
-                        query += 'ISSN(' + issns[i] + ')'
-                        if i != len(issns) - 1:
-                            query += " OR "
-
-                    query += " AND VOLUME(" + volume + ")"
-                    query += " AND issue(" + issue + ")"
-                    query += " AND pages(" + page + ")"
-
-                    url = url_api + urllib.parse.urlencode({'query': 'doi(' + doi + ')'})
-
-                    tlogger.info("Searching by volume/issue/page: {}".format(url))
-
-                    r = requests.get(url, timeout=30)
-                    r.raise_for_status()
-
-                    root = etree.fromstring(r.content, etree.HTMLParser())
-                    self.check_for_auth_error(root)
-
-                    n = root.xpath('//entry/eid', namespaces=common.ns)
-
-                if len(n):
-                    scopus_id = n[0].text
+                if node:
+                    scopus_id = node[0].text
 
                     cited_by_element = root.xpath('//entry/citedby-count', namespaces=common.ns)
                     if len(cited_by_element):
@@ -82,7 +55,7 @@ class ScopusConnector(BaseConnector):
                     if len(subtype_element):
                         scopus_subtype = subtype_element[0].text
 
-                success = True
+                    return scopus_id, scopus_cited_by_count, scopus_subtype                        
 
             except HTTPError as he:
                 if he.response.status_code == requests.codes.NOT_FOUND:
@@ -106,10 +79,10 @@ class ScopusConnector(BaseConnector):
                 tlogger.info("General exception, retrying DOI: {0}".format(doi))
                 attempt += 1
 
-        if not success and attempt >= self.MAX_ATTEMPTS:
-            raise MaxTriesAPIError(self.MAX_ATTEMPTS)
+            sleep(1)
+            
+        raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
-        return scopus_id, scopus_cited_by_count, scopus_subtype
 
     def get_citations(self, article_scopus_id, is_cohort, tlogger, should_get_citation_details=None, existing_count=None):
         offset = 0
@@ -118,28 +91,20 @@ class ScopusConnector(BaseConnector):
         skipped = False
         self.count += 1
 
-        url_api = self.BASE_SCOPUS_URL_JSON + self.apikeys[self.count % len(self.apikeys)] + '&'
-        crossref = CrossrefConnector("", "", tlogger)
-
         num_citations_to_be_processed = 0
 
         while offset != -1 and offset < self.MAX_TOTAL_RESULTS:
 
             attempt = 0
-            max_attempts = 5
             r = None
             success = False
 
-            while not success and attempt < max_attempts:
+            while not success and attempt < self.MAX_ATTEMPTS:
                 try:
-                    query = 'query=refeid(' + article_scopus_id + ')'
+                    url = self.MAGRESOLVER_URL_JSON.format(article_scopus_id, self.RESULTS_PER_PAGE, offset)
 
-                    url = url_api + query
-                    url += '&count=' + str(self.RESULTS_PER_PAGE)
-                    url += '&start=' + str(offset)
-
-                    tlogger.info("scopus-connector %s: Searching scopus offset %s" % (article_scopus_id, offset))
-                    r = requests.get(url, timeout=30)
+                    tlogger.info("scopus-connector %s: Searching MAG offset %s" % (article_scopus_id, offset))
+                    r = requests.get(url, timeout = self.REQUEST_TIMEOUT_SECS)
                     r.raise_for_status()
 
                     success = True
@@ -228,13 +193,9 @@ class ScopusConnector(BaseConnector):
                         scopus_id = scopus_citation['eid']
 
                     citation_date = None
-                    cr_article = crossref.get_article(doi)
-
-                    if cr_article is None or cr_article['date'] is None:
-                        if 'prism:coverDate' in scopus_citation and (scopus_citation['prism:coverDate'] != ''):
-                            citation_date = scopus_citation['prism:coverDate']
-                    else:
-                        citation_date = cr_article['date'].strftime('%Y-%m-%d')
+                    if 'prism:coverDate' in scopus_citation:
+                        #citation_date = datetime.strptime(scopus_citation['prism:coverDate'], '%Y-%m-%d')
+                        citation_date = scopus_citation['prism:coverDate'] 
 
                     first_author = None
                     if 'dc:creator' in scopus_citation and (scopus_citation['dc:creator'] != 0):
