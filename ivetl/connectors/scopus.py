@@ -3,6 +3,7 @@ from urllib.parse import quote_plus
 from requests import HTTPError
 from lxml import etree
 #from datetime import datetime
+from time import sleep
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTriesAPIError
 
@@ -26,7 +27,7 @@ class ScopusConnector(BaseConnector):
 
         if issns or volume or issue or page:
             tlogger.warn("Search by ISSNs/volume/issue/page not implemented.")
-        
+
         attempt = 0
         self.count += 1
 
@@ -55,7 +56,7 @@ class ScopusConnector(BaseConnector):
                     if len(subtype_element):
                         scopus_subtype = subtype_element[0].text
 
-                    return scopus_id, scopus_cited_by_count, scopus_subtype                        
+                    return scopus_id, scopus_cited_by_count, scopus_subtype
 
             except HTTPError as he:
                 if he.response.status_code == requests.codes.NOT_FOUND:
@@ -80,7 +81,7 @@ class ScopusConnector(BaseConnector):
                 attempt += 1
 
             sleep(1)
-            
+
         raise MaxTriesAPIError(self.MAX_ATTEMPTS)
 
 
