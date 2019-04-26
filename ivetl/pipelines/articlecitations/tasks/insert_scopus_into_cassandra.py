@@ -1,11 +1,11 @@
 import csv
 import codecs
 import json
-import datetime
+from datetime import datetime
 from ivetl.celery import app
 from ivetl.models import PublishedArticle, ArticleCitations, PublisherVizorUpdates
 from ivetl.pipelines.task import Task
-
+from ivetl.connectors.crossref import CrossrefConnector
 
 @app.task
 class InsertScopusIntoCassandra(Task):
@@ -17,7 +17,10 @@ class InsertScopusIntoCassandra(Task):
         self.set_total_record_count(publisher_id, product_id, pipeline_id, job_id, total_count)
 
         count = 0
-        updated_date = datetime.datetime.today()
+        updated_date = datetime.today()
+
+        # For reliability, we retrieve the (publication) citation date from Crossref
+        crossref = CrossrefConnector("", "", tlogger)
 
         with codecs.open(file, encoding="utf-16") as tsv:
 
@@ -42,20 +45,24 @@ class InsertScopusIntoCassandra(Task):
                         tlogger.info('citation doi is not of type string, skipping... ' + str(type(citation_doi)))
                         continue
 
-                    citation_date_str = data.get('date')
-                    if not citation_date_str:
-                        tlogger.info('No date for citation %s, skipping...' % citation_doi)
+                    citation_date = data.get('date')
+                    if isinstance(citation_date, str):
+                        try:
+                            citation_date = datetime.strptime(citation_date, '%Y-%m-%d')
+                        except ValueError:
+                            tlogger.info('Badly formatted date for citation %s, skipping...' % citation_doi)
+                            continue
+
+                    if not isinstance(citation_date, datetime):
+                        tlogger.info('No date for citation %s, or not a datetime object, skipping...' % citation_doi)
                         continue
 
-                    if not isinstance(citation_date_str, str):
-                        tlogger.info('citation date is not of type string, skipping...')
-                        continue
-
-                    try:
-                        citation_date = datetime.datetime.strptime(citation_date_str, '%Y-%m-%d')
-                    except ValueError:
-                        tlogger.info('Badly formatted date for citation %s, skipping...' % citation_doi)
-                        continue
+                    # unfortunately we have to retrieve the publication date from Crossref, slowing us down.
+                    crossref_article = crossref.get_article(citation_doi)
+                    cr_date = crossref_article['date']
+                    if cr_date and citation_date != cr_date:
+                        tlogger.info('MAG and Crossref dates differ: {1} != {2}'.format(citation_doi, cr_date))
+                        citation_date = cr_date
 
                     non_list_fields = [
                         'scopus_id',
