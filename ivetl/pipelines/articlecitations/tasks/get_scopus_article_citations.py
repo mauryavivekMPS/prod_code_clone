@@ -6,7 +6,7 @@ import threading
 import traceback
 from ivetl.celery import app
 from ivetl.connectors import ScopusConnector, MaxTriesAPIError
-from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations
+from ivetl.models import PublishedArticleByCohort, ArticleCitations
 from ivetl.pipelines.task import Task
 from ivetl.common import common
 
@@ -45,8 +45,7 @@ class GetScopusArticleCitations(Task):
         if not already_processed:
             target_file.write('PUBLISHER_ID\tDOI\tDATA\n')
 
-        pm = PublisherMetadata.objects.get(publisher_id=publisher_id)
-        scopus = ScopusConnector(pm.scopus_api_keys)
+        mag = ScopusConnector()
 
         if product['cohort']:
             articles = PublishedArticleByCohort.objects.filter(publisher_id=publisher_id, is_cohort=True).fetch_size(1000).limit(self.QUERY_LIMIT)
@@ -101,7 +100,7 @@ class GetScopusArticleCitations(Task):
                     continue
 
                 try:
-                    citations, num_citations, skipped = scopus.get_citations(
+                    citations, num_citations, skipped = mag.get_citations(
                         article.article_scopus_id,
                         article.is_cohort,
                         tlogger,
