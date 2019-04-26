@@ -91,8 +91,8 @@ class ScopusIdLookupTask(Task):
                             data['scopus_id'] = mag_paper_id
                             data['scopus_citation_count'] = mag_citations
                             data['scopus_subtype'] = scopus_subtype
-                            tlogger.notice("DOI {0} is MAG PaperId {1}, with {2} citations"
-                                            .format(doi, mag_paper_id, mag_citations))
+                            tlogger.info("DOI {0} is MAG PaperId {1}, with {2} citations"
+                                        .format(doi, mag_paper_id, mag_citations))
                         else:
                             tlogger.info("No MAG PaperId found for DOI: " + doi)
                             data['scopus_id_status'] = "No DOI in Scopus"
