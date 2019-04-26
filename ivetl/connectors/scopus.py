@@ -16,11 +16,17 @@ class ScopusConnector(BaseConnector):
     RESULTS_PER_PAGE = 25
     MAX_TOTAL_RESULTS = 5000
 
-    def __init__(self, apikeys):
+    def __init__(self, apikeys=None):
         self.apikeys = apikeys
         self.count = 0
 
     def get_entry(self, doi, tlogger, issns=None, volume=None, issue=None, page=None):
+        """ Get the MAG paper_id for a given DOI.
+
+        Called from scopus_id_lookup.py in the ScopusIdLookupTask pipeline task.
+        Called from scopus_citation_lookup.py in ScopusCitationLookupTask.
+        """
+
         scopus_id = None
         scopus_cited_by_count = None
         scopus_subtype = None
@@ -86,6 +92,10 @@ class ScopusConnector(BaseConnector):
 
 
     def get_citations(self, article_scopus_id, is_cohort, tlogger, should_get_citation_details=None, existing_count=None):
+        """ Get the citations for a given MAG paper_id.
+
+        Called from get_scopus_article_citations.py in the GetScopusArticleCitations task.
+        """
         offset = 0
         citations_to_be_processed = []
         collected_citations = []
