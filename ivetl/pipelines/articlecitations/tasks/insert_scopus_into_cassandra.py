@@ -48,7 +48,7 @@ class InsertScopusIntoCassandra(Task):
                     citation_date = data.get('date')
                     if isinstance(citation_date, str):
                         try:
-                            citation_date = datetime.strptime(citation_date, '%Y-%m-%d')
+                            citation_date = datetime.strptime(citation_date[:10], '%Y-%m-%d')
                         except ValueError:
                             tlogger.info('Badly formatted date for citation %s, skipping...' % citation_doi)
                             continue
