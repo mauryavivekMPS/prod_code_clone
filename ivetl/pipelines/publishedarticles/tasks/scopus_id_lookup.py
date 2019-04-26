@@ -59,7 +59,6 @@ class ScopusIdLookupTask(Task):
                 if doi in already_processed:
                     continue
 
-                tlogger.info("---")
                 tlogger.info(str(count-1) + ". Retrieving Scopus Id for: " + doi)
 
                 # If its already in the database, we don't have to check with scopus
@@ -78,7 +77,7 @@ class ScopusIdLookupTask(Task):
 
                 else:
                     try:
-                        scopus_id, scopus_cited_by, scopus_subtype = mag.get_entry(
+                        mag_paper_id, mag_citations, scopus_subtype = mag.get_entry(
                             doi,
                             tlogger,
                             data.get('ISSN'),
@@ -87,13 +86,15 @@ class ScopusIdLookupTask(Task):
                             data.get('page')
                         )
 
-                        if scopus_id and scopus_cited_by is not None:
+                        if mag_paper_id and mag_citations is not None:
                             data['scopus_id_status'] = "DOI in Scopus"
-                            data['scopus_id'] = scopus_id
-                            data['scopus_citation_count'] = scopus_cited_by
+                            data['scopus_id'] = mag_paper_id
+                            data['scopus_citation_count'] = mag_citations
                             data['scopus_subtype'] = scopus_subtype
+                            tlogger.info("DOI {0} is MAG PaperId {1}, with {2} citations" %
+                                             doi, mag_paper_id, mag_citations)
                         else:
-                            tlogger.info("No Scopus Id found for DOI: " + doi)
+                            tlogger.info("No MAG PaperId found for DOI: " + doi)
                             data['scopus_id_status'] = "No DOI in Scopus"
                             data['scopus_id'] = ''
 
