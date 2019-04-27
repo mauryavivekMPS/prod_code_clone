@@ -32,7 +32,7 @@ class ScopusConnector(BaseConnector):
         scopus_subtype = None
 
         if issns or volume or issue or page:
-            tlogger.warn("Search by ISSNs/volume/issue/page not implemented.")
+            tlogger.warning("Search by ISSNs/volume/issue/page not available.")
 
         attempt = 0
         self.count += 1
@@ -67,7 +67,9 @@ class ScopusConnector(BaseConnector):
             except HTTPError as he:
                 if he.response.status_code == requests.codes.NOT_FOUND:
                     tlogger.info("DOI {0} not found in the MAG.".format(doi))
-                    break
+                    # Return blank for not found in the MAG
+                    return None, None, None
+
                 elif he.response.status_code in (requests.codes.TOO_MANY_REQUESTS,
                                                requests.codes.REQUEST_TIMEOUT,
                                                requests.codes.INTERNAL_SERVER_ERROR):
@@ -86,6 +88,7 @@ class ScopusConnector(BaseConnector):
                 tlogger.info("General exception, retrying DOI: {0}".format(doi))
                 attempt += 1
 
+            # sleep between retries, before raising MaxTriesAPIError after MAX_ATTEMPTS
             sleep(1)
 
         raise MaxTriesAPIError(self.MAX_ATTEMPTS)
