@@ -59,31 +59,11 @@ class InsertScopusIntoCassandra(Task):
 
                     # unfortunately we have to retrieve the publication date from Crossref, slowing us down.
                     crossref_article = crossref.get_article(citation_doi)
-                    cr_date = crossref_article['date']
-                    if cr_date and citation_date != cr_date:
-                        tlogger.info('MAG and Crossref dates differ: {1} != {2}'.format(citation_doi, cr_date))
+                    cr_date = crossref_article['date'] if crossref_article else citation_date
+                    if citation_date != cr_date:
+                        tlogger.info('MAG date {0} and Crossref date {1} differ'.format(citation_date, cr_date))
                         citation_date = cr_date
 
-                    non_list_fields = [
-                        'scopus_id',
-                        'first_author',
-                        'issue',
-                        'journal_issn',
-                        'journal_title',
-                        'pages',
-                        'title',
-                        'volume',
-                    ]
-
-                    # check that we don't have any of the weird malformed list values from scopus
-                    skip_for_unexpected_list = False
-                    for field in non_list_fields:
-                        if type(data.get(field)) == list:
-                            tlogger.info('Badly formatted value for %s from scopus, skipping...' % field)
-                            skip_for_unexpected_list = True
-
-                    if skip_for_unexpected_list:
-                        continue
 
                     # note this try-except should probably be removed when we're satisfied there are no bugs
                     try:
@@ -118,7 +98,8 @@ class InsertScopusIntoCassandra(Task):
                     citations_updated_on=updated_date
                 )
 
-                tlogger.info(str(count-1) + ". " + publisher_id + " / " + doi + ": Inserted " + str(len(citations)) + " citations.")
+                tlogger.info("{0}. {1} / {2}: Inserted {3} citations."
+                             .format((count-1), publisher_id, doi, len(citations)) )
 
             tsv.close()
 
