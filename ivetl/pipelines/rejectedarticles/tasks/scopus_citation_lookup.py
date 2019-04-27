@@ -43,7 +43,7 @@ class ScopusCitationLookupTask(Task):
             target_file.write('\t'.join(['PUBLISHER_ID', 'MANUSCRIPT_ID', 'DATA']) + '\n')
 
         publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
-        connector = ScopusConnector(publisher.scopus_api_keys)
+        mag = ScopusConnector(publisher.scopus_api_keys)
 
         manuscript_rows = []
 
@@ -87,23 +87,23 @@ class ScopusCitationLookupTask(Task):
                 if data['status'] == "Match found":
                     doi = data['xref_doi']
                     tlogger.info("Retrieving citations count for manuscript %s, DOI %s" % (manuscript_id, doi))
-                    scopus_id = None
+                    mag_paper_id = None
                     try:
-                        scopus_id, scopus_cited_by, subtype = connector.get_entry(doi, tlogger)
+                        mag_paper_id, mag_citations, subtype = mag.get_entry(doi, tlogger)
                     except MaxTriesAPIError:
-                        tlogger.info("Scopus API failed, trying again")
+                        tlogger.info("MAG API failed, trying again")
                         data['citation_lookup_status'] = "Scopus API failed"
                         data['scopus_id'] = ''
                         data['scopus_doi_status'] = "Scopus API failed"
 
-                    if scopus_id:
-                        tlogger.info("Scopus cites: %s" % scopus_cited_by)
+                    if mag_paper_id:
+                        tlogger.info("MAG cites: %s" % mag_citations)
                         data['citation_lookup_status'] = "ID in Scopus"
                         data['scopus_doi_status'] = "DOI in Scopus"
-                        data['scopus_id'] = scopus_id
-                        data['citations'] = scopus_cited_by
+                        data['scopus_id'] = mag_paper_id
+                        data['citations'] = mag_citations
                     else:
-                        tlogger.info("No scopus ID found for DOI: %s" % data['xref_doi'])
+                        tlogger.info("No MAG PaperId found for DOI: %s" % data['xref_doi'])
                         data['scopus_doi_status'] = "No DOI in Scopus"
                         data['citation_lookup_status'] = "No ID in Scopus"
                         data['scopus_id'] = ''
