@@ -50,7 +50,7 @@ def rate_limited(max_per_second):
     return decorate
 
 
-@rate_limited(40)
+@rate_limited(50)
 def do_crossref_request(url):
     log.info('Requested crossref: %s' % url)
     return requests.get(url, timeout=30)
