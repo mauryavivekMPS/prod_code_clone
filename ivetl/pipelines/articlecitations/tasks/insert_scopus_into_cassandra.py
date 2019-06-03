@@ -61,7 +61,7 @@ class InsertScopusIntoCassandra(Task):
                     crossref_article = crossref.get_article(citation_doi)
                     cr_date = crossref_article['date'] if crossref_article else citation_date
                     if citation_date != cr_date:
-                        tlogger.info('MAG date {0} and Crossref date {1} differ'.format(citation_date, cr_date))
+                        tlogger.info('DOI {0} MAG date {1} and Crossref date {2} differ'.format(citation_doi, citation_date, cr_date))
                         citation_date = cr_date
 
 
