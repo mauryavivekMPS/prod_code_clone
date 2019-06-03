@@ -78,7 +78,11 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
                 tlogger.info('Looking for file for journal: %s' % journal_code)
 
-                result = shell.run([self.SCRIPT, '-b', from_date.strftime('%m/%d/%Y'), '-e', to_date.strftime('%m/%d/%Y'), '-j', journal_code, '-p'])
+                result = shell.run([self.SCRIPT,
+                                        '-b', from_date.strftime('%m/%d/%Y'),
+                                        '-e', to_date.strftime('%m/%d/%Y'),
+                                        '-j', journal_code,
+                                        '-p'])
                 result_text = result.output.decode('utf-8')
 
                 output_file_match = re.search(r'Data file: (/.*\.txt)', result_text)
