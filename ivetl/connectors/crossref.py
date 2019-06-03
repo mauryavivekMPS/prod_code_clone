@@ -12,7 +12,7 @@ class CrossrefConnector(BaseConnector):
     BASE_CITATION_URL = 'https://doi.crossref.org'
 
     connector_name = 'Crossref'
-    max_attempts = 7
+    max_attempts = 5
     request_timeout = 30
 
     def __init__(self, username=None, password=None, tlogger=None):
@@ -253,8 +253,8 @@ class CrossrefConnector(BaseConnector):
 
             completed_response = False
 
-            # 5 minute long timeout to account for queuing
-            r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=300)
+            # long timeout to account for queuing
+            r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=request_timeout)
 
             try:
                 limit_response = r.json()
