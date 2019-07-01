@@ -131,8 +131,7 @@ class InsertScopusIntoCassandra(Task):
                     citations_updated_on=updated_date
                 )
 
-                tlogger.info("{0}. {1} / {2}: Processed {3} citations."
-                             .format(lineno, publisher_id, doi, len(citations)) )
+                tlogger.info("{0} / {1}: Processed {2} citations.".format(publisher_id, doi, len(citations)) )
         # end of def process_entries
 
         self.run_pipeline_threads(process_entries, all_entries, tlogger=tlogger)
