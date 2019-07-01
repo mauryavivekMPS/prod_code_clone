@@ -69,7 +69,7 @@ class InsertScopusIntoCassandra(Task):
 
                 for data in citations:
                     with count_lock:
-                        count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count, tlogger=tlogger)
+                        count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     citation_doi = data.get('doi')
                     if not citation_doi:
