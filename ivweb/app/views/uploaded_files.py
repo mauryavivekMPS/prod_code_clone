@@ -15,7 +15,8 @@ def list_files(request):
     # add user display names to each entry
     user_id_to_display_name = {str(u.user_id): u.display_name for u in User.objects.all()}
     for file in files:
-        setattr(file, 'user_display_name', user_id_to_display_name[str(file.user_id)])
+        if file and file.user_id:
+            setattr(file, 'user_display_name', user_id_to_display_name[str(file.user_id)])
 
     sorted_files = sorted(files, key=attrgetter('processed_time'), reverse=True)
 
