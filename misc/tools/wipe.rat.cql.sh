@@ -106,17 +106,18 @@ zcat "${original}.gz" | awk -F'\t' -vpublisher_id="${publisher_id}" '
 	NR > 1 && $crossref_doi != "null" {
 		printf("UPDATE impactvizor.published_article SET date_of_rejection = null, from_rejected_manuscript = false, rejected_manuscript_editor = null, rejected_manuscript_id = null WHERE publisher_id = \047%s\047 AND article_doi = \047%s\047;\n", publisher_id, $crossref_doi)}' | gzip -9c > "${published_article_batch}.gz";
 
-echo "${0} generated the following files:";
+printf "%s: generated the following files:\n\n" "$0";
 
 ls -l "${rejected_articles_batch}.gz" "${published_article_batch}.gz" | sed 's,^,	,';
 
 cat <<EOF
-please review them, e.g.,";
+
+please review them, e.g.,
 
 	zcat '${rejected_articles_batch}.gz' | less";
 	zcat '${published_article_batch}.gz' | less";
 
-and if satisfied, execute them:";
+and if satisfied, execute them:
 
 	zcat '${rejected_articles_batch}.gz' | cqlsh";
 	zcat '${published_article_batch}.gz' | cqlsh";
