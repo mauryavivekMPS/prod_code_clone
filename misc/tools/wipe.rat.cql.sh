@@ -114,13 +114,13 @@ cat <<EOF
 
 please review them, e.g.,
 
-	zcat '${rejected_articles_batch}.gz' | less";
-	zcat '${published_article_batch}.gz' | less";
+	zcat '${rejected_articles_batch}.gz' | less;
+	zcat '${published_article_batch}.gz' | less;
 
 and if satisfied, execute them:
 
-	zcat '${rejected_articles_batch}.gz' | cqlsh";
-	zcat '${published_article_batch}.gz' | cqlsh";
+	zcat '${rejected_articles_batch}.gz' | cqlsh;
+	zcat '${published_article_batch}.gz' | cqlsh;
 
 To update Tableau, go to
 
