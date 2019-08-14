@@ -41,6 +41,9 @@ class GetRejectedArticlesTask(Task):
                 'article_type': article.article_type,
                 'keywords': article.keywords,
                 'custom': article.custom,
+                'custom_2': article.custom_2,
+                'custom_3': article.custom_3,
+                'funders': article.funders,
                 'preprint_doi': article.preprint_doi,
                 'source_file_name': article.source_file_name,
             }
