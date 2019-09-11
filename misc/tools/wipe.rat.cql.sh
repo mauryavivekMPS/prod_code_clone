@@ -4,23 +4,62 @@
 #
 
 # terminate on any error
-set -e
-set -o pipefail
+set -euo pipefail;
 
 # user prints out the script usage and optionally
 # exists if arg $1 is passed in
 function usage {
-	echo "usage: wipe.rat.cql.sh <publisher_id>";
+	echo "usage: wipe.rat.cql.sh { -all | -subset <manuscript_id.txt> } <publisher_id>";
 	if [ "$1" != "" ]; then
 		exit "$1";
-	fi	
+	fi
 }
 
-# check for the required publisher_id
-if [ "${1}" == "" ]; then
+all_ids="0";
+subset="";
+publisher_id="";
+
+while [ "${#}" -gt 0 ]; do
+	case "${1}" in
+	-all|--all)
+		all_ids="1";
+		;;
+	-subset|--subset)
+		all_ids="0";
+		if [ -f "${2}" ]; then
+			subset="${2}";
+			shift;
+		else
+			echo "error: missing manuscript id file argument to -subset: '${2}' is not a file" 1>&2;
+			usage 1;
+		fi
+		;;
+	*)
+		if [ "${publisher_id}" = "" ]; then
+			publisher_id="${1}";
+		else
+			echo "error: only one publisher_id allowed: '${publisher_id}' was already set";
+			usage 1;
+		fi
+		;;
+	esac;
+	shift;
+done
+
+if [ "${all_ids}" == 0 ] && [ ! -f "${subset}" ]; then
+	echo "error: if -all was not specified then -subset must specify a file listing ids." 1>&2;
 	usage 1;
 fi
-publisher_id="$1";
+
+if [ -f "${subset}" ] && [ ! -s "${subset}" ] ; then
+	echo "error: -subset file must not be zero length: ${subset}" 1>&2;
+	usage 1;
+fi
+
+if [ -z "${publisher_id}" ]; then
+	echo "error: missing required publisher_id argument" 1>&2;
+	usage 1;
+fi
 
 # cqldump pipes a CQL request through cqlsh with paging turned off,
 # then reformats the output into a TSV
@@ -39,15 +78,59 @@ function cqldump {
 }
 
 # step one, dump the impactvizor.rejected_articles table for
-# the publisher
+# the publisher, possibly filtering by manuscript_id if
+# all_ids is zero and subsets has been defined.
 original="${publisher_id}.rejected_articles.tsv";
-cqldump "SELECT * FROM impactvizor.rejected_articles WHERE publisher_id = '${publisher_id}';" | gzip -9c > "${original}.gz";
+cqldump "SELECT * FROM impactvizor.rejected_articles WHERE publisher_id = '${publisher_id}';" \
+	| awk -F"\t" -v all_ids="${all_ids}" -v subset="${subset}" '
+		BEGIN{
+			nrec = 0;
+			if ( all_ids == 0 ) {
+				n = 0;
+				while((getline < subset) > 0) {
+					id = $0;
+					gsub(/\r/, "", id);
+					manuscript_id[id] = 1;
+					n++;
+				}
+				if (n == 0) {
+					printf("error: zero manuscript_id read from file: %s\n", subset) | "cat 1>&2";
+				}
+			}
+		}
+		NR == 1 {
+			if (all_ids == 0) {
+				id = 0;
+				for (i = 1; i <= NF; i++) {
+					 if ($i == "manuscript_id") {
+						id = i;
+						break;
+					 }
+				}
+				if (id == 0) {
+					printf("error: unable to identify manuscript_id field from line 1 of %s", subset) | "cat 1>&2";
+				}
+			}
+			print $0;
+		}
+		NR > 1 {
+			if (all_ids == 0) {
+				if ( $id in manuscript_id ) {
+					print $0;
+					nrec++;
+				}
+			} else {
+				print $0;
+				nrec++;
+			}
+		}' \
+	| gzip -9c > "${original}.gz";
 
 # step two, confirm the publisher_id count in the data
 zcat "${original}.gz" | awk -F'\t' '
 	NR > 1 {
 		if (! ($1 in corpus)) {
-			ncorpus++;	
+			ncorpus++;
 		}
 		corpus[$1]++;
 		t++;
@@ -69,7 +152,7 @@ zcat "${original}.gz" | awk -F'\t' '
 	NR == 1 {
 		for (i = 1; i <= NF; i++) {
 			if ($i == "publisher_id") {
-				publisher_id = i;	
+				publisher_id = i;
 			}
 			if ($i == "rejected_article_id") {
 				rejected_article_id = i;
