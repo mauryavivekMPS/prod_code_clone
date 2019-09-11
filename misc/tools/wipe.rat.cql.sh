@@ -88,7 +88,7 @@ cqldump "SELECT * FROM impactvizor.rejected_articles WHERE publisher_id = '${pub
 			if ( all_ids == 0 ) {
 				n = 0;
 				while((getline < subset) > 0) {
-					id = $0;
+					id = $1;
 					gsub(/\r/, "", id);
 					manuscript_id[id] = 1;
 					n++;
