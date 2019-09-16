@@ -84,7 +84,7 @@ def limit():
         log.info('Queued %s: %s' % (service, url))
 
         if request_type == 'GET':
-            service_response = SERVICES[service](url, timeout)
+            service_response = SERVICES[service](url, timeout=timeout)
             wrapped_response = {
                 'limit_status': 'ok',
                 'status_code': service_response.status_code,
