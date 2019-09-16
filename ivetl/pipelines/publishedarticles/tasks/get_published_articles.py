@@ -44,7 +44,7 @@ class GetPublishedArticlesTask(Task):
                     'filter': 'issn:%s,type:journal-article,from-pub-date:%s' % (issn, from_date),
                 })
 
-                url = 'http://api.crossref.org/works?%s' % encoded_params
+                url = 'https://api.crossref.org/works?%s' % encoded_params
 
                 tlogger.info("Searching CrossRef for: " + url)
                 response_text = crossref.get_with_retry(url)
