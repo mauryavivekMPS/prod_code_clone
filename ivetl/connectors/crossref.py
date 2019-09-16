@@ -1,4 +1,5 @@
 import requests
+import requests.exceptions
 import time
 import json
 from bs4 import BeautifulSoup
@@ -13,7 +14,8 @@ class CrossrefConnector(BaseConnector):
 
     connector_name = 'Crossref'
     max_attempts = 5
-    request_timeout = 30
+    request_timeout = 120 
+    request_timeout_multiplier = 1.1
 
     def __init__(self, username=None, password=None, tlogger=None):
         self.username = username
@@ -229,9 +231,14 @@ class CrossrefConnector(BaseConnector):
 
         return r.text
 
-    def get_with_retry(self, url):
+    def get_with_retry(self, url, timeout=None, timeout_multiplier=None):
         attempt = 0
         success = False
+
+        if timeout is None:
+            timeout = self.request_timeout
+        if timeout_multiplier is None:
+            timeout_multiplier = self.request_timeout_multiplier
 
         def _pause_for_retry():
             if attempt == self.max_attempts - 3:
@@ -243,32 +250,46 @@ class CrossrefConnector(BaseConnector):
             else:
                 time.sleep(0.2)
 
+        response_status_code = None
         response_text = None
         while not success and attempt < self.max_attempts:
             limit_request = {
                 'type': 'GET',
                 'service': 'crossref',
                 'url': url,
+                'timeout': timeout,
             }
 
             completed_response = False
 
-            # long timeout to account for queuing
-            r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=self.request_timeout)
-
             try:
+                r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=self.request_timeout)
+                r.raise_for_status()
+
                 limit_response = r.json()
                 if limit_response.get('limit_status', 'error') == 'ok':
                     response_status_code = limit_response['status_code']
                     response_text = limit_response['text']
                     completed_response = True
 
-            except ValueError:
-                pass
+            except requests.exceptions.ReadTimeout as e:
+                old_timeout = timeout
+                timeout *= timeout_multiplier
+                self.log("Crossref API timed out (%d). Increasing timeout to %d and trying again..." % (old_timeout, timeout))
+                _pause_for_retry()
+                attempt += 1
+                continue
+            except (requests.exceptions.RequestException, ValueError) as e:
+                self.log("Exception encountered on attempt #%d for %s: %s" % ((attempt+1), url, e))
+                _pause_for_retry()
+                attempt += 1
+                continue
 
             if completed_response:
                 if response_status_code == requests.codes.REQUEST_TIMEOUT:
-                    self.log("Crossref API timed out. Trying again...")
+                    old_timeout = timeout
+                    timeout *= timeout_multiplier
+                    self.log("Crossref API timed out (%d). Increasing timeout to %d and trying again..." % (old_timeout, timeout))
                     _pause_for_retry()
                     attempt += 1
                 elif response_status_code == requests.codes.UNAUTHORIZED:
@@ -293,9 +314,9 @@ class CrossrefConnector(BaseConnector):
 
         return response_text
 
-    def log(self, message):
+    def log(self, message, exc_info=None):
         if self.tlogger:
-            self.tlogger.info(message)
+            self.tlogger.info(message, exc_info=exc_info)
 
     def date_string_from_parts(self, date_parts_list):
         parts = None
