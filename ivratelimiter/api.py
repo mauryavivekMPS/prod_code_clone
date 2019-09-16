@@ -51,7 +51,7 @@ def rate_limited(max_per_second):
 
 
 @rate_limited(50)
-def do_crossref_request(url, timeout=timeout):
+def do_crossref_request(url, timeout=120):
     headers = {
         'User-Agent': 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)'
     }
