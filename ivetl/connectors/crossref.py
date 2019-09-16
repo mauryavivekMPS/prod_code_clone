@@ -263,7 +263,7 @@ class CrossrefConnector(BaseConnector):
             completed_response = False
 
             try:
-                r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=self.request_timeout)
+                r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=timeout)
                 r.raise_for_status()
 
                 limit_response = r.json()
