@@ -51,10 +51,12 @@ def rate_limited(max_per_second):
 
 
 @rate_limited(50)
-def do_crossref_request(url):
+def do_crossref_request(url, timeout):
+    headers = {
+        'User-Agent': 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)'
+    }
     log.info('Requested crossref: %s' % url)
-    return requests.get(url, timeout=30)
-
+    return requests.get(url, headers=headers, timeout=timeout)
 
 SERVICES = {
     'crossref': do_crossref_request,
@@ -77,11 +79,12 @@ def limit():
         request_type = request.json['type']
         service = request.json['service']
         url = request.json['url']
+        timeout = request.json['timeout']
 
         log.info('Queued %s: %s' % (service, url))
 
         if request_type == 'GET':
-            service_response = SERVICES[service](url)
+            service_response = SERVICES[service](url, timeout)
             wrapped_response = {
                 'limit_status': 'ok',
                 'status_code': service_response.status_code,
