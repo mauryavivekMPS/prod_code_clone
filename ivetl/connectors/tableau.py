@@ -19,13 +19,13 @@ from ivetl.models import WorkbookUrl
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s',
-    filename=os.path.join( os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb/'), 'tableau-connector.log'),    
+    filename=os.path.join( os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb/'), 'tableau-connector.log'),
     filemode='a',
 )
 
 
 class TableauConnector(BaseConnector):
-
+    request_timeout = 120
     def __init__(self, username, password, server):
         self.username = username
         self.password = password
@@ -50,7 +50,9 @@ class TableauConnector(BaseConnector):
         self.signed_in = False
 
         try:
-            response = requests.post(url, data=request_string % (self.username, self.password))
+            response = requests.post(url, 
+                data=request_string % (self.username, self.password),
+                timeout=self.request_timeout)
             response.raise_for_status()
 
             r = untangle.parse(response.text).tsResponse
@@ -78,7 +80,10 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.post(url, data=request_string % project_name, headers={'X-Tableau-Auth': self.token})
+        response = requests.post(url,
+            data=request_string % project_name,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
@@ -95,7 +100,10 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.post(url, data=request_string % group_name, headers={'X-Tableau-Auth': self.token})
+        response = requests.post(url,
+            data=request_string % group_name,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
@@ -121,7 +129,10 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
+        response = requests.put(url,
+            data=request_string % (project_id, group_id),
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
     def add_default_workbook_permissions_for_project(self, group_id, project_id):
@@ -145,7 +156,10 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
+        response = requests.put(url,
+            data=request_string % (project_id, group_id),
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
     def add_default_datasource_permissions_for_project(self, group_id, project_id):
@@ -167,7 +181,10 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.put(url, data=request_string % (project_id, group_id), headers={'X-Tableau-Auth': self.token})
+        response = requests.put(url,
+            data=request_string % (project_id, group_id),
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
     def create_user(self, username):
@@ -180,7 +197,10 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.post(url, data=request_string % username, headers={'X-Tableau-Auth': self.token})
+        response = requests.post(url,
+            data=request_string % username,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
@@ -198,7 +218,9 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.put(url, data=request_string % password, headers={'X-Tableau-Auth': self.token})
+        response = requests.put(url,
+            data=request_string % password,
+            headers={'X-Tableau-Auth': self.token})
         response.raise_for_status()
 
     def add_user_to_group(self, user_id, group_id):
@@ -211,37 +233,53 @@ class TableauConnector(BaseConnector):
             </tsRequest>
         """
 
-        response = requests.post(url, data=request_string % user_id, headers={'X-Tableau-Auth': self.token})
+        response = requests.post(url,
+            data=request_string % user_id,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
     def list_account_things(self):
         self._check_authentication()
 
         url = self.server_url + "/api/2.5/sites/%s/projects/" % self.site_id
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         print(response.text)
 
         url = self.server_url + "/api/2.5/sites/%s/groups/" % self.site_id
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         print(response.text)
 
         url = self.server_url + "/api/2.5/sites/%s/users/" % self.site_id
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         print(response.text)
 
         url = self.server_url + "/api/2.5/sites/%s/datasources/" % self.site_id
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         print(response.text)
 
         url = self.server_url + "/api/2.5/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
-        response = requests.get(url, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         print(response.text)
 
     def list_datasources(self, project_id=None):
         self._check_authentication()
 
         url = self.server_url + "/api/2.5/sites/%s/datasources/" % self.site_id
-        response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            params={'pageSize': 1000},
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         r = untangle.parse(response.text).tsResponse
         all_datasources = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id']} for d in r.datasources.datasource]
 
@@ -256,7 +294,10 @@ class TableauConnector(BaseConnector):
         self._check_authentication()
 
         url = self.server_url + "/api/2.5/sites/%s/users/%s/workbooks/" % (self.site_id, self.user_id)
-        response = requests.get(url, params={'pageSize': 1000}, headers={'X-Tableau-Auth': self.token})
+        response = requests.get(url,
+            params={'pageSize': 1000},
+            headers={'X-Tableau-Auth': self.token},
+            timeout=self.request_timeout)
         r = untangle.parse(response.text).tsResponse
         all_workbooks = [{'name': d['name'], 'id': d['id'], 'project_id': d.project['id'], 'url': d['contentUrl']} for d in r.workbooks.workbook]
 
@@ -345,7 +386,10 @@ class TableauConnector(BaseConnector):
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
 
-        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url,
+            data=payload,
+            headers={'X-Tableau-Auth': self.token, 'content-type': content_type},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse
@@ -396,7 +440,10 @@ class TableauConnector(BaseConnector):
             'tableau_workbook': (publisher_workbook_name + common.TABLEAU_WORKBOOK_FILE_EXTENSION, prepared_workbook_binary, 'application/octet-stream'),
         })
 
-        response = requests.post(url, data=payload, headers={'X-Tableau-Auth': self.token, 'content-type': content_type})
+        response = requests.post(url,
+            data=payload,
+            headers={'X-Tableau-Auth': self.token, 'content-type': content_type},
+            timeout=self.request_timeout)
         response.raise_for_status()
 
         r = untangle.parse(response.text).tsResponse

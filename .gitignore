@@ -80,6 +80,7 @@ ivweb/app/static/dist
 GTAGS
 GRTAGS
 GPATH
+.DS_Store 
 
 # Vagrant
 .vagrant
