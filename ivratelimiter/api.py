@@ -79,7 +79,10 @@ def limit():
         request_type = request.json['type']
         service = request.json['service']
         url = request.json['url']
-        timeout = request.json['timeout']
+        try:
+            timeout = request.json['timeout']
+        except KeyError:
+            timeout = 120
 
         log.info('Queued %s: %s' % (service, url))
 
@@ -97,7 +100,7 @@ def limit():
             }
 
     except:
-        log.warning('Unexpected exception on: (%s, %s)' % (service, url))
+        log.warning('Unexpected exception on: (%s, %s)' % (service, url), exc_info=True)
         wrapped_response = {
             'limit_status': 'error',
         }
