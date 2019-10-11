@@ -47,8 +47,9 @@ def set_crossref_advisory_limit(response):
         log.debug("set_crossref_advisory_limit response.headers not set")
         return
 
-    # default of 49 requests per 1 second
-    x_limit = 49
+    # default of 50 requests per 1 second, which
+    # will become a limit of 49 requests/sec below
+    x_limit = 50
     x_interval = 1
 
     # crossref says they will always send these headers
