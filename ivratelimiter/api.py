@@ -20,11 +20,36 @@ logging.basicConfig(
 
 log = logging.getLogger(__name__)
 
-# crossref_max_per_second imposes a rate limit on requests to crossref.org
-crossref_max_per_second = 49
+# crossref_blocked_until imposes a hard block on requests until the unix time
+# in this value has passed
+crossref_blocked_until = 0
 
-# crossref_rate_limit_mu locks access to crossref_max_per_second
+# crossref_per_second_limit imposes a rate limit on requests to crossref.org
+crossref_per_second_limit = 49
+
+# crossref_rate_limit_mu locks access to crossref_per_second_limit
+# and crossref_blocked_until
 crossref_rate_limit_mu = threading.Lock()
+
+
+def crossref_blocked_wait():
+    """ if crossref_blocked_until is set then sleep until that time has passed """
+    global crossref_rate_limit_mu
+    global crossref_blocked_until
+    with crossref_rate_limit_mu:
+        if crossref_blocked_until > 0:
+            now = time.time()
+            if crossref_blocked_until > now:
+                time.sleep(1 + crossref_blocked_until - now)
+            crossref_blocked_until = 0
+
+
+def crossref_max_per_second():
+    """ return a copy of the current crossref_per_second_limit rate """
+    global crossref_rate_limit_mu
+    global crossref_per_second_limit
+    with crossref_rate_limit_mu:
+        return crossref_per_second_limit
 
 
 def set_crossref_advisory_limit(response):
@@ -35,6 +60,9 @@ def set_crossref_advisory_limit(response):
 
     It defaults to 49 requests per second if the header values are not
     sent by crossref.
+
+    If an http status 429 code (Too Many Requests) is returned, look for
+    a Retry-After header and use that to set
     """
 
     if not response or not hasattr(response, 'headers'):
@@ -46,6 +74,17 @@ def set_crossref_advisory_limit(response):
     if not response.headers:
         log.debug("set_crossref_advisory_limit response.headers not set")
         return
+
+    # check for a 429 status code
+    retry_after = 0
+    if response.status_code == 429:
+        try:
+            retry_after = time.time() + int(response.headers['Retry-After'])
+            log.debug("Status 429 response blocking until %s (GMT)" %
+                time.asctime(time.gmtime(time.time())))
+        except KeyError:
+            retry_after = time.time() + 300
+            log.debug("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
 
     # default of 50 requests per 1 second, which
     # will become a limit of 49 requests/sec below
@@ -68,24 +107,19 @@ def set_crossref_advisory_limit(response):
     limit = int((x_limit / x_interval) - 1)
     log.debug("computed crossref limit: %d" % limit)
 
-    # if necessary update the global crossref_max_per_second limit
+    # if necessary update the global crossref_per_second_limit
     global crossref_rate_limit_mu
-    global crossref_max_per_second
+    global crossref_per_second_limit
+    global crossref_blocked_until
     with crossref_rate_limit_mu:
-        if crossref_max_per_second != limit:
-            log.info("setting crossref_max_per_second to %d" % limit)
-            crossref_max_per_second = limit
+        if crossref_per_second_limit != limit:
+            log.info("setting crossref_per_second_limit to %d" % limit)
+            crossref_per_second_limit = limit
+        if retry_after != 0:
+            crossref_blocked_until = retry_after
 
 
-def get_crossref_max_per_second():
-    """ return a copy of the current crossref_max_per_second rate """
-    global crossref_rate_limit_mu
-    global crossref_max_per_second
-    with crossref_rate_limit_mu:
-        return crossref_max_per_second
-
-
-def rate_limited(max_per_second_fn):
+def rate_limited(if_blocked_fn, max_per_second_fn):
     """ rate_limited rate limits calls to a function to a maxmimum number per second
 
     the max_per_second_fn should return an int indicating the maximum number of
@@ -98,6 +132,8 @@ def rate_limited(max_per_second_fn):
 
         @wraps(func)
         def rate_limited_function(*args, **kwargs):
+            if_blocked_fn()
+
             nonlocal max_per_second_fn
             limit = max_per_second_fn()
             min_interval = 1.0 / float(limit)
@@ -125,15 +161,15 @@ def rate_limited(max_per_second_fn):
     return decorate
 
 
-@rate_limited(get_crossref_max_per_second)
+@rate_limited(crossref_blocked_wait, crossref_max_per_second)
 def do_crossref_request(url, timeout=120):
     headers = {
         'User-Agent': 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)'
     }
-
     log.info('Requested crossref: %s' % url)
     response = requests.get(url, headers=headers, timeout=timeout)
     set_crossref_advisory_limit(response)
+
     return response
 
 
@@ -146,9 +182,10 @@ SERVICES = {
 def limit():
 
     # example_request = {
-    #     'type': 'GET',
-    #     'service': 'crossref',
-    #     'url': 'http://api.foo.com/?a=1&b=4',
+    #   "type": "GET",
+    #   "service": "crossref",
+    #   "url": "http://localhost:8123/",
+    #   "timeout": 120
     # }
 
     url = ''
