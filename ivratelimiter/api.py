@@ -5,7 +5,7 @@ import requests
 import logging
 from functools import wraps
 from flask import Flask, request, jsonify
-from logging.handlers import TimedRotatingFileHandler
+from loggin.handlers import TimedRotatingFileHandler
 
 app = Flask("rate_limiter")
 
@@ -136,11 +136,11 @@ def rate_limited(if_blocked_fn, max_per_second_fn):
 
             nonlocal max_per_second_fn
             limit = max_per_second_fn()
-            if limit < 1:
-                log.warn("got back a limit < 1 (%d), using a min_interval of 1 second" % limit)
+            if limit <= 0:
+                log.warn("got back a limit <= 0 (%d), using a min_interval of 1 second" % limit)
                 min_interval = 1.0
             else:
-                min_interval = 1.0 / float(limit)
+                min_interval = 1.0 / limit
                 log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
 
             green_light = False
@@ -184,13 +184,6 @@ SERVICES = {
 
 @app.route('/limit', methods=['POST'])
 def limit():
-
-    # example_request = {
-    #   "type": "GET",
-    #   "service": "crossref",
-    #   "url": "http://localhost:8123/",
-    #   "timeout": 120
-    # }
 
     url = ''
     service = ''
