@@ -65,13 +65,13 @@ def set_crossref_advisory_limit(response):
     a Retry-After header and use that to set
     """
 
-    if not response or not hasattr(response, 'headers'):
+    if response is None:
         log.debug("set_crossref_advisory_limit response is not set")
         return
-    if not response.url:
+    if not hasattr(response, 'url'):
         log.debug("set_crossref_advisory_limit response.url not set")
         return
-    if not response.headers:
+    if not hasattr(response, 'headers'):
         log.debug("set_crossref_advisory_limit response.headers not set")
         return
 
@@ -136,8 +136,12 @@ def rate_limited(if_blocked_fn, max_per_second_fn):
 
             nonlocal max_per_second_fn
             limit = max_per_second_fn()
-            min_interval = 1.0 / float(limit)
-            log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
+            if limit < 1:
+                log.warn("got back a limit < 1 (%d), using a min_interval of 1 second" % limit)
+                min_interval = 1.0
+            else:
+                min_interval = 1.0 / float(limit)
+                log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
 
             green_light = False
             while not green_light:
