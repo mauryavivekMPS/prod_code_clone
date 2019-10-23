@@ -79,9 +79,9 @@ def set_crossref_advisory_limit(response):
     retry_after = 0
     if response.status_code == 429:
         try:
-            retry_after = time.time() + int(response.headers['Retry-After'])
+            retry_after = 1 + time.time() + int(response.headers['Retry-After'])
             log.debug("Status 429 response blocking until %s (GMT)" %
-                time.asctime(time.gmtime(time.time())))
+                time.asctime(time.gmtime(retry_after)))
         except KeyError:
             retry_after = time.time() + 300
             log.debug("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
