@@ -1,5 +1,6 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
+from ivetl import hwcolumns
 
 
 class HighwireMetadata(Model):
@@ -20,7 +21,7 @@ class HighwireMetadata(Model):
     ac_syb_server = columns.Text()
     ac_db = columns.Text()
     ac_port = columns.Text()
-    journal_doi = columns.Text()
+    journal_doi = hwcolumns.LowercaseText()
     counter_code = columns.Text()
     dw_syb_server = columns.Text()
     dw_db = columns.Text()
