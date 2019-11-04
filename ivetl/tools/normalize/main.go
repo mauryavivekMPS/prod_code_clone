@@ -18,7 +18,7 @@ func usage() {
 		`usage: %s -brokers <host>[,...] -target <keyspace>.<target> [-constrain <cql>]`,
 		`parameters:`,
 		`	-brokers <hosts>[,...]`,
-		`		one or more comma-separated host names for the cassandra`,
+		`		one or more comma-separated host names of the cassandra`,
 		`		broker to connect to`,
 		`	-target <keyspace>.<table>`,
 		`		period-separated cassandra keyspace and table to process`,
