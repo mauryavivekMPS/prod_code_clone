@@ -15,7 +15,7 @@ var execute bool = false
 func usage() {
 	name := path.Base(os.Args[0])
 	fmt.Printf(strings.Join([]string{
-		`usage: %s -brokers <host>[,...] -target <keyspace>.<target> [-constrain <cql>]`,
+		`usage: %s -brokers <host>[,...] -target <keyspace>.<target> [-constrain <cql>] [-execute]`,
 		`parameters:`,
 		`	-brokers <hosts>[,...]`,
 		`		one or more comma-separated host names of the cassandra`,
