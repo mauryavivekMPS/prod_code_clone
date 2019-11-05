@@ -1,12 +1,14 @@
-import os
-import csv
 import codecs
+import csv
 import json
+import os
 import threading
-from ivetl.common import common
+
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
+from ivetl.common import common
+from ivetl.common import normalizedDoi
 from ivetl.connectors import MendeleyConnector
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -23,7 +25,7 @@ class MendeleyLookupTask(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(self.reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
-                        doi = line[1]
+                        doi = normalizedDoi(line[1])
                         already_processed.add(doi)
 
         if already_processed:
@@ -47,7 +49,7 @@ class MendeleyLookupTask(Task):
                     continue
 
                 publisher_id = line[0]
-                doi = line[1]
+                doi = normalizedDoi(line[1])
                 issn = line[2]
                 data = json.loads(line[3])
 

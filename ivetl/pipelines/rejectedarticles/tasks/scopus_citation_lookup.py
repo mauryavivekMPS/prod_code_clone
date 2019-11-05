@@ -1,13 +1,15 @@
-import os
-import csv
 import codecs
+import csv
 import json
+import os
 import threading
+
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
+from ivetl.common import normalizedDoi
 from ivetl.connectors.base import MaxTriesAPIError
 from ivetl.connectors.scopus import ScopusConnector
 from ivetl.models import PublisherMetadata
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -85,7 +87,7 @@ class ScopusCitationLookupTask(Task):
                 manuscript_id, data = article_row
 
                 if data['status'] == "Match found":
-                    doi = data['xref_doi']
+                    doi = normalizedDoi(data['xref_doi'])
                     tlogger.info("Retrieving citations count for manuscript %s, DOI %s" % (manuscript_id, doi))
                     mag_paper_id = None
                     try:
