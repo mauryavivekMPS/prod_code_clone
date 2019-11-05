@@ -1,9 +1,10 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
+from ivetl import hwcolumns
 
 
 class AltmetricsSocialData(Model):
-    doi = columns.Text(primary_key=True)
+    doi = hwcolumns.LowercaseText(primary_key=True)
     altmetrics_id = columns.Integer()
     facebook = columns.Integer()
     blogs = columns.Integer()
