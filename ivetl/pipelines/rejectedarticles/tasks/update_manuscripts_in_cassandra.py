@@ -1,12 +1,14 @@
-import csv
-import codecs
-import json
-from decimal import Decimal
-from datetime import datetime
 import cassandra.util
+import codecs
+import csv
+import json
+
+from datetime import datetime
+from decimal import Decimal
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
+from ivetl.common import normalizedDoi
 from ivetl.models import RejectedArticles
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -63,7 +65,7 @@ class UpdateManuscriptsInCassandraTask(Task):
                     ra['corresponding_author'] = data['corresponding_author']
 
                 if 'xref_doi' in data and (data['xref_doi'] != ''):
-                    ra['crossref_doi'] = data['xref_doi']
+                    ra['crossref_doi'] = normalizedDoi(data['xref_doi'])
 
                 if 'xref_score' in data and (data['xref_score'] != ''):
                     ra['crossref_match_score'] = Decimal(data['xref_score'])

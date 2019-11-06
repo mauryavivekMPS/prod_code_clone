@@ -1,11 +1,12 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
+from ivetl import hwcolumns
 
 
 class ArticleCitations(Model):
     publisher_id = columns.Text(primary_key=True)
-    article_doi = columns.Text(primary_key=True)
-    citation_doi = columns.Text(primary_key=True)
+    article_doi = hwcolumns.LowercaseText(primary_key=True)
+    citation_doi = hwcolumns.LowercaseText(primary_key=True)
     citation_date = columns.DateTime()
     citation_first_author = columns.Text()
     citation_issue = columns.Text()

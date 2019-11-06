@@ -1,10 +1,11 @@
 from cassandra.cqlengine import columns
 from ivetl.models.base import IvetlModel
+from ivetl import hwcolumns
 
 
 class PublishedArticle(IvetlModel):
     publisher_id = columns.Text(partition_key=True)
-    article_doi = columns.Text(primary_key=True)
+    article_doi = hwcolumns.LowercaseText(primary_key=True)
     article_issue = columns.Text()
     article_journal = columns.Text()
     article_journal_issn = columns.Text()

@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from ivetl.celery import app
+from ivetl.common import normalizedDoi
 from ivetl.models import PublishedArticle, ArticleCitations
 from ivetl.pipelines.task import Task
 
@@ -26,7 +28,7 @@ class InsertPlaceholderCitationsIntoCassandraTask(Task):
             for yr in range(article.date_of_publication.year, today.year + 1):
                 plac = ArticleCitations()
                 plac['publisher_id'] = publisher_id
-                plac['article_doi'] = article.article_doi
+                plac['article_doi'] = normalizedDoi(article.article_doi)
                 plac['citation_doi'] = str(yr) + "-placeholder"
                 plac['updated'] = updated
                 plac['created'] = updated
