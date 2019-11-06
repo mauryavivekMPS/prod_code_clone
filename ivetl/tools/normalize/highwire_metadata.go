@@ -57,10 +57,29 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 			}
 		}
 
+		// compute what's been modified from the last record in set
+		modified, pkmod := modified(meta, set[len(set)-1], merged)
+		// if nothing has changed and set is 1 item, we're done
+		if len(modified) == 0 && len(set) == 1 {
+			return nil
+		}
+
 		delete_stmt, delete_bind, err := cqlbind.Delete(
 			meta.Columns, meta.PrimaryKey)
 		if err != nil {
 			return fmt.Errorf("error initializing delete statement: %w", err)
+		}
+
+		insert_stmt, insert_bind, err := cqlbind.Insert(
+			meta.Columns, meta.PrimaryKey)
+		if err != nil {
+			return fmt.Errorf("error initializing insert statement: %w", err)
+		}
+
+		update_stmt, update_bind, err := cqlbind.Update(
+			meta.Columns, meta.PrimaryKey, modified)
+		if err != nil {
+			return fmt.Errorf("error initializing update statement: %w", err)
 		}
 
 		// if invalidDOI is true, delete rows in this set and return
@@ -83,25 +102,6 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 				}
 			}
 			return nil
-		}
-
-		// compute what's been modified from the last record in set
-		modified, pkmod := modified(meta, set[len(set)-1], merged)
-		// if nothing has changed and set is 1 item, we're done
-		if len(modified) == 0 && len(set) == 1 {
-			return nil
-		}
-
-		insert_stmt, insert_bind, err := cqlbind.Insert(
-			meta.Columns, meta.PrimaryKey)
-		if err != nil {
-			return fmt.Errorf("error initializing insert statement: %w", err)
-		}
-
-		update_stmt, update_bind, err := cqlbind.Update(
-			meta.Columns, meta.PrimaryKey, modified)
-		if err != nil {
-			return fmt.Errorf("error initializing update statement: %w", err)
 		}
 
 		// delete duplicates and insert the lowercase version

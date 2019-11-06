@@ -56,6 +56,9 @@ func normalizePublishedArticleValues(ctx context.Context, session *gocql.Session
 			}
 		}
 
+		// compute what's been modified from the last record in set
+		modified, pkmod := modified(meta, set[len(set)-1], merged)
+
 		delete_stmt, delete_bind, err := cqlbind.Delete(
 			meta.Columns, meta.PrimaryKey)
 		if err != nil {
@@ -66,6 +69,12 @@ func normalizePublishedArticleValues(ctx context.Context, session *gocql.Session
 			meta.Columns, meta.PrimaryKey)
 		if err != nil {
 			return fmt.Errorf("error initializing insert statement: %w", err)
+		}
+
+		update_stmt, update_bind, err := cqlbind.Update(
+			meta.Columns, meta.PrimaryKey, modified)
+		if err != nil {
+			return fmt.Errorf("error initializing update statement: %w", err)
 		}
 
 		// if invalidDOI is true, delete rows in this set and return
@@ -89,9 +98,6 @@ func normalizePublishedArticleValues(ctx context.Context, session *gocql.Session
 			}
 			return nil
 		}
-
-		// compute what's been modified from the last record in set
-		modified, pkmod := modified(meta, set[len(set)-1], merged)
 
 		// if nothing has changed and set is 1 item, we're done
 		if len(modified) == 0 && len(set) == 1 {
@@ -131,6 +137,22 @@ func normalizePublishedArticleValues(ctx context.Context, session *gocql.Session
 					if err != nil {
 						return fmt.Errorf("error parsing INSERT statement %s: %w",
 							iq.Statement(), err)
+					} else {
+						fmt.Println(s)
+					}
+				}
+			} else if len(modified) > 0 {
+				col, val := update_bind(set[i], modified)
+				uq := session.Query(update_stmt, val...)
+				if execute {
+					if err := uq.Exec(); err != nil {
+						return fmt.Errorf("unable to execute query %v: %w", uq, err)
+					}
+				} else {
+					s, err := cqlbind.Sprintf(uq.Statement(), col, val)
+					if err != nil {
+						return fmt.Errorf("error parsing UPDATE statement %s: %w",
+							uq.Statement(), err)
 					} else {
 						fmt.Println(s)
 					}
