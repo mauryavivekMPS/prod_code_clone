@@ -5,7 +5,7 @@ import requests
 import logging
 from functools import wraps
 from flask import Flask, request, jsonify
-from loggin.handlers import TimedRotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 
 app = Flask("rate_limiter")
 
@@ -65,13 +65,13 @@ def set_crossref_advisory_limit(response):
     a Retry-After header and use that to set
     """
 
-    if response is None:
+    if not response or not hasattr(response, 'headers'):
         log.debug("set_crossref_advisory_limit response is not set")
         return
-    if not hasattr(response, 'url'):
+    if not response.url:
         log.debug("set_crossref_advisory_limit response.url not set")
         return
-    if not hasattr(response, 'headers'):
+    if not response.headers:
         log.debug("set_crossref_advisory_limit response.headers not set")
         return
 
@@ -79,9 +79,9 @@ def set_crossref_advisory_limit(response):
     retry_after = 0
     if response.status_code == 429:
         try:
-            retry_after = 1 + time.time() + int(response.headers['Retry-After'])
+            retry_after = time.time() + int(response.headers['Retry-After'])
             log.debug("Status 429 response blocking until %s (GMT)" %
-                time.asctime(time.gmtime(retry_after)))
+                time.asctime(time.gmtime(time.time())))
         except KeyError:
             retry_after = time.time() + 300
             log.debug("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
@@ -136,12 +136,8 @@ def rate_limited(if_blocked_fn, max_per_second_fn):
 
             nonlocal max_per_second_fn
             limit = max_per_second_fn()
-            if limit <= 0:
-                log.warn("got back a limit <= 0 (%d), using a min_interval of 1 second" % limit)
-                min_interval = 1.0
-            else:
-                min_interval = 1.0 / limit
-                log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
+            min_interval = 1.0 / float(limit)
+            log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
 
             green_light = False
             while not green_light:
@@ -184,6 +180,13 @@ SERVICES = {
 
 @app.route('/limit', methods=['POST'])
 def limit():
+
+    # example_request = {
+    #     'type': 'GET',
+    #     'service': 'crossref',
+    #     'url': 'http://api.foo.com/?a=1&b=4',
+    #     'timeout': 120,
+    # }
 
     url = ''
     service = ''
