@@ -1,12 +1,14 @@
-import os
-import csv
 import codecs
+import csv
 import json
+import os
 import threading
-from ivetl.common import common
+
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
+from ivetl.common import common
+from ivetl.common import normalizedDoi
 from ivetl.connectors import MendeleyConnector
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -82,7 +84,7 @@ class MendeleyLookupTask(Task):
 
                 if data['status'] == "Match found":
                     tlogger.info(str(count - 1) + ". Retrieving Mendeley saves for: " + manuscript_id)
-                    doi = data['xref_doi']
+                    doi = normalizedDoi(data['xref_doi'])
 
                     try:
                         saves = mendeley.get_saves(doi)
