@@ -7,6 +7,7 @@ import threading
 
 from ivetl.celery import app
 from ivetl.common import common
+from ivetl.common import normalizedDoi
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector, SassConnector
 from ivetl.models import PublisherJournal, DoiTransformRule
 from ivetl.pipelines.task import Task
