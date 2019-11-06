@@ -98,7 +98,7 @@ func normalizeArticleCitations(ctx context.Context, session *gocql.Session, meta
 		insert_stmt, insert_bind, err := cqlbind.Insert(
 			meta.Columns, meta.PrimaryKey)
 		if err != nil {
-			return fmt.Errorf("error initializing insertstatement: %w", err)
+			return fmt.Errorf("error initializing insert statement: %w", err)
 		}
 
 		update_stmt, update_bind, err := cqlbind.Update(

@@ -16,8 +16,11 @@ type normalizerFn func(context.Context, *gocql.Session, *Meta, chan string, chan
 // normalizerMap maps keyspace.table to the appropriate normalizerFn that will
 // perform the actual cleanup work
 var normalizerMap = map[string]normalizerFn{
-	"impactvizor.article_citations":      normalizeArticleCitations,
-	"impactvizor.altmetrics_social_data": normalizeAltmetricsSocialData,
+	"impactvizor.article_citations":        normalizeArticleCitations,
+	"impactvizor.altmetrics_social_data":   normalizeAltmetricsSocialData,
+	"impactvizor.f1000_social_data":        normalizeF1000SocialData,
+	"impactvizor.highwire_metadata":        normalizeHighwireMetadata,
+	"impactvizor.published_article_values": normalizePublishedArticleValues,
 }
 
 // printFn is a no-op implementation of normalizerFn that simply prints to
