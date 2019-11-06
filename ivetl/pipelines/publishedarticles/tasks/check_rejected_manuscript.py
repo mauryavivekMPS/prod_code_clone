@@ -5,6 +5,7 @@ from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.common import normalizedDoi
+from ivetl.common import normalizedDoi
 from ivetl import utils
 from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
 from ivetl.pipelines.articlecitations import UpdateArticleCitationsPipeline
