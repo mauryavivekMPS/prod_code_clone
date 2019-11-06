@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"reflect"
 	"strings"
 
@@ -42,8 +43,10 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 							if doiType != MATCH_NO_DOI {
 								s = doi
 							} else {
-								// don't actually flag it
+								// DISABLING THIS FOR NOW, PROBABLY
+								// WE JUST WANT HUMAN INTERVENTION
 								// invalidDOI = true
+								log.Printf("invalid DOI for highwire_metadata row %v: %s", pk, s)
 							}
 						}
 
