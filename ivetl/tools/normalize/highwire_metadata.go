@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"sort"
 	"strings"
 
 	"github.com/gocql/gocql"
@@ -14,17 +13,10 @@ import (
 
 func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta *Meta, ch chan string, errc chan error) error {
 
-	// cleanup processes a set of entries that share the same normalized
-	// (lower case) primary key
-	cleanup := func(pk []string, entries []map[string]interface{}) error {
-
-		var set HighwireMetadatas
-		for i := range entries {
-			set = append(set, HighwireMetadata(entries[i]))
-		}
+	// normalize journal_doi
+	cleanup := func(pk []string, set []map[string]interface{}) error {
 
 		merged := make(map[string]interface{})
-		sort.Sort(set)
 
 		invalidDOI := false
 		for i := (len(set) - 1); i >= 0; i-- {
@@ -71,12 +63,6 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 			return fmt.Errorf("error initializing delete statement: %w", err)
 		}
 
-		insert_stmt, insert_bind, err := cqlbind.Insert(
-			meta.Columns, meta.PrimaryKey)
-		if err != nil {
-			return fmt.Errorf("error initializing insert statement: %w", err)
-		}
-
 		// if invalidDOI is true, delete rows in this set and return
 		if invalidDOI {
 			for i := range set {
@@ -101,10 +87,21 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 
 		// compute what's been modified from the last record in set
 		modified, pkmod := modified(meta, set[len(set)-1], merged)
-
 		// if nothing has changed and set is 1 item, we're done
 		if len(modified) == 0 && len(set) == 1 {
 			return nil
+		}
+
+		insert_stmt, insert_bind, err := cqlbind.Insert(
+			meta.Columns, meta.PrimaryKey)
+		if err != nil {
+			return fmt.Errorf("error initializing insert statement: %w", err)
+		}
+
+		update_stmt, update_bind, err := cqlbind.Update(
+			meta.Columns, meta.PrimaryKey, modified)
+		if err != nil {
+			return fmt.Errorf("error initializing update statement: %w", err)
 		}
 
 		// delete duplicates and insert the lowercase version
@@ -140,6 +137,22 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 					if err != nil {
 						return fmt.Errorf("error parsing INSERT statement %s: %w",
 							iq.Statement(), err)
+					} else {
+						fmt.Println(s)
+					}
+				}
+			} else if len(modified) > 0 {
+				col, val := update_bind(set[i], modified)
+				uq := session.Query(update_stmt, val...)
+				if execute {
+					if err := uq.Exec(); err != nil {
+						return fmt.Errorf("unable to execute query %v: %w", uq, err)
+					}
+				} else {
+					s, err := cqlbind.Sprintf(uq.Statement(), col, val)
+					if err != nil {
+						return fmt.Errorf("error parsing UPDATE statement %s: %w",
+							uq.Statement(), err)
 					} else {
 						fmt.Println(s)
 					}
@@ -193,21 +206,4 @@ func normalizeHighwireMetadata(ctx context.Context, session *gocql.Session, meta
 	}
 
 	return nil
-}
-
-type HighwireMetadatas []HighwireMetadata
-
-func (p HighwireMetadatas) Len() int           { return len(p) }
-func (p HighwireMetadatas) Less(i, j int) bool { return p[i].SiteId() < p[j].SiteId() }
-func (p HighwireMetadatas) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-
-type HighwireMetadata map[string]interface{}
-
-func (p HighwireMetadata) SiteId() int {
-	if v, ok := p["site_id"]; ok {
-		if n, ok := v.(int); ok {
-			return n
-		}
-	}
-	return -1
 }
