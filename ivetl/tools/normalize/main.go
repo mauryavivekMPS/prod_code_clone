@@ -29,7 +29,7 @@ func usage() {
 		`		cql to constrain selection, e.g., "WHERE pk1 = 'abc' AND LIMIT 5" (optional)`,
 		`	-execute`,
 		`		execute the update instead of just printing out the CQL to stdout (optional)`,
-		`	-deleteInvalidDOI`,
+		`	-delete-invalid-doi`,
 		`		delete rows that contain invalid DOI, otherwise just log them (optional)`,
 	}, "\n")+"\n", name)
 }
@@ -61,6 +61,9 @@ func main() {
 
 	// -execute
 	flag.BoolVar(&execute, "execute", false, "execute the updates instead if printing them out")
+
+	// -delete-invalid-doi-
+	flag.BoolVar(&deleteInvalidDOI, "delete-invalid-doi", false, "delete invalid DOI instead of just logging them")
 
 	// -h, -help, or --help
 	flag.BoolVar(&help, "h", false, "print usage")
