@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -48,6 +49,9 @@ func normalizeAltmetricsSocialData(ctx context.Context, session *gocql.Session, 
 						if doiType != MATCH_NO_DOI {
 							s = doi
 						} else {
+							log.Printf("invalid DOI for %s.%s row %v: %s",
+								col.Keyspace, col.Table, pk, s)
+
 							invalidDOI = true
 						}
 					}
@@ -88,8 +92,7 @@ func normalizeAltmetricsSocialData(ctx context.Context, session *gocql.Session, 
 			return fmt.Errorf("error initializing update statement: %w", err)
 		}
 
-		// if invalidDOI is true, delete rows in this set and return
-		if invalidDOI {
+		if invalidDOI && deleteInvalidDOI {
 			for i := range set {
 				col, val := delete_bind(set[i], nil)
 				dq := session.Query(delete_stmt, val...)

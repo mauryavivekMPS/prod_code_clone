@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -48,6 +49,8 @@ func normalizeF1000SocialData(ctx context.Context, session *gocql.Session, meta 
 						if doiType != MATCH_NO_DOI {
 							s = doi
 						} else {
+							log.Printf("invalid DOI for %s.%s row %v: %s",
+								col.Keyspace, col.Table, pk, s)
 							invalidDOI = true
 						}
 					}
@@ -101,8 +104,7 @@ func normalizeF1000SocialData(ctx context.Context, session *gocql.Session, meta 
 			return fmt.Errorf("error initializing update statement: %w", err)
 		}
 
-		// if invalidDOI is true, delete rows in this set and return
-		if invalidDOI {
+		if invalidDOI && deleteInvalidDOI {
 			for i := range set {
 				col, val := delete_bind(set[i], nil)
 				dq := session.Query(delete_stmt, val...)

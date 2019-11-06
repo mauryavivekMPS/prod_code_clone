@@ -12,20 +12,25 @@ import (
 // otherwise it is merely printed to stdout
 var execute bool = false
 
+// if deleteInvalidDOI is set to true and execute is true then rows may be
+// deleted if they contain invalid DOI
+var deleteInvalidDOI bool = false
+
 func usage() {
 	name := path.Base(os.Args[0])
 	fmt.Printf(strings.Join([]string{
-		`usage: %s -brokers <host>[,...] -target <keyspace>.<target> [-constrain <cql>] [-execute]`,
+		`usage: %s <parameters>`,
 		`parameters:`,
 		`	-brokers <hosts>[,...]`,
-		`		one or more comma-separated host names of the cassandra`,
-		`		broker to connect to`,
+		`		one or more comma-separated host names of the bbroker to connect to (required)`,
 		`	-target <keyspace>.<table>`,
-		`		period-separated cassandra keyspace and table to process`,
+		`		period-separated cassandra keyspace and table to process (required)`,
 		`	-constrain <cql>`,
-		`		optional cql to constrain selection, e.g., "WHERE pk1 = 'abc' AND pk2 = 'def' LIMIT 5"`,
+		`		cql to constrain selection, e.g., "WHERE pk1 = 'abc' AND LIMIT 5" (optional)`,
 		`	-execute`,
-		`		execute the update instead of just printing out the CQL to stdout`,
+		`		execute the update instead of just printing out the CQL to stdout (optional)`,
+		`	-deleteInvalidDOI`,
+		`		delete rows that contain invalid DOI, otherwise just log them (optional)`,
 	}, "\n")+"\n", name)
 }
 
