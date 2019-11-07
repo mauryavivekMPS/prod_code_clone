@@ -2,6 +2,8 @@ import os
 import json
 import importlib
 import sendgrid
+
+from ivetl import common
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Personalization
 
 with open('/iv/properties.json', 'r') as properties_file:

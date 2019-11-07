@@ -6,7 +6,6 @@ import threading
 
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common import normalizedDoi
 from ivetl.connectors import MendeleyConnector
 from ivetl.pipelines.task import Task
 
@@ -84,7 +83,7 @@ class MendeleyLookupTask(Task):
 
                 if data['status'] == "Match found":
                     tlogger.info(str(count - 1) + ". Retrieving Mendeley saves for: " + manuscript_id)
-                    doi = normalizedDoi(data['xref_doi'])
+                    doi = common.normalizedDoi(data['xref_doi'])
 
                     try:
                         saves = mendeley.get_saves(doi)

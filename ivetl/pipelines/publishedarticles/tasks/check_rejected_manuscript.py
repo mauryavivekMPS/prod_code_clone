@@ -4,8 +4,6 @@ from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common import normalizedDoi
-from ivetl.common import normalizedDoi
 from ivetl import utils
 from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
 from ivetl.pipelines.articlecitations import UpdateArticleCitationsPipeline
@@ -65,7 +63,7 @@ class CheckRejectedManuscriptTask(Task):
                 manuscript_id, editor, date_of_rejection = rm
                 PublishedArticle.objects(
                     publisher_id=publisher_id,
-                    article_doi=normalizedDoi(article_row.article_doi),
+                    article_doi=common.normalizedDoi(article_row.article_doi),
                 ).update(
                     from_rejected_manuscript=True,
                     rejected_manuscript_id=manuscript_id,

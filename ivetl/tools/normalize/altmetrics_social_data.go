@@ -51,7 +51,6 @@ func normalizeAltmetricsSocialData(ctx context.Context, session *gocql.Session, 
 						} else {
 							log.Printf("invalid DOI for %s.%s row %v: %s",
 								col.Keyspace, col.Table, pk, s)
-
 							invalidDOI = true
 						}
 					}

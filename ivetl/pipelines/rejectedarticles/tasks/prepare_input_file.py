@@ -3,9 +3,9 @@ import csv
 import json
 
 from datetime import datetime
-from ivetl.celery import app
-from ivetl.common import normalizedDoi
+from ivetl.common import common
 from ivetl import utils
+from ivetl.celery import app
 from ivetl.models import RejectedArticles
 from ivetl.pipelines.task import Task
 
@@ -82,7 +82,7 @@ class PrepareInputFileTask(Task):
                             input_data['funders'] = funders
 
                     if len(line) >= 15:
-                        preprint_doi = normalizedDoi(utils.trim_and_strip_doublequotes(line[14]))
+                        preprint_doi = common.normalizedDoi(utils.trim_and_strip_doublequotes(line[14]))
                         if preprint_doi:
                             input_data['preprint_doi'] = preprint_doi
 
