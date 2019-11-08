@@ -2,8 +2,8 @@ import csv
 import os
 import requests
 
-from ivetl.common import common
 from ivetl import utils
+from ivetl.common import common
 from ivetl.celery import app
 from ivetl.models import AltmetricsSocialData
 from ivetl.pipelines.task import Task
