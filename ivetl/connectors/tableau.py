@@ -14,14 +14,20 @@ from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
 from ivetl.models import WorkbookUrl
 
-
 # temporary logging for seeing what's happening to workbook and data source deployment
+import http.client as http_client
+http_client.HTTPConnection.debuglevel = 1
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s',
     filename=os.path.join( os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb/'), 'tableau-connector.log'),
     filemode='a',
 )
+logging.getLogger().setLevel(logging.DEBUG)
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.DEBUG)
+requests_log.propagate = True
 
 
 class TableauConnector(BaseConnector):
@@ -50,7 +56,7 @@ class TableauConnector(BaseConnector):
         self.signed_in = False
 
         try:
-            response = requests.post(url, 
+            response = requests.post(url,
                 data=request_string % (self.username, self.password),
                 timeout=self.request_timeout)
             response.raise_for_status()
@@ -355,7 +361,7 @@ class TableauConnector(BaseConnector):
 
     def add_datasource_to_project(self, publisher, datasource_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.5/sites/%s/datasources/?overwrite=true" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/datasources?overwrite=true" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -375,23 +381,42 @@ class TableauConnector(BaseConnector):
         prepared_datasource = re.sub(r'(?<!%s(\\|/))%s' % (common.TABLEAU_DUMMY_EXTRACTS_DIR_NAME, base_datasource_name), publisher_datasource_name, template)
         prepared_datasource = prepared_datasource.replace('&apos;%s&apos;' % common.TABLEAU_TEMPLATE_PUBLISHER_ID_TO_REPLACE, '&apos;%s&apos;' % publisher.publisher_id)
 
-        with open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "w", encoding="utf-8") as fh:
+        with open(os.path.join(common.TMP_DIR,
+            publisher_datasource_name +
+            common.TABLEAU_DATASOURCE_FILE_EXTENSION),
+            'w', encoding='utf-8', newline='\r\n') as fh:
             fh.write(prepared_datasource)
 
-        with open(os.path.join(common.TMP_DIR, publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION), "rb") as fh:
+        with open(os.path.join(common.TMP_DIR,
+            publisher_datasource_name +
+            common.TABLEAU_DATASOURCE_FILE_EXTENSION),
+            'rb') as fh:
             prepared_datasource_binary = fh.read()
 
         payload, content_type = self._make_multipart({
             'request_payload': ('', request_string % (publisher_datasource_name, publisher.reports_project_id), 'text/xml'),
             'tableau_datasource': (publisher_datasource_name + common.TABLEAU_DATASOURCE_FILE_EXTENSION, prepared_datasource_binary, 'application/octet-stream'),
         })
-
-        response = requests.post(url,
-            data=payload,
-            headers={'X-Tableau-Auth': self.token, 'content-type': content_type},
-            timeout=self.request_timeout)
-        response.raise_for_status()
-
+        try:
+            response = requests.post(url,
+                data=payload,
+                headers={'X-Tableau-Auth': self.token, 'content-type': content_type},
+                timeout=self.request_timeout)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logging.info('HTTPError for url: %s' % url)
+            logging.info(e)
+            logging.info(request_string % (publisher_datasource_name, publisher.reports_project_id))
+            logging.info(response.text)
+            raise e
+        except requests.exceptions.RequestException as e:
+            logging.info('RequestException for url: %s' % url)
+            logging.info(e)
+            logging.info(request_string % (publisher_datasource_name, publisher.reports_project_id))
+            logging.info(response.text)
+            raise e
+        except:
+            raise
         r = untangle.parse(response.text).tsResponse
 
         datasource_tableau_id = r.datasource['id']
@@ -402,7 +427,7 @@ class TableauConnector(BaseConnector):
 
     def add_workbook_to_project(self, publisher, workbook_id):
         self._check_authentication()
-        url = self.server_url + "/api/2.5/sites/%s/workbooks/?overwrite=true&workbookType=twb" % self.site_id
+        url = self.server_url + "/api/2.5/sites/%s/workbooks?overwrite=true&workbookType=twb" % self.site_id
 
         request_string = """
             <tsRequest>
@@ -568,3 +593,82 @@ class TableauConnector(BaseConnector):
         subprocess.call([common.TABCMD, 'login'] + self._tabcmd_login_params())
         subprocess.call([common.TABCMD, 'export', view_url, '--pdf', '-f', path] + self._tabcmd_login_params())
         return path
+
+    def list_projects(self):
+        self._check_authentication()
+        url = self.server_url + "/api/3.3/sites/%s/projects" % self.site_id
+
+        try:
+            response = requests.get(url,
+                params={'pageSize': 1000},
+                headers={'X-Tableau-Auth': self.token},
+                timeout=self.request_timeout)
+            response.raise_for_status()
+            r = untangle.parse(response.text).tsResponse
+            all_projects = [
+                {
+                    'name': p['name'],
+                    'id': p['id'],
+                    'description': p['description'],
+                    'permissions': p['contentPermissions']
+                } for p in r.projects.project
+            ]
+            return all_projects
+        except requests.exceptions.HTTPError as e:
+            logging.info('HTTPError for url: %s' % url)
+            logging.info(e)
+        except requests.exceptions.RequestException as e:
+            logging.info('RequestException for url: %s' % url)
+            logging.info(e)
+
+    def list_groups(self):
+        self._check_authentication()
+        url = self.server_url + "/api/3.3/sites/%s/groups" % self.site_id
+
+        try:
+            response = requests.get(url,
+                params={'pageSize': 1000},
+                headers={'X-Tableau-Auth': self.token},
+                timeout=self.request_timeout)
+            response.raise_for_status()
+            r = untangle.parse(response.text).tsResponse
+            all_groups = [
+                {
+                    'name': g['name'],
+                    'id': g['id']
+                } for g in r.groups.group
+            ]
+            return all_groups
+        except requests.exceptions.HTTPError as e:
+            logging.info('HTTPError for url: %s' % url)
+            logging.info(e)
+        except requests.exceptions.RequestException as e:
+            logging.info('RequestException for url: %s' % url)
+            logging.info(e)
+
+    def list_users(self):
+        self._check_authentication()
+        url = self.server_url + "/api/3.3/sites/%s/users" % self.site_id
+
+        try:
+            response = requests.get(url,
+                params={'pageSize': 1000},
+                headers={'X-Tableau-Auth': self.token},
+                timeout=self.request_timeout)
+            response.raise_for_status()
+            r = untangle.parse(response.text).tsResponse
+            all_users = [
+                {
+                    'name': u['name'],
+                    'id': u['id'],
+                    'site_role': u['siteRole'],
+                    'last_login': u['lastLogin']
+                } for u in r.users.user
+            ]
+            return all_users
+        except requests.exceptions.HTTPError as e:
+            logging.info('HTTPError for url: %s' % url)
+            logging.info(e)
+        except requests.exceptions.RequestException as e:
+            logging.info('RequestException for url: %s' % url)
+            logging.info(e)
