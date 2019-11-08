@@ -105,6 +105,8 @@ class UpdateArticleCitationsWithCrossref(Task):
                         for citation_doi in citations:
                             add_citation = False
 
+                            citation_doi = common.normalizeDoi(citation_doi)
+
                             try:
                                 existing_citation = ArticleCitations.objects.get(
                                     publisher_id=publisher_id,
