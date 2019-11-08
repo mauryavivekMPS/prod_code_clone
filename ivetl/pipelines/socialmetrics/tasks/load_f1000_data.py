@@ -2,8 +2,8 @@ import os
 import requests
 
 from bs4 import BeautifulSoup
-from ivetl.common import common
 from ivetl import utils
+from ivetl.common import common
 from ivetl.celery import app
 from ivetl.models import F1000SocialData
 from ivetl.pipelines.task import Task
