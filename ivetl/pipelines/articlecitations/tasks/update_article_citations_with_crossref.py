@@ -1,13 +1,14 @@
-import os
-import csv
 import codecs
+import csv
 import datetime
+import os
 import threading
+
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, MaxTriesAPIError
 from ivetl.models import PublisherMetadata, PublishedArticleByCohort, ArticleCitations, PublishedArticle
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -43,7 +44,7 @@ class UpdateArticleCitationsWithCrossref(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 2 and line[0] != 'PUBLISHER_ID':
-                        doi = line[1]
+                        doi = common.normalizedDoi(line[1])
                         already_processed.add(doi)
 
         if already_processed:
@@ -82,7 +83,7 @@ class UpdateArticleCitationsWithCrossref(Task):
 
                 thread_article_count += 1
 
-                doi = article.article_doi
+                doi = common.normalizedDoi(article.article_doi)
 
                 tlogger.info("Looking up citations for %s" % doi)
 
@@ -103,6 +104,8 @@ class UpdateArticleCitationsWithCrossref(Task):
                     if process_this_article:
                         for citation_doi in citations:
                             add_citation = False
+
+                            citation_doi = common.normalizeDoi(citation_doi)
 
                             try:
                                 existing_citation = ArticleCitations.objects.get(
@@ -132,7 +135,7 @@ class UpdateArticleCitationsWithCrossref(Task):
                                     ArticleCitations.create(
                                         publisher_id=publisher_id,
                                         article_doi=doi,
-                                        citation_doi=data['doi'],
+                                        citation_doi=common.normalizedDoi(data['doi']),
                                         citation_scopus_id=data.get('scopus_id', None),
                                         citation_date=data['date'],
                                         citation_first_author=data['first_author'],

@@ -2,6 +2,8 @@ import os
 import json
 import importlib
 import sendgrid
+
+from ivetl import common
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Personalization
 
 with open('/iv/properties.json', 'r') as properties_file:
@@ -1208,3 +1210,13 @@ def send_email(subject, body, to=EMAIL_TO, bcc=None, email_format="text/html", c
 
     response = sg.client.mail.send.post(request_body=mail.get())
     return response
+
+def normalizedDoi(doi):
+    """ normalizedDoi lowercases doi and strips it the prefixes doi: or http://dx.doi.org/ """
+    if isinstance(doi, str):
+        doi = doi.lower().strip()
+        if doi.startswith("doi:") and len(doi) > 4:
+            doi = doi[4:].strip()
+        elif doi.startswith("http://dx.doi.org/") and len(doi) > 18:
+            doi = doi[18:].strip()
+    return doi
