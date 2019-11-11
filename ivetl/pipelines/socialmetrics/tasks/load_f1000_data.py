@@ -2,9 +2,9 @@ import os
 import requests
 
 from bs4 import BeautifulSoup
-from ivetl.celery import app
-from ivetl import normalizedDoi
 from ivetl import utils
+from ivetl.common import common
+from ivetl.celery import app
 from ivetl.models import F1000SocialData
 from ivetl.pipelines.task import Task
 
@@ -47,7 +47,7 @@ class LoadF1000DataTask(Task):
                 if not doi_element:
                     continue
 
-                doi = normalizedDoi(doi_element.text)
+                doi = common.normalizedDoi(doi_element.text)
                 if not doi:
                     continue
 

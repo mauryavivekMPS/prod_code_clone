@@ -5,8 +5,8 @@ import json
 
 from datetime import datetime
 from decimal import Decimal
+from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common import normalizedDoi
 from ivetl.models import PublisherVizorUpdates, RejectedArticles
 from ivetl.pipelines.task import Task
 
@@ -62,7 +62,7 @@ class InsertIntoCassandraDBTask(Task):
                 if corresponding_author != r.corresponding_author:
                     r.corresponding_author = corresponding_author
 
-                crossref_doi = normalizedDoi(data.get('xref_doi'))
+                crossref_doi = common.normalizedDoi(data.get('xref_doi'))
                 if crossref_doi:
                     r.crossref_doi = crossref_doi
 
@@ -146,7 +146,7 @@ class InsertIntoCassandraDBTask(Task):
                 if submitted_journal != r.submitted_journal:
                     r.submitted_journal = submitted_journal
 
-                preprint_doi = normalizedDoi(data.get('preprint_doi'))
+                preprint_doi = common.normalizedDoi(data.get('preprint_doi'))
                 if preprint_doi:
                     r.preprint_doi = preprint_doi
 

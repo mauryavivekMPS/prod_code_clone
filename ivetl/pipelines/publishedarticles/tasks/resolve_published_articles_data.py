@@ -1,10 +1,9 @@
 import csv
 import datetime
 
+from ivetl import value_mappings
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common import normalizedDoi
-from ivetl import value_mappings
 from ivetl.matchers import value as value_matcher
 from ivetl.models import PublishedArticle, PublishedArticleValues, CitableSection, ValueMapping, ValueMappingDisplay
 from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
@@ -51,7 +50,7 @@ class ResolvePublishedArticlesData(Task):
                     if line_count == 1:
                         continue
 
-                    doi = normalizedDoi(line[1])
+                    doi = common.normalizedDoi(line[1])
                     try:
                         all_articles.append(PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi))
                     except PublishedArticle.DoesNotExist:

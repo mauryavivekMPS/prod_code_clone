@@ -9,7 +9,6 @@ from datetime import date
 from datetime import timedelta
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common import normalizedDoi
 from ivetl.connectors import CrossrefConnector
 from ivetl.matchers import match_authors, match_titles
 from ivetl.models.issn_journal import IssnJournal
@@ -110,7 +109,7 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
         r["xref_first_author"] = a.first_author
         r["xref_co_authors_ln_fn"] = a.co_authors
         r["xref_title"] = a.bptitle
-        r["xref_doi"] = normalizedDoi(a.doi)
+        r["xref_doi"] = common.normalizedDoi(a.doi)
 
     data['status'] = ''
 
@@ -287,7 +286,7 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
         matching_result['doi_lookup_status'] = "Match found"
         data['status'] = "Match found"
         data['xref_score'] = matching_result["score"]
-        data['xref_doi'] = normalizedDoi(matching_result["xref_doi"])
+        data['xref_doi'] = common.normalizedDoi(matching_result["xref_doi"])
         data['xref_journal'] = matching_result["xref_journal"]
         data['xref_publishdate'] = matching_result["xref_publishdate"]
         data['xref_first_author'] = matching_result["xref_first_author"]
@@ -349,7 +348,7 @@ class CrossrefArticle:
 
         j = item
 
-        self.doi = normalizedDoi(j['DOI'])
+        self.doi = common.normalizedDoi(j['DOI'])
 
         if len(j['title']) > 0:
             self.bptitle = j['title'][0]

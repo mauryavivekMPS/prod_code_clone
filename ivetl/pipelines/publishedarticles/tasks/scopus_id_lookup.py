@@ -3,8 +3,8 @@ import csv
 import json
 import os
 
+from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common import normalizedDoi
 from ivetl.connectors.base import MaxTriesAPIError
 from ivetl.connectors.scopus import ScopusConnector
 from ivetl.models import PublisherMetadata, PublishedArticle
@@ -28,7 +28,7 @@ class ScopusIdLookupTask(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(tsv, delimiter='\t'):
                     if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
-                        doi = normalizedDoi(line[1])
+                        doi = common.normalizedDoi(line[1])
                         already_processed.add(doi)
 
         if already_processed:
@@ -54,7 +54,7 @@ class ScopusIdLookupTask(Task):
                     continue  # ignore the header
 
                 publisher_id = line[0]
-                doi = normalizedDoi(line[1])
+                doi = common.normalizedDoi(line[1])
                 issn = line[2]
                 data = json.loads(line[3])
 
