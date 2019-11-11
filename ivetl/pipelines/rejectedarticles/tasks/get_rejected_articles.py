@@ -1,9 +1,9 @@
 import codecs
 import json
 
-from ivetl.celery import app
-from ivetl.common import normalizedDoi
+from ivetl.common import common
 from ivetl import utils
+from ivetl.celery import app
 from ivetl.models import RejectedArticles
 from ivetl.pipelines.task import Task
 
@@ -45,7 +45,7 @@ class GetRejectedArticlesTask(Task):
                 'custom': article.custom,
                 'custom_2': article.custom_2,
                 'custom_3': article.custom_3,
-                'preprint_doi': normalizedDoi(article.preprint_doi),
+                'preprint_doi': common.normalizedDoi(article.preprint_doi),
                 'source_file_name': article.source_file_name,
             }
 

@@ -5,8 +5,8 @@ import sys
 import threading
 
 from datetime import datetime
+from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common import normalizedDoi
 from ivetl.connectors.crossref import CrossrefConnector
 from ivetl.models import PublishedArticle, ArticleCitations, PublisherVizorUpdates
 from ivetl.pipelines.task import Task
@@ -49,7 +49,7 @@ class InsertScopusIntoCassandra(Task):
                     tlogger.info("skipping %s:%i: unable to parse json: %s" % (file, lineno, sys.exc_info()))
 
                 entry = {
-                    "doi": normalizedDoi(line[1]),
+                    "doi": common.normalizedDoi(line[1]),
                     "citations": citations,
                     "lineno":lineno
                 }

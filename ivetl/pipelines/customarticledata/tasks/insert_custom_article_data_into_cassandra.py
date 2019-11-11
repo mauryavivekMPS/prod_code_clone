@@ -2,9 +2,9 @@ import codecs
 import csv
 import os
 
-from ivetl.celery import app
-from ivetl.common import normalizedDoi
+from ivetl.common import common
 from ivetl import utils
+from ivetl.celery import app
 from ivetl.models import PublishedArticleValues
 from ivetl.pipelines.customarticledata import CustomArticleDataPipeline
 from ivetl.pipelines.task import Task
@@ -35,7 +35,7 @@ class InsertCustomArticleDataIntoCassandra(Task):
                         continue
 
                     d = {
-                        'doi': normalizedDoi(line[0]),
+                        'doi': common.normalizedDoi(line[0]),
                         'article_type': line[1].strip().title(),
                         'subject_category': line[2].strip().title(),
                         'editor': line[3].strip(),
@@ -45,7 +45,7 @@ class InsertCustomArticleDataIntoCassandra(Task):
                         'is_open_access': line[8].strip(),
                     }
 
-                    doi = normalizedDoi(d['doi'])
+                    doi = common.normalizedDoi(d['doi'])
                     tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                     if d['is_open_access']:

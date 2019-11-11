@@ -1,8 +1,8 @@
 import csv
 import datetime
 
+from ivetl.common import common
 from ivetl.celery import app
-from ivetl.common import normalizedDoi
 from ivetl.models import PublishedArticle, ArticleUsage
 from ivetl.pipelines.task import Task
 
@@ -29,7 +29,7 @@ class ResolveArticleUsageData(Task):
                 if count == 1:
                     continue
 
-                doi = normalizedDoi(line[1])
+                doi = common.normalizedDoi(line[1])
                 tlogger.info("Processing #%s : %s" % (count - 1, doi))
 
                 try:

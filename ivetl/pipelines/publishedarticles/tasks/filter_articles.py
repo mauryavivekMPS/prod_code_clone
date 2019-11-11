@@ -6,7 +6,6 @@ import os
 from ivetl.article_skipper import ArticleSkipper
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common import normalizedDoi
 from ivetl.models import PublishedArticle, ArticleCitations, PublishedArticleByCohort, ArticleUsage, PublishedArticleValues
 from ivetl.pipelines.task import Task
 
@@ -38,7 +37,7 @@ class FilterArticlesTask(Task):
                     continue
 
                 publisher_id = line[0]
-                doi = normalizedDoi(line[1])
+                doi = common.normalizedDoi(line[1])
                 issn = line[2]
                 data = json.loads(line[3])
 

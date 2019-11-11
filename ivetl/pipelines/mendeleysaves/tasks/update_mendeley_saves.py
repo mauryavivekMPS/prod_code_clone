@@ -8,7 +8,6 @@ from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from ivetl.celery import app
 from ivetl.common import common
-from ivetl.common import normalizedDoi
 from ivetl.connectors import MendeleyConnector
 from ivetl.models import PublishedArticle
 from ivetl.pipelines.task import Task
@@ -37,7 +36,7 @@ class UpdateMendeleySaves(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 3 and line[0] != 'PUBLISHER_ID':
-                        doi = normalizedDoi(line[1])
+                        doi = common.normalizedDoi(line[1])
                         already_processed.add(doi)
 
         if already_processed:
