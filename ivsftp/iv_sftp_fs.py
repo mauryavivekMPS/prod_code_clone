@@ -60,7 +60,8 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			dquote(self.server.user.display_name), self.server.user.email)
 
 	def session_ended(self):
-		self.access_log.info("[%s] session_ended")
+		self.access_log.info("[%s] session_ended",
+			self.session_id)
 
 	def fspath(self, path):
 		"""
