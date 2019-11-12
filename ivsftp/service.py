@@ -9,7 +9,6 @@ import socket
 import subprocess
 import sys
 import threading
-import time
 
 from daemon import pidfile
 
@@ -163,18 +162,18 @@ class Daemon:
 
 		# launch daemon process and start server
 		with context:
-	
+
 			# LogStream simulates a Stream object to
 			# route stdout/stderr to a logger
 			class LogStream(object):
 				def __init__(self, name, level):
 					self.logger = logging.getLogger(name)
 					self.level = level
-	
+
 				def write(self, buf):
 					for line in buf.rstrip().splitlines():
 						self.logger.log(self.level, line.rstrip())
-	
+
 				def flush(self):
 					pass
 
@@ -193,7 +192,7 @@ class Daemon:
 						return
 				try:
 					self._serve()
-				except Exception as e:
+				except Exception:
 					logging.exception("self._serve error")
 					self.stop(None, None)
 

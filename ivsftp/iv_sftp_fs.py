@@ -3,6 +3,13 @@
 import logging
 import os
 import paramiko
+import uuid
+
+
+def dquote(s):
+	if isinstance(s, str):
+		s = '"' + s.replace('"', '\"') + '"'
+	return s
 
 
 class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
@@ -35,6 +42,8 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 		"""
 		self.server = server
 		self.args = args[0]
+
+		self.access_log = self.args.access_log
 		self.log = logging.getLogger(self.args.name)
 
 		if not hasattr(self.server, 'home_dir'):
@@ -43,6 +52,15 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			raise Exception('server missing required attribte: user')
 		if not hasattr(self.server, 'publishers'):
 			raise Exception('server missing required attribte: publishers')
+
+	def session_started(self):
+		self.session_id = str(uuid.uuid1())
+		self.access_log.info("[%s] session_started %s %s <%s>",
+			self.session_id, self.server.user.user_id,
+			dquote(self.server.user.display_name), self.server.user.email)
+
+	def session_ended(self):
+		self.access_log.info("[%s] session_ended")
 
 	def fspath(self, path):
 		"""
@@ -109,9 +127,8 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			return paramiko.SFTPServer.convert_errno(e.errno)
 
 		fobj = IVSFTPFileHandle(flags)
-		fobj.user_id = self.server.user.user_id
-		fobj.user_email= self.server.user.email
-		fobj.access_log  = self.args.access_log
+		fobj.session_id = self.session_id
+		fobj.access_log = self.args.access_log
 		fobj.filename = path
 		fobj.readfile = f
 		fobj.writefile = f
@@ -140,6 +157,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			return folder
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] list_folder %s",
+				self.session_id, dquote(path))
 
 	def stat(self, path):
 		"""
@@ -153,6 +173,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			return paramiko.SFTPAttributes.from_stat(os.stat(path))
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] stat %s",
+				self.session_id, dquote(path))
 
 	def lstat(self, path):
 		"""
@@ -166,6 +189,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			return paramiko.SFTPAttributes.from_stat(os.lstat(path))
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] lstat %s",
+				self.session_id, dquote(path))
 
 	def remove(self, path):
 		"""
@@ -177,8 +203,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			os.remove(path)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
-		self.args.access_log.info("%s %s removed %s",
-			self.server.user.user_id, self.server.user.email, path)
+		finally:
+			self.access_log.info("[%s] remove %s",
+				self.session_id, dquote(path))
 		return paramiko.SFTP_OK
 
 	def rename(self, oldpath, newpath):
@@ -194,6 +221,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			os.rename(oldpath, newpath)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] rename %s %s",
+				self.session_id, dquote(oldpath), dquote(newpath))
 		return paramiko.SFTP_OK
 
 	def posix_rename(self, oldpath, newpath):
@@ -207,6 +237,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			os.rename(oldpath, newpath)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] posix_rename %s %s",
+				self.session_id, dquote(oldpath), dquote(newpath))
 		return paramiko.SFTP_OK
 
 	def mkdir(self, path, attr):
@@ -221,6 +254,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 				paramiko.SFTPServer.set_file_attr(path, attr)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] mkdir %s (%s)",
+				self.session_id, dquote(path), attr)
 		return paramiko.SFTP_OK
 
 	def rmdir(self, path):
@@ -234,6 +270,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 				os.rmdir(path)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] rmdir %s",
+				self.session_id, dquote(path))
 		return paramiko.SFTP_OK
 
 	def chattr(self, path, attr):
@@ -246,6 +285,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			paramiko.SFTPServer.set_file_attr(path, attr)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] chattr %s (%s)",
+				self.session_id, dquote(path), attr)
 		return paramiko.SFTP_OK
 
 	def symlink(self, target_path, path):
@@ -271,6 +313,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			os.symlink(target, path)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] symlink %s %s",
+				self.session_id, dquote(target_path), dquote(path))
 		return paramiko.SFTP_OK
 
 	def readlink(self, path):
@@ -279,7 +324,6 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 		specified path doesn't refer to a symbolic link then
 		paramiko.SFTP_OP_UNSUPPORTED is returned
 		"""
-		self.log.debug("IVSFTPFileSystemServer.readlink(%s)", path)
 		path = self.fspath(path)
 
 		try:
@@ -290,6 +334,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			return target
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		finally:
+			self.access_log.info("[%s] readlink %s",
+				self.session_id, dquote(path))
 
 
 class IVSFTPFileHandle(paramiko.SFTPHandle):
@@ -311,11 +358,11 @@ class IVSFTPFileHandle(paramiko.SFTPHandle):
 			super().close()
 		finally:
 			if self.n_read:
-				self.access_log.info("%s %s read %s (%d bytes)",
-					self.user_id, self.user_email, self.filename, self.n_read)
+				self.access_log.info("[%s] read %s (%d)",
+					self.session_id, dquote(self.filename), self.n_read)
 			if self.n_write:
-				self.access_log.info("%s %s wrote %s (%d bytes)",
-					self.user_id, self.user_email, self.filename, self.n_write)
+				self.access_log.info("[%s] write %s (%d)",
+					self.session_id, dquote(self.filename), self.n_write)
 
 	def read(self, offset, length):
 		data = super().read(offset, length)
@@ -334,4 +381,3 @@ class IVSFTPFileHandle(paramiko.SFTPHandle):
 		if rc == paramiko.SFTP_OK:
 			self.n_write += len(data)
 		return rc
-
