@@ -115,9 +115,9 @@ class Daemon:
 		else:
 			self.log.info("{} produced no environment variables".format(source))
 
-	def cycle_log_level(self):
+	def cycle_log_level(self, signum, frame):
 		with self.mu:
-			if self.log_level == logging.CRITICIAL:
+			if self.log_level == logging.CRITICAL:
 				self.log_level = logging.ERROR
 			elif self.log_level == logging.ERROR:
 				self.log_level = logging.WARNING
@@ -129,7 +129,7 @@ class Daemon:
 				self.log_level = logging.CRITICAL
 			logging.getLogger().setLevel(self.log_level)
 
-	def reset_log_level(self):
+	def reset_log_level(self, signum, frame):
 		with self.mu:
 			self.log_level = self.default_log_level
 			logging.getLogger().setLevel(self.log_level)
@@ -186,15 +186,14 @@ class Daemon:
 			if hasattr(self.args, 'env'):
 				self.env(self.args.env, env=os.environ)
 
-			while True:
-				with self.mu:
-					if not self.run:
-						return
-				try:
-					self._serve()
-				except Exception:
-					logging.exception("self._serve error")
-					self.stop(None, None)
+			with self.mu:
+				if not self.run:
+					return
+			try:
+				self._serve()
+			except Exception:
+				logging.exception("self._serve error")
+				self.stop(None, None)
 
 	def stop(self, signum, frame):
 		"""Stop accepting new requests and shut down"""
@@ -210,6 +209,8 @@ class Daemon:
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.socket .setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.socket.bind((self.args.addr, self.args.port))
+
+		self.log.info("accepting connections on %s:%d/tcp", self.args.addr, self.args.port)
 
 		while True:
 			with self.mu:
