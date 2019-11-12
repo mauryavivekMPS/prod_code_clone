@@ -111,7 +111,7 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 		fobj = IVSFTPFileHandle(flags)
 		fobj.user_id = self.server.user.user_id
 		fobj.user_email= self.server.user.email
-		fobj.access = self.args.access
+		fobj.access_log  = self.args.access_log
 		fobj.filename = path
 		fobj.readfile = f
 		fobj.writefile = f
@@ -177,6 +177,8 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 			os.remove(path)
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
+		self.args.access_log.info("%s %s removed %s",
+			self.server.user.user_id, self.server.user.email, path)
 		return paramiko.SFTP_OK
 
 	def rename(self, oldpath, newpath):
@@ -292,27 +294,10 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 
 class IVSFTPFileHandle(paramiko.SFTPHandle):
 
-	def read(self, offset, length):
-		n = 0
-		try:
-			super().read(offset, length)
-			n = length
-		finally:
-			self.n_read += n
-
-	def write(self, offset, data):
-		n = 0
-		try:
-			super().write(offset, data)
-			n = len(data)
-		finally:
-			self.n_write += n
-
-	def stat(self):
-		try:
-			return paramiko.SFTPAttributes.from_stat(os.fstat(self.readfile.fileno()))
-		except OSError as e:
-			return paramiko.SFTPServer.convert_errno(e.errno)
+	def __init__(self, flags=0):
+		self.n_read = 0
+		self.n_write = 0
+		super().__init__(flags)
 
 	def chattr(self, attr):
 		try:
@@ -320,12 +305,33 @@ class IVSFTPFileHandle(paramiko.SFTPHandle):
 			return paramiko.SFTP_OK
 		except OSError as e:
 			return paramiko.SFTPServer.convert_errno(e.errno)
-	
+
 	def close(self):
 		try:
 			super().close()
 		finally:
-			if self.bytes_read:
-				self.access("%s:%s:READ:%s:%d".format(self.user_id, self.user_email, self.filename))
-			if self.bytes_write:
-				self.access("%s:%s:WRITE:%s:%d".format(self.user_id, self.user_email, self.filename))
+			if self.n_read:
+				self.access_log.info("%s %s read %s (%d bytes)",
+					self.user_id, self.user_email, self.filename, self.n_read)
+			if self.n_write:
+				self.access_log.info("%s %s wrote %s (%d bytes)",
+					self.user_id, self.user_email, self.filename, self.n_write)
+
+	def read(self, offset, length):
+		data = super().read(offset, length)
+		if not isinstance(data, str):
+			self.n_read += len(data)
+		return data
+
+	def stat(self):
+		try:
+			return paramiko.SFTPAttributes.from_stat(os.fstat(self.readfile.fileno()))
+		except OSError as e:
+			return paramiko.SFTPServer.convert_errno(e.errno)
+
+	def write(self, offset, data):
+		rc = super(IVSFTPFileHandle, self).write(offset, data)
+		if rc == paramiko.SFTP_OK:
+			self.n_write += len(data)
+		return rc
+

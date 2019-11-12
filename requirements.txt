@@ -6,7 +6,7 @@ fuzzywuzzy==0.12.0
 ipython==5.1.0
 lxml==3.6.4
 python-dateutil==2.5.3
-requests==2.11.1
+requests==2.5.1
 sendgrid==5.2.0
 beautifulsoup4==4.5.1
 pyftpdlib==1.5.1
@@ -26,3 +26,5 @@ Flask==0.12.1
 gunicorn==19.7.1
 chardet==3.0.4
 markdown==2.6.9
+paramiko==2.6.0
+python-daemon==2.2.4

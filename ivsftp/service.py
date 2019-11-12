@@ -9,12 +9,13 @@ import socket
 import subprocess
 import sys
 import threading
+import time
 
 from daemon import pidfile
 
 
 class Daemon:
-	def __init__(self, args, log_level=logging.INFO, log_handlers=[]):
+	def __init__(self, args, access_log, log_level=logging.INFO, log_handlers=[]):
 		"""Initialize a new Daemon
 
 		A Daemon listens on a specified address and port combination.
@@ -30,9 +31,10 @@ class Daemon:
 			addr - address to bind to
 			port - port to bind to
 			handler - handler class (described below)
-			access - optional access(msg, *largs, **kargs) log function
 			pid - path to pid lockfile
 			umask - octal umask
+
+		access_log - logging instance for the access log
 
 		log_level - optional default logger level
 
@@ -50,17 +52,12 @@ class Daemon:
 			args - the args Namespace object described above
 		"""
 		self.args = args
+		self.args.access_log = access_log
 
 		self.log = logging.getLogger(self.args.name)
 		self.log_handlers = log_handlers
 		self.log_level = log_level
 		self.default_log_level = log_level
-
-		if not hasattr(self.args, 'access'):
-			def noop(msg, *largs, **kargs):
-				pass
-			self.args.access = noop
-			self.log.debug("no self.args.access(msg) function passed, noop'ing access logging")
 
 		self.mu = threading.Lock()
 
@@ -145,11 +142,15 @@ class Daemon:
 
 		log_handler_h = []
 		for handler in self.log_handlers:
-			log_handler_h.append(handler.stream)
+			log_handler_h.append(handler.stream.fileno())
 
 		context = daemon.DaemonContext()
-		context.detach_process = (not self.args.nofork)
+
 		context.files_preserve = log_handler_h
+		context.stdout = sys.stdout
+		context.stderr = sys.stderr
+
+		context.detach_process = (not self.args.nofork)
 		context.pidfile = pidfile.PIDLockFile(self.args.pid, 10)
 		context.signal_map = {
 			signal.SIGUSR1: self.cycle_log_level,
@@ -162,26 +163,26 @@ class Daemon:
 
 		# launch daemon process and start server
 		with context:
-
+	
 			# LogStream simulates a Stream object to
 			# route stdout/stderr to a logger
 			class LogStream(object):
 				def __init__(self, name, level):
 					self.logger = logging.getLogger(name)
 					self.level = level
-
+	
 				def write(self, buf):
 					for line in buf.rstrip().splitlines():
 						self.logger.log(self.level, line.rstrip())
-
+	
 				def flush(self):
 					pass
 
-			# associated stdout/stderr with the logger
+			sys.stdout.close()
 			sys.stdout = LogStream(self.args.name, logging.INFO)
-			sys.stderr = LogStream(self.args.name, logging.ERROR)
 
-			print("did this shit work or not?")
+			sys.stderr.close()
+			sys.stderr = LogStream(self.args.name, logging.ERROR)
 
 			if hasattr(self.args, 'env'):
 				self.env(self.args.env, env=os.environ)
@@ -190,7 +191,11 @@ class Daemon:
 				with self.mu:
 					if not self.run:
 						return
-				self._serve()
+				try:
+					self._serve()
+				except Exception as e:
+					logging.exception("self._serve error")
+					self.stop(None, None)
 
 	def stop(self, signum, frame):
 		"""Stop accepting new requests and shut down"""

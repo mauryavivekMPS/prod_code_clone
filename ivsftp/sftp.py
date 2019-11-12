@@ -35,7 +35,7 @@ if __name__ == "__main__":
 		help='base directory for all sftp accounts')
 	parser.add_argument('-log-dir', default='/var/log/sftp',
 		help='base directory for sftp logs')
-	parser.add_argument('-log-level', default='info',
+	parser.add_argument('-log-level', default='debug',
 		help='logging level to use on start-up (critical, error, warning, info, debug, or unset)')
 	parser.add_argument('-pid', default='/var/run/sftp/pid',
 		help='path to pid file')
@@ -86,20 +86,15 @@ if __name__ == "__main__":
 	access_log.propagate = False
 	access_log.setLevel(logging.INFO)
 
-	access_handler = logging.handlers.TimeedRotationFileHandler(
-		"{}/access.log".format(args.log_dir),
+	access_handler = logging.handlers.TimedRotatingFileHandler(
+		"{}/{}.access.log".format(args.log_dir, args.name),
 		delay=False, encoding="utf-8", utc=True,
 		when="D", interval=1, backupCount=7)
 
 	access_handler.setFormatter(logging.Formatter(
-		fmt='%(asctime)s %(message)'),
-		datefmt='%Y-%m-%dT%H:%M:%S%z')
+		fmt='%(asctime)s %(message)s', datefmt='%Y-%m-%dT%H:%M:%S%z'))
 	access_log.addHandler(access_handler)
 
-	def access(msg, *largs, **kargs):
-		access_log.info(msg, *largs, **kargs)
-	args = access
-
 	# launch the service
-	server = service.Daemon(args, access=access, log_level=log_level, log_handlers=[access_handler, root_handler])
+	server = service.Daemon(args, access_log=access_log, log_level=log_level, log_handlers=[access_handler, root_handler])
 	server.start()
