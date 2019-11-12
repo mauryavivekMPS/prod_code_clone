@@ -35,7 +35,7 @@ if __name__ == "__main__":
 		help='base directory for all sftp accounts')
 	parser.add_argument('-log-dir', default='/var/log/sftp',
 		help='base directory for sftp logs')
-	parser.add_argument('-log-level', default='debug',
+	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, debug, or unset)')
 	parser.add_argument('-pid', default='/var/run/sftp/pid',
 		help='path to pid file')
