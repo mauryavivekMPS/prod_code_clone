@@ -6,11 +6,58 @@
 
 import argparse
 import datetime
+import logging
 import os
 import re
+import signal
+import sys
 import time
 
 from email.utils import unquote
+
+# setup a basic logger whose output we'll let systemd handle
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter(
+	fmt='%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)s:%(message)s',
+	datefmt='%Y-%m-%dT%H:%M:%S%z'))
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
+
+log_level_num = {
+	"critical": logging.CRITICAL,
+	"error": logging.ERROR,
+	"warning": logging.WARNING,
+	"info": logging.INFO,
+	"debug": logging.DEBUG,
+}
+
+log_level_default = logging.NOTSET
+
+
+def cycle_log_level(signum, frame):
+	"""
+	Handles USR1 and USR2 signals to modify the logging levels,
+	USR1 will increase the logging until it reaches DEBUG and
+	then flip over to CRITICAL, while USR2 will reset to the
+	default logging level DEFAULT_LOG_LEVEL
+	"""
+	if signum == signal.USR1:
+		level = logger.getEffectiveLevel()
+		if level == logging.CRITICAL:
+			level = logging.ERROR
+		elif level == logging.ERROR:
+			level = logging.WARNING
+		elif level == logging.WARNING:
+			level = logging.INFO
+		elif level == logging.INFO:
+			level = logging.DEBUG
+		else:
+			level = logging.CRITICAL
+		logger.setLevel(level)
+	elif signum == signal.USR2:
+		logger.setLevel(log_level_default)
 
 
 def _parsedt(s):
@@ -89,7 +136,7 @@ class Session:
 	def execute(self):
 		# todo: submit self.filepath.items() to pipelines
 		for k, v in self.filepath.items():
-			print(self.user_email, v.filepath)
+			logging.info(self.user_email, v.filepath)
 
 	def last_active(self):
 		dt = self.datetime
@@ -230,15 +277,30 @@ class Patterns:
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-	parser.add_argument(
-		'-watch',
-		default='/var/log/sftp/sftp.access.log',
+	parser.add_argument('-watch', default='/var/log/sftp/sftp.access.log',
 		help='path to the access log to watch for new events')
+
+	parser.add_argument('-repoll', default=15, type=int, choices=range(1, 61),
+		help='seconds to wait n seconds in-between polling the watched log, in the range 1..60')
+
+	parser.add_argument('-log-level', default='warning',
+		help='logging level to use on start-up (critical, error, warning, info, or debug)')
 
 	args = parser.parse_args()
 
+	# set up the logging level
+	try:
+		log_level_default = log_level_num[args.log_level]
+		logger.setLevel(log_level_default)
+	except KeyError:
+		sys.stderr.write("invalid -log-level option, valid choices are: critical, error, warning, info, or debug\n")
+		sys.exit(1)
+
+	# set up the sessions tracker
 	sessions = ActiveSessions()
 
+	# open the log file and process it, then loop forever watching for
+	# new log line entries
 	fh = None
 	fh_new = None
 	pat = Patterns()
@@ -308,7 +370,7 @@ if __name__ == "__main__":
 						sessions.end(dt, session_id)
 						continue
 				except Exception as e:
-					print(e)
+					logging.exception(e)
 
 			# we've finished reading fh, if fh_new was initialized
 			# then fh was replaced on the filesystem, so close the
@@ -324,7 +386,7 @@ if __name__ == "__main__":
 			# record prev inode state for the next loop
 			prev = curr
 
-			# sleep for 15 seconds before repolling
-			time.sleep(15)
+			# sleep for args.repoll seconds before repolling
+			time.sleep(args.repoll)
 		except Exception as e:
-			print(e)
+			logging.exception(e)
