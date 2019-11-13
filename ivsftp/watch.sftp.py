@@ -12,6 +12,7 @@ import time
 
 from email.utils import unquote
 
+
 def _parsedt(s):
 	"""
 	Internal use function to parse a timestamp string in the form
@@ -40,10 +41,10 @@ def _parsedt(s):
 
 	try:
 		if s[19] == "-":
-		        tz = datetime.timezone(
+			tz = datetime.timezone(
 				datetime.timedelta(hours=-offset_hh, minutes=offset_mm))
 		elif s[19] == "+":
-		        tz = datetime.timezone(
+			tz = datetime.timezone(
 				datetime.timedelta(hours=+offset_hh, minutes=offset_mm))
 		else:
 			raise("unexpected value passed to _parsedt: " + s)
@@ -52,11 +53,12 @@ def _parsedt(s):
 
 	try:
 		return datetime.datetime(
-		        int(p[0]), int(p[1]), int(p[2]),
-		        hour=int(p[3]), minute=int(p[4]), second=int(p[5]),
-		        tzinfo=tz)
+			int(p[0]), int(p[1]), int(p[2]),
+			hour=int(p[3]), minute=int(p[4]), second=int(p[5]),
+			tzinfo=tz)
 	except ValueError:
 		raise("unexpected value passed to _parsedt: " + s)
+
 
 class Filepath:
 	def __init__(self, dt, filepath, nbytes):
@@ -125,7 +127,7 @@ class ActiveSessions:
 
 	def rm_entry(self, dt, session_id, filepath):
 		if session_id in self.active:
-			self.active[session_id].rm_entry(filepath)
+			self.active[session_id].rm_entry(dt, filepath)
 		else:
 			# We don't have an active session, possibly we're
 			# parsing a truncated log or the session was split
@@ -234,6 +236,8 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
+	sessions = ActiveSessions()
+
 	fh = None
 	fh_new = None
 	pat = Patterns()
@@ -276,28 +280,33 @@ if __name__ == "__main__":
 						user_id = m.group(3)
 						user_name = unquote(m.group(4))
 						user_email = m.group(5)
+						sessions.start(dt, session_id, user_id, user_name, user_email)
 						continue
 
 					m = pat.writeEntry.match(line)
 					if m is not None:
 						dt = _parsedt(m.group(1))
 						session_id = m.group(2)
-						filename = unquote(m.group(3))
+						filepath = unquote(m.group(3))
 						nbytes = int(m.group(4))
+						sessions.add_entry(dt, session_id, filepath, nbytes)
 						continue
 
 					m = pat.removeEntry.match(line)
 					if m is not None:
 						dt = _parsedt(m.group(1))
 						session_id = m.group(2)
-						filename = unquote(m.group(3))
+						filepath = unquote(m.group(3))
+						sessions.rm_entry(dt, session_id, filepath)
 						continue
 
 					m = pat.sessionStopped.match(line)
 					if m is not None:
 						dt = _parsedt(m.group(1))
 						session_id = m.group(2)
+						sessions.end(dt, session_id)
 						continue
+
 				except Exception as e:
 					print(e)
 
