@@ -5,10 +5,16 @@ import os
 import paramiko
 import uuid
 
+from email.utils import quote
+
 
 def dquote(s):
+	"""
+	return a double quoted copy of s with any inner backslashes
+	or double quotes escaped by a backslash
+	"""
 	if isinstance(s, str):
-		s = '"' + s.replace('"', '\"') + '"'
+		s = '"' + quote(s) + '"'
 	return s
 
 
@@ -36,7 +42,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 
 		*args - list with the following items:
 			args[0] Namespace object with the following fields:
-				log - Logger instance
+				name - name of the service
+				log - general Logger instance
+				access_log - access log Logger instance
 
 		**kwargs - ignored
 		"""
