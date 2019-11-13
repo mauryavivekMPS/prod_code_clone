@@ -87,8 +87,8 @@ class Session:
 			pass
 
 	def execute(self):
-		for k, v in self.filepath.items():
-			print("we'd do something amazing with " + v.filepath + ", you can be sure.")
+		# todo: submit self.filepath.items() to pipelines
+		pass
 
 	def last_active(self):
 		dt = self.datetime
@@ -306,7 +306,6 @@ if __name__ == "__main__":
 						session_id = m.group(2)
 						sessions.end(dt, session_id)
 						continue
-
 				except Exception as e:
 					print(e)
 
