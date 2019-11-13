@@ -108,8 +108,7 @@ class SFTP_Transport(threading.Thread):
 					else:
 						self.log.warning("skipping unhandled SSH host Key id: %s", k)
 				except Exception as e:
-					self.log.error("error reading SSH Host Key as %s: %s", k, v)
-					self.log.exception(e)
+					self.log.info("unable to parse SSH Host Key as %s: %s: %s", k, v, e)
 
 		if len(host_keys) == 0:
 			self.log.error("args must contain at least one of rsa_key, dsa_key, ecdsa_key, or ed25519_key, and must be valid file readable by the process")
