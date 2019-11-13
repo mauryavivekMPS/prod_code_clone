@@ -13,12 +13,11 @@ from iv_auth_db import IVAuthDBServer
 from iv_sftp_fs import IVSFTPFileSystemServer
 
 log_level_num = {
-	"critical": 50,
-	"error": 40,
-	"warning": 30,
-	"info": 20,
-	"debug": 10,
-	"notset": 0,
+	"critical": logging.CRITICAL,
+	"error": logging.ERROR,
+	"warning": logging.WARNING,
+	"info": logging.INFO,
+	"debug": logging.DEBUG,
 }
 
 if __name__ == "__main__":
@@ -36,7 +35,7 @@ if __name__ == "__main__":
 	parser.add_argument('-log-dir', default='/var/log/sftp',
 		help='base directory for sftp logs')
 	parser.add_argument('-log-level', default='warning',
-		help='logging level to use on start-up (critical, error, warning, info, debug, or unset)')
+		help='logging level to use on start-up (critical, error, warning, info, debug')
 	parser.add_argument('-pid', default='/var/run/sftp/pid',
 		help='path to pid file')
 	parser.add_argument('-umask', type=int, default=0o002,
@@ -66,7 +65,11 @@ if __name__ == "__main__":
 
 	# construct the root logger for handling debug,
 	# info, etc., level logging
-	log_level = log_level_num[args.log_level]
+	try:
+		log_level = log_level_num[args.log_level]
+	except KeyError:
+		sys.stderr.write("invalid -log-level option, valid choices are: critical, error, warning, info, or debug\n")
+		sys.exit(1)
 	root_log = logging.getLogger()
 	root_log.setLevel(log_level)
 
