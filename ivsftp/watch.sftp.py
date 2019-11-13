@@ -88,7 +88,8 @@ class Session:
 
 	def execute(self):
 		# todo: submit self.filepath.items() to pipelines
-		pass
+		for k, v in self.filepath.items():
+			print(self.user_email, v.filepath)
 
 	def last_active(self):
 		dt = self.datetime
@@ -322,5 +323,8 @@ if __name__ == "__main__":
 
 			# record prev inode state for the next loop
 			prev = curr
+
+			# sleep for 15 seconds before repolling
+			time.sleep(15)
 		except Exception as e:
 			print(e)
