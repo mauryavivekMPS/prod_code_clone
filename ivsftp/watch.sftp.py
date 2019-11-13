@@ -308,7 +308,7 @@ if __name__ == "__main__":
 	while True:
 		# sleep then continue if the file does not exist
 		if not os.path.exists(args.watch):
-			time.sleep(60)
+			time.sleep(args.repoll)
 			continue
 
 		# fh_new will be opened if we find the inode has changed
