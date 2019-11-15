@@ -6,11 +6,9 @@ import os
 import service
 import sys
 
-from sftp_transport import SFTP_Transport
-
-sys.path.insert(0, os.environ['IVETL_ROOT'])
 from iv_auth_db import IVAuthDBServer
 from iv_sftp_fs import IVSFTPFileSystemServer
+from sftp_transport import SFTP_Transport
 
 log_level_num = {
 	"critical": logging.CRITICAL,
