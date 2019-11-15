@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 
-import os
-os.sys.path.append(os.environ['IVETL_ROOT'])
-
-import re
 import datetime
+import os
+import re
+
 from collections import defaultdict
-from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
 from django.core.urlresolvers import reverse
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.common import common
-from ivetl.models import PublisherMetadata, User, UploadedFile
 from ivetl import utils
+from ivetl.models import PublisherMetadata, User, UploadedFile
 from ivweb.app.views.pipelines import move_invalid_file_to_cold_storage
+from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import FTPServer
 
 
 class IvetlAuthorizer(DummyAuthorizer):
