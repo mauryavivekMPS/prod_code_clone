@@ -11,19 +11,11 @@ import os
 import re
 import signal
 import sys
+import threading
 import time
 
 from email.utils import unquote
 
-# setup a basic logger whose output we'll let systemd handle
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter(
-	fmt='%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)s:%(message)s',
-	datefmt='%Y-%m-%dT%H:%M:%S%z'))
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.addHandler(handler)
 
 log_level_num = {
 	"critical": logging.CRITICAL,
@@ -34,30 +26,6 @@ log_level_num = {
 }
 
 log_level_default = logging.NOTSET
-
-
-def cycle_log_level(signum, frame):
-	"""
-	Handles USR1 and USR2 signals to modify the logging levels,
-	USR1 will increase the logging until it reaches DEBUG and
-	then flip over to CRITICAL, while USR2 will reset to the
-	default logging level DEFAULT_LOG_LEVEL
-	"""
-	if signum == signal.USR1:
-		level = logger.getEffectiveLevel()
-		if level == logging.CRITICAL:
-			level = logging.ERROR
-		elif level == logging.ERROR:
-			level = logging.WARNING
-		elif level == logging.WARNING:
-			level = logging.INFO
-		elif level == logging.INFO:
-			level = logging.DEBUG
-		else:
-			level = logging.CRITICAL
-		logger.setLevel(level)
-	elif signum == signal.USR2:
-		logger.setLevel(log_level_default)
 
 
 def _parsedt(s):
@@ -112,6 +80,7 @@ class Filepath:
 		self.datetime = dt
 		self.filepath = filepath
 		self.nbytes = nbytes
+		self.log = logging.getLogger(__name__)
 
 
 class Session:
@@ -122,6 +91,7 @@ class Session:
 		self.user_name = user_name
 		self.user_email = user_email
 		self.filepath = dict()
+		self.log = logging.getLogger(__name__)
 
 	def add_entry(self, dt, filepath, nbytes):
 		self.filepath[filepath] = Filepath(dt, filepath, nbytes)
@@ -136,7 +106,7 @@ class Session:
 	def execute(self):
 		# todo: submit self.filepath.items() to pipelines
 		for k, v in self.filepath.items():
-			logging.info(self.user_email, v.filepath)
+			logging.info("%s %s", self.user_email, v.filepath)
 
 	def last_active(self):
 		dt = self.datetime
@@ -150,6 +120,7 @@ class ActiveSessions:
 	def __init__(self):
 		# active sessions
 		self.active = dict()
+		self.log = logging.getLogger(__name__)
 
 	def start(self, dt, session_id, user_id, user_name, user_email):
 		if session_id not in self.active:
@@ -274,6 +245,155 @@ class Patterns:
 		self.removeEntry = re.compile('^' + self.timestamp + ' ' + self.session_id + r' remove "((?:[^"]|\\")+)"$')
 
 
+class WatchSFTP:
+	def __init__(self, watch, repoll):
+		self.watch = watch
+		self.repoll = repoll
+
+		self.lock = threading.Lock()
+		self.shutdown = False
+
+		self.log = logging.getLogger(__name__)
+		self.default_log_level = self.log.getEffectiveLevel()
+
+	def cycle_log_level(self, signum, frame):
+		"""
+		cycle_log_level handles USR1 and USR2 signals to modify the
+		logging levels, USR1 will increase the logging until it reaches
+		DEBUG and then flip over to CRITICAL, while USR2 will reset to
+		the default logging level DEFAULT_LOG_LEVEL
+		"""
+		if signum == signal.USR1:
+			level = logger.getEffectiveLevel()
+			if level == logging.CRITICAL:
+				level = logging.ERROR
+			elif level == logging.ERROR:
+				level = logging.WARNING
+			elif level == logging.WARNING:
+				level = logging.INFO
+			elif level == logging.INFO:
+				level = logging.DEBUG
+			else:
+				level = logging.CRITICAL
+			logger.setLevel(level)
+		elif signum == signal.USR2:
+			logger.setLevel(self.default_log_level)
+
+	def start(self):
+		"""
+		start will launch the sftp access log watcher
+		"""
+		# set up the sessions tracker
+		sessions = ActiveSessions()
+
+		# open the log file and process it, then loop forever watching for
+		# new log line entries
+		fh = None
+		fh_new = None
+		pat = Patterns()
+		prev = None
+		while True:
+			with self.lock:
+				if self.shutdown:
+					return
+
+			# sleep then continue if the file does not exist
+			if not os.path.exists(self.watch):
+				time.sleep(self.repoll)
+				continue
+
+			# fh_new will be opened if we find the inode has changed
+			fh_new = None
+			try:
+				# compare current inode against the previous inode
+				curr = os.stat(self.watch)
+				if prev is not None:
+					if prev.st_ino != curr.st_ino:
+						# we'll need to finish reading fh and
+						# then swap in fh_new at the end
+						fh_new = open(self.watch, "r")
+					elif prev.st_size > curr.st_size:
+						# the inode has not changed but the
+						# file is smaller than it was, we'll
+						# assume this means it was truncated,
+						# and that we'll need to re-seek to 0
+						fh.seek(0)
+
+				if fh is None:
+					fh = open(self.watch, "r")
+
+				# read to the end of the file, parsing each line for
+				# patterns of interest
+				for line in fh:
+					line = line.rstrip()
+					try:
+						m = pat.sessionStarted.match(line)
+						if m is not None:
+							dt = _parsedt(m.group(1))
+							session_id = m.group(2)
+							user_id = m.group(3)
+							user_name = unquote(m.group(4))
+							user_email = m.group(5)
+							sessions.start(dt, session_id, user_id, user_name, user_email)
+							continue
+
+						m = pat.writeEntry.match(line)
+						if m is not None:
+							dt = _parsedt(m.group(1))
+							session_id = m.group(2)
+							filepath = unquote(m.group(3))
+							nbytes = int(m.group(4))
+							sessions.add_entry(dt, session_id, filepath, nbytes)
+							continue
+
+						m = pat.removeEntry.match(line)
+						if m is not None:
+							dt = _parsedt(m.group(1))
+							session_id = m.group(2)
+							filepath = unquote(m.group(3))
+							sessions.rm_entry(dt, session_id, filepath)
+							continue
+
+						m = pat.sessionStopped.match(line)
+						if m is not None:
+							dt = _parsedt(m.group(1))
+							session_id = m.group(2)
+							sessions.end(dt, session_id)
+							continue
+					except Exception as e:
+						self.log.exception(e)
+
+				# we've finished reading fh, if fh_new was initialized
+				# then fh was replaced on the filesystem, so close the
+				# handle and replace it with fh_new
+				if fh_new is not None:
+					try:
+						fh.close()
+					except Exception:
+						# not much I can do about it is there?
+						pass
+					fh = fh_new
+
+				# record prev inode state for the next loop
+				prev = curr
+
+				# sleep for self.repoll seconds before repolling
+				try:
+					time.sleep(self.repoll)
+				except KeyboardInterrupt:
+					self.stop()
+					return
+			except Exception as e:
+				self.log.exception(e)
+
+	def stop(self):
+		"""
+		stop will shut down the watcher
+		"""
+		with self.lock:
+			self.shutdown = True
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -288,6 +408,16 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
+	# setup a basic logger whose output we'll let systemd handle
+	handler = logging.StreamHandler()
+	handler.setFormatter(logging.Formatter(
+		fmt='%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)s:%(message)s',
+		datefmt='%Y-%m-%dT%H:%M:%S%z'))
+
+	logging.basicConfig()
+	logger = logging.getLogger()
+	logger.addHandler(handler)
+
 	# set up the logging level
 	try:
 		log_level_default = log_level_num[args.log_level]
@@ -296,97 +426,5 @@ if __name__ == "__main__":
 		sys.stderr.write("invalid -log-level option, valid choices are: critical, error, warning, info, or debug\n")
 		sys.exit(1)
 
-	# set up the sessions tracker
-	sessions = ActiveSessions()
-
-	# open the log file and process it, then loop forever watching for
-	# new log line entries
-	fh = None
-	fh_new = None
-	pat = Patterns()
-	prev = None
-	while True:
-		# sleep then continue if the file does not exist
-		if not os.path.exists(args.watch):
-			time.sleep(args.repoll)
-			continue
-
-		# fh_new will be opened if we find the inode has changed
-		fh_new = None
-		try:
-			# compare current inode against the previous inode
-			curr = os.stat(args.watch)
-			if prev is not None:
-				if prev.st_ino != curr.st_ino:
-					# we'll need to finish reading fh and
-					# then swap in fh_new at the end
-					fh_new = open(args.watch, "r")
-				elif prev.st_size > curr.st_size:
-					# the inode has not changed but the
-					# file is smaller than it was, we'll
-					# assume this means it was truncated,
-					# and that we'll need to re-seek to 0
-					fh.seek(0)
-
-			if fh is None:
-				fh = open(args.watch, "r")
-
-			# read to the end of the file, parsing each line for
-			# patterns of interest
-			for line in fh:
-				line = line.rstrip()
-				try:
-					m = pat.sessionStarted.match(line)
-					if m is not None:
-						dt = _parsedt(m.group(1))
-						session_id = m.group(2)
-						user_id = m.group(3)
-						user_name = unquote(m.group(4))
-						user_email = m.group(5)
-						sessions.start(dt, session_id, user_id, user_name, user_email)
-						continue
-
-					m = pat.writeEntry.match(line)
-					if m is not None:
-						dt = _parsedt(m.group(1))
-						session_id = m.group(2)
-						filepath = unquote(m.group(3))
-						nbytes = int(m.group(4))
-						sessions.add_entry(dt, session_id, filepath, nbytes)
-						continue
-
-					m = pat.removeEntry.match(line)
-					if m is not None:
-						dt = _parsedt(m.group(1))
-						session_id = m.group(2)
-						filepath = unquote(m.group(3))
-						sessions.rm_entry(dt, session_id, filepath)
-						continue
-
-					m = pat.sessionStopped.match(line)
-					if m is not None:
-						dt = _parsedt(m.group(1))
-						session_id = m.group(2)
-						sessions.end(dt, session_id)
-						continue
-				except Exception as e:
-					logging.exception(e)
-
-			# we've finished reading fh, if fh_new was initialized
-			# then fh was replaced on the filesystem, so close the
-			# handle and replace it with fh_new
-			if fh_new is not None:
-				try:
-					fh.close()
-				except Exception:
-					# not much I can do about it is there?
-					pass
-				fh = fh_new
-
-			# record prev inode state for the next loop
-			prev = curr
-
-			# sleep for args.repoll seconds before repolling
-			time.sleep(args.repoll)
-		except Exception as e:
-			logging.exception(e)
+	watcher = WatchSFTP(args.watch, args.repoll)
+	watcher.start()
