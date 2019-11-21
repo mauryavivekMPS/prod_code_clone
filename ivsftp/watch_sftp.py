@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# monitor an sftp access log file for new deliveries
+# monitor an sftp.py access log file for new deliveries
 #
-# Given a filepath to an sftp access log, e.g.,
+# Given a filepath to an sftp.py access log, e.g.,
 
 import argparse
 import datetime
@@ -25,15 +25,18 @@ log_level_num = {
 	"debug": logging.DEBUG,
 }
 
-log_level_default = logging.NOTSET
-
 
 def _parsedt(s):
 	"""
 	Internal use function to parse a timestamp string in the form
-	2019-11-30T01:23:45-0800.  If we had python 3.7+ we could just call
-	datetime.fromisoformat(s) from the datetime module.  Alas we are
-	currently deploying python 3.5 which does not offer that method.
+	2019-11-30T01:23:45-0800.  This is the format used by the sftp.py
+	logger, which in turn relies on the limited sftrftime syntax where %z
+	emits a timezone offset w/o the colon separator required by the ISO
+	8601 or RFC 3339 standards.
+
+	It is expected that callers are ensuring s is in the proper format
+	before calling _parsedt, if that is not the case an exception will be
+	raised..
 	"""
 	# parse s into list p with items
 	# [0] year, [1] month, [2] day, [3] hour, [4] minute, [5] second, [6] tz hhmm
@@ -76,6 +79,9 @@ def _parsedt(s):
 
 
 class Filepath:
+	"""
+	Filepath records the details of an uploaded file
+	"""
 	def __init__(self, dt, filepath, nbytes):
 		self.datetime = dt
 		self.filepath = filepath
@@ -84,6 +90,10 @@ class Filepath:
 
 
 class Session:
+	"""
+	Session records a user session, accumulating submitted files and
+	calling the ivsubmit module to submit them to the pipeline.
+	"""
 	def __init__(self, dt, session_id, user_id, user_name, user_email):
 		self.datetime = dt
 		self.session_id = session_id
@@ -117,6 +127,10 @@ class Session:
 
 
 class ActiveSessions:
+	"""
+	ActiveSessions manages the set of currently active sessions picked up
+	from scanning the sftp.py access log.
+	"""
 	def __init__(self):
 		# active sessions
 		self.active = dict()
@@ -175,10 +189,14 @@ class ActiveSessions:
 
 
 class Patterns:
+	"""
+	Patterns compiles the regular expressions used to parse
+	lines out of the sftp.py access log
+	"""
 	def __init__(self):
-		# time matches timestamps in the output by sftp, which is
-		# close to RFC 3339 with the exception that the timezone
-		# does not contain a ':' separator
+		# time matches timestamps in the output by sftp.py, which is
+		# close to RFC 3339 with the exception that the timezone does
+		# not contain a ':' separator
 		# capturing groups:
 		#  1 - datetime string (e.g., 2019-11-13T08:32:47-0800)
 		# example:
@@ -192,8 +210,8 @@ class Patterns:
 		#  ff465c4c-0575-11ea-aa2b-3c6aa7a0de8f]
 		self.uuid = r'([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})'
 
-		# session_id matches a session id within a logging line output by sftp
-		# capturing groups:
+		# session_id matches a session id within a logging line output
+		# by sftp.py capturing groups:
 		#  1 - session_id uuid
 		# example:
 		#  [ff465c4c-0575-11ea-aa2b-3c6aa7a0de8f]
@@ -246,12 +264,15 @@ class Patterns:
 
 
 class WatchSFTP:
+	"""
+	WatchSFTP monitors an sftp.py access log
+	"""
 	def __init__(self, watch, repoll):
 		self.watch = watch
 		self.repoll = repoll
 
 		self.lock = threading.Lock()
-		self.shutdown = False
+		self.shutdown = threading.Event()
 
 		self.log = logging.getLogger(__name__)
 		self.default_log_level = self.log.getEffectiveLevel()
@@ -281,7 +302,7 @@ class WatchSFTP:
 
 	def start(self):
 		"""
-		start will launch the sftp access log watcher
+		start will launch the sftp.py access log watcher
 		"""
 		# set up the sessions tracker
 		sessions = ActiveSessions()
@@ -293,9 +314,10 @@ class WatchSFTP:
 		pat = Patterns()
 		prev = None
 		while True:
-			with self.lock:
-				if self.shutdown:
-					return
+			if self.shutdown.is_set():
+				if fh is not None:
+					fh.close()
+				return
 
 			# sleep then continue if the file does not exist
 			if not os.path.exists(self.watch):
@@ -325,6 +347,9 @@ class WatchSFTP:
 				# read to the end of the file, parsing each line for
 				# patterns of interest
 				for line in fh:
+					if self.shutdown.is_set():
+						return
+
 					line = line.rstrip()
 					try:
 						m = pat.sessionStarted.match(line)
@@ -363,25 +388,29 @@ class WatchSFTP:
 					except Exception as e:
 						self.log.exception(e)
 
-				# we've finished reading fh, if fh_new was initialized
-				# then fh was replaced on the filesystem, so close the
-				# handle and replace it with fh_new
+				# we've finished reading fh, if fh_new was
+				# initialized then fh was replaced on the
+				# filesystem, so close the handle and replace
+				# it with fh_new
 				if fh_new is not None:
 					try:
 						fh.close()
 					except Exception:
 						# not much I can do about it is there?
 						pass
+					if self.shutdown.is_set():
+						return
 					fh = fh_new
 
 				# record prev inode state for the next loop
 				prev = curr
 
-				# sleep for self.repoll seconds before repolling
+				# sleep for self.repoll seconds before
+				# repolling
 				try:
-					time.sleep(self.repoll)
+					self.shutdown.wait(self.repoll)
 				except KeyboardInterrupt:
-					self.stop()
+					fh.close()
 					return
 			except Exception as e:
 				self.log.exception(e)
@@ -390,8 +419,7 @@ class WatchSFTP:
 		"""
 		stop will shut down the watcher
 		"""
-		with self.lock:
-			self.shutdown = True
+		self.shutdown.set()
 
 
 if __name__ == "__main__":
@@ -418,10 +446,9 @@ if __name__ == "__main__":
 	logger = logging.getLogger()
 	logger.addHandler(handler)
 
-	# set up the logging level
+	# set the initial logging level
 	try:
-		log_level_default = log_level_num[args.log_level]
-		logger.setLevel(log_level_default)
+		logger.setLevel(log_level_num[args.log_level])
 	except KeyError:
 		sys.stderr.write("invalid -log-level option, valid choices are: critical, error, warning, info, or debug\n")
 		sys.exit(1)
