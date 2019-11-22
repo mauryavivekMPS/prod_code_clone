@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from ivweb.app.views import (auth, audit, home, users, alerts, tableau_alerts, notifications, journals, reports, uptime, publishers,
-    pipelines, sendgrid, value_mappings, uploaded_files, app_content, survey)
+from ivweb.app.views import (alerts, app_content, audit, auth, home,
+    journals, notifications, pipelines, publishers, rejected_article_overrides,
+    reports, sendgrid, survey, tableau_alerts, uploaded_files, uptime, users,
+    value_mappings)
 
 urlpatterns = [
 
@@ -131,5 +133,13 @@ urlpatterns = [
     url(r'^updatevaluedisplay/$', value_mappings.update_value_display, name='value_mappings.update_value_display'),
     url(r'^updatevaluemapping/$', value_mappings.update_value_mapping, name='value_mappings.update_value_mapping'),
     url(r'^runrefreshvaluemappings/$', value_mappings.run_refresh_mappings_pipeline, name='value_mappings.run_refresh_mappings_pipeline'),
-
+    url(r'^rejectedarticleoverrides/$',
+        rejected_article_overrides.list_overrides,
+        name='rejected_article_overrides.list_overrides'),
+    url(r'^rejectedarticleoverrides/new/$',
+        rejected_article_overrides.new_override,
+        name='rejected_article_overrides.new_override'),
+    url(r'^rejectedarticleoverrides/delete/$',
+        rejected_article_overrides.delete_override,
+        name='rejected_article_overrides.delete_override')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

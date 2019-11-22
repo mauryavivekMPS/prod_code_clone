@@ -180,6 +180,8 @@ class InsertIntoCassandraDBTask(Task):
 
                 # if the status changed to not published make sure to clear out 'published' fields
                 if r.status == 'Not Published' and r.published_journal is not None:
+                    r.authors_match_score = None 
+                    r.citation_lookup_status = None
                     r.crossref_doi = None
                     r.crossref_match_score = None
                     r.date_of_publication = None
@@ -235,4 +237,3 @@ def to_datetime(mdy_str):
     # date (y, m, d)
     dor_date = datetime(dor_year, dor_month, dor_day)
     return dor_date
-
