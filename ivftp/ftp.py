@@ -63,7 +63,7 @@ class IvetlHandler(FTPHandler):
     def _parse_file_path(self, file):
         publisher_id = None
         pipeline_ftp_dir_name = None
-        m = re.search('.*/(\w+)/(\w+)/.*$', file)
+        m = re.search(r'.*/(\w+)/(\w+)/.*$', file)
         if m and len(m.groups()) == 2:
             publisher_id, pipeline_ftp_dir_name = m.groups()
         return publisher_id, pipeline_ftp_dir_name
@@ -214,10 +214,29 @@ if __name__ == '__main__':
     # initialize the server
     authorizer = IvetlAuthorizer()
     handler = IvetlHandler
+
+    passive_ports = []
+    passive_ports_env = os.getenv("IV_FTP_PASSIVE_PORTS")
+    if passive_ports_env is not None:
+        for s in passive_ports_env.split(","):
+            p = s.split(":")
+            try:
+                if len(p) == 1:
+                    passive_ports += [ int(p[0]) ]
+                elif len(p) == 2:
+                    passive_ports += range(int(p[0]), 1+int(p[1]))
+            except ValueError:
+                pass
+
+    if len(passive_ports) == 0:
+        handler.passive_ports = range(57000, 57501)
+    else:
+        handler.passive_ports = passive_ports
+
     handler.authorizer = authorizer
     handler.banner = "Impact Vizor ftpd ready."
-    handler.passive_ports = range(57000, 57501)
     handler.masquerade_address = common.FTP_PUBLIC_IP
+
     address = ('', 2121)
     server = FTPServer(address, handler)
     server.max_cons = 256
