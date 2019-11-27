@@ -2,7 +2,7 @@
 
 import argparse
 import logging
-import os
+import logging.handlers
 import service
 import sys
 
