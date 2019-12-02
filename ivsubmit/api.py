@@ -58,11 +58,11 @@ class PipelineSubmitter:
 		now = datetime.datetime.now()
 		publisher_id, pipeline_ftp_dir = self._parse_filepath(filepath)
 		if publisher_id is None or pipeline_ftp_dir is None:
-			return
+			return False
 
 		filename = os.path.basename(filepath)
 		product_id = common.PRODUCT_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir]
-		pipeline_id = common.PIPELINE_BY_FTP_DIR_NAME[pipeline_ftp_dir]
+		pipeline_id = common.PIPELINE_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir]
 		pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
 		if pipeline.get('validator_class'):
@@ -93,7 +93,7 @@ class PipelineSubmitter:
 			pipeline_id='upload',
 			job_id='',
 			path=filepath,
-			user_id=self.user.used_id,
+			user_id=self.user.user_id,
 			original_name=filename,
 			validated=True,
 		)
@@ -176,12 +176,12 @@ class PipelineSubmitter:
 		values. If a match is made then it is expected that the
 		pipeline_ftp_dir can be resolved to a product_id and
 		pipeline_id via the ivetl.commons PRODUCT_ID_BY_FTP_DIR_NAME
-		and PIPELINE_BY_FTP_DIR_NAME maps respectively.
+		and PIPELINE_ID_BY_FTP_DIR_NAME maps respectively.
 		"""
 		publisher_id = None
 		pipeline_ftp_dir = None
 
-		m = re.search(r'.*/([^\/]+)/([^\/])/[^\/]+$', filepath)
+		m = re.search(r'/([^/]+)/([^/]+)/[^/]+$', filepath)
 		if m and len(m.groups()) == 2:
 			publisher_id, pipeline_ftp_dir = m.groups()
 		return publisher_id, pipeline_ftp_dir
@@ -200,7 +200,7 @@ class PipelineSubmitter:
 
 		filename = os.path.basename(filepath)
 		product_id = common.PRODUCT_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir]
-		pipeline_id = common.PIPELINE_BY_FTP_DIR_NAME[pipeline_ftp_dir]
+		pipeline_id = common.PIPELINE_ID_BY_FTP_DIR_NAME[pipeline_ftp_dir]
 		pipeline = common.PIPELINE_BY_ID[pipeline_id]
 
 		subj = "Impact Vizor (%s): Problems processing your %s file" % (publisher_id, pipeline['user_facing_file_description'])
