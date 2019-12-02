@@ -34,7 +34,7 @@ if __name__ == "__main__":
 		help='base directory for sftp logs')
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, debug')
-	parser.add_argument('-pid', default='/var/run/sftp/pid',
+	parser.add_argument('-pid', default='/var/log/sftp/pid',
 		help='path to pid file')
 	parser.add_argument('-umask', type=int, default=0o002,
 		help='file creation umask')
