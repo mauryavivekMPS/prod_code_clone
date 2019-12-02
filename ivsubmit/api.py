@@ -160,7 +160,7 @@ class PipelineSubmitter:
 
 				utils.add_audit_log(
 					user_id=self.user.user_id,
-					publisher=publisher_id,
+					publisher_id=publisher_id,
 					action='run-pipeline',
 					description='Run pipeline from FTP/SFTP: %s' % (pipeline['id']),
 				)
