@@ -15,6 +15,7 @@ import threading
 import time
 
 from email.utils import unquote
+from ivsubmit import api
 
 
 log_level_num = {
@@ -88,19 +89,19 @@ class Filepath:
 		self.nbytes = nbytes
 		self.log = logging.getLogger(__name__)
 
-
 class Session:
 	"""
 	Session records a user session, accumulating submitted files and
 	calling the ivsubmit module to submit them to the pipeline.
 	"""
-	def __init__(self, dt, session_id, user_id, user_name, user_email):
+	def __init__(self, dt, session_id, user_id, user_name, user_email, notify):
 		self.datetime = dt
 		self.session_id = session_id
 		self.user_id = user_id
 		self.user_name = user_name
 		self.user_email = user_email
 		self.filepath = dict()
+		self.notify = notify
 		self.log = logging.getLogger(__name__)
 
 	def add_entry(self, dt, filepath, nbytes):
@@ -114,9 +115,14 @@ class Session:
 			pass
 
 	def execute(self):
-		# todo: submit self.filepath.items() to pipelines
+		submitter = api.PipelineSubmitter(self.user_email, notify=self.notify, log=self.log)
 		for k, v in self.filepath.items():
-			logging.info("%s %s", self.user_email, v.filepath)
+			logging.info("adding file for %s: %s", self.user_email, v.filepath)
+			if not submitter.add(v.filepath):
+				self.log.warning("%s file %s failed to validate", self.user_email, v.filepath)
+		if submitter.count() == 0:
+			self.log.error("no files passed validation")
+		submitter.submit()
 
 	def last_active(self):
 		dt = self.datetime
@@ -136,9 +142,9 @@ class ActiveSessions:
 		self.active = dict()
 		self.log = logging.getLogger(__name__)
 
-	def start(self, dt, session_id, user_id, user_name, user_email):
+	def start(self, dt, session_id, user_id, user_name, user_email, notify):
 		if session_id not in self.active:
-			session = Session(dt, session_id, user_id, user_name, user_email)
+			session = Session(dt, session_id, user_id, user_name, user_email, notify)
 			self.active[session_id] = session
 		else:
 			# this should not have happened, it means we either
@@ -267,9 +273,10 @@ class WatchSFTP:
 	"""
 	WatchSFTP monitors an sftp.py access log
 	"""
-	def __init__(self, watch, repoll):
+	def __init__(self, watch, repoll, notify):
 		self.watch = watch
 		self.repoll = repoll
+		self.notify = notify
 
 		self.lock = threading.Lock()
 		self.shutdown = threading.Event()
@@ -359,7 +366,7 @@ class WatchSFTP:
 							user_id = m.group(3)
 							user_name = unquote(m.group(4))
 							user_email = m.group(5)
-							sessions.start(dt, session_id, user_id, user_name, user_email)
+							sessions.start(dt, session_id, user_id, user_name, user_email, self.notify)
 							continue
 
 						m = pat.writeEntry.match(line)
@@ -431,6 +438,9 @@ if __name__ == "__main__":
 	parser.add_argument('-repoll', default=15, type=int, choices=range(1, 61),
 		help='seconds to wait n seconds in-between polling the watched log, in the range 1..60')
 
+	parser.add_argument("-notify", default=False, action='store_true',
+		help='send email notification aboutthe success or failure of the submission')
+
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, or debug)')
 
@@ -453,5 +463,5 @@ if __name__ == "__main__":
 		sys.stderr.write("invalid -log-level option, valid choices are: critical, error, warning, info, or debug\n")
 		sys.exit(1)
 
-	watcher = WatchSFTP(args.watch, args.repoll)
+	watcher = WatchSFTP(args.watch, args.repoll, args.notify)
 	watcher.start()
