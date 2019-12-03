@@ -89,6 +89,7 @@ class Filepath:
 		self.nbytes = nbytes
 		self.log = logging.getLogger(__name__)
 
+
 class Session:
 	"""
 	Session records a user session, accumulating submitted files and
@@ -273,10 +274,11 @@ class WatchSFTP:
 	"""
 	WatchSFTP monitors an sftp.py access log
 	"""
-	def __init__(self, watch, repoll, notify):
+	def __init__(self, watch, repoll, notify, reprocess):
 		self.watch = watch
 		self.repoll = repoll
 		self.notify = notify
+		self.reprocess = reprocess
 
 		self.lock = threading.Lock()
 		self.shutdown = threading.Event()
@@ -314,8 +316,8 @@ class WatchSFTP:
 		# set up the sessions tracker
 		sessions = ActiveSessions()
 
-		# open the log file and process it, then loop forever watching for
-		# new log line entries
+		# open the log file and process it, then loop forever watching
+		# for new log line entries
 		fh = None
 		fh_new = None
 		pat = Patterns()
@@ -350,6 +352,13 @@ class WatchSFTP:
 
 				if fh is None:
 					fh = open(self.watch, "r")
+
+					# the very first time we start up we
+					# want to ignore prior lines in the log
+					# if reprocess is False
+					if not self.reprocess:
+						fh.seek(0, os.SEEK_END)
+						self.reprocess = True
 
 				# read to the end of the file, parsing each line for
 				# patterns of interest
@@ -439,7 +448,10 @@ if __name__ == "__main__":
 		help='seconds to wait n seconds in-between polling the watched log, in the range 1..60')
 
 	parser.add_argument("-notify", default=False, action='store_true',
-		help='send email notification aboutthe success or failure of the submission')
+		help='send email notification about the success or failure of the submission')
+
+	parser.add_argument("-reprocess", default=False, action='store_true',
+		help='reprocess existing entries')
 
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, or debug)')
@@ -463,5 +475,5 @@ if __name__ == "__main__":
 		sys.stderr.write("invalid -log-level option, valid choices are: critical, error, warning, info, or debug\n")
 		sys.exit(1)
 
-	watcher = WatchSFTP(args.watch, args.repoll, args.notify)
+	watcher = WatchSFTP(args.watch, args.repoll, args.notify, args.reprocess)
 	watcher.start()
