@@ -353,12 +353,11 @@ class WatchSFTP:
 				if fh is None:
 					fh = open(self.watch, "r")
 
-					# the very first time we start up we
-					# want to ignore prior lines in the log
-					# if reprocess is False
+					# if self.reprocess is not set and this
+					# is the first time we've opened fh, we
+					# want to skip to the end of file
 					if not self.reprocess:
 						fh.seek(0, os.SEEK_END)
-						self.reprocess = True
 
 				# read to the end of the file, parsing each line for
 				# patterns of interest
@@ -404,10 +403,15 @@ class WatchSFTP:
 					except Exception as e:
 						self.log.exception(e)
 
-				# we've finished reading fh, if fh_new was
-				# initialized then fh was replaced on the
-				# filesystem, so close the handle and replace
-				# it with fh_new
+				# if self.reprocess was set, shut down as we've
+				# finished processing the file
+				if self.reprocess:
+					fh.close()
+					return
+
+				# if fh_new was initialized then fh was
+				# replaced on the filesystem, so close the
+				# handle and replace it with fh_new
 				if fh_new is not None:
 					try:
 						fh.close()
@@ -451,7 +455,7 @@ if __name__ == "__main__":
 		help='send email notification about the success or failure of the submission')
 
 	parser.add_argument("-reprocess", default=False, action='store_true',
-		help='reprocess existing entries')
+		help='reprocess existing entries and then shut down')
 
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, or debug)')
