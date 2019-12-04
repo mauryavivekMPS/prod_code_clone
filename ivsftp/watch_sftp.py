@@ -2,7 +2,11 @@
 #
 # monitor an sftp.py access log file for new deliveries
 #
-# Given a filepath to an sftp.py access log, e.g.,
+# Given a filepath to an sftp.py access log watch it for new sessions (user
+# logs in in, user changes dir, user delivers files, user logs out), and
+# submit any delivered files when the session ends.
+#
+#
 
 import argparse
 import datetime
@@ -138,8 +142,10 @@ class ActiveSessions:
 	ActiveSessions manages the set of currently active sessions picked up
 	from scanning the sftp.py access log.
 	"""
-	def __init__(self):
+	def __init__(self, started=datetime.now(), reprocess=False):
 		# active sessions
+		self.started = started
+		self.reprocess = reprocess
 		self.active = dict()
 		self.log = logging.getLogger(__name__)
 
@@ -175,14 +181,19 @@ class ActiveSessions:
 			pass
 
 	def end(self, dt, session_id):
+		# if self.reprocess not set and the session ended
+		# before this ActiveSessions was started, skip
+		# the session
+		if not self.reprocess and dt < self.started:
+			self.log.info("skipping session ended at %s (self.started == %s, self.reprocess == %s)",
+				dt, self.started, self.reprocess)
+			return
 		if session_id in self.active:
 			session = self.active[session_id]
-			session.execute()
 			try:
+				session.execute()
+			finally:
 				del self.active[session_id]
-			except KeyError:
-				# key did not exist
-				pass
 
 	def inactive(self, since):
 		"""inactive returns a list of any session_id inactive since the specified timedelta"""
@@ -314,7 +325,7 @@ class WatchSFTP:
 		start will launch the sftp.py access log watcher
 		"""
 		# set up the sessions tracker
-		sessions = ActiveSessions()
+		sessions = ActiveSessions(reprocess=self.reprocess)
 
 		# open the log file and process it, then loop forever watching
 		# for new log line entries
@@ -352,12 +363,6 @@ class WatchSFTP:
 
 				if fh is None:
 					fh = open(self.watch, "r")
-
-					# if self.reprocess is not set and this
-					# is the first time we've opened fh, we
-					# want to skip to the end of file
-					if not self.reprocess:
-						fh.seek(0, os.SEEK_END)
 
 				# read to the end of the file, parsing each line for
 				# patterns of interest
