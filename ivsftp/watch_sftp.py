@@ -41,7 +41,7 @@ def _parsedt(s):
 
 	It is expected that callers are ensuring s is in the proper format
 	before calling _parsedt, if that is not the case an exception will be
-	raised..
+	raised.
 	"""
 	# parse s into list p with items
 	# [0] year, [1] month, [2] day, [3] hour, [4] minute, [5] second, [6] tz hhmm
@@ -81,6 +81,20 @@ def _parsedt(s):
 			tzinfo=tz)
 	except ValueError:
 		raise("unexpected value passed to _parsedt: " + s)
+
+
+def _quote(s):
+	"""
+	Internal use function to return string 's' in a format safe to pass to
+	unix sh/bash/zsh shells, single quoting 's' if it contains special
+	characters.  If 's' is not a string an empty string is returned.
+	"""
+	if isinstance(s, 'str'):
+		if re.search('[\\s!"#&\'()*,;<=>?[\\]^`{|}~]', s):
+			return "'" + s.replace("'", "'\"'\"'") + "'"
+		else:
+			return s
+	return ""
 
 
 class Filepath:
@@ -136,6 +150,13 @@ class Session:
 				dt = v.datetime
 		return dt
 
+	def manual(self):
+		"""manual returns a string detailing how to manually submit the session"""
+		return "%s/ivsubmit/ivsubmit.py -email %s %s" % (
+			os.getenv("IVETL_ROOT", default="$IVETL_ROOT"),
+			_quote(self.user_email),
+			' '.join(_quote(v.filepath) for v in self.filepath.values()))
+
 
 class ActiveSessions:
 	"""
@@ -181,17 +202,21 @@ class ActiveSessions:
 			pass
 
 	def end(self, dt, session_id):
-		# if self.reprocess not set and the session ended
-		# before this ActiveSessions was started, skip
-		# the session
-		if not self.reprocess and dt < self.started:
-			self.log.info("skipping session ended at %s (self.started == %s, self.reprocess == %s)",
-				dt, self.started, self.reprocess)
-			return
 		if session_id in self.active:
-			session = self.active[session_id]
 			try:
-				session.execute()
+				session = self.active[session_id]
+
+				# if self.reprocess not set and the session
+				# ended before this ActiveSessions was started,
+				# skip the session
+				if not self.reprocess and dt < self.started:
+					self.log.warn("skipping session ending at %s, to resubmit manually: %s",
+						dt, session.manual())
+					return
+				try:
+					session.execute()
+				except Exception:
+					self.log.error("error executing session, to resubmit manually: %s", session.manual(), exc_info=1)
 			finally:
 				del self.active[session_id]
 
@@ -324,22 +349,39 @@ class WatchSFTP:
 		"""
 		start will launch the sftp.py access log watcher
 		"""
-		# set up the sessions tracker
+
+		# set up the sessions tracker, if reprocess is is False only
+		# in-flight sessions, or session started after ActiveSessions
+		# was stared will be processed.
 		sessions = ActiveSessions(reprocess=self.reprocess)
 
-		# open the log file and process it, then loop forever watching
-		# for new log line entries
+		# file handle for the log file
 		fh = None
+
+		# filehandle for newly created log file
 		fh_new = None
+
+		# patterns to watch for in the log
 		pat = Patterns()
+
+		# previous stat of fh
 		prev = None
+
+		# open the log file and process it, then loop forever watching
+		# for new log line entries or for new log files
 		while True:
+			# if shutdown was set, close down the filehandle and
+			# terminate
 			if self.shutdown.is_set():
 				if fh is not None:
-					fh.close()
+					try:
+						fh.close()
+					except Exception:
+						pass
 				return
 
-			# sleep then continue if the file does not exist
+			# if the file does not exist, sleep for repoll seconds
+			# then try again
 			if not os.path.exists(self.watch):
 				time.sleep(self.repoll)
 				continue
@@ -351,14 +393,19 @@ class WatchSFTP:
 				curr = os.stat(self.watch)
 				if prev is not None:
 					if prev.st_ino != curr.st_ino:
-						# we'll need to finish reading fh and
-						# then swap in fh_new at the end
+						# different inodes indicate the
+						# watched file has been
+						# replaced, we'll need to
+						# finish reading fh and then
+						# swap in fh_new at the end
 						fh_new = open(self.watch, "r")
 					elif prev.st_size > curr.st_size:
-						# the inode has not changed but the
-						# file is smaller than it was, we'll
-						# assume this means it was truncated,
-						# and that we'll need to re-seek to 0
+						# the inode has not changed but
+						# the file is smaller than it
+						# was, we'll assume this means
+						# it was truncated, and that
+						# we'll need to re-seek to 0
+						# and process from there
 						fh.seek(0)
 
 				if fh is None:
@@ -367,9 +414,16 @@ class WatchSFTP:
 				# read to the end of the file, parsing each line for
 				# patterns of interest
 				for line in fh:
+					# if shutdown was set, return
 					if self.shutdown.is_set():
+						try:
+							fh.close()
+						except Exception:
+							pass
 						return
 
+					# look for lines of interest and add
+					# them to the active sessions
 					line = line.rstrip()
 					try:
 						m = pat.sessionStarted.match(line)
@@ -408,10 +462,14 @@ class WatchSFTP:
 					except Exception as e:
 						self.log.exception(e)
 
-				# if self.reprocess was set, shut down as we've
-				# finished processing the file
+				# if reprocess is True shut down at this point,
+				# since we've reached the end of the file we
+				# were processing
 				if self.reprocess:
-					fh.close()
+					try:
+						fh.close()
+					except Exception:
+						pass
 					return
 
 				# if fh_new was initialized then fh was
@@ -421,7 +479,6 @@ class WatchSFTP:
 					try:
 						fh.close()
 					except Exception:
-						# not much I can do about it is there?
 						pass
 					if self.shutdown.is_set():
 						return
@@ -435,7 +492,10 @@ class WatchSFTP:
 				try:
 					self.shutdown.wait(self.repoll)
 				except KeyboardInterrupt:
-					fh.close()
+					try:
+						fh.close()
+					except Exception:
+						pass
 					return
 			except Exception as e:
 				self.log.exception(e)
