@@ -22,6 +22,7 @@ from email.utils import unquote
 from ivsubmit import api
 
 
+# map logging level names to numbers
 log_level_num = {
 	"critical": logging.CRITICAL,
 	"error": logging.ERROR,
@@ -29,6 +30,9 @@ log_level_num = {
 	"info": logging.INFO,
 	"debug": logging.DEBUG,
 }
+
+# given a log_level_num number return its name
+log_level_name = lambda n: next(k for k, v in log_level_num.items() if v == n)
 
 
 def _parsedt(s):
@@ -89,7 +93,7 @@ def _quote(s):
 	unix sh/bash/zsh shells, single quoting 's' if it contains special
 	characters.  If 's' is not a string an empty string is returned.
 	"""
-	if isinstance(s, 'str'):
+	if isinstance(s, str):
 		if re.search('[\\s!"#&\'()*,;<=>?[\\]^`{|}~]', s):
 			return "'" + s.replace("'", "'\"'\"'") + "'"
 		else:
@@ -163,17 +167,22 @@ class ActiveSessions:
 	ActiveSessions manages the set of currently active sessions picked up
 	from scanning the sftp.py access log.
 	"""
-	def __init__(self, started=datetime.now(), reprocess=False):
+	def __init__(self, started=datetime.datetime.now(tz=datetime.timezone.utc), reprocess=False):
 		# active sessions
 		self.started = started
 		self.reprocess = reprocess
 		self.active = dict()
 		self.log = logging.getLogger(__name__)
 
+		if self.started.tzinfo is None:
+			self.log.warn("passed in started value %s missing tzinfo, assuming UTC", self.started)
+			self.started.tzinfo = datetime.timezone.utc
+
 	def start(self, dt, session_id, user_id, user_name, user_email, notify):
 		if session_id not in self.active:
 			session = Session(dt, session_id, user_id, user_name, user_email, notify)
 			self.active[session_id] = session
+			self.log.debug("started session %s for %s from %s", session_id, user_email, dt)
 		else:
 			# this should not have happened, it means we either
 			# re-parsed an old start session line or we've somehow
@@ -183,6 +192,7 @@ class ActiveSessions:
 	def add_entry(self, dt, session_id, filepath, nbytes):
 		if session_id in self.active:
 			self.active[session_id].add_entry(dt, filepath, nbytes)
+			self.log.debug("session %s added entry %s from %s", session_id, filepath, dt)
 		else:
 			# We don't have an active session, possibly we're
 			# parsing a truncated log or the session was split
@@ -195,6 +205,7 @@ class ActiveSessions:
 	def rm_entry(self, dt, session_id, filepath):
 		if session_id in self.active:
 			self.active[session_id].rm_entry(dt, filepath)
+			self.log.debug("session %s removed entry %s from %s", session_id, filepath, dt)
 		else:
 			# We don't have an active session, possibly we're
 			# parsing a truncated log or the session was split
@@ -214,16 +225,17 @@ class ActiveSessions:
 						dt, session.manual())
 					return
 				try:
+					self.log.debug("session %s executing pipeline submission from %s", session_id, dt)
 					session.execute()
 				except Exception:
-					self.log.error("error executing session, to resubmit manually: %s", session.manual(), exc_info=1)
+					self.log.error("error executing session %s, to resubmit manually: %s", session_id, session.manual(), exc_info=1)
 			finally:
 				del self.active[session_id]
 
 	def inactive(self, since):
 		"""inactive returns a list of any session_id inactive since the specified timedelta"""
 		match = []
-		now = datetime.now()
+		now = datetime.datetime.now(tzinfo=datetime.timezone.utc)
 		for k, v in self.active.items():
 			dt = v.last_active()
 			if (now - dt) > since:
@@ -322,6 +334,9 @@ class WatchSFTP:
 		self.log = logging.getLogger(__name__)
 		self.default_log_level = self.log.getEffectiveLevel()
 
+		signal.signal(signal.SIGUSR1, self.cycle_log_level)
+		signal.signal(signal.SIGUSR2, self.cycle_log_level)
+
 	def cycle_log_level(self, signum, frame):
 		"""
 		cycle_log_level handles USR1 and USR2 signals to modify the
@@ -329,20 +344,27 @@ class WatchSFTP:
 		DEBUG and then flip over to CRITICAL, while USR2 will reset to
 		the default logging level DEFAULT_LOG_LEVEL
 		"""
-		if signum == signal.USR1:
+		if signum == signal.SIGUSR1:
 			level = logger.getEffectiveLevel()
 			if level == logging.CRITICAL:
+				logfn = logger.error
 				level = logging.ERROR
 			elif level == logging.ERROR:
+				logfn = logger.warning
 				level = logging.WARNING
 			elif level == logging.WARNING:
+				logfn = logger.info
 				level = logging.INFO
 			elif level == logging.INFO:
+				logfn = logger.debug
 				level = logging.DEBUG
 			else:
+				logfn = logger.critical
 				level = logging.CRITICAL
+
 			logger.setLevel(level)
-		elif signum == signal.USR2:
+			logfn("logger level set to %s", log_level_name(logger.level))
+		elif signum == signal.igUSR2:
 			logger.setLevel(self.default_log_level)
 
 	def start(self):
@@ -410,6 +432,7 @@ class WatchSFTP:
 
 				if fh is None:
 					fh = open(self.watch, "r")
+					nline = 0
 
 				# read to the end of the file, parsing each line for
 				# patterns of interest
@@ -425,9 +448,12 @@ class WatchSFTP:
 					# look for lines of interest and add
 					# them to the active sessions
 					line = line.rstrip()
+					nline += 1
+					self.log.debug("%s:%d %s" % (self.watch, nline, line))
 					try:
 						m = pat.sessionStarted.match(line)
 						if m is not None:
+							self.log.debug("%s:%d %s" % (self.watch, nline, "pat.sessionStarted.match"))
 							dt = _parsedt(m.group(1))
 							session_id = m.group(2)
 							user_id = m.group(3)
@@ -438,6 +464,7 @@ class WatchSFTP:
 
 						m = pat.writeEntry.match(line)
 						if m is not None:
+							self.log.debug("%s:%d %s" % (self.watch, nline, "pat.writeEntry.match"))
 							dt = _parsedt(m.group(1))
 							session_id = m.group(2)
 							filepath = unquote(m.group(3))
@@ -447,6 +474,7 @@ class WatchSFTP:
 
 						m = pat.removeEntry.match(line)
 						if m is not None:
+							self.log.debug("%s:%d %s" % (self.watch, nline, "pat.removeEntry.match"))
 							dt = _parsedt(m.group(1))
 							session_id = m.group(2)
 							filepath = unquote(m.group(3))
@@ -455,6 +483,7 @@ class WatchSFTP:
 
 						m = pat.sessionStopped.match(line)
 						if m is not None:
+							self.log.debug("%s:%d %s" % (self.watch, nline, "pat.sessionStopped.match"))
 							dt = _parsedt(m.group(1))
 							session_id = m.group(2)
 							sessions.end(dt, session_id)
@@ -483,6 +512,7 @@ class WatchSFTP:
 					if self.shutdown.is_set():
 						return
 					fh = fh_new
+					nline = 0
 
 				# record prev inode state for the next loop
 				prev = curr
@@ -530,10 +560,9 @@ if __name__ == "__main__":
 	# setup a basic logger whose output we'll let systemd handle
 	handler = logging.StreamHandler()
 	handler.setFormatter(logging.Formatter(
-		fmt='%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)s:%(message)s',
+		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)s %(message)s',
 		datefmt='%Y-%m-%dT%H:%M:%S%z'))
 
-	logging.basicConfig()
 	logger = logging.getLogger()
 	logger.addHandler(handler)
 
