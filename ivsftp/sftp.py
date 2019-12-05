@@ -77,7 +77,7 @@ if __name__ == "__main__":
 		when="D", interval=1, backupCount=7)
 
 	root_handler.setFormatter(logging.Formatter(
-		fmt='%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)d:%(message)s',
+		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)d %(message)s',
 		datefmt='%Y-%m-%dT%H:%M:%S%z'))
 	root_log.addHandler(root_handler)
 
