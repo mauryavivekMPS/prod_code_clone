@@ -39,9 +39,8 @@ class PipelineSubmitter:
 		if self.log is None:
 			handler = logging.StreamHandler()
 			handler.setFormatter(logging.Formatter(
-				fmt='%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)s:%(message)s',
+				fmt='%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)s %(message)s',
 				datefmt='%Y-%m-%dT%H:%M:%S%z'))
-			logging.basicConfig()
 			self.log = logging.getLogger(__name__)
 			self.log.addHandler(handler)
 
