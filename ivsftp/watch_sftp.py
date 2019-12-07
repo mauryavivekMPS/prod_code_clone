@@ -560,7 +560,7 @@ if __name__ == "__main__":
 	# setup a basic logger whose output we'll let systemd handle
 	handler = logging.StreamHandler()
 	handler.setFormatter(logging.Formatter(
-		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)s %(message)s',
+		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)s %(message)s',
 		datefmt='%Y-%m-%dT%H:%M:%S%z'))
 
 	logger = logging.getLogger()
