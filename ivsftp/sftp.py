@@ -32,6 +32,8 @@ if __name__ == "__main__":
 		help='base directory for all sftp accounts')
 	parser.add_argument('-log-dir', default='/var/log/sftp',
 		help='base directory for sftp logs')
+	parser.add_argument('-log-file', default='sftp.log',
+		help='log file name under log-dir')
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, debug')
 	parser.add_argument('-umask', type=int, default=0o002,
@@ -70,7 +72,7 @@ if __name__ == "__main__":
 	root_log.setLevel(log_level)
 
 	root_handler = logging.handlers.TimedRotatingFileHandler(
-		"{}/{}.log".format(args.log_dir, args.name),
+		"{}/{}".format(args.log_dir, args.log_file),
 		delay=False, encoding="utf-8", utc=True,
 		when="D", interval=1, backupCount=7)
 
