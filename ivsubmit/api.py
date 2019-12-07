@@ -39,7 +39,7 @@ class PipelineSubmitter:
 		if self.log is None:
 			handler = logging.StreamHandler()
 			handler.setFormatter(logging.Formatter(
-				fmt='%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)s %(message)s',
+				fmt='%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)s %(message)s',
 				datefmt='%Y-%m-%dT%H:%M:%S%z'))
 			self.log = logging.getLogger(__name__)
 			self.log.addHandler(handler)
@@ -219,7 +219,7 @@ class PipelineSubmitter:
 				"FROM %s %s" % (common.EMAIL_FROM, now.strftime("%a %b %-d %H:%M:%S %Y")),
 				"From: %s" % (common.EMAIL_FROM),
 				"To: %s" % (self.user.email),
-				"Bcc: %s" (common.FTP_ADMIN_BCC),
+				"Bcc: %s" % (common.FTP_ADMIN_BCC),
 				"Subject: %s" % (subj),
 				"",
 				body.replace("\nFrom ", "\n>From "),
@@ -241,7 +241,7 @@ class PipelineSubmitter:
 			validated=False,
 		)
 
-		file_viewer_url = reverse('uploaded_files.download', kwarg={
+		file_viewer_url = reverse('uploaded_files.download', kwargs={
 			'publisher_id': publisher_id,
 			'uploaded_file_id': uploaded_file_record.uploaded_file_id,
 		})
