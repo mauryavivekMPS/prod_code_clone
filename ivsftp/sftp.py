@@ -34,8 +34,6 @@ if __name__ == "__main__":
 		help='base directory for sftp logs')
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, debug')
-	parser.add_argument('-pid', default='/var/log/sftp/pid',
-		help='path to pid file')
 	parser.add_argument('-umask', type=int, default=0o002,
 		help='file creation umask')
 	parser.add_argument('-nofork', default=False, action='store_true',
@@ -77,7 +75,7 @@ if __name__ == "__main__":
 		when="D", interval=1, backupCount=7)
 
 	root_handler.setFormatter(logging.Formatter(
-		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)d %(message)s',
+		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)d %(message)s',
 		datefmt='%Y-%m-%dT%H:%M:%S%z'))
 	root_log.addHandler(root_handler)
 
