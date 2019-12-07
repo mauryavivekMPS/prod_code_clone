@@ -374,7 +374,6 @@ class CrossrefArticle:
         self.xreftitlescore = 0.0
         self.bpeditor = ""
         self.publisher = ""
-        self.use_pubmed_override = False
 
     @property
     def first_author(self):

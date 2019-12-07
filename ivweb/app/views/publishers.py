@@ -525,9 +525,6 @@ def edit(request, publisher_id=None):
                     tasks.get_scopus_api_keys.s(publisher.publisher_id, num_keys=num_keys).delay()
 
             # kick off a celery task for tableau setup if necessary
-            print('checking for tableau update')
-            print(form.cleaned_data['modify_tableau_new'])
-            print(form.cleaned_data['modify_tableau']) 
             if form.cleaned_data['modify_tableau_new']:
                 modify_tableau = True
                 tableau_new = True
