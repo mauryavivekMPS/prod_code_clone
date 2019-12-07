@@ -31,8 +31,10 @@ log_level_num = {
 	"debug": logging.DEBUG,
 }
 
+
 # given a log_level_num number return its name
-log_level_name = lambda n: next(k for k, v in log_level_num.items() if v == n)
+def log_level_name(n):
+	next(k for k, v in log_level_num.items() if v == n)
 
 
 def _parsedt(s):
@@ -555,13 +557,25 @@ if __name__ == "__main__":
 	parser.add_argument('-log-level', default='warning',
 		help='logging level to use on start-up (critical, error, warning, info, or debug)')
 
+	parser.add_argument('-log-dir', default='/var/log/sftp',
+		help='log directory to write log-file under')
+
+	parser.add_argument('-log-file', default='watch-sftp.log',
+		help="log file name, or use '-' to write to stdout")
+
 	args = parser.parse_args()
 
 	# setup a basic logger whose output we'll let systemd handle
-	handler = logging.StreamHandler()
-	handler.setFormatter(logging.Formatter(
-		fmt='%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)s %(message)s',
-		datefmt='%Y-%m-%dT%H:%M:%S%z'))
+	if args.log_file == "-":
+		handler = logging.StreamHandler()
+		handler.setFormatter(logging.Formatter(
+			fmt='%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)s %(message)s',
+			datefmt='%Y-%m-%dT%H:%M:%S%z'))
+	else:
+		handler = logging.handlers.TimedRotatingFileHandler(
+			"{}/{}".format(args.log_dir, args.log_file),
+			delay=False, encoding="utf-8", utc=True,
+			when="D", interval=1, backupCount=7)
 
 	logger = logging.getLogger()
 	logger.addHandler(handler)
