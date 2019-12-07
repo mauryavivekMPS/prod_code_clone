@@ -58,10 +58,14 @@ def do_crossref_request(url, timeout=120):
     log.info('Requested crossref: %s' % url)
     return requests.get(url, headers=headers, timeout=timeout)
 
+@rate_limited(9)
+def do_pubmed_request(url, timeout=120):
+    return requests.get(url, timeout=timeout)
+
 SERVICES = {
     'crossref': do_crossref_request,
+    'pubmed': do_pubmed_request
 }
-
 
 @app.route('/limit', methods=['POST'])
 def limit():

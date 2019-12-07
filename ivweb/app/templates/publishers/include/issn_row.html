@@ -45,6 +45,15 @@
             <span class="use-benchpress-text">Use Bench Press for Rejected Articles</span>
         </div>
     </div>
+    <div class="form-group row issn-values-pubmed-row issn-values-row-{{ index }} rejected-manuscripts-controls" style="display:none">
+        <div class="col-sm-6 col-sm-offset-2">
+{#            <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
+            <input id="id_use_pubmed_override_{{ index }}" class="use-pubmed-override" type="checkbox" index="{{ index }}" {% if issn_value.use_pubmed_override == 'on' %}checked{% endif %} {% if read_only %}readonly disabled{% endif %}>
+            <span class="use-pubmed_override-text" title="PubMed Override: While matching articles to rejected manuscripts, skip potential CrossRef matches that are not found in PubMed.">
+              Use PubMed Override for Rejected Articles
+            </span>
+        </div>
+    </div>
 {% endif %}
 <div class="form-group row issn-values-skip-rule{% if cohort %}-cohort{% endif %}-row iss-values-skip-rule{% if cohort %}-cohort{% endif %}-row-{{ index }}">
     <div class="col-sm-6 col-sm-offset-2">

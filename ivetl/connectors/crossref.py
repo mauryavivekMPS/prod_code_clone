@@ -14,7 +14,7 @@ class CrossrefConnector(BaseConnector):
 
     connector_name = 'Crossref'
     max_attempts = 5
-    request_timeout = 120 
+    request_timeout = 120
     request_timeout_multiplier = 1.1
 
     def __init__(self, username=None, password=None, tlogger=None):
@@ -160,7 +160,7 @@ class CrossrefConnector(BaseConnector):
                 title_search_term,
             )
         else:
-            url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&rows=30&filter=from-pub-date:%s,type:journal-article&query.title=%s' % (
+            url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&rows=30&filter=from-pub-date:%s,type:journal-article&query.bibliographic=%s' % (
                 date_search_term,
                 title_search_term,
             )
@@ -361,4 +361,3 @@ class CrossrefConnector(BaseConnector):
         if 'not authorized to view references' in response_text:
             self.log("Crossref API 401 UNAUTHORIZED error.")
             raise AuthorizationAPIError(response_text)
-

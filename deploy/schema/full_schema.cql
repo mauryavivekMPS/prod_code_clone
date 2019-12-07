@@ -1383,6 +1383,7 @@ CREATE TABLE impactvizor.publisher_journal (
     print_issn text,
     use_benchpress boolean,
     use_months_until_free boolean,
+    use_pubmed_override boolean,
     PRIMARY KEY (publisher_id, product_id, uid)
 ) WITH CLUSTERING ORDER BY (product_id ASC, uid ASC)
     AND bloom_filter_fp_chance = 0.01

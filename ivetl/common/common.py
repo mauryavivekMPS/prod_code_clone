@@ -1148,6 +1148,8 @@ TABLEAU_PASSWORD = os.environ.get('IVETL_TABLEAU_PASSWORD', 'admin')
 MENDELEY_CLIENT_ID = '6159'
 MENDELEY_CLIENT_SECRET = '3a9Zm5QXutiCHdqR'
 
+NCBI_API_KEY = ENV_PROPERTIES['ncbi']['api_key'] 
+
 FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
 RABBITMQ_BROKER_URL = os.environ.get('IVETL_RABBITMQ_BROKER_URL', 'amqp://guest:guest@127.0.0.1:5672//')
 
