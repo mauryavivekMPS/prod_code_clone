@@ -10,8 +10,6 @@ import subprocess
 import sys
 import threading
 
-from daemon import pidfile
-
 
 class Daemon:
 	def __init__(self, args, access_log, log_level=logging.INFO, log_handlers=[]):
@@ -30,7 +28,6 @@ class Daemon:
 			addr - address to bind to
 			port - port to bind to
 			handler - handler class (described below)
-			pid - path to pid lockfile
 			umask - octal umask
 
 		access_log - logging instance for the access log
@@ -150,7 +147,6 @@ class Daemon:
 		context.stderr = sys.stderr
 
 		context.detach_process = (not self.args.nofork)
-		context.pidfile = pidfile.PIDLockFile(self.args.pid, 10)
 		context.signal_map = {
 			signal.SIGUSR1: self.cycle_log_level,
 			signal.SIGUSR2: self.reset_log_level,
