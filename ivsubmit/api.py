@@ -226,8 +226,6 @@ class PipelineSubmitter:
 			]
 			self.log.info("\n".join(msg))
 
-		self.log.warn("Validation failed for %s with %s errors" % (filename, len(errors)))
-
 		new_path = move_invalid_file_to_cold_storage(filepath, publisher_id, product_id, pipeline_id, now)
 		uploaded_file_record = UploadedFile.objects.create(
 			publisher_id=publisher_id,
@@ -240,6 +238,8 @@ class PipelineSubmitter:
 			original_name=filename,
 			validated=False,
 		)
+
+		self.log.warn("Validation failed for %s with %s errors, archiving to %s" % (filename, len(errors), new_path))
 
 		file_viewer_url = reverse('uploaded_files.download', kwargs={
 			'publisher_id': publisher_id,
