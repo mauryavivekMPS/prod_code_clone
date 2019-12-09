@@ -115,9 +115,9 @@ i		Parameters:
 		return paramiko.AUTH_FAILED
 
 	def check_channel_request(self, kind, channelId):
-		""" Determine if a channel request will be granted, and and
-		return OPEN_SUCCEEDED or an error code. This method is called
-		n server mode when the client requests a channel, after
+		""" Determine if a channel request will be granted, and return
+		OPEN_SUCCEEDED or an error code. This method is called in
+		server mode when the client requests a channel, after
 		authentication is complete.
 
 		By default this implementation returns OPEN_SUCCEEDED and then

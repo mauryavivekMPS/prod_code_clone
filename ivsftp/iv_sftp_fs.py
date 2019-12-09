@@ -28,7 +28,7 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 
 		Parameters:
 
-		server - instance of parimiko.ServerInterface associated with the request
+		server - instance of paramiko.ServerInterface associated with the request
 
 			The following attributes must be available on the server:
 

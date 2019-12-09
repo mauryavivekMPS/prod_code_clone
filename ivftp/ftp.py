@@ -222,9 +222,9 @@ if __name__ == '__main__':
             p = s.split(":")
             try:
                 if len(p) == 1:
-                    passive_ports += [ int(p[0]) ]
+                    passive_ports.extend([int(p[0])])
                 elif len(p) == 2:
-                    passive_ports += range(int(p[0]), 1+int(p[1]))
+                    passive_ports.extend(range(int(p[0]), 1 + int(p[1])))
             except ValueError:
                 pass
 
