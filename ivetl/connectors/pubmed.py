@@ -12,10 +12,9 @@ class PubMedConnector(BaseConnector):
     max_attempts = 5
     request_timeout = 120
     request_timeout_multiplier = 1.1
-    api_key = '&api_key={0}'.format(common.NCBI_API_KEY)
     citation_search_base = ('https://eutils.ncbi.nlm.nih.gov/'
         'entrez/eutils/esearch.fcgi?db=pubmed{0}'
-        '&retmode=json&term=').format(api_key)
+        '&retmode=json&term=').format(common.NCBI_API_KEY)
 
     def __init__(self, tlogger=None):
         self.tlogger = tlogger

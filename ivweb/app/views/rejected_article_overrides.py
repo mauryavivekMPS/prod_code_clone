@@ -5,9 +5,9 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 
+from ivetl.common import common
 from ivetl.models import RejectedArticleOverride
 from ivetl.models import PublisherMetadata
-# from ivetl import tasks
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class RejectedArticleOverrideForm(forms.Form):
         override = RejectedArticleOverride.objects.create(
             publisher_id=self.cleaned_data['publisher_id'],
             manuscript_id=self.cleaned_data['manuscript_id'],
-            doi=self.cleaned_data['doi'],
+            doi=common.normalizedDoi(self.cleaned_data['doi']),
             label=self.cleaned_data['label']
         )
         log.info('Creating override: %s, %s, %s, %s' % (
@@ -97,7 +97,7 @@ def delete_override(request):
     form.is_valid()
     publisher_id = form.cleaned_data['publisher_id']
     manuscript_id = form.cleaned_data['manuscript_id']
-    doi = form.cleaned_data['doi']
+    doi = common.normalizedDoi(form.cleaned_data['doi'])
     label = form.cleaned_data['label']
     log.info('Deleting override: %s, %s, %s, %s' % (
       publisher_id, manuscript_id, doi, label
