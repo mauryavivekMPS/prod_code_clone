@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # chkconfig: - 95 05
-# description: Enable ivsftp service
+# description: Enable impactvizor sftp service
 
 . /etc/init.d/functions
 . /iv/env/bin/activate
@@ -46,7 +46,7 @@ case "$1" in
         cd "$dir" || exit 1;
         runuser -u "${user}" -- "${cmd[@]}" >"/iv/log/${name}/${name}.out" 2>&1 & echo $! > "$pid_file";
         if ! is_running; then
-            echo "Unable to start, check /iv/log/${name}/${name}.out and /iv/log/${name}/${name}.log for additional errors"
+            echo "Unable to start, check /iv/log/${name}/${name}.out and /iv/log/${name}/${name}.log for errors"
             exit 1
         fi
     fi
