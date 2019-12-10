@@ -542,7 +542,7 @@ class WatchSFTP:
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-	parser.add_argument('-watch', default='/var/log/sftp/sftp.access.log',
+	parser.add_argument('-watch', default=None,
 		help='path to the access log to watch for new events')
 
 	parser.add_argument('-repoll', default=15, type=int, choices=range(1, 61),
@@ -564,6 +564,10 @@ if __name__ == "__main__":
 		help="log file name, or use '-' to write to stdout")
 
 	args = parser.parse_args()
+
+	# set a default watch path if none was provided
+	if not args.watch:
+		args.watch = "{}/sftp.access.log".format(args.log_dir)
 
 	# setup a basic logger whose output we'll let systemd handle
 	if args.log_file == "-":
