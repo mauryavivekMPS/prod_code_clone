@@ -3,7 +3,9 @@ import csv
 import json
 import os
 os.sys.path.append(os.environ['IVETL_ROOT'])
+import sys
 
+from getopt import getopt
 from ivetl.connectors import CrossrefConnector
 from ivetl.connectors import PubMedConnector
 
@@ -11,22 +13,82 @@ from ivetl.connectors import PubMedConnector
 # for Rejected Article Algorithm analsyis
 # VIZOR-224
 
+opts, args = getopt(sys.argv[1:], 'hm:i:o:e:d', [
+    'help',
+    'mailto',
+    'infile',
+    'outfile',
+    'errfile',
+    'doionly'])
+
 crossref_base = 'https://api.crossref.org'
-mailto = '?mailto=mgraham@highwirepress.com'
+mailto = '?mailto=vizor-developers@highwirepress.com'
 doi_lookup_only = False
 
-inputfile_path = ('/iv/working/misc/'
-    'RAT_Article_Data_Appeals_Removed_042019_MAjournals_edit_add_pubmed_results'
-    '.tsv')
+inputfile_path = '/iv/working/misc/check_pubmed_results_input.tsv'
 
-outputfile_path = ('/iv/working/misc/'
-    'RAT_Article_Data_Appeals_Removed_042019_MAjournals_crosscheck_pubmed_api'
-    '.tsv')
+outputfile_path = '/iv/working/misc/check_pubmed_results_output.tsv'
 
-errorfile_path = ('/iv/working/misc/'
-    'RAT_Article_Data_Appeals_Removed_042019_MAjournals_crosscheck_pubmed_api'
-    '_errors.tsv')
+errorfile_path = '/iv/working/misc/check_pubmed_results_errors.tsv'
 
+helptext = '''usage: python check_pubmed_results.py [ -h | -d | -m mailto | -i inputfile | -o outputfile | -e errorfile ]
+
+Query CrossRef to get the CrossRef metadata for a given DOI, then
+construct a PubMed query using the available data, then
+query PubMed and compare to input data to analyze rejected article matching.
+
+This script uses the CrossRef and PubMed connectors,
+both of which go through the ivratelimiter application.
+The host for the rate limit can be set as an environment variable (see below).
+
+Expected format for input data:
+
+DOI in first column
+"Yes" or "No" value in third column, where
+"Yes" indicates a meeting abstract or bad match we expect the Pubmed override to fix, and
+"No" indicates a correct article match
+
+All input columns will be passed through to the output,
+to faciliate comparison with any other input metadata (e.g. title, author etc.
+as retrieved from either Tableau or a Rejected Article upload file)
+
+The output will also be augmented with the following:
+
+1st column: Outcome (whether the PubMed result or lack thereof matched our expectations)
+2nd column: In PubMed - True or False
+3rd column: #PubMed Results - Number of results retrieved for those calls with results
+2nd-to-last column: CrossRef lookup URL
+Last column: PubMed API URL
+
+The original input data will appear between the columns detailed above.
+
+Environment Variables
+
+IVETL_RATE_LIMITER_SERVER (default: 127.0.0.1:8082)
+
+Options and Arguments:
+-h    :    print this help text
+-d    :    bypass PubMed citation lookup, use only non-fielded DOI search
+-m    :    change the CrossRef mailto value for polite API use. Default: vizor-developers@highwirepress.com
+-i    :    set the input file path. Default: /iv/working/misc/check_pubmed_results_input.tsv
+-o    :    set the output file path. Default: /iv/working/misc/check_pubmed_results_output.tsv
+-e    :    set the error file path. Default: /iv/working/misc/check_pubmed_results_errors.tsv
+'''
+
+for opt in opts:
+    if opt[0] == '-h':
+        print(helptext)
+        sys.exit()
+    if opt[0] == '-d':
+        doi_lookup_only = True
+    if opt[0] == '-i':
+        infile = opt[1]
+    if opt[0] == '-o':
+        outfile = opt[1]
+    if opt[0] == '-e':
+        errfile = opt[1]
+    if opt[0] == '-m':
+        mailto = '?mailto={0}'.format(opt[1])
 
 crossref = CrossrefConnector()
 pubmed = PubMedConnector()
