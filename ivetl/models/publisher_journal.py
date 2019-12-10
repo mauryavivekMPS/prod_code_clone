@@ -13,3 +13,4 @@ class PublisherJournal(Model):
     months_until_free = columns.Integer()
     use_months_until_free = columns.Boolean()
     use_benchpress = columns.Boolean()
+    use_pubmed_override = columns.Boolean(default=False, required=False) 

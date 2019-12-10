@@ -1,0 +1,77 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}New Rejected Article Override{% endblock %}
+{% block body_class %}rejected-article-overrides{% endblock %}
+
+{% block content %}
+  <div id="new-rejected-article-override-page">
+    <div class="row header-row with-breadcrumb">
+      <div class="col-md-12">
+        <ol class="breadcrumb">
+          <li><a href="{% url 'rejected_article_overrides.list_overrides' %}">Rejected Article Overrides</a></li>
+          <li></li>
+        </ol>
+        <h1>New Rejected Article Override</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <form class="form-horizontal new-uptime-override-form" method="post">
+          {% csrf_token %}
+
+          <div class="form-group row">
+            <label for="name" class="col-sm-2">Publisher ID</label>
+            <div class="col-sm-6">
+              {{ form.publisher_id }}
+              {{ form.publisher_id.errors }}
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="name" class="col-sm-2">Manuscript ID</label>
+            <div class="col-sm-6">
+              {{ form.manuscript_id }}
+              {{ form.manuscript_id.errors }}
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="name" class="col-sm-2">DOI</label>
+            <div class="col-sm-6">
+              {{ form.doi }}
+              {{ form.doi.errors }}
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="name" class="col-sm-2">Label</label>
+            <div class="col-sm-6">
+              {{ form.label }}
+              {{ form.label.errors }}
+            </div>
+          </div>
+          <div class="form-group submit-row">
+            <button type="submit" class="btn btn-primary submit-button">
+              Create and Apply Override
+            </button>
+            <span class="cancel">or
+              <a href="../">Cancel</a>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_scripts %}
+  <script>
+    /*
+    $(function() {
+        $('#new-rejected-article-override-page')
+        .newrejectedarticleoverridepage({
+            filters: {{ filter_ids|safe }}
+        });
+    });
+    */
+  </script>
+{% endblock %}

@@ -643,14 +643,11 @@ var EditPublisherPage = (function() {
             $.getJSON(buildingPollUrl)
                 .done(function(json) {
                     if (isNew) {
-                        if (json.reports_setup_status === 'completed' && json.scopus_key_setup_status === 'completed') {
+                        if (json.reports_setup_status === 'completed') {
                             window.location = buildingSuccessUrl;
                         }
                         else if (json.reports_setup_status === 'error') {
                             window.location = buildingErrorUrl + '?from=reports-setup-error';
-                        }
-                        else if (json.scopus_key_setup_status === 'error') {
-                            window.location = buildingErrorUrl + '?from=scopus-key-setup-error';
                         }
                     }
                     else {
@@ -683,6 +680,7 @@ var EditPublisherPage = (function() {
                     use_months_until_free: $('.issn-values-months-row #id_use_months_until_free_' + index).is(':checked') ? 'on' : '',
                     months_until_free: $('.issn-values-months-row #id_months_until_free_' + index).val(),
                     use_benchpress: $('.issn-values-benchpress-row #id_use_benchpress_' + index).is(':checked') ? 'on' : '',
+                    use_pubmed_override: $('.issn-values-pubmed-row #id_use_pubmed_override_' + index).is(':checked') ? 'on' : '',
                     skip_rule: $('.issn-values-skip-rule-row #id_skip_rule_' + index).val(),
                     index: index
                 });
@@ -734,6 +732,8 @@ var EditPublisherPage = (function() {
         f.find('input[name="social_vizor_product_group"]').val($('#id_social_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="meta_vizor_product_group"]').val($('#id_meta_vizor_product_group').is(':checked') ? 'on' : '');
         f.find('input[name="num_scopus_keys"]').val($('#id_num_scopus_keys').val());
+        f.find('input[name="modify_tableau"]').val($('#id_modify_tableau').is(':checked') ? 'on' : '');
+        f.find('input[name="modify_tableau_new"]').val($('#id_modify_tableau_new').is(':checked') ? 'on' : '');
 
         if (options.submitForApproval) {
             f.find('input[name="status"]').val('submitted-for-review');
