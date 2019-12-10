@@ -289,7 +289,7 @@ class Patterns:
 		#  4 - user_name
 		#  5 - user_email
 		# example:
-		#  2019-11-12T10:23:53-0800 [94efa8a4-0579-11ea-9282-3c6aa7a0de8f] session_started 55508e06-e168-4192-8e3d-3d2b2b7cc32a "Bora Onat" <b.onat@ieee.org>
+		#  2019-11-12T10:23:53-0800 [94efa8a4-0579-11ea-9282-3c6aa7a0de8f] session_started abc310db-644d-4bde-ab10-070a25e9c055 "James A. Robinson" <jimr@highwirepress.com>
 		self.sessionStarted = re.compile('^' + self.timestamp + ' ' + self.session_id + ' session_started ' + self.user_id + r' "((?:[^"]|\\")+)" <(.+)>$')
 
 		# sessionStopped matches an access log entry for the end of a session
