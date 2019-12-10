@@ -220,12 +220,16 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 	def rename(self, oldpath, newpath):
 		"""
 		Rename a file if the newpath does not already exist
+		The operation will be denied if the newpath exists
+		or if the oldpath is a directory
 		"""
 		self.log.debug("IVSFTPFileSystemServer.rename(%s, %s)", oldpath, newpath)
 		oldpath = self.fspath(oldpath)
 		newpath = self.fspath(newpath)
 		try:
 			if os.path.exists(newpath):
+				return paramiko.SFTP_PERMISSION_DENIED
+			if os.path.isdir(oldpath):
 				return paramiko.SFTP_PERMISSION_DENIED
 			os.rename(oldpath, newpath)
 		except OSError as e:
@@ -254,35 +258,16 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 	def mkdir(self, path, attr):
 		"""
 		Create a new directory with the given attributes
+		This operation is automatically denied
 		"""
-		self.log.debug("IVSFTPFileSystemServer.mkdir(%s, %s)", path, attr)
-		path = self.fspath(path)
-		try:
-			os.mkdir(path)
-			if attr is not None:
-				paramiko.SFTPServer.set_file_attr(path, attr)
-		except OSError as e:
-			return paramiko.SFTPServer.convert_errno(e.errno)
-		finally:
-			self.access_log.info("[%s] mkdir %s (%s)",
-				self.session_id, dquote(path), attr)
-		return paramiko.SFTP_OK
+		return paramiko.SFTP_PERMISSION_DENIED
 
 	def rmdir(self, path):
 		"""
 		Remove an empty directory if it exists
+		This operation is automatically denied
 		"""
-		self.log.debug("IVSFTPFileSystemServer.rmdir(%s)", path)
-		path = self.fspath(path)
-		try:
-			if os.path.isdir(path):
-				os.rmdir(path)
-		except OSError as e:
-			return paramiko.SFTPServer.convert_errno(e.errno)
-		finally:
-			self.access_log.info("[%s] rmdir %s",
-				self.session_id, dquote(path))
-		return paramiko.SFTP_OK
+		return paramiko.SFTP_PERMISSION_DENIED
 
 	def chattr(self, path, attr):
 		"""
@@ -303,29 +288,9 @@ class IVSFTPFileSystemServer(paramiko.SFTPServerInterface):
 		"""
 		Create a symbolic link on the server, as new pathname ``path``,
 		with ``target_path`` as the target of the ink
+		This operation is automatically denied
 		"""
-		self.log.debug("IVSFTPFileSystemServer.symlink(%s, %s)", target_path, path)
-
-		# if target_path is relative place it under the same dir as path
-		if (len(target_path) > 0) and (target_path[0] != '/'):
-			target_path = os.path.join(os.path.dirname(path), target_path)
-
-		target_path = self.fspath(target_path)
-		path = self.fspath(path)
-
-		if os.path.exists(path):
-			return paramiko.SFTP_PERMISSION_DENIED
-
-		n = len(os.path.commonprefix([target_path, path]))
-		target = os.path.relpath(target_path[n:], start=os.path.dirname(path[n:]))
-		try:
-			os.symlink(target, path)
-		except OSError as e:
-			return paramiko.SFTPServer.convert_errno(e.errno)
-		finally:
-			self.access_log.info("[%s] symlink %s %s",
-				self.session_id, dquote(target_path), dquote(path))
-		return paramiko.SFTP_OK
+		return paramiko.SFTP_PERMISSION_DENIED
 
 	def readlink(self, path):
 		"""
