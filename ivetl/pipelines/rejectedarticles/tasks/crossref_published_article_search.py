@@ -5,13 +5,17 @@ import os
 import re
 import threading
 
+from cassandra.cqlengine.query import DoesNotExist
 from datetime import date
 from datetime import timedelta
 from ivetl.celery import app
 from ivetl.common import common
 from ivetl.connectors import CrossrefConnector
+from ivetl.connectors import PubMedConnector
 from ivetl.matchers import match_authors, match_titles
 from ivetl.models.issn_journal import IssnJournal
+from ivetl.models import PublisherJournal
+from ivetl.models import RejectedArticleOverride
 from ivetl.pipelines.task import Task
 
 EXCLUDED_JOURNALS = [
@@ -58,8 +62,29 @@ def get_last_names(name_strings):
                                                     )
     return list(unique_names)
 
+def has_rejected_article_override(publisher_id, manuscript_id, doi,
+                                  tlogger=None):
+    try:
+        override = RejectedArticleOverride.objects.get(
+            publisher_id=publisher_id,
+            manuscript_id=manuscript_id,
+            doi=doi
+        )
+        if override:
+            return True
+    except DoesNotExist:
+        return False
+    except Exception as inst:
+        if tlogger:
+            tlogger.info('Unexpected exception checking RejectedArticleOverride')
+            tlogger.info(inst)
+        else:
+            print('Unexpected exception checking RejectedArticleOverride')
+            print(inst)
+    return False
 
-def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mutex, target_file, matcher_debug_csv):
+def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger,
+                    mutex, target_file, matcher_debug_csv, pub_journals):
     date_of_rejection = data['date_of_rejection']
 
     title = clean_crossref_input(data['title'])
@@ -98,6 +123,11 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
 
     reject_date = date(reject_year, reject_month, reject_day)
     publish_date = reject_date + timedelta(days=1)
+
+    use_pubmed_override = False
+    submitted_journal = data['submitted_journal']
+    if submitted_journal in pub_journals:
+        use_pubmed_override = pub_journals[submitted_journal][0]
 
     def _has_results(r):
         return r and 'ok' in r['status'] and len(r['message']['items']) > 0
@@ -150,6 +180,7 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
     ]
 
     crossref = CrossrefConnector(tlogger=tlogger)
+    pubmed = PubMedConnector(tlogger=tlogger)
     matching_result = {}
     author_score = 0.0
     title_score = 0.0
@@ -183,6 +214,14 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
                 if not is_valid_journal(article.doi):
                     continue
 
+                if has_rejected_article_override(publisher_id=publisher,
+                    manuscript_id=manuscript_id, doi=article.doi,
+                    tlogger=tlogger):
+                    continue
+
+                if use_pubmed_override and pubmed.override(result):
+                    continue
+
                 is_author_match = True
                 crossref_last_names = get_last_names(
                     [article.first_author, article.co_authors])
@@ -193,7 +232,7 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
                             crossref_last_names,
                         tlogger=tlogger
                         )
-                    
+
                 is_title_match = True
                 if strategy['match_title']:
                     with mutex:
@@ -202,7 +241,7 @@ def crossref_lookup(publisher, manuscript_id, data, issn_journals, tlogger, mute
                             article.bptitle,
                             tlogger=tlogger
                             )
-                    
+
                     if strategy['strict_single_author_title_match'] and len(author_last_names) <= 1:
                         is_title_match = title_score >= 0.5
                         if is_title_match:
@@ -448,7 +487,21 @@ class XREFPublishedArticleSearchTask(Task):
         # build Issn Journal List
         issn_journals = {}
         for ij in IssnJournal.objects.fetch_size(1000).limit(self.ISSN_JNL_QUERY_LIMIT):
-            issn_journals[ij.issn] = (ij.journal, ij.publisher)
+            ijvalue = (ij.journal, ij.publisher)
+            issn_journals[ij.issn] = ijvalue
+
+        # build Publisher Journal List
+        pub_journals = {}
+        for pj in PublisherJournal.objects.filter(publisher_id=publisher_id):
+            pjvalue = (pj.use_pubmed_override,)
+            issn = pj.print_issn
+            eissn = pj.electronic_issn
+            if eissn in issn_journals:
+                pjtitle = issn_journals[eissn][0]
+                pub_journals[pjtitle] = pjvalue
+            elif issn in issn_journals:
+                pjtitle = issn_journals[eissn][0]
+                pub_journals[pjtitle] = pjvalue
 
         count = 0
 
@@ -485,9 +538,10 @@ class XREFPublishedArticleSearchTask(Task):
                                 target=crossref_lookup, args=(
                                     publisher, manuscript_id, data,
                                     issn_journals, tlogger,
-                                    mutex, target_file, matcher_debug_csv)
+                                    mutex, target_file, matcher_debug_csv,
+                                    pub_journals)
                     )
-                
+
                 running[tid].start()
 
         for tid in running:

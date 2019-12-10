@@ -14,7 +14,7 @@ class CrossrefConnector(BaseConnector):
 
     connector_name = 'Crossref'
     max_attempts = 5
-    request_timeout = 120 
+    request_timeout = 120
     request_timeout_multiplier = 1.1
 
     def __init__(self, username=None, password=None, tlogger=None):
@@ -30,7 +30,7 @@ class CrossrefConnector(BaseConnector):
         return citations
 
     def get_example_doi_for_journal(self, issn):
-        url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&filter=issn:' % issn
+        url = self.BASE_URL + '/works?mailto=vizor-developers@highwirepress.com&filter=issn:' % issn
         response_text = self.get_with_retry(url)
         first_doi = json.loads(response_text)['message']['items'][0]['DOI']
         return first_doi
@@ -39,14 +39,14 @@ class CrossrefConnector(BaseConnector):
         journal = None
 
         try:
-            journal_response_url = self.BASE_URL + '/journals/' + issn + "?mailto=nmehta@highwire.org"
+            journal_response_url = self.BASE_URL + '/journals/' + issn + "?mailto=vizor-developers@highwirepress.com"
             journal_response_text = self.get_with_retry(journal_response_url)
             journal_response_json = json.loads(journal_response_text)
 
             journal_name = journal_response_json['message']['title']
             publisher_name = journal_response_json['message']['publisher']
 
-            works_url = self.BASE_URL + "/works?mailto=nmehta@highwire.org&rows=1&filter=issn:%s,from-pub-date:%s-01-01,until-pub-date:%s-12-31" % (issn, year, year)
+            works_url = self.BASE_URL + "/works?mailto=vizor-developers@highwirepress.com&rows=1&filter=issn:%s,from-pub-date:%s-01-01,until-pub-date:%s-12-31" % (issn, year, year)
             works_response_text = self.get_with_retry(works_url)
 
             works_response_json = json.loads(works_response_text)
@@ -64,7 +64,7 @@ class CrossrefConnector(BaseConnector):
         return journal
 
     def get_article(self, doi):
-        url = self.BASE_URL + '/works/' + doi + "?mailto=nmehta@highwire.org"
+        url = self.BASE_URL + '/works/' + doi + "?mailto=vizor-developers@highwirepress.com"
         article_response_text = self.get_with_retry(url)
 
         try:
@@ -155,12 +155,12 @@ class CrossrefConnector(BaseConnector):
         title_search_term = title
 
         if use_generic_query_param:
-            url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&rows=30&filter=from-pub-date:%s,type:journal-article&query=%s' % (
+            url = self.BASE_URL + '/works?mailto=vizor-developers@highwirepress.com&rows=30&filter=from-pub-date:%s,type:journal-article&query=%s' % (
                 date_search_term,
                 title_search_term,
             )
         else:
-            url = self.BASE_URL + '/works?mailto=nmehta@highwire.org&rows=30&filter=from-pub-date:%s,type:journal-article&query.title=%s' % (
+            url = self.BASE_URL + '/works?mailto=vizor-developers@highwirepress.com&rows=30&filter=from-pub-date:%s,type:journal-article&query.bibliographic=%s' % (
                 date_search_term,
                 title_search_term,
             )
@@ -361,4 +361,3 @@ class CrossrefConnector(BaseConnector):
         if 'not authorized to view references' in response_text:
             self.log("Crossref API 401 UNAUTHORIZED error.")
             raise AuthorizationAPIError(response_text)
-

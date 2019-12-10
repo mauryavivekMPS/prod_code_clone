@@ -454,31 +454,75 @@
                     {% endif %}
 
                     {% if request.user.is_superuser or not read_only %}
-                        <div class="form-group submit-row">
-                            <button class="btn btn-primary submit-button save-button disabled" disabled="disabled">
-                                {% if publisher or demo %}
-                                    Save Changes
-                                {% else %}
-                                    Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
-                                {% endif %}
-                            </button>
-                            {% if is_demo and not demo_publisher %}
-                                {% if request.user.is_superuser %}
-                                    <button class="convert-to-publisher-button btn btn-primary submit-button">
-                                        Convert to Publisher
-                                    </button>
-                                {% else %}
-                                    {% if form.initial.status == 'creating' or not form.initial.status %}
-                                        <button class="submit-for-approval-button btn btn-primary submit-button disabled"
-                                                disabled="disabled">
-                                            {% if publisher or demo %}Save{% else %}Add{% endif %} and Submit for
-                                            Approval
-                                        </button>
-                                    {% endif %}
-                                {% endif %}
-                            {% endif %}
-                            <span class="cancel">or <a href="../">Cancel</a></span>
+                      <form class="form-horizontal publisher-form">
+                        <h2>Modify Tableau Server</h2>
+                        <div class="form-group row modify-tableau-row">
+                          <div class="col-sm-2">
+                            <label>Important Note: Please Read</label>
+                          </div>
+                          <div class="col-sm-6">
+                            <p>Modifying Tableau through publisher form updates caused a major issue in the past.
+                              Saving many publisher forms at once, and triggering refreshes to all of each publisher's datasources,
+                              has the potential to overload Tableau and cause certain API requests to fail.
+                            </p>
+                            <p>
+                              This caused a major issue including loss of many publisher data sources and the need to painstakingly reload all data into Tableau.
+                              When using the below checkboxes, allow time between publisher form saves (at least 1 minute)
+                              and monitor the health of the Tableau Server to ensure it does not get overloaded.
+                            </p>
+                            <p>You can use either checkbox. The "and include new publisher setup" checkbox will additionally create
+                              the Tableau project and user. It should be used when first creating the publisher.
+                            </p>
+                            <p>
+                              For subsequent changes to the publisher profile when the Tableau project and user already exist,
+                              use the "Modify Tableau" option. The would be used for cases such as adding a new Vizor product like Usage Vizor
+                              to an existing publisher project.
+                            </p>
+                            <p>For changes that don't affect Tableau, such as changing a PubMed override on one or more journals,
+                              or editing the email field or note, leave the boxes below unchecked.
+                            </p>
+                            <div>
+                      {#      <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
+                              <input id="id_modify_tableau" class="tableau-flags" type="checkbox">
+                              <span class="modify-tableau-text" title="Modify Tableau: Saving this form can make edits to the Tableau account, workbooks and datasources if necessary. Note that triggered refreshes can put load on Tableau. Only choose to modify Tableau when necessary.">
+                                Modify Tableau
+                              </span>
+                            </div>
+                            <div>
+                      {#      <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
+                              <input id="id_modify_tableau_new" class="tableau-flags" type="checkbox">
+                              <span class="modify-tableau-text" title="Modify Tableau: Saving this form can make edits to the Tableau account, workbooks and datasources if necessary. Note that triggered refreshes can put load on Tableau. Only choose to modify Tableau when necessary.">
+                                Modify Tableau and include new Publisher Setup
+                              </span>
+                            </div>
+                          </div>
                         </div>
+                      </form>
+                      <div class="form-group submit-row">
+                          <button class="btn btn-primary submit-button save-button disabled" disabled="disabled">
+                              {% if publisher or demo %}
+                                  Save Changes
+                              {% else %}
+                                  Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                              {% endif %}
+                          </button>
+                          {% if is_demo and not demo_publisher %}
+                              {% if request.user.is_superuser %}
+                                  <button class="convert-to-publisher-button btn btn-primary submit-button">
+                                      Convert to Publisher
+                                  </button>
+                              {% else %}
+                                  {% if form.initial.status == 'creating' or not form.initial.status %}
+                                      <button class="submit-for-approval-button btn btn-primary submit-button disabled"
+                                              disabled="disabled">
+                                          {% if publisher or demo %}Save{% else %}Add{% endif %} and Submit for
+                                          Approval
+                                      </button>
+                                  {% endif %}
+                              {% endif %}
+                          {% endif %}
+                          <span class="cancel">or <a href="../">Cancel</a></span>
+                      </div>
                     {% endif %}
 
                 </form>
@@ -493,9 +537,11 @@
                     <div class="waiting-icon"><i class="fa fa-spinner fa-pulse"></i></div>
                     <div class="waiting-message">
                         {% if from_value == 'save-success' %}
-                            Waiting for the Tableau reports to be updated...
+                            Waiting for the save to complete and
+                            (only if specified) Tableau reports to be updated...
                         {% else %}
-                            Waiting for the Tableau reports to be built and Scopus API keys to be generated...
+                            Waiting for the profile creation to complete and
+                            (only if specificed) Tableau reports to be built...
                         {% endif %}
                     </div>
                 </div>

@@ -10,6 +10,7 @@ from ivetl.models.issn_journal import IssnJournal
 from ivetl.models.pipeline_status import PipelineStatus
 from ivetl.models.pipeline_task_status import PipelineTaskStatus
 from ivetl.models.rejected_articles import RejectedArticles
+from ivetl.models.rejected_article_override import RejectedArticleOverride 
 from ivetl.models.audit_log import AuditLogByUser, AuditLogByPublisher, AuditLogByTime
 from ivetl.models.published_article_by_cohort import PublishedArticleByCohort
 from ivetl.models.scopus_api_key import ScopusApiKey
