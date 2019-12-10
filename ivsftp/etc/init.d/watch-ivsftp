@@ -9,11 +9,11 @@
 # inherit the same environment as the sftp service
 . /iv/impactvizor-pipeline/conf/sftp_prod.sh
 
-name=$(basename "$0");
-user="ivftp"
-pid_file="/var/run/$name.pid"
+user="ivftp" # share user name with ivftp
 dir="/iv/impactvizor-pipeline/ivsftp"
-cmd=("python" "watch-sftp.py" "-notify")
+pid_file="/var/run/watch-ivsftp.pid"
+log="/var/log/ivsftp"
+cmd=("python" "watch-sftp.py" "-notify" "-log-dir" "${log}")
 
 # use the same logging level as the sftp service
 if [ "${IVSFTP_LOG_LEVEL}" != "" ]; then
@@ -33,18 +33,20 @@ case "$1" in
     if is_running; then
         echo "Already started"
     else
-        echo "Starting $name"
+        echo "Starting watch-ivsftp"
         cd "$dir" || exit 1;
-        runuser -u "${user}" -- "${cmd[@]}" >"/iv/log/sftp/${name}.out" 2>&1 & echo $! > "$pid_file";
+        runuser -u "${user}" -- "${cmd[@]}" >"${log}/watch-sftp.out" 2>&1 & echo $! > "$pid_file";
+        disown "$(get_pid)"
+        sleep 1
         if ! is_running; then
-            echo "Unable to start, check /iv/log/sftp/${name}.out and /iv/log/sftp/${name}.log for errors"
+            echo "Unable to start, check ${log}/watch-sftp.out and ${log}/watch-sftp.log for errors"
             exit 1
         fi
     fi
     ;;
     stop)
     if is_running; then
-        echo -n "Stopping $name.."
+        echo -n "Stopping watch-ivsftp.."
         kill "$(get_pid)";
         for i in {1..10}
         do
