@@ -35,7 +35,7 @@ class PubMedConnector(BaseConnector):
         if 'container-title' in publication:
             try:
                 journal = publication['container-title'][0]
-                journal = re.sub(r'[][(){}]+', '', journal)
+                journal = re.sub(r'[][)(}{]+', '', journal)
                 journal = re.sub(' ', '+', journal)
                 terms.append('{0}%5BJour%5D'.format(journal))
             except IndexError:
