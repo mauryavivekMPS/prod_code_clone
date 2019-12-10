@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# chkconfig: - 95 05
+# description: Enable impactvizor sftp service
+
+. /etc/init.d/functions
+. /iv/env/bin/activate
+. /iv/impactvizor-pipeline/conf/sftp_prod.sh
+
+user="ivftp" # share user name with ivftp
+dir="/iv/impactvizor-pipeline/ivsftp"
+pid_file="/var/run/ivsftp.pid"
+log="/var/log/ivsftp"
+cmd=("python" "sftp.py" "-nofork" "-log-dir" "${log}")
+
+if [ "${IVSFTP_ADDR}" != "" ]; then
+	cmd+=("-addr" "${IVSFTP_ADDR}")
+fi
+if [ "${IVSFTP_PORT}" != "" ]; then
+	cmd+=("-port" "${IVSFTP_PORT}")
+fi
+if [ "${IVSFTP_LOG_LEVEL}" != "" ]; then
+	cmd+=("-log-level" "${IVSFTP_LOG_LEVEL}")
+fi
+for key in dsa ecdsa ed25519 rsa; do
+	key_path=/etc/ssh/sftp/sftp_host_${key}_key
+	if [ -f "${key_path}" ] && [ -r "${key_path}" ]; then
+		cmd+=("-${key}-key" "${key_path}")
+	fi
+done
+
+get_pid() {
+    cat "$pid_file"
+}
+
+is_running() {
+    [ -f "$pid_file" ] && ps "$(get_pid)" >/dev/null 2>&1
+}
+
+wait_for_socket() {
+	host="${IVSFTP_ADDR}";
+	port="${IVSFTP_PORT}";
+	attempts="4";
+	sleep_sec="1";
+
+	nattempts=0;
+	status=1;
+	while [ "${nattempts}" -lt "${attempts}" ]; do
+		nattempts+=$((nattempts+1))
+		if nc -z "${host}" "${port}" 2>&1; then
+			status=0;
+			break;
+		fi
+		sleep "${sleep_sec}";
+	done
+	return ${status}
+}
+
+case "$1" in
+    start)
+    if is_running; then
+        echo "Already started"
+    else
+        echo "Starting ivsftp"
+        cd "$dir" || exit 1;
+        runuser -u "${user}" -- "${cmd[@]}" >"${log}/sftp.out" 2>&1 & echo $! > "$pid_file";
+        disown "$(get_pid)"
+        if ! wait_for_socket; then
+            echo "Unable to start, check ${log}/sftp}.out and ${log}/sftp.log for errors"
+            exit 1
+        fi
+    fi
+    ;;
+    stop)
+    if is_running; then
+        echo -n "Stopping ivsftp.."
+        kill "$(get_pid)";
+        for i in {1..10}
+        do
+            if ! is_running; then
+                break
+            fi
+
+            echo -n "."
+            sleep 1
+        done
+        echo
+
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "Stopped"
+            if [ -f "$pid_file" ]; then
+                rm "$pid_file"
+            fi
+        fi
+    else
+        echo "Not running"
+    fi
+    ;;
+    restart)
+    $0 stop
+    if is_running; then
+        echo "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
+    ;;
+    status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -14,16 +14,6 @@ from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
 from ivetl.models import WorkbookUrl
 
-
-# temporary logging for seeing what's happening to workbook and data source deployment
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(message)s',
-    filename=os.path.join( os.environ.get('IVWEB_LOG_ROOT', '/var/log/ivweb/'), 'tableau-connector.log'),    
-    filemode='a',
-)
-
-
 class TableauConnector(BaseConnector):
 
     def __init__(self, username, password, server):
