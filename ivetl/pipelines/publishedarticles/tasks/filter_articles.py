@@ -1,12 +1,13 @@
-import os
-import csv
 import codecs
+import csv
 import json
-from ivetl.celery import app
-from ivetl.pipelines.task import Task
+import os
+
 from ivetl.article_skipper import ArticleSkipper
-from ivetl.models import PublishedArticle, ArticleCitations, PublishedArticleByCohort, ArticleUsage, PublishedArticleValues
+from ivetl.celery import app
 from ivetl.common import common
+from ivetl.models import PublishedArticle, ArticleCitations, PublishedArticleByCohort, ArticleUsage, PublishedArticleValues
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -36,7 +37,7 @@ class FilterArticlesTask(Task):
                     continue
 
                 publisher_id = line[0]
-                doi = line[1]
+                doi = common.normalizedDoi(line[1])
                 issn = line[2]
                 data = json.loads(line[3])
 

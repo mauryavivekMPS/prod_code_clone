@@ -1,5 +1,6 @@
 from cassandra.cqlengine import columns
 from ivetl.models.base import IvetlModel
+from ivetl import hwcolumns
 
 
 class RejectedArticles(IvetlModel):
@@ -12,7 +13,7 @@ class RejectedArticles(IvetlModel):
     co_authors = columns.Text(required=False)
     corresponding_author = columns.Text(required=False)
     created = columns.DateTime()
-    crossref_doi = columns.Text(required=False)
+    crossref_doi = hwcolumns.LowercaseText(required=False)
     crossref_match_score = columns.Decimal(required=False)
     custom = columns.Text(required=False)
     custom_2 = columns.Text(required=False)
@@ -38,7 +39,7 @@ class RejectedArticles(IvetlModel):
     subject_category = columns.Text(required=False)
     submitted_journal = columns.Text(index=True)
     mendeley_saves = columns.Integer(required=False)
-    preprint_doi = columns.Text(required=False)
+    preprint_doi = hwcolumns.LowercaseText(required=False)
     updated = columns.DateTime()
 
     tableau_filter_fields = [

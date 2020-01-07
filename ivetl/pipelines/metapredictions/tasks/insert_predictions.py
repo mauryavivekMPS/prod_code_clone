@@ -1,9 +1,10 @@
 import csv
 import decimal
-from ivetl.celery import app
-from ivetl.pipelines.task import Task
-from ivetl.models import PublishedArticle
 
+from ivetl.common import common
+from ivetl.celery import app
+from ivetl.models import PublishedArticle
+from ivetl.pipelines.task import Task
 
 @app.task
 class InsertPredictionsTask(Task):
@@ -24,7 +25,7 @@ class InsertPredictionsTask(Task):
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                     meta_pmid = line['pmid']
-                    doi = line['doi']
+                    doi = common.normalizedDoi(line['doi'])
 
                     try:
                         article = PublishedArticle.objects.get(publisher_id=publisher_id, article_doi=doi)

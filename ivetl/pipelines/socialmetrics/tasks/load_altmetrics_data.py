@@ -1,11 +1,13 @@
 import csv
 import os
 import requests
-from requests.auth import HTTPBasicAuth
-from ivetl.celery import app
-from ivetl.pipelines.task import Task
-from ivetl.models import AltmetricsSocialData
+
 from ivetl import utils
+from ivetl.common import common
+from ivetl.celery import app
+from ivetl.models import AltmetricsSocialData
+from ivetl.pipelines.task import Task
+from requests.auth import HTTPBasicAuth
 
 
 @app.task
@@ -44,7 +46,7 @@ class LoadAltmetricsDataTask(Task):
                 if not row['DOI']:
                     continue
 
-                AltmetricsSocialData.objects(doi=row['DOI']).update(
+                AltmetricsSocialData.objects(doi=common.normalizedDoi(row['DOI'])).update(
                     altmetrics_id=row['ID'],
                     facebook=row['FACEBOOK_WALLS'],
                     blogs=row['BLOGS'],

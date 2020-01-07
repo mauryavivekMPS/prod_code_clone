@@ -1,11 +1,12 @@
-import os
-import csv
 import codecs
+import csv
 import json
+import os
 import re
 import threading
-from ivetl.common import common
+
 from ivetl.celery import app
+from ivetl.common import common
 from ivetl.connectors import CrossrefConnector, DoiProxyConnector, SassConnector
 from ivetl.models import PublisherJournal, DoiTransformRule
 from ivetl.pipelines.task import Task
@@ -93,7 +94,7 @@ class GetHighWireMetadataTask(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(self.reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
-                        doi = line[1]
+                        doi = common.common.normalizedDoi(line[1])
                         already_processed.add(doi)
 
         if already_processed:
@@ -115,7 +116,7 @@ class GetHighWireMetadataTask(Task):
                     continue
 
                 publisher_id = line[0]
-                doi = line[1]
+                doi = common.normalizedDoi(line[1])
                 issn = line[2]
                 data = json.loads(line[3])
 
@@ -197,6 +198,8 @@ class GetHighWireMetadataTask(Task):
                         if len(transform_spec) != len(doi):
                             tlogger.info('Found DOI length mismatch with spec, skipping: %s and %s' % (doi, transform_spec))
                         else:
+                            # we are not normalizing these because we're specifically
+                            # trying to perform case sensitive searches
                             hw_doi = transform_doi(doi, transform_spec)
 
                             # try transformed

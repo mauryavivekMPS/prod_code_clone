@@ -1,11 +1,13 @@
+import codecs
 import os
 import re
-import codecs
+
 from datetime import datetime
+from ivetl.common import common
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
 from ivetl.models import ArticleUsage
 from ivetl.models import PublishedArticle
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -41,7 +43,7 @@ class InsertArticleUsageIntoCassandra(Task):
                     
                     count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
-                    doi = line['articledoi'].lower()
+                    doi = common.normalizedDoi(line['articledoi'])
 
                     if pub_dates.get(doi) is None:
                         try:

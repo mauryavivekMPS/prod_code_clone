@@ -1,9 +1,11 @@
-import csv
 import codecs
+import csv
 import json
+
+from ivetl.common import common
 from ivetl.celery import app
-from ivetl.pipelines.task import Task
 from ivetl.models import AltmetricsSocialData, F1000SocialData
+from ivetl.pipelines.task import Task
 
 
 @app.task
@@ -29,7 +31,7 @@ class GetSocialMetricsTask(Task):
                     continue
 
                 publisher_id = line[0]
-                doi = line[1]
+                doi = common.normalizedDoi(line[1])
                 issn = line[2]
                 data = json.loads(line[3])
 

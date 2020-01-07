@@ -61,6 +61,7 @@ target/
 # local virtual env
 env
 impactvisor-pipeline-env
+.python-version
 
 # PyCharm
 .idea
@@ -80,7 +81,8 @@ ivweb/app/static/dist
 GTAGS
 GRTAGS
 GPATH
-.DS_Store 
+.DS_Store
+
 
 # Vagrant
 .vagrant

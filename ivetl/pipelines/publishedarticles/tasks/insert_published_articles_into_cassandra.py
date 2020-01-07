@@ -1,7 +1,8 @@
-import os
-import csv
 import codecs
+import csv
 import json
+import os
+
 from datetime import datetime
 from ivetl.celery import app
 from ivetl.common import common
@@ -44,7 +45,7 @@ class InsertPublishedArticlesIntoCassandra(Task):
                 if count == 1:
                     continue
 
-                doi = line[1]
+                doi = common.normalizedDoi(line[1])
                 data = json.loads(line[3])
 
                 # first, add the non-overlapping values straight to the published article table
