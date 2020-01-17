@@ -500,7 +500,7 @@ class XREFPublishedArticleSearchTask(Task):
                 pjtitle = issn_journals[eissn][0]
                 pub_journals[pjtitle] = pjvalue
             elif issn in issn_journals:
-                pjtitle = issn_journals[eissn][0]
+                pjtitle = issn_journals[issn][0]
                 pub_journals[pjtitle] = pjvalue
 
         count = 0
