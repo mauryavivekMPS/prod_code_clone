@@ -108,7 +108,7 @@ for publisher in publishers:
             project_id=publisher.reports_project_id)
         sld += 1
     except:
-        print(f'error in list_datasources: {publisher.publisher_id}, {publisher.reports_project_id}')
+        print('error in list_datasources: %s, %s' % (publisher.publisher_id, publisher.reports_project_id))
         logging.info(traceback.format_exc())
         existing_datasources = []
         failed_list_datasources.append((publisher.publisher_id, publisher.reports_project_id))
@@ -126,24 +126,26 @@ for publisher in publishers:
                     t.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
                     sdd += 1
                 except:
-                    print(f'failed datasource delete: {publisher.publisher_id}, {datasource_id}')
+                    print('failed datasource delete: %s, %s' % (publisher.publisher_id, datasource_id))
                     logging.info(traceback.format_exc())
                     failed_datasource_deletes.append((publisher.publisher_id, datasource_tableau_id_lookup[datasource_id]))
                 time.sleep(2)
             for datasource_id in required_datasource_ids:
                 logging.info('adding datasource: %s' % datasource_id)
+                ds = None
                 try:
-                    t.add_datasource_to_project(publisher, datasource_id)
+                    ds = t.add_datasource_to_project(publisher, datasource_id)
                     sd += 1
                 except:
-                    print(f'failed datasource add: {publisher.publisher_id}, {datasource_id}')
+                    print('failed datasource add: %s, %s' % (publisher.publisher_id, datasource_id))
                     logging.info(traceback.format_exc())
                     failed_datasources.append((publisher.publisher_id, datasource_id))
                 try:
-                    t.refresh_data_source(publisher, datasource_id)
+                    tableau_datasource_id = ds['tableau_id']
+                    t.create_extract(tableau_datasource_id)
                     sr += 1
                 except:
-                    print(f'failed refresh: {publisher.publisher_id}, {datasource_id}')
+                    print('failed refresh: %s, %s' % (publisher.publisher_id, datasource_id))
                     logging.info(traceback.format_exc())
                     failed_refreshes.append((publisher.publisher_id, datasource_id))
                 time.sleep(2)
@@ -154,26 +156,28 @@ for publisher in publishers:
                     t.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
                     sdd += 1
                 except:
-                    print(f'failed datasource delete: {publisher.publisher_id}, {datasource_id}')
+                    print('failed datasource delete: %s, %s' % (publisher.publisher_id, datasource_id))
                     logging.info(traceback.format_exc())
                     failed_datasource_deletes.append((publisher.publisher_id, datasource_tableau_id_lookup[datasource_id]))
                 time.sleep(2)
 
             for datasource_id in required_datasource_ids - existing_datasource_ids:
                 logging.info('adding datasource: %s' % datasource_id)
+                ds = None
                 try:
-                    t.add_datasource_to_project(publisher, datasource_id)
+                    ds = t.add_datasource_to_project(publisher, datasource_id)
                     sd += 1
                 except:
-                    print(f'failed datasource add: {publisher.publisher_id}, {datasource_id}')
+                    print('failed datasource add: %s, %s' % (publisher.publisher_id, datasource_id))
                     logging.info(traceback.format_exc())
                     failed_datasources.append((publisher.publisher_id, datasource_id))
                     continue
                 try:
-                    t.refresh_data_source(publisher, datasource_id)
+                    tableau_datasource_id = ds['tableau_id']
+                    t.create_extract(tableau_datasource_id)
                     sr += 1
                 except:
-                    print(f'failed refresh: {publisher.publisher_id}, {datasource_id}')
+                    print('failed refresh: %s, %s' % (publisher.publisher_id, datasource_id))
                     logging.info(traceback.format_exc())
                     failed_refreshes.append((publisher.publisher_id, datasource_id))
                 time.sleep(2)
@@ -190,7 +194,7 @@ for publisher in publishers:
             existing_workbooks = t.list_workbooks(project_id=publisher.reports_project_id)
             slw += 1
         except:
-            print(f'error in list_workbooks: {publisher.publisher_id}, {publisher.reports_project_id}')
+            print('error in list_workbooks: %s, %s' % (publisher.publisher_id, publisher.reports_project_id))
             logging.info(traceback.format_exc())
             existing_workbooks = []
             failed_list_workbooks.append((publisher.publisher_id, publisher.reports_project_id))
@@ -207,7 +211,7 @@ for publisher in publishers:
                     t.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
                     swd += 1
                 except:
-                    print(f'failed workbook delete: {publisher.publisher_id}, {workbook_id}')
+                    print('failed workbook delete: %s, %s' % (publisher.publisher_id, workbook_id))
                     logging.info(traceback.format_exc())
                     failed_workbook_deletes.append((publisher.publisher_id, workbook_tableau_id_lookup[workbook_id]))
                 time.sleep(2)
@@ -218,7 +222,7 @@ for publisher in publishers:
                     t.add_workbook_to_project(publisher, workbook_id)
                     sw += 1
                 except:
-                    print(f'failed workbook add: {publisher.publisher_id}, {workbook_id}')
+                    print('failed workbook add: %s, %s' % (publisher.publisher_id, workbook_id))
                     logging.info(traceback.format_exc())
                     failed_workbooks.append((publisher.publisher_id, workbook_id))
                 time.sleep(2)
@@ -229,7 +233,7 @@ for publisher in publishers:
                     t.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
                     swd += 1
                 except:
-                    print(f'failed workbook delete: {publisher.publisher_id}, {workbook_id}')
+                    print('failed workbook delete: %s, %s' % (publisher.publisher_id, workbook_id))
                     logging.info(traceback.format_exc())
                     failed_workbook_deletes.append((publisher.publisher_id, workbook_tableau_id_lookup[workbook_id]))
                 time.sleep(2)
@@ -240,7 +244,7 @@ for publisher in publishers:
                     t.add_workbook_to_project(publisher, workbook_id)
                     sw += 1
                 except:
-                    print(f'failed workbook add: {publisher.publisher_id}, {workbook_id}')
+                    print('failed workbook add: %s, %s' % (publisher.publisher_id, workbook_id))
                     logging.info(traceback.format_exc())
                     failed_workbooks.append((publisher.publisher_id, workbook_id))
                 time.sleep(2)
@@ -267,13 +271,13 @@ print('failed list workbooks:')
 print(*failed_list_workbooks, sep=', ')
 
 print('stats:')
-print(f'successful workbook adds: {sw}')
-print(f'successful datasource adds: {sd}')
-print(f'successful refreshes: {sr}')
-print(f'successful workbook deletes: {swd}')
-print(f'successful datasource deletes: {sdd}')
-print(f'successful list datasources: {sld}')
-print(f'successful list workbooks: {slw}')
+print('successful workbook adds: %s' % sw)
+print('successful datasource adds: %s' % sd)
+print('successful refreshes: %s' % sr)
+print('successful workbook deletes: %s' % swd)
+print('successful datasource deletes: %s' % sdd)
+print('successful list datasources: %s' % sld)
+print('successful list workbooks: %s' % slw)
 
 print('elapsed time:')
 print(datetime.now() - start)

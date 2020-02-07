@@ -32,14 +32,13 @@ pubid = None
 # full refresh, delete all and reload new
 full = False
 
-fileid = 'article_citations_ds.tds' 
+test_datasource_id = 'rejected_articles_ds.tds'
+test_workbook_id = 'rejected_article_tracker.twb'
 
 for opt in opts:
     if opt[0] == '-p':
         pubid = opt[1]
         logging.info('initializing single publisher run: %s' % pubid)
-    elif opt[0] == '-f':
-        full = True
 
 open_cassandra_connection()
 
@@ -51,7 +50,7 @@ t = TableauConnector(
 
 failed_workbooks = []
 failed_datasources = []
-failed_refreshes = []
+failed_extracts = []
 failed_workbook_deletes = []
 failed_datasource_deletes = []
 failed_list_datasources = []
@@ -95,74 +94,45 @@ for publisher in publishers:
             project_id=publisher.reports_project_id)
         sld += 1
     except:
-        print(f'error in list_datasources: {publisher.publisher_id}, {publisher.reports_project_id}')
+        print('error in list_datasources: %s, %s' % (publisher.publisher_id, publisher.reports_project_id))
         logging.info(traceback.format_exc())
         existing_datasources = []
         failed_list_datasources.append((publisher.publisher_id, publisher.reports_project_id))
+
+    datasource_idx = {}
+    print('building datasource index...')
+    for d in existing_datasources:
+        print(d['name'])
+        print(d['id'])
+        datasource_idx[d['name']] = d['id']
 
     existing_datasource_ids = set([t._base_datasource_name_from_publisher_name(publisher, d['name']) for d in existing_datasources])
     datasource_tableau_id_lookup = {t._base_datasource_name_from_publisher_name(publisher, d['name']): d['id'] for d in existing_datasources}
     logging.info('existing_datasource_ids = %s' % existing_datasource_ids)
 
-    if full:
-        logging.info('full refresh; deleting all datasources')
-        for datasource_id in existing_datasource_ids:
-            logging.info('deleting datasource: %s' % datasource_id)
-            try:
-                t.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
-                sdd += 1
-            except:
-                print(f'failed datasource delete: {publisher.publisher_id}, {datasource_id}')
-                logging.info(traceback.format_exc())
-                failed_datasource_deletes.append((publisher.publisher_id, datasource_tableau_id_lookup[datasource_id]))
-            time.sleep(2)
-        for datasource_id in required_datasource_ids:
-            logging.info('adding datasource: %s' % datasource_id)
-            try:
-                t.add_datasource_to_project(publisher, datasource_id)
-                sd += 1
-            except:
-                print(f'failed datasource add: {publisher.publisher_id}, {datasource_id}')
-                logging.info(traceback.format_exc())
-                failed_datasources.append((publisher.publisher_id, datasource_id))
-            try:
-                t.refresh_data_source(publisher, datasource_id)
-                sr += 1
-            except:
-                print(f'failed refresh: {publisher.publisher_id}, {datasource_id}')
-                logging.info(traceback.format_exc())
-                failed_refreshes.append((publisher.publisher_id, datasource_id))
-            time.sleep(2)
-    else:
-        for datasource_id in existing_datasource_ids - required_datasource_ids:
-            logging.info('deleting datasource: %s' % datasource_id)
-            try:
-                t.delete_datasource_from_project(datasource_tableau_id_lookup[datasource_id])
-                sdd += 1
-            except:
-                print(f'failed datasource delete: {publisher.publisher_id}, {datasource_id}')
-                logging.info(traceback.format_exc())
-                failed_datasource_deletes.append((publisher.publisher_id, datasource_tableau_id_lookup[datasource_id]))
-            time.sleep(2)
-
-        for datasource_id in required_datasource_ids - existing_datasource_ids:
-            logging.info('adding datasource: %s' % datasource_id)
-            try:
-                t.add_datasource_to_project(publisher, datasource_id)
-                sd += 1
-            except:
-                print(f'failed datasource add: {publisher.publisher_id}, {datasource_id}')
-                logging.info(traceback.format_exc())
-                failed_datasources.append((publisher.publisher_id, datasource_id))
-                continue
-            try:
-                t.refresh_data_source(publisher, datasource_id)
-                sr += 1
-            except:
-                print(f'failed refresh: {publisher.publisher_id}, {datasource_id}')
-                logging.info(traceback.format_exc())
-                failed_refreshes.append((publisher.publisher_id, datasource_id))
-            time.sleep(2)
+    for datasource_id in required_datasource_ids - existing_datasource_ids:
+        logging.info('adding datasource: %s' % datasource_id)
+        if datasource_id != test_datasource_id:
+            continue
+        print('testing datasource: %s' % datasource_id)
+        try:
+            ds = t.add_datasource_to_project(publisher, datasource_id)
+            sd += 1
+        except:
+            print('failed datasource add: %s, %s' % (publisher.publisher_id, datasource_id))
+            logging.info(traceback.format_exc())
+            failed_datasources.append((publisher.publisher_id, datasource_id))
+            continue
+        print('testing extract: %s' % datasource_id)
+        try:
+            tableau_datasource_id = ds['tableau_id']
+            t.create_extract(tableau_datasource_id)
+            sr += 1
+        except:
+            print('failed to create extract: %s, %s' % (publisher.publisher_id, datasource_id))
+            logging.info(traceback.format_exc())
+            failed_extracts.append((publisher.publisher_id, datasource_id))
+        time.sleep(2)
 
     required_workbook_ids = set()
     for product_group_id in publisher.supported_product_groups:
@@ -175,7 +145,7 @@ for publisher in publishers:
         existing_workbooks = t.list_workbooks(project_id=publisher.reports_project_id)
         slw += 1
     except:
-        print(f'error in list_workbooks: {publisher.publisher_id}, {publisher.reports_project_id}')
+        print('error in list_workbooks: %s, %s' % (publisher.publisher_id, publisher.reports_project_id))
         logging.info(traceback.format_exc())
         existing_workbooks = []
         failed_list_workbooks.append((publisher.publisher_id, publisher.reports_project_id))
@@ -184,81 +154,23 @@ for publisher in publishers:
     workbook_tableau_id_lookup = {common.TABLEAU_WORKBOOK_ID_BY_NAME[d['name']]: d['id'] for d in existing_workbooks if d['name'] in common.TABLEAU_WORKBOOK_ID_BY_NAME}
     logging.info('existing_workbook_ids = %s' % existing_workbook_ids)
 
-    if full:
-        logging.info('full refresh; deleting all workbooks')
-        for workbook_id in existing_workbook_ids:
-            logging.info('deleting workbook: %s' % workbook_id)
-            try:
-                t.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
-                swd += 1
-            except:
-                print(f'failed workbook delete: {publisher.publisher_id}, {workbook_id}')
-                logging.info(traceback.format_exc())
-                failed_workbook_deletes.append((publisher.publisher_id, workbook_tableau_id_lookup[workbook_id]))
-            time.sleep(2)
-
-        for workbook_id in required_workbook_ids:
-            logging.info('adding workbook: %s' % workbook_id)
-            try:
-                t.add_workbook_to_project(publisher, workbook_id)
-                sw += 1
-            except:
-                print(f'failed workbook add: {publisher.publisher_id}, {workbook_id}')
-                logging.info(traceback.format_exc())
-                failed_workbooks.append((publisher.publisher_id, workbook_id))
-            time.sleep(2)
-    else:
-        for workbook_id in existing_workbook_ids - required_workbook_ids:
-            logging.info('deleting workbook: %s' % workbook_id)
-            try:
-                t.delete_workbook_from_project(workbook_tableau_id_lookup[workbook_id])
-                swd += 1
-            except:
-                print(f'failed workbook delete: {publisher.publisher_id}, {workbook_id}')
-                logging.info(traceback.format_exc())
-                failed_workbook_deletes.append((publisher.publisher_id, workbook_tableau_id_lookup[workbook_id]))
-            time.sleep(2)
-
-        for workbook_id in required_workbook_ids - existing_workbook_ids:
-            logging.info('adding workbook: %s' % workbook_id)
-            try:
-                t.add_workbook_to_project(publisher, workbook_id)
-                sw += 1
-            except:
-                print(f'failed workbook add: {publisher.publisher_id}, {workbook_id}')
-                logging.info(traceback.format_exc())
-                failed_workbooks.append((publisher.publisher_id, workbook_id))
-            time.sleep(2)
+    for workbook_id in required_workbook_ids - existing_workbook_ids:
+        logging.info('adding workbook: %s' % workbook_id)
+        if workbook_id != test_workbook_id:
+            continue
+        print('testing workbook: %s' % workbook_id)
+        try:
+            t.add_workbook_to_project(publisher, workbook_id)
+            sw += 1
+        except:
+            print('failed workbook add: %s, %s' % (publisher.publisher_id, workbook_id))
+            logging.info(traceback.format_exc())
+            failed_workbooks.append((publisher.publisher_id, workbook_id))
+        time.sleep(2)
 
     time.sleep(30)
 
 close_cassandra_connection()
-
-print('refresh complete')
-print('errors:')
-print('failed workbooks:')
-print(*failed_workbooks, sep=', ')
-print('failed datasources:')
-print(*failed_datasources, sep=', ')
-print('failed refreshes:')
-print(*failed_refreshes, sep=', ')
-print('failed workbook deletes:')
-print(*failed_workbook_deletes, sep=', ')
-print('failed datasource deletes:')
-print(*failed_datasource_deletes, sep=', ')
-print('failed list datasources:')
-print(*failed_list_datasources, sep=', ')
-print('failed list workbooks:')
-print(*failed_list_workbooks, sep=', ')
-
-print('stats:')
-print(f'successful workbook adds: {sw}')
-print(f'successful datasource adds: {sd}')
-print(f'successful refreshes: {sr}')
-print(f'successful workbook deletes: {swd}')
-print(f'successful datasource deletes: {sdd}')
-print(f'successful list datasources: {sld}')
-print(f'successful list workbooks: {slw}')
 
 print('elapsed time:')
 print(datetime.now() - start)

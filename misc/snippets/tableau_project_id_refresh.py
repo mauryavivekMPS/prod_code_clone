@@ -2,7 +2,6 @@ import sys
 import os
 import time
 from getopt import getopt
-from datetime import datetime
 import traceback
 import logging
 
@@ -15,28 +14,78 @@ logging.basicConfig(
     filemode='a',
 )
 
-start = datetime.now()
-
 from ivetl.common import common
 from ivetl.models import PublisherMetadata
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.connectors import TableauConnector
-
-# temporary logging for seeing what's happening to workbook and data source deployment
-
 
 opts, args = getopt(sys.argv[1:], 'p:', ['publisher'])
 
 # single publisher vs all
 pubid = None
 
+helptext = '''usage: python tableau_project_id_refresh.py -- [ -h | -p publisher_id ]
+
+Environment variables:
+
+This script uses the open_cassandra_connection and close_cassandra_connection
+routines defined in celery.py, which in turn use variables defined in common.py.
+The Cassandra IP list can be set with the following variable, e.g:
+
+export IVETL_CASSANDRA_IP=bk-vizor-dev-01.highwire.org
+
+Use a comma separated list for multiple hosts.
+
+This script also connects to a Tableau Server instance.
+Set the Tableau instance with the following environment variables:
+
+export IVETL_TABLEAU_SERVER=bk-vizor-win-dev-01.highwire.org
+
+e.g. for dev or
+
+export IVETL_TABLEAU_SERVER=reports-data.vizors.org
+
+for the production instance running 2019.4+.
+
+Options and arguments:
+-h     :  print this help message and exit (also --help)
+-o     :  output file path to write to. Default: /iv/working/misc/{publisher-id}-publisher_reports_data_export.tsv
+-p     :  publisher_id value to use when querying cassandra, limiting run to single publisher.
+
+This script can be used to sync up a Cassandra instance with a Tableau Server instance.
+Example of use include when switching a local environment
+from a shared development Tableau Server
+to a production or local Tableau Server instance, or when upgrading or
+switching out one production Tableau Server instance for another.
+
+The script will query a Tableau Server instance and a Cassandra instance,
+comparing the reports_project_id, reports_group_id, and reports_user_id
+values. It will update the Cassandra PublisherMetadata table with the values
+received from Tableau if there is a mismatch.
+
+The script keys the Tableau Server IDs off the human readable names, and
+these must match up between environments:
+
+Tableau Project Name (e.g. 'AAAS')
+Tableau Group Name (e.g. 'AAAS')
+Tableau User Name (e.g. 'aaas')
+
+As an example, if the Cassandra instance you are updating stores the value
+'8c549bc8-d259-47d2-bfb3-12a532213856' for the AAAS project id, and the
+Tableau Server instance has created the AAAS project with the id '0677c734-b5b4-4eac-a796-0536c5e8b601',
+then the Tableau Server version will be written to the Cassandra instance.
+
+If the IDs all match for a given publisher, no update will be written for that publisher.
+This means once the script has run once, assuming the Cassandra database doesn't change,
+it will result in all no-ops.
+
+The script writes output to stdout using python's print() facility.
+'''
+
 for opt in opts:
     if opt[0] == '-p':
         pubid = opt[1]
         logging.info('initializing single publisher run: %s' % pubid)
-
-
-# open_cassandra_connection()
 
 t = TableauConnector(
     username=common.TABLEAU_USERNAME,
@@ -47,10 +96,6 @@ t = TableauConnector(
 projects = t.list_projects()
 groups = t.list_groups()
 users = t.list_users()
-
-# print(projects)
-# print(groups)
-# print(users)
 
 pidx = {}
 gidx = {}
@@ -64,10 +109,6 @@ for group in groups:
 
 for user in users:
     uidx[user['name']] = user['id']
-
-# print(pidx)
-# print(gidx)
-# print(uidx)
 
 update_count = 0
 noop_count = 0
@@ -123,7 +164,5 @@ for publisher in publishers:
 close_cassandra_connection()
 
 print('backport complete')
-print(f'successful updates: {update_count}')
-print(f'no-ops: {noop_count}')
-print('elapsed time:')
-print(datetime.now() - start)
+print('successful updates: %s' % update_count)
+print('no-ops: %s' % noop_count)

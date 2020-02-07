@@ -333,6 +333,22 @@ class TableauConnector(BaseConnector):
         datasource_name = self._publisher_datasource_name(publisher, datasource_id)
         subprocess.call([common.TABCMD, 'refreshextracts', '--datasource', datasource_name, '--project', publisher.reports_project] + self._tabcmd_login_params())
 
+    def create_extract(self, tableau_datasource_id):
+        self._check_authentication()
+        path_params = (self.site_id, tableau_datasource_id)
+        path = "/api/3.6/sites/%s/datasources/%s/createExtract" % path_params
+        url = self.server_url + path
+        try:
+            response = requests.post(url,
+                headers={'X-Tableau-Auth': self.token},
+                timeout=self.request_timeout)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logging.info('HTTPError for url: %s' % url)
+            logging.info(e)
+            logging.info(response.text)
+            raise e
+
     def delete_datasource_from_project(self, tableau_datasource_id):
         self._check_authentication()
         url = self.server_url + "/api/2.5/sites/%s/datasources/%s" % (self.site_id, tableau_datasource_id)
@@ -509,6 +525,8 @@ class TableauConnector(BaseConnector):
         for datasource_id in required_datasource_ids - existing_datasource_ids:
             logging.info('adding datasource: %s' % datasource_id)
             self.add_datasource_to_project(publisher, datasource_id)
+            # ds_tableau_id = datasource_tableau_id_lookup[datasource_id]
+            # self.create_extract(ds_tableau_id)
             self.refresh_data_source(publisher, datasource_id)
 
         time.sleep(10)
