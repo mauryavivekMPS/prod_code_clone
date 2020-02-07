@@ -19,7 +19,7 @@ from ivetl.models import PublisherMetadata
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.connectors import TableauConnector
 
-opts, args = getopt(sys.argv[1:], 'p:', ['publisher'])
+opts, args = getopt(sys.argv[1:], 'hp:', ['help', 'publisher'])
 
 # single publisher vs all
 pubid = None
@@ -53,7 +53,7 @@ Options and arguments:
 -p     :  publisher_id value to use when querying cassandra, limiting run to single publisher.
 
 This script can be used to sync up a Cassandra instance with a Tableau Server instance.
-Example of use include when switching a local environment
+Examples of use include when switching a local environment
 from a shared development Tableau Server
 to a production or local Tableau Server instance, or when upgrading or
 switching out one production Tableau Server instance for another.
@@ -86,6 +86,9 @@ for opt in opts:
     if opt[0] == '-p':
         pubid = opt[1]
         logging.info('initializing single publisher run: %s' % pubid)
+    if opt[0] == '-h':
+        print(helptext)
+        sys.exit()
 
 t = TableauConnector(
     username=common.TABLEAU_USERNAME,
