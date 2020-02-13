@@ -204,9 +204,15 @@ class BaseTask(Task):
                 else:
                     all_datasources_to_update = all_modified_datasources
 
-                for datasource_id in all_datasources_to_update:
-                    tlogger.info('Refreshing datasource: %s -> %s' % (publisher.publisher_id, datasource_id))
-                    t.refresh_data_source(publisher, datasource_id)
+                tableau_ds_to_update = t.list_datasources_by_names(publisher,
+                    all_datasources_to_update)
+
+                ds_ids_to_update = [d['id'] for d in tableau_ds_to_update]
+
+                for datasource_id in ds_ids_to_update:
+                    loginfo = (publisher.publisher_id, datasource_id)
+                    tlogger.info('Refreshing datasource: %s -> %s' % loginfo)
+                    t.refresh_data_source(datasource_id)
 
     def process_chains(self, publisher_id, product_id, pipeline_id, tlogger, initiating_user_email):
         for chain_id in common.CHAINS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):

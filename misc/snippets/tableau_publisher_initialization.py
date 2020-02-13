@@ -108,7 +108,7 @@ close_cassandra_connection()
 print('initialization complete')
 print('errors:')
 print(*failed_publishers, sep=', ')
-print(f'success: {successful_publishers}')
+print('success: %s' % successful_publishers)
 
 print('elapsed time:')
 print(datetime.now() - start)

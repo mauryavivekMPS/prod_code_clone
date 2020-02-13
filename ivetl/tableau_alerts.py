@@ -136,10 +136,13 @@ def process_alert(alert, monthly_message=None, attachment_only_emails_override=N
         has_data = False
         export_workbook_id = template['workbooks'].get('export')
         if export_workbook_id:
-            export_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=export_workbook_id)
-            export_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[export_workbook_id]['home_view']
-            export_view_url = '%s/%s?%s' % (export_workbook_url.url, export_workbook_home_view, alert.params_and_filters_query_string)
-            has_data = t.check_report_for_data(export_view_url, template.get('export_value_name', 'Number of Records'))
+            export_workbooks = t.list_workbooks_by_name(export_workbook_id,
+                alert.publisher_id)
+            if len(export_workbooks >= 0):
+                export_workbook = export_workbooks[0]
+                export_view_id = t.view_by_publisher_workbook(export_workbook)
+                has_data = t.check_report_for_data(export_view_id,
+                    template.get('export_value_name', 'Number of Records'))
 
         if has_data:
             run_notification = True
@@ -186,14 +189,17 @@ def process_alert(alert, monthly_message=None, attachment_only_emails_override=N
         subject = alert.name
 
         attachment_workbook_id = template['workbooks'].get('full')
-        attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=attachment_workbook_id)
-        attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[attachment_workbook_id]['home_view']
-        attachment_view_url = '%s/%s?%s' % (attachment_workbook_url.url, attachment_workbook_home_view, alert.params_and_filters_query_string)
+        attachment_workbook = t.list_workbooks_by_name(attachment_workbook_id,
+            alert.publisher_id)
+        attachment_view_id = t.view_by_publisher_workbook(attachment_workbook[0])
+        # attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=attachment_workbook_id)
+        # attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[attachment_workbook_id]['home_view']
+        # attachment_view_url = '%s/%s?%s' % (attachment_workbook_url.url, attachment_workbook_home_view, alert.params_and_filters_query_string)
 
         attachment_filename = '%s %s.pdf' % (alert.name.replace('/', '-').replace('\\', '-'), now.strftime('%Y-%m-%d'))
         attachment_content_id = 'report'
 
-        pdf_path = t.generate_pdf_report(attachment_view_url)
+        pdf_path = t.generate_pdf_report(attachment_view_id)
         pdf_content = open(pdf_path, 'rb').read()
         encoded_pdf_content = base64.b64encode(pdf_content).decode()
 
