@@ -4,7 +4,7 @@ import base64
 from sendgrid.helpers.mail import Email, Content, Mail, CustomArg, Attachment
 from django.template import loader
 from ivetl.connectors import TableauConnector
-from ivetl.models import WorkbookUrl, TableauNotification, TableauNotificationByAlert
+from ivetl.models import TableauNotification, TableauNotificationByAlert
 from ivetl.common import common
 
 
@@ -192,10 +192,6 @@ def process_alert(alert, monthly_message=None, attachment_only_emails_override=N
         attachment_workbook = t.list_workbooks_by_name(attachment_workbook_id,
             alert.publisher_id)
         attachment_view_id = t.view_by_publisher_workbook(attachment_workbook[0])
-        # attachment_workbook_url = WorkbookUrl.objects.get(publisher_id=alert.publisher_id, workbook_id=attachment_workbook_id)
-        # attachment_workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[attachment_workbook_id]['home_view']
-        # attachment_view_url = '%s/%s?%s' % (attachment_workbook_url.url, attachment_workbook_home_view, alert.params_and_filters_query_string)
-
         attachment_filename = '%s %s.pdf' % (alert.name.replace('/', '-').replace('\\', '-'), now.strftime('%Y-%m-%d'))
         attachment_content_id = 'report'
 

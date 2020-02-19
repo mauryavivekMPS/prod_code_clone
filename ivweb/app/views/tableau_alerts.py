@@ -8,11 +8,12 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from ivetl.models import TableauAlert, TableauNotification, TableauNotificationByAlert, PublisherMetadata, WorkbookUrl, User
+from ivetl.connectors import TableauConnector
+from ivetl.models import TableauAlert, TableauNotification, TableauNotificationByAlert, PublisherMetadata, User
 from ivetl.tableau_alerts import ALERT_TEMPLATES, ALERT_TEMPLATES_BY_SOURCE_PIPELINE, process_alert
-from ivweb.app.views import utils as view_utils
 from ivetl.common import common
 from ivetl import utils
+from ivweb.app.views import utils as view_utils
 
 log = logging.getLogger(__name__)
 
@@ -384,25 +385,53 @@ def get_trusted_report_url(request):
     template_id = request.GET['template_id']
     embed_type = request.GET.get('embed_type', 'full')
 
-    # pick up the relevant workbook URL
     workbook_id = ALERT_TEMPLATES[template_id]['workbooks'][embed_type]
-    workbook_url = WorkbookUrl.objects.get(publisher_id=publisher_id, workbook_id=workbook_id)
     workbook_home_view = common.TABLEAU_WORKBOOKS_BY_ID[workbook_id]['home_view']
 
-    # get the trusted token from Tableau
-    token = get_trusted_token()
+    if not publisher_id:
+        return JsonResponse({
+            'error': 'invalid publisher id',
+            'url': ''
+        }, status=500)
+    try:
+        t = TableauConnector(
+            username=common.TABLEAU_USERNAME,
+            password=common.TABLEAU_PASSWORD,
+            server=common.TABLEAU_SERVER
+        )
+        workbook_id = ALERT_TEMPLATES[template_id]['workbooks'][embed_type]
+        workbooks = t.list_workbooks_by_name(workbook_id, publisher_id)
+        if len(workbooks) < 1 or not workbooks[0]['content_url']:
+            print(publisher_id) 
+            print(len(workbooks))
+            print(workbooks)
+            return JsonResponse({
+                'error': 'workbook content url not found',
+                'url': ''
+            }, status=500)
+        # there should always be at most one workbook per name per project
+        content_url = workbooks[0]['content_url']
 
-    if common.TABLEAU_HTTPS:
-        scheme = 'https'
-    else:
-        scheme = 'http'
+        token = get_trusted_token()
 
-    # construct the full URL
-    url = '%s://%s/trusted/%s/views/%s/%s' % (scheme, common.TABLEAU_SERVER, token, workbook_url.url, workbook_home_view)
+        if common.TABLEAU_HTTPS:
+            scheme = 'https'
+        else:
+            scheme = 'http'
 
-    return JsonResponse({
-        'url': url,
-    })
+        # construct the full URL
+        url_params = (scheme, common.TABLEAU_SERVER, token, content_url, workbook_home_view)
+        url = '%s://%s/trusted/%s/views/%s/%s' % url_params
+
+        return JsonResponse({
+            'url': url,
+        })
+    except Exception as e:
+        print('Exception, get_trusted_report_url: %s, %s: %s' % (publisher_id, template_id, e))
+        return JsonResponse({
+            'error': 'exception encountered',
+            'url': ''
+        }, status=500)
 
 
 def show_email(request):

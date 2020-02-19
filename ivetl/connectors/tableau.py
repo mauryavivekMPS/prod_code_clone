@@ -12,7 +12,7 @@ from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
-from ivetl.models import PublisherMetadata, WorkbookUrl
+from ivetl.models import PublisherMetadata
 
 class TableauConnector(BaseConnector):
     request_timeout = 120
@@ -304,10 +304,10 @@ class TableauConnector(BaseConnector):
         if type(ds_names) is not list or len(ds_names) < 1:
             return []
         ds_names_str = ','.join(ds_names)
-        ds_filter = 'name:in:[%s]' % ds_names_str
+        ds_filter = 'filter=name:in:[%s]&pageSize=1000' % ds_names_str
         url = self.server_url + path
         response = requests.get(url,
-            params={'filter': ds_filter, 'pageSize': 1000},
+            params=ds_filter,
             headers={'X-Tableau-Auth': self.token},
             timeout=self.request_timeout)
         r = untangle.parse(response.text).tsResponse
@@ -347,7 +347,7 @@ class TableauConnector(BaseConnector):
 
     def list_workbooks_by_name(self, wb_name, publisher_id=None):
         '''Given a human-readable workbook name
-        (e.g. alert_hot_article_tracker_export),
+        (e.g. alert_hot_article_tracker_export.twb),
         query Tableau Server for the list of all workbooks with that name.
         Limiting the returned workbooks to a single name should
         signficantly reduce the data going over the wire compared to
@@ -361,18 +361,26 @@ class TableauConnector(BaseConnector):
         '''
         self._check_authentication()
         path = '/api/3.6/sites/%s/workbooks' % self.site_id
-        wb_filter = 'name:eq:%s' % wb_name
+        wbext = common.TABLEAU_WORKBOOK_FILE_EXTENSION
+        if wb_name[-len(wbext):] == wbext:
+            wb_name = self._base_workbook_name(wb_name)
+        # params must be string, not dictionary,
+        # because Tableau will return a 400 if the ":" is percent-encoded
+        # https://stackoverflow.com/questions/23496750/how-to-prevent-python-requests-from-percent-encoding-my-urls/23497912
+        url_params = 'filter=name:eq:%s&pageSize=1000' % wb_name
         url = self.server_url + path
         response = requests.get(url,
-            params={'filter': wb_filter, 'pageSize': 1000},
+            params=url_params,
             headers={'X-Tableau-Auth': self.token},
             timeout=self.request_timeout)
+        response.raise_for_status()
         r = untangle.parse(response.text).tsResponse
         all_workbooks = [{
             'name': d['name'],
             'id': d['id'],
             'project_id': d.project['id'],
             'project_name': d.project['name'],
+            'content_url': d['contentUrl'],
             'default_view_id': d['defaultViewId']
         } for d in r.workbooks.workbook]
         if publisher_id:
@@ -596,13 +604,6 @@ class TableauConnector(BaseConnector):
 
         workbook_url = r.workbook['contentUrl']
         workbook_tableau_id = r.workbook['id']
-
-        WorkbookUrl.objects(
-            publisher_id=publisher.publisher_id,
-            workbook_id=workbook_id,
-        ).update(
-            url=workbook_url
-        )
 
         # remove group permissions if this is an admin_only template
         if workbook.get('admin_only', False):
