@@ -1,4 +1,5 @@
 import requests
+import os
 from urllib.parse import quote_plus
 from requests import HTTPError
 from lxml import etree
@@ -9,8 +10,9 @@ from ivetl.connectors.base import BaseConnector, AuthorizationAPIError, MaxTries
 
 
 class ScopusConnector(BaseConnector):
-    MAGRESOLVER_URL_XML = 'http://10.0.1.47/search?doi={0}'
-    MAGRESOLVER_URL_JSON = 'http://10.0.1.47/search?paperid={0}&count={1}&start={2}'
+    MAGRESOLVER_IP = os.environ.get('IVETL_MAGRESOLVER_IP', '10.0.1.47')
+    MAGRESOLVER_URL_XML = 'http://' + MAGRESOLVER_IP + '/search?doi={0}'
+    MAGRESOLVER_URL_JSON = 'http://' + MAGRESOLVER_IP + '/search?paperid={0}&count={1}&start={2}'
     MAX_ATTEMPTS = 3
     REQUEST_TIMEOUT_SECS = 30
     RESULTS_PER_PAGE = 25
