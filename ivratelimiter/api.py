@@ -8,6 +8,12 @@ from flask import Flask, request, jsonify
 
 app = Flask("rate_limiter")
 
+# https://github.com/pallets/flask/issues/2549
+# fixes:
+# File "/usr/local/lib/python3.5/site-packages/flask/json.py", line 251, in jsonify
+#    if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] and not request.is_xhr:
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
 logging.basicConfig(
     filename=os.path.join( os.environ.get('IVETL_WORKING_DIR', '/var/log/ivratelimiter/'), 'api.log'),
     format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
