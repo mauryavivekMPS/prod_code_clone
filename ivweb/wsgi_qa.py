@@ -24,7 +24,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ivweb.settings.qa")
 
 os.environ["IVETL_ROOT"] = "/iv/impactvizor-pipeline"
 os.environ["IVETL_CASSANDRA_IP"] = "10.0.0.21"
-os.environ["IVETL_EMAIL_TO_ADDRESS"] = "john@lonepixel.com"
+os.environ["IVETL_EMAIL_TO_ADDRESS"] = "vizor-developers@highwirepress.com"
 os.environ["IVETL_WEB_ADDRESS"] = "http://10.0.0.210"
 os.environ["IVETL_RABBITMQ_BROKER_URL"] = "amqp://guest:guest@10.0.0.197:5672//"
 os.environ["IVETL_RATE_LIMITER_SERVER"] = "10.0.0.197:8082"
