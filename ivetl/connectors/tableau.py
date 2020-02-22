@@ -10,6 +10,7 @@ import datetime
 import logging
 from requests.packages.urllib3.fields import RequestField
 from requests.packages.urllib3.filepost import encode_multipart_formdata
+from urllib.parse import quote_plus
 from ivetl.common import common
 from ivetl.connectors.base import BaseConnector, AuthorizationAPIError
 from ivetl.models import PublisherMetadata
@@ -301,8 +302,6 @@ class TableauConnector(BaseConnector):
         else:
             project_name = None
 
-        if type(ds_names) is not list or len(ds_names) < 1:
-            return []
         ds_names_str = ','.join(ds_names)
         ds_filter = 'filter=name:in:[%s]&pageSize=1000' % ds_names_str
         url = self.server_url + path
@@ -367,7 +366,7 @@ class TableauConnector(BaseConnector):
         # params must be string, not dictionary,
         # because Tableau will return a 400 if the ":" is percent-encoded
         # https://stackoverflow.com/questions/23496750/how-to-prevent-python-requests-from-percent-encoding-my-urls/23497912
-        url_params = 'filter=name:eq:%s&pageSize=1000' % wb_name
+        url_params = 'filter=name:eq:%s&pageSize=1000' % quote_plus(wb_name)
         url = self.server_url + path
         response = requests.get(url,
             params=url_params,
@@ -450,9 +449,11 @@ class TableauConnector(BaseConnector):
         path_params = (self.site_id, datasource_id)
         path = "/api/3.6/sites/%s/datasources/%s/refresh" % path_params
         url = self.server_url + path
+        request_body = '<tsRequest></tsRequest>'
         try:
             response = requests.post(url,
                 headers={'X-Tableau-Auth': self.token},
+                data=request_body,
                 timeout=self.request_timeout)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
@@ -697,8 +698,8 @@ class TableauConnector(BaseConnector):
         # subprocess.call([common.TABCMD, 'login'] + self._tabcmd_login_params())
         # subprocess.call([common.TABCMD, 'export', view_url[:view_url.index('?')], '--csv', '-f', file_path] + self._tabcmd_login_params())
         path_params = (self.site_id, view_id)
-        path = '/api/api-version/sites/%s/views/%s/data' % path_params
-        url = self.server_url
+        path = '/api/3.6/sites/%s/views/%s/data' % path_params
+        url = self.server_url + path
         num_records = 0
         try:
             response = requests.get(url,
@@ -731,14 +732,15 @@ class TableauConnector(BaseConnector):
         # subprocess.call([common.TABCMD, 'login'] + self._tabcmd_login_params())
         # subprocess.call([common.TABCMD, 'export', view_url, '--pdf', '-f', path] + self._tabcmd_login_params())
         url_path_params = (self.site_id, view_id)
-        url_path = '/api/api-version/sites/%s/views/%s/pdf' % url_path_params
-        url = self.server_url
+        url_path = '/api/3.6/sites/%s/views/%s/pdf' % url_path_params
+        url = self.server_url + url_path
+        logging.debug('generate_pdf_report for url: %s' % url)
         try:
             response = requests.get(url,
                 headers={'X-Tableau-Auth': self.token},
                 timeout=self.request_timeout)
             response.raise_for_status()
-            with open(path, 'w') as f:
+            with open(path, 'wb') as f:
                 f.write(response.content)
                 f.close()
         except requests.exceptions.HTTPError as e:
@@ -750,7 +752,7 @@ class TableauConnector(BaseConnector):
 
     def list_projects(self):
         self._check_authentication()
-        url = self.server_url + "/api/3.3/sites/%s/projects" % self.site_id
+        url = self.server_url + "/api/3.6/sites/%s/projects" % self.site_id
 
         try:
             response = requests.get(url,
@@ -777,7 +779,7 @@ class TableauConnector(BaseConnector):
 
     def list_groups(self):
         self._check_authentication()
-        url = self.server_url + "/api/3.3/sites/%s/groups" % self.site_id
+        url = self.server_url + "/api/3.6/sites/%s/groups" % self.site_id
 
         try:
             response = requests.get(url,
@@ -802,7 +804,7 @@ class TableauConnector(BaseConnector):
 
     def list_users(self):
         self._check_authentication()
-        url = self.server_url + "/api/3.3/sites/%s/users" % self.site_id
+        url = self.server_url + "/api/3.6/sites/%s/users" % self.site_id
 
         try:
             response = requests.get(url,

@@ -204,15 +204,55 @@ class BaseTask(Task):
                 else:
                     all_datasources_to_update = all_modified_datasources
 
-                tableau_ds_to_update = t.list_datasources_by_names(publisher,
-                    all_datasources_to_update)
+                pub_ds_to_update = set([
+                    t._publisher_datasource_name(publisher, ds) for
+                    ds in all_datasources_to_update
+                ])
+
+                tableau_ds_to_update = t.list_datasources_by_names(
+                    pub_ds_to_update, publisher)
 
                 ds_ids_to_update = [d['id'] for d in tableau_ds_to_update]
 
                 for datasource_id in ds_ids_to_update:
                     loginfo = (publisher.publisher_id, datasource_id)
                     tlogger.info('Refreshing datasource: %s -> %s' % loginfo)
-                    t.refresh_data_source(datasource_id)
+                    try:
+                        t.refresh_data_source(datasource_id)
+                    except:
+                        tlogger.info('Refresh failed for %s, -> %s' % loginfo)
+                        subject = 'Impact Vizor (%s): Refresh Failed' % (
+                            publisher_id
+                        )
+                        body = '<p>Refresh failed: %s: %s </p>' % (
+                            publisher.publisher_id,
+                            datasource_id
+                        )
+
+                        body += ('<p>'
+                            '<a href="https://help.tableau.com'
+                            '/v2019.4/api/rest_api/en-us/REST/'
+                            'rest_api_ref_datasources.htm'
+                            '\#update_data_source_now"</a>'
+                            'Tableau REST API Docs</p>'
+                        '<p>POST /api/api-version/sites/$site-id'
+                        '/datasources/$datasource-id/refresh</p>')
+
+                        body += ('The action that failed is equivalent to'
+                            ' selecting a data source using the '
+                            'Tableau Server UI, and then '
+                            'selecting Refresh Extracts from '
+                            'the menu (also known as a "manual refresh").')
+
+                        body += ('<p>An operator, developer, or support staff'
+                            ' member should check the current status of '
+                            'Tableau Server, diagnose the failure reason,'
+                            ' and attempt to re-run the refresh manually.</p>')
+                            
+                        body += '<p>Thank you,<br/>Impact Vizor Team</p>'
+
+                        common.send_email(subject, body, to=common.EMAIL_TO)
+                        continue
 
     def process_chains(self, publisher_id, product_id, pipeline_id, tlogger, initiating_user_email):
         for chain_id in common.CHAINS_BY_SOURCE_PIPELINE.get((product_id, pipeline_id), []):

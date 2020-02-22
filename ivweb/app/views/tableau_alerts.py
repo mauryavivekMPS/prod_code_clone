@@ -371,8 +371,16 @@ def send_alert_now(request):
     full_emails_string = request.POST['full_emails']
     full_emails = _parse_email_list(full_emails_string)
     custom_message = request.POST['custom_message']
-    process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails, custom_message_override=custom_message)
-    return HttpResponse('ok')
+    try:
+        process_alert(alert, attachment_only_emails_override=attachment_only_emails, full_emails_override=full_emails, custom_message_override=custom_message)
+        return HttpResponse('ok')
+    except Exception as e:
+        log.info('send_alert_now failed for %s, %s' %s (publisher_id, alert_id))
+        return return JsonResponse({
+            'error': 'send_alert_now failed',
+            'publisherId': publisher_id,
+            'alertId': alert_id
+        }, status=500)
 
 
 def get_trusted_token():
@@ -402,9 +410,6 @@ def get_trusted_report_url(request):
         workbook_id = ALERT_TEMPLATES[template_id]['workbooks'][embed_type]
         workbooks = t.list_workbooks_by_name(workbook_id, publisher_id)
         if len(workbooks) < 1 or not workbooks[0]['content_url']:
-            print(publisher_id) 
-            print(len(workbooks))
-            print(workbooks)
             return JsonResponse({
                 'error': 'workbook content url not found',
                 'url': ''
@@ -427,7 +432,7 @@ def get_trusted_report_url(request):
             'url': url,
         })
     except Exception as e:
-        print('Exception, get_trusted_report_url: %s, %s: %s' % (publisher_id, template_id, e))
+        log.info('Exception, get_trusted_report_url: %s, %s: %s' % (publisher_id, template_id, e))
         return JsonResponse({
             'error': 'exception encountered',
             'url': ''

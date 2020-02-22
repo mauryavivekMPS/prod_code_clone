@@ -19,6 +19,7 @@ ALERT_TEMPLATES = {
         'name': 'IV: Hot Article Tracker',
         'workbooks': {
             'full': 'hot_article_tracker.twb',
+            'full-name': 'Hot Article Tracker',
             'configure': 'alert_hot_article_tracker_configure.twb',
             'export': 'alert_hot_article_tracker_export.twb',
         },
@@ -35,6 +36,7 @@ ALERT_TEMPLATES = {
         'name': 'IV: Rejected Article Tracker',
         'workbooks': {
             'full': 'rejected_article_tracker.twb',
+            'full-name': 'Rejected Article Tracker',
             'configure': 'alert_rejected_article_tracker_configure.twb',
             'export': 'alert_rejected_article_tracker_export.twb',
         },
@@ -50,6 +52,7 @@ ALERT_TEMPLATES = {
         'name': 'IV: Advanced Correlator of Citations & Usage',
         'workbooks': {
             'full': 'advance_correlator_citation_usage.twb',
+            'full-name': 'Advance Correlator of Citations &amp; Usage',
             'configure': 'alert_advance_correlator_citation_usage_configure.twb',
             'export': 'alert_advance_correlator_citation_usage_export.twb',
         },
@@ -66,6 +69,7 @@ ALERT_TEMPLATES = {
         'name': 'UV: Institutional Usage',
         'workbooks': {
             'full': 'uv_institutional_usage.twb',
+            'full-name': 'UV: Institutional Usage',
             'export': 'alert_uv_institutional_usage_export.twb',
         },
         'thumbnail': 'thumbnail-institutional-usage.png',
@@ -188,7 +192,7 @@ def process_alert(alert, monthly_message=None, attachment_only_emails_override=N
         from_email = Email(common.EMAIL_FROM)
         subject = alert.name
 
-        attachment_workbook_id = template['workbooks'].get('full')
+        attachment_workbook_id = template['workbooks'].get('full-name')
         attachment_workbook = t.list_workbooks_by_name(attachment_workbook_id,
             alert.publisher_id)
         attachment_view_id = t.view_by_publisher_workbook(attachment_workbook[0])
