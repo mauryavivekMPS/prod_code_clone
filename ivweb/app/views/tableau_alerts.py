@@ -376,7 +376,7 @@ def send_alert_now(request):
         return HttpResponse('ok')
     except Exception as e:
         log.info('send_alert_now failed for %s, %s' %s (publisher_id, alert_id))
-        return return JsonResponse({
+        return JsonResponse({
             'error': 'send_alert_now failed',
             'publisherId': publisher_id,
             'alertId': alert_id
