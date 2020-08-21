@@ -327,6 +327,12 @@ class TableauConnector(BaseConnector):
         return filtered_datasources
 
     def list_workbooks(self, project_id=None):
+        '''List workbooks. project_id is optional.
+        If a project_id is provided, return only the workbooks for that project.
+        Otherwise, return all workbooks in the configured site.
+        The configured site_id and user_id are determined based on the login
+        credentials provided to configure the tableau connector.
+        '''
         self._check_authentication()
 
         url = self.server_url + "/api/3.6/sites/%s/users/%s/workbooks" % (self.site_id, self.user_id)
@@ -443,8 +449,10 @@ class TableauConnector(BaseConnector):
         return publisher_workbook_name[:-(len(publisher.publisher_id) + 1)] + common.TABLEAU_WORKBOOK_FILE_EXTENSION
 
     def refresh_data_source(self, datasource_id):
-        # https://help.tableau.com/v2019.4/api/rest_api/en-us/REST/rest_api_ref_datasources.htm#update_data_source_now
-        # POST /api/api-version/sites/site-id/datasources/datasource-id/refresh
+        '''https://help.tableau.com/v2019.4/api/rest_api/en-us/REST/rest_api_ref_datasources.htm#update_data_source_now
+        POST /api/api-version/sites/site-id/datasources/datasource-id/refresh
+        Refresh a datasource by its tableau id.
+        '''
         self._check_authentication()
         path_params = (self.site_id, datasource_id)
         path = "/api/3.6/sites/%s/datasources/%s/refresh" % path_params
@@ -463,6 +471,10 @@ class TableauConnector(BaseConnector):
             raise e
 
     def create_extract(self, tableau_datasource_id):
+        '''Create an extract for the provided datasource on Tableau Server.
+        Tableau Server will queue up a process to create the extract
+        on the server using the server's resources. 
+        '''
         self._check_authentication()
         path_params = (self.site_id, tableau_datasource_id)
         path = "/api/3.6/sites/%s/datasources/%s/createExtract" % path_params
