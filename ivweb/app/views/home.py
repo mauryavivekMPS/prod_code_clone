@@ -139,7 +139,7 @@ def recent_jobs(request):
         # sort the runs by pub
         for run in recent_runs:
             tasks = PipelineTaskStatus.objects(publisher_id=run.publisher_id, product_id=run.product_id, pipeline_id=run.pipeline_id, job_id=run.job_id)
-            sorted_tasks = sorted(tasks, key=lambda t: t.start_time)
+            sorted_tasks = sorted(tasks, key=lambda t: t.start_time if t.start_time else datetime.datetime.strptime('9999-01-01', "%Y-%m-%d"))
             runs_by_pub[run.publisher_id]['runs'].append({
                 'run': run,
                 'tasks': sorted_tasks,
