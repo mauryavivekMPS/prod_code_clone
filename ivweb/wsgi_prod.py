@@ -23,12 +23,12 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ivweb.settings.prod")
 
 os.environ["IVETL_ROOT"] = "/iv/impactvizor-pipeline"
-os.environ["IVETL_TABLEAU_SERVER"] = "vizors.org"
-os.environ["IVETL_TABLEAU_IP"] = "10.0.1.37"
+os.environ["IVETL_TABLEAU_SERVER"] = "reports-data.vizors.org"
+os.environ["IVETL_TABLEAU_IP"] = "10.0.1.44"
 os.environ["IVETL_TABLEAU_HTTPS"] = "1"
-os.environ["IVETL_TABLEAU_USERNAME"] = "nmehta"
-os.environ["IVETL_TABLEAU_PASSWORD"] = "Reena,1275"
-os.environ["IVETL_CASSANDRA_IP"] = "10.0.1.59,10.0.1.196,10.0.1.40"
+os.environ["IVETL_TABLEAU_USERNAME"] = "monitor"
+os.environ["IVETL_TABLEAU_PASSWORD"] = "M5NbtYmT"
+os.environ["IVETL_CASSANDRA_IP"] = "10.0.1.93,10.0.1.116,10.0.1.248"
 os.environ["IVETL_WEB_ADDRESS"] = "https://manage.vizors.org"
 os.environ["IVETL_RABBITMQ_BROKER_URL"] = "amqp://guest:guest@10.0.1.174:5672//;amqp://guest:guest@10.0.1.185:5672//"
 os.environ["IVETL_RATE_LIMITER_SERVER"] = "10.0.1.174:8082"
