@@ -24,6 +24,7 @@ logging.basicConfig(
 
 log = logging.getLogger(__name__)
 
+crossref_user_agent = os.environ.get('IVETL_CROSSREF_USER_AGENT', 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)')
 
 def rate_limited(max_per_second):
     lock = threading.Lock()
@@ -59,7 +60,7 @@ def rate_limited(max_per_second):
 @rate_limited(50)
 def do_crossref_request(url, timeout=120):
     headers = {
-        'User-Agent': 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)'
+        'User-Agent': crossref_user_agent
     }
     log.info('Requested crossref: %s' % url)
     return requests.get(url, headers=headers, timeout=timeout)

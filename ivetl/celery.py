@@ -3,6 +3,10 @@ from celery.signals import worker_process_init, worker_process_shutdown
 from cassandra.cqlengine import connection
 from ivetl.common import common
 
+from celery.concurrency import asynpool
+# allow increased timeouts for high-latency local development environments
+if common.IS_LOCAL:
+    asynpool.PROC_ALIVE_TIMEOUT = 45.0
 
 app = Celery('ivetl')
 
@@ -15,8 +19,8 @@ def open_cassandra_connection():
         connection.setup(
             common.CASSANDRA_IP_LIST,
             common.CASSANDRA_KEYSPACE_IV,
-            # protocol_version=3,
-            # request_timeout=20,  # double the default timeout
+            control_connection_timeout=30,
+            connect_timeout=120
         )
     else:
         connection.setup(

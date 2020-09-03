@@ -124,7 +124,9 @@ def update_report_item(item_type, item_id, initiating_user_id, publisher_id_list
                         print('Workbook not supported by pub, skipping')
                 elif item_type == 'datasource':
                     if item_id in publisher.all_datasources:
-                        t.add_datasource_to_project(publisher, item_id)
+                        ds = t.add_datasource_to_project(publisher, item_id)
+                        tid = ds['tableau_id']
+                        t.create_extract(tid)
                         print('Updating datasource')
                     else:
                         print('Datasource not supported by pub, skipping')
