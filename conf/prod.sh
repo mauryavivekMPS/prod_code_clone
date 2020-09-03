@@ -25,10 +25,8 @@ export IVETL_TABLEAU_HTTPS
 IVETL_TABLEAU_USERNAME=monitor
 export IVETL_TABLEAU_USERNAME
 
-# Update 2020-09-03 - Looking to get this out of version control
-# Deploying operator should manually export password for monitor account prior to running deploy script
-# IVETL_TABLEAU_PASSWORD=Reena,1275
-# export IVETL_TABLEAU_PASSWORD
+IVETL_TABLEAU_PASSWORD=M5NbtYmT
+export IVETL_TABLEAU_PASSWORD
 
 IVETL_WEB_ADDRESS=https://manage.vizors.org
 export IVETL_WEB_ADDRESS
