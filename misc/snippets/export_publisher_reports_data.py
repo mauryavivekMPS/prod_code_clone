@@ -65,7 +65,7 @@ if pubid and basedir == '/iv/working/misc/':
 filepath = basedir + exportfile
 
 pmodel = ['publisher_id', 'reports_username', 'reports_project',
-    'reports_user_id', 'reports_group_id', 'reports_project_id',
+    'reports_user_id', 'reports_password', 'reports_group_id', 'reports_project_id',
     'reports_setup_status']
 
 open_cassandra_connection()
