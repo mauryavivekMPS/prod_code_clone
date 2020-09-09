@@ -302,6 +302,10 @@ class TableauConnector(BaseConnector):
         else:
             project_name = None
 
+        # if ds_names is empty, return an empty array (VIZOR-333)
+        if not ds_names:
+            return []
+
         ds_names_str = ','.join(ds_names)
         ds_filter = 'filter=name:in:[%s]&pageSize=1000' % ds_names_str
         url = self.server_url + path
