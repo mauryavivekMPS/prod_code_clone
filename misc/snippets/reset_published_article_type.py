@@ -26,6 +26,8 @@ publisher_id = None
 journal = None
 exportfile = 'published_article_type_clean_export.tsv'
 updatefile = 'published_article_type_updates.tsv'
+difffile = 'published_article_type_diff.tsv'
+
 test = False
 
 helptext = '''usage: python reset_published_article_type.py -- [ -h ] -p publisher_id -j article_journal
@@ -71,9 +73,11 @@ for opt in opts:
 if basedir == '/iv/working/misc/':
     exportfile = '{}-{}'.format(publisher_id, exportfile)
     updatefile = '{}-{}'.format(publisher_id, updatefile)
+    difffile = '{}-{}'.format(publisher_id, difffile)
 
 filepath = basedir + exportfile
 update_filepath = basedir + updatefile
+diff_filepath = basedir + difffile
 
 model = ['publisher_id', 'article_doi', 'article_journal', 'article_type', 'subject_category', 'article_title']
 
@@ -219,16 +223,18 @@ def get_article_metadata(article):
     return metadata
 
 ctr = 0
-
-# 10000000
+modified = 0
 articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(10000000)
 with open(filepath, 'w',
     encoding='utf-8') as file, open(update_filepath, 'w',
-    encoding='utf-8') as ufile:
+    encoding='utf-8') as ufile, open(diff_filepath, 'w',
+    encoding='utf-8') as dfile:
     writer = csv.writer(file, delimiter='\t')
     uwriter = csv.writer(ufile, delimiter='\t')
+    dwriter = csv.writer(dfile, delimiter='\t')
     writer.writerow(model)
     uwriter.writerow(model)
+    dwriter.writerow(['state'] + model)
     for article in articles:
         if article.is_cohort:
             continue
@@ -245,13 +251,21 @@ with open(filepath, 'w',
         article_type = 'None'
         if 'article_type' in metadata and (metadata['article_type'] != ''):
             article_type = metadata['article_type']
-        article.article_type = article_type
+        write_diff = False
+        if article.article_type != article_type:
+            write_diff = True
+            modified += 1
+            article.article_type = article_type
+            article.save()
         print(article_type)
-        # article.save()
         urow = []
         for col in model:
             urow.append(article[col])
-        uwriter.writerow(row)
-        print("Updated %s articles" % (ctr,))
+        uwriter.writerow(urow)
+        if write_diff:
+            dwriter.writerow(['Current'] + row)
+            dwriter.writerow(['Reset'] + urow)
+    print("Updated %s articles" % (ctr,))
+    print("Modified %s articles" % (modified,))
 
 close_cassandra_connection()
