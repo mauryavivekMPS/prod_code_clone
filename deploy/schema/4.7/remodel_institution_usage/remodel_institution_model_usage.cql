@@ -1,4 +1,4 @@
-CREATE TABLE impactvizor.test_institution_usage_stat (
+CREATE TABLE impactvizor.institution_usage_stat (
     publisher_id text,
     counter_type text,
     journal text,
@@ -27,4 +27,4 @@ CREATE TABLE impactvizor.test_institution_usage_stat (
     AND min_index_interval = 128
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
-CREATE INDEX test_institution_usage_stat_usage_date_index ON impactvizor.test_institution_usage_stat (usage_date);
+CREATE INDEX institution_usage_stat_usage_date_index ON impactvizor.institution_usage_stat (usage_date);
