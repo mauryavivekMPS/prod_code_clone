@@ -151,7 +151,7 @@ class CrossrefConnector(BaseConnector):
         return article
 
     def search_article(self, publish_date, title, authors=None, use_generic_query_param=False):
-        date_search_term = publish_date.strftime('%Y-%m')
+        date_search_term = publish_date.strftime('%Y-%m-%d')
         title_search_term = title
 
         if use_generic_query_param:
