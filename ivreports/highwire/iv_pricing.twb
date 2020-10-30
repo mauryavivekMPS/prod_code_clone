@@ -1,0 +1,542 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 9000.15.0527.1215                                -->
+<workbook source-platform='win' version='9.0' xml:base='http://vizors.stackly.org' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location derived-from='http://vizors.stackly.org/workbooks/Vizors-PricingSalesDesk?rev=1.1' id='Vizors-PricingSalesDesk' path='/workbooks' revision='1.2' />
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <style-theme name='modern' />
+  <datasources>
+    <datasource hasconnection='false' inline='true' name='Parameters' version='9.0'>
+      <aliases enabled='yes' />
+      <column caption='Rejected Manuscripts per Year' datatype='integer' name='[Parameter 1]' param-domain-type='any' role='measure' type='quantitative' value='1000'>
+        <calculation class='tableau' formula='1000' />
+      </column>
+    </datasource>
+    <datasource caption='ps' inline='true' name='textscan.42614.923906875003' version='9.0'>
+      <connection class='textscan' directory='Data/Downloads' filename='ps.tsv' password='' server='' server-oauth='' workgroup-auth-mode='as-is'>
+        <relation name='ps.tsv' table='[ps.tsv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator='&#9;'>
+            <column datatype='string' name='ISSN' ordinal='0' />
+            <column datatype='real' name='2014 IF' ordinal='1' />
+            <column datatype='string' name='Title' ordinal='2' />
+            <column datatype='string' name='Publisher' ordinal='3' />
+            <column datatype='integer' name='2015 Article Count' ordinal='4' />
+          </columns>
+        </relation>
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>ISSN</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[ISSN]</local-name>
+            <parent-name>[ps.tsv]</parent-name>
+            <remote-alias>ISSN</remote-alias>
+            <ordinal>0</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteCollation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+              <attribute datatype='integer' name='DebugRemoteMetadata (size)'>4294967292</attribute>
+              <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>8</attribute>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>2014 IF</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[2014 IF]</local-name>
+            <parent-name>[ps.tsv]</parent-name>
+            <remote-alias>2014 IF</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;double&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>Title</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[Title]</local-name>
+            <parent-name>[ps.tsv]</parent-name>
+            <remote-alias>Title</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteCollation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+              <attribute datatype='integer' name='DebugRemoteMetadata (size)'>4294967292</attribute>
+              <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>8</attribute>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>Publisher</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[Publisher]</local-name>
+            <parent-name>[ps.tsv]</parent-name>
+            <remote-alias>Publisher</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteCollation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+              <attribute datatype='integer' name='DebugRemoteMetadata (size)'>4294967292</attribute>
+              <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>8</attribute>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>2015 Article Count</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[2015 Article Count]</local-name>
+            <parent-name>[ps.tsv]</parent-name>
+            <remote-alias>2015 Article Count</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;sint64&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[ps.tsv]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='character-set'>&quot;UTF-8&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='field-delimiter'>&quot;\\t&quot;</attribute>
+              <attribute datatype='string' name='header-row'>&quot;true&quot;</attribute>
+              <attribute datatype='string' name='locale'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='single-char'>&quot;&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column datatype='real' default-format='n#,##0.00;-#,##0.00' name='[2014 IF]' role='measure' type='quantitative' />
+      <column caption='Annual Article Processing Fee' datatype='real' default-format='C1033%' name='[Calculation_3170901221208483]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='(([2015 Article Count]) * .50) + (([2015 Article Count]) * [2014 IF] *.05)' />
+      </column>
+      <column caption='TOTAL' datatype='real' default-format='C1033%' name='[Calculation_4270901224248969]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[Calculation_7220901221942254] + SUM([Calculation_3170901221208483]) + SUM([Calculation_5950901225646240])' />
+      </column>
+      <column caption='Annual Rejected Manuscript Processing Fee' datatype='real' default-format='C1033%' name='[Calculation_5950901225646240]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[Parameters].[Parameter 1] * .50' />
+      </column>
+      <column caption='Base Annual Fee' datatype='integer' default-format='C1033%' name='[Calculation_7220901221942254]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='MAX(12500)' />
+      </column>
+      <column caption='Issn' datatype='string' name='[ISSN]' role='dimension' type='nominal' />
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.4' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+      <datasource-dependencies datasource='Parameters'>
+        <column caption='Rejected Manuscripts per Year' datatype='integer' name='[Parameter 1]' param-domain-type='any' role='measure' type='quantitative' value='1000'>
+          <calculation class='tableau' formula='1000' />
+        </column>
+      </datasource-dependencies>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name='iv_by_journal'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontcolor='#898989'>Annual Article Processing Fee by Title</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='ps' name='textscan.42614.923906875003' />
+          </datasources>
+          <datasource-dependencies datasource='textscan.42614.923906875003'>
+            <column datatype='real' default-format='n#,##0.00;-#,##0.00' name='[2014 IF]' role='measure' type='quantitative' />
+            <column datatype='integer' name='[2015 Article Count]' role='measure' type='quantitative' />
+            <column caption='Annual Article Processing Fee' datatype='real' default-format='C1033%' name='[Calculation_3170901221208483]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='(([2015 Article Count]) * .50) + (([2015 Article Count]) * [2014 IF] *.05)' />
+            </column>
+            <column datatype='string' name='[Publisher]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Title]' role='dimension' type='nominal' />
+            <column-instance column='[Publisher]' derivation='None' name='[none:Publisher:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Title]' derivation='None' name='[none:Title:nk]' pivot='key' type='nominal' />
+            <column-instance column='[2014 IF]' derivation='Sum' name='[sum:2014 IF:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[2015 Article Count]' derivation='Sum' name='[sum:2015 Article Count:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_3170901221208483]' derivation='Sum' name='[sum:Calculation_3170901221208483:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[textscan.42614.923906875003].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[sum:2014 IF:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[sum:2015 Article Count:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[sum:Calculation_3170901221208483:qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[textscan.42614.923906875003].[none:Publisher:nk]' filter-group='3'>
+            <groupfilter function='member' level='[none:Publisher:nk]' member='&quot;American Association for Cancer Research&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[textscan.42614.923906875003].[none:Title:nk]' filter-group='4'>
+            <groupfilter function='union' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:Title:nk]' member='%null%' />
+              <groupfilter from='&quot;AAPG Bulletin&quot;' function='range' level='[none:Title:nk]' to='&quot;Zoological Journal of the Linnean Society&quot;' />
+            </groupfilter>
+          </filter>
+          <sort class='computed' column='[textscan.42614.923906875003].[none:Title:nk]' direction='DESC' using='[textscan.42614.923906875003].[sum:Calculation_3170901221208483:qk]' />
+          <slices>
+            <column>[textscan.42614.923906875003].[:Measure Names]</column>
+            <column>[textscan.42614.923906875003].[none:Publisher:nk]</column>
+            <column>[textscan.42614.923906875003].[none:Title:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='height' field='[textscan.42614.923906875003].[none:Title:nk]' value='33' />
+            <format attr='border-style' scope='rows' value='dotted' />
+            <format attr='border-color' scope='rows' value='#d7d7d7' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='height' field='[textscan.42614.923906875003].[:Measure Names]' value='28' />
+            <format attr='band-color' scope='rows' value='#00000000' />
+            <format attr='border-style' scope='rows' value='dotted' />
+            <format attr='border-color' scope='rows' value='#f0f0f0' />
+          </style-rule>
+          <style-rule element='pane'>
+            <format attr='band-color' scope='rows' value='#00000000' />
+          </style-rule>
+          <style-rule element='table'>
+            <format attr='band-size' scope='rows' value='1' />
+          </style-rule>
+          <style-rule element='title'>
+            <format attr='background-color' value='#faf2f2' />
+            <format attr='border-style' value='dotted' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[textscan.42614.923906875003].[Multiple Values]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[textscan.42614.923906875003].[none:Title:nk]</rows>
+        <cols>[textscan.42614.923906875003].[:Measure Names]</cols>
+      </table>
+    </worksheet>
+    <worksheet name='iv_total'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontcolor='#898989'>Summary</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='ps' name='textscan.42614.923906875003' />
+            <datasource name='Parameters' />
+          </datasources>
+          <datasource-dependencies datasource='textscan.42614.923906875003'>
+            <column caption='Annual Article Processing Fee' datatype='real' default-format='C1033%' name='[Calculation_3170901221208483]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='(([2015 Article Count]) * .50) + (([2015 Article Count]) * [2014 IF] *.05)' />
+            </column>
+            <column caption='TOTAL' datatype='real' default-format='C1033%' name='[Calculation_4270901224248969]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='[Calculation_7220901221942254] + SUM([Calculation_3170901221208483]) + SUM([Calculation_5950901225646240])' />
+            </column>
+            <column caption='Annual Rejected Manuscript Processing Fee' datatype='real' default-format='C1033%' name='[Calculation_5950901225646240]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='[Parameters].[Parameter 1] * .50' />
+            </column>
+            <column caption='Base Annual Fee' datatype='integer' default-format='C1033%' name='[Calculation_7220901221942254]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='MAX(12500)' />
+            </column>
+            <column datatype='string' name='[Publisher]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Title]' role='dimension' type='nominal' />
+            <column-instance column='[Publisher]' derivation='None' name='[none:Publisher:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Title]' derivation='None' name='[none:Title:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_3170901221208483]' derivation='Sum' name='[sum:Calculation_3170901221208483:vtsum:qk]' pivot='key' type='quantitative' visual-totals='Sum' />
+            <column-instance column='[Calculation_5950901225646240]' derivation='Sum' name='[sum:Calculation_5950901225646240:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_4270901224248969]' derivation='User' name='[usr:Calculation_4270901224248969:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_7220901221942254]' derivation='User' name='[usr:Calculation_7220901221942254:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[textscan.42614.923906875003].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[sum:Calculation_3170901221208483:vtsum:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[sum:Calculation_5950901225646240:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[usr:Calculation_7220901221942254:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[textscan.42614.923906875003].[usr:Calculation_4270901224248969:qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <sort class='manual' column='[textscan.42614.923906875003].[:Measure Names]' direction='ASC'>
+            <dictionary>
+              <bucket>&quot;[textscan.42614.923906875003].[usr:Calculation_7220901221942254:qk]&quot;</bucket>
+              <bucket>&quot;[textscan.42614.923906875003].[sum:Calculation_3170901221208483:vtsum:qk]&quot;</bucket>
+            </dictionary>
+          </sort>
+          <filter class='categorical' column='[textscan.42614.923906875003].[none:Publisher:nk]' filter-group='3'>
+            <groupfilter function='member' level='[none:Publisher:nk]' member='&quot;American Association for Cancer Research&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[textscan.42614.923906875003].[none:Title:nk]' filter-group='4'>
+            <groupfilter function='union' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:Title:nk]' member='%null%' />
+              <groupfilter from='&quot;AAPG Bulletin&quot;' function='range' level='[none:Title:nk]' to='&quot;Zoological Journal of the Linnean Society&quot;' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[textscan.42614.923906875003].[none:Publisher:nk]</column>
+            <column>[textscan.42614.923906875003].[none:Title:nk]</column>
+            <column>[textscan.42614.923906875003].[:Measure Names]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='height' field='[textscan.42614.923906875003].[:Measure Names]' value='37' />
+            <format attr='font-size' field='[textscan.42614.923906875003].[Multiple Values]' value='9' />
+            <format attr='color' field='[textscan.42614.923906875003].[Multiple Values]' value='#6f95bf' />
+            <format attr='font-weight' field='[textscan.42614.923906875003].[Multiple Values]' value='bold' />
+            <format attr='border-style' value='none' />
+            <format attr='border-style' scope='cols' value='none' />
+            <format attr='border-style' scope='rows' value='dotted' />
+            <format attr='border-color' scope='rows' value='#f0f0f0' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='width' field='[textscan.42614.923906875003].[:Measure Names]' value='220' />
+            <format attr='band-color' scope='rows' value='#00000000' />
+            <format attr='border-style' value='none' />
+            <format attr='border-style' scope='rows' value='dotted' />
+            <format attr='border-color' scope='rows' value='#f0f0f0' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='font-size' field='[textscan.42614.923906875003].[:Measure Names]' value='9' />
+            <format attr='font-style' field='[textscan.42614.923906875003].[:Measure Names]' value='normal' />
+            <format attr='font-family' field='[textscan.42614.923906875003].[:Measure Names]' value='Arial' />
+            <format attr='font-weight' field='[textscan.42614.923906875003].[:Measure Names]' value='normal' />
+          </style-rule>
+          <style-rule element='pane'>
+            <format attr='band-color' scope='rows' value='#00000000' />
+            <format attr='band-color' scope='cols' value='#00000000' />
+            <format attr='border-style' value='none' />
+            <format attr='border-style' data-class='total' scope='cols' value='none' />
+          </style-rule>
+          <style-rule element='table'>
+            <format attr='band-size' scope='cols' value='1' />
+            <format attr='band-size' scope='rows' value='1' />
+          </style-rule>
+          <style-rule element='table-div'>
+            <format attr='line-pattern' scope='cols' value='none' />
+            <format attr='line-pattern' scope='rows' value='none' />
+          </style-rule>
+          <style-rule element='title'>
+            <format attr='background-color' value='#faf2f2' />
+            <format attr='border-style' value='dotted' />
+          </style-rule>
+          <style-rule element='quick-filter'>
+            <format attr='background-color' value='#f7f7f77e' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[textscan.42614.923906875003].[Multiple Values]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[textscan.42614.923906875003].[:Measure Names]</rows>
+        <cols />
+        <tooltip-style tooltip-mode='none' />
+      </table>
+    </worksheet>
+  </worksheets>
+  <dashboards>
+    <dashboard name='ImpactVizor - Pricing'>
+      <repository-location id='ImpactVizor-Pricing' path='/workbooks/Vizors-PricingSalesDesk' revision='' />
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='2' italic='true'>Impact Vizor - Pricing</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <style>
+        <style-rule element='dash-container'>
+          <format attr='border-style' id='dash-zone_9' value='dotted' />
+          <format attr='background-color' id='dash-zone_9' value='#f7f7f781' />
+        </style-rule>
+        <style-rule element='parameter-ctrl'>
+          <format attr='background-color' value='#f7f7f781' />
+        </style-rule>
+      </style>
+      <size maxheight='1024' maxwidth='1280' minheight='1024' minwidth='1000' />
+      <datasources>
+        <datasource caption='ps' name='textscan.42614.923906875003' />
+      </datasources>
+      <datasource-dependencies datasource='textscan.42614.923906875003'>
+        <column datatype='string' name='[Publisher]' role='dimension' type='nominal' />
+        <column datatype='string' name='[Title]' role='dimension' type='nominal' />
+        <column-instance column='[Publisher]' derivation='None' name='[none:Publisher:nk]' pivot='key' type='nominal' />
+        <column-instance column='[Title]' derivation='None' name='[none:Title:nk]' pivot='key' type='nominal' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='100000' id='11' param='horz' type='layout-flow' w='100000' x='0' y='0'>
+            <zone h='100000' id='8' param='horz' type='layout-flow' w='100000' x='0' y='0'>
+              <zone h='100000' id='3' param='vert' type='layout-flow' w='100000' x='0' y='0'>
+                <zone h='3810' id='1' type='title' w='100000' x='0' y='0' />
+                <zone h='95799' id='4' type='layout-basic' w='100000' x='0' y='3810'>
+                  <zone h='95799' id='5' param='vert' type='layout-flow' w='72258' x='27742' y='3810'>
+                    <zone h='17872' id='6' name='iv_total' show-title='true' w='72258' x='27742' y='3810'>
+                      <layout-cache fixed-size-h='175' type-h='fixed' type-w='fixed' />
+                    </zone>
+                    <zone fixed-size='758' h='74805' id='15' is-fixed='true' name='iv_by_journal' show-title='true' w='72258' x='27742' y='21682' />
+                  </zone>
+                  <zone h='95799' id='9' param='vert' type='layout-flow' w='27742' x='0' y='3810'>
+                    <zone h='4688' id='12' mode='checkdropdown' name='iv_total' param='[textscan.42614.923906875003].[none:Publisher:nk]' show-all='false' show-apply='true' show-exclude='false' show-filter-state='false' type='filter' w='26986' x='567' y='4005' />
+                    <zone fixed-size='351' h='35059' id='13' is-fixed='true' name='iv_total' param='[textscan.42614.923906875003].[none:Title:nk]' type='filter' values='relevant' w='26986' x='567' y='8693' />
+                    <zone h='4591' id='16' mode='type_in' param='[Parameters].[Parameter 1]' type='paramctrl' w='26986' x='567' y='43752' />
+                    <zone h='51071' id='14' type='empty' w='26986' x='567' y='48343' />
+                  </zone>
+                </zone>
+              </zone>
+            </zone>
+          </zone>
+        </zone>
+      </zones>
+    </dashboard>
+  </dashboards>
+  <windows>
+    <window class='schema' source-height='-1' />
+    <window auto-hidden='0' class='dashboard' maximized='1' name='ImpactVizor - Pricing'>
+      <zones>
+        <zone name='iv_total'>
+          <viewpoint>
+            <zoom type='fit-width' />
+          </viewpoint>
+        </zone>
+        <zone name='iv_by_journal'>
+          <viewpoint>
+            <zoom type='fit-width' />
+          </viewpoint>
+        </zone>
+        <zone mode='checkdropdown' name='iv_total' param='[textscan.42614.923906875003].[none:Publisher:nk]' show-all='false' show-apply='true' show-exclude='false' show-filter-state='false' type='filter' />
+        <zone name='iv_total' param='[textscan.42614.923906875003].[none:Title:nk]' type='filter' values='relevant' />
+        <zone mode='type_in' name='' param='[Parameters].[Parameter 1]' type='paramctrl' />
+      </zones>
+    </window>
+    <window class='hidden-worksheet' name='iv_by_journal'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card mode='dropdown' param='[textscan.42614.923906875003].[none:Publisher:nk]' type='filter' />
+            <card mode='checkdropdown' param='[textscan.42614.923906875003].[none:Title:nk]' type='filter' values='relevant' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <selection-collection />
+    </window>
+    <window class='hidden-worksheet' name='iv_total'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card mode='dropdown' param='[textscan.42614.923906875003].[none:Publisher:nk]' type='filter' />
+            <card mode='checkdropdown' param='[textscan.42614.923906875003].[none:Title:nk]' type='filter' values='relevant' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <selection-collection />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='ImpactVizor - Pricing' width='192'>&#10;      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&#10;      Xf4/q847EwINYpAAAAAASUVORK5CYII=&#10;    </thumbnail>
+  </thumbnails>
+</workbook>
