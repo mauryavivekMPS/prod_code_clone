@@ -58,7 +58,7 @@ limit = None
 stat_exportfile = 'institution_stat_export.tsv'
 composite_exportfile = 'institution_stat_composite_export.tsv'
 from_date = datetime.strptime('2020-04-01', '%Y-%m-%d')
-to_date = datetime.strptime('2020-05-31', '%Y-%m-%d')
+to_date = datetime.strptime('2020-04-30', '%Y-%m-%d')
 
 for opt in opts:
     if opt[0] == '-h':
@@ -111,90 +111,6 @@ open_cassandra_connection()
 cluster = Cluster(common.CASSANDRA_IP_LIST)
 session = cluster.connect()
 
-for date in utils.month_range(from_date, to_date):
-    orig_publisher_stats_sql = """
-        select subscriber_id, journal, usage_category, usage_date, journal_print_issn, journal_online_issn
-        from impactvizor.institution_usage_stat
-        where publisher_id = %s
-        and counter_type = %s
-        and usage_date = %s
-        limit 100000000
-    """
-    # ((publisher_id, counter_type, journal), usage_date)
-    publisher_stats_sql = """
-        select subscriber_id, journal, usage_category, usage_date, journal_print_issn, journal_online_issn
-        from impactvizor.test_institution_usage_stat
-        where publisher_id = %s
-        and counter_type = %s
-        and usage_date = %s
-        limit 100000000
-    """
-
-    publisher_stats_statement = SimpleStatement(publisher_stats_sql, fetch_size=1000)
-
-    print(publisher_id)
-    print(date)
-    for stat in session.execute(publisher_stats_statement, (publisher_id, 'jr3', date,)):
-        inst_stats.append(stat)
-        # get subscriptions for this pub and year
-        todo_test_code = '''
-        matching_subscriptions = SubscriptionPricing.objects.filter(
-            publisher_id=publisher_id,
-            membership_no=stat.subscriber_id,
-            year=stat.usage_date.year,
-        )
-
-        # find one with a matching ISSN
-        match = None
-        for subscription in matching_subscriptions:
-            try:
-                bundle = ProductBundle.objects.get(
-                    publisher_id=publisher_id,
-                    bundle_name=subscription.bundle_name,
-                )
-
-                issns = bundle.journal_issns
-                if stat.journal_print_issn in issns or stat.journal_online_issn in issns:
-                    match = subscription
-                    break
-
-            except ProductBundle.DoesNotExist:
-                pass
-
-        if match:
-            print('matched:')
-            InstitutionUsageStat.objects(
-                publisher_id=publisher_id,
-                counter_type='jr3',
-                journal=stat.journal,
-                subscriber_id=stat.subscriber_id,
-                usage_date=stat.usage_date,
-                usage_category=stat.usage_category,
-            ).update(
-                bundle_name=match.bundle_name,
-                trial=match.trial,
-                trial_expiration_date=match.trial_expiration_date,
-                amount=match.amount,
-            )
-
-
-
-            # Note: we may in the future need to insert duplicate rows here if we end up supporting multiple matching bundles
-
-            InstitutionUsageStatComposite.objects(
-                publisher_id=publisher_id,
-                counter_type='jr3',
-                journal=stat.journal,
-                subscriber_id=stat.subscriber_id,
-                usage_date=stat.usage_date,
-                usage_category=stat.usage_category,
-            ).update(
-                bundle_name=match.bundle_name,
-                trial=match.trial,
-                trial_expiration_date=match.trial_expiration_date,
-                amount=match.amount,
-            )'''
-
 with open(sfilepath, 'w',
     encoding='utf-8') as sfile, open(cfilepath, 'w',
     encoding='utf-8') as cfile:
@@ -202,19 +118,44 @@ with open(sfilepath, 'w',
     swriter.writerow(model)
     cwriter = csv.writer(cfile, delimiter='\t')
     cwriter.writerow(model)
-    for stat in inst_stats:
+    publisher_stats_sql = """
+        select *
+        from impactvizor.institution_usage_stat
+        where publisher_id = %s
+        limit 100000000
+    """
+
+    publisher_stats_statement = SimpleStatement(publisher_stats_sql, fetch_size=1000)
+
+    # , 'jr3', date,
+    for stat in session.execute(publisher_stats_statement, (publisher_id,)):
         row = []
         for col in model:
-            if col in stat:
-                row.append(stat[col])
-            else:
+            try:
+                row.append(getattr(stat, col))
+            except AttributeError:
+                print(AttributeError)
                 row.append('Not Queried')
-        swriter.writerow(row)
-    for composite in inst_stat_composites:
-        row = []
-        for col in model:
-            row.append(composite[col])
-        cwriter.writerow(row)
+        swriter.writerow(row)            # get subscriptions for this pub and year
+    # todo: rework to use correct partition key
+    composite_stats_sql = """
+        select *
+        from impactvizor.institution_usage_stat_composite
+        where publisher_id = %s
+        limit 100000000
+    """
+
+    #composite_stats_statement = SimpleStatement(composite_stats_sql, fetch_size=1000)
+
+    #for stat in session.execute(composite_stats_statement, (publisher_id,)):
+    #    row = []
+    #    for col in model:
+    #        try:
+    #            row.append(getattr(stat, col))
+    #        except AttributeError:
+    #            print(AttributeError)
+    #            row.append('Not Queried')
+    #    cwriter.writerow(row)
 
 close_cassandra_connection()
 
