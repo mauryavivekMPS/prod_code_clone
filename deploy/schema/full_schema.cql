@@ -1120,8 +1120,8 @@ CREATE TABLE impactvizor.institution_usage_stat (
     trial boolean,
     trial_expiration_date timestamp,
     usage int,
-    PRIMARY KEY ((publisher_id, counter_type), journal, subscriber_id, usage_date, usage_category)
-) WITH CLUSTERING ORDER BY (journal ASC, subscriber_id ASC, usage_date ASC, usage_category ASC)
+    PRIMARY KEY (publisher_id, counter_type, journal, subscriber_id, usage_date, usage_category)
+) WITH CLUSTERING ORDER BY (counter_type ASC, journal ASC, subscriber_id ASC, usage_date ASC, usage_category ASC)
     AND bloom_filter_fp_chance = 0.01
     AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
