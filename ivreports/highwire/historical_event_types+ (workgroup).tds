@@ -5,8 +5,8 @@
   <repository-location id='historical_event_typesworkgroup' path='/datasources' revision='1.0' />
   <connection class='federated'>
     <named-connections>
-      <named-connection caption='10.0.1.44' name='postgres.0u7lyhy1u61q141bkfmd71erkmqv'>
-        <connection authentication='username-password' class='postgres' dbname='workgroup' odbc-native-protocol='' one-time-sql='' port='8060' server='10.0.1.44' server-oauth='' username='tableau' workgroup-auth-mode='prompt' />
+      <named-connection caption='10.0.1.37' name='postgres.0u7lyhy1u61q141bkfmd71erkmqv'>
+        <connection authentication='username-password' class='postgres' dbname='workgroup' odbc-native-protocol='' one-time-sql='' port='8060' server='10.0.1.37' server-oauth='' username='tableau' workgroup-auth-mode='prompt' />
       </named-connection>
     </named-connections>
     <relation join='left' type='join'>
