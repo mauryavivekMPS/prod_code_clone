@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# chkconfig: - 95 05
+# description: Enable impactvizor watch-sftp service
+
+. /etc/init.d/functions
+. /iv/env/bin/activate
+
+# inherit the same environment as the sftp service
+. /iv/impactvizor-pipeline/conf/sftp_prod.sh
+
+user="ivftp" # share user name with ivftp
+dir="/iv/impactvizor-pipeline/ivsftp"
+pid_file="/var/run/watch-ivsftp.pid"
+log="/var/log/ivsftp"
+cmd=("python" "watch-sftp.py" "-notify" "-log-dir" "${log}")
+
+# use the same logging level as the sftp service
+if [ "${IVSFTP_LOG_LEVEL}" != "" ]; then
+	cmd+=("-log-level" "${IVSFTP_LOG_LEVEL}")
+fi
+
+get_pid() {
+    cat "$pid_file"
+}
+
+is_running() {
+    [ -f "$pid_file" ] && ps "$(get_pid)" >/dev/null 2>&1
+}
+
+case "$1" in
+    start)
+    if is_running; then
+        echo "Already started"
+    else
+        echo "Starting watch-ivsftp"
+        cd "$dir" || exit 1;
+        runuser -u "${user}" -- "${cmd[@]}" >"${log}/watch-sftp.out" 2>&1 & echo $! > "$pid_file";
+        disown "$(get_pid)"
+        sleep 1
+        if ! is_running; then
+            echo "Unable to start, check ${log}/watch-sftp.out and ${log}/watch-sftp.log for errors"
+            exit 1
+        fi
+    fi
+    ;;
+    stop)
+    if is_running; then
+        echo -n "Stopping watch-ivsftp.."
+        kill "$(get_pid)";
+        for i in {1..10}
+        do
+            if ! is_running; then
+                break
+            fi
+
+            echo -n "."
+            sleep 1
+        done
+        echo
+
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "Stopped"
+            if [ -f "$pid_file" ]; then
+                rm "$pid_file"
+            fi
+        fi
+    else
+        echo "Not running"
+    fi
+    ;;
+    restart)
+    $0 stop
+    if is_running; then
+        echo "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
+    ;;
+    status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

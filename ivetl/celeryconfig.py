@@ -50,7 +50,7 @@ CELERY_SEND_TASK_ERROR_EMAILS = True
 
 # Name and email addresses of recipients
 ADMINS = (
-    ('IVETL Admin', os.environ.get('IVETL_EMAIL_TO_ADDRESS', "nmehta@highwire.org")),
+    ('IVETL Admin', os.environ.get('IVETL_EMAIL_TO_ADDRESS', "vizor-developers@highwirepress.com")),
 )
 
 # Email address used as sender (From field).

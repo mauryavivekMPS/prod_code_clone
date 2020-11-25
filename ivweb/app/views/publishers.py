@@ -189,6 +189,10 @@ class PublisherForm(forms.Form):
     convert_to_publisher = forms.BooleanField(widget=forms.HiddenInput, required=False)
     message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter custom message for notification email (optional)'}), required=False)
 
+    # modify tableau or not
+    modify_tableau = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    modify_tableau_new = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+
     def __init__(self, creating_user, *args, instance=None, is_demo=False, convert_from_demo=False, **kwargs):
         self.is_demo = is_demo
         self.creating_user = creating_user
@@ -240,6 +244,7 @@ class PublisherForm(forms.Form):
                         'use_months_until_free': 'on' if code.use_months_until_free else '',
                         'months_until_free': code.months_until_free,
                         'use_benchpress': 'on' if code.use_benchpress else '',
+                        'use_pubmed_override': 'on' if code.use_pubmed_override else '',
                         'index': 'pa-%s' % index,  # just needs to be unique on the page
                         'skip_rule': skip_rule,
                     })
@@ -392,13 +397,16 @@ class PublisherForm(forms.Form):
 
             if self.instance:
                 new_password = self.cleaned_data['reports_password']
+                modify_tableau = (self.cleaned_data['modify_tableau'] == 'on' or
+                    self.cleaned_data['modify_tableau_new'] == 'on')
                 if new_password:
-                    t = TableauConnector(
-                        username=common.TABLEAU_USERNAME,
-                        password=common.TABLEAU_PASSWORD,
-                        server=common.TABLEAU_SERVER
-                    )
-                    t.set_user_password(publisher.reports_user_id, new_password)
+                    if modify_tableau:
+                        t = TableauConnector(
+                            username=common.TABLEAU_USERNAME,
+                            password=common.TABLEAU_PASSWORD,
+                            server=common.TABLEAU_SERVER
+                        )
+                        t.set_user_password(publisher.reports_user_id, new_password)
                     publisher.update(
                         reports_password=self.cleaned_data['reports_password'],
                     )
@@ -429,6 +437,7 @@ class PublisherForm(forms.Form):
                         use_months_until_free=issn_value['use_months_until_free'] == 'on',
                         months_until_free=int_or_none(issn_value['months_until_free']),
                         use_benchpress=issn_value['use_benchpress'] == 'on',
+                        use_pubmed_override=issn_value['use_pubmed_override'] == 'on',
                     )
 
                     if issn_value['skip_rule']:
@@ -515,8 +524,19 @@ def edit(request, publisher_id=None):
                     # kick off a celery task for API key retrieval
                     tasks.get_scopus_api_keys.s(publisher.publisher_id, num_keys=num_keys).delay()
 
-            # kick off a celery task for tableau setup
-            tasks.update_reports_for_publisher.s(publisher.publisher_id, request.user.user_id, include_initial_setup=is_new).delay()
+            # kick off a celery task for tableau setup if necessary
+            if form.cleaned_data['modify_tableau_new']:
+                modify_tableau = True
+                tableau_new = True
+            elif form.cleaned_data['modify_tableau']:
+                modify_tableau = True
+                tableau_new = False
+            else:
+                modify_tableau = False
+            if modify_tableau:
+                tasks.update_reports_for_publisher.s(publisher.publisher_id,
+                    request.user.user_id,
+                    include_initial_setup=tableau_new).delay()
 
             if is_new:
                 utils.add_audit_log(

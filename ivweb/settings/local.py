@@ -18,10 +18,12 @@ DATABASES = {
             'connection': {
                 'lazy_connect': True,
                 'retry_connect': True,
-                'consistency': 1
+                'consistency': 1,
+                'connect_timeout': 60,
+                'control_connection_timeout': 60
             },
             'session': {
-                'default_timeout': 15
+                'default_timeout': 60
             }
         }
     }

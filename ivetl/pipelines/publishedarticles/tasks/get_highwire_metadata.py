@@ -94,7 +94,7 @@ class GetHighWireMetadataTask(Task):
             with codecs.open(target_file_name, encoding='utf-16') as tsv:
                 for line in csv.reader(self.reader_without_unicode_breaks(tsv), delimiter='\t'):
                     if line and len(line) == 4 and line[0] != 'PUBLISHER_ID':
-                        doi = common.common.normalizedDoi(line[1])
+                        doi = common.normalizedDoi(line[1])
                         already_processed.add(doi)
 
         if already_processed:

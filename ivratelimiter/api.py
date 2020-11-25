@@ -9,6 +9,12 @@ from logging.handlers import TimedRotatingFileHandler
 
 app = Flask("rate_limiter")
 
+# https://github.com/pallets/flask/issues/2549
+# fixes:
+# File "/usr/local/lib/python3.5/site-packages/flask/json.py", line 251, in jsonify
+#    if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] and not request.is_xhr:
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
 logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S',
     format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
@@ -19,6 +25,10 @@ logging.basicConfig(
 )
 
 log = logging.getLogger(__name__)
+
+# user-agent value to identify contact point for impactvizor related traffic to
+# crossref
+crossref_user_agent = os.environ.get('IVETL_CROSSREF_USER_AGENT', 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)')
 
 # crossref_blocked_until imposes a hard block on requests until the unix time
 # in this value has passed
@@ -31,7 +41,6 @@ crossref_per_second_limit = 49
 # and crossref_blocked_until
 crossref_rate_limit_mu = threading.Lock()
 
-
 def crossref_blocked_wait():
     """ if crossref_blocked_until is set then sleep until that time has passed """
     global crossref_rate_limit_mu
@@ -40,12 +49,14 @@ def crossref_blocked_wait():
         if crossref_blocked_until > 0:
             now = time.time()
             if crossref_blocked_until > now:
-                time.sleep(1 + crossref_blocked_until - now)
+                seconds = (1 + crossref_blocked_until - now)
+                log.debug("crossref_blocked_wait sleeping for %d seconds" % seconds)
+                time.sleep(seconds)
             crossref_blocked_until = 0
 
 
 def crossref_max_per_second():
-    """ return a copy of the current crossref_per_second_limit rate """
+    """ return the current crossref_per_second_limit rate """
     global crossref_rate_limit_mu
     global crossref_per_second_limit
     with crossref_rate_limit_mu:
@@ -58,24 +69,28 @@ def set_crossref_advisory_limit(response):
     This function sets a limit of ((limit/interval)-1) for a given set of
     crossref X-Rate-Limit-Limit and X-Rate-Limit-Interval header values.
 
-    It defaults to 49 requests per second if the header values are not
-    sent by crossref.
+    It defaults to 49 requests per second if the header values are not sent by
+    crossref.
 
-    If an http status 429 code (Too Many Requests) is returned, look for
-    a Retry-After header and use that to set
+    If an http status 429 code (Too Many Requests) is returned, look for a
+    Retry-After header and use that to set retry_after, otherwise default to
+    five minutes in the future.
     """
 
-    if not response or not hasattr(response, 'headers'):
+    if not response:
         log.debug("set_crossref_advisory_limit response is not set")
         return
-    if not response.url:
+    if not hasattr(response, 'status_code'):
+        log.debug("set_crossref_advisory_limit response.status_code not set")
+        return
+    if not hasattr(response, 'url'):
         log.debug("set_crossref_advisory_limit response.url not set")
         return
-    if not response.headers:
+    if not hasattr(response, 'headers'):
         log.debug("set_crossref_advisory_limit response.headers not set")
         return
 
-    # check for a 429 status code
+    # check for a 429 Retry-After status code
     retry_after = 0
     if response.status_code == 429:
         try:
@@ -85,25 +100,36 @@ def set_crossref_advisory_limit(response):
         except KeyError:
             retry_after = time.time() + 300
             log.debug("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
+        except ValueError:
+            retry_after = time.time() + 300
+            log.debug("Status 429 response did not return an integer Retry-After, defaulting to 300 seconds: %s" % response.headers['Retry-After'])
 
-    # default of 50 requests per 1 second, which
-    # will become a limit of 49 requests/sec below
+    # set default of 50 requests per 1 second, which will become a limit of 49
+    # requests/sec below, unless overridden by headers Crossref says they will
+    # be sending
     x_limit = 50
     x_interval = 1
 
-    # crossref says they will always send these headers
+    # crossref says they will always send X-Rate-Limit-Limit and
+    # X-Rate-Limit_Interval headers
     try:
         x_limit = int(response.headers['X-Rate-Limit-Limit'])
         log.debug("X-Rate-Limit-Limit: %d" % x_limit)
     except KeyError:
         log.warning("X-Rate-Limit-Limit not set for request %s" % response.url)
+    except ValueError:
+        log.warning("X-Rate-Limit-Limit header was not numeric: %s" % response.headers['X-Rate-Limit-Limit'])
+
     try:
         x_interval = int(response.headers['X-Rate-Limit-Interval'].replace("s", ""))
         log.debug("X-Rate-Limit-Interval: %d" % x_interval)
     except KeyError:
         log.warning("X-Rate-Limit-Interval not returned for request %s" % response.url)
+    except ValueError:
+        log.warning("X-Rate-Limit-Interval header was not numeric: %s" % response.headers['X-Rate-Limit-Interval'])
 
-    # compute our per-second limit
+    # compute our per-second limit, either using the initial defaults or
+    # whatever values Crossref sent
     limit = int((x_limit / x_interval) - 1)
     log.debug("computed crossref limit: %d" % limit)
 
@@ -164,7 +190,7 @@ def rate_limited(if_blocked_fn, max_per_second_fn):
 @rate_limited(crossref_blocked_wait, crossref_max_per_second)
 def do_crossref_request(url, timeout=120):
     headers = {
-        'User-Agent': 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)'
+        'User-Agent': crossref_user_agent
     }
     log.info('Requested crossref: %s' % url)
     response = requests.get(url, headers=headers, timeout=timeout)
@@ -173,10 +199,14 @@ def do_crossref_request(url, timeout=120):
     return response
 
 
+@rate_limited(9)
+def do_pubmed_request(url, timeout=120):
+    return requests.get(url, timeout=timeout)
+
 SERVICES = {
     'crossref': do_crossref_request,
+    'pubmed': do_pubmed_request
 }
-
 
 @app.route('/limit', methods=['POST'])
 def limit():
