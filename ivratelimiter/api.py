@@ -41,6 +41,22 @@ crossref_per_second_limit = 49
 # and crossref_blocked_until
 crossref_rate_limit_mu = threading.Lock()
 
+
+def noop_fn():
+  """ noop_fn returns w/o executing any other logic """
+  return
+
+
+def static_max_per_second_fn(limit=9):
+  """ static_max_per_second returns a function that in turn returns the
+  specified limit when called (if a limit is not provided it will default
+  to 9 requests per second) """
+  def fn:
+    return limit
+
+  return fn
+
+
 def crossref_blocked_wait():
     """ if crossref_blocked_until is set then sleep until that time has passed """
     global crossref_rate_limit_mu
@@ -145,8 +161,10 @@ def set_crossref_advisory_limit(response):
             crossref_blocked_until = retry_after
 
 
-def rate_limited(if_blocked_fn, max_per_second_fn):
+def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_fn):
     """ rate_limited rate limits calls to a function to a maxmimum number per second
+
+    the if_blocked_fn may block the pending request until some criteria is met
 
     the max_per_second_fn should return an int indicating the maximum number of
     requests per second for calling the decorated function
@@ -199,7 +217,7 @@ def do_crossref_request(url, timeout=120):
     return response
 
 
-@rate_limited(9)
+@rate_limited()
 def do_pubmed_request(url, timeout=120):
     return requests.get(url, timeout=timeout)
 
