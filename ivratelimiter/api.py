@@ -93,17 +93,23 @@ def set_crossref_advisory_limit(response):
     five minutes in the future.
     """
 
+    # set default of 50 requests per 1 second, which will become a limit of 49
+    # requests/sec below, unless overridden by headers Crossref says they will
+    # be sending
+    x_limit = 50
+    x_interval = 1
+
     if not response:
-        log.debug("set_crossref_advisory_limit response is not set")
+        log.warning("set_crossref_advisory_limit response is not set")
         return
     if not hasattr(response, 'status_code'):
-        log.debug("set_crossref_advisory_limit response.status_code not set")
+        log.warning("set_crossref_advisory_limit response.status_code not set")
         return
     if not hasattr(response, 'url'):
-        log.debug("set_crossref_advisory_limit response.url not set")
+        log.warning("set_crossref_advisory_limit response.url not set")
         return
     if not hasattr(response, 'headers'):
-        log.debug("set_crossref_advisory_limit response.headers not set")
+        log.warning("set_crossref_advisory_limit response.headers not set")
         return
 
     # check for a 429 Retry-After status code
@@ -115,16 +121,10 @@ def set_crossref_advisory_limit(response):
                 time.asctime(time.gmtime(time.time())))
         except KeyError:
             retry_after = time.time() + 300
-            log.debug("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
+            log.warning("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
         except ValueError:
             retry_after = time.time() + 300
-            log.debug("Status 429 response did not return an integer Retry-After, defaulting to 300 seconds: %s" % response.headers['Retry-After'])
-
-    # set default of 50 requests per 1 second, which will become a limit of 49
-    # requests/sec below, unless overridden by headers Crossref says they will
-    # be sending
-    x_limit = 50
-    x_interval = 1
+            log.warning("Status 429 response did not return an integer Retry-After, defaulting to 300 seconds: %s" % response.headers['Retry-After'])
 
     # crossref says they will always send X-Rate-Limit-Limit and
     # X-Rate-Limit_Interval headers
@@ -176,9 +176,12 @@ def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_
 
         @wraps(func)
         def rate_limited_function(*args, **kwargs):
+            nonlocal if_blocked_fn 
+            nonlocal max_per_second_fn
+            nonlocal last_time_called
+
             if_blocked_fn()
 
-            nonlocal max_per_second_fn
             limit = max_per_second_fn()
             min_interval = 1.0 / float(limit)
             log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
@@ -187,7 +190,6 @@ def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_
             while not green_light:
 
                 with lock:
-                    nonlocal last_time_called
                     elapsed = time.perf_counter() - last_time_called
                     left_to_wait = min_interval - elapsed
                     if left_to_wait <= 0:
@@ -236,8 +238,8 @@ def limit():
     #     'timeout': 120,
     # }
 
-    url = ''
     service = ''
+    url = ''
 
     try:
         request_type = request.json['type']
