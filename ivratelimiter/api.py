@@ -1,8 +1,9 @@
-import os
-import time
-import threading
-import requests
+import json
 import logging
+import os
+import requests
+import threading
+import time
 from functools import wraps
 from flask import Flask, request, jsonify
 from logging.handlers import TimedRotatingFileHandler
@@ -43,15 +44,18 @@ crossref_rate_limit_mu = threading.Lock()
 
 
 def noop_fn():
-  """ noop_fn returns w/o executing any other logic """
+  """ noop_fn returns w/o executing any other logic, it is a stand-in for
+  rate_limiter's if_blocked_fn argument when no more specific business logic
+  has been defined """
   return
 
 
 def static_max_per_second_fn(limit=9):
   """ static_max_per_second returns a function that in turn returns the
-  specified limit when called (if a limit is not provided it will default
-  to 9 requests per second) """
-  def fn:
+  specified limit when called. If a limit is not provided it will default
+  to 9 requests per second. """
+
+  def fn():
     return limit
 
   return fn
@@ -161,7 +165,7 @@ def set_crossref_advisory_limit(response):
             crossref_blocked_until = retry_after
 
 
-def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_fn):
+def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_fn()):
     """ rate_limited rate limits calls to a function to a maxmimum number per second
 
     the if_blocked_fn may block the pending request until some criteria is met
@@ -264,7 +268,11 @@ def limit():
             wrapped_response = {
                 'limit_status': 'error',
             }
-
+    except json.decoder.JSONDecodeError:
+        log.warning('unable to decode request body as json', exc_info=True)
+        wrapped_response = {
+            'limit_status': 'error',
+        }
     except Exception:
         log.warning('Unexpected exception on: (%s, %s)' % (service, url), exc_info=True)
         wrapped_response = {
