@@ -194,9 +194,7 @@ def rate_limited(backend):
             nonlocal last_time_called
 
             # blocked_wait will sleep if we're still within the window of time
-            # that a backend requested we wait until before making more
-            # requests (the retry-after header value they sent, or a default of
-            # 300 seconds).
+            # that a backend requested we wait before we try again.
             blocked_wait(backend)
 
             # limit returns the number of requests per second allowed by the
@@ -207,17 +205,24 @@ def rate_limited(backend):
                 log.error("max_per_second(%s) returned a value <= 0: %f" % (backend, float(limit)))
                 limit = float(0.01666666666666666666)
 
+            # min_interval is the amount of time in-between requests to reach
+            # our goal of no more than limit requests per second
             min_interval = 1.0 / float(limit)
 
+            # green_light is initially False and will be set to True if the
+            # amount of time elapsed since the last request is at least
+            # min_interval
             green_light = False
             while not green_light:
 
+                now = time.time()
+
                 with lock:
-                    elapsed = time.time() - last_time_called
+                    elapsed = now - last_time_called
                     left_to_wait = min_interval - elapsed
                     if left_to_wait <= 0:
                         green_light = True
-                        last_time_called = time.time()
+                        last_time_called = now
 
                 if left_to_wait > 0:
                     time.sleep(left_to_wait)
