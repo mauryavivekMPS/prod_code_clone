@@ -22,7 +22,7 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S',
     format='[%(asctime)s.%(msecs)03d] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
     handlers=[TimedRotatingFileHandler(os.path.join(os.environ.get('IVRATELIMITER_LOG_DIR', '/var/log/ivratelimiter/'), 'api.log'), when='D', interval=1)],
-    level=logging.DEBUG
+    level=logging.WARNING
 )
 
 log = logging.getLogger(__name__)
