@@ -1,11 +1,13 @@
 import json
 import logging
 import os
+import re
 import requests
 import threading
 import time
-from functools import wraps
+from email.utils import parsedate_tz, mktime_tz
 from flask import Flask, request, jsonify
+from functools import wraps
 from logging.handlers import TimedRotatingFileHandler
 
 app = Flask("rate_limiter")
@@ -18,92 +20,122 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S',
-    format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
-    # NB: the logic around IVETL_WORKING_DIR here seems wrong, it will
-    # put a file api.log under that dir if the env is defined
-    handlers=[TimedRotatingFileHandler(os.path.join(os.environ.get('IVETL_WORKING_DIR', '/var/log/ivratelimiter/'), 'api.log'), when='D', interval=1)],
+    format='[%(asctime)s.%(msecs)03d] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+    handlers=[TimedRotatingFileHandler(os.path.join(os.environ.get('IVRATELIMITER_LOG_DIR', '/var/log/ivratelimiter/'), 'api.log'), when='D', interval=1)],
     level=logging.DEBUG
 )
 
 log = logging.getLogger(__name__)
 
+# blocked_until records a hard block on requests for a specified backend until
+# the unix time value has passed
+blocked_until = {
+    'crossref': 0,
+    'pubmed': 0,
+}
+
+# per_second_limit imposes a rate limit on requests to the specified backend
+per_second_limit = {
+    'crossref': 50.0,
+    'pubmed': 9.0,
+}
+
+# rate_limit_mu locks access to blocked_until and per_second_limit
+rate_limit_mu = threading.Lock()
+
+
 # user-agent value to identify contact point for impactvizor related traffic to
 # crossref
 crossref_user_agent = os.environ.get('IVETL_CROSSREF_USER_AGENT', 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)')
 
-# crossref_blocked_until imposes a hard block on requests until the unix time
-# in this value has passed
-crossref_blocked_until = 0
+def max_per_second(backend, limit=1):
+    """ max_per_second returns the max requests per second for a backend (e.g.,
+    crossref or pubmed) if it is defined in per_sec_limit, otherwise it
+    returns limit. """
 
-# crossref_per_second_limit imposes a rate limit on requests to crossref.org
-crossref_per_second_limit = 49
+    global rate_limit_mu
+    global per_second_limit
+    with rate_limit_mu:
+        if backend in per_second_limit.keys():
+            limit = per_second_limit[backend]
+        else:
+            log.warning("no per_second_limit key set for backend %s" % (backend))
 
-# crossref_rate_limit_mu locks access to crossref_per_second_limit
-# and crossref_blocked_until
-crossref_rate_limit_mu = threading.Lock()
-
-
-def noop_fn():
-  """ noop_fn returns w/o executing any other logic, it is a stand-in for
-  rate_limiter's if_blocked_fn argument when no more specific business logic
-  has been defined """
-  return
-
-
-def static_max_per_second_fn(limit=9):
-  """ static_max_per_second returns a function that in turn returns the
-  specified limit when called. If a limit is not provided it will default
-  to 9 requests per second. """
-
-  def fn():
     return limit
 
-  return fn
+def blocked_wait(backend):
+    """ if blocked_until[backend] in the future, sleep until past that unix time. """
+
+    now = time.time()
+    until = now
+
+    global rate_limit_mu
+    global blocked_until
+    with rate_limit_mu:
+        if backend in blocked_until.keys():
+            until = blocked_until[backend]
+        else:
+            log.warning("no blocked_until key set for backend %s" % (backend))
+
+    if until > now:
+      seconds = (1 + until - now)
+      log.debug("blocked_wait sleeping for %d seconds" % seconds)
+      time.sleep(seconds)
 
 
-def crossref_blocked_wait():
-    """ if crossref_blocked_until is set then sleep until that time has passed """
-    global crossref_rate_limit_mu
-    global crossref_blocked_until
-    with crossref_rate_limit_mu:
-        if crossref_blocked_until > 0:
-            now = time.time()
-            if crossref_blocked_until > now:
-                seconds = (1 + crossref_blocked_until - now)
-                log.debug("crossref_blocked_wait sleeping for %d seconds" % seconds)
-                time.sleep(seconds)
-            crossref_blocked_until = 0
+def check_retry_after(backend, response):
+    """ If an http status 429 Too Many Requests or 503 Service Unavailable is
+    returned in a response for the backend (e.g., crossref or pubmed), look for
+    a Retry-After header and use that to set retry_after, otherwise default to
+    five minutes in the future. """
 
+    if response is None:
+        log.warning("check_retry_after response is not set")
+        return
+    if not hasattr(response, 'status_code'):
+        log.warning("check_retry_after response.status_code not set")
+        return
 
-def crossref_max_per_second():
-    """ return the current crossref_per_second_limit rate """
-    global crossref_rate_limit_mu
-    global crossref_per_second_limit
-    with crossref_rate_limit_mu:
-        return crossref_per_second_limit
+    retry_after = 0
+    if "Retry-After" in response.headers:
+        retry_after_str = response.headers['Retry-After']
+
+        if re.match(r"^\d+$", retry_after_str):
+            retry_after = time.time() + int(retry_after_str)
+        else:
+            tparts = parsedate_tz(retry_after_str)
+            if tparts is not None:
+                retry_after = mktime_tz(tparts)
+            else:
+                log.warning("unable to parse Retry-After header, defaulting to 300 seconds in the future: %s" % (retry_after_str))
+                retry_after = time.time() + 300
+
+    if retry_after != 0:
+        global rate_limit_mu
+        global blocked_until
+        with rate_limit_mu:
+            blocked_until[backend] = retry_after
+            log.debug("set blocked_until[%s] to %s" % (backend, retry_after))
 
 
 def set_crossref_advisory_limit(response):
     """ sets the per-second rate limit for crossref requests
 
-    This function sets a limit of ((limit/interval)-1) for a given set of
-    crossref X-Rate-Limit-Limit and X-Rate-Limit-Interval header values.
+    This function sets a limit of (limit/interval) for a given set of crossref
+    X-Rate-Limit-Limit and X-Rate-Limit-Interval header values, where interval
+    is always a value in seconds.
 
-    It defaults to 49 requests per second if the header values are not sent by
+    It defaults to 50 requests per second if the header values are not sent by
     crossref.
-
-    If an http status 429 code (Too Many Requests) is returned, look for a
-    Retry-After header and use that to set retry_after, otherwise default to
-    five minutes in the future.
     """
 
-    # set default of 50 requests per 1 second, which will become a limit of 49
-    # requests/sec below, unless overridden by headers Crossref says they will
-    # be sending
+    # set default of 50 requests per 1 second unless overridden by headers
+    # Crossref says they will be sending
+    backend = 'crossref'
     x_limit = 50
     x_interval = 1
 
-    if not response:
+    if response is None:
         log.warning("set_crossref_advisory_limit response is not set")
         return
     if not hasattr(response, 'status_code'):
@@ -116,24 +148,10 @@ def set_crossref_advisory_limit(response):
         log.warning("set_crossref_advisory_limit response.headers not set")
         return
 
-    # check for a 429 Retry-After status code
-    retry_after = 0
-    if response.status_code == 429:
-        try:
-            retry_after = time.time() + int(response.headers['Retry-After'])
-            log.debug("Status 429 response blocking until %s (GMT)" %
-                time.asctime(time.gmtime(time.time())))
-        except KeyError:
-            retry_after = time.time() + 300
-            log.warning("Status 429 response did not return a Retry-After, defaulting to 300 seconds")
-        except ValueError:
-            retry_after = time.time() + 300
-            log.warning("Status 429 response did not return an integer Retry-After, defaulting to 300 seconds: %s" % response.headers['Retry-After'])
-
     # crossref says they will always send X-Rate-Limit-Limit and
     # X-Rate-Limit_Interval headers
     try:
-        x_limit = int(response.headers['X-Rate-Limit-Limit'])
+        x_limit = float(response.headers['X-Rate-Limit-Limit'])
         log.debug("X-Rate-Limit-Limit: %d" % x_limit)
     except KeyError:
         log.warning("X-Rate-Limit-Limit not set for request %s" % response.url)
@@ -148,60 +166,60 @@ def set_crossref_advisory_limit(response):
     except ValueError:
         log.warning("X-Rate-Limit-Interval header was not numeric: %s" % response.headers['X-Rate-Limit-Interval'])
 
-    # compute our per-second limit, either using the initial defaults or
-    # whatever values Crossref sent
-    limit = int((x_limit / x_interval) - 1)
+    # compute our per-second limit, either using the initial defaults whatever
+    # per-second limit Crossref specified
+    limit = float((x_limit / float(x_interval)))
     log.debug("computed crossref limit: %d" % limit)
 
-    # if necessary update the global crossref_per_second_limit
-    global crossref_rate_limit_mu
-    global crossref_per_second_limit
-    global crossref_blocked_until
-    with crossref_rate_limit_mu:
-        if crossref_per_second_limit != limit:
-            log.info("setting crossref_per_second_limit to %d" % limit)
-            crossref_per_second_limit = limit
-        if retry_after != 0:
-            crossref_blocked_until = retry_after
+    # if necessary update the global per_second_limit
+    global rate_limit_mu
+    global per_second_limit
+    with rate_limit_mu:
+        if not hasattr(per_second_limit, backend) or per_second_limit[backend] != limit:
+            log.info("setting per_second_limit[%s] to %d" % (backend, limit))
+            per_second_limit[backend] = limit
 
 
-def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_fn()):
-    """ rate_limited rate limits calls to a function to a maxmimum number per second
+def rate_limited(backend):
+    """ rate_limited rate limits calls to a function to a maximum number per second
 
-    the if_blocked_fn may block the pending request until some criteria is met
-
-    the max_per_second_fn should return an int indicating the maximum number of
-    requests per second for calling the decorated function
-    """
+    The backend passed in identifies the backend in flight, e.g., crossref or pubmed. """
     lock = threading.Lock()
 
     def decorate(func):
-        last_time_called = time.perf_counter()
+        last_time_called = time.time()
 
         @wraps(func)
         def rate_limited_function(*args, **kwargs):
-            nonlocal if_blocked_fn 
-            nonlocal max_per_second_fn
             nonlocal last_time_called
 
-            if_blocked_fn()
+            # blocked_wait will sleep if we're still within the window of time
+            # that a backend requested we wait until before making more
+            # requests (the retry-after header value they sent, or a default of
+            # 300 seconds).
+            blocked_wait(backend)
 
-            limit = max_per_second_fn()
+            # limit returns the number of requests per second allowed by the
+            # backend (e.g., crossref or pubmed)
+            limit = max_per_second(backend)
+            if limit <= 0:
+                # invalid limit returned, set the limit to 1 request per minute
+                log.error("max_per_second(%s) returned a value <= 0: %f" % (backend, float(limit)))
+                limit = float(0.01666666666666666666)
+
             min_interval = 1.0 / float(limit)
-            log.debug("rate_limited limit %d: min_interval: %f" % (limit, min_interval))
 
             green_light = False
             while not green_light:
 
                 with lock:
-                    elapsed = time.perf_counter() - last_time_called
+                    elapsed = time.time() - last_time_called
                     left_to_wait = min_interval - elapsed
                     if left_to_wait <= 0:
-                        last_time_called = time.perf_counter()
                         green_light = True
+                        last_time_called = time.time()
 
                 if left_to_wait > 0:
-                    log.debug("rate_limited left_to_wait: %f" % left_to_wait)
                     time.sleep(left_to_wait)
 
             return func(*args, **kwargs)
@@ -211,21 +229,25 @@ def rate_limited(if_blocked_fn=noop_fn, max_per_second_fn=static_max_per_second_
     return decorate
 
 
-@rate_limited(crossref_blocked_wait, crossref_max_per_second)
+@rate_limited('crossref')
 def do_crossref_request(url, timeout=120):
     headers = {
         'User-Agent': crossref_user_agent
     }
     log.info('Requested crossref: %s' % url)
     response = requests.get(url, headers=headers, timeout=timeout)
+    check_retry_after('crossref', response)
     set_crossref_advisory_limit(response)
 
     return response
 
-
-@rate_limited()
+@rate_limited('pubmed')
 def do_pubmed_request(url, timeout=120):
-    return requests.get(url, timeout=timeout)
+    log.info('Requested pubmed: %s' % url)
+    response = requests.get(url, timeout=timeout)
+    check_retry_after('pubmed', response)
+
+    return response
 
 SERVICES = {
     'crossref': do_crossref_request,
