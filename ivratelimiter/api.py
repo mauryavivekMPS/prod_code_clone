@@ -100,7 +100,7 @@ def check_retry_after(backend, response):
     if "Retry-After" in response.headers:
         retry_after_str = response.headers['Retry-After']
 
-        if re.match(r"^\d+$", retry_after_str):
+        if re.match(r"^\s*\d+\s*$", retry_after_str):
             retry_after = time.time() + int(retry_after_str)
         else:
             tparts = parsedate_tz(retry_after_str)
