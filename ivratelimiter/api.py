@@ -57,9 +57,10 @@ def max_per_second(backend, limit=1):
     global per_second_limit
     with rate_limit_mu:
         if backend in per_second_limit.keys():
-            limit = per_second_limit[backend]
+            limit = float(per_second_limit[backend])
         else:
-            log.warning("no per_second_limit key set for backend %s" % (backend))
+            log.warning("no per_second_limit set for backend %s, defaulting to 1" % (backend))
+            limit = 1.0
 
     return limit
 
@@ -75,11 +76,11 @@ def blocked_wait(backend):
         if backend in blocked_until.keys():
             until = blocked_until[backend]
         else:
-            log.warning("no blocked_until key set for backend %s" % (backend))
+            log.warning("no blocked_until[%s] key set" % (backend))
 
     if until > now:
       seconds = (1 + until - now)
-      log.debug("blocked_wait sleeping for %d seconds" % seconds)
+      log.debug("blocked_wait[%s] sleeping for %d seconds" % (backend, seconds))
       time.sleep(seconds)
 
 
@@ -154,7 +155,7 @@ def set_crossref_advisory_limit(response):
         x_limit = float(response.headers['X-Rate-Limit-Limit'])
         log.debug("X-Rate-Limit-Limit: %d" % x_limit)
     except KeyError:
-        log.warning("X-Rate-Limit-Limit not set for request %s" % response.url)
+        log.info("X-Rate-Limit-Limit not set for request %s" % response.url)
     except ValueError:
         log.warning("X-Rate-Limit-Limit header was not numeric: %s" % response.headers['X-Rate-Limit-Limit'])
 
@@ -162,7 +163,7 @@ def set_crossref_advisory_limit(response):
         x_interval = int(response.headers['X-Rate-Limit-Interval'].replace("s", ""))
         log.debug("X-Rate-Limit-Interval: %d" % x_interval)
     except KeyError:
-        log.warning("X-Rate-Limit-Interval not returned for request %s" % response.url)
+        log.info("X-Rate-Limit-Interval not returned for request %s" % response.url)
     except ValueError:
         log.warning("X-Rate-Limit-Interval header was not numeric: %s" % response.headers['X-Rate-Limit-Interval'])
 
@@ -191,38 +192,29 @@ def rate_limited(backend):
 
         @wraps(func)
         def rate_limited_function(*args, **kwargs):
-            nonlocal last_time_called
 
             # blocked_wait will sleep if we're still within the window of time
             # that a backend requested we wait before we try again.
             blocked_wait(backend)
 
-            # limit returns the number of requests per second allowed by the
-            # backend (e.g., crossref or pubmed)
-            limit = max_per_second(backend)
-            if limit <= 0:
-                # invalid limit returned, set the limit to 1 request per minute
-                log.error("max_per_second(%s) returned a value <= 0: %f" % (backend, float(limit)))
-                limit = float(0.01666666666666666666)
-
-            # min_interval is the amount of time in-between requests to reach
-            # our goal of no more than limit requests per second
-            min_interval = 1.0 / float(limit)
-
             # green_light is initially False and will be set to True if the
             # amount of time elapsed since the last request is at least
             # min_interval
             green_light = False
+
             while not green_light:
-
-                now = time.time()
-
                 with lock:
+                    nonlocal last_time_called
+
+                    min_interval = 1.0 / max_per_second(backend)
+
+                    now = time.time()
                     elapsed = now - last_time_called
                     left_to_wait = min_interval - elapsed
+
                     if left_to_wait <= 0:
-                        green_light = True
                         last_time_called = now
+                        green_light = True
 
                 if left_to_wait > 0:
                     time.sleep(left_to_wait)
@@ -285,6 +277,7 @@ def limit():
 
         if request_type == 'GET':
             service_response = SERVICES[service](url, timeout=timeout)
+
             wrapped_response = {
                 'limit_status': 'ok',
                 'status_code': service_response.status_code,
