@@ -1136,6 +1136,7 @@ BASE_INVALID_DIR = os.path.join(BASE_WORKING_DIR, "invalid")
 TMP_DIR = os.environ.get('IVETL_TMP_DIR', '/iv/tmp')
 
 HWDW_METADATA_BUCKET = os.environ.get('IVETL_HWDW_METADATA_BUCKET', 'hwdw-metadata')
+BENCHPRESS_BUCKET = os.environ.get('IVETL_BENCHPRESS_BUCKET', 'bp-vizor')
 AWS_ACCESS_KEY_ID = ENV_PROPERTIES['aws']['access_key_id']
 AWS_SECRET_ACCESS_KEY = ENV_PROPERTIES['aws']['secret_access_key']
 

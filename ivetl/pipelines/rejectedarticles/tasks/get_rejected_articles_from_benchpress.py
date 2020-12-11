@@ -2,16 +2,18 @@ import re
 import os
 import shutil
 import datetime
-import spur
+import spur # todo: determine if this library is no longer needed
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublisherJournal
 from ivetl.common import common
+from ivetl import utils
 
 @app.task
 class GetRejectedArticlesFromBenchPressTask(Task):
     HOSTNAME = 'hw-bp-cron-dev-1.highwire.org'
     SCRIPT = '/mstr/maint/vizor/vizor_request.pl'
+    BUCKET = common.BENCHPRESS_BUCKET
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
 
@@ -51,6 +53,8 @@ class GetRejectedArticlesFromBenchPressTask(Task):
             raise Exception
 
         tlogger.info('Using date range: %s to %s' % (from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
+        from_strf = from_date.strftime('%m_%d_%Y')
+        to_strf = to_date.strftime('%m_%d_%Y')
 
         journals_with_benchpress = [p.journal_code for p in PublisherJournal.objects.filter(
             publisher_id=publisher_id,
@@ -65,44 +69,24 @@ class GetRejectedArticlesFromBenchPressTask(Task):
         count = 0
 
         if journals_with_benchpress:
-
-            shell = spur.SshShell(
-                hostname=self.HOSTNAME,
-                username=common.NETSITE_USERNAME,
-                password=common.NETSITE_PASSWORD,
-                missing_host_key=spur.ssh.MissingHostKey.accept
-            )
-
             for journal_code in journals_with_benchpress:
                 count = self.increment_record_count(publisher_id, product_id, pipeline_id, job_id, total_count, count)
 
                 tlogger.info('Looking for file for journal: %s' % journal_code)
 
-                result = shell.run([self.SCRIPT,
-                                        '-b', from_date.strftime('%m/%d/%Y'),
-                                        '-e', to_date.strftime('%m/%d/%Y'),
-                                        '-j', journal_code,
-                                        '-p'])
-                result_text = result.output.decode('utf-8')
+                j_file_name = '%s_%s_%s.txt' % (journal_code, from_strf, to_strf)
+                tlogger.info('Using filename: %s' % j_file_name)
 
-                output_file_match = re.search(r'Data file: (/.*\.txt)', result_text)
-                if output_file_match and output_file_match.groups():
+                dl_file_path = utils.download_file_from_s3(self.BUCKET, j_file_name)
+                tlogger.info('Retrieved file: %s' % dl_file_path)
+                local_file_path = os.path.join(work_folder, j_file_name)
 
-                    output_file_path = output_file_match.groups()[0]
-                    output_file_name = os.path.basename(output_file_path)
-                    local_file_path = os.path.join(work_folder, output_file_name)
+                with open(local_file_path,
+                'wb') as local_file, open(dl_file_path,
+                'r') as dl_file:
+                    shutil.copyfileobj(dl_file, local_file)
 
-                    with shell.open(output_file_path, "rb") as remote_file:
-                        with open(local_file_path, "wb") as local_file:
-                            shutil.copyfileobj(remote_file, local_file)
-
-                    files.append(local_file_path)
-
-                    tlogger.info('Retrieved file: %s' % output_file_name)
-
-                else:
-                    tlogger.error('Unexpected output from benchpress script: %s' % result_text)
-                    raise Exception
+                files.append(local_file_path)
 
         task_args['count'] = count
         task_args['input_files'] = files
