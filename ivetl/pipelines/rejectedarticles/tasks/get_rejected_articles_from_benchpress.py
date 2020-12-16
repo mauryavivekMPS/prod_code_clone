@@ -2,7 +2,6 @@ import re
 import os
 import shutil
 import datetime
-import spur # todo: determine if this library is no longer needed
 from ivetl.celery import app
 from ivetl.pipelines.task import Task
 from ivetl.models import PublisherJournal
@@ -77,17 +76,22 @@ class GetRejectedArticlesFromBenchPressTask(Task):
                 j_file_name = '%s_%s_%s.txt' % (journal_code, from_strf, to_strf)
                 tlogger.info('Using filename: %s' % j_file_name)
 
-                dl_file_path = utils.download_file_from_s3(self.BUCKET, j_file_name)
-                tlogger.info('Retrieved file: %s' % dl_file_path)
-                local_file_path = os.path.join(work_folder, j_file_name)
+                try:
+                    dl_file_path = utils.download_file_from_s3(self.BUCKET, j_file_name)
+                    tlogger.info('Retrieved file: %s' % dl_file_path)
+                    local_file_path = os.path.join(work_folder, j_file_name)
+                except Exception as e:
+                    tlogger.info('Failed to retrieve file: %s' % j_file_name)
+                    tlogger.info(e)
+                    continue
 
                 with open(local_file_path,
-                'wb') as local_file, open(dl_file_path,
+                'w') as local_file, open(dl_file_path,
                 'r') as dl_file:
                     shutil.copyfileobj(dl_file, local_file)
 
                 files.append(local_file_path)
-
+        tlogger.info('Downloaded s3 Files: %s' % ', '.join(files))
         task_args['count'] = count
         task_args['input_files'] = files
         return task_args
