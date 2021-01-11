@@ -8,10 +8,12 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"time"
 
 	"github.com/highwire/httpmon"
 )
@@ -102,6 +104,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	rsp, err = parseResponse(h.fpath)
 	if err == nil && rsp != nil {
+		time.Sleep(time.Duration(rand.Int63n(2e6)))
+
 		for k, v := range rsp.Header {
 			for i := 0; i < len(v); i++ {
 				w.Header().Add(k, v[i])
