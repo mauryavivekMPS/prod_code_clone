@@ -40,7 +40,13 @@ per_second_limit = {
     'pubmed': 9.0,
 }
 
-# rate_limit_mu locks access to blocked_until and per_second_limit
+# inflight_count tracks the number of in-flight requests for a given backend
+inflight_count = {
+    'crossref': 0,
+    'pubmed': 0,
+}
+
+# rate_limit_mu locks access to blocked_until, per_second_limit, and inflight_count
 rate_limit_mu = threading.Lock()
 
 
@@ -185,9 +191,15 @@ def rate_limited(backend):
     """ rate_limited rate limits calls to a function to a maximum number per second
 
     The backend passed in identifies the backend in flight, e.g., crossref or pubmed. """
+
+    # lock is shared between threads for this backend
     lock = threading.Lock()
 
+    # decorate implements the rate limiting logic for restricting the request
+    # rate to func, which we expect to return an http response
     def decorate(func):
+        # last_time_called will track the last time we allowed a new http
+        # request to be issued for this backend
         last_time_called = time.time()
 
         @wraps(func)
@@ -198,28 +210,72 @@ def rate_limited(backend):
             blocked_wait(backend)
 
             # green_light is initially False and will be set to True if the
-            # amount of time elapsed since the last request is at least
-            # min_interval
+            # number of inflight requests does not exceed a limit, and if the
+            # amount of time elapsed since the last request is large enough to
+            # not exceed the maximum requests per second allowed for the
+            # backend
             green_light = False
 
             while not green_light:
                 with lock:
+                    # last_time_called, scoped above, tracks the last time we
+                    # allowed this wrapper method to proceed with issuing a new
+                    # request
                     nonlocal last_time_called
 
-                    min_interval = 1.0 / max_per_second(backend)
+                    # max_per_sec is the maximum number of requests we are
+                    # allowed to issue per second, it is possible for this to
+                    # be a fractional number between 0.0 and 0.9 if the limit
+                    # is lower than one request per second.
+                    max_per_sec = max_per_second(backend)
 
+                    # min_interval is the time we need to wait in-between new
+                    # requests to not exceed max_per_sec
+                    min_interval = 1.0 / max_per_sec;
+
+                    # compute the elapsed time since our last new request
                     now = time.time()
                     elapsed = now - last_time_called
+
+                    # time left to wait before we may issue a new request, this
+                    # may be negative if we're already waited long enough
                     left_to_wait = min_interval - elapsed
 
-                    if left_to_wait <= 0:
+                    # record the number of inflight requests open right now
+                    with rate_limit_mu:
+                        inflight = inflight_count[backend]
+
+                    # if the inflight request count is lower than the
+                    # max_per_sec limit and we've waited long enough since our
+                    # last new request, give the green light to proceed.
+                    if inflight < max_per_sec and left_to_wait <= 0:
                         last_time_called = now
                         green_light = True
 
+                # if left_to_wait is positive, we need to sleep for that value
+                # before we check again
                 if left_to_wait > 0:
                     time.sleep(left_to_wait)
 
-            return func(*args, **kwargs)
+            # we've been given the green light to proceed, so increment our
+            # inflight counter just before we execute our request to the
+            # backend
+            with rate_limit_mu:
+                inflight_count[backend] += 1
+                log.debug("+ inflight_count[%s]: %d" % (backend, inflight_count[backend]))
+
+            try:
+                # issue a request to the backend and record the response
+                response = func(*args, **kwargs)
+            finally:
+                # once a response has been returned, or has failed, decrement
+                # our inflight counter
+                with rate_limit_mu:
+                    inflight_count[backend] -= 1
+                    log.debug("+ inflight_count[%s]: %d" % (backend, inflight_count[backend]))
+
+            # return the response from the backend
+            return response
 
         return rate_limited_function
 
@@ -228,11 +284,14 @@ def rate_limited(backend):
 
 @rate_limited('crossref')
 def do_crossref_request(url, timeout=120):
+    backend = 'crossref'
+    log.info('Requested %s: %s' % (backend, url))
+
     headers = {
         'User-Agent': crossref_user_agent
     }
-    log.info('Requested crossref: %s' % url)
     response = requests.get(url, headers=headers, timeout=timeout)
+
     check_retry_after('crossref', response)
     set_crossref_advisory_limit(response)
 
@@ -240,8 +299,11 @@ def do_crossref_request(url, timeout=120):
 
 @rate_limited('pubmed')
 def do_pubmed_request(url, timeout=120):
-    log.info('Requested pubmed: %s' % url)
+    backend = 'pubmed'
+    log.info('Requested %s: %s' % (backend, url))
+
     response = requests.get(url, timeout=timeout)
+
     check_retry_after('pubmed', response)
 
     return response
