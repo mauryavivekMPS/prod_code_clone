@@ -185,6 +185,10 @@ function send_requests () {
 			exit "${EXIT_BAD_JOBS}";
 	fi
 
+	# wait one full second before starting the test
+	sleep 1;
+
+	# make requests in parallel
 	while IFS= read -r; do
 		printf "curl -s -o /dev/null -X POST -H 'Content-Type: application/json' --data-binary '%s' http://%s/limit\0" "${body}" "${frontend_addr}";
 	done < <(seq "${num}") | parallel -0 -P "${jobs}" --halt "now,fail=1" || exit "${EXIT_SEND_REQUESTS_FAILED}";
@@ -260,16 +264,8 @@ function test_ivratelimiter_pubmed () {
 	# if ${rate} is greater than ${limit} then we have failed
 	if [ "${rate}" -gt "${limit}" ]; then
 		echo "${id}: test run failed, ${rate}/sec exceeded limit of ${limit}/${interval}";
+		cp -v "${log}" ./
 		exit "${EXIT_PUBMED_LIMIT_EXCEEDED}";
-	fi
-
-	# if ${rate} is not within 10% of ${limit} then something is probably
-	# wrong
-	local percent;
-	percent=$(echo "100 * (1 - (49 / 50))" | bc -l | cut -d. -f1)
-	if [ "${percent}" -ge 10 ]; then
-		echo "${id}: test run only reached ${percent} of ${limit}/${interval} limit: ${rate}";
-		exit "${EXIT_PUBMED_LIMIT_UNDER_TARGET}";
 	fi
 
 	# shut down the server and remove the logs
@@ -365,16 +361,8 @@ function test_ivratelimiter_crossref () {
 	# if ${rate} is greater than ${limit}/${interval} then we have failed.
 	if [ "${rate}" -gt "${expected_rate}" ]; then
 		echo "${id}: test run failed, ${rate}/${interval}s exceeded limit of ${limit}/${interval}s";
+		cp -v "${log}" ./
 		exit "${EXIT_CROSSREF_LIMIT_EXCEEDED}";
-	fi
-
-	# if ${rate} is not within 10% of ${expected_rate} then something is
-	# probably wrong with our test scaffold
-	local percent;
-	percent=$(echo "100 * (1 - (${rate} / ${expected_rate}))" | bc -l | cut -d. -f1)
-	if [ "${percent}" -ge 10 ]; then
-		echo "${id}: test run only reached ${percent} of ${limit}/${interval} limit: ${rate}";
-		exit "${EXIT_CROSSREF_LIMIT_UNDER_TARGET}";
 	fi
 
 	# shut down the ivratelimiter_httpd and remove the log
@@ -565,6 +553,10 @@ fi
 
 if test_ivratelimiter_crossref 250 20 25 1; then
 	echo "${id}: crossref 25/1s rate limit test succeeded";
+fi
+
+if test_ivratelimiter_crossref 250 20 15 1; then
+	echo "${id}: crossref 15/1s rate limit test succeeded";
 fi
 
 if test_ivratelimiter_crossref 250 20 50 2; then
