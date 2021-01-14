@@ -6,12 +6,58 @@ id=$(basename "${0}");
 # dirname is the directory for this program
 dirname=$(dirname "${0}");
 
-# frontend_addr is the host:port that the ivratelimiter service listens on
-frontend_addr="localhost:8082";
+# exit codes
+EXIT_BAD_ID=1
+EXIT_BAD_NUM=2
+EXIT_BAD_JOBS=3
+EXIT_SEND_REQUESTS_FAILED=4
+EXIT_BAD_NREQ=5
+EXIT_BAD_NJOBS=6
+EXIT_BAD_LIMIT=7
+EXIT_MKTEMP_FAILED=8
+EXIT_SERVER_FAILED=9
+EXIT_PUBMED_LIMIT_EXCEEDED=10
+EXIT_BAD_NREQ=11
+EXIT_BAD_NJOBS=12
+EXIT_BAD_LIMIT=13
+EXIT_BAD_INTERVAL=14
+EXIT_MKTEMP_FAILED=15
+EXIT_SERVER_FAILED=16
+EXIT_CROSSREF_LIMIT_EXCEEDED=17
+EXIT_RETRY_AFTER_ERR=18
+EXIT_UNKNOWN_ID=19
+EXIT_MISSING_ADDR=20
 
-# backend_addr is the host:port for the backend ivratelimiter_httpd daemon to
-# listen on, it is the address that we expect ivratelimiter to send queries to
-backend_addr="192.168.10.103:8080";
+# pick up command line arguments
+# -f host:port
+#    frontend host:port for ivratelimiter server
+# -b host:port
+#    backend host:port for ivratelimiter backend target
+while [ $# -gt 0 ]; do
+	case "${1}" in
+	-f)
+		frontend_addr="${2}"
+		shift;
+		;;
+	-b)
+		backend_addr="${2}";
+		shift;
+		;;
+	esac
+	shift;
+done
+
+if ! echo "${frontend_addr} ${backend_addr}" | grep -q -E '[^:]+:[1-9][0-9]* [^:]+:[1-9][0-9]*'; then
+	echo "usage: ivratelimiter_test.sh -f <host>:<port> -b <host>:<port>";
+	echo "parameters:"
+	echo "  -f <host>:<port>";
+	echo "    frontend host and port for the ivratelimiter instance";
+	echo "  -b <host>:<port>";
+	echo "    backend host and port of the ivratelimiter target";
+	echo "e.g.,";
+	echo "  ivratelimiter_test.sh -f localhost:8082 -b 192.168.10.103:8080";
+	exit "${EXIT_MISSING_ADDR}";
+fi
 
 # ivratelimiter_body holds json records that may be sent to ivratelimiter to
 # execute a request.  The service field in the json controls the routing of the
@@ -32,29 +78,6 @@ ivratelimiter_body[pubmed]=$(printf '{
   "url":"http://%s/",
   "timeout":120
 }' "${backend_addr}");
-
-# exit codes
-EXIT_BAD_ID=1
-EXIT_BAD_NUM=2
-EXIT_BAD_JOBS=3
-EXIT_SEND_REQUESTS_FAILED=4
-EXIT_BAD_NREQ=5
-EXIT_BAD_NJOBS=6
-EXIT_BAD_LIMIT=7
-EXIT_MKTEMP_FAILED=8
-EXIT_SERVER_FAILED=9
-EXIT_PUBMED_LIMIT_EXCEEDED=10
-EXIT_PUBMED_LIMIT_UNDER_TARGET=11
-EXIT_BAD_NREQ=12
-EXIT_BAD_NJOBS=13
-EXIT_BAD_LIMIT=14
-EXIT_BAD_INTERVAL=15
-EXIT_MKTEMP_FAILED=16
-EXIT_SERVER_FAILED=17
-EXIT_CROSSREF_LIMIT_EXCEEDED=18
-EXIT_CROSSREF_LIMIT_UNDER_TARGET=19
-EXIT_RETRY_AFTER_ERR=20
-EXIT_UNKNOWN_ID=21
 
 # shutdown <pid> [<logs>]
 #
