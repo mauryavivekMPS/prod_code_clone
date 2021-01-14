@@ -104,7 +104,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	rsp, err = parseResponse(h.fpath)
 	if err == nil && rsp != nil {
-		time.Sleep(time.Duration(rand.Int63n(2e6)))
+		time.Sleep(time.Duration(rand.Int63n(2e9)))
 
 		for k, v := range rsp.Header {
 			for i := 0; i < len(v); i++ {
