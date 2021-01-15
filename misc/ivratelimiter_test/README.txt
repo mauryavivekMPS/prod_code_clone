@@ -1,34 +1,37 @@
-ivratelimiter_test
+To run a test launch your impactvizor environment and run the
+ivratelimiter_test container inside the same network.  For example:
 
-This directory holds a basic test scaffold to check that the ivratelimiter
-server adheres to specified limits for requests per second to send to
-downstream servers.
+  docker run --rm --network iv_default fr-harbor.highwire.org/impactvizor/ivratelimiter_test:latest
 
-The ivratelimiter service accepts a JSON body that defines a service name and a
-URL to request.  For each request that arrives it computes whether or not it
-needs to sleep for some period of time before allowing the request to run.
+This directory holds the files used to build the ivratelimiter_test container.
+
+The ivratelimiter service that we are testing accepts a JSON body that defines
+a service name and a URL to request.  For each request that arrives it computes
+whether or not it needs to sleep for some period of time before allowing the
+request to run.
 
 Once the timer for a request has elapsed, the request is sent to the backend
-service (e.g., to a service such as crossref or pubmed).
-
-The ivratelimiter service allows for each service point to define its own
-limits.  Currently we have two services set up:
+service (e.g., to a service such as crossref or pubmed).  The ivratelimiter
+service allows for each service point to define its own limits.  Currently we
+have two services set up:
 
 - crossref: crossref sends headers to indicate the desired rate limit, and
   ivratelimiter processes those headers to dynamically adjust its rate limit
 
 - pubmed: pubmed is configured with a static 9 requests/sec limit.
 
-To run a test, the ivratelimiter_httpd.go code must be compiled using a Go
-toolchain (https://golang.org/doc/install).
+By default the container will run ivratelimiter_test.sh from inside the
+container, and it will assume it needs to connect to ratelimiter:8082, and that
+requests back to the test service should come to the container ip on port 8080.
+The defaults can be overridden using the -f <host>:<port> flag to override the
+frontend (the ratelimiter service address) and the -b <host>:<port> flag (the
+backend service hosting ivratelimiter_httpd).
 
-When ivratelimiter_test.sh is run it executes tests against a running instance
-of ivratelimiter, and specifies the address of ivratelimiter_httpd as the
-destination address. The test script handles the startup and shutdown of the
-ivratelimiter_httpd daemon, and sets the contents of the http response based on
-the type of test (crossref or pubmed).  Once ivratelimiter_httpd is running,
-the script uses GNU Parallel to send a large number of requests in parallel to
-the ivratelimiter server.
+The test script handles the startup and shutdown of the ivratelimiter_httpd
+daemon, and sets the contents of the http response based on the type of test
+(crossref or pubmed).  Once ivratelimiter_httpd is running, the script uses GNU
+Parallel to send a large number of requests in parallel to the ivratelimiter
+server.
 
 The ivratelimiter server is expected to gate the requests it then sends back to
 the ivratelmiter_httpd server.  The test script examines the requests per
@@ -43,5 +46,5 @@ status with a Retry-After header, indicating that the client should back off
 from making further requests for some specified period of time.  The test
 script checks that ivratelimiter obeys such directives.
 
-Probably this should be rewritten as a standalone python program, to eliminate
+Probably this couldd be rewritten as a standalone python program, to eliminate
 the dependency on Go and Unix tooling.

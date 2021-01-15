@@ -47,14 +47,25 @@ while [ $# -gt 0 ]; do
 	shift;
 done
 
+# if a frontend_addr was not specified, use ratelimiter:8082
+if [ "${frontend_addr}" = "" ]; then
+	frontend_addr="ratelimiter:8082";
+fi
+
+# if a backend_addr was not specified, use the host ip on port 8080
+if [ "${backend_addr}" = "" ]; then
+	backend_addr=$(hostname -i):8080;
+fi
+
 if ! echo "${frontend_addr} ${backend_addr}" | grep -q -E '[^:]+:[1-9][0-9]* [^:]+:[1-9][0-9]*'; then
-	echo "usage: ivratelimiter_test.sh -f <host>:<port> -b <host>:<port>";
+	echo "usage: ivratelimiter_test.sh -f <host>:<port> [-b <host>:<port> ]";
 	echo "parameters:"
 	echo "  -f <host>:<port>";
 	echo "    frontend host and port for the ivratelimiter instance";
 	echo "  -b <host>:<port>";
 	echo "    backend host and port of the ivratelimiter target";
 	echo "e.g.,";
+	echo "  ivratelimiter_test.sh -f localhost:8082";
 	echo "  ivratelimiter_test.sh -f localhost:8082 -b 192.168.10.103:8080";
 	exit "${EXIT_MISSING_ADDR}";
 fi
@@ -287,7 +298,7 @@ function test_ivratelimiter_pubmed () {
 	# if ${rate} is greater than ${limit} then we have failed
 	if [ "${rate}" -gt "${limit}" ]; then
 		echo "${id}: test run failed, ${rate}/sec exceeded limit of ${limit}/${interval}";
-		cp -v "${log}" ./
+		cat "${log}";
 		exit "${EXIT_PUBMED_LIMIT_EXCEEDED}";
 	fi
 
@@ -384,7 +395,7 @@ function test_ivratelimiter_crossref () {
 	# if ${rate} is greater than ${limit}/${interval} then we have failed.
 	if [ "${rate}" -gt "${expected_rate}" ]; then
 		echo "${id}: test run failed, ${rate}/${interval}s exceeded limit of ${limit}/${interval}s";
-		cp -v "${log}" ./
+		cat "${log}";
 		exit "${EXIT_CROSSREF_LIMIT_EXCEEDED}";
 	fi
 
