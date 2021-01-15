@@ -10,6 +10,41 @@ from flask import Flask, request, jsonify
 from functools import wraps
 from logging.handlers import TimedRotatingFileHandler
 
+class Counter:
+	""" Counter tracks the number of requests made per second for some
+	number of seconds into the past.  It uses Unix Epoch time to track
+	seconds.  """
+
+	def __init__(self, limit=1):
+		""" initialize a new Counter, optionally specifying the number
+		of seconds into the past to track.  If no limit is specified
+		the default is 1. """
+		self.t = [0]*limit
+		self.n = [0]*limit
+
+	def inc(self, n=1):
+		""" inc increments the counter for the current second in time
+		by n.  If n is not specified the default is 1. """
+		t = int(time.time())
+		if (t != self.t[-1]):
+			self.t = self.t[1:] + [t]
+			self.n = self.n[1:] + [n]
+		else:
+			self.n[-1] += n;
+
+	def cur(self):
+		""" cur returns the counter for the current second in time. """
+		t = int(time.time())
+		if (t == self.t[-1]):
+			return self.n[-1]
+		else:
+			return 0
+
+	def all(self):
+		""" all returns a dictionary mapping the most recent counter
+		seconds to their counter values. """
+		return {self.t[i]: self.n[i] for i in range(len(self.t))}
+
 app = Flask("rate_limiter")
 
 # https://github.com/pallets/flask/issues/2549
@@ -40,13 +75,14 @@ per_second_limit = {
     'pubmed': 9.0,
 }
 
-# inflight_count tracks the number of in-flight requests for a given backend
-inflight_count = {
-    'crossref': 0,
-    'pubmed': 0,
+# counters tracks the number of requests dispatched a given backend for a
+# limited span of seconds
+counters = {
+    'crossref': Counter(1),
+    'pubmed': Counter(1),
 }
 
-# rate_limit_mu locks access to blocked_until, per_second_limit, and inflight_count
+# rate_limit_mu locks access to blocked_until, per_second_limit, and counters
 rate_limit_mu = threading.Lock()
 
 
@@ -241,14 +277,14 @@ def rate_limited(backend):
                     # may be negative if we're already waited long enough
                     left_to_wait = min_interval - elapsed
 
-                    # record the number of inflight requests open right now
+                    # record the number of requests dispatched this second
                     with rate_limit_mu:
-                        inflight = inflight_count[backend]
+                        dispatched = counters[backend].cur()
 
-                    # if the inflight request count is lower than the
+                    # if the dispatched request count is lower than the
                     # max_per_sec limit and we've waited long enough since our
                     # last new request, give the green light to proceed.
-                    if inflight < max_per_sec and left_to_wait <= 0:
+                    if dispatched < max_per_sec and left_to_wait <= 0:
                         last_time_called = now
                         green_light = True
 
@@ -258,21 +294,13 @@ def rate_limited(backend):
                     time.sleep(left_to_wait)
 
             # we've been given the green light to proceed, so increment our
-            # inflight counter just before we execute our request to the
+            # dispatched counter just before we execute our request to the
             # backend
             with rate_limit_mu:
-                inflight_count[backend] += 1
-                log.debug("+ inflight_count[%s]: %d" % (backend, inflight_count[backend]))
+                counters[backend].inc(1)
 
-            try:
-                # issue a request to the backend and record the response
-                response = func(*args, **kwargs)
-            finally:
-                # once a response has been returned, or has failed, decrement
-                # our inflight counter
-                with rate_limit_mu:
-                    inflight_count[backend] -= 1
-                    log.debug("+ inflight_count[%s]: %d" % (backend, inflight_count[backend]))
+            # issue a request to the backend and record the response
+            response = func(*args, **kwargs)
 
             # return the response from the backend
             return response
