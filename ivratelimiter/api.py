@@ -75,8 +75,8 @@ per_second_limit = {
     'pubmed': 9.0,
 }
 
-# counters tracks the number of requests dispatched a given backend for a
-# limited span of seconds
+# counters tracks the number of requests dispatched to a given backend for a
+# limited span of seconds into the past
 counters = {
     'crossref': Counter(1),
     'pubmed': Counter(1),
@@ -277,16 +277,20 @@ def rate_limited(backend):
                     # may be negative if we're already waited long enough
                     left_to_wait = min_interval - elapsed
 
-                    # record the number of requests dispatched this second
+                    # record the number of requests dispatched so far this
+                    # second
                     with rate_limit_mu:
                         dispatched = counters[backend].cur()
 
-                    # if the dispatched request count is lower than the
-                    # max_per_sec limit and we've waited long enough since our
-                    # last new request, give the green light to proceed.
-                    if dispatched < max_per_sec and left_to_wait <= 0:
-                        last_time_called = now
-                        green_light = True
+                    # if we've waited long enough since our last new request,
+                    # and if the current dispatched request count is lower than
+                    # the max_per_sec limit, give the green light to proceed.
+                    if left_to_wait <= 0:
+                        if dispatched < max_per_sec:
+                            last_time_called = now
+                            green_light = True
+                        else:
+                            left_to_wait = 0.250
 
                 # if left_to_wait is positive, we need to sleep for that value
                 # before we check again
