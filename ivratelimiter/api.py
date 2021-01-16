@@ -11,39 +11,42 @@ from functools import wraps
 from logging.handlers import TimedRotatingFileHandler
 
 class Counter:
-	""" Counter tracks the number of requests made per second for some
-	number of seconds into the past.  It uses Unix Epoch time to track
-	seconds.  """
+    """ Counter tracks the number of requests made per second for some
+    number of seconds into the past.  It uses Unix Epoch time to track
+    seconds.  """
 
-	def __init__(self, limit=1):
-		""" initialize a new Counter, optionally specifying the number
-		of seconds into the past to track.  If no limit is specified
-		the default is 1. """
-		self.t = [0]*limit
-		self.n = [0]*limit
+    def __init__(self, limit=1):
+        """ initialize a new Counter, optionally specifying the number
+        of seconds into the past to track.  If no limit is specified
+        the default is 1. """
+        self.t = [0]*limit
+        self.n = [0]*limit
 
-	def inc(self, n=1):
-		""" inc increments the counter for the current second in time
-		by n.  If n is not specified the default is 1. """
-		t = int(time.time())
-		if (t != self.t[-1]):
-			self.t = self.t[1:] + [t]
-			self.n = self.n[1:] + [n]
-		else:
-			self.n[-1] += n;
+    def inc(self, n=1):
+        """ inc increments the counter for the current second in time by n.  If
+        n is not specified the default is 1.  The resulting incremented counter
+        value is returned. """
+        t = int(time.time())
+        if (t != self.t[-1]):
+            self.t = self.t[1:] + [t]
+            self.n = self.n[1:] + [n]
+        else:
+            self.n[-1] += n;
 
-	def cur(self):
-		""" cur returns the counter for the current second in time. """
-		t = int(time.time())
-		if (t == self.t[-1]):
-			return self.n[-1]
-		else:
-			return 0
+        return self.n[-1]
 
-	def all(self):
-		""" all returns a dictionary mapping the most recent counter
-		seconds to their counter values. """
-		return {self.t[i]: self.n[i] for i in range(len(self.t))}
+    def cur(self):
+        """ cur returns the counter for the current second in time. """
+        t = int(time.time())
+        if (t == self.t[-1]):
+            return self.n[-1]
+        else:
+            return 0
+
+    def all(self):
+        """ all returns a dictionary mapping the most recent counter
+        seconds to their counter values. """
+        return {self.t[i]: self.n[i] for i in range(len(self.t))}
 
 app = Flask("rate_limiter")
 
@@ -57,7 +60,7 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S',
     format='[%(asctime)s.%(msecs)03d] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
     handlers=[TimedRotatingFileHandler(os.path.join(os.environ.get('IVRATELIMITER_LOG_DIR', '/var/log/ivratelimiter/'), 'api.log'), when='D', interval=1)],
-    level=logging.WARNING
+    level=logging.DEBUG
 )
 
 log = logging.getLogger(__name__)
@@ -107,7 +110,7 @@ def max_per_second(backend, limit=1):
     return limit
 
 def blocked_wait(backend):
-    """ if blocked_until[backend] in the future, sleep until past that unix time. """
+    """ if blocked_until[backend] is in the future, sleep until past that unix time. """
 
     now = time.time()
     until = now
@@ -127,10 +130,9 @@ def blocked_wait(backend):
 
 
 def check_retry_after(backend, response):
-    """ If an http status 429 Too Many Requests or 503 Service Unavailable is
-    returned in a response for the backend (e.g., crossref or pubmed), look for
-    a Retry-After header and use that to set retry_after, otherwise default to
-    five minutes in the future. """
+    """ Check for a Retry-After header and use that to set retry_after.  If a
+    Retry-After is specified but could not be parsed, a default of 300 seconds
+    into the future is used. """
 
     if response is None:
         log.warning("check_retry_after response is not set")
@@ -143,13 +145,18 @@ def check_retry_after(backend, response):
     if "Retry-After" in response.headers:
         retry_after_str = response.headers['Retry-After']
 
+        # if Retry-After is a single digit, assume it is seconds
         if re.match(r"^\s*\d+\s*$", retry_after_str):
             retry_after = time.time() + int(retry_after_str)
         else:
+            # otherwise if Retry-After is an RFC 1123 compatible date string,
+            # parse it
             tparts = parsedate_tz(retry_after_str)
             if tparts is not None:
                 retry_after = mktime_tz(tparts)
             else:
+                # unable to determine the time, assume 5 minutes into the
+                # future
                 log.warning("unable to parse Retry-After header, defaulting to 300 seconds in the future: %s" % (retry_after_str))
                 retry_after = time.time() + 300
 
@@ -161,20 +168,17 @@ def check_retry_after(backend, response):
             log.debug("set blocked_until[%s] to %s" % (backend, retry_after))
 
 
-def set_crossref_advisory_limit(response):
-    """ sets the per-second rate limit for crossref requests
+def set_crossref_advisory_limit(response, backend):
+    """ Set the per-second rate limit for crossref requests.
 
     This function sets a limit of (limit/interval) for a given set of crossref
     X-Rate-Limit-Limit and X-Rate-Limit-Interval header values, where interval
     is always a value in seconds.
 
-    It defaults to 50 requests per second if the header values are not sent by
-    crossref.
-    """
+    It defaults to 50 requests/second if the header values are not set.  """
 
     # set default of 50 requests per 1 second unless overridden by headers
     # Crossref says they will be sending
-    backend = 'crossref'
     x_limit = 50
     x_interval = 1
 
@@ -224,9 +228,9 @@ def set_crossref_advisory_limit(response):
 
 
 def rate_limited(backend):
-    """ rate_limited rate limits calls to a function to a maximum number per second
+    """ Rate limit calls to a function to a maximum number per second.
 
-    The backend passed in identifies the backend in flight, e.g., crossref or pubmed. """
+    The backend identifies the target, e.g., crossref or pubmed. """
 
     # lock is shared between threads for this backend
     lock = threading.Lock()
@@ -277,20 +281,20 @@ def rate_limited(backend):
                     # may be negative if we're already waited long enough
                     left_to_wait = min_interval - elapsed
 
-                    # record the number of requests dispatched so far this
-                    # second
-                    with rate_limit_mu:
-                        dispatched = counters[backend].cur()
-
                     # if we've waited long enough since our last new request,
                     # and if the current dispatched request count is lower than
                     # the max_per_sec limit, give the green light to proceed.
                     if left_to_wait <= 0:
+                        with rate_limit_mu:
+                            dispatched = counters[backend].cur()
+                            log.debug("%s dispatched count: %d" % (backend, dispatched))
+
                         if dispatched < max_per_sec:
                             last_time_called = now
                             green_light = True
                         else:
                             left_to_wait = 0.250
+                            log.debug("%s dispatched count %d >= max_per_sec %d, waiting %0.3fs" % (backend, dispatched, max_per_sec, left_to_wait))
 
                 # if left_to_wait is positive, we need to sleep for that value
                 # before we check again
@@ -325,7 +329,7 @@ def do_crossref_request(url, timeout=120):
     response = requests.get(url, headers=headers, timeout=timeout)
 
     check_retry_after('crossref', response)
-    set_crossref_advisory_limit(response)
+    set_crossref_advisory_limit(response, backend)
 
     return response
 
