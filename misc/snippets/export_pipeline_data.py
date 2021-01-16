@@ -117,8 +117,14 @@ ptsmodel = ['publisher_id', 'product_id', 'pipeline_id', 'job_id',
 
 open_cassandra_connection()
 
-pipeline_statuses = PipelineStatus.objects.filter(publisher_id=publisher_id).limit(limit)
-pipeline_task_statuses = PipelineTaskStatus.objects.filter(publisher_id=publisher_id).limit(limit)
+pipeline_task_statuses = []
+
+if not publisher_id:
+    pipeline_statuses = PipelineStatus.objects.all()
+    # pipeline_task_statuses = PipelineTaskStatus.objects.limit(limit)
+else:
+    pipeline_statuses = PipelineStatus.objects.filter(publisher_id=publisher_id)
+    pipeline_task_statuses = PipelineTaskStatus.objects.filter(publisher_id=publisher_id)
 
 with open(sfilepath, 'w',
     encoding='utf-8') as sfile, open(tfilepath, 'w',
@@ -130,7 +136,10 @@ with open(sfilepath, 'w',
     for status in pipeline_statuses:
         row = []
         for col in psmodel:
-            row.append(status[col])
+            try:
+                row.append(status[col])
+            except:
+                row.append('Error: Field Missing')
         swriter.writerow(row)
     for task in pipeline_task_statuses:
         row = []

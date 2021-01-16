@@ -14,7 +14,7 @@ from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.connectors import DoiProxyConnector, SassConnector
 from ivetl.models import DoiTransformRule, PublishedArticle, PublisherJournal
 
-opts, args = getopt(sys.argv[1:], 'h:p:j:o:e:t', [
+opts, args = getopt(sys.argv[1:], 'hp:j:o:e:t', [
     'help',
     'publisher',
     'journal',
