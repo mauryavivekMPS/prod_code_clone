@@ -158,8 +158,8 @@ if journals_with_benchpress:
             continue
 
         with open(local_file_path,
-        'w') as local_file, open(dl_file_path,
-        'r') as dl_file:
+        'wb') as local_file, open(dl_file_path,
+        'rb') as dl_file:
             shutil.copyfileobj(dl_file, local_file)
 
         files.append(local_file_path)
