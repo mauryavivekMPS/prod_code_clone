@@ -96,7 +96,7 @@ PIPELINES = [
         'supports_restart': True,
         'tasks': [
             'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchPressTask',
-            'ivetl.pipelines.customarticledata.tasks.ValidateArticleDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.ValidateBenchPressArticleDataFiles',
             'ivetl.pipelines.customarticledata.tasks.InsertCustomArticleDataIntoCassandra',
             'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
             'ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCacheTask',
@@ -1238,7 +1238,11 @@ def send_email(subject, body, to=EMAIL_TO, bcc=None, email_format="text/html", c
         personalization.add_to(to_email)  # this needs to be (seemingly redundantly) added when using personalization
         mail.add_personalization(personalization)
 
-    response = sg.client.mail.send.post(request_body=mail.get())
+    try:
+        response = sg.client.mail.send.post(request_body=mail.get())
+    except Exception as e:
+        print('Exception encountered on mail send: %s' % e)
+        response = False
     return response
 
 def normalizedDoi(doi):
