@@ -8,4 +8,7 @@ build: FAKE
 push: FAKE
 	docker push ${IMAGE}
 
+test: FAKE
+	 docker run --rm --network iv_default ${IMAGE}
+
 FAKE:
