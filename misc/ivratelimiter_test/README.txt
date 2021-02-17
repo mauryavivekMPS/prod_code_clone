@@ -3,8 +3,7 @@ This directory holds the files used to build the ivratelimiter_test container.
 To run a test launch your impactvizor environment and run the
 ivratelimiter_test container inside the same network.  For example:
 
-  docker run --rm --network iv_default
-  fr-harbor.highwire.org/impactvizor/ivratelimiter_test:latest
+  docker run --rm --network iv_default fr-harbor.highwire.org/impactvizor/ivratelimiter_test:latest
 
 The ivratelimiter service that we are testing accepts a JSON body that defines
 a service name and a URL to request.  For each request that arrives it computes
