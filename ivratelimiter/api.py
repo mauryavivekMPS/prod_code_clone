@@ -93,10 +93,10 @@ rate_limit_mu = threading.Lock()
 # crossref
 crossref_user_agent = os.environ.get('IVETL_CROSSREF_USER_AGENT', 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)')
 
-def max_per_second(backend, limit=1):
+def max_per_second(backend, limit=1.0):
     """ max_per_second returns the max requests per second for a backend (e.g.,
-    crossref or pubmed) if it is defined in per_sec_limit, otherwise it
-    returns limit. """
+    crossref or pubmed) if it is defined in per_sec_limit, otherwise it returns
+    limit, which has a default value of 1.0 if not specified by the caller. """
 
     global rate_limit_mu
     global per_second_limit
@@ -104,8 +104,7 @@ def max_per_second(backend, limit=1):
         if backend in per_second_limit.keys():
             limit = float(per_second_limit[backend])
         else:
-            log.warning("no per_second_limit set for backend %s, defaulting to 1" % (backend))
-            limit = 1.0
+            log.warning("no per_second_limit set for backend %s, defaulting to %0.3f" % (backend, limit))
 
     return limit
 
@@ -278,7 +277,7 @@ def rate_limited(backend):
                     elapsed = now - last_time_called
 
                     # time left to wait before we may issue a new request, this
-                    # may be negative if we're already waited long enough
+                    # may be negative if we have already waited long enough
                     left_to_wait = min_interval - elapsed
 
                     # if we've waited long enough since our last new request,
