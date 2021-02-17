@@ -52,7 +52,7 @@ the `IVETL_WORKING_DIR` environment variable.)
 You'll also need to set the permissions of those directories to be writable by your user account, or the account that
 you will run the app with.
 
-You need to download the ntlk data set to /usr/local/lib/nltk_date
+You need to download the nltk data set to /usr/local/lib/nltk_date
 - Transfer data set from dw-work-02.highwire.org/stats/nltk_data.tar.gz
 
 Then, as at the start of all development sessions, you'll set your shell up using the `local.sh` file.
