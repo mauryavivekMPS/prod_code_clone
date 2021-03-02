@@ -10,8 +10,6 @@ from ivetl import utils
 
 @app.task
 class GetRejectedArticlesFromBenchPressTask(Task):
-    HOSTNAME = 'hw-bp-cron-dev-1.highwire.org'
-    SCRIPT = '/mstr/maint/vizor/vizor_request.pl'
     BUCKET = common.BENCHPRESS_BUCKET
 
     def run_task(self, publisher_id, product_id, pipeline_id, job_id, work_folder, tlogger, task_args):
@@ -73,7 +71,12 @@ class GetRejectedArticlesFromBenchPressTask(Task):
 
                 tlogger.info('Looking for file for journal: %s' % journal_code)
 
-                j_file_name = '%s_%s_%s.txt' % (journal_code, from_strf, to_strf)
+                if pipeline_id == 'benchpress_published_article_data':
+                    j_file_name = '%s_foam_%s_%s.txt' % (journal_code,
+                    from_strf, to_strf)
+                else:
+                    j_file_name = '%s_%s_%s.txt' % (journal_code, from_strf,
+                    to_strf)
                 tlogger.info('Using filename: %s' % j_file_name)
 
                 try:

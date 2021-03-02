@@ -1,3 +1,4 @@
+from ivetl.validators.benchpress_article_data import BenchPressArticleDataValidator
 from ivetl.validators.custom_article_data import CustomArticleDataValidator
 from ivetl.validators.custom_subscriber_data import CustomSubscriberDataValidator
 from ivetl.validators.rejected_articles import RejectedArticlesValidator

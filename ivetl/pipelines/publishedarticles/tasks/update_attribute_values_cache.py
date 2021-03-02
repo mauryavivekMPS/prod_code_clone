@@ -84,7 +84,8 @@ class UpdateAttributeValuesCacheTask(Task):
                     values_json=json.dumps(list(values))
                 )
 
-        if pipeline_id in ('custom_article_data', 'refresh_value_mappings'):
+        if pipeline_id in ('custom_article_data',
+        'refresh_value_mappings', 'benchpress_published_article_data'):
             self.pipeline_ended(
                 publisher_id,
                 product_id,

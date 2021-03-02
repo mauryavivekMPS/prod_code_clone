@@ -11,11 +11,12 @@ os.sys.path.append(os.environ['IVETL_ROOT'])
 from ivetl.models import PublishedArticleValues
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
-opts, args = getopt(sys.argv[1:], 'hfl:p:o:e:', [
+opts, args = getopt(sys.argv[1:], 'hfl:p:so:e:', [
     'help',
     'full',
     'limit',
     'publisher',
+    'strip-newlines',
     'outfile',
     'exportfile'])
 
@@ -23,6 +24,7 @@ pubid = None
 full_export = False
 limit = None
 exportfile = 'published_article_values_export.tsv'
+strip_newlines = False
 
 
 helptext = '''usage: python export_published_article_values.py -- [ -h | -f | -l limit ] -p publisher_id
@@ -45,6 +47,7 @@ Options and arguments:
 -l     :  limit value to use when querying cassandra. default: None (all records)
 -o     :  output file path to write to. Default: /iv/working/misc/{publisher-id}-rejected_article_export.tsv
 -p     :  publisher_id value to use when querying cassandra. required.
+-s     :  strip newlines from columns. Useful for post-processing with line-by-line unix tools, such as grep.
 '''
 
 
@@ -71,6 +74,8 @@ for opt in opts:
     if opt[0] == '-p':
         pubid = opt[1]
         print('initializing single publisher run: %s' % pubid)
+    elif opt in ('-s', '--strip-newlines'):
+        strip_newlines = True
     if opt[0] == '-o':
         exportfile = opt[1]
         basedir = ''
@@ -93,6 +98,10 @@ with open(filepath, 'w', encoding='utf-8') as file:
     for article in articles:
         row = []
         for col in model:
+            # coerce truthy values to string, strip newlines.
+            if col and strip_newlines:
+                row.append(str(article[col]).replace('\n', ' '))
+                continue
             row.append(article[col])
         writer.writerow(row)
 

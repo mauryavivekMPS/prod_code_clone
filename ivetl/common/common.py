@@ -83,6 +83,26 @@ PIPELINES = [
         ],
     },
     {
+        'name': 'Bench Press Published',
+        'id': 'benchpress_published_article_data',
+        'user_facing_display_name': 'Additional article metadata',
+        'use_uploaded_instead_of_updated': True,
+        'visible_on_publisher_user_home': True,
+        'class': 'ivetl.pipelines.customarticledata.BenchPressPublishedArticleDataPipeline',
+        'has_file_input': False,
+        'include_date_range_controls': True,
+        'date_range_type': 'standard',
+        'filter_for_benchpress_support': True,
+        'supports_restart': True,
+        'tasks': [
+            'ivetl.pipelines.rejectedarticles.tasks.GetRejectedArticlesFromBenchPressTask',
+            'ivetl.pipelines.customarticledata.tasks.ValidateBenchPressArticleDataFiles',
+            'ivetl.pipelines.customarticledata.tasks.InsertCustomArticleDataIntoCassandra',
+            'ivetl.pipelines.publishedarticles.tasks.ResolvePublishedArticlesData',
+            'ivetl.pipelines.publishedarticles.tasks.UpdateAttributeValuesCacheTask',
+        ],
+    },
+    {
         'name': 'Article Citations',
         'id': 'article_citations',
         'user_facing_display_name': 'Article citations',
@@ -574,6 +594,9 @@ PRODUCTS = [
                 'pipeline': PIPELINE_BY_ID['custom_article_data'],
             },
             {
+                'pipeline': PIPELINE_BY_ID['benchpress_published_article_data'],
+            },
+            {
                 'pipeline': PIPELINE_BY_ID['refresh_value_mappings'],
             },
         ],
@@ -965,6 +988,10 @@ TABLEAU_DATASOURCE_UPDATES = {
         'article_citations_ds.tds',
         'article_usage_with_article_metadata_ds.tds',
     ],
+    ('published_articles', 'benchpress_published_article_data'): [
+        'article_citations_ds.tds',
+        'article_usage_with_article_metadata_ds.tds',
+    ],
     ('article_citations', 'article_citations'): [
         'article_citations_ds.tds'
     ],
@@ -1211,7 +1238,11 @@ def send_email(subject, body, to=EMAIL_TO, bcc=None, email_format="text/html", c
         personalization.add_to(to_email)  # this needs to be (seemingly redundantly) added when using personalization
         mail.add_personalization(personalization)
 
-    response = sg.client.mail.send.post(request_body=mail.get())
+    try:
+        response = sg.client.mail.send.post(request_body=mail.get())
+    except Exception as e:
+        print('Exception encountered on mail send: %s' % e)
+        response = False
     return response
 
 def normalizedDoi(doi):
