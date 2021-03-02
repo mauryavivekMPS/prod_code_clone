@@ -1,0 +1,1828 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 9000.15.0527.1215                                -->
+<workbook source-platform='win' version='9.0' xml:base='http://vizors.stackly.org' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location derived-from='http://vizors.stackly.org/workbooks/HighWireDataPlatform-Status?rev=1.0' id='HighWireDataPlatform-S3LogTransfer' path='/workbooks' revision='1.0' />
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <style-theme name='modern' />
+  <datasources>
+    <datasource caption='daily_processing_status (hwdp_ops)' inline='true' name='mysql.42767.446047326390' version='9.0'>
+      <connection class='mysql' dbname='hwdp_ops' odbc-native-protocol='yes' port='3306' server='prod-hwdp-mysql-db-cluster.cluster-c4qf3ozo5wpb.us-west-2.rds.amazonaws.com' server-oauth='' source-charset='' username='hwdw' workgroup-auth-mode='prompt'>
+        <relation name='daily_processing_status' table='[daily_processing_status]' type='table' />
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>ccyymmdd</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[ccyymmdd]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>ccyymmdd</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>8</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>log_date</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[log_date]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>log_date</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_DATE&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_DATE&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>scheduled</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[scheduled]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>scheduled</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>1</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>job_id</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[job_id]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>job_id</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>current_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[current_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>current_status</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>status_details</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[status_details]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>status_details</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>log_upload_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[log_upload_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>log_upload_status</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>master_collection_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[master_collection_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>master_collection_status</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>master_collection_start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[master_collection_start_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>master_collection_start_time</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>base_collection_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[base_collection_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>base_collection_status</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>base_collection_start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[base_collection_start_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>base_collection_start_time</remote-alias>
+            <ordinal>11</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>base_collection_end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[base_collection_end_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>base_collection_end_time</remote-alias>
+            <ordinal>12</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>report_collection_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[report_collection_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>report_collection_status</remote-alias>
+            <ordinal>13</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>report_collection_start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[report_collection_start_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>report_collection_start_time</remote-alias>
+            <ordinal>14</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>report_collection_end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[report_collection_end_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>report_collection_end_time</remote-alias>
+            <ordinal>15</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>sweetpea_transfer_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[sweetpea_transfer_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>sweetpea_transfer_status</remote-alias>
+            <ordinal>16</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>sweetpea_transfer_start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[sweetpea_transfer_start_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>sweetpea_transfer_start_time</remote-alias>
+            <ordinal>17</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>sweetpea_transfer_end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[sweetpea_transfer_end_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>sweetpea_transfer_end_time</remote-alias>
+            <ordinal>18</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tab_collection_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[tab_collection_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>tab_collection_status</remote-alias>
+            <ordinal>19</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tab_collection_start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[tab_collection_start_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>tab_collection_start_time</remote-alias>
+            <ordinal>20</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tab_collection_end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[tab_collection_end_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>tab_collection_end_time</remote-alias>
+            <ordinal>21</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tab_transfer_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[tab_transfer_status]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>tab_transfer_status</remote-alias>
+            <ordinal>22</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tab_transfer_start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[tab_transfer_start_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>tab_transfer_start_time</remote-alias>
+            <ordinal>23</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tab_transfer_end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[tab_transfer_end_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>tab_transfer_end_time</remote-alias>
+            <ordinal>24</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>updated_on</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[updated_on]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>updated_on</remote-alias>
+            <ordinal>25</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>master_collection_end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[master_collection_end_time]</local-name>
+            <parent-name>[daily_processing_status]</parent-name>
+            <remote-alias>master_collection_end_time</remote-alias>
+            <ordinal>26</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='Overall Status' datatype='string' name='[Calculation_0390201121319380]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [master_collection_status] == &quot;Success&quot; AND &#13;&#10;   [report_collection_status] == &quot;Success&quot; AND&#13;&#10;   [sweetpea_transfer_status] == &quot;Success&quot; THEN&#13;&#10;&#13;&#10;    &quot;Success&quot;&#13;&#10;&#13;&#10;ELSEIF (ISNULL([master_collection_status]) OR [master_collection_status] == &quot;In Progress&quot;) OR&#13;&#10;       (ISNULL([report_collection_status]) OR [report_collection_status] == &quot;In Progress&quot;) OR&#13;&#10;       (ISNULL([sweetpea_transfer_status]) OR [sweetpea_transfer_status] == &quot;In Progress&quot;) THEN&#13;&#10;    &quot;In Progress&quot;&#13;&#10;ELSE&#13;&#10;    &quot;Error&quot;&#13;&#10;END' />
+      </column>
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column caption='Base Collection End Time' datatype='datetime' name='[base_collection_end_time]' role='dimension' type='ordinal' />
+      <column caption='Base Collection Start Time' datatype='datetime' name='[base_collection_start_time]' role='dimension' type='ordinal' />
+      <column caption='Base Collection Status' datatype='string' name='[base_collection_status]' role='dimension' type='nominal' />
+      <column caption='Ccyymmdd' datatype='string' name='[ccyymmdd]' role='dimension' type='nominal' />
+      <column caption='Current Status' datatype='string' name='[current_status]' role='dimension' type='nominal' />
+      <column caption='Job Id' datatype='string' name='[job_id]' role='dimension' type='nominal' />
+      <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+      <column caption='Log Upload Status' datatype='string' name='[log_upload_status]' role='dimension' type='nominal' />
+      <column caption='Master Collection End Time' datatype='datetime' name='[master_collection_end_time]' role='dimension' type='ordinal' />
+      <column caption='Master Collection Start Time' datatype='datetime' name='[master_collection_start_time]' role='dimension' type='ordinal' />
+      <column caption='Master Collection Status' datatype='string' name='[master_collection_status]' role='dimension' type='nominal' />
+      <column caption='Report Collection End Time' datatype='datetime' name='[report_collection_end_time]' role='dimension' type='ordinal' />
+      <column caption='Report Collection Start Time' datatype='datetime' name='[report_collection_start_time]' role='dimension' type='ordinal' />
+      <column caption='Report Collection Status' datatype='string' name='[report_collection_status]' role='dimension' type='nominal' />
+      <column caption='Scheduled' datatype='string' name='[scheduled]' role='dimension' type='nominal' />
+      <column caption='Status Details' datatype='string' name='[status_details]' role='dimension' type='nominal' />
+      <column caption='Sweetpea Transfer End Time' datatype='datetime' name='[sweetpea_transfer_end_time]' role='dimension' type='ordinal' />
+      <column caption='Sweetpea Transfer Start Time' datatype='datetime' name='[sweetpea_transfer_start_time]' role='dimension' type='ordinal' />
+      <column caption='Sweetpea Transfer Status' datatype='string' name='[sweetpea_transfer_status]' role='dimension' type='nominal' />
+      <column caption='Tab Collection End Time' datatype='datetime' name='[tab_collection_end_time]' role='dimension' type='ordinal' />
+      <column caption='Tab Collection Start Time' datatype='datetime' name='[tab_collection_start_time]' role='dimension' type='ordinal' />
+      <column caption='Tab Collection Status' datatype='string' name='[tab_collection_status]' role='dimension' type='nominal' />
+      <column caption='Tab Transfer End Time' datatype='datetime' name='[tab_transfer_end_time]' role='dimension' type='ordinal' />
+      <column caption='Tab Transfer Start Time' datatype='datetime' name='[tab_transfer_start_time]' role='dimension' type='ordinal' />
+      <column caption='Tab Transfer Status' datatype='string' name='[tab_transfer_status]' role='dimension' type='nominal' />
+      <column caption='Updated On' datatype='datetime' name='[updated_on]' role='dimension' type='ordinal' />
+      <column-instance column='[Calculation_0390201121319380]' derivation='None' name='[none:Calculation_0390201121319380:nk]' pivot='key' type='nominal' />
+      <column-instance column='[current_status]' derivation='None' name='[none:current_status:nk]' pivot='key' type='nominal' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.4' show-structure='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:current_status:nk]' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;sweetpea - In Progress&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;sweetpea - Success&quot;</bucket>
+            </map>
+            <map to='#98df8a'>
+              <bucket>&quot;Report - Success&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;sweetpea - Error&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:Calculation_0390201121319380:nk]' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;In Progress&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;Success&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;Error&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+    </datasource>
+    <datasource caption='server_log_status (hwdp_ops)' inline='true' name='mysql.42767.611150208337' version='9.0'>
+      <connection class='mysql' dbname='hwdp_ops' odbc-native-protocol='yes' port='3306' server='prod-hwdp-mysql-db-cluster.cluster-c4qf3ozo5wpb.us-west-2.rds.amazonaws.com' server-oauth='' source-charset='' username='hwdw' workgroup-auth-mode='prompt'>
+        <relation name='server_log_status' table='[server_log_status]' type='table' />
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>status_id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[status_id]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>status_id</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>host_name</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[host_name]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>host_name</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>platform</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[platform]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>platform</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>epti</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[epti]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>epti</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>19</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIGINT&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SBIGINT&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>log_push_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[log_push_status]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>log_push_status</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>20</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>num_logs_pushed</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[num_logs_pushed]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>num_logs_pushed</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>19</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIGINT&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SBIGINT&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[start_time]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>start_time</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[end_time]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>end_time</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>last_updated_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[last_updated_time]</local-name>
+            <parent-name>[server_log_status]</parent-name>
+            <remote-alias>last_updated_time</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='Log Date' datatype='date' name='[Calculation_0650201155557744]' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='MAKEDATE(INT(LEFT([epti],4)), INT(MID([epti],5,2)), INT(MID([epti], 7,2)))' />
+      </column>
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column caption='End Time' datatype='datetime' name='[end_time]' role='dimension' type='ordinal' />
+      <column caption='Epti' datatype='string' datatype-customized='true' name='[epti]' role='dimension' type='nominal' />
+      <column caption='Host Name' datatype='string' name='[host_name]' role='dimension' type='nominal' />
+      <column caption='Last Updated Time' datatype='datetime' name='[last_updated_time]' role='dimension' type='ordinal' />
+      <column caption='Collector Status' datatype='string' name='[log_push_status]' role='dimension' type='nominal' />
+      <column caption='Num Logs Pushed' datatype='integer' name='[num_logs_pushed]' role='measure' type='quantitative' />
+      <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+      <column caption='Transfer Time' datatype='datetime' name='[start_time]' role='dimension' type='ordinal' />
+      <column caption='Status Id' datatype='integer' name='[status_id]' role='dimension' type='ordinal' />
+      <column-instance column='[log_push_status]' derivation='None' name='[none:log_push_status:nk]' pivot='key' type='nominal' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.4' show-structure='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:log_push_status:nk]' type='palette'>
+            <map to='#17becf'>
+              <bucket>&quot;started&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;success&quot;</bucket>
+            </map>
+            <map to='#d62728'>
+              <bucket>&quot;failed&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+    </datasource>
+    <datasource caption='file_log_status (hwdp_ops)' inline='true' name='mysql.42767.642970277775' version='9.0'>
+      <connection class='mysql' dbname='hwdp_ops' odbc-native-protocol='yes' port='3306' server='prod-hwdp-mysql-db-cluster.cluster-c4qf3ozo5wpb.us-west-2.rds.amazonaws.com' server-oauth='' source-charset='' username='hwdw' workgroup-auth-mode='prompt'>
+        <relation name='file_log_status' table='[file_log_status]' type='table' />
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>payload_id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[payload_id]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>payload_id</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>epti</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[epti]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>epti</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>19</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIGINT&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SBIGINT&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>file_push_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[file_push_status]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>file_push_status</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>20</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>consumption_status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[consumption_status]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>consumption_status</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>20</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>start_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[start_time]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>start_time</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>end_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[end_time]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>end_time</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>payload_path</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[payload_path]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>payload_path</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>host_name</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[host_name]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>host_name</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>data_set_type</remote-name>
+            <remote-type>2</remote-type>
+            <local-name>[data_set_type]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>data_set_type</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>5</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_SMALLINT&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SSHORT&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>last_updated_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[last_updated_time]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>last_updated_time</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>log_date</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[log_date]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>log_date</remote-alias>
+            <ordinal>11</ordinal>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_DATE&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_DATE&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>platform</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[platform]</local-name>
+            <parent-name>[file_log_status]</parent-name>
+            <remote-alias>platform</remote-alias>
+            <ordinal>12</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column caption='Consumption Status' datatype='string' name='[consumption_status]' role='dimension' type='nominal' />
+      <column aggregation='Sum' caption='Data Set Type' datatype='integer' name='[data_set_type]' role='dimension' type='ordinal' />
+      <column caption='End Time' datatype='datetime' name='[end_time]' role='dimension' type='ordinal' />
+      <column caption='Epti' datatype='integer' name='[epti]' role='measure' type='quantitative' />
+      <column caption='File Push Status' datatype='string' name='[file_push_status]' role='dimension' type='nominal' />
+      <column caption='Host Name' datatype='string' name='[host_name]' role='dimension' type='nominal' />
+      <column caption='Last Updated Time' datatype='datetime' name='[last_updated_time]' role='dimension' type='ordinal' />
+      <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+      <column caption='Payload Id' datatype='integer' name='[payload_id]' role='dimension' type='ordinal' />
+      <column caption='Payload Path' datatype='string' name='[payload_path]' role='dimension' type='nominal' />
+      <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+      <column caption='Transfer Time' datatype='datetime' name='[start_time]' role='dimension' type='ordinal' />
+      <column-instance column='[file_push_status]' derivation='None' name='[none:file_push_status:nk]' pivot='key' type='nominal' />
+      <column-instance column='[log_date]' derivation='Day-Trunc' name='[tdy:log_date:ok]' pivot='key' type='ordinal' />
+      <group caption='Action (File Push Status,DAY(Log Date),Platform)' hidden='true' name='[Action (File Push Status,DAY(Log Date),Platform)]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[file_push_status]' />
+          <groupfilter function='level-members' level='[tdy:log_date:ok]' />
+          <groupfilter function='level-members' level='[platform]' />
+        </groupfilter>
+      </group>
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.4' show-structure='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:file_push_status:nk]' type='palette'>
+            <map to='#309343'>
+              <bucket>&quot;success&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+    </datasource>
+    <datasource caption='s3_server_log_transfer_status (hwdp_ops)' inline='true' name='mysql.42767.601075451392' version='9.0'>
+      <connection class='mysql' dbname='hwdp_ops' odbc-native-protocol='yes' port='3306' server='prod-hwdp-mysql-db-cluster.cluster-c4qf3ozo5wpb.us-west-2.rds.amazonaws.com' source-charset='' username='hwdw'>
+        <relation name='s3_server_log_transfer_status' table='[s3_server_log_transfer_status]' type='table' />
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>log_date</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[log_date]</local-name>
+            <parent-name>[s3_server_log_transfer_status]</parent-name>
+            <remote-alias>log_date</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_DATE&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_DATE&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>platform</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[platform]</local-name>
+            <parent-name>[s3_server_log_transfer_status]</parent-name>
+            <remote-alias>platform</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>status</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[status]</local-name>
+            <parent-name>[s3_server_log_transfer_status]</parent-name>
+            <remote-alias>status</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>20</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>num_servers</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[num_servers]</local-name>
+            <parent-name>[s3_server_log_transfer_status]</parent-name>
+            <remote-alias>num_servers</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>details</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[details]</local-name>
+            <parent-name>[s3_server_log_transfer_status]</parent-name>
+            <remote-alias>details</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>21845</width>
+            <contains-null>true</contains-null>
+            <cast-to-local-type>true</cast-to-local-type>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WLONGVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>last_updated_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[last_updated_time]</local-name>
+            <parent-name>[s3_server_log_transfer_status]</parent-name>
+            <remote-alias>last_updated_time</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column caption='Details' datatype='string' name='[details]' role='dimension' type='nominal' />
+      <column caption='Last Updated Time' datatype='datetime' name='[last_updated_time]' role='dimension' type='ordinal' />
+      <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+      <column caption='Num Servers' datatype='integer' name='[num_servers]' role='measure' type='quantitative' />
+      <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+      <column caption='Status' datatype='string' name='[status]' role='dimension' type='nominal' />
+      <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.4' show-structure='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:platform:nk]' type='palette'>
+            <map to='#1f77b4'>
+              <bucket>&quot;drupal&quot;</bucket>
+            </map>
+            <map to='#2ca02c'>
+              <bucket>&quot;h20&quot;</bucket>
+            </map>
+            <map to='#ff7f0e'>
+              <bucket>&quot;folio&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+    </datasource>
+  </datasources>
+  <actions>
+    <action caption='Filter1' name='[Action1]'>
+      <activation auto-clear='true' />
+      <source dashboard='S3 Log Transfer Status' type='sheet' worksheet='Sheet 7' />
+      <command command='tsc:tsl-filter'>
+        <param name='exclude' value='Sheet 7' />
+        <param name='special-fields' value='all' />
+        <param name='target' value='S3 Log Transfer Status' />
+      </command>
+    </action>
+  </actions>
+  <worksheets>
+    <worksheet name='Sheet 3'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Failedl Log Transfers by Server by Day</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='server_log_status (hwdp_ops)' name='mysql.42767.611150208337' />
+          </datasources>
+          <datasource-dependencies datasource='mysql.42767.601075451392'>
+            <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column caption='Num Servers' datatype='integer' name='[num_servers]' role='measure' type='quantitative' />
+            <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+            <column-instance column='[num_servers]' derivation='Sum' name='[sum:num_servers:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[log_date]' derivation='Day-Trunc' name='[tdy:log_date:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <datasource-dependencies datasource='mysql.42767.611150208337'>
+            <column caption='Log Date' datatype='date' name='[Calculation_0650201155557744]' role='dimension' type='ordinal'>
+              <calculation class='tableau' formula='MAKEDATE(INT(LEFT([epti],4)), INT(MID([epti],5,2)), INT(MID([epti], 7,2)))' />
+            </column>
+            <column caption='Host Name' datatype='string' name='[host_name]' role='dimension' type='nominal' />
+            <column caption='Collector Status' datatype='string' name='[log_push_status]' role='dimension' type='nominal' />
+            <column-instance column='[host_name]' derivation='None' name='[none:host_name:nk]' pivot='key' type='nominal' />
+            <column-instance column='[log_push_status]' derivation='None' name='[none:log_push_status:nk]' pivot='key' type='nominal' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column-instance column='[start_time]' derivation='None' name='[none:start_time:qk]' pivot='key' type='quantitative' />
+            <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+            <column caption='Transfer Time' datatype='datetime' name='[start_time]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_0650201155557744]' derivation='Day-Trunc' name='[tdy:Calculation_0650201155557744:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[mysql.42767.611150208337].[none:log_push_status:nk]'>
+            <groupfilter function='member' level='[none:log_push_status:nk]' member='&quot;failed&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[mysql.42767.611150208337].[none:platform:nk]'>
+            <groupfilter function='member' level='[none:platform:nk]' member='&quot;h20&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='relative-date' column='[mysql.42767.611150208337].[none:start_time:qk]' first-period='-1' include-future='true' include-null='false' last-period='-1' period-type='month' />
+          <slices>
+            <column>[mysql.42767.611150208337].[none:start_time:qk]</column>
+            <column>[mysql.42767.611150208337].[none:platform:nk]</column>
+            <column>[mysql.42767.611150208337].[none:log_push_status:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Square' />
+            <encodings>
+              <color column='[mysql.42767.611150208337].[none:log_push_status:nk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='false' />
+                <format attr='mark-labels-mode' value='line-ends' />
+                <format attr='mark-labels-show' value='false' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[mysql.42767.611150208337].[none:host_name:nk]</rows>
+        <cols>[mysql.42767.611150208337].[tdy:Calculation_0650201155557744:qk]</cols>
+        <annotations>
+          <annotation class='point' id='0' mark-position='1' pullback='12' text-width='180'>
+            <formatted-text>
+              <run bold='true'>Shutdown Sage Servers</run>
+            </formatted-text>
+            <point>
+              <visual-coordinate class='mark'>
+                <tuple-reference>
+                  <tuple-descriptor>
+                    <pane-descriptor>
+                      <x-fields>
+                        <field>[mysql.42767.601075451392].[tdy:log_date:qk]</field>
+                      </x-fields>
+                      <y-fields>
+                        <field>[mysql.42767.601075451392].[sum:num_servers:qk]</field>
+                      </y-fields>
+                    </pane-descriptor>
+                    <columns>
+                      <field>[mysql.42767.601075451392].[none:platform:nk]</field>
+                      <field>[mysql.42767.601075451392].[sum:num_servers:qk]</field>
+                      <field>[mysql.42767.601075451392].[tdy:log_date:qk]</field>
+                    </columns>
+                  </tuple-descriptor>
+                  <tuple>
+                    <value>&quot;h20&quot;</value>
+                    <value>314</value>
+                    <value>#2017-01-17 00:00:00#</value>
+                  </tuple>
+                </tuple-reference>
+              </visual-coordinate>
+            </point>
+            <body x='-45' y='34' />
+          </annotation>
+        </annotations>
+      </table>
+    </worksheet>
+    <worksheet name='Sheet 4'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='file_log_status (hwdp_ops)' name='mysql.42767.642970277775' />
+          </datasources>
+          <datasource-dependencies datasource='mysql.42767.642970277775'>
+            <column caption='File Push Status' datatype='string' name='[file_push_status]' role='dimension' type='nominal' />
+            <column caption='Host Name' datatype='string' name='[host_name]' role='dimension' type='nominal' />
+            <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+            <column-instance column='[file_push_status]' derivation='None' name='[none:file_push_status:nk]' pivot='key' type='nominal' />
+            <column-instance column='[host_name]' derivation='None' name='[none:host_name:nk]' pivot='key' type='nominal' />
+            <column-instance column='[payload_path]' derivation='None' name='[none:payload_path:nk]' pivot='key' type='nominal' />
+            <column-instance column='[start_time]' derivation='None' name='[none:start_time:qk]' pivot='key' type='quantitative' />
+            <column caption='Payload Path' datatype='string' name='[payload_path]' role='dimension' type='nominal' />
+            <column caption='Transfer Time' datatype='datetime' name='[start_time]' role='dimension' type='ordinal' />
+            <column-instance column='[log_date]' derivation='Day-Trunc' name='[tdy:log_date:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[start_time]' derivation='Day-Trunc' name='[tdy:start_time:ok]' pivot='key' type='ordinal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[mysql.42767.642970277775].[none:file_push_status:nk]'>
+            <groupfilter function='level-members' level='[none:file_push_status:nk]' />
+          </filter>
+          <filter class='categorical' column='[mysql.42767.642970277775].[none:host_name:nk]'>
+            <groupfilter function='member' level='[none:host_name:nk]' member='&quot;wavmfe99&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='relative-date' column='[mysql.42767.642970277775].[none:start_time:qk]' first-period='-1' include-future='true' include-null='false' last-period='-1' period-type='month' />
+          <sort class='natural' column='[mysql.42767.642970277775].[tdy:start_time:ok]' direction='DESC' />
+          <slices>
+            <column>[mysql.42767.642970277775].[none:host_name:nk]</column>
+            <column>[mysql.42767.642970277775].[none:start_time:qk]</column>
+            <column>[mysql.42767.642970277775].[none:file_push_status:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='height' field='[mysql.42767.642970277775].[none:payload_path:nk]' value='29' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='width' field='[mysql.42767.642970277775].[none:payload_path:nk]' value='336' />
+            <format attr='width' field='[mysql.42767.642970277775].[none:file_push_status:nk]' value='100' />
+            <format attr='width' field='[mysql.42767.642970277775].[tdy:start_time:ok]' value='108' />
+            <format attr='width' field='[mysql.42767.642970277775].[tdy:log_date:ok]' value='108' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[mysql.42767.642970277775].[tdy:log_date:ok]' value='S' />
+            <format attr='text-format' field='[mysql.42767.642970277775].[tdy:start_time:ok]' value='S' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[mysql.42767.642970277775].[none:file_push_status:nk]' />
+            </encodings>
+            <style>
+              <style-rule element='pane'>
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>([mysql.42767.642970277775].[tdy:start_time:ok] / ([mysql.42767.642970277775].[tdy:log_date:ok] / ([mysql.42767.642970277775].[none:file_push_status:nk] / [mysql.42767.642970277775].[none:payload_path:nk])))</rows>
+        <cols />
+      </table>
+    </worksheet>
+    <worksheet name='Sheet 6'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Log Transfer Status by Server</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='file_log_status (hwdp_ops)' name='mysql.42767.642970277775' />
+          </datasources>
+          <datasource-dependencies datasource='mysql.42767.642970277775'>
+            <column caption='File Push Status' datatype='string' name='[file_push_status]' role='dimension' type='nominal' />
+            <column caption='Host Name' datatype='string' name='[host_name]' role='dimension' type='nominal' />
+            <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+            <column-instance column='[file_push_status]' derivation='None' name='[none:file_push_status:nk]' pivot='key' type='nominal' />
+            <column-instance column='[host_name]' derivation='None' name='[none:host_name:nk]' pivot='key' type='nominal' />
+            <column-instance column='[log_date]' derivation='None' name='[none:log_date:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+            <column-instance column='[log_date]' derivation='Day-Trunc' name='[tdy:log_date:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[mysql.42767.642970277775].[Action (File Push Status,DAY(Log Date),Platform)]'>
+            <groupfilter function='crossjoin' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[file_push_status]' />
+              <groupfilter function='level-members' level='[tdy:log_date:ok]' />
+              <groupfilter function='level-members' level='[platform]' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[mysql.42767.642970277775].[none:file_push_status:nk]'>
+            <groupfilter function='level-members' level='[none:file_push_status:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='relative-date' column='[mysql.42767.642970277775].[none:log_date:qk]' filter-group='4' first-period='-1' include-future='true' include-null='false' last-period='-1' period-type='month' />
+          <filter class='categorical' column='[mysql.42767.642970277775].[none:platform:nk]'>
+            <groupfilter function='level-members' level='[none:platform:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[mysql.42767.642970277775].[none:log_date:qk]</column>
+            <column>[mysql.42767.642970277775].[none:file_push_status:nk]</column>
+            <column>[mysql.42767.642970277775].[none:platform:nk]</column>
+            <column>[mysql.42767.642970277775].[Action (File Push Status,DAY(Log Date),Platform)]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Square' />
+            <encodings>
+              <color column='[mysql.42767.642970277775].[none:file_push_status:nk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[mysql.42767.642970277775].[none:host_name:nk]</rows>
+        <cols>[mysql.42767.642970277775].[tdy:log_date:qk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name='Sheet 7'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Log Transfer Status by Platform</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='file_log_status (hwdp_ops)' name='mysql.42767.642970277775' />
+          </datasources>
+          <datasource-dependencies datasource='mysql.42767.642970277775'>
+            <column caption='File Push Status' datatype='string' name='[file_push_status]' role='dimension' type='nominal' />
+            <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+            <column-instance column='[file_push_status]' derivation='None' name='[none:file_push_status:nk]' pivot='key' type='nominal' />
+            <column-instance column='[log_date]' derivation='None' name='[none:log_date:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+            <column-instance column='[log_date]' derivation='Day-Trunc' name='[tdy:log_date:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[mysql.42767.642970277775].[none:file_push_status:nk]'>
+            <groupfilter function='member' level='[none:file_push_status:nk]' member='&quot;success&quot;' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='relative-date' column='[mysql.42767.642970277775].[none:log_date:qk]' filter-group='4' first-period='-1' include-future='true' include-null='false' last-period='-1' period-type='month' />
+          <slices>
+            <column>[mysql.42767.642970277775].[none:log_date:qk]</column>
+            <column>[mysql.42767.642970277775].[none:file_push_status:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='height' field='[mysql.42767.642970277775].[tdy:log_date:qk]' value='23' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='height' field='[mysql.42767.642970277775].[none:platform:nk]' value='25' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <color column='[mysql.42767.642970277775].[none:file_push_status:nk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[mysql.42767.642970277775].[none:platform:nk]</rows>
+        <cols>[mysql.42767.642970277775].[tdy:log_date:qk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name='sltsd'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Successful Log Transfers by Day</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='s3_server_log_transfer_status (hwdp_ops)' name='mysql.42767.601075451392' />
+          </datasources>
+          <datasource-dependencies datasource='mysql.42767.601075451392'>
+            <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+            <column-instance column='[log_date]' derivation='MY' name='[my:log_date:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column-instance column='[status]' derivation='None' name='[none:status:nk]' pivot='key' type='nominal' />
+            <column caption='Num Servers' datatype='integer' name='[num_servers]' role='measure' type='quantitative' />
+            <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+            <column caption='Status' datatype='string' name='[status]' role='dimension' type='nominal' />
+            <column-instance column='[num_servers]' derivation='Sum' name='[sum:num_servers:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[log_date]' derivation='Day-Trunc' name='[tdy:log_date:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[mysql.42767.601075451392].[my:log_date:ok]' filter-group='3'>
+            <groupfilter function='level-members' level='[my:log_date:ok]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[mysql.42767.601075451392].[none:status:nk]'>
+            <groupfilter function='member' level='[none:status:nk]' member='&quot;success&quot;' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[mysql.42767.601075451392].[none:status:nk]</column>
+            <column>[mysql.42767.601075451392].[my:log_date:ok]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[mysql.42767.601075451392].[none:platform:nk]' />
+              <text column='[mysql.42767.601075451392].[none:platform:nk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='false' />
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-mode' value='line-ends' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[mysql.42767.601075451392].[sum:num_servers:qk]</rows>
+        <cols>[mysql.42767.601075451392].[tdy:log_date:qk]</cols>
+        <annotations>
+          <annotation class='point' id='0' mark-position='1' pullback='12' text-width='180'>
+            <formatted-text>
+              <run bold='true'>Shutdown Sage Servers</run>
+            </formatted-text>
+            <point>
+              <visual-coordinate class='mark'>
+                <tuple-reference>
+                  <tuple-descriptor>
+                    <pane-descriptor>
+                      <x-fields>
+                        <field>[mysql.42767.601075451392].[tdy:log_date:qk]</field>
+                      </x-fields>
+                      <y-fields>
+                        <field>[mysql.42767.601075451392].[sum:num_servers:qk]</field>
+                      </y-fields>
+                    </pane-descriptor>
+                    <columns>
+                      <field>[mysql.42767.601075451392].[none:platform:nk]</field>
+                      <field>[mysql.42767.601075451392].[sum:num_servers:qk]</field>
+                      <field>[mysql.42767.601075451392].[tdy:log_date:qk]</field>
+                    </columns>
+                  </tuple-descriptor>
+                  <tuple>
+                    <value>&quot;h20&quot;</value>
+                    <value>314</value>
+                    <value>#2017-01-17 00:00:00#</value>
+                  </tuple>
+                </tuple-reference>
+              </visual-coordinate>
+            </point>
+            <body x='-45' y='34' />
+          </annotation>
+        </annotations>
+      </table>
+    </worksheet>
+  </worksheets>
+  <dashboards>
+    <dashboard name='Log Collector Failures'>
+      <repository-location id='LogCollectorFailures' path='/workbooks/HighWireDataPlatform-S3LogTransfer' revision='' />
+      <style />
+      <size maxheight='2000' maxwidth='1000' minheight='2000' minwidth='1000' />
+      <datasources>
+        <datasource caption='server_log_status (hwdp_ops)' name='mysql.42767.611150208337' />
+      </datasources>
+      <datasource-dependencies datasource='mysql.42767.611150208337'>
+        <column caption='Collector Status' datatype='string' name='[log_push_status]' role='dimension' type='nominal' />
+        <column-instance column='[log_push_status]' derivation='None' name='[none:log_push_status:nk]' pivot='key' type='nominal' />
+        <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+        <column-instance column='[start_time]' derivation='None' name='[none:start_time:qk]' pivot='key' type='quantitative' />
+        <column caption='Platform' datatype='string' name='[platform]' role='dimension' type='nominal' />
+        <column caption='Transfer Time' datatype='datetime' name='[start_time]' role='dimension' type='ordinal' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='100000' id='5' param='horz' type='layout-flow' w='100000' x='0' y='0'>
+            <zone h='100000' id='3' type='layout-basic' w='84000' x='0' y='0'>
+              <zone h='100000' id='1' name='Sheet 3' show-title='true' w='84000' x='0' y='0' />
+            </zone>
+            <zone fixed-size='160' h='100000' id='4' is-fixed='true' param='vert' type='layout-flow' w='16000' x='84000' y='0'>
+              <zone h='2700' id='6' name='Sheet 3' param='[mysql.42767.611150208337].[none:start_time:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='16000' x='84000' y='0' />
+              <zone h='5000' id='7' name='Sheet 3' param='[mysql.42767.611150208337].[none:platform:nk]' type='filter' w='16000' x='84000' y='2700' />
+              <zone h='5000' id='9' name='Sheet 3' param='[mysql.42767.611150208337].[none:log_push_status:nk]' type='filter' w='16000' x='84000' y='7700' />
+              <zone h='2100' id='8' name='Sheet 3' pane-specification-id='0' param='[mysql.42767.611150208337].[none:log_push_status:nk]' type='color' w='16000' x='84000' y='12700' />
+            </zone>
+          </zone>
+        </zone>
+      </zones>
+    </dashboard>
+    <dashboard name='S3 Log Transfer Status'>
+      <repository-location id='S3LogTransferStatus' path='/workbooks/HighWireDataPlatform-S3LogTransfer' revision='' />
+      <style />
+      <size maxheight='2000' maxwidth='1000' minheight='2000' minwidth='1000' />
+      <datasources>
+        <datasource caption='file_log_status (hwdp_ops)' name='mysql.42767.642970277775' />
+      </datasources>
+      <datasource-dependencies datasource='mysql.42767.642970277775'>
+        <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+        <column-instance column='[log_date]' derivation='None' name='[none:log_date:qk]' pivot='key' type='quantitative' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='100000' id='5' param='horz' type='layout-flow' w='100000' x='0' y='0'>
+            <zone h='100000' id='3' type='layout-basic' w='84000' x='0' y='0'>
+              <zone h='8750' id='1' name='Sheet 7' show-title='true' w='84000' x='0' y='0' />
+              <zone h='91250' id='8' name='Sheet 6' show-title='true' w='84000' x='0' y='8750' />
+            </zone>
+            <zone fixed-size='160' h='100000' id='10' is-fixed='true' type='layout-basic' w='16000' x='84000' y='0'>
+              <zone h='100000' id='4' param='vert' type='layout-flow' w='16000' x='84000' y='0'>
+                <zone fixed-size='61' h='3650' id='7' is-fixed='true' name='Sheet 7' param='[mysql.42767.642970277775].[none:log_date:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='16000' x='84000' y='0' />
+                <zone h='2100' id='6' name='Sheet 7' pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' w='16000' x='84000' y='3650' />
+              </zone>
+            </zone>
+          </zone>
+        </zone>
+      </zones>
+    </dashboard>
+    <dashboard name='Server Details'>
+      <repository-location id='ServerDetails' path='/workbooks/HighWireDataPlatform-S3LogTransfer' revision='' />
+      <style />
+      <size maxheight='800' maxwidth='1000' minheight='800' minwidth='1000' />
+      <datasources>
+        <datasource caption='file_log_status (hwdp_ops)' name='mysql.42767.642970277775' />
+      </datasources>
+      <datasource-dependencies datasource='mysql.42767.642970277775'>
+        <column caption='File Push Status' datatype='string' name='[file_push_status]' role='dimension' type='nominal' />
+        <column caption='Host Name' datatype='string' name='[host_name]' role='dimension' type='nominal' />
+        <column-instance column='[file_push_status]' derivation='None' name='[none:file_push_status:nk]' pivot='key' type='nominal' />
+        <column-instance column='[host_name]' derivation='None' name='[none:host_name:nk]' pivot='key' type='nominal' />
+        <column-instance column='[start_time]' derivation='None' name='[none:start_time:qk]' pivot='key' type='quantitative' />
+        <column caption='Transfer Time' datatype='datetime' name='[start_time]' role='dimension' type='ordinal' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='100000' id='5' param='horz' type='layout-flow' w='100000' x='0' y='0'>
+            <zone h='100000' id='3' type='layout-basic' w='76200' x='0' y='0'>
+              <zone h='100000' id='1' name='Sheet 4' show-title='true' w='76200' x='0' y='0' />
+            </zone>
+            <zone fixed-size='238' h='100000' id='4' is-fixed='true' param='vert' type='layout-flow' w='23800' x='76200' y='0'>
+              <zone h='6500' id='8' mode='dropdown' name='Sheet 4' param='[mysql.42767.642970277775].[none:host_name:nk]' show-all='false' show-exclude='false' show-mode='false' type='filter' w='23800' x='76200' y='0' />
+              <zone h='6250' id='9' name='Sheet 4' param='[mysql.42767.642970277775].[none:start_time:qk]' show-domain='false' show-null-ctrls='false' type='filter' w='23800' x='76200' y='6500' />
+              <zone h='8000' id='7' name='Sheet 4' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='filter' w='23800' x='76200' y='12750' />
+              <zone fixed-size='26' h='4250' id='10' is-fixed='true' type='empty' w='23800' x='76200' y='20750' />
+              <zone h='5250' id='6' name='Sheet 4' pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' w='23800' x='76200' y='25000' />
+            </zone>
+          </zone>
+        </zone>
+      </zones>
+    </dashboard>
+    <dashboard name='Successful Log Transfers by Day'>
+      <repository-location id='SuccessfulLogTransfersbyDay' path='/workbooks/HighWireDataPlatform-S3LogTransfer' revision='' />
+      <style />
+      <size maxheight='800' maxwidth='1000' minheight='800' minwidth='1000' />
+      <datasources>
+        <datasource caption='s3_server_log_transfer_status (hwdp_ops)' name='mysql.42767.601075451392' />
+      </datasources>
+      <datasource-dependencies datasource='mysql.42767.601075451392'>
+        <column caption='Log Date' datatype='date' name='[log_date]' role='dimension' type='ordinal' />
+        <column-instance column='[log_date]' derivation='MY' name='[my:log_date:ok]' pivot='key' type='ordinal' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='100000' id='5' param='horz' type='layout-flow' w='100000' x='0' y='0'>
+            <zone h='100000' id='3' type='layout-basic' w='84000' x='0' y='0'>
+              <zone h='100000' id='1' name='sltsd' show-title='true' w='84000' x='0' y='0' />
+            </zone>
+            <zone fixed-size='160' h='100000' id='4' is-fixed='true' param='vert' type='layout-flow' w='16000' x='84000' y='0'>
+              <zone h='6500' id='7' mode='dropdown' name='sltsd' param='[mysql.42767.601075451392].[my:log_date:ok]' type='filter' w='16000' x='84000' y='0' />
+              <zone h='10250' id='6' name='sltsd' pane-specification-id='0' param='[mysql.42767.601075451392].[none:platform:nk]' type='color' w='16000' x='84000' y='6500' />
+            </zone>
+          </zone>
+        </zone>
+      </zones>
+    </dashboard>
+  </dashboards>
+  <windows>
+    <window class='schema' source-height='-1' />
+    <window auto-hidden='0' class='dashboard' maximized='1' name='S3 Log Transfer Status'>
+      <zones>
+        <zone name='Sheet 6'>
+          <viewpoint>
+            <zoom type='fit-width' />
+          </viewpoint>
+        </zone>
+        <zone name='Sheet 7' param='[mysql.42767.642970277775].[none:log_date:qk]' show-domain='false' show-null-ctrls='false' type='filter' />
+        <zone name='Sheet 7' pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' />
+      </zones>
+    </window>
+    <window auto-hidden='0' class='dashboard' maximized='0' name='Successful Log Transfers by Day'>
+      <active id='1' />
+      <zones>
+        <zone name='sltsd'>
+          <viewpoint>
+            <current-page>
+              <multibucket />
+            </current-page>
+            <zoom type='entire-view' />
+          </viewpoint>
+        </zone>
+        <zone mode='dropdown' name='sltsd' param='[mysql.42767.601075451392].[my:log_date:ok]' type='filter' />
+        <zone name='sltsd' pane-specification-id='0' param='[mysql.42767.601075451392].[none:platform:nk]' type='color' />
+      </zones>
+    </window>
+    <window auto-hidden='0' class='dashboard' maximized='0' name='Server Details'>
+      <zones>
+        <zone name='Sheet 4'>
+          <viewpoint>
+            <current-page>
+              <multibucket />
+            </current-page>
+            <zoom type='fit-width' />
+          </viewpoint>
+        </zone>
+        <zone mode='dropdown' name='Sheet 4' param='[mysql.42767.642970277775].[none:host_name:nk]' show-all='false' show-exclude='false' show-mode='false' type='filter' />
+        <zone name='Sheet 4' param='[mysql.42767.642970277775].[none:start_time:qk]' show-domain='false' show-null-ctrls='false' type='filter' />
+        <zone h='8000' id='7' name='Sheet 4' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='filter' w='23800' x='76200' y='12750' />
+        <zone fixed-size='26' h='4250' id='10' is-fixed='true' name='' type='empty' w='23800' x='76200' y='20750' />
+        <zone name='Sheet 4' pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' />
+      </zones>
+    </window>
+    <window auto-hidden='0' class='dashboard' maximized='0' name='Log Collector Failures'>
+      <active id='9' />
+      <zones>
+        <zone name='Sheet 3' param='[mysql.42767.611150208337].[none:start_time:qk]' show-domain='false' show-null-ctrls='false' type='filter' />
+        <zone name='Sheet 3' pane-specification-id='0' param='[mysql.42767.611150208337].[none:log_push_status:nk]' type='color' />
+      </zones>
+    </window>
+    <window class='hidden-worksheet' name='Sheet 3'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card pane-specification-id='0' param='[mysql.42767.611150208337].[none:log_push_status:nk]' type='color' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card param='[mysql.42767.611150208337].[none:start_time:qk]' show-domain='false' show-null-ctrls='false' type='filter' />
+            <card param='[mysql.42767.611150208337].[none:platform:nk]' type='filter' />
+            <card param='[mysql.42767.611150208337].[none:log_push_status:nk]' type='filter' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <highlight>
+        <color-one-way>
+          <field>[mysql.42767.601075451392].[my:log_date:ok]</field>
+          <field>[mysql.42767.601075451392].[none:platform:nk]</field>
+          <field>[mysql.42767.601075451392].[none:status:nk]</field>
+          <field>[mysql.42767.611150208337].[none:epti:ok]</field>
+          <field>[mysql.42767.611150208337].[none:log_push_status:nk]</field>
+          <field>[mysql.42767.611150208337].[none:platform:nk]</field>
+          <field>[mysql.42767.611150208337].[none:start_time:qk]</field>
+          <field>[mysql.42767.611150208337].[tyr:epti:qk]</field>
+          <field>[mysql.42767.611150208337].[yr:Calculation_0650201155557744:ok]</field>
+          <field>[mysql.42767.611150208337].[yr:start_time:ok]</field>
+        </color-one-way>
+      </highlight>
+      <selection-collection />
+    </window>
+    <window class='hidden-worksheet' name='Sheet 4'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <highlight>
+        <color-one-way>
+          <field>[mysql.42767.642970277775].[none:file_push_status:nk]</field>
+          <field>[mysql.42767.642970277775].[none:host_name:nk]</field>
+          <field>[mysql.42767.642970277775].[none:payload_path:nk]</field>
+          <field>[mysql.42767.642970277775].[none:start_time:qk]</field>
+          <field>[mysql.42767.642970277775].[tdy:log_date:ok]</field>
+          <field>[mysql.42767.642970277775].[tdy:start_time:ok]</field>
+          <field>[mysql.42767.642970277775].[tdy:start_time:qk]</field>
+          <field>[mysql.42767.642970277775].[yr:log_date:ok]</field>
+        </color-one-way>
+      </highlight>
+      <selection-collection />
+    </window>
+    <window class='hidden-worksheet' name='Sheet 6'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <highlight>
+        <color-one-way>
+          <field>[mysql.42767.642970277775].[none:file_push_status:nk]</field>
+          <field>[mysql.42767.642970277775].[none:log_date:qk]</field>
+          <field>[mysql.42767.642970277775].[none:payload_path:nk]</field>
+          <field>[mysql.42767.642970277775].[none:platform:nk]</field>
+          <field>[mysql.42767.642970277775].[yr:log_date:ok]</field>
+        </color-one-way>
+      </highlight>
+      <selection-collection />
+    </window>
+    <window class='hidden-worksheet' name='Sheet 7'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card pane-specification-id='0' param='[mysql.42767.642970277775].[none:file_push_status:nk]' type='color' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <highlight>
+        <color-one-way>
+          <field>[mysql.42767.642970277775].[none:file_push_status:nk]</field>
+          <field>[mysql.42767.642970277775].[none:log_date:qk]</field>
+          <field>[mysql.42767.642970277775].[none:platform:nk]</field>
+          <field>[mysql.42767.642970277775].[yr:log_date:ok]</field>
+        </color-one-way>
+      </highlight>
+      <selection-collection />
+    </window>
+    <window class='hidden-worksheet' name='sltsd'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card pane-specification-id='0' param='[mysql.42767.601075451392].[none:platform:nk]' type='color' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint />
+      <highlight>
+        <color-one-way>
+          <field>[mysql.42767.601075451392].[my:log_date:ok]</field>
+          <field>[mysql.42767.601075451392].[none:platform:nk]</field>
+          <field>[mysql.42767.601075451392].[none:status:nk]</field>
+        </color-one-way>
+      </highlight>
+      <selection-collection />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='S3 Log Transfer Status' width='192'>&#10;      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&#10;      UPk/VliJQp3ipuMAAAAASUVORK5CYII=&#10;    </thumbnail>
+    <thumbnail height='192' name='Successful Log Transfers by Day' width='192'>&#10;      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAACXBIWXMAAA7EAAAOxAGVKw4b&#10;      AAAMiElEQVR4nO3de0xb1x0H8OM3tsE2xsZgkvAIhFdDHs1C3qTL0oY2nbquUzpt1Sat0vrH&#10;      NFWb+k+qSpU6aVVbddPa/jFN7apNa5eoUpstadZkLZRAAgkQA+ZlYzDmGfzANn7h190fZHFC&#10;      DMEcuMbO96NIca6uz/3J+ubccx/nXg7DMARgtbjJLgBSG3/hL7vDldw6IEU9RD1QR2tTw1fn&#10;      xxz+B67Zea1x2uYkhFy/fpUQcv1a2/3rzEyMfPTRX3sGTXFb+LbhossfWrRwobU7rjVfbmlu&#10;      auvsWWH9GxM/2QWwJ+j3TNnmMtrOz9cea//HJ/ziMhknHBEK513WXn2vprA8yAhKlMQWkUWs&#10;      psFRZ7VKqJ8L7yXEYbcTQpouX5xz211ELvENq/a/cKi0WK0e2F6e/d5bf9mzv+hSc3dJgTTA&#10;      iLN5AaGm0tLfN6jXjzqYylKNgAm6SPYvfvqcbWLk0jnLwFSwoki171i93es/+cTx8xf/0948&#10;      feFK9+7qMoFAcKK+Ptm/U2Ieoh4owvAKtVkOP+lsaQoQwuHyGSbM4/MZjuhA3bH9+/bw3COi&#10;      /PIpQ3+Wtig3k+nsMyx80T/naGlu9gQjhBAOIVzePT9aWWVFb7deJOAqcrX5ednV23cO9HYX&#10;      bivTaLRPPH5ULss9dPBIcMpg9UYJ4XB53EMHd7T1T8oEHBL0tTRf4Yskui69SMDNzSIRcU4S&#10;      fhc6nIWjMIyBVmh0qM9gMD362JNKMW91LTimzeNOpqaieNHyrtZvC3cdVohS7L/07QCFQuFk&#10;      VwIpibOS80A2m42FUiAVxR1EM1989i9FJuHy+AYH8+Kpk4QQlUrFcmWQEuLscScGb97oGfFF&#10;      +D0tDf5I1O3zuVwYIUF88Xdhs/ZZr9sm02yasIxXVpTZbDb0QBDXSsdACBDElWIHjbDRIEBA&#10;      BQECKglfC9M1tUTyNeEZ86zNZY1KX/jBifUoC1JFwgFy2mbGXI69hXnucXdAOD/tnT7dfBp3&#10;      pW0c9oD9w8c/VEvU7Gwu4aMwp9UW5HMsA3pN4TbPnL+yvGSdK4TEvH3j7SeLn6xWVbOzuYR7&#10;      IIVaRQjJ3V+3DsXAGsgR59gC7F16wiA63ajEKrvfztrmEKB0oxKrbH70QLBaqgwECChgFwZU&#10;      FBmK2flZ1jaHAKUbLocbZaLsbY61LQFrOITD2rYQoDSUwc/whx88/W1NIEBpiM0jeQQoDSFA&#10;      QCUnI4e1I/k418JctybajeMKfkCVp+0zzdQfO8hOKbBWktwDyTUFM2Mmvz/Q8PkX5lk3ZmWk&#10;      HDYDFKcHct4aV2mLpBmR2hMnzJNumUQSlMvZqQbWRJIDpNBsOq7ZtPC5spKdMmAt5YjZGwNh&#10;      EJ2GMgWZnpCHnW0hQGmIw+EwhKWbjBGg9MRZ2c3K9BCg9CQTytxBNwsbQoDSE2sHYghQekKA&#10;      gAprR/IIUHpCDwRUVGIVO7PDEKD0hF0YUGFtcg8ClJ5EfNF8ZJ6FDSFAQAUBSltivrjHuu5v&#10;      ckGA0ofH4zGZTCbT7RcIvXHwjQ90H3w68Om6XhTDU1rTx+7du81mc3Nzc1VV1cKSSDTyvu79&#10;      IedQqaJ0nTaKAKWD1tbWQCAgk8nm5ubq6hY/umnYOewKrtdNyQ/R+8LS0kJ0amtrxWLxUuuU&#10;      KNbxKXJxAhSZ9w6Yp+XCqEyzacIyUVmxXr0f0Ghvb/d4PMtHhwVxAuT3BTva2/LkMsPHf2bK&#10;      jxRs0bpcLuzC1lBjY+NaNdXWFud1nCuk0+lefvllygLiBCgc9ArFWXxBpObwdw32KGZlrIej&#10;      R4/etyyq69TlFhRoNRpCCGGiHm+AmZ/jyTQSwaI1ma7Om9U7d/PvPYaeMBt5WZq8HNl6FR1P&#10;      /FkZzz97e1bGETZrecgFHGf/+Zm6cJMyW62Ucbyjxh4rkUZd6uo6uTAYnjKNenjKPIVGmfdM&#10;      /YHPz5xxBwJd/QM5glBgLtI95nzzzdNNjZdlOfn//bql9JFqpTw7J2P+m2+uacp2bM3hTTLZ&#10;      Lz3/9HpUjfNAG0WECKq3bRFm529WKwJzbqGyYLMqK1OpkQgI4fC9XLFMJirZpJWJuEyUW1VZ&#10;      3HGzTyTkT0+NT0/bdtXuFRKytbTS43aUb9+jUefWlqnDEnVR+XaVWllT84hv1rFOZeMwPgka&#10;      Gxvj7cJWo6fz+ubyHQqpKFll4DA+tW3fvTe5BSBASbBz5841PBBLLuzCgAoG0UAFAQIqCBBQ&#10;      QYCACgIEVBAgoIIAARUECKggQEAFAQIqCBBQQYCACgIEVBAgoBLnfiD7lOXMxcbIjLFq+6NX&#10;      R1yv/upn7JcFqSJODxT0uTh88aHHvjc8ZCCE+PCyFVgabigDKhgDARUECKggQEAFAQIqCBBQ&#10;      QYCACgIEVBAgoIIAARUECKggQEAlFqBpfevp11+91j2VxGog5cQCxM2Q1tTUlmzG4xAhAbEA&#10;      ZUiyeOGA1xdKYjWQcmIB8s/Z9UazQMBLYjWQcmIBkqoKSvKzo4SNt9VD2ogFyOuwyvK2ZPBx&#10;      XAYJiMWFEyWOScvUjCeJ1UDKuasH4vJGBnpz8hRJrAZSTmxWhr7zxuFjR8ZNMxIt81Vrl1Yc&#10;      5fL4Bgfz4qmTSawPNrhYgJ4+dXv6zpSpxzUXkAR8XrdzKqTw+Hx42QosJTYrwzGi//BcwzPP&#10;      /aRsk3LRSpiVAUuJjYE89hm728tEk1gMpJ7YLiy7qHxv5TRDOEmsBlLOXdfCuHxpZpaQjzPR&#10;      kIBYgAb0na3XdYSHHggSEAuQ3enbt79WIsCZaEgA5sYDFfQ3QAUBAioIEFBBgIAKAgRUECCg&#10;      ggABFQQIqCBAQAUBAioIEFBBgIAKAgRU4rwrI+RznW+4mskJbC7QNg9YMSsDlhGnBxJI5LyI&#10;      P1Msvvj5v/2RqBvvyoClxb8fyGazehxWhbZwanyysqIM9wPBUnBDGVDBIBqoIEBABQECKggQ&#10;      UEGAgAoCBFQQIKCCAAEVBAioIEBABQECKggQUEGAgAoCBFQQIKCCAAEVBAioIEBAJc6sDCYa&#10;      vtGpEzE+qSLPaLHWHzvIflmQKuL0QOHg/KjFPDMzf+HjP5ln3ZiVAcuI0wMJMqQ11dXzc7bi&#10;      n//aaLHKJJKgHG/ihfgwKwOoYBANVBAgoIIAAZU4g+ikcPtDoQjeVbZxRaJMTqaIx138Lp4N&#10;      EaBmo+13F/pKVNJkFwJL8oci3mCEYYhCIsgUxWKT/ACZ7d53Lw+e/eV+mViQ7FrgARiGOH1B&#10;      fyhyZ0kCY6DhYeOiJebh4RBdQZ5A+Ldnu9750Q6kJyVwOCRbKtQqxHf+rPQ8UH/PDZ1hnBdl&#10;      8lTzLe2B6kfy5cxss971m9deOXPV/OAmltAx6nipbuvR8tzVNgBJttJdWEVZuSssLinIt08Z&#10;      tuRNbindlhX2HtcwOWLB0XL1qjf//R3a8rysVX8dkg5nooEKzgMBFQQIqCBAQAUBAioIEFBB&#10;      gIAKAgRUECCgsmSAhgf1kzPW/oEhNquBlLPkpYz+3m5uIDhElAVbtC6XC2eiIa4leyBtwWae&#10;      XCbmcWUSiRyzMmAJuBYGVDCIBioIEFBBgIAKAgRUECCgggABFQQIqCBAQAUBAioIEFBBgIAK&#10;      AgRUECCgggABFQQIqCBAQAUBAirLPd7FPTl49orxxVMn71oWefetd6oqqwJRrkIQDUrVj9ft&#10;      W+8SYSNbrgeyW8b8kei9zyDj7SjJ7+3rG7F7dR2detPiZ5bBw2bZe6KjoX6DubKibLl7ol3j&#10;      5MtXCFn1M8ogtT34pnrf/0kkkoV/xv3wwBXu/uByuRZmeqz8W+vU7EraX3mzD+GPsKJZGWvu&#10;      ThFoNtWbZeMozGbuv3Dx0tSs786SCbOhue0mIcTnnNYPDjV8eWEumHCOr1y+ePVG110LmN4e&#10;      vbFPd1fLw02XLjj8kaVaWEmzYZ+94Zumrm7aZgkhNnO/LfYbELOxd9A8QQixjw32GkbOnTvn&#10;      XdUzb/sG++58joYDfX3GrhtXzRMzhJCxwY5+k+Xc+a8SrvXeZqcsQ22dPXGbZeM50XZzf+ne&#10;      pz75w2tWcUHNZunBx36okgrnpbmEkCg/ONR4ud/P3XoglCUUJtSs0+0TRcfffP3v0pyy0p27&#10;      6g/vMg6O1tdV32l5pO2KYdqTvyOgFCfwCPP7mt2rzuQpJEKenKpZQkIjunYDY7aP3bSabD9+&#10;      9ffdHV3aKn55UUHUe8viK1YqldLEH3Xscjm727/+43t/+86eLUpF6VPHD1jMo07neBU/q6gg&#10;      13tr2F9cqZRLeHTNPvt0XZ9xsmNAf3+z/wP+Huxmsg3V/QAAAABJRU5ErkJggg==&#10;    </thumbnail>
+    <thumbnail height='192' name='Server Details' width='192'>&#10;      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAACXBIWXMAAA7EAAAOxAGVKw4b&#10;      AAAgAElEQVR4nO2daXAbV37gG+huNIDGfd83SZCUROq2LduyZEuyNWNnk5mxp7yepJJN5Zja&#10;      2trdmQ9bqf2QD/s9lVRqK6lNTXYyszOzyY7teKyxR5ZtWSclijcJECQB4iTORl+4GkB37wfK&#10;      sq2hbFKkYqjwfsWCUA28Px8f/up+/+5+P0hEUYQAgIdF+nV3APB4g2z+Q1Tpr7cfgMcLhRxT&#10;      KuUNqgz2QJ+RiC1cu3Z1cnb21q079720FF2EIAgS+f/3y7e/hp71KpnZq8jX3YceApaI2Wxm&#10;      cP/YrY8/yhYyybnbgmFA2UoTotGk5AeH981e+7guAf/lPkOpM4EE+oxmk3O4PEQxFwzvhyDW&#10;      4R0MjR1bj0oPhcbz6WWBhzQ6Q2lykeMhDP66+9obuMeflWxWYWAOBNgRm3MgCBLuJlCn0/26&#10;      uwR4nJBKpTAshSBIAs4DAXYDmBICdgVIIMCuAAkE2BUggQC74rPzQCLfvjOzYDPrIvPLx55+&#10;      Il0gkWYlSbZ9JoVM5yDzG1pcWuWQJ4+MbTP05wN6B/wtHkU5YjcB95DY9NW3J9a/86RrlXOq&#10;      BaK6cvliRH7yaXN2uQybjapqMtXFj584mYxOmtWqm1NLw8eeMkqaVEOiVHVLSysF1Dpo46Wi&#10;      Mk3xfo/xUMB2bals1kMeh3fi5qQM5xskuU6ovved56YuvUNIHBaTVGjSc+nWa+ef0SDtqUTD&#10;      pOsSFPW933352myWjb2frvvPnAvMxBoum2U9OqUz4pnZxY7Rq8XoFqtNEYRFVSYSPDw8EMKq&#10;      N+eKT5x/Wc/E3p8nTvuxZUJ0DIdHkdaFFPX93zl946N3Mp3AG79/6qd//TeIcViav1bEjxwZ&#10;      sZ47/RwEQfF4XKvV/vaA3MnNbT4ZMgXVmOq339BoNDwez29v/6wK4xq1Cxd+Y3PaFa1y1zOW&#10;      jyyYjJZGq8YLLa7FU3T37BMhFvcO2Lf49Vvy+YBXklDIwevVzt0EjE1ffXsiOoI3r29gLx93&#10;      TCW7MLlksHkmooVRXX38G98/NmzbZqhibn01S4h0yRI+jIt0g64RDQzF2jCKyrpNIr18LYv+&#10;      5z95LRmPNilCCiONtuAM7IcaFYqpNOnqj3557ft/+ApR591GA4q0liIpX8DXhmQHB523Z5Yx&#10;      La5FxLV16uzZE4uzE4ki1yos1WGdxe464DNPL8b9AY8gVWBIx63HObm2wbRmFpZePjk2MZe1&#10;      ODTZXFUjqXEySzZyxxMONRihiyJOq5xN059El08fH+kIKEtWXIP7EqnskFUdSRQGR30Sim2q&#10;      tWwmbvMGYon8M8fHE+vrKIJU82tWd7gN41aFRGN31ciKyWTa5ih9nkpli4bFTPwLZXwssojj&#10;      ishS7Njp0xvRma4UzxJ1jwnFtI5OncVVmNfj29FvvRfQ7vV0Giwi21XAYm59NUsJZLyrcuOY&#10;      pLRB2OwaFMFyZMuibFu9hzwO3Y6614dsmQe7aQjOA/UXe55AfT2JjiwudAWIpZlyPk01Ove2&#10;      kwS55fspkuS/sEFMJOIQJM7PTDNkJZkrff41giTvPd6DoanZ6WmaKKYLRKVKbCRXb00vUjQV&#10;      jS6L3WaVapRz6Vg8nYrH6lyHoVmI50iqsdm2xdIcD0GdRvnTLfe6SpIES1Q4HkquRip0LRqN&#10;      7XQoDv7tC5s/f3frxztq2KcXU2Mz1+byHQ+Uv8Jr5Y1cdeXyjbzt/ClPNV6q4+pOJlaTm771&#10;      3TemPv6lTmecmF47cOSAQSFnqtUO3G4UKqkaYte0PS7Hrz5YevrpYTeO/N3/XQ17VF7LqXfe&#10;      /VCKckyVXCfg//5f/ujiWz9vyhx2I9yuVdcZxfEBkwxq//iddMAqTaRS/+nP/iSemb114UdL&#10;      hK3T3Fgl9YouRRJFvRahL15kcKfb0Go0zARLaGVEMU4j4eEBGfnBndK5V87LqeidnOSYS7ac&#10;      q2nsxgDUukFLv3ty/MJP/orA9nmG3Jf+5U2pIYRWFwpYcL9Hd/jQoUcxkn26B9KZ7RxT7UgV&#10;      cqijVSEme/hgyE+TXNdgcqgRrQolWG4tOivV2qqV8pBXVcoXas0u1exKIUiEIIKouNzOqeXy&#10;      2dNHzRrZVCxzfNiqUCpn5yMCJMp1lvDQgFGunJ2bM+h1kChCkFit8wjUVKnxhURpzK/HNZbx&#10;      sbHaRtw56LcNnVQo4HBoAK1VHD6XQq3DIEhqHTDBDSmiYMgShisdgaDL6qTLFQmqfOJgSNIk&#10;      UMsoAnEQBImQqNfrBFgZ8tpuXr9++JkzuBxqsx1YrcOgepUlPSqU4WWlbLbFf+XA7BgwB9oC&#10;      nmOpNmpUy7d8tV2nFhOFQ/vD2w+4GpkzuAaNGsWOulEpV0zmL0w7yuWK2WyCICi/kbc57JId&#10;      hduM+YCpzB+/+V83n7wyfO6V4XPbbwgSqL8Ak2hAbwESCLAr+rQKA9zHH7/1g80nr4TPbjkH&#10;      ehB9mkC55GqixCauXxj9nT/lC/HSyuXF9vC3nh9slioEL8tH52Rm9/lvvBSZvCxXG1O5SjDo&#10;      waRwej2hMqmlXWE1TQXdKlyJ/eh///rbr52vrs5GWdxuVn/3m89PTC5CkgZJUAmi/R//4NW3&#10;      3/w5rHI49UizxVVbqEnezidWNgST1ago5FPfOnfmwuU7AV3zk4Xm66+MLpNWSXk+WWnY1W2t&#10;      zlpgkHDIlM9RVruKpZrO4NDKzCdm7whUXb0da2lMqtdfPDqdbtp0kmQ0aR0a4Atr8apoMqhv&#10;      XP14/OAJht2Am8xyknj1z38oFOalKveg3/6gAZn69FrYEceBHY1knyZQi6ncnIweDwUKubJB&#10;      2pDASqzZuT5xk2JgpwnpsoU1glWbzJVSFV5eLJSJaNwR9geICqFkCsWlWBG1Cw1putg9fOwg&#10;      S6RXi/WA19QUuNn5yNz8nMZmsGBCajE5OzdHJOMVqEmYYYirzaXZb58+nK62fV60A0FOh02D&#10;      NI8+daK6OgVBTafDcX16PrR/H16fk0CdheWi16ldS9BzE4sjJ59Cy7kW12lKFCxLZFaLoUCo&#10;      xDQ7gmTmw3ctPv/ldy6ceeNVPruagQMytOUxwO+8d+mbZ46SIoZ203WWnbn8kdwS1utOPUTh&#10;      9uWAKmwLOkw+WVc+6Cpvu05dvr1w5tQz2/8wViOzvNwUDrh21I1YNDY0PHT3eSQyNDKyo+Zb&#10;      8qBi6uDfvrD55E+Pfu/Pjv/BNhtmZq+ABOov9raMj11+E1RhgIfHPf4MSCDAw4Piuj6dRAPu&#10;      4+9u/9PmkyOOA0dc49ts1e12+zSBmgyRrtQyc1fNB8/KGmUyM5tDwy+M+7otlm7w6cS6xuY4&#10;      dGAkG482u5KuVG43aiUilEquG6x6uUKbWs+Y9XK10fAvP3377DfPJOZuk1KtTqt+4cnxXIHh&#10;      eYaim0W2cfbpJ29N3sJxnU4JizJFtVpDeDa1tsYpTDqNqlhIP3vk4LWZlUGb7OZS9cUTvg3O&#10;      0S7Ns7xCKRAW1wDFdF1eO0tWjVqMZNpWt3918YbFOVBKzFVomYDLz58YKzchBSqsr6W8QV+X&#10;      rZYbAo6Il69PHjt8iKpkIUiMp4rnv/MGub7oCe9XIA884Pz9pwkEHf3e9hMI6tsyfnUlNhnL&#10;      HnZqGZqT1qrVjexqUeAqs7l0yx5wyDJz0TVrtlqny+t+g+Lqx1eVwbGgHq8ynKooT330G8nw&#10;      qYBZzMYziMGzsrJgNFuYUqPJFOaXU9euXDLazEqxeflWxaJWTl98i7cdM+jFRja2IbG+cGjQ&#10;      YLEVSa7OlGQYbNIh3tBQYeE3zaZeY9BNXJu3OAPM6hRqlP/mX98zBwep0sLcXMWyL2gW+FQ6&#10;      2+HoSn3FbzRnmaqMq8Mi+7N/eNM/7F65tRg8dUJYubUOBQa8JoSJ/eJN4uiTo2xurUWQWbK1&#10;      duuDisR8YtSxt8OIIEifVmFcjUwUGLFJmd0+DGp3OkKDk8AyEZXAYrtGl3OTecl3X3qKqJRr&#10;      VFWp1nS5Dm6yQ1ytWae6gvjTf37v9W+d4RG1Ro7CEDe/tBocGOhCqMekLFQbAizBYbFKtYJB&#10;      D0GUNgpVIrXE6zxGldLvMM0sRkMDAwIsVyCCBkMFVNYW0Y1kfDjkSW2wZhOW2qCUUg7TWlZm&#10;      bruGDrDVkt3lnLry4cETz7W6kFopXZlf8g4Osc2OzaBtcTVYKstn006PV4SgRkeiQKUSiM/l&#10;      ijYjDimN5Vza5XIVcym11a1Apd1OZw/LeAicB+o3HpQHd7Kzm08cGptDs8XahAc17NNDGOA+&#10;      djTv+TyPKoEqlcojigzYDTT9kB6fRqOx5fZHlUAPd7oT8G/A1oewTy+mOtTWBx3CtowG/+Vf&#10;      /uXe9e0LiHz7zvSs0GlOXL1ptBhXkhtEZmUykuiwJZqD4suxGllYzZTdju2uBtxrhE9+867a&#10;      ESQLuY31hRpi0inRzRcSqwm9Uf/bDZKJBK7Xf85O1v3w4icBv+PSr9+nWq2NEumwfvbZrCYS&#10;      Rr1+8/Hexsx67OaNiVqrVagwyVRc2mncmImiYv3KxLxFDaUrfDI6ldggu2SSVxmJEqVV8IkM&#10;      q9cpIQiqpBJdXL8pR0ssTVR4dWVjXS0T37800WpRZL1r0m9x8Y5vVKZjBYflbh8ajYZSqfzt&#10;      t33jn9741fLFXy1fVMvwLQ9nD2r4COdAba6dWU922nYL3l0j2Pxq1GS0YFAnW2K5dH5zZarU&#10;      5N1+wD1cmXpvafOd+bhaIKorVy7+7Pbnlzb/5EFLm2dv3re0ucRWDwVs1+YTZj0Ed5u/vbT5&#10;      rS8ubXaZVVOR7ObS5uMHXo4XW0vX3t2o+6tD+oXYhstmzUSnlJpOnJCurK1uLm3+x0+XNmsO&#10;      7xvFu+9N5V4YU8JDztLUB4vOERsmSRSKWKuUX1+h6UyDls6nSidH1FfmaadDKW0WEzX88hX7&#10;      D7+/RW21ex5hAmFK1ejoEI4rIkvUMZcNZ/NdqYLiBI9Vu7kylZNh21/XDEGQzuo6cVglkPGz&#10;      QTeCSfxGwrbvNIpgGlvQomxbtVvfA//gUIpcueQL63BRYlK9aAxjKNYOBDaXNks3suizTxzx&#10;      mPEmRQRCA59f2uw2Gn/0y2vfOvcKUeePfrq0+dhYoA3JDgw6W1z33tLm8QMHEKFxd2mz0nz2&#10;      lMtt1U8vxg+OegSpIuDv1GlmZNjdcH6vu7AUsHlKxazZgHC+AY8Dh9sqOrPsCY83GMGHBjeX&#10;      NjdwOQ7zz+PuIY+CRqHAs2daTClV5gMum0ypVvLdjEKhHTbqfWWnDv/9fRgil3eZwlhXKfAQ&#10;      RZYkiGbnH+NXAMr4/uJB1fi99YRHnGNbHsLAeSAABIFVGYBeAyQQYFf0dQL1rFyhyVQaHX5r&#10;      ucJmD0tZguUqlbLIc9MzC5V8qkTVt+yzyHPx9exXDgWQK+yMHpcr5MQSHn5udmntPrmCdvxg&#10;      EOcvXF54ep8SHvq90tRbNv8o0mqvFkRVV2JzmNsc020KC4n8sRHzxEzeYJBJm8W1ukqBYD94&#10;      7Mr4XkZntnOx2Y7urlxBag8fxPU02egaTA4ZT6nQFHlPrrCxKVeQ2V1Us6tW3ZUrHB0dnoqW&#10;      zp4+isvbU5HU8WFfWxQ35QpKncVhNjHThU25Qq72BbnC1Fx2zO8VEGx8TLcpV2CVSGJmLRwa&#10;      SH687Aj7Wm1uwO2ItGAT3JAiOEOWMK3a4dahtWIblggCdPiJJywqghK40Mh4u15N0YLPpZXJ&#10;      NXKeT+VLCrUFVigpqhUeDaq1OFdCupzWa7OBMv7fjp6VK+weIFcA7ApQxgN6C5BAgN1A9Okk&#10;      GnAfQK6wM3pcrnBAVzcdPT99OxL2IrkirjfLeTZTSpel/nBIRr49UX7t22dhNhcnBBvGF+g2&#10;      rOBtnVZUah7VQQvzt9cozV/84PWF69NSg01CJxnE6jLiwWDgSwbkYeUKxj5NoB6XKzjsuqnl&#10;      klJSi69TuRRfXeweHdeVVotMF5UoaQsGryWTWqH10fX557yy5YrgGBlU1psdFZtcy7h8obXZ&#10;      El3rTMdmZKiFTFzWBM9U7VaNHNPYnHs+kqAK24IelCtsEonERkaGIAhKRKPOoWFs5zPYvZUr&#10;      QCCB+g1QxgN6C5BAgF3Rp5NowH08nFwB6tsE6nG5ghUq2Y+cSS6vu2yyjYKoMeFwm6LLZdgW&#10;      sMK1y4v0N184KO00MyVWjSENjmu1WU2nW8EtynqpTFYSZeGP//35YqYswRVkbl1t9iox2Gg0&#10;      fMmAALnCzuhxucKQWzl5Z5mtFqgykczgItK2mbn1a0X0aHNImiym2hdxRE3HZyrCfqSY5a1K&#10;      t+OgrDWXqZzb7+eYbL0la0nht3/1M1TpNwkra93g0IDjleeffRQj2adVWI/LFbxmnOWx2PRN&#10;      10AYFUWmLVqMim6tde3O7NEjBxEYLufS7n0Hs4mk12nJbhScLkuTqsMadXF9RWX1tmusw2Fr&#10;      tVpSKVyt5C0WJy9BhAbzJV84B8p4wLYAcgXAI+Gh5QqgjAfsCrAHAkDQNuQKD+IRyhV6nsdB&#10;      rqDBP9+BWCxqMhmvX/o1zXSW0xs+59af9O3bt51O59LsZIVkbk9MuoMD6KdHmsdJrtDLPDZy&#10;      Bbx759pS+MigpNZxhIa7bPrGdOT0ocA7VxcCFnVjQ/I3P78zPGK+9tbFI9/+3c7CB7MNx5BL&#10;      T6XnfvKLCy++dKKauSVwzdnM03f+z/94+o3/dtD3ZaeCHo4+TaDHRq4QGjaobfagb+7j9/xe&#10;      S6tr2qfCokuRc08eyNfbHaXnxZM1RKYWz54O+52i4/VgV27AEYEbXkuSHpvJ7/akEpmQVoRP&#10;      Pi/jW9TD2qW+BFDG9xdArgDYFXt+Owdy7+Vd9QvwmPCoHIlAadg/PPQeaMvtX5hEV4kKgqDp&#10;      dNrrspAcooK5VIFx6DFEY4PazUp+nZcbRwZ82/+tVaKCIEginnA5rQ1RvvuAe0tkcWFwZH+T&#10;      ZVoNCtXa75XxJEFuWcZTJKn+QhkvJhKJQCAwPzPj83mqDcHntNx7jSBJo16/+XhvI0NTiXjC&#10;      73XSHUQpg9pMNVPlhoKu/EYhPOAla2KHLVaakFxs2HyDfKulUclIlt90JLZYWqLUbjoSyVJW&#10;      UJhFjjHqNTPzKx6bRlCYLLov1Px3u8hziXQ56P+Ku2m/8lrYg/gsgbga+fa//np40EOm128s&#10;      WB26LiZBOEiSz/Ndbj6VIv7o1dPLxA7OXN8NGHLJoPaP31rUqjGvQb2bgLGZa3P5hlPKRAhk&#10;      v0+zkq6jXBpCVcWWwiwWn/rmH/ht21373cNyBVrKN4rFjHDpvbY60Ptyhc9OJCIyRZMltTot&#10;      yzKYSo0jnFxhLDKcRYVoLD6zXs3x4oHRwe3fSb4ZUK1Wzi6nnzxyQC6py+W7CsjznZXVbIfO&#10;      NmG9SYuRTMdk0vp8gWyhEHKqBZnNYdluAvF8Z2V1XaOQydRmLcYhkEyJ2wWh1VGorUoJ1KSS&#10;      tESrlHZgrE4UTTq0ynByuYpk63KZyNUaiXz10IHA9HL5ySMjOhyaW06PDrikKMpQDEmzSqPR&#10;      bTGQZQ6V8UKLZduIWikpk3Ve5Ad9jtnldNhvQxVah91shDnY7JTJ9IUKdfaZ8fWVtNaoaPBY&#10;      wK5lJTo1z2IqZaVAoWqVx2dG6lKJTqWSClp7wGlA2jKzzYBDbTpd7biMuEqrV4lCMpcTURXb&#10;      5pUSweR02lwOJdyVqKyjgyEtLuW6sMC3tzwfeO9+oAdVYQ86kQiqsC0AcoXtNwQJ1F+AVRmA&#10;      3gIkEGBX9Om1MMB9ALnCzuhZuYJYnCM5CO4QRqOBaKjvkyuohscdSkmZasPVaX7g90pTb42M&#10;      HZ2dXMTtWrXCPDroFsRui2WLTMfnUEeXMggGod3qnazkmcOjTx37snsOH1au0K8J1LNyBZvL&#10;      hlANuUgvJeiAXXKfXKEgX5cpuHcnMy8e1tQZRm91pddjdVFqkkoggcvF1yKJiEbrn4yuPuXD&#10;      KdTiVOvpYqFWk12bnB0ZcEiQHXyxxDYBVdgW9KxcYfcAuQJgV4AyHtBbgAQC7Io+nUQD7gPI&#10;      FXZGz8oVWoUZpoPKxJrb66UYKZAr9Cg9K1ewO4NOmUhkI2+/+b5ncBTIFXqUnpUroHA9mWds&#10;      GhlucsSmbwG5AqC3AHIFwCMByBUAXw9gDwSAICBXeCh6Ua6QWLq9ki4WUzFIpqDpllbBJzLs&#10;      5qqMSirRxfUYV4nkGmbd3duTSYJUKBWJxGqrUhE0puWp62WKnpxdHgz6tvybgVxhb+hZuYLT&#10;      bBZogmyxt37894hpQIvRLVb7jwRhUZWJBA8PD4Sw6s254hPnX9YzsffnidN+bJkQHcPhUaR1&#10;      4cMb3/+d0zc+eifTCTBC46d//TeIcViav1bEjxwZsZ47/dyjGMk+TaCelSsoZZ2uRqNV8Pqz&#10;      38kuTXnC4w1G8KFBp1XOpulPosuDh4/5R1CWrLgOvXDWmB2yqiWJwuCIT0KxLwf3RSLR8PFz&#10;      kkReZDtPnnoRRZBqXnzGHW7DeCmb1dh3djvAdgBlfH8B5AqAXQFu5wD0FiCBALuirxMosrjQ&#10;      FSCWZsr5NNXo3NtOEuSW76dIkv/CBjGRiEOQOD8zzZCVZK70+dcIkrz3eA+Gpmanp2mimC4Q&#10;      lSqxkVy9Nb1I0VQ0uix2m1WqUcysL62sx2NLda7D0Ox9HahUyhAEReZnajUmlkg/6O+Kx9cg&#10;      CCrlkgWCXlhY3M4c5eDfvrD5c28ytE36tAp7bOQKFmRxIRsetjdpzhkaLqfmpBrHuBv/q//5&#10;      z/uGbG5F/c2buZBXvfDJjeDTz3XWb0VptcemzazM5Sud8IEBaS2/UWBaWh+/dqmtHnr26PCe&#10;      j2SfJpDO4nS0iQ7ddOoxXGc04eeMQxgqa7sPWGXdJiEhr2VRtVzqG9zXpIhTJw402oLBETTo&#10;      tBRTaUol7/7y2jN/+ApR57/32kubZfxLJ4bbkEwUeKvdhmlx7ZBoXqcgCNp/6FCiyLGFpTqs&#10;      G/DZXE7z9GL8uSMBQaoIBkO1cmFkbKjh93ILS/vDB+pzWSWuYzjdqE7RlVuyS1MmY3jfMLbp&#10;      SNSpD8jDh7QqLLoUee0bT+Xr7Y7Cts9TRVCF2eN16BWi8ilNV27AkeGAbS1J+rwmGD2cSmR8&#10;      Kj6BatUwVyLpPT/igCqsvwBlPGBXgDIe0FuABALsir5OIFDG3wOU8Tuj38r4yIX/deq1P/MY&#10;      dqZI2w59mkA6s52LzXZ0CjnU0aoQqT18ENfTZKNrMDlkPKVCUyS3Fp2Vam3VysaQV1XKF2R2&#10;      F9XsqlWQCEEEUTk6OjwVLZ09fRSXt6ciqePDvrYozs5HBEhU6iwOs4mZLszOzRn0ulxNhCCx&#10;      WucRqKlS41Nz2TG/V0Cw8TFdbSPuHPSzSiQxsxYODSQ/XlZbcaqGjg7J1wpNTZOUSs16BQxr&#10;      LFx2RmzXlCaPTqu8PhU589RwvtbuyI06fqZehchGB4WaiNbp1JpsekyHNKwt3eiAmWH9On3W&#10;      hHacdkMytaGB917mDKqwLehBR2KlXDaZzTtqvnVM4EgE7IZH9VUHew747oTe5FF91cGeA747&#10;      oWd5hF91AOhbetGRyNXIn//y3aGQe+KjK+79h0QppBZb8VLNaZIhSnNqLXfqmHuxJHv1G89s&#10;      M2AuuZooURYZn6tBKgVcyFY8HiMkihmibULrzuETHqt6J6F60ZEoKc8nKw27uq3VWQsM0teO&#10;      REylN6rkkCAJBWyJcs2mrgm4U5S2pRIJBGM2m7HRkb380nazB7orNowY6stxPvSNY/YU0U1E&#10;      L1jdA7djG/vNHGzav/0E6llHYmj/Prw+J4E6C8tFr1MLHImPJcCRuP2GIIH6C3A1HtBbgAQC&#10;      7ApQxgMgCDgSd0rPOhLbpXmWVygFwuIaoJjufY5EzBmyGfXVUqlTjnScz9IrVwZHxm7fnNM6&#10;      dGqVZTjohiQCV2cKdNtj15PFarPNiV02kmuNjw4OBT1fMiDAkbgzetaRaHEGmNUp1Cj/zb++&#10;      Zw4O3udI1D0n8bOxaxvYYR+HabkGxy9Elixud4OrkoXccr0STy8JkKtME35VM0bjg0GTWI7e&#10;      zmN1hvryBHpo+rQK61lHotmEpTYopZTDtJaVmdv3ORJr3a5SrSVKZbdVQ3VkakzC1ajVZGEg&#10;      5EEVakm33eQEjVqWLpAOsw4SIQmCCFxNkGIU27Ia5BJE0+FqoIwHPDzAkQh4JABHIuDrAeyB&#10;      ABAEHIkPRS86EpPRqcQGWclEuyjOUA3gSOxRetaR6LJZM9EpnRG/8+N/6Bi9wJHYo/SsI9Fs&#10;      QDjfgEZS07/w77KRO8CRCOgtgFwBsCvA7RyA3gIkEGBX9HUC9aBcoZxLx+LpVDx2V67AcyR1&#10;      d0FWi6U5HoI6jTL12RKtza6SJMESFY6HkquRCl2LRmM7HQogV9gZPSxXoEiiqNci9MWLDO50&#10;      G1qNhplgCa2MKMZpJDw8ICM/uFM698p5ORW9k5Mcc8mWczWN3RiAWjdo6XdPjl/4yV8R2D7P&#10;      kPvSv7wpNYTQ6kIBC+736A4fOvQoRrJP90A6s51jqh3pXbmCyR4+GPLTJNc1mBxqRKtCCfae&#10;      XKG8KVeoNbtUsyuF7soVXG7n1HL57OmjZo1sKpY5PmxVKJWbcgW5zhIeGjDKlZtyBUj8glxh&#10;      IVEa8+txjWV8bGxTrmAbOqlQwOHQAFqrOHwuhVqHQZDUOmCCG1JEwZAlDFc6AkGX1UmXKxJU&#10;      +cTBkKRJoJZRBOIgCBIhUa/XCbAy5LXdvH798DNncDnUZjuwWodB9SpLelQow8tK2WyL/8qB&#10;      2TGgCtuCHpQrbFIuV8xmEwRB+Y28zWHf/rKQz2ICuQJgN4AyHtBbgAQC7Io+rcIA99GLcoVe&#10;      5rGRK4RM+RxltatYqukMDq3MfGL2jkDV1duxlsakev3Fo9Pppk0nSUaT1qEBvrAWr4omg/rG&#10;      1Y/HD55g2A24ySwniVf//IeluUu+Q8+7HuxI7EW5Qi/zuMgV1hL03MTiyMmn0ObS5N8AAAU9&#10;      SURBVHKuxXWaEgXLEpnVYigQKjHNjiCZ+fBdi89/+Z0LZ954lc+uZuCADG15DPA771365pmj&#10;      pIih3XSdZZdmJrqGYRVwJP7b0INyhVgkMjQysqPmWwLkCoBd8agciUBp2Cc8KkciUBr2D8CR&#10;      CNh79kCuwNXIi5/cCrhMqbU1GtZaLUYlR8WJpsuEYWpLOp4bC1sSZf6l55/aZujPB2zI9Gpc&#10;      oZW0dhOwyRDpCmtUIs2O2IHQBl0xahRSpa5QqCilbUdwBMfgr47yWahelCu0CjNMB8WFqsER&#10;      brTEx0mugKn0UKtO13CDxabiodjK3KA37HYbWnSRLpRgGBK7wuEnj20/9OcDtitUlSDkJvdu&#10;      Aq6uxCZjKV0jdbWg/w+nTJMZLVtZMMjg9TY+qm8V6vgzRwM7CdWLcgW7M+iUiWvzqaXVq3q7&#10;      +zGTK1TKRVQCzSxGfX6fVCpFYGQlnhnyW2Qam8DVZTJYq91itdSXcC+gPxjodroKuXw3ATeN&#10;      CEibkmuMbQFu0IRJK4dxw0auqJJ1rb5htXy7R+SelSugcD2ZZ+xamUxri89PArkCoLcAcgXA&#10;      IwHIFQBfD2APBIAgIFd4KHpRrpBYur2SLhKZGCfBaiy3hVwBhiAISixNVHh1ZWNdLRPfvzTR&#10;      alFkvWvSb3Hxjm9UpmMFh+VuH4BcYW/oWbmC02wWaGItszI/t9qUqe+TK2gO7xvFu+9N5V4Y&#10;      U8JDztLUB4vOERsmSRSKWKuUX1+h6UyDls6nSidH1FfmaadDKW0WEzX88hX7D7+/RW21e/o0&#10;      gXpWrqCUdboaTXAg3IK1xdXF++QKDVyOw/zzuHvIo6BRKPDsmRZTSpX5gMsmU6qVfDejUGiH&#10;      jXpf2anDf38fhsjlXaYw1lUKPESRJQmi2fORBGV8fwHkCoBdAVZlAHoLkECAXdHXCdSDcoVi&#10;      Zn1pZT25GmGaHJAr9C49LFegpXyDzMVkmKUCKYBcoUfpWbmCWivryLR6u4dFMSBXeFwBcoXt&#10;      NwQJ1F+AMh7QW4AEAuyKPq3CAPcB5Ao7o2flCmJxjuSgbikaHHs2W26GvUiuiOvNcp7NlNJl&#10;      qT8ckpFvT5Rf+/ZZmM3FCcGG8QW6DSt4W6cVlZpHddDC/O01SvMXP3h94fq01GCT0EkGsbqM&#10;      eDD4ZSsOgFxhZ/SsXMHmsiFUAzPZbk4uDPlt8XUql+Kri92j47rSapHpohIlbcHgtWRSK7Q+&#10;      uj7/nFe2XBEcI4PKerOjYpNrGZcvtDZbomud6diMDLWQicua4Jmq3aqRYxqbc89HElRhW9CD&#10;      coVNIpHYyMgQBEGJaNQ5NIztfAYL5AqAXQHKeEBvARIIsCv6dBINuI89kCv0FY+NXMFrZ8mq&#10;      UYuRTNvq9q8u3rA4B0qJuQotE3D5+RNj5SakQIX1tZQ36Ouy1XJDwBHx8vXJY4cPUZUsBInx&#10;      VPH8d96oZSIae8ikfeDFuD2QK/QVj41cobQwN1ex7AuaBT6VznY4ulJf8RvNWaYq4+qwyP7s&#10;      H970D7tXbi0GT50QVm6tQ4EBrwlhYr94kzj65CibW2sRZJZskasL9Grl914+tecj2adV2GMj&#10;      Vxg6wFZLdpdz6sqHB0881+pCaqV0ZX7JOzjENjs2g7bF1WCpLJ9NOz1eEYIaHYkClUogPpcr&#10;      2ow4pDSWc2mXy1UuFhRKDFXppXwHlPGAhwfIFQCPBCBXAHw9gD0QAIKAXOGheBzkChr88x2I&#10;      xaImk/H6pV/TTGc5veFzbv1J37592+l0Ls1OVkjm9sSkOziAfnqk2XO5wv8H3xLDcBvuqeQA&#10;      AAAASUVORK5CYII=&#10;    </thumbnail>
+    <thumbnail height='192' name='Log Collector Failures' width='192'>&#10;      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&#10;      yQYAAAAASUVORK5CYII=&#10;    </thumbnail>
+  </thumbnails>
+</workbook>

@@ -1,0 +1,1031 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20194.20.0119.2058                               -->
+<workbook source-build='2019.4.2 (20194.20.0119.2058)' source-platform='win' version='18.1' xml:base='http://vizors.stackly.org' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <ISO8601DefaultCalendarPref ignorable='true' predowngraded='true' />
+    <ISO8601PeriodTypes predowngraded='true' />
+    <SheetIdentifierTracking ignorable='true' predowngraded='true' />
+    <WindowsPersistSimpleIdentifiers />
+    <WorksheetBackgroundTransparency />
+  </document-format-change-manifest>
+  <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats?rev=1.5' id='HWDP-DailyStats' path='/workbooks' revision='1.6' />
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='daily_stats+ (hwdw)' inline='true' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' version='18.1'>
+      <repository-location id='daily_statshwdw' path='/datasources' revision='1.0' />
+      <connection channel='http' class='sqlproxy' dbname='daily_statshwdw' directory='/dataserver' port='80' server='localhost' server-oauth='' username='' workgroup-auth-mode='prompt'>
+        <relation name='sqlproxy' table='[sqlproxy]' type='table' />
+        <calculations>
+          <calculation column='[Calculation_6105966301626564609]' formula='if DATEPART(&apos;weekday&apos;,[event_dt])= 1 or DATEPART(&apos;weekday&apos;,[event_dt]) = 7 then &quot;Weekend&quot; else &quot;Weekday&quot; end' />
+          <calculation column='[Number of Records]' formula='1' />
+        </calculations>
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>Calculation_6105966301626564609</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[Calculation_6105966301626564609]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>Calculation_6105966301626564609</remote-alias>
+            <ordinal>14</ordinal>
+            <layered>true</layered>
+            <caption>Week Part</caption>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='string' name='formula'>&quot;if DATEPART(&apos;weekday&apos;,[event_dt])= 1 or DATEPART(&apos;weekday&apos;,[event_dt]) = 7 then \&quot;Weekend\&quot; else \&quot;Weekday\&quot; end&quot;</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='measure'>
+            <remote-name>Number of Records</remote-name>
+            <remote-type>16</remote-type>
+            <local-name>[Number of Records]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>Number of Records</remote-alias>
+            <ordinal>15</ordinal>
+            <layered>true</layered>
+            <caption>Number of Records</caption>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='integer' name='field-type'>0</attribute>
+              <attribute datatype='string' name='formula'>&quot;1&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>access_method</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[access_method]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>access_method</remote-alias>
+            <ordinal>1</ordinal>
+            <layered>true</layered>
+            <caption>Access Method</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>25</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>bot_type</remote-name>
+            <remote-type>16</remote-type>
+            <local-name>[bot_type]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>bot_type</remote-alias>
+            <ordinal>2</ordinal>
+            <layered>true</layered>
+            <caption>Bot Type</caption>
+            <family>daily_stats</family>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='integer' name='field-type'>1</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>double_click</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[double_click]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>double_click</remote-alias>
+            <ordinal>3</ordinal>
+            <layered>true</layered>
+            <caption>Double Click</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='measure'>
+            <remote-name>event_count</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[event_count]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>event_count</remote-alias>
+            <ordinal>4</ordinal>
+            <layered>true</layered>
+            <caption>Event Count</caption>
+            <family>daily_stats</family>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='integer' name='field-type'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>event_dt</remote-name>
+            <remote-type>133</remote-type>
+            <local-name>[event_dt]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>event_dt</remote-alias>
+            <ordinal>5</ordinal>
+            <layered>true</layered>
+            <caption>Event Dt</caption>
+            <family>daily_stats</family>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='integer' name='field-type'>1</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>event_type</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[event_type]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>event_type</remote-alias>
+            <ordinal>6</ordinal>
+            <layered>true</layered>
+            <caption>Event Type</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>25</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>is_inst</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[is_inst]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>is_inst</remote-alias>
+            <ordinal>7</ordinal>
+            <layered>true</layered>
+            <caption>Is Inst</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>platform</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[platform]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>platform</remote-alias>
+            <ordinal>8</ordinal>
+            <layered>true</layered>
+            <caption>Platform</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>20</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>site_cd</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[site_cd]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>site_cd</remote-alias>
+            <ordinal>9</ordinal>
+            <layered>true</layered>
+            <caption>Site Cd</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>CountD</aggregation>
+            <scale>1</scale>
+            <width>25</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>user_type</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[user_type]</local-name>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias>user_type</remote-alias>
+            <ordinal>10</ordinal>
+            <layered>true</layered>
+            <caption>User Type</caption>
+            <family>daily_stats</family>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>25</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='binary' />
+            <attributes>
+              <attribute datatype='integer' name='field-type'>2</attribute>
+              <attribute datatype='integer' name='role'>0</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[sqlproxy]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='boolean' name='CAP_64BIT_CALCULATIONS'>true</attribute>
+              <attribute datatype='boolean' name='CAP_CREATE_TEMP_TABLES'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_BLENDING_ALWAYS_USE_LOCAL_MAPPING_TABLES'>false</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_BLENDING_PREFER_LOCAL_MAPPING_TABLES'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_BLENDING_REMOTE_MAPPING_TABLES'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_EXTRACT_RANGES'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_SORT_BY'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_SUBQUERIES'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_SUBQUERY_QUERY_CONTEXT'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_SUPPORTS_LODJOINS'>true</attribute>
+              <attribute datatype='boolean' name='CAP_QUERY_USE_QUERY_FUSION'>false</attribute>
+              <attribute datatype='boolean' name='CAP_SUPPORTS_SPLIT_FROM_LEFT'>true</attribute>
+              <attribute datatype='boolean' name='CAP_SUPPORTS_SPLIT_FROM_RIGHT'>true</attribute>
+              <attribute datatype='integer' name='charset'>0</attribute>
+              <attribute datatype='string' name='class'>&quot;dataengine&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;binary&quot;</attribute>
+              <attribute datatype='string' name='datasource'>&quot;&lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos; ?&gt;&#10;&#10;&lt;datasource :source-version=&apos;10.2&apos; formatted-name=&apos;repoItem5522140970825923551&apos; inline=&apos;true&apos; version=&apos;10.2&apos; xml:base=&apos;http://vizors.stackly.org&apos; xmlns:user=&apos;http://www.tableausoftware.com/xml/user&apos;&gt;&#10;  &lt;repository-location id=&apos;daily_statshwdw&apos; path=&apos;/datasources&apos; revision=&apos;1.0&apos; /&gt;&#10;  &lt;connection channel=&apos;http&apos; class=&apos;sqlproxy&apos; dbname=&apos;daily_statshwdw&apos; directory=&apos;/dataserver&apos; port=&apos;80&apos; server=&apos;vizors.stackly.org&apos;&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols&gt;&#10;      &lt;map key=&apos;[Calculation_6105966301626564609]&apos; value=&apos;[sqlproxy].[Calculation_6105966301626564609]&apos; /&gt;&#10;      &lt;map key=&apos;[Number of Records]&apos; value=&apos;[sqlproxy].[Number of Records]&apos; /&gt;&#10;      &lt;map key=&apos;[access_method]&apos; value=&apos;[sqlproxy].[access_method]&apos; /&gt;&#10;      &lt;map key=&apos;[bot_type]&apos; value=&apos;[sqlproxy].[bot_type]&apos; /&gt;&#10;      &lt;map key=&apos;[double_click]&apos; value=&apos;[sqlproxy].[double_click]&apos; /&gt;&#10;      &lt;map key=&apos;[event_count]&apos; value=&apos;[sqlproxy].[event_count]&apos; /&gt;&#10;      &lt;map key=&apos;[event_dt]&apos; value=&apos;[sqlproxy].[event_dt]&apos; /&gt;&#10;      &lt;map key=&apos;[event_type]&apos; value=&apos;[sqlproxy].[event_type]&apos; /&gt;&#10;      &lt;map key=&apos;[is_inst]&apos; value=&apos;[sqlproxy].[is_inst]&apos; /&gt;&#10;      &lt;map key=&apos;[platform]&apos; value=&apos;[sqlproxy].[platform]&apos; /&gt;&#10;      &lt;map key=&apos;[site_cd]&apos; value=&apos;[sqlproxy].[site_cd]&apos; /&gt;&#10;      &lt;map key=&apos;[user_type]&apos; value=&apos;[sqlproxy].[user_type]&apos; /&gt;&#10;    &lt;/cols&gt;&#10;    &lt;relation name=&apos;sqlproxy&apos; table=&apos;[sqlproxy]&apos; type=&apos;table&apos; /&gt;&#10;    &lt;cols /&gt;&#10;  &lt;/connection&gt;&#10;  &lt;aliases enabled=&apos;yes&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Week Part&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[Calculation_6105966301626564609]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos;&gt;&#10;    &lt;calculation class=&apos;tableau&apos; formula=&apos;if DATEPART(&amp;apos;weekday&amp;apos;,[event_dt])= 1 or DATEPART(&amp;apos;weekday&amp;apos;,[event_dt]) = 7 then &amp;quot;Weekend&amp;quot; else &amp;quot;Weekday&amp;quot; end&apos; /&gt;&#10;  &lt;/column&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[Number of Records]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; user:auto-column=&apos;numrec&apos; visual-totals=&apos;Default&apos;&gt;&#10;    &lt;calculation class=&apos;tableau&apos; formula=&apos;1&apos; /&gt;&#10;  &lt;/column&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Access Method&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[access_method]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Bot Type&apos; datatype=&apos;integer&apos; default-type=&apos;ordinal&apos; name=&apos;[bot_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Double Click&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[double_click]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Sum&apos; caption=&apos;Event Count&apos; datatype=&apos;integer&apos; default-type=&apos;quantitative&apos; name=&apos;[event_count]&apos; pivot=&apos;key&apos; role=&apos;measure&apos; type=&apos;quantitative&apos; user-datatype=&apos;integer&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Year&apos; caption=&apos;Event Dt&apos; datatype=&apos;date&apos; default-type=&apos;ordinal&apos; name=&apos;[event_dt]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;ordinal&apos; user-datatype=&apos;date&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Event Type&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[event_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Is Inst&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[is_inst]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Platform&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[platform]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;Publisher&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[publisher]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;CountD&apos; caption=&apos;Site Cd&apos; datatype=&apos;string&apos; default-role=&apos;measure&apos; default-type=&apos;quantitative&apos; name=&apos;[site_cd]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column aggregation=&apos;Count&apos; caption=&apos;User Type&apos; datatype=&apos;string&apos; default-type=&apos;nominal&apos; name=&apos;[user_type]&apos; pivot=&apos;key&apos; role=&apos;dimension&apos; type=&apos;nominal&apos; user-datatype=&apos;string&apos; visual-totals=&apos;Default&apos; /&gt;&#10;  &lt;column-instance column=&apos;[event_dt]&apos; derivation=&apos;Month&apos; name=&apos;[mn:event_dt:ok]&apos; pivot=&apos;key&apos; type=&apos;ordinal&apos; /&gt;&#10;  &lt;column-instance column=&apos;[Calculation_6105966301626564609]&apos; derivation=&apos;None&apos; name=&apos;[none:Calculation_6105966301626564609:nk]&apos; pivot=&apos;key&apos; type=&apos;nominal&apos; /&gt;&#10;  &lt;layout dim-ordering=&apos;alphabetic&apos; dim-percentage=&apos;0.647525&apos; measure-ordering=&apos;alphabetic&apos; measure-percentage=&apos;0.352475&apos; show-structure=&apos;true&apos; /&gt;&#10;  &lt;style&gt;&#10;    &lt;style-rule element=&apos;mark&apos;&gt;&#10;      &lt;encoding attr=&apos;color&apos; field=&apos;[mn:event_dt:ok]&apos; type=&apos;palette&apos;&gt;&#10;        &lt;map to=&apos;\#4e79a7&apos;&gt;&#10;          &lt;bucket&gt;3&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#59a14f&apos;&gt;&#10;          &lt;bucket&gt;2&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#76b7b2&apos;&gt;&#10;          &lt;bucket&gt;1&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#79706e&apos;&gt;&#10;          &lt;bucket&gt;12&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#8cd17d&apos;&gt;&#10;          &lt;bucket&gt;6&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#b07aa1&apos;&gt;&#10;          &lt;bucket&gt;9&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#b6992d&apos;&gt;&#10;          &lt;bucket&gt;7&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#e15759&apos;&gt;&#10;          &lt;bucket&gt;5&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#edc948&apos;&gt;&#10;          &lt;bucket&gt;10&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#f1ce63&apos;&gt;&#10;          &lt;bucket&gt;8&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#f28e2b&apos;&gt;&#10;          &lt;bucket&gt;4&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#ff9d9a&apos;&gt;&#10;          &lt;bucket&gt;11&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;      &lt;/encoding&gt;&#10;      &lt;encoding attr=&apos;color&apos; field=&apos;[none:Calculation_6105966301626564609:nk]&apos; type=&apos;palette&apos;&gt;&#10;        &lt;map to=&apos;\#4e79a7&apos;&gt;&#10;          &lt;bucket&gt;&amp;quot;Blue&amp;quot;&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#4e79a7&apos;&gt;&#10;          &lt;bucket&gt;&amp;quot;Weekday&amp;quot;&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#f28e2b&apos;&gt;&#10;          &lt;bucket&gt;&amp;quot;Green&amp;quot;&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;        &lt;map to=&apos;\#f28e2b&apos;&gt;&#10;          &lt;bucket&gt;&amp;quot;Weekend&amp;quot;&lt;/bucket&gt;&#10;        &lt;/map&gt;&#10;      &lt;/encoding&gt;&#10;    &lt;/style-rule&gt;&#10;  &lt;/style&gt;&#10;  &lt;semantic-values&gt;&#10;    &lt;semantic-value key=&apos;[Country].[Name]&apos; value=&apos;&amp;quot;United States&amp;quot;&apos; /&gt;&#10;  &lt;/semantic-values&gt;&#10;&lt;/datasource&gt;&#10;&quot;</attribute>
+              <attribute datatype='boolean' name='extract-active'>true</attribute>
+              <attribute datatype='boolean' name='fast-get-server-time'>true</attribute>
+              <attribute datatype='string' name='update-time'>&quot;7/18/2018 6:30:07 PM&quot;</attribute>
+              <attribute datatype='string' name='version'>&quot;0.0.0&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <overridable-settings>
+        <date-options fiscal-year-start='january' start-of-week='sunday' />
+        <default-date-format />
+        <default-calendar-type>Gregorian</default-calendar-type>
+      </overridable-settings>
+      <aliases enabled='yes' />
+      <column aggregation='Count' caption='Week Part' datatype='string' default-type='nominal' layered='true' name='[Calculation_6105966301626564609]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default'>
+        <calculation class='tableau' formula='if DATEPART(&apos;weekday&apos;,[event_dt])= 1 or DATEPART(&apos;weekday&apos;,[event_dt]) = 7 then &quot;Weekend&quot; else &quot;Weekday&quot; end' />
+      </column>
+      <column aggregation='Sum' datatype='integer' default-type='quantitative' layered='true' name='[Number of Records]' pivot='key' role='measure' type='quantitative' user-datatype='integer' user:auto-column='numrec' visual-totals='Default'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column aggregation='Count' caption='Access Method' datatype='string' default-type='nominal' layered='true' name='[access_method]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Sum' caption='Bot Type' datatype='integer' default-type='ordinal' layered='true' name='[bot_type]' pivot='key' role='dimension' type='ordinal' user-datatype='integer' visual-totals='Default' />
+      <column aggregation='Count' caption='Double Click' datatype='string' default-type='nominal' layered='true' name='[double_click]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+      <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+      <column aggregation='Count' caption='Event Type' datatype='string' default-type='nominal' layered='true' name='[event_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' caption='Is Inst' datatype='string' default-type='nominal' layered='true' name='[is_inst]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' caption='Platform' datatype='string' default-type='nominal' layered='true' name='[platform]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' caption='Publisher' datatype='string' default-type='nominal' layered='true' name='[publisher]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='CountD' caption='Site Cd' datatype='string' default-role='measure' default-type='quantitative' layered='true' name='[site_cd]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column aggregation='Count' caption='User Type' datatype='string' default-type='nominal' layered='true' name='[user_type]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+      <column-instance column='[event_dt]' derivation='Month' name='[mn:event_dt:ok]' pivot='key' type='ordinal' />
+      <column-instance column='[Calculation_6105966301626564609]' derivation='None' name='[none:Calculation_6105966301626564609:nk]' pivot='key' type='nominal' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.6' measure-ordering='alphabetic' measure-percentage='0.4' show-structure='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:Calculation_6105966301626564609:nk]' type='palette'>
+            <map to='#4e79a7'>
+              <bucket>&quot;Blue&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;Weekday&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;Green&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;Weekend&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[mn:event_dt:ok]' type='palette'>
+            <map to='#4e79a7'>
+              <bucket>3</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>2</bucket>
+            </map>
+            <map to='#76b7b2'>
+              <bucket>1</bucket>
+            </map>
+            <map to='#79706e'>
+              <bucket>12</bucket>
+            </map>
+            <map to='#8cd17d'>
+              <bucket>6</bucket>
+            </map>
+            <map to='#b07aa1'>
+              <bucket>9</bucket>
+            </map>
+            <map to='#b6992d'>
+              <bucket>7</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>5</bucket>
+            </map>
+            <map to='#edc948'>
+              <bucket>10</bucket>
+            </map>
+            <map to='#f1ce63'>
+              <bucket>8</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>4</bucket>
+            </map>
+            <map to='#ff9d9a'>
+              <bucket>11</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet lock-quick-filters='true' name='Folio Logs'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Are All Folio Logs Present?&#10;</run>
+            <run fontsize='9'>should be</run>
+            <run bold='true' fontsize='9'> aapbk, dup (</run>
+            <run fontsize='9'>until 1/18)</run>
+            <run bold='true' fontsize='9'>, ersbk</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/FolioLogs?rev=' id='FolioLogs' path='/workbooks/HWDP-DailyStats' revision='' />
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='daily_stats+ (hwdw)' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' />
+          </datasources>
+          <datasource-dependencies datasource='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1'>
+            <column-instance column='[event_dt]' derivation='Day' name='[dy:event_dt:ok]' pivot='key' type='ordinal' />
+            <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+            <column-instance column='[event_dt]' derivation='Month' name='[mn:event_dt:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[event_dt]' derivation='None' name='[none:event_dt:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column-instance column='[site_cd]' derivation='None' name='[none:site_cd:nk]' pivot='key' type='nominal' />
+            <column aggregation='Count' caption='Platform' datatype='string' default-type='nominal' layered='true' name='[platform]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column aggregation='CountD' caption='Site Cd' datatype='string' default-role='measure' default-type='quantitative' layered='true' name='[site_cd]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column-instance column='[event_count]' derivation='Sum' name='[sum:event_count:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='relative-date' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]' filter-group='3' first-period='-2' include-future='true' include-null='true' last-period='0' period-type='month' period-type-v2='month' />
+          <filter class='categorical' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]'>
+            <groupfilter function='member' level='[none:platform:nk]' member='&quot;Books.Folio.Reader&quot;' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</column>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' field-type='quantitative' range-type='independent' scope='rows' type='space' />
+            <format attr='subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='' />
+            <format attr='auto-subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='true' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-disallow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='false' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>([sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:site_cd:nk] * [sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk])</rows>
+        <cols>([sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok] / [sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[dy:event_dt:ok])</cols>
+      </table>
+      <simple-id uuid='{A8548862-43A8-4956-9F03-BCBEF21AB3CA}' />
+    </worksheet>
+    <worksheet lock-quick-filters='true' name='Month over Month'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Is Log volume in line with previous months?</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/MonthoverMonth?rev=' id='MonthoverMonth' path='/workbooks/HWDP-DailyStats' revision='' />
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='daily_stats+ (hwdw)' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' />
+          </datasources>
+          <datasource-dependencies datasource='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1'>
+            <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+            <column-instance column='[event_dt]' derivation='Month' name='[mn:event_dt:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[event_dt]' derivation='None' name='[none:event_dt:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column-instance column='[event_count]' derivation='Sum' name='[pcdf:sum:event_count:qk:1]' pivot='key' type='quantitative'>
+              <table-calc diff-options='Relative' level-address='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]' ordering-field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[event_dt]' ordering-type='Field' type='PctDiff'>
+                <address>
+                  <value>-1</value>
+                </address>
+              </table-calc>
+            </column-instance>
+            <column aggregation='Count' caption='Platform' datatype='string' default-type='nominal' layered='true' name='[platform]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column-instance column='[event_dt]' derivation='Year' name='[yr:event_dt:ok]' pivot='key' type='ordinal' />
+          </datasource-dependencies>
+          <filter class='relative-date' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]' first-period='-11' include-future='true' include-null='false' last-period='0' period-type='month' period-type-v2='month' />
+          <slices>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='width' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]' value='86' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-disallow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[pcdf:sum:event_count:qk:1]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minwidth' value='-1' />
+                <format attr='maxwidth' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>([sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[yr:event_dt:ok] / [sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok])</rows>
+        <cols>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</cols>
+      </table>
+      <simple-id uuid='{1AEDEBE2-F619-48A3-B56C-40C5DCA1EEBA}' />
+    </worksheet>
+    <worksheet lock-quick-filters='true' name='all days bar'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>How do weekdays compare to weekends?</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/alldaysbar?rev=' id='alldaysbar' path='/workbooks/HWDP-DailyStats' revision='' />
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='daily_stats+ (hwdw)' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' />
+          </datasources>
+          <datasource-dependencies datasource='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1'>
+            <column aggregation='Count' caption='Week Part' datatype='string' default-type='nominal' layered='true' name='[Calculation_6105966301626564609]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default'>
+              <calculation class='tableau' formula='if DATEPART(&apos;weekday&apos;,[event_dt])= 1 or DATEPART(&apos;weekday&apos;,[event_dt]) = 7 then &quot;Weekend&quot; else &quot;Weekday&quot; end' />
+            </column>
+            <column-instance column='[site_cd]' derivation='CountD' name='[ctd:site_cd:qk]' pivot='key' type='quantitative' />
+            <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+            <column-instance column='[Calculation_6105966301626564609]' derivation='None' name='[none:Calculation_6105966301626564609:nk]' pivot='key' type='nominal' />
+            <column-instance column='[event_dt]' derivation='None' name='[none:event_dt:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column aggregation='Count' caption='Platform' datatype='string' default-type='nominal' layered='true' name='[platform]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column aggregation='CountD' caption='Site Cd' datatype='string' default-role='measure' default-type='quantitative' layered='true' name='[site_cd]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column-instance column='[event_count]' derivation='Sum' name='[sum:event_count:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[event_dt]' derivation='Day-Trunc' name='[tdy:event_dt:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]'>
+            <groupfilter function='level-members' level='[none:Calculation_6105966301626564609:nk]' />
+          </filter>
+          <filter class='relative-date' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]' filter-group='3' first-period='-2' include-future='true' include-null='true' last-period='0' period-type='month' period-type-v2='month' />
+          <slices>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]</column>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' field-type='quantitative' range-type='independent' scope='rows' type='space' />
+            <format attr='subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='' />
+            <format attr='auto-subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='true' />
+            <format attr='subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[tdy:event_dt:qk]' scope='cols' value='' />
+            <format attr='auto-subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[tdy:event_dt:qk]' scope='cols' value='true' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-disallow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <mark-sizing custom-mark-size-in-axis-units='1.0' mark-alignment='mark-alignment-left' mark-sizing-setting='marks-scaling-on' use-custom-mark-size='false' />
+            <encodings>
+              <color column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]' />
+              <text column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[ctd:site_cd:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>([sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk] * [sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk])</rows>
+        <cols>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[tdy:event_dt:qk]</cols>
+      </table>
+      <simple-id uuid='{1F0C3DC0-24F9-4408-BF25-959889DEC0A4}' />
+    </worksheet>
+    <worksheet name='bot volume'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>We really need Rogue Robot to assess bot impact</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/botvolume?rev=' id='botvolume' path='/workbooks/HWDP-DailyStats' revision='' />
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='daily_stats+ (hwdw)' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' />
+          </datasources>
+          <datasource-dependencies datasource='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1'>
+            <column aggregation='Sum' caption='Bot Type' datatype='integer' default-type='ordinal' layered='true' name='[bot_type]' pivot='key' role='dimension' type='ordinal' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+            <column-instance column='[bot_type]' derivation='None' name='[none:bot_type:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[event_dt]' derivation='None' name='[none:event_dt:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[event_count]' derivation='Sum' name='[sum:event_count:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[event_dt]' derivation='Day-Trunc' name='[tdy:event_dt:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='relative-date' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]' filter-group='3' first-period='-2' include-future='true' include-null='true' last-period='0' period-type='month' period-type-v2='month' />
+          <slices>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-disallow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Area' />
+            <encodings>
+              <color column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:bot_type:ok]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]</rows>
+        <cols>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[tdy:event_dt:qk]</cols>
+      </table>
+      <simple-id uuid='{D7EB38D4-4974-429A-AEB7-20DBF55E50D5}' />
+    </worksheet>
+    <worksheet name='one month bar'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Are logs parsed and processed for each day?</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/onemonthbar?rev=' id='onemonthbar' path='/workbooks/HWDP-DailyStats' revision='' />
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='daily_stats+ (hwdw)' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' />
+          </datasources>
+          <datasource-dependencies datasource='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1'>
+            <column aggregation='Count' caption='Week Part' datatype='string' default-type='nominal' layered='true' name='[Calculation_6105966301626564609]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default'>
+              <calculation class='tableau' formula='if DATEPART(&apos;weekday&apos;,[event_dt])= 1 or DATEPART(&apos;weekday&apos;,[event_dt]) = 7 then &quot;Weekend&quot; else &quot;Weekday&quot; end' />
+            </column>
+            <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+            <column-instance column='[Calculation_6105966301626564609]' derivation='None' name='[none:Calculation_6105966301626564609:nk]' pivot='key' type='nominal' />
+            <column-instance column='[event_dt]' derivation='None' name='[none:event_dt:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column-instance column='[publisher]' derivation='None' name='[none:publisher:nk]' pivot='key' type='nominal' />
+            <column aggregation='Count' caption='Platform' datatype='string' default-type='nominal' layered='true' name='[platform]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column aggregation='Count' caption='Publisher' datatype='string' default-type='nominal' layered='true' name='[publisher]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column-instance column='[event_count]' derivation='Sum' name='[sum:event_count:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[event_dt]' derivation='Day-Trunc' name='[tdy:event_dt:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='relative-date' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]' filter-group='3' first-period='-2' include-future='true' include-null='true' last-period='0' period-type='month' period-type-v2='month' />
+          <filter class='categorical' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]'>
+            <groupfilter function='member' level='[none:platform:nk]' member='&quot;Books.Folio.Reader&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</column>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' field-type='quantitative' range-type='independent' scope='rows' type='space' />
+            <format attr='subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='' />
+            <format attr='auto-subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='true' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-disallow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <mark-sizing custom-mark-size-in-axis-units='1.0' mark-alignment='mark-alignment-left' mark-sizing-setting='marks-scaling-on' use-custom-mark-size='false' />
+            <encodings>
+              <color column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>([sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:publisher:nk] * [sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk])</rows>
+        <cols>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[tdy:event_dt:qk]</cols>
+      </table>
+      <simple-id uuid='{3AD90DB0-3B86-4C30-B70B-D953146B9960}' />
+    </worksheet>
+    <worksheet lock-quick-filters='true' name='one month line'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Are this month&apos;s logs processed?</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/onemonthline?rev=' id='onemonthline' path='/workbooks/HWDP-DailyStats' revision='' />
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='daily_stats+ (hwdw)' name='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1' />
+          </datasources>
+          <datasource-dependencies datasource='sqlproxy.1bdomx305rxtmx1f1etpc16oasu1'>
+            <column-instance column='[event_dt]' derivation='Day' name='[dy:event_dt:ok]' pivot='key' type='ordinal' />
+            <column aggregation='Sum' caption='Event Count' datatype='integer' default-type='quantitative' layered='true' name='[event_count]' pivot='key' role='measure' type='quantitative' user-datatype='integer' visual-totals='Default' />
+            <column aggregation='Year' caption='Event Dt' datatype='date' default-type='ordinal' layered='true' name='[event_dt]' pivot='key' role='dimension' type='ordinal' user-datatype='date' visual-totals='Default' />
+            <column-instance column='[event_dt]' derivation='Month' name='[mn:event_dt:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[event_dt]' derivation='None' name='[none:event_dt:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[platform]' derivation='None' name='[none:platform:nk]' pivot='key' type='nominal' />
+            <column aggregation='Count' caption='Platform' datatype='string' default-type='nominal' layered='true' name='[platform]' pivot='key' role='dimension' type='nominal' user-datatype='string' visual-totals='Default' />
+            <column-instance column='[event_count]' derivation='Sum' name='[sum:event_count:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='relative-date' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]' filter-group='3' first-period='-2' include-future='true' include-null='true' last-period='0' period-type='month' period-type-v2='month' />
+          <filter class='categorical' column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]'>
+            <groupfilter function='level-members' level='[none:platform:nk]' />
+          </filter>
+          <slices>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</column>
+            <column>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' field-type='quantitative' range-type='independent' scope='rows' type='space' />
+            <format attr='subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='' />
+            <format attr='auto-subtitle' class='0' field='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk]' scope='rows' value='true' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-disallow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>([sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk] * [sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[sum:event_count:qk])</rows>
+        <cols>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[dy:event_dt:ok]</cols>
+      </table>
+      <simple-id uuid='{1A4F10F3-15DA-4DDD-8175-6C153E541AE7}' />
+    </worksheet>
+  </worksheets>
+  <dashboards>
+    <dashboard lock-quick-filters='true' name='Daily Log Processing Dashboard'>
+      <repository-location derived-from='http://vizors.stackly.org/workbooks/HWDP-DailyStats/DailyLogProcessingDashboard?rev=' id='DailyLogProcessingDashboard' path='/workbooks/HWDP-DailyStats' revision='' />
+      <style>
+        <style-rule element='dash-subtitle'>
+          <format attr='background-color' value='#ffffff' />
+        </style-rule>
+      </style>
+      <size maxheight='800' maxwidth='1000' minheight='800' minwidth='1000' />
+      <zones>
+        <zone h='56125' id='7' name='all days bar' w='60100' x='-600' y='44625' />
+        <zone h='41625' id='11' name='one month line' w='57600' x='42900' y='3000' />
+        <zone h='42375' id='1' name='Month over Month' w='46400' x='600' y='1625' />
+        <zone h='9750' id='12' name='one month line' pane-specification-id='0' param='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]' type='color' w='14000' x='88500' y='2000' />
+        <zone h='54750' id='13' name='Folio Logs' w='38700' x='60200' y='44625' />
+      </zones>
+      <simple-id uuid='{52E89596-ECB1-46C2-B213-9A080BAEA2F4}' />
+    </dashboard>
+  </dashboards>
+  <windows show-side-pane='false' source-height='30'>
+    <window class='worksheet' name='Month over Month'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[yr:event_dt:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{44B8FFCD-37D2-48C1-B8CE-482BF53D5E2D}' />
+    </window>
+    <window class='worksheet' name='all days bar'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[yr:event_dt:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{A1D6CF85-8AA9-412A-B965-F6D20D4F2AF0}' />
+    </window>
+    <window class='worksheet' name='one month bar'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card param='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]' type='filter' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:publisher:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[yr:event_dt:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{40E26498-165E-4FC6-8A2D-EE3EEE08975F}' />
+    </window>
+    <window class='worksheet' name='one month line'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:Calculation_6105966301626564609:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{EE39263A-AE9A-4E70-98EB-88173C3C33D2}' />
+    </window>
+    <window class='dashboard' maximized='true' name='Daily Log Processing Dashboard'>
+      <viewpoints>
+        <viewpoint name='Folio Logs'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Month over Month' />
+        <viewpoint name='all days bar'>
+          <zoom type='fit-width' />
+        </viewpoint>
+        <viewpoint name='one month line'>
+          <zoom type='entire-view' />
+          <highlight>
+            <color-one-way>
+              <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]</field>
+            </color-one-way>
+          </highlight>
+        </viewpoint>
+      </viewpoints>
+      <active id='1' />
+      <simple-id uuid='{470280D7-E00B-4316-80B5-9A7154EEFB31}' />
+    </window>
+    <window class='worksheet' name='bot volume'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:bot_type:ok]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:bot_type:ok]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[yr:event_dt:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{E21983B2-D2E0-4140-9C32-2B08D7E6707D}' />
+    </window>
+    <window class='worksheet' name='Folio Logs'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[mn:event_dt:ok]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:event_dt:qk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:platform:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[none:site_cd:nk]</field>
+            <field>[sqlproxy.1bdomx305rxtmx1f1etpc16oasu1].[yr:event_dt:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{826D6DD7-9AE1-4A03-8225-2E5164EF3E63}' />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='Daily Log Processing Dashboard' width='192'>
+      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7DAAAOwwHHb6hk
+      AAACFUlEQVR4nO3TMQEAIAzAMMC/5yFjRxMFfXpnZg5Eve0A2GQA0gxAmgFIMwBpBiDNAKQZ
+      gDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFI
+      MwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQD
+      kGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBp
+      BiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA
+      0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDN
+      AKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxA
+      mgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZ
+      gDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFI
+      MwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKR9Y+0F
+      fBUOM1sAAAAASUVORK5CYII=
+    </thumbnail>
+  </thumbnails>
+</workbook>
