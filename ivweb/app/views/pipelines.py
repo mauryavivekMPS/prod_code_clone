@@ -598,12 +598,41 @@ def delete_pending_demo_file(demo_id, product_id, pipeline_id, name):
 
 @login_required
 def pending_files(request, product_id, pipeline_id):
+    '''View function used to upload files to pipelines, such
+    as the Upload Rejected Manuscripts and Custom Article Data (Files of
+    Additional Metadata upload). '''
+
     product = common.PRODUCT_BY_ID[product_id]
     pipeline = common.PIPELINE_BY_ID[pipeline_id]
     publisher_id = request.REQUEST['publisher']
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
     return render(request, 'pipelines/pending_files.html', {
+        'product': product,
+        'pipeline': pipeline,
+        'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True),
+        'publisher_id': publisher_id,
+        'publisher': publisher,
+    })
+
+@login_required
+def pending_files_legacy(request, product_id, pipeline_id):
+    '''View function used to upload files to pipelines, such
+    as the Upload Rejected Manuscripts and Custom Article Data (Files of
+    Additional Metadata upload).
+
+    This pending_files route has been moved to pending_files_legaacy as of
+    2021-03. Leaving the old route in place (at a moved URL) while building
+    the newer, more validation-heavy replacement will give Support the
+    flexibility to direct any customers that are resistant to change to the
+    old, original code.
+    '''
+    product = common.PRODUCT_BY_ID[product_id]
+    pipeline = common.PIPELINE_BY_ID[pipeline_id]
+    publisher_id = request.REQUEST['publisher']
+    publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
+
+    return render(request, 'pipelines/pending_files_legacy.html', {
         'product': product,
         'pipeline': pipeline,
         'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True),

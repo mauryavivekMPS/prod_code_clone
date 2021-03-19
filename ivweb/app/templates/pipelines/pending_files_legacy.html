@@ -2,9 +2,6 @@
 {% load filters %}
 {% load tags %}
 {% block title %}Pending Files{% endblock %}
-{% block extra_styles %}
-    <link rel="stylesheet" href="/static/ivweb-ui/index.css" />
-{% endblock %}
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
@@ -25,15 +22,23 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-                <div id="ivweb-pending-files"></div>
+                {% content_block pipeline.id %}
+                {% include "pipelines/include/pending_files_form.html" with additional=False %}
             </div>
         </div>
     </div>
 {% endblock %}
+
 {% block page_scripts %}
     <script>
-        // todo: inject variables here for react to consume, or
-        // rework component to accept data-xyx type properties
+        $(function() {
+            FileUploadWidget.init({
+                publisherId: '{{ publisher_id }}',
+                uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
+                deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
+                isDemo: false,
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
     </script>
-    <script src="/static/ivweb-ui/index.js"></script>
 {% endblock %}

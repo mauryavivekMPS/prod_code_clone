@@ -4,7 +4,11 @@
   "description": "React based UI to incrementally replace legacy jQuery pages in ivweb / Vizor Manager.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "cp-dist": "rm dist/*.map && cp -R dist/* ../ivweb/app/static/ivweb-ui/",
+    "build": "parcel build index.js",
+    "dist": "npm run build && npm run cp-dist"
   },
   "author": "Michael Graham <michael@forested.earth>",
   "license": "UNLICENSED",
