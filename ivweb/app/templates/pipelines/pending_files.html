@@ -25,7 +25,14 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-                <div id="ivweb-pending-files"></div>
+                <div class="ivweb-pending-files"
+                     data-ivetl-product-id="{{ product.id }}"
+                     data-ivetl-pipeline-id="{{ pipeline.id }}"
+                     data-ivetl-publisher-id="{{ publisher_id }}"
+                     data-ivetl-upload-url="{% url 'pipelines.upload_pending_file_inline' %}"
+                     data-ivetl-delete-url="{% url 'pipelines.delete_pending_file_inline' %}"
+                     data-ivetl-is-demo="false"
+                     data-ivetl-csrf-token="{{ csrf_token }}"></div>
             </div>
         </div>
     </div>
@@ -34,6 +41,7 @@
     <script>
         // todo: inject variables here for react to consume, or
         // rework component to accept data-xyx type properties
+        //
     </script>
     <script src="/static/ivweb-ui/index.js"></script>
 {% endblock %}

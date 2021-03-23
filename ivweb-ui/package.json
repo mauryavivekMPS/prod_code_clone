@@ -4,11 +4,15 @@
   "description": "React based UI to incrementally replace legacy jQuery pages in ivweb / Vizor Manager.",
   "main": "index.js",
   "scripts": {
+    "setup": "cp node_modules/papaparse/papaparse.js src/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel index.html",
-    "cp-dist": "rm dist/*.map && cp -R dist/* ../ivweb/app/static/ivweb-ui/",
+    "rm-map": "rm dist/*.map",
+    "cp-dist": "cp dist/index.*s ../ivweb/app/static/ivweb-ui/",
+    "cp-dep": "cp src/papaparse.js ../ivweb/app/static/ivweb-ui/",
+    "cp-all": "npm run rm-map && npm run cp-dist && npm run cp-dep",
     "build": "parcel build index.js",
-    "dist": "npm run build && npm run cp-dist"
+    "dist": "npm run build && npm run cp-all"
   },
   "author": "Michael Graham <michael@forested.earth>",
   "license": "UNLICENSED",
@@ -25,21 +29,10 @@
   "devDependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.13.12",
     "@babel/preset-react": "^7.10.4",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }

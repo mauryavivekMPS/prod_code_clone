@@ -1,31 +1,25 @@
 import './Pending-Files.css';
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import { CSVReader } from 'react-papaparse'
+import { CSVReader } from 'react-papaparse';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeGrid as Grid } from 'react-window';
-
-let csvData = [];
+import { pipelineById } from './Models';
 
 const Cell = ({ columnIndex, rowIndex, data, style }) => {
-  console.log('Cell...')
-  console.log(data)
   let item = data && data[rowIndex] && data[rowIndex][columnIndex]
     ? data[rowIndex][columnIndex]
     : `col: ${columnIndex}, row: ${rowIndex}`;
   const lengthy = item && item.length > 144;
   return (
     <div className={
-      `${columnIndex % 2
-        ?  rowIndex % 2 === 0
-          ? 'GridItemOdd'
-          : 'GridItemEven'
-        : rowIndex % 2
-          ? 'GridItemOdd'
-          : 'GridItemEven'} ${lengthy
+      `${rowIndex % 2 === 0
+        ? 'GridItemEven'
+        : 'GridItemOdd'
+        } ${lengthy
             ? 'GridItemLong'
             : ''
-          } GridColumn${columnIndex} GridRow${rowIndex} `
+        } GridColumn${columnIndex} GridRow${rowIndex} `
       }
       style={style}>
       <div className={'GridCell'}>{item}</div>
@@ -33,96 +27,33 @@ const Cell = ({ columnIndex, rowIndex, data, style }) => {
   )
 }
 
-export default class PendingFiles extends Component {
+class PendingFiles extends Component {
   constructor(props) {
     super(props)
+    const pipeline = pipelineById(props.ivetlPipelineId);
     this.state = {
+      productId: props.ivetlProductId,
+      pipelineId: props.ivetlPipelineId,
+      publisherId: props.ivetlPublisherId,
+      uploadUrl: props.ivetlUploadUrl,
+      deleteUrl: props.ivetlDeleteUrl,
+      isDemo: !props.ivetlIsDemo || props.ivetlIsDemo === 'false'
+        ? false
+        : props.ivetlIsDemo,
+      csrfToken: props.ivetlCsrfToken,
       rows: [],
-      columns: [
-        {
-          name: 'MANUSCRIPT_ID',
-          px: 100,
-          pct: 0.03
-        },
-        {
-          name: 'DATE_OF_REJECTION',
-          px: 100,
-          pct: 0.03
-        },
-        {
-          name: 'REJECT_REASON',
-          px: 100,
-          pct: 0.03
-        },
-        {
-          name: 'TITLE',
-          px: 350,
-          pct: 0.03
-        },
-        {
-          name: 'First_Author',
-          px: 200,
-          pct: 0.03
-        },
-        {
-          name: 'Corresponding_Author',
-          px: 400,
-          pct: 0.03
-        },
-        {
-          name: 'Co_Authors',
-          px: 300,
-          pct: 0.03
-        },
-        {
-          name: 'Subject_Category',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Editor',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Submitted_Journal',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Article_Type',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Keywords',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Custom',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Funders',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Custom_2',
-          px: 150,
-          pct: 0.03
-        },
-        {
-          name: 'Custom_3',
-          px: 150,
-          pct: 0.03
-        },
-      ]
+      validator: pipeline.validator,
+      columns: pipeline.fileColumns
     }
+    this.handleData = this.handleData.bind(this);
+    this.handleComplete = this.handleComplete.bind(this);
+    console.log('Initialized PendingFiles:');
+    console.log(this.state);
   }
   handleOnDrop = (data) => {
+    console.log('onDrop');
+    console.log(data);
+    return;
     const rows = this.state.rows;
     console.log('---------------------------')
     console.log(data)
@@ -145,19 +76,51 @@ export default class PendingFiles extends Component {
     console.log('---------------------------')
   }
 
+  handleData = (results, parser) => {
+    const rows = this.state.rows;
+    console.log('data...---------------------------')
+    console.log(results)
+    console.log('data...---------------------------')
+    this.setState({
+      rows: [...rows, results.data]
+    })
+  }
+
+  handleComplete = (results, file) => {
+    console.log('Parsing complete: ', results, file)
+  }
+
   render() {
     let r = this;
+    // Extending defaults found here:
+    // https://github.com/Bunlong/react-papaparse/blob/master/src/CSVReader.tsx
+    // 'text/csv' for MacOS
+    // '.csv' for Linux
+    // 'application/vnd.ms-excel' for Window 10
+    // We are guessing delimiters and doing our own validation client-side,
+    // so the file system extension or perceived mime type is not as much of a concern.
+    const DEFAULT_ACCEPT = 'text/csv, .csv, application/vnd.ms-excel';
+    const TAB_ACCEPT = 'text/tsv, .tsv, .tab, tab-separated-values';
+    const ACCEPT = 'text/plain, .txt'
+    let papaParseConfig = {
+      worker: true,
+      step: r.handleData,
+      complete: r.handleComplete
+    };
+
     return (
       <div className="pending-files">
         <div className="file-selection">
-          <h1>Upload Rejected</h1>
+          <span>Select one or more files to upload: </span>
           <CSVReader
-            onDrop={this.handleOnDrop}
+            config={papaParseConfig}
             onError={this.handleOnError}
+            onDrop={this.handleOnDrop}
+            accept={`${DEFAULT_ACCEPT} ${TAB_ACCEPT} ${ACCEPT}`}
             addRemoveButton
             onRemoveFile={this.handleOnRemoveFile}
           >
-            <span>Drop CSV file here or click to upload.</span>
+            <span>Drop file here or click to upload.</span>
           </CSVReader>
         </div>
         <AutoSizer>
@@ -180,3 +143,17 @@ export default class PendingFiles extends Component {
     )
   }
 }
+
+PendingFiles.defaultProps = {
+  productId: '',
+  pipelineId: '',
+  publisherId: '',
+  uploadUrl: '',
+  deleteUrl: '',
+  isDemo: false,
+  csrfToken: '',
+  rows: [],
+  columns: []
+};
+
+export default PendingFiles;
