@@ -2,54 +2,53 @@ import './Pending-Files.css';
 import React, { Component } from 'react';
 
 import { CSVReader } from 'react-papaparse';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
+import ReactTooltip from 'react-tooltip';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeGrid as Grid } from 'react-window';
 import { pipelineById, resetPipeline } from './Models';
 
 const Cell = ({ columnIndex, rowIndex, data, style }) => {
-  let item = data && data[rowIndex] && data[rowIndex][columnIndex]
-    ? data[rowIndex][columnIndex]
-    : '';
-  const lengthy = item && item.length > 144;
-  return (
-    <div className={
-      `${rowIndex % 2 === 0
-        ? 'GridItemEven'
-        : 'GridItemOdd'
-        } ${lengthy
-            ? 'GridItemLong'
-            : ''
-        } GridColumn${columnIndex} GridRow${rowIndex} `
-      }
-      style={style}>
-      <div className={'GridCell'}>{item}</div>
-    </div>
-  )
+
 }
 
 const ErrorCell = ({ columnIndex, rowIndex, data, style }) => {
-  let item = '', errors;
+  let item = '', errors, rowHasErrors = false;
   if (data && data[rowIndex] && data[rowIndex][columnIndex]) {
     item = data[rowIndex][columnIndex].data;
     errors = data[rowIndex][columnIndex].errors;
+    rowHasErrors = data[rowIndex][columnIndex].rowHasErrors;
   }
 
   const lengthy = item && item.length > 144;
   const cellError = errors && errors.length > 0;
   let errorMessages = [];
   if (cellError) {
+    // svg info icon source:
+    // https://icons.getbootstrap.com/icons/info-circle-fill/
+    // retrieved 2021-03-24
     for (let i = 0; i < errors.length; i++) {
       errorMessages.push(
-        <div className="error-msg" title={errors[i]}
+        <div className="error-msg"
         key={`${rowIndex}-${columnIndex}-error-${i}`}>
-          <a href="#" >e'</a>
+          <a href="#" data-tip={errors[i]}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#900" className="bi bi-info-circle-fill" viewBox="0 0 16 16">
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+            </svg>
+          </a>
+          <ReactTooltip place="top" type="dark" effect="solid"
+          className="error-cell-tooltip" clickable={true} />
         </div>
       )
     }
   }
   return (
     <div className={
-      `GridError ${lengthy
+      `${rowHasErrors ? 'GridError': ''} ${rowIndex % 2 === 0
+        ? 'GridItemEven'
+        : 'GridItemOdd'
+        } ${lengthy
           ? 'GridItemLong'
           : ''
         } ${cellError
@@ -58,9 +57,11 @@ const ErrorCell = ({ columnIndex, rowIndex, data, style }) => {
         } GridColumn${columnIndex} GridRow${rowIndex} `
       }
       style={style}>
-      <div className={'GridCell'}>
-        <p>{item}</p>
-        {errorMessages}
+      <div className={'CellFrame'}>
+        <div className={'GridCell'}>
+          <p>{item}</p>
+          {errorMessages}
+        </div>
       </div>
     </div>
   )
@@ -139,7 +140,7 @@ class PendingFiles extends Component {
       let errorIdx = this.state.rowErrorsIndex;
       errorIdx[`row_${rowCount}`] = val;
       this.setState({
-        rows: [...rows, results.data],
+        rows: [...rows, val.data],
         rowCount: rowCount,
         rowErrors: [...errors, val.data],
         rowErrorsIndex: errorIdx
@@ -147,7 +148,7 @@ class PendingFiles extends Component {
       return;
     }
     this.setState({
-      rows: [...rows, results.data],
+      rows: [...rows, val.data],
       rowCount: rowCount
     })
   }
@@ -177,34 +178,119 @@ class PendingFiles extends Component {
     return (
       <div className="pending-files">
         <div className="file-selection">
-          <span>Select one or more files to upload: </span>
-          <CSVReader
-            config={papaParseConfig}
-            onError={this.handleOnError}
-            onDrop={this.handleOnDrop}
-            accept={`${DEFAULT_ACCEPT} ${TAB_ACCEPT} ${ACCEPT}`}
-            addRemoveButton
-            onRemoveFile={this.handleOnRemoveFile}
-          >
-            <span>Drop file here or click to upload.</span>
-          </CSVReader>
-        </div>
-        <AutoSizer>
-          {({ height, width }) => (
-            <Grid
-              className="Grid"
-              columnCount={16}
-              columnWidth={index => r.state.columns[index].px || 100}
-              height={height > 1000 ? height : 1000}
-              itemData={r.state.rowErrors}
-              rowCount={r.state.rowErrors.length}
-              rowHeight={index => 100}
-              width={width}
+          <div className="selection-cta">
+            <span>Select a file to upload, or drag and drop: </span>
+          </div>
+          <div className="csv-frame">
+            <CSVReader
+              config={papaParseConfig}
+              onError={this.handleOnError}
+              onDrop={this.handleOnDrop}
+              accept={`${DEFAULT_ACCEPT} ${TAB_ACCEPT} ${ACCEPT}`}
+              addRemoveButton
+              onRemoveFile={this.handleOnRemoveFile}
             >
-              {ErrorCell}
-            </Grid>
-          )}
-        </AutoSizer>
+              <span>Drop file here or click to upload.</span>
+            </CSVReader>
+          </div>
+          <div className="file-submission">
+            <span>
+              <button className="btn btn-default">
+                Submit Validated Files for Processing
+              </button>
+              <br />
+              <span> or
+              <br />
+              <a href="#">Upload to server,
+              but I'll submit them for processing later
+              </a>
+              </span>
+            </span>
+          </div>
+        </div>
+        <div className="result-view">
+          <Tabs>
+            <TabList>
+              <Tab>
+                <span title="Error rows - Spreadsheet view">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-bug" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A4.979 4.979 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A4.985 4.985 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623zM4 7v4a4 4 0 0 0 3.5 3.97V7H4zm4.5 0v7.97A4 4 0 0 0 12 11V7H8.5zM12 6a3.989 3.989 0 0 0-1.334-2.982A3.983 3.983 0 0 0 8 2a3.983 3.983 0 0 0-2.667 1.018A3.989 3.989 0 0 0 4 6h8z"/>
+                  </svg>
+                  &nbsp;&nbsp;
+                  <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-grid-3x3" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13zM1.5 1a.5.5 0 0 0-.5.5V5h4V1H1.5zM5 6H1v4h4V6zm1 4h4V6H6v4zm-1 1H1v3.5a.5.5 0 0 0 .5.5H5v-4zm1 0v4h4v-4H6zm5 0v4h3.5a.5.5 0 0 0 .5-.5V11h-4zm0-1h4V6h-4v4zm0-5h4V1.5a.5.5 0 0 0-.5-.5H11v4zm-1 0V1H6v4h4z"/>
+                  </svg>
+                  &nbsp;
+                </span>
+              </Tab>
+              <Tab>
+                <span title="Errors - Text summary">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-bug" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A4.979 4.979 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A4.985 4.985 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623zM4 7v4a4 4 0 0 0 3.5 3.97V7H4zm4.5 0v7.97A4 4 0 0 0 12 11V7H8.5zM12 6a3.989 3.989 0 0 0-1.334-2.982A3.983 3.983 0 0 0 8 2a3.983 3.983 0 0 0-2.667 1.018A3.989 3.989 0 0 0 4 6h8z"/>
+                  </svg>
+                  &nbsp;&nbsp;
+                  <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-layout-text-window-reverse" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13 6.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 .5-.5zm0 3a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 .5-.5zm-.5 2.5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1h5z"/>
+                    <path d="M14 0a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12zM2 1a1 1 0 0 0-1 1v1h14V2a1 1 0 0 0-1-1H2zM1 4v10a1 1 0 0 0 1 1h2V4H1zm4 0v11h9a1 1 0 0 0 1-1V4H5z"/>
+                  </svg>
+                </span>
+              </Tab>
+              <Tab>Full results</Tab>
+            </TabList>
+
+            <TabPanel>
+              <h3>Errors - Spreadsheet View</h3>
+              <p><i>Rows containing errors are displayed here,
+              with erroroneous cells highlighted
+              </i>
+              </p>
+              <AutoSizer>
+                {({ height, width }) => (
+                  <Grid
+                    className="Grid"
+                    columnCount={16}
+                    columnWidth={index => r.state.columns[index].px || 100}
+                    height={height > 800 ? height : 800}
+                    itemData={r.state.rowErrors}
+                    rowCount={r.state.rowErrors.length}
+                    rowHeight={index => 150}
+                    width={width}
+                  >
+                    {ErrorCell}
+                  </Grid>
+                )}
+              </AutoSizer>
+            </TabPanel>
+            <TabPanel>
+              <h3>Errors - Text Summary</h3>
+              <p><i>Text summary of all errors, with row numbers.</i></p>
+              <div>
+                <i>Todo: aggregrate all errors with row number
+                and display here</i>
+              </div>
+            </TabPanel>
+            <TabPanel>
+              <h3>Full Spreadsheet</h3>
+              <p><i>All parsed rows are available on this tab for review.</i></p>
+              <AutoSizer>
+                {({ height, width }) => (
+                  <Grid
+                    className="Grid"
+                    columnCount={16}
+                    columnWidth={index => r.state.columns[index].px || 100}
+                    height={height > 800 ? height : 800}
+                    itemData={r.state.rows}
+                    rowCount={r.state.rows.length}
+                    rowHeight={index => 150}
+                    width={width}
+                  >
+                    {ErrorCell}
+                  </Grid>
+                )}
+              </AutoSizer>
+            </TabPanel>
+          </Tabs>
+        </div>
       </div>
     )
   }

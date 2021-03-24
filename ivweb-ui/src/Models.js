@@ -47,6 +47,9 @@ const validators = {
 // todo: i18n support for configurable language messaging
 // i.e. messages defined as data rather than strings hardcoded in logic
 const messages = {
+  incorrectHeader: function (expected, actual) {
+    return `Incorrect header field: expected ${expected}, found ${actual}`
+  },
   nonArrayRow: 'Unexpected format for row, unable to read.',
   wrongColNum: function (expected, actual) {
     return `Incorrect number of columns: expected ${expected}, found ${actual}`
@@ -185,7 +188,7 @@ let pipelines = {
       const required = [0, 1, 2, 3, 9];
       const hasChecks = [0, 1, 2, 3, 4, 5, 6, 9];
       const specificChecks = [1, 2, 4];
-      let errors = rowValidator('rejected_articles', row,
+      let errors = rowValidator('rejected_articles', rowCount, row,
         required, hasChecks, specificChecks);
 
       if (validators.empty(4, row) && validators.empty(5, row) &&
@@ -217,7 +220,8 @@ let pipelines = {
   }
 }
 
-function rowValidator(pipelineId, row, required, hasChecks, specificChecks) {
+function rowValidator(pipelineId, rowCount, row, required, hasChecks,
+specificChecks) {
   let errors = {
     data: row.map((field) => {
       return {
@@ -237,7 +241,11 @@ function rowValidator(pipelineId, row, required, hasChecks, specificChecks) {
     errors.row.push(messages.nonArrayRow);
     return errors;
   }
-  else if (row.length !== 16) {
+  else if (rowCount === 1) {
+    // validate header, skip additional checks
+    return validateHeaderRow(columns, row, errors);
+  }
+  else if (row.length !== columns.length) {
     errors.row.push(messages.wrongColNum(row.length, 16))
   }
 
@@ -279,6 +287,33 @@ function rowValidator(pipelineId, row, required, hasChecks, specificChecks) {
   return errors;
 }
 
+function validateHeaderRow(columns, row, errors) {
+  let hasErrors = false;
+  if (columns.length !== row.length) {
+    errors.row.push(messages.wrongColNum(row.length, 16));
+    hasErrors = true;
+  }
+  for (let i = 0; i < row.length && i < columns.length; i++) {
+    if (typeof row[i] !== 'string') {
+      errors.data[i].errors
+        .push(messages.required(`Header field: ${columns[i]}`));
+      hasErrors = true;
+      continue;
+    }
+    if (row[i].toUpperCase() !== columns[i].toUpperCase()) {
+      errors.data[i].errors
+        .push(messages.incorrectHeader(columns[i], row[i]));
+      hasErrors = true;
+    }
+  }
+  if (hasErrors) {
+    errors.data = errors.data.map((item) => {
+      return {...item, rowHasErrors: hasErrors}
+    })
+  }
+  return errors;
+}
+
 function cleanRowErrorObj(errors, hasChecks) {
   let hasErrors = false;
   for (let i = 0; i < hasChecks.length; i++) {
@@ -291,6 +326,11 @@ function cleanRowErrorObj(errors, hasChecks) {
     hasErrors = true;
   }
   errors.hasErrors = hasErrors;
+  if (hasErrors) {
+    errors.data = errors.data.map((item) => {
+      return {...item, rowHasErrors: hasErrors}
+    })
+  }
   return errors;
 }
 

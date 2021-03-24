@@ -2,11 +2,20 @@
   background-color: #282c34;
   min-height: 3vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.file-submission a {
+  color: #aaccff;
+  font-size: 0.75em;
+  margin: 0.5%;
+}
+
+.file-selection * {
+  margin: 0.5% 1.5%;
 }
 
 .Grid {
@@ -25,13 +34,32 @@
   white-space: pre-line;
 }
 
+.CellFrame {
+  height: 98.5%;
+  min-width: 65%;
+  max-width: 98.5%;
+  margin: 1px;
+}
+
 .GridCell {
   display: inline-block;
   margin: 10px;
 }
 
+.CellError .CellFrame {
+  border: 1px solid red;
+}
+
 .GridItemEven {
   background-color: #f8f8f0;
+}
+
+.GridError {
+  background-color: #fed9d0;
+}
+
+.GridItemEven.GridError {
+  background-color: #eebbb0;
 }
 
 .GridColumn0, .GridColumn1, .GridColumn2 {
@@ -48,4 +76,8 @@
 .GridItemOdd.GridItemLong {
   align-items: start;
   justify-content: start;
+}
+
+.error-cell-tooltip {
+  max-width: 200px;
 }
