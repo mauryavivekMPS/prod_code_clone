@@ -14,7 +14,8 @@
 }
 
 .GridItemEven,
-.GridItemOdd {
+.GridItemOdd,
+.GridError {
   display: flex;
   align-items: center;
   justify-content: center;

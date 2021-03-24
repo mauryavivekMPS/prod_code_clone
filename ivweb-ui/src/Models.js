@@ -1,4 +1,100 @@
-const pipelines = {
+const validators = {
+  isDateMMDDYYY: function (dateString) {
+    // https://stackoverflow.com/questions/6177975/how-to-validate-date-with-format-mm-dd-yyyy-in-javascript/6178341#6178341
+    // retrieved 2021-03-23
+    // modified for code style and our YY vs YYYY spec
+
+    // First check for the pattern
+    if (!/^\d{1,2}\/\d{1,2}\/\d{2}$/.test(dateString)) {
+      return false;
+
+    }
+    // Parse the date parts to integers
+    var parts = dateString.split("/");
+    var day = parseInt(parts[1], 10);
+    var month = parseInt(parts[0], 10);
+    var year = parseInt(parts[2], 10);
+
+    // Check the ranges of month and year
+    if (year < 0 || year > 99 || month == 0 || month > 12) {
+      return false;
+    }
+
+    var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+    // Adjust for leap years
+    if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+        monthLength[1] = 29;
+
+    // Check the range of the day
+    return day > 0 && day <= monthLength[month - 1];
+  },
+  noSemiColon: function (value) {
+    if (typeof value === 'string' && value.includes(';')) {
+      return false;
+    }
+    return true;
+  },
+  notDate: function (value) {
+    return !validators.isDateMMDDYYY(value);
+  },
+  empty: function (idx, row) {
+    return typeof row[idx] !== 'string' || !row[idx] ||
+    row[idx].trim() === '';
+  }
+}
+
+// todo: i18n support for configurable language messaging
+// i.e. messages defined as data rather than strings hardcoded in logic
+const messages = {
+  nonArrayRow: 'Unexpected format for row, unable to read.',
+  wrongColNum: function (expected, actual) {
+    return `Incorrect number of columns: expected ${expected}, found ${actual}`
+  },
+  required: function (column) {
+    return `${column} is a required field.`
+  },
+  requiresOne: function (category) {
+    return `At least one ${category} field must have a non-empty value.`
+  },
+  rejected_articles: {
+    columns: [
+      'MANUSCRIPT_ID',
+      'DATE_OF_REJECTION',
+      'REJECT_REASON',
+      'TITLE',
+      'FIRST_AUTHOR',
+      'CORRESPONDING_AUTHOR',
+      'CO_AUTHORS',
+      'SUBJECT_CATEGORY',
+      'EDITOR',
+      'SUBMITTED_JOURNAL',
+      'ARTICLE_TYPE',
+      'KEYWORDS',
+      'CUSTOM',
+      'FUNDERS',
+      'CUSTOM_2',
+      'CUSTOM_3',
+    ],
+    col_1: {
+      valid: validators.isDateMMDDYYY,
+      msg: 'DATE_OF_REJECTION: Must be date in MM/DD/YYYY format.',
+      level: 'error'
+    },
+    col_2: {
+      valid: validators.notDate,
+      msg: 'REJECT_REASON: Found date value unexpectedly.',
+      level: 'warn'
+    },
+    col_4: {
+      valid: validators.noSemiColon,
+      msg: 'FIRST_AUTHOR: Found value with semicolon. Does field include more than one author?',
+      level: 'warn'
+    }
+  }
+}
+
+let pipelines = {
   rejected_articles: {
     id: 'rejected_articles',
     name: 'Upload Rejected',
@@ -84,10 +180,118 @@ const pipelines = {
         pct: 0.03
       }
     ],
-    rowValidator: function (idx, row) {
+    rowErrorsIndex: {},
+    validator: function (rowCount, row) {
+      const required = [0, 1, 2, 3, 9];
+      const hasChecks = [0, 1, 2, 3, 4, 5, 6, 9];
+      const specificChecks = [1, 2, 4];
+      let errors = rowValidator('rejected_articles', row,
+        required, hasChecks, specificChecks);
 
+      if (validators.empty(4, row) && validators.empty(5, row) &&
+      validators.empty(6, row)) {
+        for (var i = 4; i < 7; i++) {
+          if (typeof errors[`col_${i}`] === 'undefined') {
+            errors[`col_${i}`] = [];
+          }
+        }
+        errors.col_4.push(messages.requiresOne('author'));
+        errors.col_5.push(messages.requiresOne('author'));
+        errors.col_6.push(messages.requiresOne('author'));
+        if (errors.data[4]) {
+          errors.data[4].errors.push(messages.requiresOne('author'));
+        }
+        if (errors.data[5]) {
+          errors.data[5].errors.push(messages.requiresOne('author'));
+        }
+        if (errors.data[6]) {
+          errors.data[6].errors.push(messages.requiresOne('author'));
+        }
+      }
+      let finalizedErrors = cleanRowErrorObj(errors, hasChecks);
+      if (finalizedErrors.hasErrors) {
+
+      }
+      return finalizedErrors;
     }
   }
+}
+
+function rowValidator(pipelineId, row, required, hasChecks, specificChecks) {
+  let errors = {
+    data: row.map((field) => {
+      return {
+        data: field,
+        errors: []
+      }
+    }),
+    row: [],
+  };
+  let columns = messages[pipelineId].columns;
+
+  if (typeof pipelines[pipelineId] === 'undefined') {
+    return errors;
+  }
+
+  if (!Array.isArray(row)) {
+    errors.row.push(messages.nonArrayRow);
+    return errors;
+  }
+  else if (row.length !== 16) {
+    errors.row.push(messages.wrongColNum(row.length, 16))
+  }
+
+  for (let i = 0; i < hasChecks.length; i++) {
+    errors[`col_${hasChecks[i]}`] = [];
+  }
+
+  for (let i = 0; i < required.length; i++) {
+    if (validators.empty(required[i], row)) {
+      if (typeof errors[`col_${required[i]}`] === 'undefined') {
+        errors[`col_${required[i]}`] = [];
+      }
+      errors[`col_${required[i]}`]
+        .push(messages.required(columns[required[i]]));
+      if (errors.data[required[i]] && errors.data[required[i]].errors) {
+        errors.data[required[i]].errors
+          .push(messages.required(columns[required[i]]))
+      }
+    }
+  }
+
+  for (let i = 0; i < specificChecks.length; i++) {
+    if (typeof messages[pipelineId][`col_${specificChecks[i]}`] === 'undefined' ||
+    messages[pipelineId][`col_${specificChecks[i]}`]
+    .valid(row[specificChecks[i]])) {
+      continue;
+    }
+    if (typeof errors[`col_${specificChecks[i]}`] === 'undefined') {
+      errors[`col_${specificChecks[i]}`] = [];
+    }
+    errors[`col_${specificChecks[i]}`]
+      .push(messages[pipelineId][`col_${specificChecks[i]}`].msg)
+    if (errors.data[specificChecks[i]]) {
+      errors.data[specificChecks[i]].errors
+        .push(messages[pipelineId][`col_${specificChecks[i]}`].msg)
+    }
+  }
+
+  return errors;
+}
+
+function cleanRowErrorObj(errors, hasChecks) {
+  let hasErrors = false;
+  for (let i = 0; i < hasChecks.length; i++) {
+    if (Array.isArray(errors[`col_${hasChecks[i]}`]) &&
+    errors[`col_${hasChecks[i]}`].length > 0) {
+      hasErrors = true;
+    }
+  }
+  if (errors.row.length > 0) {
+    hasErrors = true;
+  }
+  errors.hasErrors = hasErrors;
+  return errors;
 }
 
 export function pipelineById(pipelineId) {
@@ -104,4 +308,9 @@ export function pipelineById(pipelineId) {
       validator: function (row) {}
     }
   }
+}
+
+export function resetPipeline(pipelineId) {
+  pipelines[pipelineId].rowErrorsIndex = {};
+
 }

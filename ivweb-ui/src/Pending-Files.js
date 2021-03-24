@@ -4,12 +4,12 @@ import React, { Component } from 'react';
 import { CSVReader } from 'react-papaparse';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeGrid as Grid } from 'react-window';
-import { pipelineById } from './Models';
+import { pipelineById, resetPipeline } from './Models';
 
 const Cell = ({ columnIndex, rowIndex, data, style }) => {
   let item = data && data[rowIndex] && data[rowIndex][columnIndex]
     ? data[rowIndex][columnIndex]
-    : `col: ${columnIndex}, row: ${rowIndex}`;
+    : '';
   const lengthy = item && item.length > 144;
   return (
     <div className={
@@ -27,6 +27,45 @@ const Cell = ({ columnIndex, rowIndex, data, style }) => {
   )
 }
 
+const ErrorCell = ({ columnIndex, rowIndex, data, style }) => {
+  let item = '', errors;
+  if (data && data[rowIndex] && data[rowIndex][columnIndex]) {
+    item = data[rowIndex][columnIndex].data;
+    errors = data[rowIndex][columnIndex].errors;
+  }
+
+  const lengthy = item && item.length > 144;
+  const cellError = errors && errors.length > 0;
+  let errorMessages = [];
+  if (cellError) {
+    for (let i = 0; i < errors.length; i++) {
+      errorMessages.push(
+        <div className="error-msg" title={errors[i]}
+        key={`${rowIndex}-${columnIndex}-error-${i}`}>
+          <a href="#" >e'</a>
+        </div>
+      )
+    }
+  }
+  return (
+    <div className={
+      `GridError ${lengthy
+          ? 'GridItemLong'
+          : ''
+        } ${cellError
+          ? 'CellError'
+          : ''
+        } GridColumn${columnIndex} GridRow${rowIndex} `
+      }
+      style={style}>
+      <div className={'GridCell'}>
+        <p>{item}</p>
+        {errorMessages}
+      </div>
+    </div>
+  )
+}
+
 class PendingFiles extends Component {
   constructor(props) {
     super(props)
@@ -34,6 +73,7 @@ class PendingFiles extends Component {
     this.state = {
       productId: props.ivetlProductId,
       pipelineId: props.ivetlPipelineId,
+      pipelineName: pipeline.name,
       publisherId: props.ivetlPublisherId,
       uploadUrl: props.ivetlUploadUrl,
       deleteUrl: props.ivetlDeleteUrl,
@@ -42,6 +82,9 @@ class PendingFiles extends Component {
         : props.ivetlIsDemo,
       csrfToken: props.ivetlCsrfToken,
       rows: [],
+      rowCount: 0,
+      rowErrors: [],
+      rowErrorsIndex: {},
       validator: pipeline.validator,
       columns: pipeline.fileColumns
     }
@@ -74,15 +117,38 @@ class PendingFiles extends Component {
     console.log('---------------------------')
     console.log(data)
     console.log('---------------------------')
+    this.setState({
+      rows: []
+    })
   }
 
   handleData = (results, parser) => {
-    const rows = this.state.rows;
-    console.log('data...---------------------------')
+    let rows = this.state.rows;
+    let rowCount = this.state.rowCount;
+
+    /* console.log('data...---------------------------')
     console.log(results)
-    console.log('data...---------------------------')
+    console.log('data...---------------------------')*/
+    rowCount++;
+    let val = this.state.validator(rowCount, results.data);
+    val.rowCount = rowCount;
+    if (val.hasErrors ||
+    (results.errors && results.errors.length > 0)) {
+      val.parseErrors = results.errors;
+      let errors = this.state.rowErrors;
+      let errorIdx = this.state.rowErrorsIndex;
+      errorIdx[`row_${rowCount}`] = val;
+      this.setState({
+        rows: [...rows, results.data],
+        rowCount: rowCount,
+        rowErrors: [...errors, val.data],
+        rowErrorsIndex: errorIdx
+      });
+      return;
+    }
     this.setState({
-      rows: [...rows, results.data]
+      rows: [...rows, results.data],
+      rowCount: rowCount
     })
   }
 
@@ -130,12 +196,12 @@ class PendingFiles extends Component {
               columnCount={16}
               columnWidth={index => r.state.columns[index].px || 100}
               height={height > 1000 ? height : 1000}
-              itemData={r.state.rows}
-              rowCount={r.state.rows.length}
+              itemData={r.state.rowErrors}
+              rowCount={r.state.rowErrors.length}
               rowHeight={index => 100}
               width={width}
             >
-              {Cell}
+              {ErrorCell}
             </Grid>
           )}
         </AutoSizer>
