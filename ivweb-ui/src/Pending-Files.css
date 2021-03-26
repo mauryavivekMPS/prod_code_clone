@@ -18,6 +18,22 @@
   margin: 0.5% 1.5%;
 }
 
+.file-encoding {
+  min-width: 120px;
+}
+
+.file-encoding label.disabled {
+  color: #858585;
+}
+
+.file-encoding label.disabled.active {
+  color: #fefefe;
+}
+
+.result-view {
+  margin-top: 20px;
+}
+
 .Grid {
   border: 1px solid #d9dddd;
 }

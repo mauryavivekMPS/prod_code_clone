@@ -1,3 +1,5 @@
+const stringify = require('csv-stringify');
+
 const validators = {
   isDateMMDDYYY: function (dateString) {
     // https://stackoverflow.com/questions/6177975/how-to-validate-date-with-format-mm-dd-yyyy-in-javascript/6178341#6178341
@@ -353,4 +355,22 @@ export function pipelineById(pipelineId) {
 export function resetPipeline(pipelineId) {
   pipelines[pipelineId].rowErrorsIndex = {};
 
+}
+
+export function generateTsv(rows) {
+  return new Promise((resolve, reject) => {
+    /*
+    todo: look into stream api if time permits to improve performance
+    https://csv.js.org/stringify/api/
+    const stringifier = stringify({
+      delimiter: '\t'
+    });
+    */
+    stringify(rows, { delimiter: '\t' }, function(err, output) {
+      if (err) {
+        return reject(err);
+      }
+      resolve(output);
+    })
+  });
 }
