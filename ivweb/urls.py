@@ -98,7 +98,7 @@ urlpatterns = [
 
     # upload files for a pipeline or demo
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles/$', pipelines.pending_files, name='pipelines.pending_files'),
-    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles-legacy/$', pipelines.pending_files_legacy, name='pipelines.pending_files_legacy'),
+    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles_legacy/$', pipelines.pending_files_legacy, name='pipelines.pending_files_legacy'),
 
     # run a pipeline
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/run/$', pipelines.run, name='pipelines.run'),

@@ -1,5 +1,6 @@
 <html>
 <head>
+  <meta name="referrer" content="no-referrer">
   <link rel="stylesheet" href="index.css" />
 </head>
 <body>
@@ -7,12 +8,15 @@
     <div class="ivweb-pending-files"
     data-ivetl-product-id="rejected_manuscripts"
     data-ivetl-pipeline-id="rejected_articles"
-    data-ivetl-publisher-id="demo"
-    data-ivetl-upload-url="/uploadfile/"
+    data-ivetl-publisher-id="sandbox"
+    data-ivetl-upload-url="http://localhost:8001/uploadfile/"
     data-ivetl-delete-url="/deletefile/"
     data-ivetl-is-demo="false"
-    data-ivetl-csrf-token="randomCSFRtokenStringabdkjalsdkf"></div>
+    data-ivetl-csrf-token="abc"></div>
   </div>
+  <script>
+    document.cookie="csrftoken=abc";
+  </script>
   <script src="./index.js"></script>
 </body>
 </html>

@@ -359,18 +359,32 @@ export function resetPipeline(pipelineId) {
 
 export function generateTsv(rows) {
   return new Promise((resolve, reject) => {
-    /*
-    todo: look into stream api if time permits to improve performance
-    https://csv.js.org/stringify/api/
     const stringifier = stringify({
       delimiter: '\t'
     });
-    */
-    stringify(rows, { delimiter: '\t' }, function(err, output) {
-      if (err) {
-        return reject(err);
+    let rowStrings = [];
+    let errors = [];
+    stringifier.on('readable', function () {
+      let rowString;
+      while (rowString = stringifier.read()) {
+        rowStrings.push(rowString);
       }
-      resolve(output);
-    })
+    });
+
+    stringifier.on('error', function (err) {
+      console.log('Error on csv stringify: ', err);
+      errors.push(err);
+    });
+
+    stringifier.on('finish', function () {
+      const tsv = new Blob(rowStrings, {});
+      resolve(tsv);
+    });
+
+    for (let i = 0; i < rows.length; i++) {
+      stringifier.write(rows[i]);
+    }
+    stringifier.end();
+
   });
 }

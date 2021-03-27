@@ -1,6 +1,7 @@
 import './Pending-Files.css';
 import React, { Component } from 'react';
 
+const axios = require('axios');
 const iconv = require('iconv-lite');
 
 import { CSVReader } from 'react-papaparse';
@@ -93,12 +94,13 @@ class PendingFiles extends Component {
       validator: pipeline.validator,
       columns: pipeline.fileColumns
     }
+    this.fileRef = React.createRef()
+    this.handleOnDrop = this.handleOnDrop.bind(this);
     this.handleData = this.handleData.bind(this);
     this.handleComplete = this.handleComplete.bind(this);
     this.submitFile = this.submitFile.bind(this);
-    console.log('Initialized PendingFiles:');
-    console.log(this.state);
   }
+
 
   handleEncodingChange = (event) => {
     let encoding = this.state.fileEncoding;
@@ -109,7 +111,10 @@ class PendingFiles extends Component {
     }
   }
 
-  handleOnDrop = (data) => {
+  handleOnDrop = (data, file) => {
+    console.log('on drop');
+    console.log(data);
+    console.log(file);
     return;
   }
 
@@ -134,10 +139,6 @@ class PendingFiles extends Component {
     let parsedRows = this.state.parsedRows;
     let rows = this.state.rows;
     let rowCount = this.state.rowCount;
-
-    /* console.log('data...---------------------------')
-    console.log(results)
-    console.log('data...---------------------------')*/
     rowCount++;
     let val = this.state.validator(rowCount, results.data);
     val.rowCount = rowCount;
@@ -171,13 +172,56 @@ class PendingFiles extends Component {
 
   }
 
-  submitFile = () => {
+  submitFile = (event) => {
+    event.preventDefault();
     console.log('submit file request...');
+    console.log(event.target);
+    let uploadUrl = this.state.uploadUrl;
+    let csrf = this.state.csrfToken;
     let parsedRows = this.state.parsedRows;
+    let filename;
+    const withCredentials = this.props.axiosWithCredentials;
+
+    if (this.fileRef.current && this.fileRef.current.fileNameInfoRef &&
+    this.fileRef.current.fileNameInfoRef.current &&
+    this.fileRef.current.fileNameInfoRef.current.innerHTML) {
+        filename = this.fileRef.current.fileNameInfoRef.current.innerHTML;
+    }
+    else {
+      filename = `${this.publisherId}_${this.product_id}_vizor_manager_upload.tsv`;
+    }
+
+    console.log('file info: ', filename)
     generateTsv(parsedRows)
       .then((tsv) => {
         console.log('tsv generation success...');
-        console.log(tsv.length);
+        console.log(tsv.size * 0.001, ' kb');
+        console.log(tsv.type);
+        let submissionForm = new FormData(event.target);
+        submissionForm.append('files', tsv, filename);
+        console.log('created form...');
+        console.log(submissionForm);
+        for (let key of submissionForm.keys()) {
+          console.log(key);
+          console.log(submissionForm.getAll(key))
+        }
+        return axios({
+          method: 'POST',
+          url: uploadUrl,
+          data: submissionForm,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'X-CSRFToken': csrf
+          },
+          responseType: 'text',
+          xsrfCookieName: 'csrftoken',
+          xsrfHeaderName: 'X-CSRFToken',
+          withCredentials: withCredentials
+        });
+      })
+      .then((response) => {
+        console.log('upload success');
+        console.log(response);
       })
       .catch((err) => {
         console.log('error generating tsv...');
@@ -209,11 +253,12 @@ class PendingFiles extends Component {
       ? (
           <CSVReader
             config={papaParseConfig}
-            onError={this.handleOnError}
-            onDrop={this.handleOnDrop}
+            onError={r.handleOnError}
+            onDrop={r.handleOnDrop}
             accept={`${DEFAULT_ACCEPT} ${TAB_ACCEPT} ${ACCEPT}`}
             addRemoveButton
-            onRemoveFile={this.handleOnRemoveFile}
+            onRemoveFile={r.handleOnRemoveFile}
+            ref={r.fileRef}
           >
             <span>Drop file here or click to upload.</span>
           </CSVReader>
@@ -261,19 +306,29 @@ class PendingFiles extends Component {
             {csvElem}
           </div>
           <div className="file-submission">
-            <span>
-              <button className="btn btn-default" onClick={r.submitFile}>
-                Submit Validated Files for Processing
-              </button>
-              <br />
-              <span> or
-              <br />
-              <a href="#">Upload to server,
 
-              but I'll submit them for processing later
-              </a>
-              </span>
-            </span>
+            <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
+                <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
+                <input type="hidden" name="product_id" value={ r.state.productId } />
+                <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
+
+                <input type="hidden" name="file_type" value="publisher" />
+                <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
+
+                <span>
+                  <button className="btn btn-default" type="submit" value="Submit">
+                    Submit Validated Files for Processing
+                  </button>
+                  <br />
+                  <span> or
+                  <br />
+                  <a href="#">Upload to server,
+
+                  but I'll submit them for processing later
+                  </a>
+                  </span>
+                </span>
+            </form>
           </div>
         </div>
         <div className="result-view">
@@ -386,6 +441,7 @@ PendingFiles.defaultProps = {
   uploadUrl: '',
   deleteUrl: '',
   isDemo: false,
+  axiosWithCredentials: false,
   csrfToken: '',
   parsedRows: [],
   rows: [],
