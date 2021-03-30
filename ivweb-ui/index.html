@@ -2,6 +2,13 @@
 <head>
   <meta name="referrer" content="no-referrer">
   <link rel="stylesheet" href="index.css" />
+
+  <!-- existing styles from Vizor Manager, for similar look and feel in development env -->
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/everything-2018-04-04.css"/>
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/hyperlinearicons.css">
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/bootstrap-datepicker3.min.css">
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/bootstrap-multiselect.css">
+
 </head>
 <body>
   <div class="App">
@@ -12,7 +19,9 @@
     data-ivetl-upload-url="http://localhost:8001/uploadfile/"
     data-ivetl-delete-url="/deletefile/"
     data-ivetl-is-demo="false"
-    data-ivetl-csrf-token="abc"></div>
+    data-ivetl-csrf-token="abc"
+    data-ivetl-pending-files-url="http://localhost:8001/api/pipelines/"
+    data-ivetl-pending-files='[{"file_name": "small_test.tsv"}, {"file_name": "small_test_no_trailing_line.tsv"}]'></div>
   </div>
   <script>
     document.cookie="csrftoken=abc";

@@ -31,6 +31,10 @@ const validators = {
     // Check the range of the day
     return day > 0 && day <= monthLength[month - 1];
   },
+  isDoi: function (value) {
+    // todo: implement regular expression checks on doi formats
+    return true;
+  },
   noSemiColon: function (value) {
     if (typeof value === 'string' && value.includes(';')) {
       return false;
@@ -43,12 +47,43 @@ const validators = {
   empty: function (idx, row) {
     return typeof row[idx] !== 'string' || !row[idx] ||
     row[idx].trim() === '';
+  },
+  yesOrNo: function (value) {
+    const index = ['yes', 'no'];
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (index.indexOf(normalized) === -1) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
 // todo: i18n support for configurable language messaging
 // i.e. messages defined as data rather than strings hardcoded in logic
 const messages = {
+  custom_article_data: {
+    columns: [
+      'DOI', 'TOC_SECTION', 'COLLECTION', 'EDITOR', 'CUSTOM', 'CUSTOM_2',
+      'CUSTOM_3', 'CITEABLE_ARTICLE', 'IS_OPEN_ACCESS'
+    ],
+    col_0: {
+      valid: validators.isDoi,
+      msg: 'DOI field appears to contain non-DOI text string.',
+      level: 'warn'
+    },
+    col_7: {
+      valid: validators.yesOrNo,
+      msg: 'CITEABLE_ARTICLE: Valid values are "Yes" or "No".',
+      level: 'error'
+    },
+    col_8: {
+      valid: validators.yesOrNo,
+      msg: 'IS_OPEN_ACCESS: Valid values are "Yes" or "No".',
+      level: 'error'
+    }
+  },
   incorrectHeader: function (expected, actual) {
     return `Incorrect header field: expected ${expected}, found ${actual}`
   },
@@ -219,6 +254,91 @@ let pipelines = {
       }
       return finalizedErrors;
     }
+  },
+  custom_article_data: {
+    id: 'custom_article_data',
+    name: 'Additional Article Metadata',
+    fileColumns: [
+      {
+        name: 'DOI',
+        px: 100,
+        pct: 0.03
+      },
+      {
+        name: 'TOC_SECTION',
+        px: 100,
+        pct: 0.03
+      },
+      {
+        name: 'COLLECTION',
+        px: 100,
+        pct: 0.03
+      },
+      {
+        name: 'EDITOR',
+        px: 350,
+        pct: 0.03
+      },
+      {
+        name: 'CUSTOM',
+        px: 200,
+        pct: 0.03
+      },
+      {
+        name: 'CUSTOM_2',
+        px: 400,
+        pct: 0.03
+      },
+      {
+        name: 'CUSTOM_3',
+        px: 300,
+        pct: 0.03
+      },
+      {
+        name: 'CITEABLE_ARTICLE',
+        px: 150,
+        pct: 0.03
+      },
+      {
+        name: 'IS_OPEN_ACCESS',
+        px: 150,
+        pct: 0.03
+      }
+    ],
+    rowErrorsIndex: {},
+    validator: function (rowCount, row) {
+      const required = [0];
+      const hasChecks = [0, 7, 8];
+      const specificChecks = [];
+      let errors = rowValidator('custom_article_data', rowCount, row,
+        required, hasChecks, specificChecks);
+
+      if (validators.empty(4, row) && validators.empty(5, row) &&
+      validators.empty(6, row)) {
+        for (var i = 4; i < 7; i++) {
+          if (typeof errors[`col_${i}`] === 'undefined') {
+            errors[`col_${i}`] = [];
+          }
+        }
+        errors.col_4.push(messages.requiresOne('author'));
+        errors.col_5.push(messages.requiresOne('author'));
+        errors.col_6.push(messages.requiresOne('author'));
+        if (errors.data[4]) {
+          errors.data[4].errors.push(messages.requiresOne('author'));
+        }
+        if (errors.data[5]) {
+          errors.data[5].errors.push(messages.requiresOne('author'));
+        }
+        if (errors.data[6]) {
+          errors.data[6].errors.push(messages.requiresOne('author'));
+        }
+      }
+      let finalizedErrors = cleanRowErrorObj(errors, hasChecks);
+      if (finalizedErrors.hasErrors) {
+
+      }
+      return finalizedErrors;
+    }
   }
 }
 
@@ -232,6 +352,7 @@ specificChecks) {
       }
     }),
     row: [],
+    rowCount: rowCount
   };
   let columns = messages[pipelineId].columns;
 

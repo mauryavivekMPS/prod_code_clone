@@ -553,6 +553,15 @@ def get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_
     pub_dir = get_or_create_uploaded_file_dir(publisher_id, product_id, pipeline_id)
     return utils.list_dir(pub_dir, with_lines_and_sizes, ignore)
 
+@login_required
+def api_get_pending_files_for_publisher(request, publisher_id, product_id, pipeline_id):
+    pending_files_resp = {
+        'publisherId': publisher_id,
+        'productId': product_id,
+        'pipelineId': pipeline_id,
+        'files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id)
+    }
+    return JsonResponse(pending_files_resp)
 
 def get_queued_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=False, ignore=[]):
     pipeline = common.PIPELINE_BY_ID[pipeline_id]

@@ -74,12 +74,30 @@ class PendingFiles extends Component {
   constructor(props) {
     super(props)
     const pipeline = pipelineById(props.ivetlPipelineId);
+    let pendingFiles = [];
+    if (props.ivetlPendingFiles) {
+      try {
+        let pf = JSON.parse(props.ivetlPendingFiles);
+        if (Array.isArray(pf)) {
+          pendingFiles = pf.filter((item) => {
+            return typeof item.file_name !== 'undefined';
+          })
+        }
+      }
+      catch {
+        console.log('invalid JSON supplied to pending files property, ignoring.');
+        console.log(props.ivetlPendingFiles);
+      }
+    }
     this.state = {
       fileEncoding: null,
       productId: props.ivetlProductId,
       pipelineId: props.ivetlPipelineId,
       pipelineName: pipeline.name,
       publisherId: props.ivetlPublisherId,
+      pendingFilesBaseUrl: props.ivetlPendingFilesUrl,
+      pendingFiles: pendingFiles,
+      pendingFilesError: false,
       uploadUrl: props.ivetlUploadUrl,
       deleteUrl: props.ivetlDeleteUrl,
       isDemo: !props.ivetlIsDemo || props.ivetlIsDemo === 'false'
@@ -90,6 +108,7 @@ class PendingFiles extends Component {
       rows: [],
       rowCount: 0,
       rowErrors: [],
+      textErrors: [],
       rowErrorsIndex: {},
       validator: pipeline.validator,
       columns: pipeline.fileColumns
@@ -101,6 +120,20 @@ class PendingFiles extends Component {
     this.submitFile = this.submitFile.bind(this);
   }
 
+  getPendingFiles = () => {
+    let { pendingFilesBaseUrl, publisherId, productId, pipelineId } = this.state;
+
+    const url = `${pendingFilesBaseUrl}${publisherId}/${productId}/${pipelineId}/pendingfiles`;
+    return new Promise((resolve, reject) => {
+      axios.get(url)
+        .then((response) => {
+          resolve(response.data.pendingFiles || []);
+        })
+        .catch((error) => {
+          reject(error);
+        })
+    });
+  }
 
   handleEncodingChange = (event) => {
     let encoding = this.state.fileEncoding;
@@ -140,6 +173,8 @@ class PendingFiles extends Component {
     let rows = this.state.rows;
     let rowCount = this.state.rowCount;
     rowCount++;
+    let textErrors = this.state.textErrors;
+
     let val = this.state.validator(rowCount, results.data);
     val.rowCount = rowCount;
     if (val.hasErrors ||
@@ -148,12 +183,28 @@ class PendingFiles extends Component {
       let errors = this.state.rowErrors;
       let errorIdx = this.state.rowErrorsIndex;
       errorIdx[`row_${rowCount}`] = val;
+
+      if (val.row.length > 0) {
+        val.row.forEach((rowLevelError) => {
+          textErrors.push(`Row ${val.rowCount}: ${rowLevelError}`)
+        });
+      }
+      val.data.forEach((column, idx) => {
+        if (column.errors.length > 0) {
+          column.errors.forEach((columnError) => {
+            textErrors.push(`Row ${val.rowCount}, Column ${idx + 1}: ${columnError}`)
+          });
+        }
+      });
+
+
       this.setState({
         parsedRows: [...parsedRows, results.data],
         rows: [...rows, val.data],
         rowCount: rowCount,
         rowErrors: [...errors, val.data],
-        rowErrorsIndex: errorIdx
+        rowErrorsIndex: errorIdx,
+        textErrors: [...textErrors ]
       });
       return;
     }
@@ -269,9 +320,42 @@ class PendingFiles extends Component {
         </div>
       )
 
+    let textErrors = r.state.textErrors;
+
+    let textErrorItems = textErrors.map((textError, idx) => {
+      return (
+        <li className="text-error-item" key={`text-error-item-${idx}`}>{ textError }</li>
+      )
+    })
     return (
       <div className="pending-files">
+      <div className="file-submission">
+
+        <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
+            <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
+            <input type="hidden" name="product_id" value={ r.state.productId } />
+            <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
+
+            <input type="hidden" name="file_type" value="publisher" />
+            <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
+
+            <span>
+              <button className="btn btn-primary submit-button submit-for-processing-button" type="submit" value="Submit">
+                Submit Validated Files for Processing
+              </button> or
+
+              <span className="cancel">
+              <a href="#">I'll submit them later
+              </a>
+              </span>
+            </span>
+        </form>
+      </div>
         <div className="file-selection">
+          <div className="file-upload-heading">
+            <h4>Upload a New File</h4>
+            <i>and validate in-browser</i>
+          </div>
           <div className="file-encoding">
             <label className={`
               ${r.state.fileEncoding === 'UTF-8' ? 'active' : ''}
@@ -294,41 +378,8 @@ class PendingFiles extends Component {
               ISO-8859-2
             </label>
           </div>
-          <div className="selection-cta">
-            {r.state.fileEncoding && (
-              <span>Select a file to upload,
-              <br />
-              or drag and drop: </span>
-            )
-            }
-          </div>
           <div className="csv-frame">
             {csvElem}
-          </div>
-          <div className="file-submission">
-
-            <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
-                <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
-                <input type="hidden" name="product_id" value={ r.state.productId } />
-                <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
-
-                <input type="hidden" name="file_type" value="publisher" />
-                <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
-
-                <span>
-                  <button className="btn btn-default" type="submit" value="Submit">
-                    Submit Validated Files for Processing
-                  </button>
-                  <br />
-                  <span> or
-                  <br />
-                  <a href="#">Upload to server,
-
-                  but I'll submit them for processing later
-                  </a>
-                  </span>
-                </span>
-            </form>
           </div>
         </div>
         <div className="result-view">
@@ -402,9 +453,11 @@ class PendingFiles extends Component {
             <TabPanel>
               <h3>Errors - Text Summary</h3>
               <p><i>Text summary of all errors, with row numbers.</i></p>
+              <p>total: { textErrorItems.length }</p>
               <div>
-                <i>Todo: aggregrate all errors with row number
-                and display here</i>
+                <ul className="text-error-summary">
+                  { textErrorItems }
+                </ul>
               </div>
             </TabPanel>
             <TabPanel>
@@ -435,11 +488,6 @@ class PendingFiles extends Component {
 }
 
 PendingFiles.defaultProps = {
-  productId: '',
-  pipelineId: '',
-  publisherId: '',
-  uploadUrl: '',
-  deleteUrl: '',
   isDemo: false,
   axiosWithCredentials: false,
   csrfToken: '',

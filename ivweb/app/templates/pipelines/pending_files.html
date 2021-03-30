@@ -21,7 +21,52 @@
             <h1>Pending Files &ndash; {{ pipeline.user_facing_file_description }} Files</h1>
         </div>
     </div>
-
+    <div class="row">
+        <div class="col-md-12">
+            {% content_block pipeline.id %}
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <h4>In-browser file validation</h4>
+        <p>This page hosts a newly (2021) developed in-browser file validator.
+          This validator aims to make it easier to submit files into the
+          Vizor system.
+        </p>
+        <p>The in-browser validator can display all error messages at one time,
+          and provide details on the exact rows and cells which contain
+          unexpected values. Additionally, you can upload comma-separated
+          values to this validator, and it will handle a conversion to
+          the system-required tab-separated values for you.
+        </p>
+        <p>This feature is new, and the interface is quite different.
+          For maximum flexibility and compatibility, the original tooling
+          is still available.
+        </p><a href="{% url 'pipelines.pending_files_legacy' product.id pipeline.id %}?publisher={{ publisher_id }}">Legacy Upload Page</a></p>
+    <!--<div class="row">
+      <div class="col-md-12">
+        <div class="pending-files-container {% if is_demo %}demo-files{% else %}pending-files{% endif %}">
+          <table class="table all-files-table {% if pending_files %}has-files{% else %}no-files{% endif %}">
+            {% if not is_demo %}
+            <thead>
+              <tr>
+                <th><span class="status-icon status-empty"></span></th>
+                <th colspan="2">File</th>
+                <th>Lines</th>
+                <th>Size</th>
+                <th>Status</th>
+              <th></th>
+              </tr>
+            </thead>
+              {% endif %}
+            <tbody>
+              {% for file in pending_files %}
+              {% include "pipelines/include/file.html" with read_only=read_only file_name=file.file_name file_size=file.file_size line_count=file.line_count file_id=file.file_id validation_errors=file.validation_errors %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>-->
     <div>
         <div class="row">
             <div class="col-md-12">
@@ -31,6 +76,7 @@
                      data-ivetl-publisher-id="{{ publisher_id }}"
                      data-ivetl-upload-url="{% url 'pipelines.upload_pending_file_inline' %}"
                      data-ivetl-delete-url="{% url 'pipelines.delete_pending_file_inline' %}"
+                     data-ivetl-pending-files-url="{% url 'pipelines.api_get_pending_files_for_publisher' publisher_id product.id pipeline.id %}"
                      data-ivetl-is-demo="false"
                      data-ivetl-csrf-token="{{ csrf_token }}"
                      ></div>

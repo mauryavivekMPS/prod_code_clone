@@ -8,7 +8,8 @@ const components = [
     ref: PendingFiles,
     className: '.ivweb-pending-files',
     propNames: [ 'ivetlProductId', 'ivetlPipelineId', 'ivetlPublisherId',
-    'ivetlUploadUrl', 'ivetlDeleteUrl', 'ivetlIsDemo', 'ivetlCsrfToken' ]
+    'ivetlUploadUrl', 'ivetlDeleteUrl', 'ivetlPendingFilesUrl',
+    'ivetlPendingFiles', 'ivetlIsDemo', 'ivetlCsrfToken' ]
   }
 ]
 
