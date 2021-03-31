@@ -36,12 +36,12 @@ const ErrorCell = ({ columnIndex, rowIndex, data, style }) => {
       errorMessages.push(
         <div className="error-msg"
         key={`${rowIndex}-${columnIndex}-error-${i}`}>
-          <a href="#" data-tip={errors[i]}>
+          <a data-tip={errors[i]} data-for="error-cell-tooltips">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#900" className="bi bi-info-circle-fill" viewBox="0 0 16 16">
               <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
             </svg>
           </a>
-          <ReactTooltip place="right" type="dark" effect="solid"
+          <ReactTooltip id="error-cell-tooltips" place="right" type="dark" effect="solid"
           className="error-cell-tooltip" clickable={true}
           event={'click'} globalEventOff={'click'} />
         </div>
@@ -347,6 +347,8 @@ class PendingFiles extends Component {
         </div>
       )
 
+    // todo: consider refactoring pending files section into new component
+    let pendingFilesDisplay = '';
     let pendingFilesTable = '', pendingFilesTableRows = [];
     if (r.state.pendingFiles.length > 0) {
       for (let i = 0; i < r.state.pendingFiles.length; i++) {
@@ -378,6 +380,34 @@ class PendingFiles extends Component {
           </tbody>
         </table>
       )
+      pendingFilesDisplay = (
+        <div className="pending-files-container pending-files">
+          { pendingFilesTable }
+          <div className="file-submission">
+            <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
+                <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
+                <input type="hidden" name="product_id" value={ r.state.productId } />
+                <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
+
+                <input type="hidden" name="file_type" value="publisher" />
+                <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
+
+                <span>
+                  <button className="btn btn-primary submit-button submit-for-processing-button"
+                  type="submit" value="Submit"
+                  disabled={r.state.pendingFiles.length < 1}>
+                    Submit Validated Files for Processing
+                  </button> or
+
+                  <span className="cancel">
+                  <a href="#">I'll submit them later
+                  </a>
+                  </span>
+                </span>
+            </form>
+          </div>
+        </div>
+      )
     }
     let textErrors = r.state.textErrors;
 
@@ -390,11 +420,15 @@ class PendingFiles extends Component {
       <div className="pending-files">
         <div className="pending-files-header">
           <h4>In-Browser File Validator &nbsp;
-            <a data-tip={r.state.validatorIntro}>
+            <a data-tip={r.state.validatorIntro} data-for="validator-info">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#359" className="bi bi-info-circle-fill" viewBox="0 0 16 16">
                 <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
               </svg>
             </a>
+            <ReactTooltip id="validator-info" place="bottom" type="info" effect="solid"
+            className="info-tooltip" event={'click'} globalEventOff={'click'}
+            multiline={true}
+            clickable={true} className="validator-intro" />
           </h4>
           <p>
             <i>The <a href={r.props.ivetlLegacyUploads}>
@@ -402,38 +436,8 @@ class PendingFiles extends Component {
             </a> remains available if preferred.
             </i>
           </p>
-          <ReactTooltip place="bottom" type="info" effect="solid"
-          className="info-tooltip" event={'click'} globalEventOff={'click'}
-          multiline={true}
-          clickable={true} className="validator-intro" />
         </div>
-        <div className="pending-files-container pending-files">
-          { pendingFilesTable }
-        </div>
-        <div className="file-submission">
-
-          <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
-              <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
-              <input type="hidden" name="product_id" value={ r.state.productId } />
-              <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
-
-              <input type="hidden" name="file_type" value="publisher" />
-              <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
-
-              <span>
-                <button className="btn btn-primary submit-button submit-for-processing-button"
-                type="submit" value="Submit"
-                disabled={r.state.pendingFiles.length < 1}>
-                  Submit Validated Files for Processing
-                </button> or
-
-                <span className="cancel">
-                <a href="#">I'll submit them later
-                </a>
-                </span>
-              </span>
-          </form>
-        </div>
+        { pendingFilesDisplay }
         <div className="file-selection">
           <div className="file-upload-heading">
             <h4>Upload a New File</h4>
