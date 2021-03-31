@@ -1,3 +1,7 @@
+.pending-files-header .validator-intro .multi-line {
+  text-align: left;
+}
+
 .file-selection {
   background-color: #282c34;
   min-height: 3vh;

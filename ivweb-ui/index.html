@@ -20,12 +20,19 @@
     data-ivetl-delete-url="/deletefile/"
     data-ivetl-is-demo="false"
     data-ivetl-csrf-token="abc"
+    data-ivetl-legacy-uploads="http://localhost:8000/pipelines/rejected_manuscripts/rejected_articles/pendingfiles_legacy/?publisher=sandbox"
     data-ivetl-pending-files-url="http://localhost:8001/api/pipelines/"
-    data-ivetl-pending-files='[{"file_name": "small_test.tsv"}, {"file_name": "small_test_no_trailing_line.tsv"}]'></div>
+    data-ivetl-pending-files='[{
+      "file_name": "small_test.tsv", "file_size": "100 kb",
+      "line_count": "100", "file_id": "abc",
+      "validation_errors": [{"line_number": 20, "message": "error 1"}]},
+      {"file_name": "small_test_no_trailing_line.tsv", "file_size": "100 kb",
+      "line_count": "100", "file_id": "1234",
+      "validation_errors": [{
+        "line_number": 20,
+        "message": "error 1 error 1 error 1 error 1 error 1 error 1 error 1 error 1 error 1 error 1"},
+        {"line_number": 40, "message": "error 2"}]}]'></div>
   </div>
-  <script>
-    document.cookie="csrftoken=abc";
-  </script>
   <script src="./index.js"></script>
 </body>
 </html>

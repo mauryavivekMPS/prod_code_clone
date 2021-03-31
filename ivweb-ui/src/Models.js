@@ -32,8 +32,12 @@ const validators = {
     return day > 0 && day <= monthLength[month - 1];
   },
   isDoi: function (value) {
-    // todo: implement regular expression checks on doi formats
-    return true;
+    // https://www.crossref.org/blog/dois-and-matching-regular-expressions/
+    let id = value.trim();
+    const doiA = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+    const doiB = /^10.1002\/[^\s]+$/i;
+    const doiC = /^10.\d{4}\/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d$/i;
+    return doiA.test(id) || doiB.test(id) || doiC.test(id);;
   },
   noSemiColon: function (value) {
     if (typeof value === 'string' && value.includes(';')) {
@@ -369,7 +373,7 @@ specificChecks) {
     return validateHeaderRow(columns, row, errors);
   }
   else if (row.length !== columns.length) {
-    errors.row.push(messages.wrongColNum(row.length, 16))
+    errors.row.push(messages.wrongColNum(columns.length, row.length))
   }
 
   for (let i = 0; i < hasChecks.length; i++) {
@@ -413,7 +417,7 @@ specificChecks) {
 function validateHeaderRow(columns, row, errors) {
   let hasErrors = false;
   if (columns.length !== row.length) {
-    errors.row.push(messages.wrongColNum(row.length, 16));
+    errors.row.push(messages.wrongColNum(columns.length, row.length));
     hasErrors = true;
   }
   for (let i = 0; i < row.length && i < columns.length; i++) {

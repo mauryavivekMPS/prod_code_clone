@@ -12,6 +12,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeGrid as Grid } from 'react-window';
 import { generateTsv, pipelineById, resetPipeline } from './Models';
 
+import { PendingFilesTableRow, PendingFilesTableError }  from './Pending-Files-Table-Row';
 const Cell = ({ columnIndex, rowIndex, data, style }) => {
 
 }
@@ -40,8 +41,9 @@ const ErrorCell = ({ columnIndex, rowIndex, data, style }) => {
               <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
             </svg>
           </a>
-          <ReactTooltip place="top" type="dark" effect="solid"
-          className="error-cell-tooltip" clickable={true} />
+          <ReactTooltip place="right" type="dark" effect="solid"
+          className="error-cell-tooltip" clickable={true}
+          event={'click'} globalEventOff={'click'} />
         </div>
       )
     }
@@ -73,6 +75,24 @@ const ErrorCell = ({ columnIndex, rowIndex, data, style }) => {
 class PendingFiles extends Component {
   constructor(props) {
     super(props)
+    const introText = `This page hosts a newly (2021) developed
+    in-browser file validator. <br />
+    This validator aims to make it easier to
+    submit files into the Vizor system.<br />
+    <br />
+    The in-browser validator can display all error messages at one time,<br />
+    and provide details on the exact rows and cells which contain
+    unexpected values. <br />
+    Additionally, you can upload comma-separated values to this validator,<br />
+     and it will handle conversion to the system-required <br />
+     tab-separated values format for you.<br />
+    <br />
+    This feature is new, and the interface is quite different.<br />
+    For maximum flexibility and compatibility,
+    the original tooling is still available. <br />
+    Use the "Legacy Upload Page"
+    link below to access the old functionality.`
+
     const pipeline = pipelineById(props.ivetlPipelineId);
     let pendingFiles = [];
     if (props.ivetlPendingFiles) {
@@ -111,6 +131,7 @@ class PendingFiles extends Component {
       textErrors: [],
       rowErrorsIndex: {},
       validator: pipeline.validator,
+      validatorIntro: introText,
       columns: pipeline.fileColumns
     }
     this.fileRef = React.createRef()
@@ -118,6 +139,7 @@ class PendingFiles extends Component {
     this.handleData = this.handleData.bind(this);
     this.handleComplete = this.handleComplete.bind(this);
     this.submitFile = this.submitFile.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
   }
 
   getPendingFiles = () => {
@@ -280,6 +302,11 @@ class PendingFiles extends Component {
       })
   }
 
+  deleteFile = (file) => {
+    console.log('delete file');
+    console.log(file);
+  }
+
   render() {
     let r = this;
     // Extending defaults found here:
@@ -320,6 +347,38 @@ class PendingFiles extends Component {
         </div>
       )
 
+    let pendingFilesTable = '', pendingFilesTableRows = [];
+    if (r.state.pendingFiles.length > 0) {
+      for (let i = 0; i < r.state.pendingFiles.length; i++) {
+        pendingFilesTableRows.push(
+          <PendingFilesTableRow file={r.state.pendingFiles[i]}
+            cb={r.deletePendingFile}
+            key={`PendingFilesTableRow-${i}`} />
+        );
+        pendingFilesTableRows.push(
+          <PendingFilesTableError file={r.state.pendingFiles[i]}
+          key={`PendingFilesTableError-${i}`} />
+        );
+      }
+
+      pendingFilesTable = (
+        <table className="table all-files-table has-files">
+          <thead>
+              <tr>
+                  <th><span className="status-icon status-empty"></span></th>
+                  <th>File</th>
+                  <th>Lines</th>
+                  <th>Size</th>
+                  <th>Status</th>
+                  <th></th>
+              </tr>
+          </thead>
+          <tbody>
+            { pendingFilesTableRows }
+          </tbody>
+        </table>
+      )
+    }
     let textErrors = r.state.textErrors;
 
     let textErrorItems = textErrors.map((textError, idx) => {
@@ -329,28 +388,52 @@ class PendingFiles extends Component {
     })
     return (
       <div className="pending-files">
-      <div className="file-submission">
+        <div className="pending-files-header">
+          <h4>In-Browser File Validator &nbsp;
+            <a data-tip={r.state.validatorIntro}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#359" className="bi bi-info-circle-fill" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+              </svg>
+            </a>
+          </h4>
+          <p>
+            <i>The <a href={r.props.ivetlLegacyUploads}>
+              Legacy Upload Page
+            </a> remains available if preferred.
+            </i>
+          </p>
+          <ReactTooltip place="bottom" type="info" effect="solid"
+          className="info-tooltip" event={'click'} globalEventOff={'click'}
+          multiline={true}
+          clickable={true} className="validator-intro" />
+        </div>
+        <div className="pending-files-container pending-files">
+          { pendingFilesTable }
+        </div>
+        <div className="file-submission">
 
-        <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
-            <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
-            <input type="hidden" name="product_id" value={ r.state.productId } />
-            <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
+          <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
+              <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
+              <input type="hidden" name="product_id" value={ r.state.productId } />
+              <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
 
-            <input type="hidden" name="file_type" value="publisher" />
-            <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
+              <input type="hidden" name="file_type" value="publisher" />
+              <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
 
-            <span>
-              <button className="btn btn-primary submit-button submit-for-processing-button" type="submit" value="Submit">
-                Submit Validated Files for Processing
-              </button> or
+              <span>
+                <button className="btn btn-primary submit-button submit-for-processing-button"
+                type="submit" value="Submit"
+                disabled={r.state.pendingFiles.length < 1}>
+                  Submit Validated Files for Processing
+                </button> or
 
-              <span className="cancel">
-              <a href="#">I'll submit them later
-              </a>
+                <span className="cancel">
+                <a href="#">I'll submit them later
+                </a>
+                </span>
               </span>
-            </span>
-        </form>
-      </div>
+          </form>
+        </div>
         <div className="file-selection">
           <div className="file-upload-heading">
             <h4>Upload a New File</h4>
@@ -452,8 +535,9 @@ class PendingFiles extends Component {
             </TabPanel>
             <TabPanel>
               <h3>Errors - Text Summary</h3>
-              <p><i>Text summary of all errors, with row numbers.</i></p>
-              <p>total: { textErrorItems.length }</p>
+              <p><i>Text summary of all errors, with row numbers.
+              Total: { textErrorItems.length }</i></p>
+
               <div>
                 <ul className="text-error-summary">
                   { textErrorItems }
