@@ -9,7 +9,9 @@
     "start": "parcel index.html",
     "rm-map": "rm dist/*.map",
     "cp-dist": "cp dist/index.*s ../ivweb/app/static/ivweb-ui/",
-    "cp-dep": "cp src/papaparse.js ../ivweb/app/static/ivweb-ui/",
+    "cp-ww": "cp src/papaparse.js ../ivweb/app/static/ivweb-ui/",
+    "cp-img": "cp src/*.svg ../ivweb/app/static/ivweb-ui",
+    "cp-dep": "npm run cp-ww && npm run cp-img",
     "cp-all": "npm run rm-map && npm run cp-dist && npm run cp-dep",
     "build": "parcel build index.js",
     "dist": "npm run build && npm run cp-all"

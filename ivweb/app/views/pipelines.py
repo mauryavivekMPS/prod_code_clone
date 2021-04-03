@@ -616,10 +616,26 @@ def pending_files(request, product_id, pipeline_id):
     publisher_id = request.REQUEST['publisher']
     publisher = PublisherMetadata.objects.get(publisher_id=publisher_id)
 
+    pending_files_list = get_pending_files_for_publisher(publisher_id,
+        product_id, pipeline_id, with_lines_and_sizes=True)
+
+    # https://stackoverflow.com/questions/36588126/uuid-is-not-json-serializable
+    # UUID fails to JSON serialize in current version of django (1.8)
+    # also noted from inspecting code, get_pending_files_for_publisher
+    # will not return anything with validation errors
+    # due to use of move_invalid_file_to_cold_storage
+    pending_files_no_uuid = [{
+        'file_name': f['file_name'],
+        'file_size': f['file_size'],
+        'line_count': f['line_count']
+    } for f in pending_files_list]
+    pending_files_json = json.dumps(pending_files_no_uuid)
+
     return render(request, 'pipelines/pending_files.html', {
         'product': product,
         'pipeline': pipeline,
-        'pending_files': get_pending_files_for_publisher(publisher_id, product_id, pipeline_id, with_lines_and_sizes=True),
+        'pending_files': pending_files_list,
+        'pending_files_json': pending_files_json,
         'publisher_id': publisher_id,
         'publisher': publisher,
     })
@@ -671,6 +687,7 @@ def upload_pending_file_inline(request):
         pipeline = common.PIPELINE_BY_ID[pipeline_id]
         file_type = request.POST['file_type']
         second_level_validation = request.POST.get('second_level_validation', '0') == '1'
+        client_validated = request.POST.get('client_validated', '0') == '1'
 
         validation_errors = []
         all_uploaded_files = request.FILES.getlist('files')
@@ -809,6 +826,17 @@ def upload_pending_file_inline(request):
             })
 
         ui_type = request.POST.get('ui_type', 'more')
+
+        if client_validated:
+            return JsonResponse({
+                'product': product,
+                'pipeline': pipeline,
+                'publisher_id': publisher_id,
+                'processed_files': all_processed_files,
+                'is_demo': file_type == 'demo',
+                'ui_type': ui_type,
+                'inline': True,
+            })
 
         return render(request, 'pipelines/include/multiple_files.html', {
             'product': product,

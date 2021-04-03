@@ -10,7 +10,9 @@ import 'react-tabs/style/react-tabs.css';
 import ReactTooltip from 'react-tooltip';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeGrid as Grid } from 'react-window';
-import { generateTsv, pipelineById, resetPipeline } from './Models';
+import logo from './logo-loader-white.svg';
+
+import { generateTsv, pipelineById, resetPipeline, setLoading, Store } from './Models';
 
 import { PendingFilesTableRow, PendingFilesTableError }  from './Pending-Files-Table-Row';
 const Cell = ({ columnIndex, rowIndex, data, style }) => {
@@ -109,8 +111,18 @@ class PendingFiles extends Component {
         console.log(props.ivetlPendingFiles);
       }
     }
+
+    if (props.ivetlLogoUrl) {
+      this.logoUrl = props.ivetlLogoUrl;
+    }
+    else {
+      this.logoUrl = logo;
+    }
+
     this.state = {
       fileEncoding: null,
+      fileValidated: false,
+      loading: false,
       productId: props.ivetlProductId,
       pipelineId: props.ivetlPipelineId,
       pipelineName: pipeline.name,
@@ -135,7 +147,9 @@ class PendingFiles extends Component {
       columns: pipeline.fileColumns
     }
     this.fileRef = React.createRef()
-    this.handleOnDrop = this.handleOnDrop.bind(this);
+    this.dataStore = new Store();
+    this.onCsvLoadStart = this.onCsvLoadStart.bind(this);
+    this.handleOnError = this.handleOnError.bind(this);
     this.handleData = this.handleData.bind(this);
     this.handleComplete = this.handleComplete.bind(this);
     this.submitFile = this.submitFile.bind(this);
@@ -159,6 +173,7 @@ class PendingFiles extends Component {
 
   handleEncodingChange = (event) => {
     let encoding = this.state.fileEncoding;
+    console.log(this.fileRef.current);
     if (event && event.target) {
       this.setState({
         fileEncoding: event.target.value
@@ -166,15 +181,17 @@ class PendingFiles extends Component {
     }
   }
 
-  handleOnDrop = (data, file) => {
-    console.log('on drop');
-    console.log(data);
-    console.log(file);
-    return;
+  onCsvLoadStart = (e) => {
+    console.log('onCsvLoadStart');
+    setLoading(this.state.pipelineId, true);
+    // this.setState({ loading: true });
   }
 
   handleOnError = (err, file, inputElem, reason) => {
     console.log(err)
+    this.setState({
+      loading: false
+    });
   }
 
   handleOnRemoveFile = (data) => {
@@ -182,23 +199,29 @@ class PendingFiles extends Component {
     console.log(data)
     console.log('---------------------------')
     this.setState({
+      fileValidated: false,
       parsedRows: [],
       rows: [],
       rowCount: 0,
       rowErrors: [],
-      rowErrorsIndex: {}
+      rowErrorsIndex: {},
+      textErrors: []
     })
   }
 
   handleData = (results, parser) => {
-    let parsedRows = this.state.parsedRows;
-    let rows = this.state.rows;
-    let rowCount = this.state.rowCount;
+    let parsedRows = this.dataStore.state.parsedRows;
+    let rows = this.dataStore.state.rows;
+    let rowCount = this.dataStore.state.rowCount;
     rowCount++;
-    let textErrors = this.state.textErrors;
+    let rowErrors = this.dataStore.state.rowErrors;
+    let textErrors = this.dataStore.state.textErrors;
 
     let val = this.state.validator(rowCount, results.data);
     val.rowCount = rowCount;
+    if (!this.state.loading) {
+      this.setState({ loading: true });
+    }
     if (val.hasErrors ||
     (results.errors && results.errors.length > 0)) {
       val.parseErrors = results.errors;
@@ -219,26 +242,32 @@ class PendingFiles extends Component {
         }
       });
 
+      rowErrors.push(val.data);
 
-      this.setState({
-        parsedRows: [...parsedRows, results.data],
-        rows: [...rows, val.data],
-        rowCount: rowCount,
-        rowErrors: [...errors, val.data],
-        rowErrorsIndex: errorIdx,
-        textErrors: [...textErrors ]
-      });
-      return;
     }
-    this.setState({
-      parsedRows: [...parsedRows, results.data],
-      rows: [...rows, val.data],
-      rowCount: rowCount
-    })
+    parsedRows.push(results.data);
+    rows.push(val.data);
+    this.dataStore.state.rowCount = rowCount;
   }
 
   handleComplete = (results, file) => {
-    console.log('Parsing complete: ', results, file)
+    // todo: check results for error / warn prior to allow submission
+
+    // setTimeout gives more noticeable display of spinner for short files
+    let newState = {
+      ...this.dataStore.state,
+      fileValidated: true,
+      loading: false
+    };
+    console.log('parsing done');
+    console.log(this.dataStore.state);
+    setTimeout(() => {
+      setLoading(this.state.pipeline_id, false);
+      this.setState(newState);
+      console.log('Parsing complete: ', results, file)
+    }, 1000)
+
+
   }
 
   setFileEncoding = (event) => {
@@ -249,21 +278,23 @@ class PendingFiles extends Component {
     event.preventDefault();
     console.log('submit file request...');
     console.log(event.target);
-    let uploadUrl = this.state.uploadUrl;
-    let csrf = this.state.csrfToken;
-    let parsedRows = this.state.parsedRows;
+    let c = this;
+    let uploadUrl = c.state.uploadUrl;
+    let csrf = c.state.csrfToken;
+    let parsedRows = c.state.parsedRows;
     let filename;
-    const withCredentials = this.props.axiosWithCredentials;
+    const withCredentials = c.props.axiosWithCredentials;
 
-    if (this.fileRef.current && this.fileRef.current.fileNameInfoRef &&
-    this.fileRef.current.fileNameInfoRef.current &&
-    this.fileRef.current.fileNameInfoRef.current.innerHTML) {
-        filename = this.fileRef.current.fileNameInfoRef.current.innerHTML;
+    if (c.fileRef.current && c.fileRef.current.fileNameInfoRef &&
+    c.fileRef.current.fileNameInfoRef.current &&
+    c.fileRef.current.fileNameInfoRef.current.innerHTML) {
+        filename = c.fileRef.current.fileNameInfoRef.current.innerHTML;
     }
     else {
-      filename = `${this.publisherId}_${this.product_id}_vizor_manager_upload.tsv`;
+      filename = `${c.publisherId}_${c.product_id}_vizor_manager_upload.tsv`;
     }
 
+    c.setState({ loading: true });
     console.log('file info: ', filename)
     generateTsv(parsedRows)
       .then((tsv) => {
@@ -295,16 +326,86 @@ class PendingFiles extends Component {
       .then((response) => {
         console.log('upload success');
         console.log(response);
+        let pending = c.state.pendingFiles;
+        if (response && response.data &&
+        Array.isArray(response.data.processed_files)) {
+          c.setState({
+            loading: false,
+            pendingFiles: [ ...pending, ...response.data.processed_files ]
+          })
+        }
+        else {
+          // todo: message error response
+          console.log('Unexpected (yet 2xx) response from file upload...')
+          console.log(response);
+          c.setState({
+            loading: false
+          });
+        }
       })
       .catch((err) => {
         console.log('error generating tsv...');
         console.log(err);
+        c.setState({ loading: false });
       })
   }
 
   deleteFile = (file) => {
     console.log('delete file');
     console.log(file);
+    let c = this;
+    const deleteUrl = c.state.deleteUrl;
+    let reqData = [
+      { name: 'csfrmiddlewaretoken', value: c.state.csfrtoken },
+      { name: 'file_to_delete', value: file.file_name },
+      { name: 'product_id', value: c.state.productId },
+      { name: 'pipeline_id', value: c.state.pipelineId }
+    ];
+
+    if (c.state.isDemo) {
+      reqData.push({ name: 'file_type', value: 'demo' });
+      reqData.push({ name: 'demo_id', value: c.state.demoId });
+    }
+    else {
+      reqData.push({ name: 'file_type', value: 'publisher' });
+      reqData.push({ name: 'publisher_id', value: c.state.publisherId });
+    }
+
+    console.log(reqData);
+    let reqForm = new FormData();
+    for (let i = 0; i < reqData.length; i++) {
+      reqForm.append(reqData[i].name, reqData[i].value);
+    }
+    c.setState({ loading: true });
+    axios({
+      method: 'POST',
+      url: deleteUrl,
+      data: reqForm,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'X-CSRFToken': c.state.csrf
+      },
+      responseType: 'text',
+      xsrfCookieName: 'csrftoken',
+      xsrfHeaderName: 'X-CSRFToken',
+      withCredentials: c.props.withCredentials
+    })
+    .then(() => {
+      console.log('deleted file');
+      let pendingFiles = c.state.pendingFiles.filter((item) => {
+        return item.file_name !== file.file_name;
+      });
+      c.setState({
+        loading: false,
+        pendingFiles: [ ...pendingFiles ]
+      })
+    })
+    .catch((err) => {
+      // todo: message error to end user
+      console.log('Error deleting file');
+      console.log(err);
+      c.setState({ loading: false });
+    })
   }
 
   render() {
@@ -332,18 +433,37 @@ class PendingFiles extends Component {
           <CSVReader
             config={papaParseConfig}
             onError={r.handleOnError}
-            onDrop={r.handleOnDrop}
+            onLoadStart={r.onCsvLoadStart}
             accept={`${DEFAULT_ACCEPT} ${TAB_ACCEPT} ${ACCEPT}`}
             addRemoveButton
             onRemoveFile={r.handleOnRemoveFile}
+            noProgressBar={true}
             ref={r.fileRef}
+            className="react-papaparse-csv-reader"
           >
-            <span>Drop file here or click to upload.</span>
+            <span>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Drop file here
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            or click to upload.
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            {/* non-breaking spaces above are just a hack to keep the
+              bounding box a similar size on change, so the UI is less jumpy */}
           </CSVReader>
         )
       : (
-        <div className="csv-specify-encoding-cta">
-          <span>First, select an encoding <br />  using the options to the left.</span>
+        <div>
+          <input type="file"
+          accept="text/csv, .csv, application/vnd.ms-excel text/tsv, .tsv, .tab, tab-separated-values text/plain, .txt"
+          disabled={true}
+          style={{display: 'none'}} />
+          <div className="csv-specify-encoding-cta">
+            <span>To validate, first select an &nbsp;&nbsp;<br />
+encoding option to the left.</span>
+          </div>
         </div>
       )
 
@@ -354,13 +474,16 @@ class PendingFiles extends Component {
       for (let i = 0; i < r.state.pendingFiles.length; i++) {
         pendingFilesTableRows.push(
           <PendingFilesTableRow file={r.state.pendingFiles[i]}
-            cb={r.deletePendingFile}
+            cb={r.deleteFile}
             key={`PendingFilesTableRow-${i}`} />
         );
-        pendingFilesTableRows.push(
-          <PendingFilesTableError file={r.state.pendingFiles[i]}
-          key={`PendingFilesTableError-${i}`} />
-        );
+        if (r.state.pendingFiles[i].validation_errors &&
+        r.state.pendingFiles[i].validation_errors.length > 0) {
+          pendingFilesTableRows.push(
+            <PendingFilesTableError file={r.state.pendingFiles[i]}
+            key={`PendingFilesTableError-${i}`} />
+          );
+        }
       }
 
       pendingFilesTable = (
@@ -384,14 +507,11 @@ class PendingFiles extends Component {
         <div className="pending-files-container pending-files">
           { pendingFilesTable }
           <div className="file-submission">
-            <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
+            <form id="run-pipeline-for-publisher-form" className="form-horizontal"
+            method="post" action={r.props.ivetlRunPipelineUrl}>
                 <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
-                <input type="hidden" name="product_id" value={ r.state.productId } />
-                <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
-
-                <input type="hidden" name="file_type" value="publisher" />
-                <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
-
+                <input type="hidden" name="move_pending_files" value="1" />
+                <input type="hidden" name="publisher" value={ r.state.publisherId } />
                 <span>
                   <button className="btn btn-primary submit-button submit-for-processing-button"
                   type="submit" value="Submit"
@@ -416,6 +536,7 @@ class PendingFiles extends Component {
         <li className="text-error-item" key={`text-error-item-${idx}`}>{ textError }</li>
       )
     })
+
     return (
       <div className="pending-files">
         <div className="pending-files-header">
@@ -440,8 +561,8 @@ class PendingFiles extends Component {
         { pendingFilesDisplay }
         <div className="file-selection">
           <div className="file-upload-heading">
-            <h4>Upload a New File</h4>
-            <i>and validate in-browser</i>
+            <h4>Validate a New File</h4>
+            <i>and display results in-browser</i>
           </div>
           <div className="file-encoding">
             <label className={`
@@ -465,8 +586,28 @@ class PendingFiles extends Component {
               ISO-8859-2
             </label>
           </div>
+          <div className="loader-frame">
+            <img className={`hwp-loading-icon ${r.state.loading
+              ? '' : 'not-loading'}`} src={this.logoUrl} alt="loading..." />
+          </div>
           <div className="csv-frame">
             {csvElem}
+          </div>
+          <div className="validated-file-upload">
+            <form onSubmit={r.submitFile} method="post" encType="multipart/form-data">
+                <input type="hidden" name="csrfmiddlewaretoken" value={ r.state.csrfToken } />
+                <input type="hidden" name="product_id" value={ r.state.productId } />
+                <input type="hidden" name="pipeline_id" value={ r.state.pipelineId } />
+                <input type="hidden" name="client_validated" value="1" />
+                <input type="hidden" name="file_type" value="publisher" />
+                <input type="hidden" name="publisher_id" value={ r.state.publisherId } />
+
+                <button className="btn btn-info" disabled={!r.state.fileValidated}
+                type="submit" value="Submit">
+                  Upload validated file
+                </button>
+            </form>
+
           </div>
         </div>
         <div className="result-view">

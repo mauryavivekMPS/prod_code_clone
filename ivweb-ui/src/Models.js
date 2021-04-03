@@ -1,5 +1,9 @@
 const stringify = require('csv-stringify');
 
+let startNotification = function() {
+  // noop by default
+}
+
 const validators = {
   isDateMMDDYYY: function (dateString) {
     // https://stackoverflow.com/questions/6177975/how-to-validate-date-with-format-mm-dd-yyyy-in-javascript/6178341#6178341
@@ -225,10 +229,15 @@ let pipelines = {
       }
     ],
     rowErrorsIndex: {},
+    loading: false,
     validator: function (rowCount, row) {
       const required = [0, 1, 2, 3, 9];
       const hasChecks = [0, 1, 2, 3, 4, 5, 6, 9];
       const specificChecks = [1, 2, 4];
+      if (!pipelines.rejected_articles.loading) {
+        console.log('setting load notification...');
+        setLoading('rejected_articles', true);
+      }
       let errors = rowValidator('rejected_articles', rowCount, row,
         required, hasChecks, specificChecks);
 
@@ -310,6 +319,7 @@ let pipelines = {
       }
     ],
     rowErrorsIndex: {},
+    validationInProgress: false,
     validator: function (rowCount, row) {
       const required = [0];
       const hasChecks = [0, 7, 8];
@@ -342,6 +352,31 @@ let pipelines = {
 
       }
       return finalizedErrors;
+    }
+  }
+}
+
+export function setLoading(pipeline_id, loading) {
+  let logoElems = document && document.getElementsByClassName('hwp-loading-icon');
+
+  if (pipelines[pipeline_id]) {
+    pipelines[pipeline_id].loading = loading;
+  }
+
+  if (loading) {
+    console.log('adding loading class: ', logoElems.length);
+    for (let i = 0; i < logoElems.length; i++) {
+      if (logoElems[i].classList) {
+        logoElems[i].classList.remove('not-loading');
+      }
+    }
+  }
+  else {
+    console.log('removing loading class');
+    for (let i = 0; i < logoElems.length; i++) {
+      if (logoElems[i].classList) {
+        logoElems[i].classList.add('not-loading');
+      }
     }
   }
 }
@@ -472,14 +507,30 @@ export function pipelineById(pipelineId) {
       id: '',
       name: 'Error - pipeline not configured',
       fileColumns: [],
-      validator: function (row) {}
+      validator: function (pipelineId, rowCount, row, required, hasChecks,
+      specificChecks) {
+        if (!Array.isArray(row)) {
+          row = [];
+        }
+        let errors = {
+          data: row.map((field) => {
+            return {
+              data: field,
+              errors: []
+            }
+          }),
+          row: [],
+          rowCount: rowCount
+        };
+        return cleanRowErrorObj(errors);
+      }
     }
   }
 }
 
 export function resetPipeline(pipelineId) {
   pipelines[pipelineId].rowErrorsIndex = {};
-
+  pipelines[pipelineId].validationInProgress = false;
 }
 
 export function generateTsv(rows) {
@@ -512,4 +563,19 @@ export function generateTsv(rows) {
     stringifier.end();
 
   });
+}
+
+export function Store() {
+  this.state = {
+    parsedRows: [],
+    rows: [],
+    rowCount: [],
+    rowErrors: [],
+    rowErrorsIndex: {},
+    textErrors: []
+  };
+
+  this.setState = (newState) => {
+    Object.assign(this.state, newState);
+  }
 }
