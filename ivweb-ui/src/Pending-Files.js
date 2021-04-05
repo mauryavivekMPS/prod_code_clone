@@ -580,11 +580,22 @@ encoding option to the left.</span>
               ${r.state.fileEncoding === 'ISO-8859-2' ? 'active' : ''}
               ${r.state.rowCount > 0 ? 'disabled' : ''}
             `}>
-              <input disabled={r.state.rowCount > 0} type="radio" value="ISO-8859-2"
+              <input disabled={true} type="radio" value="ISO-8859-2"
               checked={r.state.fileEncoding === 'ISO-8859-2'}
               onChange={r.handleEncodingChange} />
-              ISO-8859-2
+              ISO-8859-2 &nbsp;
+              <a data-for="encoding-warning" data-tip={`Currently only UTF-8
+                Encoding is supported. <br />
+                  Additional encoding support will be added in a future release.
+                `} className="encoding-warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                  </svg>
+              </a>
             </label>
+            <ReactTooltip id="encoding-warning" place="bottom" type="error" effect="solid"
+            className="danger-tooltip" event={'click'} globalEventOff={'click'}
+            multiline={true}
+            clickable={true} className="encoding-warning" />
           </div>
           <div className="loader-frame">
             <img className={`hwp-loading-icon ${r.state.loading

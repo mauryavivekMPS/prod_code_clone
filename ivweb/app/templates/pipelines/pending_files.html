@@ -47,7 +47,7 @@
 
         <p>For maximum flexibility and compatibility, the original tooling
           is still available.</p>
-        <p><a href="{% url 'pipelines.pending_files_legacy' product.id pipeline.id %}?publisher={{ publisher_id }}">Legacy Upload Page</a></p>
+        <p><a href="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_id }}">Legacy Upload Page</a></p>
       </div>
     </div>
     </noscript>
@@ -90,7 +90,7 @@
                      data-ivetl-pending-files-url="{% url 'pipelines.api_get_pending_files_for_publisher' publisher_id product.id pipeline.id %}"
                      data-ivetl-is-demo="false"
                      data-ivetl-csrf-token="{{ csrf_token }}"
-                     data-ivetl-legacy-uploads="{% url 'pipelines.pending_files_legacy' product.id pipeline.id %}?publisher={{ publisher_id }}"
+                     data-ivetl-legacy-uploads="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_id }}"
                      ></div>
             </div>
         </div>

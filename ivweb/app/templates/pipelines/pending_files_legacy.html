@@ -23,6 +23,9 @@
         <div class="row">
             <div class="col-md-12">
                 {% content_block pipeline.id %}
+                {% if pipeline.id == 'rejected_articles' or pipeline.id == 'custom_article_data' %}
+                <p>New - <a href="{% url 'pipelines.pending_files_validator' product.id pipeline.id %}?publisher={{ publisher_id }}">In-Browser Validator</a></p>
+                {% endif %}
                 {% include "pipelines/include/pending_files_form.html" with additional=False %}
             </div>
         </div>

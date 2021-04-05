@@ -26,6 +26,9 @@
   min-width: 120px;
 }
 
+.file-encoding a.encoding-warning {
+  color: #E12203;
+}
 .file-encoding label.disabled {
   color: #858585;
 }
