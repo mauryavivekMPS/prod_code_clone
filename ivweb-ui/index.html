@@ -1,0 +1,44 @@
+<html>
+<head>
+  <meta name="referrer" content="no-referrer">
+  <link rel="stylesheet" href="index.css" />
+
+  <!-- existing styles from Vizor Manager, for similar look and feel in development env -->
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/everything-2018-04-04.css"/>
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/hyperlinearicons.css">
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/bootstrap-datepicker3.min.css">
+  <link rel="stylesheet" type="text/css" href="http://manage.vizors.org/static/dist/bootstrap-multiselect.css">
+
+</head>
+<body>
+  <div class="App">
+    <div class="ivweb-pending-files"
+    data-ivetl-product-id="rejected_manuscripts"
+    data-ivetl-pipeline-id="rejected_articles"
+    data-ivetl-publisher-id="sandbox"
+    data-ivetl-upload-url="http://localhost:8001/uploadfile/"
+    data-ivetl-delete-url="http://localhost:8001/deletefile/"
+    data-ivetl-run-pipeline-url="http://localhost:8001/pipelines/rejected_manuscripts/rejected_articles/run/"
+    data-ivetl-is-demo="false"
+    data-ivetl-csrf-token="abc"
+    data-ivetl-legacy-uploads="http://localhost:8000/pipelines/rejected_manuscripts/rejected_articles/pendingfiles_legacy/?publisher=sandbox"
+    data-ivetl-pending-files-url="http://localhost:8001/api/pipelines/"
+    data-ivetl-pending-files='[{
+      "file_name": "small_test.tsv", "file_size": "100 kb",
+      "line_count": "100", "file_id": "abc",
+      "validation_errors": [{"line_number": 20, "message": "error 1"}]},
+      {"file_name": "small_test_no_trailing_line.tsv", "file_size": "100 kb",
+      "line_count": "100", "file_id": "1234",
+      "validation_errors": [{
+        "line_number": 20,
+        "message": "error 1 error 1 error 1 error 1 error 1 error 1 error 1 error 1 error 1 error 1"},
+        {"line_number": 40, "message": "error 2"}
+        ]
+      },
+      {"file_name": "test_validated_file.tsv", "file_size": "100 kb",
+        "line_count": "100", "file_id": "789", "validation_errors": []
+      }]'></div>
+  </div>
+  <script src="./index.js"></script>
+</body>
+</html>

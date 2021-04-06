@@ -1,0 +1,47 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}Pending Files{% endblock %}
+{% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
+
+{% block content %}
+    <div class="row header-row {% if request.user.is_at_least_highwire_staff %}with-breadcrumb{% endif %}">
+        <div class="col-md-12">
+            {% if request.user.is_at_least_highwire_staff %}
+                <ol class="breadcrumb">
+                    <li><a href="#">Pipelines</a></li>
+                    <li><a href="{% url 'pipelines.list' product.id pipeline.id %}">{{ pipeline.name }}</a></li>
+                    <li>{{ publisher.name }}</li>
+                    <li></li>
+                </ol>
+            {% endif %}
+            <h1>Pending Files &ndash; {{ pipeline.user_facing_file_description }} Files</h1>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                {% content_block pipeline.id %}
+                {% if pipeline.id == 'rejected_articles' or pipeline.id == 'custom_article_data' %}
+                <p>New - <a href="{% url 'pipelines.pending_files_validator' product.id pipeline.id %}?publisher={{ publisher_id }}">In-Browser Validator</a></p>
+                {% endif %}
+                {% include "pipelines/include/pending_files_form.html" with additional=False %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            FileUploadWidget.init({
+                publisherId: '{{ publisher_id }}',
+                uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
+                deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
+                isDemo: false,
+                csrfToken: '{{ csrf_token }}'
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,133 @@
+.pending-files-header .validator-intro .multi-line {
+  text-align: left;
+}
+
+.file-selection {
+  background-color: #282c34;
+  min-height: 3vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  color: white;
+}
+
+.file-submission a {
+  color: #aaccff;
+  font-size: 0.75em;
+  margin: 0.5%;
+}
+
+.file-selection > * {
+  margin: 0.5% 1.5%;
+}
+
+.file-encoding {
+  min-width: 120px;
+}
+
+.file-encoding a.encoding-warning {
+  color: #E12203;
+}
+.file-encoding label.disabled {
+  color: #858585;
+}
+
+.file-encoding label.disabled.active {
+  color: #fefefe;
+}
+
+.loader-frame {
+  width: 5em;
+}
+
+.not-loading {
+  display: none;
+}
+
+.csv-specify-encoding-cta {
+  /* to more closely match sizing of CsvReader */
+  align-items: center;
+  border-style: dotted;
+  border-width: 2px;
+  border-radius: 20px;
+  border-color: rgb(104, 104, 104);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  padding: 20px;
+}
+
+.hidden-control,
+.hidden-control * {
+  display: none;
+}
+
+.result-view {
+  margin-top: 20px;
+}
+
+.Grid {
+  border: 1px solid #d9dddd;
+}
+
+.GridItemEven,
+.GridItemOdd,
+.GridError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-line;
+}
+
+.CellFrame {
+  height: 98.5%;
+  min-width: 65%;
+  max-width: 98.5%;
+  margin: 1px;
+}
+
+.GridCell {
+  display: inline-block;
+  margin: 10px;
+}
+
+.CellError .CellFrame {
+  border: 1px solid red;
+}
+
+.GridItemEven {
+  background-color: #f8f8f0;
+}
+
+.GridError {
+  background-color: #fed9d0;
+}
+
+.GridItemEven.GridError {
+  background-color: #eebbb0;
+}
+
+.GridColumn0, .GridColumn1, .GridColumn2 {
+  font-size: small;
+}
+
+.GridColumn3, .GridColumn4, .GridColumn5, .GridColumn6, .GridColumn7,
+.GridColumn8, .GridColumn9, .GridColumn10, .GridColumn11, .GridColumn12,
+.GridColumn13, .GridColumn14, .GridColumn15, .GridColumn16 {
+  font-size: smaller;
+}
+
+.GridItemEven.GridItemLong,
+.GridItemOdd.GridItemLong {
+  align-items: start;
+  justify-content: start;
+}
+
+.error-cell-tooltip {
+  max-width: 200px;
+}

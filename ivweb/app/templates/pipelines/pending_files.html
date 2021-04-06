@@ -2,6 +2,9 @@
 {% load filters %}
 {% load tags %}
 {% block title %}Pending Files{% endblock %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="/static/ivweb-ui/index.css" />
+{% endblock %}
 {% block body_class %}{{ pipeline.id }}_pipeline{% endblock %}
 
 {% block content %}
@@ -18,27 +21,86 @@
             <h1>Pending Files &ndash; {{ pipeline.user_facing_file_description }} Files</h1>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% content_block pipeline.id %}
+        </div>
+    </div>
+    <noscript>
+    <div class="row">
+      <div class="col-md-12">
+        <h4>In-browser file validation</h4>
+        <p>This page hosts a newly (2021) developed in-browser file validator.
+          This validator aims to make it easier to submit files into the
+          Vizor system.
+        </p>
+        <p>The in-browser validator can display all error messages at one time,
+          and provide details on the exact rows and cells which contain
+          unexpected values. Additionally, you can upload comma-separated
+          values to this validator, and it will handle a conversion to
+          the system-required tab-separated values for you.
+        </p>
+        <p>This feature is new, and the interface is quite different. It requires
+          JavaScript be enabled in your browser. If you are seeing this message,
+          then your browser does not appear to have JavaScript enabled.
+        </p>
 
+        <p>For maximum flexibility and compatibility, the original tooling
+          is still available.</p>
+        <p><a href="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_id }}">Legacy Upload Page</a></p>
+      </div>
+    </div>
+    </noscript>
+    <!--<div class="row">
+      <div class="col-md-12">
+        <div class="pending-files-container {% if is_demo %}demo-files{% else %}pending-files{% endif %}">
+          <table class="table all-files-table {% if pending_files %}has-files{% else %}no-files{% endif %}">
+            {% if not is_demo %}
+            <thead>
+              <tr>
+                <th><span class="status-icon status-empty"></span></th>
+                <th colspan="2">File</th>
+                <th>Lines</th>
+                <th>Size</th>
+                <th>Status</th>
+              <th></th>
+              </tr>
+            </thead>
+              {% endif %}
+            <tbody>
+              {% for file in pending_files %}
+              {% include "pipelines/include/file.html" with read_only=read_only file_name=file.file_name file_size=file.file_size line_count=file.line_count file_id=file.file_id validation_errors=file.validation_errors %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>-->
     <div>
         <div class="row">
             <div class="col-md-12">
-                {% content_block pipeline.id %}
-                {% include "pipelines/include/pending_files_form.html" with additional=False %}
+                <div class="ivweb-pending-files"
+                     data-ivetl-product-id="{{ product.id }}"
+                     data-ivetl-pipeline-id="{{ pipeline.id }}"
+                     data-ivetl-publisher-id="{{ publisher_id }}"
+                     data-ivetl-upload-url="{% url 'pipelines.upload_pending_file_inline' %}"
+                     data-ivetl-delete-url="{% url 'pipelines.delete_pending_file_inline' %}"
+                     data-ivetl-run-pipeline-url="{% url 'pipelines.run' product.id pipeline.id %}"
+                     data-ivetl-logo-url="/static/ivweb-ui/logo-loader-white.svg"
+                     data-ivetl-pending-files='{{ pending_files_json }}'
+                     data-ivetl-pending-files-url="{% url 'pipelines.api_get_pending_files_for_publisher' publisher_id product.id pipeline.id %}"
+                     data-ivetl-is-demo="false"
+                     data-ivetl-csrf-token="{{ csrf_token }}"
+                     data-ivetl-legacy-uploads="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_id }}"
+                     ></div>
             </div>
         </div>
     </div>
 {% endblock %}
-
 {% block page_scripts %}
     <script>
-        $(function() {
-            FileUploadWidget.init({
-                publisherId: '{{ publisher_id }}',
-                uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
-                deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
-                isDemo: false,
-                csrfToken: '{{ csrf_token }}'
-            });
-        });
+        // todo: inject variables here for react to consume, or
+        // rework component to accept data-xyx type properties
+        //
     </script>
+    <script src="/static/ivweb-ui/index.js"></script>
 {% endblock %}

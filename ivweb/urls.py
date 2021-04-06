@@ -97,8 +97,9 @@ urlpatterns = [
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/include/updatedpublisherruns/$', pipelines.include_updated_publisher_runs, name='pipelines.include_updated_publisher_runs'),
 
     # upload files for a pipeline or demo
-    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles/$', pipelines.pending_files, name='pipelines.pending_files'),
-
+    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles/$', pipelines.pending_files, name='pipelines.pending_files_validator'),
+    url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles_legacy/$', pipelines.pending_files_legacy, name='pipelines.pending_files'),
+    url(r'^api/pipelines/(?P<publisher_id>[\w]+)/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/pendingfiles', pipelines.api_get_pending_files_for_publisher, name='pipelines.api_get_pending_files_for_publisher'),
     # run a pipeline
     url(r'^pipelines/(?P<product_id>[\w]+)/(?P<pipeline_id>[\w]+)/run/$', pipelines.run, name='pipelines.run'),
 
