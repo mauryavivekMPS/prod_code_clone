@@ -41,7 +41,7 @@ const validators = {
     const doiA = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
     const doiB = /^10.1002\/[^\s]+$/i;
     const doiC = /^10.\d{4}\/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d$/i;
-    return doiA.test(id) || doiB.test(id) || doiC.test(id);;
+    return doiA.test(id) || doiB.test(id) || doiC.test(id);
   },
   noSemiColon: function (value) {
     if (typeof value === 'string' && value.includes(';')) {
@@ -57,7 +57,9 @@ const validators = {
     row[idx].trim() === '';
   },
   yesOrNo: function (value) {
-    const index = ['yes', 'no'];
+    // this function should work for non-required fields,
+    // empty string is allowed
+    const index = ['yes', 'no', ''];
     if (typeof value === 'string') {
       const normalized = value.trim().toLowerCase();
       if (index.indexOf(normalized) === -1) {
@@ -231,6 +233,7 @@ let pipelines = {
     rowErrorsIndex: {},
     loading: false,
     validator: function (rowCount, row) {
+      // rejected_articles validator
       const required = [0, 1, 2, 3, 9];
       const hasChecks = [0, 1, 2, 3, 4, 5, 6, 9];
       const specificChecks = [1, 2, 4];
@@ -321,32 +324,12 @@ let pipelines = {
     rowErrorsIndex: {},
     validationInProgress: false,
     validator: function (rowCount, row) {
+      // custom_article_data validator
       const required = [0];
       const hasChecks = [0, 7, 8];
-      const specificChecks = [];
+      const specificChecks = [0, 7, 8];
       let errors = rowValidator('custom_article_data', rowCount, row,
         required, hasChecks, specificChecks);
-
-      if (validators.empty(4, row) && validators.empty(5, row) &&
-      validators.empty(6, row)) {
-        for (var i = 4; i < 7; i++) {
-          if (typeof errors[`col_${i}`] === 'undefined') {
-            errors[`col_${i}`] = [];
-          }
-        }
-        errors.col_4.push(messages.requiresOne('author'));
-        errors.col_5.push(messages.requiresOne('author'));
-        errors.col_6.push(messages.requiresOne('author'));
-        if (errors.data[4]) {
-          errors.data[4].errors.push(messages.requiresOne('author'));
-        }
-        if (errors.data[5]) {
-          errors.data[5].errors.push(messages.requiresOne('author'));
-        }
-        if (errors.data[6]) {
-          errors.data[6].errors.push(messages.requiresOne('author'));
-        }
-      }
       let finalizedErrors = cleanRowErrorObj(errors, hasChecks);
       if (finalizedErrors.hasErrors) {
 
@@ -498,6 +481,8 @@ function cleanRowErrorObj(errors, hasChecks) {
 
 export function pipelineById(pipelineId) {
   if (typeof pipelines[pipelineId] !== 'undefined') {
+    console.log('Initializing pipeline: ', pipelineId);
+    console.log(pipelines[pipelineId]);
     return pipelines[pipelineId];
   }
   else {
@@ -577,5 +562,16 @@ export function Store() {
 
   this.setState = (newState) => {
     Object.assign(this.state, newState);
+  }
+
+  this.reset = () => {
+    this.state = {
+      parsedRows: [],
+      rows: [],
+      rowCount: [],
+      rowErrors: [],
+      rowErrorsIndex: {},
+      textErrors: []
+    };
   }
 }
