@@ -198,6 +198,8 @@ class PendingFiles extends Component {
     console.log('---------------------------')
     console.log(data)
     console.log('---------------------------')
+    resetPipeline(this.state.pipelineId);
+    this.dataStore.reset();
     this.setState({
       fileValidated: false,
       parsedRows: [],
@@ -676,7 +678,7 @@ encoding option to the left.</span>
                 {({ height, width }) => (
                   <Grid
                     className="Grid"
-                    columnCount={16}
+                    columnCount={r.state.columns.length}
                     columnWidth={index => r.state.columns[index].px || 100}
                     height={height > 800 ? height : 800}
                     itemData={r.state.rowErrors}
@@ -707,7 +709,7 @@ encoding option to the left.</span>
                 {({ height, width }) => (
                   <Grid
                     className="Grid"
-                    columnCount={16}
+                    columnCount={r.state.columns.length}
                     columnWidth={index => r.state.columns[index].px || 100}
                     height={height > 800 ? height : 800}
                     itemData={r.state.rows}
