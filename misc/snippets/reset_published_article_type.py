@@ -1,4 +1,4 @@
-print# !/usr/bin/env python
+# !/usr/bin/env python
 import sys
 import os
 import time
@@ -12,7 +12,7 @@ os.sys.path.append(os.environ['IVETL_ROOT'])
 from ivetl.common import common
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 from ivetl.connectors import DoiProxyConnector, SassConnector
-from ivetl.models import DoiTransformRule, PublishedArticle, PublisherJournal
+from ivetl.models import DoiTransformRule, PublishedArticle, PublishedArticleValues, PublisherJournal
 
 opts, args = getopt(sys.argv[1:], 'hp:j:o:e:t', [
     'help',
@@ -27,6 +27,7 @@ journal = None
 exportfile = 'published_article_type_clean_export.tsv'
 updatefile = 'published_article_type_updates.tsv'
 difffile = 'published_article_type_diff.tsv'
+pavfile = 'published_article_value_article_type_delete.tsv'
 
 test = False
 
@@ -74,12 +75,15 @@ if basedir == '/iv/working/misc/':
     exportfile = '{}-{}'.format(publisher_id, exportfile)
     updatefile = '{}-{}'.format(publisher_id, updatefile)
     difffile = '{}-{}'.format(publisher_id, difffile)
+    pavfile = '{}-{}'.format(publisher_id, pavfile)
 
 filepath = basedir + exportfile
 update_filepath = basedir + updatefile
 diff_filepath = basedir + difffile
+pav_filepath = basedir + pavfile
 
 model = ['publisher_id', 'article_doi', 'article_journal', 'article_type', 'subject_category', 'article_title']
+pav_model = ['publisher_id', 'article_doi', 'source', 'name', 'value_text']
 
 issn_to_hw_journal_code = {}
 transform_rules_by_journal_code = {}
@@ -91,7 +95,7 @@ product_id = 'published_articles'
 open_cassandra_connection()
 
 issn_to_hw_journal_code = {j.electronic_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)}
-issn_to_hw_journal_code.update({j.print_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)})\
+issn_to_hw_journal_code.update({j.print_issn: j.journal_code for j in PublisherJournal.objects.filter(publisher_id=publisher_id, product_id=product_id)})
 
 # private function adapted from ivetl/pipelines/publishedarticles/tasks/get_highwire_metadata
 def generate_match_pattern(example_doi):
@@ -228,13 +232,16 @@ articles = PublishedArticle.objects.filter(publisher_id=publisher_id).limit(1000
 with open(filepath, 'w',
     encoding='utf-8') as file, open(update_filepath, 'w',
     encoding='utf-8') as ufile, open(diff_filepath, 'w',
-    encoding='utf-8') as dfile:
+    encoding='utf-8') as dfile, open(pav_filepath, 'w',
+    encoding='utf-8') as vfile:
     writer = csv.writer(file, delimiter='\t')
     uwriter = csv.writer(ufile, delimiter='\t')
     dwriter = csv.writer(dfile, delimiter='\t')
+    vwriter = csv.writer(vfile, delimiter='\t')
     writer.writerow(model)
     uwriter.writerow(model)
     dwriter.writerow(['state'] + model)
+    vwriter.writerow(pav_model)
     for article in articles:
         if article.is_cohort:
             continue
@@ -257,6 +264,19 @@ with open(filepath, 'w',
             modified += 1
             article.article_type = article_type
             article.save()
+            # delete any custom article data / foam overrides
+            doi = common.normalizedDoi(article.article_doi)
+            try:
+                pa_value = PublishedArticleValues.objects.get(article_doi=doi,
+                    publisher_id=publisher_id, source='custom',
+                    name='article_type')
+                pa_value_row = []
+                for col in pav_model:
+                    pa_value_row.append(pa_value[col])
+                vwriter.writerow(pa_value_row)
+                pa_value.delete()
+            except:
+                print('Failed to get PublishedArticleValue: ', doi)
         print(article_type)
         urow = []
         for col in model:
