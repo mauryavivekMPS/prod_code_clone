@@ -377,6 +377,7 @@ def limit():
 
             wrapped_response = {
                 'limit_status': 'ok',
+                'url': url,
                 'status_code': service_response.status_code,
                 'text': service_response.text,
             }
