@@ -11,7 +11,7 @@ os.sys.path.append(os.environ['IVETL_ROOT'])
 from ivetl.models import PublishedArticle
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
-opts, args = getopt(sys.argv[1:], 'bhfl:p:so:e:', [
+opts, args = getopt(sys.argv[1:], 'bhfl:p:so:e:u', [
     'brief',
     'help',
     'full',
@@ -19,7 +19,8 @@ opts, args = getopt(sys.argv[1:], 'bhfl:p:so:e:', [
     'publisher',
     'strip-newlines',
     'outfile',
-    'exportfile'])
+    'exportfile',
+    'unique'])
 
 pubid = None
 full_export = False
@@ -27,6 +28,7 @@ limit = None
 exportfile = 'published_article_export.tsv'
 brief = False
 strip_newlines = False
+uniques_check = False
 
 helptext = '''usage: python export_published_articles.py -- [ -b | -h | -f | -l limit ] -p publisher_id
 
@@ -50,6 +52,9 @@ Options and arguments:
 -o     :  output file path to write to. Default: /iv/working/misc/{publisher-id}-rejected_article_export.tsv
 -p     :  publisher_id value to use when querying cassandra. required.
 -s     :  strip newlines from columns. Useful for post-processing with line-by-line unix tools, such as grep.
+-u     :  verify uniques. Due to tombstones, failed compactions, etc.,
+              it is possible to get output with multiple rows for the same primary key.
+              This option will force a uniqueness check ensuring one row per unique key.
 '''
 
 
@@ -84,6 +89,9 @@ for opt, val in opts:
         print('initializing output file: %s' % exportfile)
     elif opt in ('-b', '--brief'):
         brief = True
+    elif opt in ('-u', '--unique'):
+        print('running with uniqueness check...')
+        uniques_check = True
 
 if basedir == '/iv/working/misc/':
     exportfile = '{}-{}'.format(pubid, exportfile)
@@ -132,11 +140,25 @@ if brief:
 
 open_cassandra_connection()
 
-articles = PublishedArticle.objects.filter(publisher_id=pubid).limit(limit)
+if pubid:
+    articles = PublishedArticle.objects.filter(publisher_id=pubid).limit(limit)
+else:
+    articles = PublishedArticle.objects.all().limit(limit)
+
+
+uniques_index = {}
 
 with open(filepath, 'w', encoding='utf-8') as file:
     writer = csv.writer(file, delimiter='\t')
     writer.writerow(model)
+    if uniques_check:
+        for article in articles:
+            publisher_id = re.sub(r'\W+', '', article['publisher_id'])
+            article_doi = article['article_doi'].strip()
+            article_key = publisher_id + article_doi
+            if not article_key in uniques_index:
+                uniques_index[article_key] = 0
+            uniques_index[article_key] += 1
     for article in articles:
         row = []
         for col in model:
@@ -145,6 +167,13 @@ with open(filepath, 'w', encoding='utf-8') as file:
                 row.append(str(article[col]).replace('\n', ' '))
                 continue
             row.append(article[col])
+        if uniques_check:
+            publisher_id = re.sub(r'\W+', '', article['publisher_id'])
+            article_doi = article['article_doi'].strip()
+            article_key = publisher_id + article_doi
+            if uniques_index[article_key] > 1:
+                uniques_index[article_key] -= 1
+                continue
         writer.writerow(row)
 
 close_cassandra_connection()
