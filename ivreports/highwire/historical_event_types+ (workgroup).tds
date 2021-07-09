@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
-<!-- build 10200.17.0223.1918                               -->
-<datasource formatted-name='historical_event_types+ (workgroup)' inline='true' source-platform='win' version='10.2' xmlns:user='http://www.tableausoftware.com/xml/user'>
-  <repository-location id='historical_event_typesworkgroup' path='/datasources' revision='1.0' />
+<!-- build 20202.20.0626.1424                               -->
+<datasource formatted-name='historical_event_types+ (workgroup)' inline='true' source-platform='win' version='18.1' xml:base='http://localhost' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location derived-from='/datasources/historical_event_typesworkgroup?rev=1.0' id='historical_event_typesworkgroup' path='/datasources' revision='1.0' />
   <connection class='federated'>
     <named-connections>
-      <named-connection caption='10.0.1.37' name='postgres.0u7lyhy1u61q141bkfmd71erkmqv'>
-        <connection authentication='username-password' class='postgres' dbname='workgroup' odbc-native-protocol='' one-time-sql='' port='8060' server='10.0.1.37' server-oauth='' username='tableau' workgroup-auth-mode='prompt' />
+      <named-connection caption='10.0.1.44' name='postgres.0u7lyhy1u61q141bkfmd71erkmqv'>
+        <connection authentication='username-password' class='postgres' dbname='workgroup' odbc-native-protocol='' one-time-sql='' port='8060' server='localhost' server-oauth='' username='readonly' workgroup-auth-mode='prompt' />
       </named-connection>
     </named-connections>
     <relation join='left' type='join'>
@@ -56,15 +56,22 @@
       <map key='[hist_actor_site_id]' value='[historical_events].[hist_actor_site_id]' />
       <map key='[hist_actor_user_id]' value='[historical_events].[hist_actor_user_id]' />
       <map key='[hist_capability_id]' value='[historical_events].[hist_capability_id]' />
+      <map key='[hist_column_id]' value='[historical_events].[hist_column_id]' />
       <map key='[hist_comment_id]' value='[historical_events].[hist_comment_id]' />
       <map key='[hist_config_id]' value='[historical_events].[hist_config_id]' />
       <map key='[hist_data_connection_id]' value='[historical_events].[hist_data_connection_id]' />
+      <map key='[hist_data_role_id]' value='[historical_events].[hist_data_role_id]' />
+      <map key='[hist_database_id]' value='[historical_events].[hist_database_id]' />
       <map key='[hist_datasource_id]' value='[historical_events].[hist_datasource_id]' />
+      <map key='[hist_flow_id]' value='[historical_events].[hist_flow_id]' />
       <map key='[hist_group_id]' value='[historical_events].[hist_group_id]' />
       <map key='[hist_licensing_role_id (hist_users)]' value='[hist_users].[hist_licensing_role_id]' />
       <map key='[hist_licensing_role_id]' value='[historical_events].[hist_licensing_role_id]' />
+      <map key='[hist_metric_id]' value='[historical_events].[hist_metric_id]' />
       <map key='[hist_project_id]' value='[historical_events].[hist_project_id]' />
+      <map key='[hist_remote_agent_id]' value='[historical_events].[hist_remote_agent_id]' />
       <map key='[hist_schedule_id]' value='[historical_events].[hist_schedule_id]' />
+      <map key='[hist_table_id]' value='[historical_events].[hist_table_id]' />
       <map key='[hist_tag_id]' value='[historical_events].[hist_tag_id]' />
       <map key='[hist_target_site_id]' value='[historical_events].[hist_target_site_id]' />
       <map key='[hist_target_user_id]' value='[historical_events].[hist_target_user_id]' />
@@ -87,6 +94,7 @@
       <map key='[revision (hist_views)]' value='[hist_views].[revision]' />
       <map key='[revision]' value='[hist_workbooks].[revision]' />
       <map key='[site_admin_level]' value='[hist_users].[site_admin_level]' />
+      <map key='[site_role_id]' value='[hist_users].[site_role_id]' />
       <map key='[size]' value='[hist_workbooks].[size]' />
       <map key='[system_admin_level]' value='[hist_users].[system_admin_level]' />
       <map key='[system_user_id]' value='[hist_users].[system_user_id]' />
@@ -485,12 +493,124 @@
         </attributes>
       </metadata-record>
       <metadata-record class='column'>
+        <remote-name>hist_remote_agent_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_remote_agent_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_remote_agent_id</remote-alias>
+        <ordinal>25</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hist_flow_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_flow_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_flow_id</remote-alias>
+        <ordinal>26</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hist_data_role_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_data_role_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_data_role_id</remote-alias>
+        <ordinal>27</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hist_database_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_database_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_database_id</remote-alias>
+        <ordinal>28</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hist_table_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_table_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_table_id</remote-alias>
+        <ordinal>29</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hist_column_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_column_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_column_id</remote-alias>
+        <ordinal>30</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hist_metric_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[hist_metric_id]</local-name>
+        <parent-name>[historical_events]</parent-name>
+        <remote-alias>hist_metric_id</remote-alias>
+        <ordinal>31</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
         <remote-name>type_id</remote-name>
         <remote-type>3</remote-type>
         <local-name>[type_id]</local-name>
         <parent-name>[historical_event_types]</parent-name>
         <remote-alias>type_id</remote-alias>
-        <ordinal>26</ordinal>
+        <ordinal>33</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -506,7 +626,7 @@
         <local-name>[name]</local-name>
         <parent-name>[historical_event_types]</parent-name>
         <remote-alias>name</remote-alias>
-        <ordinal>27</ordinal>
+        <ordinal>34</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -524,7 +644,7 @@
         <local-name>[action_type]</local-name>
         <parent-name>[historical_event_types]</parent-name>
         <remote-alias>action_type</remote-alias>
-        <ordinal>28</ordinal>
+        <ordinal>35</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -542,7 +662,7 @@
         <local-name>[id (hist_workbooks)]</local-name>
         <parent-name>[hist_workbooks]</parent-name>
         <remote-alias>id</remote-alias>
-        <ordinal>30</ordinal>
+        <ordinal>37</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -558,7 +678,7 @@
         <local-name>[workbook_id]</local-name>
         <parent-name>[hist_workbooks]</parent-name>
         <remote-alias>workbook_id</remote-alias>
-        <ordinal>31</ordinal>
+        <ordinal>38</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -574,7 +694,7 @@
         <local-name>[name (hist_workbooks)]</local-name>
         <parent-name>[hist_workbooks]</parent-name>
         <remote-alias>name</remote-alias>
-        <ordinal>32</ordinal>
+        <ordinal>39</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -592,7 +712,7 @@
         <local-name>[repository_url]</local-name>
         <parent-name>[hist_workbooks]</parent-name>
         <remote-alias>repository_url</remote-alias>
-        <ordinal>33</ordinal>
+        <ordinal>40</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -610,7 +730,7 @@
         <local-name>[size]</local-name>
         <parent-name>[hist_workbooks]</parent-name>
         <remote-alias>size</remote-alias>
-        <ordinal>34</ordinal>
+        <ordinal>41</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>19</precision>
@@ -626,7 +746,7 @@
         <local-name>[revision]</local-name>
         <parent-name>[hist_workbooks]</parent-name>
         <remote-alias>revision</remote-alias>
-        <ordinal>35</ordinal>
+        <ordinal>42</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -644,7 +764,7 @@
         <local-name>[id (hist_views)]</local-name>
         <parent-name>[hist_views]</parent-name>
         <remote-alias>id</remote-alias>
-        <ordinal>37</ordinal>
+        <ordinal>44</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -660,7 +780,7 @@
         <local-name>[view_id]</local-name>
         <parent-name>[hist_views]</parent-name>
         <remote-alias>view_id</remote-alias>
-        <ordinal>38</ordinal>
+        <ordinal>45</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -676,7 +796,7 @@
         <local-name>[name (hist_views)]</local-name>
         <parent-name>[hist_views]</parent-name>
         <remote-alias>name</remote-alias>
-        <ordinal>39</ordinal>
+        <ordinal>46</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -694,7 +814,7 @@
         <local-name>[repository_url (hist_views)]</local-name>
         <parent-name>[hist_views]</parent-name>
         <remote-alias>repository_url</remote-alias>
-        <ordinal>40</ordinal>
+        <ordinal>47</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -712,7 +832,7 @@
         <local-name>[revision (hist_views)]</local-name>
         <parent-name>[hist_views]</parent-name>
         <remote-alias>revision</remote-alias>
-        <ordinal>41</ordinal>
+        <ordinal>48</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -730,7 +850,7 @@
         <local-name>[id (hist_users)]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>id</remote-alias>
-        <ordinal>43</ordinal>
+        <ordinal>50</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -746,7 +866,7 @@
         <local-name>[user_id]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>user_id</remote-alias>
-        <ordinal>44</ordinal>
+        <ordinal>51</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -762,7 +882,7 @@
         <local-name>[name (hist_users)]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>name</remote-alias>
-        <ordinal>45</ordinal>
+        <ordinal>52</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -780,7 +900,7 @@
         <local-name>[domain_name]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>domain_name</remote-alias>
-        <ordinal>46</ordinal>
+        <ordinal>53</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -798,7 +918,7 @@
         <local-name>[email]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>email</remote-alias>
-        <ordinal>47</ordinal>
+        <ordinal>54</ordinal>
         <local-type>string</local-type>
         <aggregation>Count</aggregation>
         <width>8190</width>
@@ -816,7 +936,7 @@
         <local-name>[system_user_id]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>system_user_id</remote-alias>
-        <ordinal>48</ordinal>
+        <ordinal>55</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -832,7 +952,7 @@
         <local-name>[system_admin_level]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>system_admin_level</remote-alias>
-        <ordinal>49</ordinal>
+        <ordinal>56</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -848,7 +968,7 @@
         <local-name>[hist_licensing_role_id (hist_users)]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>hist_licensing_role_id</remote-alias>
-        <ordinal>50</ordinal>
+        <ordinal>57</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -864,7 +984,7 @@
         <local-name>[site_admin_level]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>site_admin_level</remote-alias>
-        <ordinal>51</ordinal>
+        <ordinal>58</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -880,7 +1000,23 @@
         <local-name>[publisher_tristate]</local-name>
         <parent-name>[hist_users]</parent-name>
         <remote-alias>publisher_tristate</remote-alias>
-        <ordinal>52</ordinal>
+        <ordinal>59</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>site_role_id</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[site_role_id]</local-name>
+        <parent-name>[hist_users]</parent-name>
+        <remote-alias>site_role_id</remote-alias>
+        <ordinal>60</ordinal>
         <local-type>integer</local-type>
         <aggregation>Sum</aggregation>
         <precision>10</precision>
@@ -998,8 +1134,8 @@
   <column caption='View Id' datatype='integer' name='[view_id]' role='dimension' type='ordinal' />
   <column caption='Workbook Id' datatype='integer' name='[workbook_id]' role='dimension' type='ordinal' />
   <column caption='Worker' datatype='string' name='[worker]' role='dimension' type='nominal' />
-  <extract count='-1' enabled='true' units='records'>
-    <connection class='dataengine' dbname='Data/Extracts/historical_event_types_ _workgro.tde' schema='Extract' tablename='Extract' update-time='09/03/2020 01:00:36 PM'>
+  <extract count='-1' enabled='false' units='records'>
+    <connection authentication='auth-none' author-locale='en_US' class='hyper' db-format='dataengine' dbname='Data/Extracts/historical_event_types_ _workgro.tde' default-settings='yes' update-time='09/03/2020 01:00:36 PM' username='tableau_internal_user'>
       <relation name='Extract' table='[Extract].[Extract]' type='table' />
       <cols>
         <map key='[Calculation_337770030564753410]' value='[Extract].[Calculation_337770030564753410]' />
@@ -2425,7 +2561,7 @@
       </groupfilter>
     </filter>
   </extract>
-  <layout dim-ordering='alphabetic' dim-percentage='0.329843' measure-ordering='alphabetic' measure-percentage='0.670157' rowDisplayCount='1000' show-structure='true' user-set-layout='true' />
+  <layout dim-ordering='alphabetic' dim-percentage='0.264484' measure-ordering='alphabetic' measure-percentage='0.735516' rowDisplayCount='1000' show-structure='true' user-set-layout='true' />
   <semantic-values>
     <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
   </semantic-values>
