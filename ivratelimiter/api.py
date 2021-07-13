@@ -60,7 +60,7 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S',
     format='[%(asctime)s.%(msecs)03d] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
     handlers=[TimedRotatingFileHandler(os.path.join(os.environ.get('IVRATELIMITER_LOG_DIR', '/var/log/ivratelimiter/'), 'api.log'), when='D', interval=1)],
-    level=logging.WARNING
+    level=logging.DEBUG
 )
 
 log = logging.getLogger(__name__)
@@ -78,6 +78,12 @@ per_second_limit = {
     'pubmed': 9.0,
 }
 
+# override_per_second_limit is consulted to specify a lower limit than
+# might otherwise exist in per_second_limit.
+override_per_second_limit = {
+  'crossref': 40.0,
+}
+
 # counters tracks the number of requests dispatched to a given backend for a
 # limited span of seconds into the past
 counters = {
@@ -93,7 +99,7 @@ rate_limit_mu = threading.Lock()
 # crossref
 crossref_user_agent = os.environ.get('IVETL_CROSSREF_USER_AGENT', 'impactvizor-pipeline/1.0 (mailto:vizor-support@highwirepress.com)')
 
-def max_per_second(backend, limit=1.0):
+def max_per_second(backend, limit=1):
     """ max_per_second returns the max requests per second for a backend (e.g.,
     crossref or pubmed) if it is defined in per_sec_limit, otherwise it returns
     limit, which has a default value of 1.0 if not specified by the caller. """
@@ -103,6 +109,11 @@ def max_per_second(backend, limit=1.0):
     with rate_limit_mu:
         if backend in per_second_limit.keys():
             limit = float(per_second_limit[backend])
+            if backend in override_per_second_limit.keys():
+                override = float(override_per_second_limit[backend])
+                if limit > override:
+                    log.debug("overriding per_second_limit for backend %s: %0.3f -> %0.3f" % (backend, limit, override))
+                    limit = override
         else:
             log.warning("no per_second_limit set for backend %s, defaulting to %0.3f" % (backend, limit))
 
