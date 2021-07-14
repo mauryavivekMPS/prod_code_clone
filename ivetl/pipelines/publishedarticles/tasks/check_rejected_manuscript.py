@@ -71,7 +71,20 @@ class CheckRejectedManuscriptTask(Task):
                     date_of_rejection=date_of_rejection,
                 )
                 tlogger.info("Article sourced from rejected manuscript")
-
+            elif article_row.from_rejected_manuscript:
+                # published_article row was previously matched,
+                # however rejected manuscript is now matched to another article
+                # cleanup / reset previous rejected article match data
+                PublishedArticle.objects(
+                  publisher_id=publisher_id,
+                  article_doi=common.normalizedDoi(article_row.article_doi),
+                ).update(
+                    from_rejected_manuscript=False,
+                    rejected_manuscript_id=None,
+                    rejected_manuscript_editor=None,
+                    date_of_rejection=None,
+                )
+                tlogger.info("Article previously matched to rejected manuscript, but no longer does.")
         run_monthly_jobs = task_args.get('run_monthly_job', False)
 
         self.pipeline_ended(
