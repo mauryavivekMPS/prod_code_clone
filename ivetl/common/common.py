@@ -1182,6 +1182,7 @@ FTP_PUBLIC_IP = os.environ.get('IVFTP_PUBLIC_IP', '127.0.0.1')
 RABBITMQ_BROKER_URL = os.environ.get('IVETL_RABBITMQ_BROKER_URL', 'amqp://guest:guest@127.0.0.1:5672//')
 
 RATE_LIMITER_SERVER = os.environ.get('IVETL_RATE_LIMITER_SERVER', '127.0.0.1:8082')
+API_CACHE_SERVER = os.environ.get('IVETL_API_CACHE_SERVER', '10.0.1.169:9000')
 
 EMAIL_TO = os.environ.get('IVETL_EMAIL_TO_ADDRESS', "vizor-developers@highwirepress.com")
 EMAIL_FROM = os.environ.get('IVETL_EMAIL_FROM_ADDRESS', "impactvizor@highwire.org")
