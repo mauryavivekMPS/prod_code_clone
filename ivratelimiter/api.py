@@ -12,15 +12,15 @@ from logging.handlers import TimedRotatingFileHandler
 
 class Counter:
     """ Counter tracks the number of requests made per second for some number
-    of seconds into the past.  It uses Unix Epoch time to track seconds.   If
-    track_active=True is passed in then inc/dec will track active in-flight
-    requests (meant to be used for sites that are actually rate limiting based
-    on in-flight requests instead of requests arriving per second).  """
+    of seconds into the past.  It uses Unix Epoch time to track seconds.  """
 
     def __init__(self, limit=1, track_active=False):
         """ initialize a new Counter, optionally specifying the number of
         seconds into the past to track.  If no limit is specified the default
-        is 1. """
+        is 1. If track_active=True is passed in then inc/dec will track active
+        in-flight requests (meant to be used for sites that are actually rate
+        limiting based on in-flight requests instead of requests arriving per
+        second). """
         self.t = [0]*limit
         self.n = [0]*limit
 
@@ -47,6 +47,9 @@ class Counter:
         return self.n[-1]
 
     def dec(self, n=1):
+        """ dec decements the active in-flight counter by n if the Counter was
+        initialized with track_active=True, otherwise it is a no-op.  If n is
+        not specified the default is 1. """
         if self.track_active:
             self.active -= n
 
@@ -59,6 +62,10 @@ class Counter:
             return 0
 
     def tracked_active(self):
+        """ tracked_active returns the current active in-flight counter value,
+        if the value is -1 it means the Counter was not initialized with
+        track_active=True and the Counter is not tracking active counts when
+        inc/dec are called. """
         return self.active
 
     def all(self):
@@ -322,7 +329,7 @@ def rate_limited(backend):
                         else:
                             log.debug("%s: dispatched: %d" % (backend, dispatched))
 
-                        # if active is not zero it indicates we are tracking
+                        # if active is not -1 it indicates we are tracking
                         # active (in-flight) requests for this backend,  we
                         # need to compare it to max_per_sec and treat it as the
                         # in-flight maximum. If we've reached the in-flight
