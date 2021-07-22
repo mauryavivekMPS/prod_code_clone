@@ -23,8 +23,12 @@ class Counter:
         is 1. """
         self.t = [0]*limit
         self.n = [0]*limit
+
         self.track_active = track_active
-        self.active = 0
+        if self.track_active:
+            self.active = 0
+        else:
+            self.active = -1
 
     def inc(self, n=1):
         """ inc increments the counter for the current second in time by n.  If
@@ -313,7 +317,10 @@ def rate_limited(backend):
                             counter = counters[backend]
                             active = counter.tracked_active()
                             dispatched = counter.cur()
-                        log.debug("%s: active: %d, dispatched: %d" % (backend, active, dispatched))
+                        if active > -1:
+                            log.debug("%s: active: %d, dispatched: %d" % (backend, active, dispatched))
+                        else:
+                            log.debug("%s: dispatched: %d" % (backend, dispatched))
 
                         # if active is not zero it indicates we are tracking
                         # active (in-flight) requests for this backend,  we
