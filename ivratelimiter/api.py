@@ -11,16 +11,24 @@ from functools import wraps
 from logging.handlers import TimedRotatingFileHandler
 
 class Counter:
-    """ Counter tracks the number of requests made per second for some
-    number of seconds into the past.  It uses Unix Epoch time to track
-    seconds.  """
+    """ Counter tracks the number of requests made per second for some number
+    of seconds into the past.  It uses Unix Epoch time to track seconds.  """
 
-    def __init__(self, limit=1):
-        """ initialize a new Counter, optionally specifying the number
-        of seconds into the past to track.  If no limit is specified
-        the default is 1. """
+    def __init__(self, limit=1, track_active=False):
+        """ initialize a new Counter, optionally specifying the number of
+        seconds into the past to track.  If no limit is specified the default
+        is 1. If track_active=True is passed in then inc/dec will track active
+        in-flight requests (meant to be used for sites that are actually rate
+        limiting based on in-flight requests instead of requests arriving per
+        second). """
         self.t = [0]*limit
         self.n = [0]*limit
+
+        self.track_active = track_active
+        if self.track_active:
+            self.active = 0
+        else:
+            self.active = -1
 
     def inc(self, n=1):
         """ inc increments the counter for the current second in time by n.  If
@@ -33,7 +41,17 @@ class Counter:
         else:
             self.n[-1] += n;
 
+        if self.track_active:
+            self.active += n
+
         return self.n[-1]
+
+    def dec(self, n=1):
+        """ dec decements the active in-flight counter by n if the Counter was
+        initialized with track_active=True, otherwise it is a no-op.  If n is
+        not specified the default is 1. """
+        if self.track_active:
+            self.active -= n
 
     def cur(self):
         """ cur returns the counter for the current second in time. """
@@ -42,6 +60,13 @@ class Counter:
             return self.n[-1]
         else:
             return 0
+
+    def tracked_active(self):
+        """ tracked_active returns the current active in-flight counter value,
+        if the value is -1 it means the Counter was not initialized with
+        track_active=True and the Counter is not tracking active counts when
+        inc/dec are called. """
+        return self.active
 
     def all(self):
         """ all returns a dictionary mapping the most recent counter
@@ -81,13 +106,13 @@ per_second_limit = {
 # override_per_second_limit is consulted to specify a lower limit than
 # might otherwise exist in per_second_limit.
 override_per_second_limit = {
-  'crossref': 40.0,
+#  'crossref': 40.0,
 }
 
 # counters tracks the number of requests dispatched to a given backend for a
 # limited span of seconds into the past
 counters = {
-    'crossref': Counter(1),
+    'crossref': Counter(1, track_active=True),
     'pubmed': Counter(1),
 }
 
@@ -296,15 +321,33 @@ def rate_limited(backend):
                     # the max_per_sec limit, give the green light to proceed.
                     if left_to_wait <= 0:
                         with rate_limit_mu:
-                            dispatched = counters[backend].cur()
-                            log.debug("%s dispatched count: %d" % (backend, dispatched))
+                            counter = counters[backend]
+                            active = counter.tracked_active()
+                            dispatched = counter.cur()
+                        if active > -1:
+                            log.debug("%s: active: %d, dispatched: %d" % (backend, active, dispatched))
+                        else:
+                            log.debug("%s: dispatched: %d" % (backend, dispatched))
 
-                        if dispatched < max_per_sec:
+                        # if active is not -1 it indicates we are tracking
+                        # active (in-flight) requests for this backend,  we
+                        # need to compare it to max_per_sec and treat it as the
+                        # in-flight maximum. If we've reached the in-flight
+                        # maximum, we need to wait until a slot is freed up.
+                        #
+                        # Otherwise check how many requests we've dispatched in
+                        # the current second, and if that's reached max_per_sec
+                        # we likewise need to sleep.
+                        #
+                        # If neither condition applies we may proceed to send
+                        # the request.
+                        if active >= max_per_sec:
+                            left_to_wait = 0.250
+                        elif dispatched >= max_per_sec:
+                            left_to_wait = 0.250
+                        else:
                             last_time_called = now
                             green_light = True
-                        else:
-                            left_to_wait = 0.250
-                            log.debug("%s dispatched count %d >= max_per_sec %d, waiting %0.3fs" % (backend, dispatched, max_per_sec, left_to_wait))
 
                 # if left_to_wait is positive, we need to sleep for that value
                 # before we check again
@@ -319,6 +362,9 @@ def rate_limited(backend):
 
             # issue a request to the backend and record the response
             response = func(*args, **kwargs)
+
+            with rate_limit_mu:
+                counters[backend].dec(1)
 
             # return the response from the backend
             return response
