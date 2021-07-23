@@ -1,17 +1,17 @@
-import datetime
+import os, sys
 from getopt import getopt
 from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
-from ivetl.common import common
-from ivetl import utils
-from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
 os.sys.path.append(os.environ['IVETL_ROOT'])
-opts, args = getopt(sys.argv[1:], 'p:', ['help','publisher',]
+from ivetl.common import common # from ivetl import utils
+from ivetl.models import PublishedArticle, RejectedArticles, PipelineStatus
+from ivetl.celery import open_cassandra_connection, close_cassandra_connection
+opts, args = getopt(sys.argv[1:], 'p:', ['help','publisher',])
 publisher_id = None
 for opt in opts:
     publisher_id = opt[1] if opt[0] == '-p' else publisher_id
-if !publisher_id:
-    sys.exit()
+
+open_cassandra_connection()
 # lines 17-87, ivetl/pipelines/published_articles/tasks/check_rejected_manuscript.py
 # commented out: 20-21, 42-43, modified slightly: 59,
 cluster = Cluster(common.CASSANDRA_IP_LIST)
@@ -85,3 +85,5 @@ for article_row in session.execute(all_articles_statement, (publisher_id, articl
             date_of_rejection=None,
         )
         print("Article previously matched to rejected manuscript, but no longer does.") # tlogger.info("Article previously matched to rejected manuscript, but no longer does.")
+
+close_cassandra_connection()
