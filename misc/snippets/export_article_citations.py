@@ -8,7 +8,7 @@ import traceback
 
 os.sys.path.append(os.environ['IVETL_ROOT'])
 
-from ivetl.models import PublishedArticle
+from ivetl.models import ArticleCitations
 from ivetl.celery import open_cassandra_connection, close_cassandra_connection
 
 opts, args = getopt(sys.argv[1:], 'bhfl:p:so:e:u', [
@@ -25,14 +25,14 @@ opts, args = getopt(sys.argv[1:], 'bhfl:p:so:e:u', [
 pubid = None
 full_export = False
 limit = None
-exportfile = 'published_article_export.tsv'
+exportfile = 'article_citations_export.tsv'
 brief = False
 strip_newlines = False
 uniques_check = False
 
-helptext = '''usage: python export_published_articles.py -- [ -b | -h | -f | -l limit ] -p publisher_id
+helptext = '''usage: python export_article_citations.py -- [ -b | -h | -f | -l limit ] -p publisher_id
 
-Query the published_article table in Cassandra and export values for analysis.
+Query the article_citations table in Cassandra and export values for analysis.
 
 Environment variables:
 
@@ -49,8 +49,8 @@ Options and arguments:
 -f     :  full export. writes all rows
 -h     :  print this help message and exit (also --help)
 -l     :  limit value to use when querying cassandra. default: None (all records)
--o     :  output file path to write to. Default: /iv/working/misc/{publisher-id}-rejected_article_export.tsv
--p     :  publisher_id value to use when querying cassandra. required.
+-o     :  output file path to write to. Default: /iv/working/misc/{publisher-id}-article_citations_export.tsv
+-p     :  publisher_id value to use when querying cassandra.
 -s     :  strip newlines from columns. Useful for post-processing with line-by-line unix tools, such as grep.
 -u     :  verify uniques. Due to tombstones, failed compactions, etc.,
               it is possible to get output with multiple rows for the same primary key.
@@ -101,49 +101,26 @@ filepath = basedir + exportfile
 # Q: Why is the model hardcoded below?
 # A: Convenience. Also, it appears the cassandra Django driver doesn't
 #    implement the function to "get all fields" from a model.
-model = ['publisher_id', 'article_doi', 'article_issue', 'article_journal',
-    'article_journal_issn', 'article_pages', 'article_publisher',
-    'article_scopus_id', 'article_title', 'article_type', 'article_volume',
-    'citations_lookup_error', 'citations_updated_on', 'co_authors', 'created',
-    'custom', 'custom_2', 'custom_3', 'date_of_publication',
-    'date_of_rejection', 'editor', 'first_author', 'from_rejected_manuscript',
-    'has_abstract', 'hw_metadata_retrieved', 'is_cohort', 'is_open_access',
-    'rejected_manuscript_editor', 'rejected_manuscript_id',
-    'scopus_citation_count', 'scopus_subtype', 'subject_category',
-    'month_usage_03', 'month_usage_06', 'month_usage_09', 'month_usage_12',
-    'month_usage_24', 'month_usage_36', 'month_usage_48', 'month_usage_60',
-    'month_usage_full_03', 'month_usage_full_06', 'month_usage_full_09',
-    'month_usage_full_12', 'month_usage_full_24', 'month_usage_full_36',
-    'month_usage_full_48', 'month_usage_full_60', 'month_usage_pdf_03',
-    'month_usage_pdf_06', 'month_usage_pdf_09', 'month_usage_pdf_12',
-    'month_usage_pdf_24', 'month_usage_pdf_36', 'month_usage_pdf_48',
-    'month_usage_pdf_60', 'month_usage_abstract_03', 'month_usage_abstract_06',
-    'month_usage_abstract_09', 'month_usage_abstract_12',
-    'month_usage_abstract_24', 'month_usage_abstract_36',
-    'month_usage_abstract_48', 'month_usage_abstract_60', 'usage_start_date',
-    'mendeley_saves', 'altmetrics_facebook', 'altmetrics_blogs',
-    'altmetrics_twitter', 'altmetrics_gplus', 'altmetrics_news_outlets',
-    'altmetrics_wikipedia', 'altmetrics_video', 'altmetrics_policy_docs',
-    'altmetrics_reddit', 'f1000_total_score', 'f1000_num_recommendations',
-    'f1000_average_score', 'meta_pmid', 'meta_actual_ef',
-    'meta_actual_citation_count', 'meta_predicted_ef',
-    'meta_predicted_citation_count', 'meta_top_1', 'meta_top_5',
-    'meta_top_10', 'meta_top_25', 'meta_top_50', 'meta_predicted_tiers',
-    'meta_actual_tiers', 'previous_citation_count', 'citation_count',
-    'is_tr_citable', 'updated']
+model = ['publisher_id', 'article_doi', 'citation_doi', 'citation_date',
+    'citation_first_author', 'citation_issue', 'citation_journal_issn',
+    'citation_journal_title', 'citation_pages',
+    'citation_scopus_id','citation_sources',  'citation_source_scopus',
+    'citation_source_xref', 'citation_title', 'citation_volume',
+    'citation_count', 'created', 'updated', 'is_cohort']
 
 if brief:
-    model = ['publisher_id', 'article_doi', 'article_journal',
-        'article_journal_issn', 'article_scopus_id', 'article_title',
-        'article_type', 'created', 'date_of_publication', 'is_cohort',
-        'scopus_citation_count', 'citation_count', 'updated']
+    model = ['publisher_id', 'article_doi', 'citation_doi', 'citation_date',
+    'citation_journal_issn',
+    'citation_journal_title','citation_scopus_id','citation_sources',
+    'citation_source_scopus', 'citation_source_xref', 'citation_count',
+    'created', 'updated']
 
 open_cassandra_connection()
 
 if pubid:
-    articles = PublishedArticle.objects.filter(publisher_id=pubid).limit(limit)
+    articles = ArticleCitations.objects.filter(publisher_id=pubid).limit(limit)
 else:
-    articles = PublishedArticle.objects.all().limit(limit)
+    articles = ArticleCitations.objects.all().limit(limit)
 
 
 uniques_index = {}
@@ -155,7 +132,8 @@ with open(filepath, 'w', encoding='utf-8') as file:
         for article in articles:
             publisher_id = re.sub(r'\W+', '', article['publisher_id'])
             article_doi = article['article_doi'].strip()
-            article_key = publisher_id + article_doi
+            citation_doi = article['citation_doi'].strip()
+            article_key = publisher_id + article_doi + citation_doi
             if not article_key in uniques_index:
                 uniques_index[article_key] = 0
             uniques_index[article_key] += 1
@@ -170,7 +148,8 @@ with open(filepath, 'w', encoding='utf-8') as file:
         if uniques_check:
             publisher_id = re.sub(r'\W+', '', article['publisher_id'])
             article_doi = article['article_doi'].strip()
-            article_key = publisher_id + article_doi
+            citation_doi = article['citation_doi'].strip()
+            article_key = publisher_id + article_doi + citation_doi
             if uniques_index[article_key] > 1:
                 uniques_index[article_key] -= 1
                 continue

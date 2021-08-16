@@ -253,6 +253,11 @@ class CrossrefConnector(BaseConnector):
         response_status_code = None
         response_text = None
         while not success and attempt < self.max_attempts:
+            if attempt < 4:
+                service_url = common.API_CACHE_SERVER
+            else:
+                service_url = common.RATE_LIMITER_SERVER
+
             limit_request = {
                 'type': 'GET',
                 'service': 'crossref',
@@ -263,7 +268,7 @@ class CrossrefConnector(BaseConnector):
             completed_response = False
 
             try:
-                r = requests.post('http://' + common.RATE_LIMITER_SERVER + '/limit', json=limit_request, timeout=timeout)
+                r = requests.post('http://' + service_url + '/limit', json=limit_request, timeout=timeout)
                 r.raise_for_status()
 
                 limit_response = r.json()
