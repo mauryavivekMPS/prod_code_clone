@@ -357,14 +357,15 @@ def rate_limited(backend):
             # we've been given the green light to proceed, so increment our
             # dispatched counter just before we execute our request to the
             # backend
-            with rate_limit_mu:
-                counters[backend].inc(1)
+            try:
+                with rate_limit_mu:
+                    counters[backend].inc(1)
 
-            # issue a request to the backend and record the response
-            response = func(*args, **kwargs)
-
-            with rate_limit_mu:
-                counters[backend].dec(1)
+                # issue a request to the backend and record the response
+                response = func(*args, **kwargs)
+            finally:
+                with rate_limit_mu:
+                    counters[backend].dec(1)
 
             # return the response from the backend
             return response
